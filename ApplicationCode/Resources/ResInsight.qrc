@@ -101,6 +101,7 @@
       <file>FlowCharPlot16x16.png</file>
       <file>SplitterH.png</file>
       <file>SplitterV.png</file>
+      <file>calculator.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
