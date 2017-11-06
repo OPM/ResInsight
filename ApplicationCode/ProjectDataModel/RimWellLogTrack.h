@@ -77,13 +77,14 @@ public:
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
     void setXAxisTitle(const QString& text);
-    void setBranchIndex(int branchIndex);
+    void setFormationBranchIndex(int branchIndex);
+    int  formationBranchIndex() const;
 
     void recreateViewer();
     void detachAllCurves();
 
     void loadDataAndUpdate();
-    void updateFormationNamesData(TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex);
+    void updateFormationNamesData(RimCase* rimCase, TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex);
 
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateXZoomAndParentPlotDepthZoom();

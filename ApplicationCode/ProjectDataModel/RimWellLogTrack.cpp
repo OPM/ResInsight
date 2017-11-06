@@ -44,9 +44,7 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
-#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -248,30 +246,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_showFormations)
     {
-        if (!m_formationCase && m_showFormations)
-        {
-            RimProject* proj = RiaApplication::instance()->project();
-            if (proj)
-            {
-                std::vector<RimCase*> cases;
-                proj->allCases(cases);
-                if (!cases.empty())
-                {
-                    m_formationCase = cases[0];
-                }
-            }
-
-            RimWellAllocationPlot* wellAllocationPlot;
-            firstAncestorOrThisOfType(wellAllocationPlot);
-
-            if (wellAllocationPlot)
-            {
-                m_formationTrajectoryType = RimWellLogTrack::SIMULATION_WELL;
-                m_simulationWellChosen = true;
-                m_formationSimWellName = wellAllocationPlot->wellName();
-            }
-        }
-
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationCase)
@@ -497,13 +471,15 @@ void RimWellLogTrack::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesData(TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex)
+void RimWellLogTrack::updateFormationNamesData(RimCase* rimCase, TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex)
 {
+    m_formationCase = rimCase;
     m_formationTrajectoryType = trajectoryType;
     m_formationWellPath = wellPath;
     m_formationSimWellName = simWellName;
     m_formationBranchIndex = branchIndex;
-
+    
+    updateConnectedEditors();
     updateFormationNamesOnPlot();
 }
 
@@ -518,9 +494,17 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setBranchIndex(int branchIndex)
+void RimWellLogTrack::setFormationBranchIndex(int branchIndex)
 {
     m_formationBranchIndex = branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::formationBranchIndex() const
+{
+    return m_formationBranchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
