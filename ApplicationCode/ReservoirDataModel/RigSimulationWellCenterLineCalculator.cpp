@@ -43,7 +43,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
-    calculateWellPipeDynamicCenterline(rimWell, -1, pipeBranchesCLCoords, pipeBranchesCellIds);
+    calculateWellPipeDynamicCenterline(rimWell, cvf::UNDEFINED_SIZE_T, pipeBranchesCLCoords, pipeBranchesCellIds);
 }
 
 
@@ -186,7 +186,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
         const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
-        for (int cIdx = 0; cIdx < static_cast<int>(resBranchCells.size()); cIdx++) // Need int because cIdx can temporarily end on -1
+        for (int cIdx = 0; cIdx < static_cast<int>(resBranchCells.size()); cIdx++) // Need int because cIdx can temporarily end on cvf::UNDEFINED_SIZE_T
         {
             std::vector<cvf::Vec3d>&        branchCLCoords = pipeBranchesCLCoords.back();
             std::vector<RigWellResultPoint>& branchCellIds  = pipeBranchesCellIds.back();
@@ -877,7 +877,7 @@ private:
                 unsigned endToGrow = 0; // 0 end, 1 front, > 1 new branch
 
                 size_t neighbour = findBestNeighbor(cellWithNeighborsPair.first, cellWithNeighborsPair.second);
-                while (neighbour != -1)
+                while (neighbour != cvf::UNDEFINED_SIZE_T)
                 {
                     m_unusedWellCellIndices.erase(neighbour);
                     if ( endToGrow == 0 )
@@ -918,8 +918,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     size_t findBestNeighbor(size_t cell, std::set<size_t> neighbors)
     {
-        size_t posKNeighbor = -1;
-        size_t firstUnused = -1;
+        size_t posKNeighbor = cvf::UNDEFINED_SIZE_T;
+        size_t firstUnused = cvf::UNDEFINED_SIZE_T;
         const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
         for ( size_t neighbor : neighbors)
@@ -931,14 +931,14 @@ private:
                 m_eclipseCaseData->findSharedSourceFace(sharedFace, orgWellResultPoints[cell], orgWellResultPoints[neighbor]);
                 if ( sharedFace == cvf::StructGridInterface::NEG_K ) return neighbor;
                 if ( sharedFace == cvf::StructGridInterface::POS_K ) posKNeighbor = neighbor;
-                else if (firstUnused == -1)
+                else if (firstUnused == cvf::UNDEFINED_SIZE_T)
                 {
                     firstUnused = neighbor;
                 }
             }
         }
 
-        if (posKNeighbor != -1) 
+        if (posKNeighbor != cvf::UNDEFINED_SIZE_T)
         {
             return posKNeighbor;
         }
@@ -958,7 +958,7 @@ private:
         CVF_ASSERT(branchList.size());
 
         size_t startCell = branchList.back();
-        size_t prevCell = -1;
+        size_t prevCell = cvf::UNDEFINED_SIZE_T;
         size_t startCellPosInStem = branchList.size()-1;
 
         if (branchList.size() > 1) prevCell = branchList[branchList.size()-2];
@@ -966,7 +966,7 @@ private:
         const auto& neighbors = m_cellsWithNeighbors[startCell];
 
         size_t nb = findBestNeighbor(startCell, neighbors);
-        if (nb != -1)
+        if (nb != cvf::UNDEFINED_SIZE_T)
         {
             branchList.push_back(nb);
             m_unusedWellCellIndices.erase(nb);
@@ -982,9 +982,9 @@ private:
     void startAndGrowSeparateBranchesFromRestOfNeighbors(size_t startCell, size_t prevCell, const std::set<size_t>& neighbors, std::deque<size_t> mainStem, size_t branchPosInMainStem, bool stemEndIsGrowing)
     {
         size_t nb = findBestNeighbor(startCell, neighbors);
-        while ( nb != -1 )
+        while ( nb != cvf::UNDEFINED_SIZE_T )
         {
-            if ( prevCell == -1 )
+            if ( prevCell == cvf::UNDEFINED_SIZE_T )
             {
                 m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
             }
@@ -1024,7 +1024,7 @@ private:
         CVF_ASSERT(branchList.size());
 
         size_t startCell = branchList.front();
-        size_t prevCell = -1;
+        size_t prevCell = cvf::UNDEFINED_SIZE_T;
         size_t startCellPosInStem = branchList.size()-1;
 
         if (branchList.size() > 1) prevCell = branchList[1];
@@ -1032,7 +1032,7 @@ private:
         const auto& neighbors = m_cellsWithNeighbors[startCell];
 
         size_t nb = findBestNeighbor(startCell, neighbors);
-        if (nb != -1)
+        if (nb != cvf::UNDEFINED_SIZE_T)
         {
             branchList.push_front(nb);
             m_unusedWellCellIndices.erase(nb);
