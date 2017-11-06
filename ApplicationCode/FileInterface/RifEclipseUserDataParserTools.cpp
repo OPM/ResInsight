@@ -743,10 +743,6 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
         RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
 
         ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
-        if (RifEclipseUserDataKeywordTools::isStepType(quantity))
-        {
-            ci.isStringData = true;
-        }
 
         table.push_back(ci);
     }
@@ -875,6 +871,10 @@ ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::
     ColumnInfo ci(adr, unit);
 
     if (RifEclipseUserDataParserTools::hasDateUnit(quantity))
+    {
+        ci.isStringData = true;
+    }
+    else if (RifEclipseUserDataKeywordTools::isStepType(quantity))
     {
         ci.isStringData = true;
     }
