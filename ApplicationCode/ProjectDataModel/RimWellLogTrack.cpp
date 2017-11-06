@@ -40,16 +40,12 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPltPlot.h"
-#include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
@@ -113,7 +109,6 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_formationCase, "FormationCase", "Formation Case", "", "", "");
     m_formationCase.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_simulationWellChosen = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,14 +277,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         loadDataAndUpdate();
     }
-
-    RimWellRftPlot* rftPlot(nullptr);
-    this->firstAncestorOrThisOfType(rftPlot);
-
-    if (rftPlot)
-    {
-        rftPlot->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,11 +438,6 @@ void RimWellLogTrack::loadDataAndUpdate()
         curves[cIdx]->loadDataAndUpdate(true);
     }
 
-    if (m_formationTrajectoryType == RimWellLogTrack::SIMULATION_WELL)
-    {
-        m_simulationWellChosen = true;
-    }
-
     if (m_showFormations)
     {
         setFormationFieldsUiReadOnly(false);
@@ -478,9 +460,13 @@ void RimWellLogTrack::updateFormationNamesData(RimCase* rimCase, TrajectoryType 
     m_formationWellPath = wellPath;
     m_formationSimWellName = simWellName;
     m_formationBranchIndex = branchIndex;
-    
+
     updateConnectedEditors();
-    updateFormationNamesOnPlot();
+    
+    if (m_showFormations)
+    {
+        updateFormationNamesOnPlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1057,7 +1043,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     RigEclipseWellLogExtractor* eclWellLogExtractor;
     RigGeoMechWellLogExtractor* geoMechWellLogExtractor;
 
-    if (m_simulationWellChosen)
+    if (m_formationTrajectoryType == SIMULATION_WELL)
     {
         eclWellLogExtractor = RimWellLogTrack::createSimWellExtractor(wellLogCollection, m_formationCase, m_formationSimWellName, m_formationBranchIndex);
     }

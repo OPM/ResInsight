@@ -159,8 +159,6 @@ private:
     caf::PdmField<QString>                          m_formationSimWellName;
     caf::PdmField<int>                              m_formationBranchIndex;
 
-    bool                                            m_simulationWellChosen;
-
     cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
 
 
