@@ -347,6 +347,51 @@ std::vector<RimEclipseCase*> RimWellPltPlot::eclipseCases() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::updateFormationNamesData() const
+{
+    if (m_selectedTimeSteps().empty())
+    {
+        for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
+        {
+            m_wellLogPlot->trackByIndex(i)->updateFormationNamesData(nullptr, RimWellLogTrack::WELL_PATH, nullptr, QString(), 0);
+        }
+        return;
+    }
+
+    RimProject* proj = RiaApplication::instance()->project();
+    RimOilField* oilField = proj->activeOilField();
+
+    RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
+    RimWellPath* wellPath = wellPathCollection->wellPathByName(m_wellName);
+
+    RimWellLogTrack::TrajectoryType trajectoryType;
+
+    if (wellPath)
+    {
+        trajectoryType = RimWellLogTrack::WELL_PATH;
+    }
+    else
+    {
+        trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+    }
+
+    RimCase* rimCase = nullptr;
+    std::vector<RimCase*> cases;
+    proj->allCases(cases);
+    if (!cases.empty())
+    {
+        rimCase = cases[0];
+    }
+
+    if (m_wellLogPlot->trackCount() > 0)
+    {
+        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(rimCase, trajectoryType, wellPath, m_wellName, m_branchIndex);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 //void RimWellPltPlot::applyInitialSelections()

@@ -174,6 +174,8 @@ private:
     void                                            setPlotXAxisTitles(RimWellLogTrack* plotTrack);
     std::vector<RimEclipseCase*>                    eclipseCases() const;
 
+    void                                            updateFormationNamesData() const;
+
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
