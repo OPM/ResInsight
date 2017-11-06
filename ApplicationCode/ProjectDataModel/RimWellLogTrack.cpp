@@ -522,7 +522,6 @@ void RimWellLogTrack::loadDataAndUpdate()
             m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
             m_simulationWellChosen = true;
             m_simWellName = wellName;
-            m_branchIndex = rftPlot->branchIndex();
         }
     }
 
