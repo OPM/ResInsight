@@ -50,6 +50,8 @@ size_t RigEclCellIndexCalculator::resultCellIndex(size_t gridIndex, size_t gridC
 
 //--------------------------------------------------------------------------------------------------
 /// 
+/// The pipeBranchesCellIds are describing the lines between the points, starting with the first line 
+//  and is thus expected to be one less than the number of centerline points
 //--------------------------------------------------------------------------------------------------
 RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                    const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,

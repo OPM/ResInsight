@@ -48,6 +48,13 @@
 #include <tuple>
 #include <algorithm>
 #include <iterator>
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
+#include "RigWellLogExtractor.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
+#include "cafVecIjk.h"
+#include "RigAccWellFlowCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPltPlot, "WellPltPlot"); 
 
@@ -790,6 +797,92 @@ std::pair<RifWellRftAddress, QDateTime> RimWellPltPlot::curveDefFromCurve(const 
     return std::make_pair(RifWellRftAddress(), QDateTime());
 }
 
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+class RigRftResultPointCalculator
+{
+public:
+    RigRftResultPointCalculator(const QString& wellName,
+                                RimEclipseResultCase* eclCase,
+                                QDateTime m_timeStep)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        RimWellPath* wellPath = proj->wellPathFromSimulationWell(wellName);
+        RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
+        RigEclipseWellLogExtractor* eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, eclCase);
+
+        std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+
+        RifEclipseRftAddress gasRateAddress(wellName, m_timeStep, RifEclipseRftAddress::GRAT);
+        RifEclipseRftAddress oilRateAddress(wellName, m_timeStep, RifEclipseRftAddress::ORAT);
+        RifEclipseRftAddress watRateAddress(wellName, m_timeStep, RifEclipseRftAddress::WRAT);
+
+        std::vector<caf::VecIjk> rftIndices;
+        eclCase->rftReader()->cellIndices(gasRateAddress, &rftIndices);
+        if (rftIndices.empty()) eclCase->rftReader()->cellIndices(oilRateAddress, &rftIndices);
+        if (rftIndices.empty()) eclCase->rftReader()->cellIndices(watRateAddress, &rftIndices);
+        if (rftIndices.empty()) return;
+
+        std::vector<double> gasRates;
+        std::vector<double> oilRates;
+        std::vector<double> watRates;
+        eclCase->rftReader()->values(gasRateAddress, &gasRates);
+        eclCase->rftReader()->values(oilRateAddress, &oilRates);
+        eclCase->rftReader()->values(watRateAddress, &watRates);
+
+        std::map<size_t, size_t> globCellIdxToIdxInRftFile;
+
+        const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
+
+        for (size_t rftCellIdx = 0; rftCellIdx < rftIndices.size(); rftCellIdx++)
+        {
+            caf::VecIjk ijkIndex = rftIndices[rftCellIdx];
+            size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
+            globCellIdxToIdxInRftFile[globalCellIndex] = rftCellIdx;
+        }
+
+        for (size_t wpExIdx = 0; wpExIdx < intersections.size(); wpExIdx++)
+        {
+            size_t globCellIdx = intersections[wpExIdx].globCellIndex;
+
+            auto it = globCellIdxToIdxInRftFile.find(globCellIdx);
+            if (it == globCellIdxToIdxInRftFile.end()) continue;
+
+            m_pipeBranchCLCoords.push_back(intersections[wpExIdx].startPoint);
+            m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].startMD);
+
+            m_pipeBranchCLCoords.push_back(intersections[wpExIdx].endPoint);
+            m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].endMD);
+
+            RigWellResultPoint resPoint;
+            resPoint.m_gridIndex = 0; // Always main grod
+            resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have main grid results from RFT
+
+            resPoint.m_oilRate   = gasRates[it->second];  
+            resPoint.m_gasRate   = oilRates[it->second];  
+            resPoint.m_waterRate = watRates[it->second];
+
+            m_pipeBranchWellResultPoints.push_back(resPoint);
+            m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+        }
+    }
+
+    const std::vector <cvf::Vec3d>&         pipeBranchCLCoords()       { return m_pipeBranchCLCoords;       }
+    const std::vector <RigWellResultPoint>& pipeBranchWellResultPoints()        { return m_pipeBranchWellResultPoints;        }
+    const std::vector <double>&             pipeBranchMeasuredDepths() { return m_pipeBranchMeasuredDepths; }
+
+private:
+    std::vector <cvf::Vec3d>          m_pipeBranchCLCoords;
+    std::vector <RigWellResultPoint>  m_pipeBranchWellResultPoints;
+    std::vector <double>              m_pipeBranchMeasuredDepths;
+};
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -809,6 +902,11 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     int curveGroupId = 0;
 
+    RimProject* proj = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathFromSimulationWell(m_wellName());
+    RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
+
+
     // Add curves
     for (const std::pair<RifWellRftAddress, QDateTime>& curveDefToAdd : curveDefs)
     {
@@ -816,21 +914,28 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
             std::set<FlowPhase>({ PHASE_TOTAL });
 
-        //if (curveDefToAdd.first.sourceType() == RftSourceType::RFT)
-        //{
-        //    auto curve = new RimWellLogRftCurve();
-        //    plotTrack->addCurve(curve);
+        if (curveDefToAdd.first.sourceType() == RifWellRftAddress::RFT)
+        {
+             RigRftResultPointCalculator resultPointCalc(m_wellName(), 
+                                                         dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()), 
+                                                         curveDefToAdd.second);
+             if ( resultPointCalc.pipeBranchCLCoords().size() )
+             {
 
-        //    auto rftCase = curveDefToAdd.first.eclCase();
-        //    curve->setEclipseResultCase(dynamic_cast<RimEclipseResultCase*>(rftCase));
+                 RigAccWellFlowCalculator wfAccumulator(resultPointCalc.pipeBranchCLCoords(),
+                                                        resultPointCalc.pipeBranchWellResultPoints(),
+                                                        resultPointCalc.pipeBranchMeasuredDepths(),
+                                                        0.0);
 
-        //    RifEclipseRftAddress address(m_wellName, curveDefToAdd.second, RifEclipseRftAddress::PRESSURE);
-        //    curve->setRftAddress(address);
-        //    curve->setZOrder(1);
-
-        //    applyCurveAppearance(curve);
-        //    curve->loadDataAndUpdate(true);
-        //}
+                 const std::vector<double>& depthValues = wfAccumulator.pseudoLengthFromTop(0);
+                 std::vector<QString> tracerNames = wfAccumulator.tracerNames();
+                 for ( const QString& tracerName: tracerNames )
+                 {
+                     const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
+                     addStackedCurve(tracerName, depthValues, accFlow, plotTrack, curveGroupId, false);
+                 }
+             }
+        }
         //else if (curveDefToAdd.first.sourceType() == RftSourceType::GRID)
         //{
         //    auto curve = new RimWellLogExtractionCurve();
@@ -864,11 +969,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         //        curve->loadDataAndUpdate(false);
         //    }
         //}
-        //else 
+        else 
         if (curveDefToAdd.first.sourceType() == RifWellRftAddress::OBSERVED)
         {
             RimWellLogFile* const wellLogFile = curveDefToAdd.first.wellLogFile();
-            RimWellPath* const wellPath = wellPathFromWellLogFile(wellLogFile);
             if(wellLogFile!= nullptr)
             {
                 RigWellLogFile* rigWellLogFile = wellLogFile->wellLogFile();
@@ -880,8 +984,12 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         const auto& channelName = channel->name();
                         if (selectedPhases.count(flowPhaseFromChannelName(channelName)) > 0)
                         {
-                            addStackedCurve(channelName, rigWellLogFile->depthValues(), rigWellLogFile->values(channelName), 
-                                            plotTrack, curveGroupId, true);
+                            addStackedCurve(channelName, 
+                                            rigWellLogFile->depthValues(), 
+                                            rigWellLogFile->values(channelName),
+                                            plotTrack, 
+                                            curveGroupId, 
+                                            true);
                         }
                     }
                 }
@@ -1552,4 +1660,3 @@ QWidget* RimWellPltPlot::createViewWidget(QWidget* mainWindowParent)
     m_wellLogPlotWidget = new RiuWellPltPlot(this, mainWindowParent);
     return m_wellLogPlotWidget;
 }
-
