@@ -562,7 +562,7 @@ std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromRf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromGridCase(RimEclipseCase* gridCase) const
+std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromGridCase(RimEclipseCase* gridCase)
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
     std::pair<size_t, QString> resultDataInfo = pressureResultDataInfo(eclipseCaseData);
@@ -585,7 +585,7 @@ std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromGr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress> > RimWellRftPlot::timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const
+std::map<QDateTime, std::set<RifWellRftAddress> > RimWellRftPlot::timeStepsFromWellLogFile(RimWellLogFile* wellLogFile)
 {
     std::map<QDateTime, std::set<RifWellRftAddress> > timeStepsMap;
 
