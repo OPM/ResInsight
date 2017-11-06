@@ -54,7 +54,8 @@ bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
     }
 
     if (line[found] == '1' &&
-        line.find_first_not_of("1 ") == std::string::npos)
+        found == 0 &&
+        line.find_first_not_of("1 ", 1) == std::string::npos)
     {
         // Single 1 at start of file
 
@@ -715,25 +716,48 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
 {
     std::vector<ColumnInfo> table;
 
+    bool isUnitsDetected = false;
+    bool isScalingDetected = false;
+
+    for (auto columnLines : columnData)
+    {
+        if (columnLines.size() > 1 && isUnitText(columnLines[1]))
+        {
+            isUnitsDetected = true;
+        }
+
+        if (columnLines.size() > 2 && isScalingText(columnLines[2]))
+        {
+            isScalingDetected = true;
+        }
+    }
+
     for (auto columnLines : columnData)
     {
         if (columnLines.size() == 0) continue;
 
         std::string quantity = columnLines[0];
         std::string unit;
+        std::string scaling;
 
         size_t startIndex = 1;
 
-        if (columnLines.size() > 1 &&
-            isUnitText(columnLines[1]))
+        if (isUnitsDetected)
         {
             unit = columnLines[1];
 
             startIndex = 2;
         }
 
+        if (isScalingDetected)
+        {
+            scaling = columnLines[2];
+
+            startIndex = 3;
+        }
+
         std::vector<std::string> restOfHeader;
-        for (size_t i = 2; i < columnLines.size(); i++)
+        for (size_t i = startIndex; i < columnLines.size(); i++)
         {
             restOfHeader.push_back(columnLines[i]);
         }
@@ -846,6 +870,14 @@ bool RifEclipseUserDataParserTools::isUnitText(const std::string& word)
     if (word.find("RM3") != std::string::npos) return true;
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::isScalingText(const std::string& word)
+{
+    return word.find_first_of('*') != std::string::npos;
 }
 
 //--------------------------------------------------------------------------------------------------
