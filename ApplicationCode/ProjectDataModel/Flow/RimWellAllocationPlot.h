@@ -118,6 +118,8 @@ private:
 
     cvf::Color3f                                    getTracerColor(const QString& tracerName);
 
+    void                                            updateFormationNamesData() const;
+
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;

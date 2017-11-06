@@ -248,7 +248,7 @@ void RimWellAllocationPlot::updateFromWell()
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
         plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
-        plotTrack->setBranchIndex((int)brIdx);
+        plotTrack->setFormationBranchIndex((int)brIdx);
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
@@ -793,6 +793,7 @@ void RimWellAllocationPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFromWell();
     m_accumulatedWellFlowPlot->loadDataAndUpdate();
+    updateFormationNamesData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,5 +815,17 @@ cvf::Color3f RimWellAllocationPlot::getTracerColor(const QString& tracerName)
     if (tracerName == RIG_FLOW_GAS_NAME)   return cvf::Color3f::DARK_RED;
     if (tracerName == RIG_FLOW_WATER_NAME) return cvf::Color3f::BLUE;
     return cvf::Color3f::DARK_GRAY;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateFormationNamesData() const
+{
+    for (size_t i = 0; i < m_accumulatedWellFlowPlot->trackCount(); ++i)
+    {
+        RimWellLogTrack* track = m_accumulatedWellFlowPlot->trackByIndex(i);
+        track->updateFormationNamesData(m_case, RimWellLogTrack::SIMULATION_WELL, nullptr, m_wellName, track->formationBranchIndex());
+    }
 }
 
