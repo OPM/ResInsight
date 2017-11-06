@@ -31,9 +31,8 @@ void RiuCalculationsContextMenuManager::attachWidget(QWidget* widget, RicSummary
         QObject::connect(widget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotMenuItems(QPoint)));
 
         m_widget = widget;
-        m_curveCalc = std::unique_ptr<RicSummaryCurveCalculator>(curveCalc);
+        m_curveCalc = curveCalc;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,15 +44,14 @@ void RiuCalculationsContextMenuManager::slotMenuItems(QPoint point)
 
     QAction action("Create copy", this);
     connect(&action, SIGNAL(triggered()), SLOT(slotCreateCalculationCopy()));
-    menu.addAction(&action);
+    action.setEnabled(m_curveCalc->currentCalculation() != nullptr);
 
+    menu.addAction(&action);
 
     QPoint globalPoint = point;
     if (m_widget)
     {
         globalPoint = m_widget->mapToGlobal(point);
-
-        //m_textPosition = m_widget->textCursor().position();
     }
 
     menu.exec(globalPoint);
@@ -71,17 +69,5 @@ void RiuCalculationsContextMenuManager::slotCreateCalculationCopy()
         RimSummaryCalculationCollection* coll = RicSummaryCurveCalculator::calculationCollection();
         coll->addCalculationCopy(currCalculation);
         m_curveCalc->updateConnectedEditors();
-
-
-
-        //QAction* action = qobject_cast<QAction *>(sender());
-        //if (action)
-        //{
-        //    QTextCursor cursor = m_textEdit->textCursor();
-        //    cursor.setPosition(m_textPosition);
-
-        //    m_textEdit->setTextCursor(cursor);
-        //    m_textEdit->insertPlainText(action->text());
-        //}
     }
 }

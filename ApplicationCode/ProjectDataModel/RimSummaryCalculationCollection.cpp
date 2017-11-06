@@ -86,11 +86,12 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy(const
 
     expression.replace(currVarName, newVarName);
     calcCopy->setExpression(expression);
-    calcCopy->parseExpression();
 
     m_calcuations.push_back(calcCopy);
 
+    calcCopy->resolveReferencesRecursively();
     rebuildCaseMetaData();
+    calcCopy->parseExpression();
 
     return calcCopy;
 }

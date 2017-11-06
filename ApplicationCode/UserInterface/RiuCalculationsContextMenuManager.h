@@ -52,7 +52,7 @@ private slots:
 
 private:
 	QPointer<QWidget>                           m_widget;
-    std::unique_ptr<RicSummaryCurveCalculator>  m_curveCalc;
+    RicSummaryCurveCalculator*                  m_curveCalc;
 	int                                         m_textPosition;
     std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };
