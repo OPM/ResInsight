@@ -1013,11 +1013,11 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
 
     std::vector<double> depthVector;
 
-    if (depthType == RimWellLogPlot::MEASURED_DEPTH)
+    if (depthType == RimWellLogPlot::MEASURED_DEPTH || depthType == RimWellLogPlot::PSEUDO_LENGTH)
     {
         depthVector = curveData.md;
     }
-    else
+    else if(depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
     {
         depthVector = curveData.tvd;
     }
