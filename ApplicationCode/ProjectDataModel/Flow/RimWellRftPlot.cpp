@@ -1257,6 +1257,11 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
             options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
         }
     }
+
+    if (options.size() == 0)
+    {
+        options.push_back(caf::PdmOptionItemInfo("None", "None"));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
