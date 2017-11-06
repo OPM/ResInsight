@@ -18,6 +18,7 @@
 
 #include "RifColumnBasedUserDataParser.h"
 
+#include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
 #include "RiaDateStringParser.h"
@@ -103,6 +104,15 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
         int columnCount = static_cast<int>(columnInfos.size());
         if (columnCount == 0) break;
 
+        int stepTypeIndex = -1;
+        for (size_t i = 0; i < columnInfos.size(); i++)
+        {
+            if (RifEclipseUserDataKeywordTools::isStepType(columnInfos[i].summaryAddress.quantityName()))
+            {
+                stepTypeIndex = static_cast<int>(i);
+            }
+        }
+
         std::string line;
         std::getline(streamData, line);
 
@@ -110,6 +120,12 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
         {
             QString qLine = QString::fromStdString(line);
             QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
+
+            if (stepTypeIndex > -1 &&
+                entries.size() < columnInfos.size())
+            {
+                entries.insert(stepTypeIndex, " ");
+            }
 
             if (entries.size() < columnCount) break;
 

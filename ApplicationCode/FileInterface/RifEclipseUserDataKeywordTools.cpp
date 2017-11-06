@@ -247,3 +247,11 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::isStepType(const std::string& identifier)
+{
+    return (identifier.find("STEPTYPE") != std::string::npos);
+}
+

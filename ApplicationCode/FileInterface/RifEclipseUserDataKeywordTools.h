@@ -38,5 +38,7 @@ public:
     static bool                                         isDate(const std::string& identifier);
 
     static  RifEclipseSummaryAddress                    makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText);
+
+    static bool                                         isStepType(const std::string& identifier);
 };
 

@@ -593,6 +593,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
     size_t columnCount = 0;
     std::string line;
     bool continueParsing = true;
+    bool hasStepType = false;
     while (continueParsing)
     {
         posAtTableDataStart = streamData.tellg();
@@ -605,25 +606,42 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
         {
             if (!RifEclipseUserDataParserTools::isLineSkippable(line))
             {
+                auto words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
+
+                if (!hasStepType)
+                {
+                    for (size_t i = 0; i < words.size(); i++)
+                    {
+                        if (RifEclipseUserDataKeywordTools::isStepType(words[i]))
+                        {
+                            hasStepType = true;
+                        }
+                    }
+                }
+
                 if (columnCount == 0)
                 {
                     // Fist line with valid header data defines the number of columns
 
-                    auto words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
                     columnCount = words.size();
 
                     headerLines.push_back(line);
                 }
                 else
                 {
-                    auto words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
                     std::vector<double> doubleValues = RifEclipseUserDataParserTools::splitLineToDoubles(line);
 
-                    if (doubleValues.size() < columnCount &&
-                        words.size() < columnCount)
+                    if (doubleValues.size() < columnCount && words.size() < columnCount)
                     {
-                        // Consider a line with double values less than column count as a table header
-                        headerLines.push_back(line);
+                        if (hasStepType && (words.size() + 1 == columnCount))
+                        {
+                            continueParsing = false;
+                        }
+                        else
+                        {
+                            // Consider a line with double values less than column count as a table header
+                            headerLines.push_back(line);
+                        }
                     }
                     else
                     {
@@ -725,6 +743,10 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
         RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
 
         ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
+        if (RifEclipseUserDataKeywordTools::isStepType(quantity))
+        {
+            ci.isStringData = true;
+        }
 
         table.push_back(ci);
     }
