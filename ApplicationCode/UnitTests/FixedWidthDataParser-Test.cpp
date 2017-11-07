@@ -30,7 +30,7 @@ TEST(FixedWidthDataParser, BasicUsage)
 
     std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
 
-    EXPECT_EQ(4, tableHeaderLines.size());
+    EXPECT_EQ(size_t(4), tableHeaderLines.size());
 
     {
         std::string line;
@@ -43,7 +43,7 @@ TEST(FixedWidthDataParser, BasicUsage)
     }
 
     auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders(tableHeaderLines);
-    EXPECT_EQ(10, colHeaders.size());
+    EXPECT_EQ(size_t(10), colHeaders.size());
 
     EXPECT_TRUE(colHeaders[9][0].find_first_of("FGPTH")     != std::string::npos);
     EXPECT_TRUE(colHeaders[9][1].find_first_of("SM3")       != std::string::npos);
@@ -67,7 +67,7 @@ TEST(FixedWidthDataParser, ColumnData)
 
 
     auto ci = RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(columnData);
-    EXPECT_EQ(1, ci.size());
+    EXPECT_EQ(size_t(1), ci.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,6 +143,28 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
  14-NOV-1997  11536.32     110.5641            0            0     307121.3     5364291.     -7125.90     267.7364     270.6674  
  17-NOV-1997  11552.19     -1263.74            0            0     307151.2     5367307.     -10175.0     268.3125     270.3454  
  19-NOV-1997  11552.09     133.3163            0            0     306850.8     5367300.     -9872.00     267.8979     270.1126  
+1                                                                                                                                  
+ -------------------------------------------------------------------------------------------------------------------------------
+ SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016 USER dtb MACHINE stj-lcb01-01-03                            
+ -------------------------------------------------------------------------------------------------------------------------------
+ DATE         WWCT         WWCT         WWCTH        WWCTH        WWCTH        WWCTH        WWCTH        WWCTH        WWCTH        
+                                                                                                                                   
+              D-3BH        B-1BH        C-4H         B-2H         D-1H         B-1AH        B-4H         B-4AH        C-1H         
+                                                                                                                                   
+ -------------------------------------------------------------------------------------------------------------------------------
+  6-NOV-1997         0            0            0            0            0            0            0            0            0     
+  7-NOV-1997         0            0            0            0            0            0            0            0            0     
+  8-NOV-1997         0            0            0            0            0            0            0            0            0     
+  9-NOV-1997         0            0            0            0            0            0            0            0            0
+ 10-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 11-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 11-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 12-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 13-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 14-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 14-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 17-NOV-1997         0            0            0            0            0            0            0            0            0     
+ 19-NOV-1997         0            0            0            0            0            0            0            0            0     
 )";
 
     EXPECT_TRUE(RifEclipseUserDataParserTools::isFixedWidthHeader(data.toStdString()));
@@ -151,7 +173,7 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
     auto tables = parser.tableData();
     EXPECT_EQ(size_t(1), tables.size());
 
-    EXPECT_EQ(size_t(28), tables[0].columnInfos().size());
+    EXPECT_EQ(size_t(37), tables[0].columnInfos().size());
     EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].stringValues.size());
 }
 
@@ -303,9 +325,9 @@ TEST(FixedWidthDataParser, ParsingOfHeaderWithCompletions)
 
     std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
 
-    EXPECT_EQ(4, tableHeaderLines.size());
+    EXPECT_EQ(size_t(4), tableHeaderLines.size());
 
     auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders(tableHeaderLines);
-    EXPECT_EQ(10, colHeaders.size());
+    EXPECT_EQ(size_t(10), colHeaders.size());
 }
 

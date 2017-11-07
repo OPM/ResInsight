@@ -613,6 +613,16 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
                     }
                 }
 
+                if (isUnitText(line))
+                {
+                    minimunRequiredExtraHeaderLines += 1;
+                }
+
+                if (isScalingText(line))
+                {
+                    minimunRequiredExtraHeaderLines += 1;
+                }
+
                 if (columnCount == 0)
                 {
                     // Fist line with valid header data defines the number of columns
