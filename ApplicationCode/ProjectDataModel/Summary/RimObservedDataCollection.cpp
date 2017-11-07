@@ -135,6 +135,13 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 
             this->updateConnectedEditors();
         }
+        else
+        {
+            if (errorText)
+            {
+                errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format.");
+            }
+        }
     }
 
     return observedData;

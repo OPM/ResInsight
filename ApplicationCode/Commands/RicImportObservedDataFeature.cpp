@@ -82,7 +82,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("Errors detected during import");
+        msgBox.setText("Errors detected during import                                                 ");
         msgBox.setDetailedText(aggregatedErrorStrings);
         msgBox.exec();
     }
