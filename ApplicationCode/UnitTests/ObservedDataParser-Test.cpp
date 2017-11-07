@@ -366,9 +366,6 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     ASSERT_EQ(size_t(18), tables.at(0).columnInfos().at(0).values.size());
     ASSERT_EQ(size_t(4), tables.at(1).columnInfos().at(0).values.size());
 
-//     EXPECT_TRUE(tables.at(0).columnInfos().at(2).isAVector);
-//     EXPECT_FALSE(tables.at(1).columnInfos().at(0).isAVector);
-
     EXPECT_EQ(0.0, tables.at(0).columnInfos().at(1).values.at(6));
     EXPECT_EQ(282.0, tables.at(0).columnInfos().at(3).values.at(6));
 
@@ -379,6 +376,17 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     EXPECT_EQ("P-15P", tables.at(0).columnInfos().at(5).summaryAddress.wellName());
     EXPECT_EQ("P-9P", tables.at(1).columnInfos().at(1).summaryAddress.wellName());
     EXPECT_NE("P-9P", tables.at(1).columnInfos().at(0).summaryAddress.wellName());
+
+    RifColumnBasedUserData userData;
+    userData.parse(data);
+
+    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WLVP", -1, -1, "", "P-15P", -1, "", -1, -1, -1);
+   
+    QDateTime firstTimeStep = RiaQDateTimeTools::addDays(RiaQDateTimeTools::epoch(), 1.0);
+    auto timeSteps = userData.timeSteps(adr);
+    EXPECT_EQ(size_t(18), timeSteps.size());
+
+    EXPECT_EQ(firstTimeStep.toTime_t(), timeSteps[0]);
 }
 
 //--------------------------------------------------------------------------------------------------

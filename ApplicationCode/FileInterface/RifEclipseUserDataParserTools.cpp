@@ -20,6 +20,7 @@
 
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
 
 #include "RifEclipseUserDataKeywordTools.h"
@@ -917,7 +918,7 @@ ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::
 //--------------------------------------------------------------------------------------------------
 QDateTime TableData::findFirstDate() const
 {
-    QDateTime dt;
+    QDateTime dt = RiaQDateTimeTools::epoch();
 
     for (auto ci : m_columnInfos)
     {
@@ -927,7 +928,11 @@ QDateTime TableData::findFirstDate() const
             {
                 std::string firstDateString = ci.stringValues[0];
 
-                dt = RiaDateStringParser::parseDateString(firstDateString);
+                QDateTime candidate = RiaDateStringParser::parseDateString(firstDateString);
+                if (candidate.isValid())
+                {
+                    dt = candidate;
+                }
             }
         }
     }
