@@ -46,6 +46,8 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
@@ -242,6 +244,19 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_showFormations)
     {
         loadDataAndUpdate();
+
+        RimWellRftPlot* rftPlot(nullptr);
+        firstAncestorOrThisOfType(rftPlot);
+
+        if (rftPlot)
+        {            rftPlot->updateConnectedEditors();        }
+        else
+        {
+            RimWellPltPlot* pltPlot(nullptr);
+            firstAncestorOrThisOfType(pltPlot);
+            if (pltPlot)
+            {                pltPlot->updateConnectedEditors();            }
+        }
     }
     else if (changedField == &m_formationCase)
     {
@@ -276,8 +291,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_formationBranchIndex)
     {
         loadDataAndUpdate();
-    }
-}
+    }}
 
 //--------------------------------------------------------------------------------------------------
 /// 
