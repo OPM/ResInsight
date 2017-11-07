@@ -531,7 +531,7 @@ RimWellRftPlot::eclipseCasesForWell(const QString& wellName) const
                 RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
                 for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
                 {
-                    if (QString::compare(wellResult->m_wellName, wellName) == 0)
+                    if (wellResult->m_wellName == wellName)
                     {
                         bool hasPressure = hasPressureData(eclCase);
                         bool hasRftData = eclCase->rftReader() != nullptr;
