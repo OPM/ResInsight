@@ -290,7 +290,7 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<s
 
     for (const auto& word : words)
     {
-        if (word.find_first_not_of("0123456789.eE-") != std::string::npos)
+        if (word.find_first_not_of("0123456789.eE-+") != std::string::npos)
         {
             onlyValidValues = false;
         }
@@ -352,8 +352,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& st
     {
         if (!streamData.good())
         {
-            if (errorText) errorText->push_back("Failed to detect start of table header");
-
+            // End of file
             return emptyTable;
         }
 
