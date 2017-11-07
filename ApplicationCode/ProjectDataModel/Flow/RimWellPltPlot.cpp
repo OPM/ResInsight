@@ -933,6 +933,7 @@ public:
             m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].endMD);
 
             RigWellResultPoint resPoint;
+            resPoint.m_isOpen = true;
             resPoint.m_gridIndex = 0; // Always main grod
             resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have main grid results from RFT
 
@@ -941,7 +942,11 @@ public:
             resPoint.m_waterRate = watRates[it->second];
 
             m_pipeBranchWellResultPoints.push_back(resPoint);
-            m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+        
+            if ( wpExIdx < intersections.size() - 1 )
+            {
+                m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+            }
         }
     }
 
@@ -1015,7 +1020,10 @@ public:
             const RigWellResultPoint& resPoint = resFrame.m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
 
             m_pipeBranchWellResultPoints.push_back(resPoint);
-            m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+            if ( wpExIdx < intersections.size() - 1 )
+            {
+                m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+            }
         }
     }
 };

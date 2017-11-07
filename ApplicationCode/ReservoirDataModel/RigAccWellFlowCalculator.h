@@ -115,7 +115,7 @@ private:
 
 
     std::vector< std::vector <cvf::Vec3d> >                 m_pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> >         m_pipeBranchesCellIds;
+    std::vector< std::vector <RigWellResultPoint> >         m_pipeBranchesWellResultPoints;
     std::vector< std::vector <double> >                     m_pipeBranchesMeasuredDepths;
 
     const std::map<QString, const std::vector<double>* >*   m_tracerCellFractionValues;
