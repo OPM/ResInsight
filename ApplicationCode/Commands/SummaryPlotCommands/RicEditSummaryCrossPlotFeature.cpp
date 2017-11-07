@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017  Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,82 +16,113 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCrossPlotCollection.h"
+#include "RicEditSummaryCrossPlotFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RicSummaryCurveCreator.h"
+#include "RicSummaryCurveCreatorDialog.h"
+
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
+#include "cvfAssert.h"
+
+#include <QAction>
 #include "RimSummaryPlot.h"
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryCrossPlotCollection, "SummaryCrossPlotCollection");
+CAF_CMD_SOURCE_INIT(RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection::RimSummaryCrossPlotCollection()
-{
-    CAF_PDM_InitObject("Summary Cross Plots", ":/SummaryPlots16x16.png", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_summaryCrossPlots, "SummaryCrossPlots", "Summary Cross Plots",  "", "", "");
-    m_summaryCrossPlots.uiCapability()->setUiHidden(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection()
+RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCrossPlotCollection::deleteAllChildObjects()
+void RicEditSummaryCrossPlotFeature::closeDialogAndResetTargetPlot()
 {
-    m_summaryCrossPlots.deleteAllChildObjects();
-}
+    auto dialog = RicEditSummaryCrossPlotFeature::curveCreatorDialog();
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::summaryPlots() const
-{
-    return m_summaryCrossPlots.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCrossPlotCollection::updateSummaryNameHasChanged()
-{
-    for (RimSummaryPlot* plot : m_summaryCrossPlots)
+    if (dialog && dialog->isVisible())
     {
-        plot->updateCaseNameHasChanged();
+        dialog->hide();
+    }
+
+    dialog->updateFromSummaryPlot(nullptr);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCreatorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
+{
+    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog(nullptr);
+
+    return singletonDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
+{
+    if (selectedSummaryPlot()) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
+{
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
+
+    auto dialog = RicEditSummaryCrossPlotFeature::curveCreatorDialog();
+
+    if (!dialog->isVisible())
+    {
+        dialog->show();
+    }
+    else
+    {
+        dialog->raise();
+    }
+
+    // Set target plot
+    if (selectedSummaryPlot())
+    {
+        //dialog->updateFromSummaryPlot(selectedSummaryPlot());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCrossPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const
+void RicEditSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    for (RimSummaryPlot* plot : m_summaryCrossPlots())
-    {
-        QIcon icon = plot->uiCapability()->uiIcon();
-        QString displayName = plot->description();
-
-        optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));
-    }
+    actionToSetup->setText("Edit Summary Plot");
+    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RimSummaryCrossPlotCollection::addSummaryPlot()
+RimSummaryPlot* RicEditSummaryCrossPlotFeature::selectedSummaryPlot() const
 {
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    m_summaryCrossPlots().push_back(plot);
+    RimSummaryPlot* sumPlot = nullptr;
 
-    plot->setDescription(QString("Summary Cross Plot %1").arg(m_summaryCrossPlots.size()));
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        selObj->firstAncestorOrThisOfType(sumPlot);
+    }
 
-    return plot;
+    return sumPlot;
 }
-

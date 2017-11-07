@@ -51,6 +51,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
@@ -298,6 +299,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicShowSummaryCurveCalculatorFeature";
+        }
+        else if (dynamic_cast<RimSummaryCrossPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewSummaryCrossPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
