@@ -70,6 +70,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 
         QTextStream in(&file);
         QString fileContents = in.readAll();
+        fileContents.replace("\t", " ");
 
         if (RifKeywordVectorParser::canBeParsed(fileContents))
         {
