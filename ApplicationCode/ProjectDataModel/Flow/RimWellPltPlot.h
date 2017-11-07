@@ -15,9 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
-
 
 #include "RimViewWindow.h"
 #include "RigFlowDiagResultAddress.h"
@@ -38,7 +36,6 @@
 #include <set>
 #include <map>
 
-
 class RimEclipseCase;
 class RimEclipseResultCase;
 class RimWellLogCurve;
@@ -56,7 +53,6 @@ namespace cvf {
 namespace caf {
     class PdmOptionItemInfo;
 }
-
 
 //==================================================================================================
 ///  
@@ -138,11 +134,11 @@ private:
 
     RimWellPath*                                    wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const;
     
-    //std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
-    //std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    //std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    //std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    //std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
+    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
+    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
     std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
     std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps, 
                                                                        const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair);

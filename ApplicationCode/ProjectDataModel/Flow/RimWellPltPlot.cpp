@@ -547,120 +547,115 @@ RimWellPath* RimWellPltPlot::wellPathFromWellLogFile(const RimWellLogFile* wellL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//std::vector<std::tuple<RimEclipseResultCase*, bool/*hasPressure*/, bool /*hasRftData*/>> 
-//RimWellPltPlot::eclipseCasesForWell(const QString& wellName) const
-//{
-//    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> cases;
-//    const RimProject* const project = RiaApplication::instance()->project();
-//
-//    for (const auto& oilField : project->oilFields)
-//    {
-//        const RimEclipseCaseCollection* const eclCaseColl = oilField->analysisModels();
-//        for (RimEclipseCase* eCase : eclCaseColl->cases())
-//        {
-//            auto eclCase = dynamic_cast<RimEclipseResultCase*>(eCase);
-//            if (eclCase != nullptr)
-//            {
-//                RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
-//                for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
-//                {
-//                    if (QString::compare(wellResult->m_wellName, wellName) == 0)
-//                    {
-//                        bool hasPressure = hasPressureData(eclCase);
-//                        bool hasRftData = eclCase->rftReader() != nullptr;
-//                        cases.push_back(std::make_tuple(eclCase, hasPressure, hasRftData));
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    return cases;
-//}
+std::vector<std::tuple<RimEclipseResultCase*, bool/*hasPressure*/, bool /*hasRftData*/>> 
+RimWellPltPlot::eclipseCasesForWell(const QString& wellName) const
+{
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> cases;
+    const RimProject* const project = RiaApplication::instance()->project();
+
+    for (const auto& oilField : project->oilFields)
+    {
+        const RimEclipseCaseCollection* const eclCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* eCase : eclCaseColl->cases())
+        {
+            auto eclCase = dynamic_cast<RimEclipseResultCase*>(eCase);
+            if (eclCase != nullptr)
+            {
+                RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
+                for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
+                {
+                    if (QString::compare(wellResult->m_wellName, wellName) == 0)
+                    {
+                        bool hasRftData = eclCase->rftReader() != nullptr;
+                        cases.push_back(std::make_tuple(eclCase, true, hasRftData));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return cases;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//std::vector<RimEclipseResultCase*> 
-//RimWellPltPlot::gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
-//{
-//    std::vector<RimEclipseResultCase*> cases;
-//    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
-//    {
-//        bool hasPressureData = std::get<1>(eclCaseTuple);
-//        size_t timeStepCount = timeStepsFromGridCase(std::get<0>(eclCaseTuple)).size();
-//        if (hasPressureData && timeStepCount > 0)
-//        {
-//            cases.push_back(std::get<0>(eclCaseTuple));
-//        }
-//    }
-//    return cases;
-//}
+std::vector<RimEclipseResultCase*> 
+RimWellPltPlot::gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
+{
+    std::vector<RimEclipseResultCase*> cases;
+    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
+    {
+        bool hasPressureData = std::get<1>(eclCaseTuple);
+        size_t timeStepCount = timeStepsFromGridCase(std::get<0>(eclCaseTuple)).size();
+        if (hasPressureData && timeStepCount > 0)
+        {
+            cases.push_back(std::get<0>(eclCaseTuple));
+        }
+    }
+    return cases;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//std::vector<RimEclipseResultCase*> 
-//RimWellPltPlot::rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
-//{
-//    std::vector<RimEclipseResultCase*> cases;
-//    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
-//    {
-//        bool hasRftData = std::get<2>(eclCaseTuple);
-//        size_t timeStepCount = timeStepsFromRftCase(std::get<0>(eclCaseTuple)).size();
-//        if (hasRftData && timeStepCount > 0)
-//        {
-//            cases.push_back(std::get<0>(eclCaseTuple));
-//        }
-//    }
-//    return cases;
-//}
+std::vector<RimEclipseResultCase*> 
+RimWellPltPlot::rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
+{
+    std::vector<RimEclipseResultCase*> cases;
+    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
+    {
+        bool hasRftData = std::get<2>(eclCaseTuple);
+        size_t timeStepCount = timeStepsFromRftCase(std::get<0>(eclCaseTuple)).size();
+        if (hasRftData && timeStepCount > 0)
+        {
+            cases.push_back(std::get<0>(eclCaseTuple));
+        }
+    }
+    return cases;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
-//{
-//    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
-//    RifReaderEclipseRft* const reader = rftCase->rftReader();
-//    if (reader != nullptr)
-//    {
-//        for (const QDateTime& timeStep : reader->availableTimeSteps(m_wellName, RifEclipseRftAddress::PRESSURE))
-//        {
-//            if (timeStepsMap.count(timeStep) == 0)
-//            {
-//                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
-//            }
-//            timeStepsMap[timeStep].insert(RifWellRftAddress(RftSourceType::RFT, rftCase));
-//        }
-//    }
-//    return timeStepsMap;
-//}
+std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
+{
+    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
+    RifReaderEclipseRft* const reader = rftCase->rftReader();
+    if (reader != nullptr)
+    {
+        for (const QDateTime& timeStep : reader->availableTimeSteps(m_wellName, RifEclipseRftAddress::PRESSURE))
+        {
+            if (timeStepsMap.count(timeStep) == 0)
+            {
+                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
+            }
+            timeStepsMap[timeStep].insert(RifWellRftAddress(RifWellRftAddress::RFT, rftCase));
+        }
+    }
+    return timeStepsMap;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromGridCase(RimEclipseCase* gridCase) const
-//{
-//    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-//    size_t resultIndex = eclipseCaseData != nullptr ? 
-//        eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME) :
-//        cvf::UNDEFINED_SIZE_T;
-//
-//    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
-//    if (resultIndex != cvf::UNDEFINED_SIZE_T)
-//    {
-//        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultIndex))
-//        {
-//            if (timeStepsMap.count(timeStep) == 0)
-//            {
-//                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
-//            }
-//            timeStepsMap[timeStep].insert(RifWellRftAddress(RftSourceType::GRID, gridCase));
-//        }
-//    }
-//    return timeStepsMap;
-//}
+std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromGridCase(RimEclipseCase* gridCase) const
+{
+    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
+
+    std::map<QDateTime, std::set<RifWellRftAddress> > timeStepsMap;
+    {
+        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates())
+        {
+            if (timeStepsMap.count(timeStep) == 0)
+            {
+                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
+            }
+            timeStepsMap[timeStep].insert(RifWellRftAddress(RifWellRftAddress::GRID, gridCase));
+        }
+    }
+    return timeStepsMap;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -728,37 +723,37 @@ bool RimWellPltPlot::mapContainsTimeStep(const std::map<QDateTime, std::set<RifW
 std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurveDefs() const
 {
     std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefs;
-    //const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
-    //const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
-    //const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+    const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
+    const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
+    const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
     {
         for (const RifWellRftAddress& addr : selectedSources())
         {
-            //if (addr.sourceType() == RftSourceType::RFT)
-            //{
-            //    for (RimEclipseResultCase* const rftCase : rftCases)
-            //    {
-            //        const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromRftCase(rftCase);
-            //        if (mapContainsTimeStep(timeStepsMap , timeStep))
-            //        {
-            //            curveDefs.insert(std::make_pair(addr, timeStep));
-            //        }
-            //    }
-            //}
-            //else if (addr.sourceType() == RftSourceType::GRID)
-            //{
-            //    for (RimEclipseResultCase* const gridCase : gridCases)
-            //    {
-            //        const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromGridCase(gridCase);
-            //        if (mapContainsTimeStep(timeStepsMap, timeStep))
-            //        {
-            //            curveDefs.insert(std::make_pair(addr, timeStep));
-            //        }
-            //    }
-            //}
-            //else
+            if (addr.sourceType() == RifWellRftAddress::RFT)
+            {
+                for (RimEclipseResultCase* const rftCase : rftCases)
+                {
+                    const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromRftCase(rftCase);
+                    if (mapContainsTimeStep(timeStepsMap , timeStep))
+                    {
+                        curveDefs.insert(std::make_pair(addr, timeStep));
+                    }
+                }
+            }
+            else if (addr.sourceType() == RifWellRftAddress::GRID)
+            {
+                for (RimEclipseResultCase* const gridCase : gridCases)
+                {
+                    const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromGridCase(gridCase);
+                    if (mapContainsTimeStep(timeStepsMap, timeStep))
+                    {
+                        curveDefs.insert(std::make_pair(addr, timeStep));
+                    }
+                }
+            }
+            else
             if (addr.sourceType() == RifWellRftAddress::OBSERVED)
             {
                 if (addr.wellLogFile() != nullptr)
@@ -774,7 +769,7 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
     }
     return curveDefs;
 }
-
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -843,26 +838,53 @@ std::pair<RifWellRftAddress, QDateTime> RimWellPltPlot::curveDefFromCurve(const 
     }
     return std::make_pair(RifWellRftAddress(), QDateTime());
 }
+#endif
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+class RigResultPointCalculator
+{
+public:
+    RigResultPointCalculator() {}
+    virtual ~RigResultPointCalculator() {}
+
+    const std::vector <cvf::Vec3d>&         pipeBranchCLCoords()         { return m_pipeBranchCLCoords;         }
+    const std::vector <RigWellResultPoint>& pipeBranchWellResultPoints() { return m_pipeBranchWellResultPoints; }
+    const std::vector <double>&             pipeBranchMeasuredDepths()   { return m_pipeBranchMeasuredDepths;   }
+
+protected:
+
+    RigEclipseWellLogExtractor*  findWellLogExtractor(const QString& wellName,
+                                                      int branchIndex,
+                                                      RimEclipseResultCase* eclCase)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        RimWellPath* wellPath = proj->wellPathFromSimulationWell(wellName, branchIndex);
+        RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
+        RigEclipseWellLogExtractor* eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, eclCase);
+
+        return eclExtractor;
+    }
 
 
+    std::vector <cvf::Vec3d>          m_pipeBranchCLCoords;
+    std::vector <RigWellResultPoint>  m_pipeBranchWellResultPoints;
+    std::vector <double>              m_pipeBranchMeasuredDepths;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 
-class RigRftResultPointCalculator
+class RigRftResultPointCalculator : public RigResultPointCalculator
 {
 public:
-    RigRftResultPointCalculator(const QString& wellName,
+    RigRftResultPointCalculator(const QString& wellName, 
+                                int branchIndex,
                                 RimEclipseResultCase* eclCase,
                                 QDateTime m_timeStep)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        RimWellPath* wellPath = proj->wellPathFromSimulationWell(wellName);
-        RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
-        RigEclipseWellLogExtractor* eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, eclCase);
-
-        std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
 
         RifEclipseRftAddress gasRateAddress(wellName, m_timeStep, RifEclipseRftAddress::GRAT);
         RifEclipseRftAddress oilRateAddress(wellName, m_timeStep, RifEclipseRftAddress::ORAT);
@@ -883,7 +905,7 @@ public:
 
         std::map<size_t, size_t> globCellIdxToIdxInRftFile;
 
-        const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
+        const RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
 
         for (size_t rftCellIdx = 0; rftCellIdx < rftIndices.size(); rftCellIdx++)
         {
@@ -891,6 +913,11 @@ public:
             size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
             globCellIdxToIdxInRftFile[globalCellIndex] = rftCellIdx;
         }
+
+        RigEclipseWellLogExtractor* eclExtractor = findWellLogExtractor(wellName, branchIndex, eclCase);
+        if (!eclExtractor) return;
+
+        std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
 
         for (size_t wpExIdx = 0; wpExIdx < intersections.size(); wpExIdx++)
         {
@@ -918,16 +945,80 @@ public:
         }
     }
 
-    const std::vector <cvf::Vec3d>&         pipeBranchCLCoords()       { return m_pipeBranchCLCoords;       }
-    const std::vector <RigWellResultPoint>& pipeBranchWellResultPoints()        { return m_pipeBranchWellResultPoints;        }
-    const std::vector <double>&             pipeBranchMeasuredDepths() { return m_pipeBranchMeasuredDepths; }
 
-private:
-    std::vector <cvf::Vec3d>          m_pipeBranchCLCoords;
-    std::vector <RigWellResultPoint>  m_pipeBranchWellResultPoints;
-    std::vector <double>              m_pipeBranchMeasuredDepths;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RigSimWellResultPointCalculator: public RigResultPointCalculator
+{
+public:
+    RigSimWellResultPointCalculator(const QString& wellName, 
+                                    int branchIndex,
+                                    RimEclipseResultCase* eclCase,
+                                    QDateTime m_timeStep)
+    {
+        // Find timestep index from qdatetime
+
+        const std::vector<QDateTime> timeSteps = eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+        size_t tsIdx = timeSteps.size();
+        for ( tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx) { if (timeSteps[tsIdx] == m_timeStep) break; }
+
+        if (tsIdx >= timeSteps.size()) return;
+
+        // Build search map into simulation well data
+         
+        std::map<size_t, std::pair<size_t, size_t> > globCellIdxToIdxInSimWellBranch;
+
+        const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData(wellName);
+
+        if (!simWell) return;
+
+        if (!simWell->hasWellResult(tsIdx)) return;
+
+        const RigWellResultFrame & resFrame = simWell->wellResultFrame(tsIdx);
+
+        const RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
+
+        for (size_t brIdx = 0; brIdx < resFrame.m_wellResultBranches.size(); ++brIdx)
+        {
+            const std::vector<RigWellResultPoint>& branchResPoints =  resFrame.m_wellResultBranches[brIdx].m_branchResultPoints;
+            for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
+            {
+                const RigGridBase* grid = mainGrid->gridByIndex(branchResPoints[wrpIdx].m_gridIndex);
+                size_t globalCellIndex = grid->reservoirCellIndex(branchResPoints[wrpIdx].m_gridCellIndex);
+
+                globCellIdxToIdxInSimWellBranch[globalCellIndex] = std::make_pair(brIdx, wrpIdx);
+            }
+        }
+
+        RigEclipseWellLogExtractor* eclExtractor = findWellLogExtractor(wellName, branchIndex, eclCase);
+
+        if (!eclExtractor) return;
+        
+        std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+
+        for (size_t wpExIdx = 0; wpExIdx < intersections.size(); wpExIdx++)
+        {
+            size_t globCellIdx = intersections[wpExIdx].globCellIndex;
+
+            auto it = globCellIdxToIdxInSimWellBranch.find(globCellIdx);
+            if (it == globCellIdxToIdxInSimWellBranch.end()) continue;
+
+            m_pipeBranchCLCoords.push_back(intersections[wpExIdx].startPoint);
+            m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].startMD);
+
+            m_pipeBranchCLCoords.push_back(intersections[wpExIdx].endPoint);
+            m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].endMD);
+
+            const RigWellResultPoint& resPoint = resFrame.m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
+
+            m_pipeBranchWellResultPoints.push_back(resPoint);
+            m_pipeBranchWellResultPoints.push_back(RigWellResultPoint()); // Invalid res point describing the "line" between the cells
+        }
+    }
+};
 
 
 //--------------------------------------------------------------------------------------------------
@@ -961,17 +1052,32 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
             std::set<FlowPhase>({ PHASE_TOTAL });
 
-        if (curveDefToAdd.first.sourceType() == RifWellRftAddress::RFT)
+        std::unique_ptr<RigResultPointCalculator> resultPointCalc;
+
+        if ( curveDefToAdd.first.sourceType() == RifWellRftAddress::RFT )
         {
-             RigRftResultPointCalculator resultPointCalc(m_wellName(), 
-                                                         dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()), 
-                                                         curveDefToAdd.second);
-             if ( resultPointCalc.pipeBranchCLCoords().size() )
+            resultPointCalc.reset(new RigRftResultPointCalculator(m_wellName(),
+                                                                  m_branchIndex(),
+                                                                  dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()),
+                                                                  curveDefToAdd.second));
+        }
+        else if (curveDefToAdd.first.sourceType() == RifWellRftAddress::GRID)
+        {
+            resultPointCalc.reset(new RigSimWellResultPointCalculator(m_wellName(),
+                                                                      m_branchIndex(),
+                                                                      dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()),
+                                                                      curveDefToAdd.second));
+
+        }
+
+        if (resultPointCalc != nullptr)
+        {
+             if ( resultPointCalc->pipeBranchCLCoords().size() )
              {
 
-                 RigAccWellFlowCalculator wfAccumulator(resultPointCalc.pipeBranchCLCoords(),
-                                                        resultPointCalc.pipeBranchWellResultPoints(),
-                                                        resultPointCalc.pipeBranchMeasuredDepths(),
+                 RigAccWellFlowCalculator wfAccumulator(resultPointCalc->pipeBranchCLCoords(),
+                                                        resultPointCalc->pipeBranchWellResultPoints(),
+                                                        resultPointCalc->pipeBranchMeasuredDepths(),
                                                         0.0);
 
                  const std::vector<double>& depthValues = wfAccumulator.pseudoLengthFromTop(0);
@@ -983,41 +1089,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                  }
              }
         }
-        //else if (curveDefToAdd.first.sourceType() == RftSourceType::GRID)
-        //{
-        //    auto curve = new RimWellLogExtractionCurve();
-        //    plotTrack->addCurve(curve);
-
-        //    cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(plotTrack->curveCount());
-        //    curve->setColor(curveColor);
-        //    curve->setFromSimulationWellName(m_wellName, m_branchIndex);
-
-        //    // Fetch cases and time steps
-        //    auto gridCase = curveDefToAdd.first.eclCase();
-        //    if (gridCase != nullptr)
-        //    {
-        //        // Case
-        //        curve->setCase(gridCase);
-
-        //        // Result definition
-        //        RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
-        //        resultDef->setResultVariable(PRESSURE_DATA_NAME);
-        //        curve->setEclipseResultDefinition(resultDef);
-
-        //        // Time step
-        //        const std::map<QDateTime, std::set<RifWellRftAddress>>& timeSteps = timeStepsFromGridCase(gridCase);
-        //        auto currentTimeStepItr = std::find_if(timeSteps.begin(), timeSteps.end(), 
-        //                                               [curveDefToAdd](std::pair<QDateTime, std::set<RifWellRftAddress>> pair) {return pair.first == curveDefToAdd.second; });
-        //        auto currentTimeStepIndex = std::distance(timeSteps.begin(), currentTimeStepItr);
-        //        curve->setCurrentTimeStep(currentTimeStepIndex);
-        //        curve->setZOrder(0);
-
-        //        applyCurveAppearance(curve);
-        //        curve->loadDataAndUpdate(false);
-        //    }
-        //}
-        else 
-        if (curveDefToAdd.first.sourceType() == RifWellRftAddress::OBSERVED)
+        else if ( curveDefToAdd.first.sourceType() == RifWellRftAddress::OBSERVED )
         {
             RimWellLogFile* const wellLogFile = curveDefToAdd.first.wellLogFile();
             if(wellLogFile!= nullptr)
@@ -1265,33 +1337,35 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     {
         std::set<RifWellRftAddress> optionAddresses;
 
-        //const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
+        const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
 
-        //const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
-        //if (rftCases.size() > 0)
-        //{
-        //    options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RftSourceType::RFT), true));
-        //}
-        //for (const auto& rftCase : rftCases)
-        //{
-        //    auto addr = RifWellRftAddress(RftSourceType::RFT, rftCase);
-        //    auto item = caf::PdmOptionItemInfo(rftCase->caseUserDescription(), QVariant::fromValue(addr));
-        //    item.setLevel(1);
-        //    options.push_back(item);
-        //}
+        const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
+        if (rftCases.size() > 0)
+        {
+            options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::RFT), true));
+        }
 
-        //const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
-        //if (gridCases.size() > 0)
-        //{
-        //    options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RftSourceType::GRID), true));
-        //}
-        //for (const auto& gridCase : gridCases)
-        //{
-        //    auto addr = RifWellRftAddress(RftSourceType::GRID, gridCase);
-        //    auto item = caf::PdmOptionItemInfo(gridCase->caseUserDescription(), QVariant::fromValue(addr));
-        //    item.setLevel(1);
-        //    options.push_back(item);
-        //}
+        for (const auto& rftCase : rftCases)
+        {
+            auto addr = RifWellRftAddress(RifWellRftAddress::RFT, rftCase);
+            auto item = caf::PdmOptionItemInfo(rftCase->caseUserDescription(), QVariant::fromValue(addr));
+            item.setLevel(1);
+            options.push_back(item);
+        }
+
+        const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+        if (gridCases.size() > 0)
+        {
+            options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::GRID), true));
+        }
+
+        for (const auto& gridCase : gridCases)
+        {
+            auto addr = RifWellRftAddress(RifWellRftAddress::GRID, gridCase);
+            auto item = caf::PdmOptionItemInfo(gridCase->caseUserDescription(), QVariant::fromValue(addr));
+            item.setLevel(1);
+            options.push_back(item);
+        }
 
         if (wellLogFilesContainingFlow(m_wellName).size() > 0)
         {
@@ -1605,9 +1679,9 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
 {
     std::map<QDateTime, std::set<RifWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
-    //const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(wellName);
-    //const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
-    //const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(wellName);
+    const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
+    const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
 
     // First update timeSteps to Address 'cache'
     std::vector<RifWellRftAddress> selSources = selectedSources();
@@ -1615,21 +1689,21 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
 
     for (const RifWellRftAddress& selection : selSources)
     {
-        //if (selection.sourceType() == RftSourceType::RFT)
-        //{
-        //    for (RimEclipseResultCase* const rftCase : rftCases)
-        //    {
-        //        addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromRftCase(rftCase));
-        //    }
-        //}
-        //else if (selection.sourceType() == RftSourceType::GRID)
-        //{
-        //    for (RimEclipseResultCase* const gridCase : gridCases)
-        //    {
-        //        addTimeStepsToMap(gridTimeStepsMap, timeStepsFromGridCase(gridCase));
-        //    }
-        //}
-        //else
+        if (selection.sourceType() == RifWellRftAddress::RFT)
+        {
+            for (RimEclipseResultCase* const rftCase : rftCases)
+            {
+                addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromRftCase(rftCase));
+            }
+        }
+        else if (selection.sourceType() == RifWellRftAddress::GRID)
+        {
+            for (RimEclipseResultCase* const gridCase : gridCases)
+            {
+                addTimeStepsToMap(gridTimeStepsMap, timeStepsFromGridCase(gridCase));
+            }
+        }
+        else
         if (selection.sourceType() == RifWellRftAddress::OBSERVED)
         {
             if (selection.wellLogFile() != nullptr)
