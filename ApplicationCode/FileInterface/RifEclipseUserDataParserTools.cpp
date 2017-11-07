@@ -813,17 +813,22 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const 
 
     if (tables[0].columnInfos().size() == 0) return tables;
 
-    ColumnInfo* dateColumn = nullptr;
+    QDateTime firstTableStartTime;
     for (auto c : tables[0].columnInfos())
     {
         if (c.summaryAddress.quantityName() == "DATE")
         {
-            dateColumn = &c;
+            if (c.stringValues.size() > 0)
+            {
+                firstTableStartTime = RiaDateStringParser::parseDateString(c.stringValues[0]);
+            }
         }
     }
 
-    // Support only merge of tables with the DATE column present
-    if (!dateColumn) return tables;
+    if (!firstTableStartTime.isValid())
+    {
+        return tables;
+    }
 
     std::vector<TableData> largeTables;
 
@@ -834,8 +839,31 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const 
 
     for (size_t i = 1; i < tables.size(); i++)
     {
+        bool isDatesEqual = true;
+
+        if (firstTableStartTime.isValid())
+        {
+            QDateTime tableFirstTime;
+            for (auto& c : tables[i].columnInfos())
+            {
+                if (c.summaryAddress.quantityName() == "DATE")
+                {
+                    if (c.stringValues.size() > 0)
+                    {
+                        tableFirstTime = RiaDateStringParser::parseDateString(c.stringValues[0]);
+                    }
+                }
+            }
+
+            if (firstTableStartTime != tableFirstTime)
+            {
+                isDatesEqual = false;
+            }
+        }
+
         if (tables[i].columnInfos().size() > 0 &&
-            tables[i].columnInfos()[0].itemCount() == itemsInFirstTable)
+            tables[i].columnInfos()[0].itemCount() == itemsInFirstTable &&
+            isDatesEqual)
         {
             for (auto& c : tables[i].columnInfos())
             {
