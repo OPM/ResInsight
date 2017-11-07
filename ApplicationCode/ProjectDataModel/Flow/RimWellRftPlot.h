@@ -151,7 +151,7 @@ private:
     void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
     void                                            updateSelectedTimeStepsFromSelectedSources();
 
-    void                                            updateFormationNamesData() const;
+    void                                            updateFormationsOnPlot() const;
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;

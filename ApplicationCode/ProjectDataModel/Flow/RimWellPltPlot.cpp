@@ -351,7 +351,7 @@ std::vector<RimEclipseCase*> RimWellPltPlot::eclipseCases() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::updateFormationNamesData() const
+void RimWellPltPlot::updateFormationsOnPlot() const
 {
     if (m_selectedTimeSteps().empty())
     {
