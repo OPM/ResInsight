@@ -65,6 +65,7 @@
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -621,6 +622,7 @@ void RiaApplication::loadAndUpdatePlotData()
 {
     RimWellLogPlotCollection* wlpColl = nullptr;
     RimSummaryPlotCollection* spColl = nullptr;
+    RimSummaryCrossPlotCollection* scpColl = nullptr;
     RimFlowPlotCollection* flowColl = nullptr;
     RimRftPlotCollection* rftColl = nullptr;
     RimPltPlotCollection* pltColl = nullptr;
@@ -632,6 +634,10 @@ void RiaApplication::loadAndUpdatePlotData()
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
     {
         spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+    }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryCrossPlotCollection())
+    {
+        scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
     }
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->flowPlotCollection())
     {
@@ -649,6 +655,7 @@ void RiaApplication::loadAndUpdatePlotData()
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->summaryPlots().size() : 0;
+    plotCount += scpColl ? scpColl->summaryPlots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;

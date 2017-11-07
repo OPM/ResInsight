@@ -55,6 +55,7 @@
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
@@ -1037,6 +1038,11 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             {
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
             }
+
+           if (mainPlotCollection->summaryCrossPlotCollection())
+           {
+               uiTreeOrdering.add(mainPlotCollection->summaryCrossPlotCollection());
+           }
 
            if (mainPlotCollection->wellLogPlotCollection())
             {

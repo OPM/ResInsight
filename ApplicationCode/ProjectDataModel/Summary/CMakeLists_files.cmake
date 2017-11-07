@@ -20,6 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryFilter.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimObservedData.h
@@ -45,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedData.cpp
