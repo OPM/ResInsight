@@ -698,8 +698,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         if (m_viewer != nullptr)
         {
             m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-            m_viewer->updateGridBoxData();
         }
+        updateGridBoxData();
     }
     else if (changedField == &maximumFrameRate)
     {

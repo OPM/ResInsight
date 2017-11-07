@@ -59,6 +59,9 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
+#include "RimWellPathCollection.h"
+#include "RimWellPath.h"
+#include "RivWellPathPartMgr.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -765,6 +768,8 @@ void RiuViewer::updateGridBoxData()
         m_gridBoxGenerator->createGridBoxParts();
 
         updateTextAndTickMarkColorForOverlayItems();
+
+        updateWellPathTextColor();
     }
 }
 
@@ -774,6 +779,27 @@ void RiuViewer::updateGridBoxData()
 cvf::Model* RiuViewer::gridBoxModel() const
 {
     return m_gridBoxGenerator->model();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateWellPathTextColor()
+{
+    RimView* rimView = ownerReservoirView();
+    if (!rimView) return;
+
+    RimWellPathCollection* wellPathCollection = rimView->wellPathsPartManager();
+
+    if (wellPathCollection)
+    {
+        cvf::Color3f color = computeContrastColor();
+
+        for (RimWellPath* path : wellPathCollection->wellPaths())
+        {
+            path->partMgr()->updateWellNameTextColor(color);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

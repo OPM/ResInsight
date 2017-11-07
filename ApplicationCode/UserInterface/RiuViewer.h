@@ -78,6 +78,8 @@ public:
     void            updateGridBoxData();
     cvf::Model*     gridBoxModel() const;
 
+    void            updateWellPathTextColor();
+
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
