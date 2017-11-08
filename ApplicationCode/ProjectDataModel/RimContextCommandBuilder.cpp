@@ -354,6 +354,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "Separator";
+            commandIds << "RicEditSummaryCurveCalculationFeature";
         }
         else if (dynamic_cast<RimSummaryCurveCollection*>(uiItem))
         {

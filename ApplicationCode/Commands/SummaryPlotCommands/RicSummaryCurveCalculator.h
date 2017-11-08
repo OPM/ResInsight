@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////    /////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
 // 
@@ -40,7 +40,8 @@ public:
     static QString  calculatedSummariesGroupName();
     static QString  calulationGroupName();
 
-    RimSummaryCalculation* currentCalculation() const;
+    RimSummaryCalculation*  currentCalculation() const;
+    void                    setCurrentCalculation(RimSummaryCalculation* calculation);
 
     bool            parseExpression() const;
     bool            calculate() const;

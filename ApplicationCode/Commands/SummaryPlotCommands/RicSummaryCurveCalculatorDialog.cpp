@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSummaryCurveCalculatorDialog.h"
-
+#include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorEditor.h"
 
 #include <QDialogButtonBox>
@@ -40,6 +40,14 @@ RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog(QWidget* parent
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCalculator* RicSummaryCurveCalculatorDialog::calculator() const
+{
+    return m_summaryCalcEditor->calculator();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,21 @@
 
 #pragma once
 
-#include <QDialog>
-#include <memory>
+#include "cafCmdFeature.h"
 
-class RicSummaryCurveCalculatorEditor;
-class RicSummaryCurveCalculator;
+class RimSummaryPlot;
+class RimSummaryPlotCollection;
+class RimSummaryCase;
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RicSummaryCurveCalculatorDialog : public QDialog
+class RicEditSummaryCurveCalculationFeature : public caf::CmdFeature
 {
-public:
-    RicSummaryCurveCalculatorDialog(QWidget* parent);
-    ~RicSummaryCurveCalculatorDialog();
+    CAF_CMD_HEADER_INIT;
 
-    RicSummaryCurveCalculator* calculator() const;
-
-private:
-    void setUp();
-
-private:
-    std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcEditor;
+protected:
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };

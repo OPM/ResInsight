@@ -80,6 +80,14 @@ RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculator::setCurrentCalculation(RimSummaryCalculation* calculation)
+{
+    m_currentCalculation = calculation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCalculator::parseExpression() const
 {
     if (m_currentCalculation())

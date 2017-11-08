@@ -49,6 +49,8 @@ public:
     RicSummaryCurveCalculatorEditor();
     ~RicSummaryCurveCalculatorEditor();
 
+    RicSummaryCurveCalculator* calculator() const;
+
 private:
     virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
                                                                          const QString& uiConfigName) override;

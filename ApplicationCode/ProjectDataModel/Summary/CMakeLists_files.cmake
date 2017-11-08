@@ -28,6 +28,7 @@ ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.h
 ${CEE_CURRENT_LIST_DIR}RimObservedEclipseUserData.h
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.h
+${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -54,6 +55,7 @@ ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedEclipseUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

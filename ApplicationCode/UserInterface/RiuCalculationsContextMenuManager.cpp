@@ -68,7 +68,8 @@ void RiuCalculationsContextMenuManager::slotCreateCalculationCopy()
     if (m_widget != nullptr && currCalculation != nullptr)
     {
         RimSummaryCalculationCollection* coll = RicSummaryCurveCalculator::calculationCollection();
-        coll->addCalculationCopy(currCalculation);
+        RimSummaryCalculation* calcCopy = coll->addCalculationCopy(currCalculation);
+        m_curveCalc->setCurrentCalculation(calcCopy);
         m_curveCalc->updateConnectedEditors();
     }
 }

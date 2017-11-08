@@ -20,7 +20,6 @@
 
 #include "RimSummaryCase.h"
 #include "RifSummaryReaderInterface.h"
-#include "RimCalculatedSummaryCurveReader.h"
 
 #include <memory>
 
@@ -32,21 +31,19 @@ class RimSummaryCalculationCollection;
 //==================================================================================================
 //
 //==================================================================================================
-class RimCalculatedSummaryCase : public RimSummaryCase
+class RifCalculatedSummaryCurveReader : public RifSummaryReaderInterface
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimCalculatedSummaryCase();
-    virtual ~RimCalculatedSummaryCase();
+    explicit RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection);
 
-    virtual QString                         caseName() override;
-    virtual void                            createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface*      summaryReader() override;
-    virtual void                            updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    void                                    buildMetaData();
+    void                                buildMetaData();
+
+    RimSummaryCalculation*              findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
 
 private:
-    std::unique_ptr<RifCalculatedSummaryCurveReader>    m_calculatedCurveReader;
+    caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;
 };

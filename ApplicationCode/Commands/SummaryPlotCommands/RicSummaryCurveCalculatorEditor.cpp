@@ -183,6 +183,14 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RicSummaryCurveCalculator* RicSummaryCurveCalculatorEditor::calculator() const
+{
+    return m_calculator.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorEditor::slotCalculate()
 {
     m_calculator->calculate();

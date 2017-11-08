@@ -16,84 +16,96 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCalculatedSummaryCase.h"
+#include "RimCalculatedSummaryCurveReader.h"
 
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
-CAF_PDM_SOURCE_INIT(RimCalculatedSummaryCase,"CalculatedSummaryCase");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculatedSummaryCase::RimCalculatedSummaryCase()
+RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection)
+    : m_calculationCollection(calculationCollection)
 {
-    CAF_PDM_InitObject("Calculated",":/SummaryCase48x48.png","","");
 
-    m_calculatedCurveReader = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculatedSummaryCase::~RimCalculatedSummaryCase()
+const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimCalculatedSummaryCase::caseName()
-{
-    return "Calculated";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::createSummaryReaderInterface()
-{
-    if (!m_calculatedCurveReader)
+    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
+    if (calc)
     {
-        RimSummaryCalculationCollection* calculationCollection = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(calculationCollection);
+        return calc->timeSteps();
+    }
 
-        m_calculatedCurveReader.reset(new RifCalculatedSummaryCurveReader(calculationCollection));
-    
-        m_calculatedCurveReader->buildMetaData();
+    static std::vector<time_t> dummy;
+
+    return dummy;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+{
+    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
+    if (calc)
+    {
+        *values = calc->values();
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
+{
+    RimSummaryCalculation* calculation = findCalculationByName(resultAddress);
+    if (calculation != nullptr && !calculation->unitName().isEmpty())
+    {
+        return calculation->unitName().toStdString();
+    }
+    return "Calculated Curve Unit";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCalculatedSummaryCurveReader::buildMetaData()
+{
+    m_allResultAddresses.clear();
+
+    for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
+    {
+        m_allResultAddresses.push_back(RifEclipseSummaryAddress::calculatedCurveAddress(calc->description().toStdString()));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimCalculatedSummaryCase::summaryReader()
+RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
 {
-    if (!m_calculatedCurveReader) createSummaryReaderInterface();
+    if (m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    {
+        QString calculatedName = QString::fromStdString(resultAddress.quantityName());
 
-    return m_calculatedCurveReader.get();
-}
+        for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
+        {
+            if (calc->description() == calculatedName)
+            {
+                return calc;
+            }
+        }
+    }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
-{
-    // Nothing to do here
-}
-
-
-
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::buildMetaData()
-{
-    if (!m_calculatedCurveReader) createSummaryReaderInterface();
-
-    m_calculatedCurveReader->buildMetaData();
+    return nullptr;
 }
