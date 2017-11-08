@@ -593,7 +593,12 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 void RimWellLogPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+
+    bool tempAutoScale = m_isAutoScaleDepthEnabled;
+    m_isAutoScaleDepthEnabled = false;
     updateTracks();
+
+    m_isAutoScaleDepthEnabled = tempAutoScale;
 }
 
 //--------------------------------------------------------------------------------------------------
