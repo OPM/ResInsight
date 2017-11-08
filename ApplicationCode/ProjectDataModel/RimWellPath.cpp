@@ -645,7 +645,7 @@ void RimWellPath::addWellLogFile(RimWellLogFile* logFileInfo)
     {
         m_wellLogFiles.push_back(logFileInfo);
 
-        if (m_wellLogFiles.size() == 1)
+        if (m_wellLogFiles.size() == 1 && name().isEmpty())
         {
             setName(m_wellLogFiles[0]->wellName());
         }

@@ -127,6 +127,7 @@ public:
     std::vector<QString>            simulationWellNames() const;
     std::vector<const RigWellPath*> simulationWellBranches(const QString& simWellName);
     RimWellPath*                    wellPathFromSimulationWell(const QString& simWellName, int branchIndex = -1);
+    RimWellPath*                    wellPathByName(const QString& wellPathName) const;
     std::vector<RimWellPath*>       allWellPaths() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;

@@ -906,17 +906,25 @@ std::vector<const RigWellPath*> RimProject::simulationWellBranches(const QString
 RimWellPath* RimProject::wellPathFromSimulationWell(const QString& simWellName, int branchIndex)
 {
     std::vector<RimWellPath*> paths;
-    for (const auto& oilField : oilFields())
+    for (RimWellPath* const path : allWellPaths())
     {
-        auto wellPathColl = oilField->wellPathCollection();
-        for (const auto& path : wellPathColl->wellPaths)
+        if (QString::compare(path->associatedSimulationWell(), simWellName) == 0 &&
+            (branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex))
         {
-            if (QString::compare(path->associatedSimulationWell(), simWellName) == 0 &&
-                (branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex))
-            {
-                return path;
-            }
+            return path;
         }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimProject::wellPathByName(const QString& wellPathName) const
+{
+    for (RimWellPath* const path : allWellPaths())
+    {
+        if (path->name() == wellPathName) return path;
     }
     return nullptr;
 }

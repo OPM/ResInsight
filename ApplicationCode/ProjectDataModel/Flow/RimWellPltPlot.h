@@ -65,12 +65,12 @@ class RimWellPltPlot : public RimViewWindow
     enum FlowType { FLOW_TYPE_TOTAL, FLOW_TYPE_PHASE_SPLIT };
     enum FlowPhase { PHASE_NONE, PHASE_OIL, PHASE_GAS, PHASE_WATER, PHASE_TOTAL };
 
-    static const QString OIL_CHANNEL_NAME;
-    static const QString GAS_CHANNEL_NAME;
-    static const QString WATER_CHANNEL_NAME;
-    static const QString TOTAL_CHANNEL_NAME;
+    static const std::set<QString> OIL_CHANNEL_NAMES;
+    static const std::set<QString> GAS_CHANNEL_NAMES;
+    static const std::set<QString> WATER_CHANNEL_NAMES;
+    static const std::set<QString> TOTAL_CHANNEL_NAMES;
 
-    static const std::set<QString> FLOW_DATA_NAMES;
+    static std::set<QString> FLOW_DATA_NAMES;
     static const char PLOT_NAME_QFORMAT_STRING[];
 
 public:
@@ -123,7 +123,7 @@ private:
                                                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
     void                                            updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateWidgetTitleWindowTitle();
 
@@ -177,7 +177,7 @@ private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
-    caf::PdmField<QString>                          m_wellName;
+    caf::PdmField<QString>                          m_wellPathName;
     caf::PdmField<int>                              m_branchIndex;
 
     caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
