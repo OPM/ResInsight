@@ -1287,15 +1287,26 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
     if (proj != nullptr)
     {
         const std::vector<QString> simWellNames = proj->simulationWellNames();
-        auto wellNames = std::set<QString>(simWellNames.begin(), simWellNames.end());
+        std::set<QString> simWellsAssociatedWithWellPath;
+        std::set<QString> wellNames;
 
         // Observed wells
-        for (const auto& oilField : proj->oilFields())
+        for (RimWellPath* const wellPath : proj->allWellPaths())
         {
-            auto wellPathColl = oilField->wellPathCollection();
-            for (const auto& wellPath : wellPathColl->wellPaths)
+            wellNames.insert(wellPath->name());
+
+            if (!wellPath->associatedSimulationWell().isEmpty())
             {
-                wellNames.insert(wellPath->name());
+                simWellsAssociatedWithWellPath.insert(wellPath->associatedSimulationWell());
+            }
+        }
+
+        // Sim wells not associated with well path
+        for (const QString& simWellName : simWellNames)
+        {
+            if (simWellsAssociatedWithWellPath.count(simWellName) == 0)
+            {
+                wellNames.insert(simWellName);
             }
         }
 
