@@ -87,7 +87,7 @@ bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddres
 
         if (!ci->values.empty())
         {
-            values->resize(ci->values.size());
+            values->reserve(ci->values.size());
 
             for (const auto& v : ci->values)
             {
