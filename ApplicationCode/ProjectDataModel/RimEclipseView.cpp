@@ -459,7 +459,7 @@ void RimEclipseView::createDisplayModel()
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    wellPathsPartManager()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
+    wellPathCollection()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->updateWellPathTextColor();

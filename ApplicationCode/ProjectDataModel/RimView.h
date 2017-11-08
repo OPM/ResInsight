@@ -207,7 +207,7 @@ protected:
 
     virtual void                            onLoadDataAndUpdate() = 0;
 
-    RimWellPathCollection*                  wellPathsPartManager();
+    RimWellPathCollection*                  wellPathCollection();
 
     QPointer<RiuViewer>                     m_viewer;
 

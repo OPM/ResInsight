@@ -428,7 +428,7 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RimView::wellPathsPartManager()
+RimWellPathCollection* RimView::wellPathCollection()
 {
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(proj);
@@ -724,7 +724,7 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
 
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-    wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
+    wellPathCollection()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
                                                              this->ownerCase()->characteristicCellSize(),
                                                              wellPathClipBoundingBox,
                                                              transForm.p());
@@ -748,7 +748,7 @@ void RimView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasic
         currentTimeStamp = timeStamps[currentTimeStep()];
     }
 
-    wellPathsPartManager()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
+    wellPathCollection()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
         currentTimeStamp,
         this->ownerCase()->characteristicCellSize(),
         wellPathClipBoundingBox,

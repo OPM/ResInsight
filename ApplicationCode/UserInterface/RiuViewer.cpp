@@ -774,19 +774,19 @@ void RiuViewer::updateGridBoxData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateAnnotationItems()
+cvf::Model* RiuViewer::gridBoxModel() const
 {
-    updateTextAndTickMarkColorForOverlayItems();
-
-    updateWellPathTextColor();
+    return m_gridBoxGenerator->model();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Model* RiuViewer::gridBoxModel() const
+void RiuViewer::updateAnnotationItems()
 {
-    return m_gridBoxGenerator->model();
+    updateTextAndTickMarkColorForOverlayItems();
+
+    updateWellPathTextColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -799,7 +799,7 @@ void RiuViewer::updateWellPathTextColor()
 
     cvf::Color3f color = computeContrastColor();
 
-    RimWellPathCollection* wellPathCollection = rimView->wellPathsPartManager();
+    RimWellPathCollection* wellPathCollection = rimView->wellPathCollection();
     if (wellPathCollection)
     {
         for (RimWellPath* path : wellPathCollection->wellPaths())
