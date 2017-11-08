@@ -59,8 +59,8 @@ public:
         : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT)
     {}
 
-    PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "")
-        : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
+    PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
+        : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis), m_extraDebugText(extraDebugText),
           m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
     { }
 
@@ -70,6 +70,7 @@ private:
     friend class PdmUiItem;
     QString         m_uiName;
     QString         m_toolTip;
+    QString         m_extraDebugText;
     QString         m_whatsThis;
     QIcon           m_icon;         
     QString         m_editorTypeName;       ///< Use this exact type of editor to edit this UiItem
@@ -240,6 +241,9 @@ public:
     std::vector<PdmUiEditorHandle*>
                     connectedEditors() const;
 
+    static bool     showExtraDebugText();
+    static void     enableExtraDebugText(bool enable);
+
 public: // Pdm-Private only
     //==================================================================================================
     /// This method sets the GUI description pointer, which is supposed to be statically allocated 
@@ -261,6 +265,8 @@ private:
 
     PdmUiItemInfo*                      m_staticItemInfo;
     std::map< QString, PdmUiItemInfo >  m_configItemInfos; 
+
+    static bool                         sm_showExtraDebugText;
 };
 
 

@@ -154,6 +154,7 @@ QStringList PdmOptionItemInfo::extractUiTexts(const QList<PdmOptionItemInfo>& op
 /// PdmUiItem
 //==================================================================================================
 
+bool PdmUiItem::sm_showExtraDebugText = false;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -196,11 +197,36 @@ const QString PdmUiItem::uiToolTip(QString uiConfigName) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if (conInfo && !(conInfo->m_toolTip.isNull())) return conInfo->m_toolTip;
-    if (defInfo && !(defInfo->m_toolTip.isNull())) return defInfo->m_toolTip;
-    if (sttInfo && !(sttInfo->m_toolTip.isNull())) return sttInfo->m_toolTip;
+    QString text;
 
-    return QString(""); 
+    if (conInfo && !(conInfo->m_toolTip.isNull()))
+    {
+        text = conInfo->m_toolTip;
+        if (PdmUiItem::showExtraDebugText())
+        {
+            text += QString(" (%1)").arg(conInfo->m_extraDebugText);
+        }
+    }
+
+    if (text.isEmpty() && defInfo && !(defInfo->m_toolTip.isNull()))
+    {
+        text = defInfo->m_toolTip;
+        if (PdmUiItem::showExtraDebugText())
+        {
+            text += QString(" (%1)").arg(defInfo->m_extraDebugText);
+        }
+    }
+
+    if (text.isEmpty() && sttInfo && !(sttInfo->m_toolTip.isNull()))
+    {
+        text = sttInfo->m_toolTip;
+        if (PdmUiItem::showExtraDebugText())
+        {
+            text += QString(" (%1)").arg(sttInfo->m_extraDebugText);
+        }
+    }
+
+    return text; 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,6 +438,22 @@ std::vector<PdmUiEditorHandle*> PdmUiItem::connectedEditors() const
     }
 
     return editors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiItem::showExtraDebugText()
+{
+    return sm_showExtraDebugText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::enableExtraDebugText(bool enable)
+{
+    sm_showExtraDebugText = enable;
 }
 
 } //End of namespace caf

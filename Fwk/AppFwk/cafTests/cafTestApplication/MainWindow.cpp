@@ -37,6 +37,7 @@
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiItem.h"
 
 
 
@@ -542,6 +543,8 @@ MainWindow* MainWindow::sm_mainWindowInstance = NULL;
 //--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow()
 {
+    caf::PdmUiItem::enableExtraDebugText(true);
+
     // Initialize command framework
 
     // Register default command features (add/delete item in list)
