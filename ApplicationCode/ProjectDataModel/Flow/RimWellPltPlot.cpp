@@ -524,7 +524,7 @@ std::vector<RimWellLogFile*> RimWellPltPlot::wellLogFilesContainingFlow(const QS
             size_t timeStepCount = timeStepsFromWellLogFile(file).size();
 
             if (timeStepCount == 0) continue;
-            if(RiaWellNameComparer::tryFindMatchingWellPath(file->wellName()).isEmpty()) continue;
+            if(RiaWellNameComparer::tryFindMatchingWellPath(wellPathName).isEmpty()) continue;
 
             if (hasFlowData(file))
             {
