@@ -51,6 +51,8 @@ public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
 
+    void                                    setAsCrossPlotCurve();
+
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     RimSummaryCase*                         summaryCase() const; 
 
@@ -82,9 +84,12 @@ private:
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                                                 RimSummaryCase* summaryCase,
+                                                                                 RimSummaryFilter* summaryFilter);
 
 private:
     // Y values
@@ -93,6 +98,15 @@ private:
     caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
     caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
+
+    // X values
+    caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>  m_xValuesCurveVariable;
+    caf::PdmField<QString>                  m_xValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>   m_xValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress> m_xValuesUiFilterResultSelection;
+
+    caf::PdmField<bool>                     m_isCrossPlot;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
