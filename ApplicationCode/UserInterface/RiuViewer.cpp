@@ -62,6 +62,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
 #include "RivWellPathPartMgr.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimEclipseView.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -766,11 +768,17 @@ void RiuViewer::updateGridBoxData()
         }
 
         m_gridBoxGenerator->createGridBoxParts();
-
-        updateTextAndTickMarkColorForOverlayItems();
-
-        updateWellPathTextColor();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateAnnotationItems()
+{
+    updateTextAndTickMarkColorForOverlayItems();
+
+    updateWellPathTextColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -789,15 +797,14 @@ void RiuViewer::updateWellPathTextColor()
     RimView* rimView = ownerReservoirView();
     if (!rimView) return;
 
-    RimWellPathCollection* wellPathCollection = rimView->wellPathsPartManager();
+    cvf::Color3f color = computeContrastColor();
 
+    RimWellPathCollection* wellPathCollection = rimView->wellPathsPartManager();
     if (wellPathCollection)
     {
-        cvf::Color3f color = computeContrastColor();
-
         for (RimWellPath* path : wellPathCollection->wellPaths())
         {
-            path->partMgr()->updateWellNameTextColor(color);
+            path->partMgr()->updateWellLabelTextColor(color);
         }
     }
 }

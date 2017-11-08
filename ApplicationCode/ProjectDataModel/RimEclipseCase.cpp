@@ -715,6 +715,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             CVF_ASSERT(reservoirView);
             reservoirView->loadDataAndUpdate();
             reservoirView->updateGridBoxData();
+            reservoirView->updateAnnotationItems();
         }
 
         RimProject* project = RiaApplication::instance()->project();

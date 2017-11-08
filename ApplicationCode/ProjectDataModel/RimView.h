@@ -171,6 +171,7 @@ public:
 
 public:
     void                                    updateGridBoxData();
+    void                                    updateAnnotationItems();
     virtual RimCase*                        ownerCase() const = 0;
 
     virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }

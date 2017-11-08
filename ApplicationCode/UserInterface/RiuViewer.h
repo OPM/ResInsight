@@ -78,6 +78,8 @@ public:
     void            updateGridBoxData();
     cvf::Model*     gridBoxModel() const;
 
+    void            updateAnnotationItems();
+
     void            updateWellPathTextColor();
 
     void            showAnimationProgress(bool enable);

@@ -241,6 +241,7 @@ void RimView::updateViewWidgetAfterCreation()
     m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
     this->updateGridBoxData();
+    this->updateAnnotationItems();
     this->createHighlightAndGridBoxDisplayModel();
 
     m_viewer->update();
@@ -700,6 +701,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
         }
         updateGridBoxData();
+        updateAnnotationItems();
     }
     else if (changedField == &maximumFrameRate)
     {
@@ -954,6 +956,17 @@ void RimView::updateGridBoxData()
     if (m_viewer)
     {
         m_viewer->updateGridBoxData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateAnnotationItems()
+{
+    if (m_viewer)
+    {
+        m_viewer->updateAnnotationItems();
     }
 }
 

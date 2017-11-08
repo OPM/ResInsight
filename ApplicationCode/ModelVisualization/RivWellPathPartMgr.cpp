@@ -463,7 +463,7 @@ size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::updateWellNameTextColor(cvf::Color3f color)
+void RivWellPathPartMgr::updateWellLabelTextColor(cvf::Color3f color)
 {
     if (m_wellLabelPart.p())
     {
