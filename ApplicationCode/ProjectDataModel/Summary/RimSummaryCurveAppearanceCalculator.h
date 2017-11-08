@@ -64,6 +64,7 @@ public:
     static cvf::Color3f            cycledBlueColor(int colorIndex);
     static cvf::Color3f            cycledRedColor(int colorIndex);
     static cvf::Color3f            cycledBrownColor(int colorIndex);
+    static RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
 
 private:
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
@@ -72,7 +73,6 @@ private:
 
 
     RimPlotCurve::LineStyleEnum    cycledLineStyle(int index);
-    RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
     int                            cycledLineThickness(int index);
     float                          gradient(size_t totalCount, int index);
     

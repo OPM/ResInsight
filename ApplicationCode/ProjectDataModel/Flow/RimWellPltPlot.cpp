@@ -55,6 +55,7 @@
 #include "RigMainGrid.h"
 #include "cafVecIjk.h"
 #include "RigAccWellFlowCalculator.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPltPlot, "WellPltPlot"); 
 
@@ -924,8 +925,14 @@ public:
             size_t globCellIdx = intersections[wpExIdx].globCellIndex;
 
             auto it = globCellIdxToIdxInRftFile.find(globCellIdx);
-            if (it == globCellIdxToIdxInRftFile.end()) continue;
-
+            if (it == globCellIdxToIdxInRftFile.end())
+            {
+                if (wpExIdx == (intersections.size() - 1))
+                {
+                    m_pipeBranchWellResultPoints.pop_back();
+                }
+                continue;
+            }
             m_pipeBranchCLCoords.push_back(intersections[wpExIdx].startPoint);
             m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].startMD);
 
@@ -1009,7 +1016,14 @@ public:
             size_t globCellIdx = intersections[wpExIdx].globCellIndex;
 
             auto it = globCellIdxToIdxInSimWellBranch.find(globCellIdx);
-            if (it == globCellIdxToIdxInSimWellBranch.end()) continue;
+            if (it == globCellIdxToIdxInSimWellBranch.end())
+            {
+                if (wpExIdx == (intersections.size() - 1))
+                {
+                    m_pipeBranchWellResultPoints.pop_back();
+                }
+                continue;
+            }
 
             m_pipeBranchCLCoords.push_back(intersections[wpExIdx].startPoint);
             m_pipeBranchMeasuredDepths.push_back(intersections[wpExIdx].startMD);
@@ -1173,6 +1187,8 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
     curve->setColor(color);
     curve->setGroupId(curveGroupId);
     curve->setDoFillCurve(doFillCurve);
+    curve->setSymbol(RimSummaryCurveAppearanceCalculator::cycledSymbol(curveGroupId));
+
     plotTrack->addCurve(curve);
 
     curve->loadDataAndUpdate(true);
