@@ -24,6 +24,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCurve.h"
@@ -38,7 +39,6 @@
 #include <QMessageBox>
 
 #include <algorithm>
-#include "QMenu"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimSummaryCalculation");

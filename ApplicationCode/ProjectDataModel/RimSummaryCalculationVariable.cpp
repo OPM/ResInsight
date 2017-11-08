@@ -20,6 +20,7 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RimSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"

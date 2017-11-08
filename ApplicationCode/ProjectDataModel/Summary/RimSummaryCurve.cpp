@@ -23,9 +23,10 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RimSummaryCalculationCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryFilter.h"
@@ -41,8 +42,8 @@
 
 #include "qwt_date.h"
 
-// See also corresponding fake implementations in RimSummaryCurveFilter
 
+// See also corresponding fake implementations in RimSummaryCurveFilter
 QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
 {
     CVF_ASSERT(false);
@@ -56,96 +57,6 @@ QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
 }
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryAddress::RimSummaryAddress()
-{
-
-    CAF_PDM_InitFieldNoDefault(&m_category,          "SummaryVarType",      "Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_quantityName,      "SummaryQuantityName", "Quantity", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_regionNumber,      "SummaryRegion",       "Region", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_regionNumber2,     "SummaryRegion2",      "Region2", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellGroupName,     "SummaryWellGroup",    "Group", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellName,          "SummaryWell",         "Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumber, "SummaryWellSegment",  "Well Segment", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_lgrName,           "SummaryLgr",          "Grid", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellI,             "SummaryCellI",        "I", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellJ,             "SummaryCellJ",        "J", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellK,             "SummaryCellK",        "K", "", "", "");
-
-    m_category = RifEclipseSummaryAddress::SUMMARY_INVALID;
-    m_regionNumber = m_regionNumber2 = m_wellSegmentNumber = m_cellI = m_cellJ = m_cellK = -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryAddress::~RimSummaryAddress()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddress::setAddress(const RifEclipseSummaryAddress& addr)
-{
-    m_category                      = addr.category();
-    m_quantityName                  = addr.quantityName().c_str();
-    m_regionNumber                  = addr.regionNumber();
-    m_regionNumber2                 = addr.regionNumber2();
-    m_wellGroupName                 = addr.wellGroupName().c_str();
-    m_wellName                      = addr.wellName().c_str();
-    m_wellSegmentNumber             = addr.wellSegmentNumber();
-    m_lgrName                       = addr.lgrName().c_str();
-
-    m_cellI = addr.cellI(); m_cellJ = addr.cellJ(); m_cellK = addr.cellK();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryAddress::address()
-{
-    return RifEclipseSummaryAddress( m_category(),
-                                     m_quantityName().toStdString(),
-                                     m_regionNumber(),
-                                     m_regionNumber2(),
-                                     m_wellGroupName().toStdString(),
-                                     m_wellName().toStdString(),
-                                     m_wellSegmentNumber(),
-                                     m_lgrName().toStdString(),
-                                     m_cellI(), m_cellJ(), m_cellK());
-}
-
-namespace caf
-{
-
-template<>
-void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
-{
-    addItem(RifEclipseSummaryAddress::SUMMARY_FIELD,                "SUMMARY_FIELD",               "Field");
-    addItem(RifEclipseSummaryAddress::SUMMARY_AQUIFER,              "SUMMARY_AQUIFER",             "Aquifer");
-    addItem(RifEclipseSummaryAddress::SUMMARY_NETWORK,              "SUMMARY_NETWORK",             "Network");
-    addItem(RifEclipseSummaryAddress::SUMMARY_MISC,                 "SUMMARY_MISC",                "Misc");
-    addItem(RifEclipseSummaryAddress::SUMMARY_REGION,               "SUMMARY_REGION",              "Region");
-    addItem(RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,      "SUMMARY_REGION_2_REGION",     "Region-Region");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,           "SUMMARY_WELL_GROUP",          "Group");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL,                 "SUMMARY_WELL",                "Well");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,      "SUMMARY_WELL_COMPLETION",     "Completion");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,  "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_LGR,             "SUMMARY_WELL_LGR",            "Lgr-Well");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,         "SUMMARY_SEGMENT",             "Segment");
-    addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK,                "SUMMARY_BLOCK",               "Block");
-    addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,            "SUMMARY_BLOCK_LGR",           "Lgr-Block");
-    addItem(RifEclipseSummaryAddress::SUMMARY_CALCULATED,           "SUMMARY_CALCULATED",          "Calculated");
-    setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
-}
-
-}
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
@@ -157,33 +68,33 @@ RimSummaryCurve::RimSummaryCurve()
 {
     CAF_PDM_InitObject("Summary Curve", ":/SummaryCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
-    m_summaryCase.uiCapability()->setUiTreeChildrenHidden(true);
-    m_summaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryCase, "SummaryCase", "Case", "", "", "");
+    m_yValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden(true);
+    m_yValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
-    m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
-    m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
-    m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSelectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
+    m_yValuesSelectedVariableDisplayField.xmlCapability()->setIOWritable(false);
+    m_yValuesSelectedVariableDisplayField.xmlCapability()->setIOReadable(false);
+    m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
-    m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
-    m_summaryFilter.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "");
+    m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
+    m_yValuesSummaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilter = new RimSummaryFilter;
+    m_yValuesSummaryFilter = new RimSummaryFilter;
 
-    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
-    m_uiFilterResultSelection.xmlCapability()->setIOWritable(false);
-    m_uiFilterResultSelection.xmlCapability()->setIOReadable(false);
-    m_uiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_uiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_uiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesUiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
+    m_yValuesUiFilterResultSelection.xmlCapability()->setIOWritable(false);
+    m_yValuesUiFilterResultSelection.xmlCapability()->setIOReadable(false);
+    m_yValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_yValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_yValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
     
-    CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
-    m_curveVariable.uiCapability()->setUiHidden(true);
-    m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesCurveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
+    m_yValuesCurveVariable.uiCapability()->setUiHidden(true);
+    m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveVariable = new RimSummaryAddress;
+    m_yValuesCurveVariable = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
@@ -209,7 +120,7 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 {
-	m_summaryCase = sumCase;
+	m_yValuesSummaryCase = sumCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,7 +128,7 @@ void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCurve::summaryCase() const
 {
-    return m_summaryCase();
+    return m_yValuesSummaryCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +136,7 @@ RimSummaryCase* RimSummaryCurve::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 {
-    return m_curveVariable->address();
+    return m_yValuesCurveVariable->address();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,9 +144,9 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
 {
-    m_curveVariable->setAddress(address);
+    m_yValuesCurveVariable->setAddress(address);
 
-    m_summaryFilter->updateFromAddress(address);
+    m_yValuesSummaryFilter->updateFromAddress(address);
 
     calculateCurveInterpolationFromAddress();
 }
@@ -261,7 +172,7 @@ std::vector<double> RimSummaryCurve::yValues() const
 
     if ( !reader ) return values;
 
-    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
     reader->values(addr, &values);
 
     return values;
@@ -277,7 +188,7 @@ const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 
     if ( !reader ) return emptyVector;
 
-    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
     return reader->timeSteps(addr);
 }
 
@@ -306,7 +217,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
     if (!options.isEmpty()) return options;
 
 
-    if (fieldNeedingOptions == &m_summaryCase)
+    if (fieldNeedingOptions == &m_yValuesSummaryCase)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimSummaryCase*> cases;
@@ -325,9 +236,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
             options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
-    else if(fieldNeedingOptions == &m_uiFilterResultSelection)
+    else if(fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
     {
-        if(m_summaryCase)
+        if(m_yValuesSummaryCase)
         {
             RifSummaryReaderInterface* reader = summaryReader();
             if(reader)
@@ -336,7 +247,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
                 for(auto& address : allAddresses)
                 {
-                    if (!m_summaryFilter->isIncludedByFilter(address )) continue;
+                    if (!m_yValuesSummaryFilter->isIncludedByFilter(address )) continue;
 
                     std::string name = address.uiText();
                     QString s = QString::fromStdString(name);
@@ -358,7 +269,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    return m_curveNameConfig->curveName(m_curveVariable->address());
+    return m_curveNameConfig->curveName(m_yValuesCurveVariable->address());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,9 +290,9 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
-    m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
+    m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
 
-    m_uiFilterResultSelection = m_curveVariable->address();
+    m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
     updateConnectedEditors();
 
     if (isCurveVisible())
@@ -440,13 +351,13 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     RimPlotCurve::updateOptionSensitivity();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
-    curveDataGroup->add(&m_summaryCase);
-    curveDataGroup->add(&m_selectedVariableDisplayField);
+    curveDataGroup->add(&m_yValuesSummaryCase);
+    curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
     curveVarSelectionGroup->setCollapsedByDefault(true);
-    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
-    curveVarSelectionGroup->add(&m_uiFilterResultSelection);
+    m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
+    curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
 
     uiOrdering.add(&m_plotAxis);
 
@@ -503,9 +414,9 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     firstAncestorOrThisOfType(plot);
     CVF_ASSERT(plot);
 
-    if(changedField == &m_uiFilterResultSelection)
+    if(changedField == &m_yValuesUiFilterResultSelection)
     {
-        m_curveVariable->setAddress(m_uiFilterResultSelection());
+        m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
         this->calculateCurveInterpolationFromAddress();
         this->loadDataAndUpdate(true);
@@ -522,7 +433,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         plot->updateAxes();
     }
-    else if (changedField == &m_summaryCase)
+    else if (changedField == &m_yValuesSummaryCase)
     {
         plot->updateCaseNameHasChanged();
         this->onLoadDataAndUpdate(true);
@@ -534,9 +445,9 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimSummaryCurve::summaryReader() const
 {
-    if (!m_summaryCase()) return nullptr;
+    if (!m_yValuesSummaryCase()) return nullptr;
 
-    return m_summaryCase()->summaryReader();
+    return m_yValuesSummaryCase()->summaryReader();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -558,7 +469,7 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
    
     if (!reader) return false;
 
-    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
     
     std::vector<time_t> times = reader->timeSteps(addr);
     *timeSteps = RifReaderEclipseSummary::fromTimeT(times);
@@ -573,9 +484,9 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
-    if (m_curveVariable())
+    if (m_yValuesCurveVariable())
     {
-        QString quantityName = QString::fromUtf8(m_curveVariable()->address().quantityName().c_str());
+        QString quantityName = QString::fromUtf8(m_yValuesCurveVariable()->address().quantityName().c_str());
         if (quantityName.endsWith("T"))
         {
             m_curveInterpolation = INTERPOLATION_POINT_TO_POINT;

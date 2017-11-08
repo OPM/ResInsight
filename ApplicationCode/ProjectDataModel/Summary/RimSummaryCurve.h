@@ -25,8 +25,8 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
-#include "RifEclipseSummaryAddressQMetaType.h"
 #include "RiaDefines.h"
+#include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"
@@ -36,34 +36,8 @@ class RimSummaryCase;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
+class RimSummaryAddress;
 
-
-class RimSummaryAddress: public caf::PdmObject
-{
-    CAF_PDM_HEADER_INIT;
-public:
-    RimSummaryAddress();;
-    virtual ~RimSummaryAddress();
-
-    void setAddress(const RifEclipseSummaryAddress& addr);
-    RifEclipseSummaryAddress address();
-
-private:
-
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
-        m_category;
-    caf::PdmField<QString>                  m_quantityName;
-    caf::PdmField<int>                      m_regionNumber;
-    caf::PdmField<int>                      m_regionNumber2;
-    caf::PdmField<QString>                  m_wellGroupName;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<int>                      m_wellSegmentNumber;
-    caf::PdmField<QString>                  m_lgrName;
-    caf::PdmField<int>                      m_cellI;
-    caf::PdmField<int>                      m_cellJ;
-    caf::PdmField<int>                      m_cellK;
-
-};
 
 //==================================================================================================
 ///  
@@ -113,16 +87,13 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    // Fields
-    caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
-    caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
-    caf::PdmField<QString>                  m_selectedVariableDisplayField;
+    // Y values
+    caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>  m_yValuesCurveVariable;
+    caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
 
-    caf::PdmChildField<RimSummaryCurveAutoName*>   m_curveNameConfig;
-
-    caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;
-
-    // Filter fields
-    caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-    caf::PdmField<RifEclipseSummaryAddress> m_uiFilterResultSelection;
+    caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
+    caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 };
