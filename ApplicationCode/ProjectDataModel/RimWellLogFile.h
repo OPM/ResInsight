@@ -58,7 +58,8 @@ public:
                                          
     void                                 setFileName(const QString& fileName);
     QString                              fileName() const        { return m_fileName; }
-                                         
+    QString                              name() const            { return m_name; }
+
     bool                                 readFile(QString* errorMessage);
                                          
     QString                              wellName() const;

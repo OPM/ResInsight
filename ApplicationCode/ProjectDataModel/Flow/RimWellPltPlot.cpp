@@ -1059,22 +1059,30 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
             std::set<FlowPhase>({ PHASE_TOTAL });
+        
+        RifWellRftAddress sourceDef = curveDefToAdd.first;
+        QDateTime timeStep = curveDefToAdd.second;
 
         std::unique_ptr<RigResultPointCalculator> resultPointCalc;
+        QString curveName;
+        curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
+        curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
+        if (sourceDef.sourceType() == RifWellRftAddress::RFT) curveName += ", RFT";
+        curveName += ", " + timeStep.toString();
 
-        if ( curveDefToAdd.first.sourceType() == RifWellRftAddress::RFT )
+        if ( sourceDef.sourceType() == RifWellRftAddress::RFT )
         {
             resultPointCalc.reset(new RigRftResultPointCalculator(m_wellName(),
                                                                   m_branchIndex(),
-                                                                  dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()),
-                                                                  curveDefToAdd.second));
+                                                                  dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
+                                                                  timeStep));
         }
-        else if (curveDefToAdd.first.sourceType() == RifWellRftAddress::GRID)
+        else if (sourceDef.sourceType() == RifWellRftAddress::GRID)
         {
             resultPointCalc.reset(new RigSimWellResultPointCalculator(m_wellName(),
                                                                       m_branchIndex(),
-                                                                      dynamic_cast<RimEclipseResultCase*>(curveDefToAdd.first.eclCase()),
-                                                                      curveDefToAdd.second));
+                                                                      dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
+                                                                      timeStep));
 
         }
 
@@ -1092,14 +1100,30 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                  std::vector<QString> tracerNames = wfAccumulator.tracerNames();
                  for ( const QString& tracerName: tracerNames )
                  {
-                     const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
-                     addStackedCurve(tracerName, depthValues, accFlow, plotTrack, curveGroupId, false);
+                     auto color = tracerName == RIG_FLOW_OIL_NAME   ? cvf::Color3f::DARK_GREEN :
+                                  tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED :
+                                  tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE :
+                                  cvf::Color3f::DARK_GRAY;
+
+                     if (    tracerName == RIG_FLOW_OIL_NAME  && selectedPhases.count(PHASE_OIL) 
+                          || tracerName == RIG_FLOW_GAS_NAME  && selectedPhases.count(PHASE_GAS)
+                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(PHASE_WATER) )
+                     {
+                         const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
+                         addStackedCurve(curveName + ", " + tracerName, 
+                                         depthValues, 
+                                         accFlow, 
+                                         plotTrack, 
+                                         color, 
+                                         curveGroupId, 
+                                         false);
+                     }
                  }
              }
         }
-        else if ( curveDefToAdd.first.sourceType() == RifWellRftAddress::OBSERVED )
+        else if ( sourceDef.sourceType() == RifWellRftAddress::OBSERVED )
         {
-            RimWellLogFile* const wellLogFile = curveDefToAdd.first.wellLogFile();
+            RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
             if(wellLogFile!= nullptr)
             {
                 RigWellLogFile* rigWellLogFile = wellLogFile->wellLogFile();
@@ -1111,10 +1135,16 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         const auto& channelName = channel->name();
                         if (selectedPhases.count(flowPhaseFromChannelName(channelName)) > 0)
                         {
-                            addStackedCurve(channelName, 
+                            auto color = channelName == OIL_CHANNEL_NAME   ? cvf::Color3f::DARK_GREEN :
+                                         channelName == GAS_CHANNEL_NAME   ? cvf::Color3f::DARK_RED :
+                                         channelName == WATER_CHANNEL_NAME ? cvf::Color3f::BLUE :
+                                         cvf::Color3f::DARK_GRAY;
+
+                            addStackedCurve(curveName + ", " + channelName, 
                                             rigWellLogFile->depthValues(), 
                                             rigWellLogFile->values(channelName),
                                             plotTrack, 
+                                            color,
                                             curveGroupId, 
                                             true);
                         }
@@ -1129,20 +1159,17 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::addStackedCurve(const QString& channelName,
+void RimWellPltPlot::addStackedCurve(const QString& curveName,
                                      const std::vector<double>& depthValues,
                                      const std::vector<double>& accFlow,
                                      RimWellLogTrack* plotTrack,
+                                     cvf::Color3f color,
                                      int curveGroupId,
                                      bool doFillCurve)
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValuesPrDepthValue(channelName, depthValues, accFlow);
+    curve->setFlowValuesPrDepthValue(curveName, depthValues, accFlow);
 
-    auto color = channelName == OIL_CHANNEL_NAME   ? cvf::Color3f::DARK_GREEN :
-                 channelName == GAS_CHANNEL_NAME   ? cvf::Color3f::DARK_RED :
-                 channelName == WATER_CHANNEL_NAME ? cvf::Color3f::BLUE : 
-                 cvf::Color3f::DARK_GRAY;
     curve->setColor(color);
     curve->setGroupId(curveGroupId);
     curve->setDoFillCurve(doFillCurve);

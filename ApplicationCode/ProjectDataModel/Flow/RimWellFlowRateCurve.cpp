@@ -126,7 +126,7 @@ bool RimWellFlowRateCurve::doFillCurve() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::createCurveAutoName()
 {
-    return m_tracerName;
+    return m_curveAutoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,12 +315,12 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& tracerName, const std::vector<double>& depthValues, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& curveName, const std::vector<double>& depthValues, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
 
     m_curveData->setValuesAndMD(flowRates, depthValues, RiaDefines::UNIT_NONE, false);
 
-    m_tracerName = tracerName;
+    m_curveAutoName = curveName;
 }
 

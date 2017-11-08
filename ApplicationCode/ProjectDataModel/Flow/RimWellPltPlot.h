@@ -151,6 +151,7 @@ private:
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
                                                                     RimWellLogTrack* plotTrack,
+                                                                    cvf::Color3f color,
                                                                     int curveGroupId,
                                                                     bool doFillCurve);
 
