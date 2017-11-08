@@ -66,7 +66,7 @@ void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& cu
 {
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
-    plotCurve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues, false);
+    plotCurve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);
     plotCurve->setTitle(curveName);
 
     plotCurve->setPen(QPen(QColor(curveColor.rByte(), curveColor.gByte(), curveColor.bByte())));

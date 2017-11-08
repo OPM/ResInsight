@@ -407,7 +407,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
         {
             if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndValues(dateTimes, values, isLogCurve);
+                m_qwtPlotCurve->setSamplesFromTimeTAndYValues(dateTimes, values, isLogCurve);
             }
             else
             {
@@ -423,13 +423,13 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
                     }
                 }
 
-                m_qwtPlotCurve->setSamplesFromTimeAndValues(times, values, isLogCurve);
+                m_qwtPlotCurve->setSamplesFromXValuesAndYValues(times, values, isLogCurve);
             }
            
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
+            m_qwtPlotCurve->setSamplesFromTimeTAndYValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
         }
 
         if ( updateParentPlot && m_parentQwtPlot)

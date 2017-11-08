@@ -322,11 +322,11 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             std::vector<time_t> dateTimes = timeStepValues();
             if (dateTimes.size() > 0 && dateTimes.size() == values.size())
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndValues(dateTimes, values, isLogCurve);
+                m_qwtPlotCurve->setSamplesFromTimeTAndYValues(dateTimes, values, isLogCurve);
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
+                m_qwtPlotCurve->setSamplesFromTimeTAndYValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
             }
         }
         else
@@ -342,11 +342,11 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate(bool updateParentPlot)
                     times.push_back(timeScale * day);
                 }
 
-                m_qwtPlotCurve->setSamplesFromTimeAndValues(times, values, isLogCurve);
+                m_qwtPlotCurve->setSamplesFromXValuesAndYValues(times, values, isLogCurve);
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
+                m_qwtPlotCurve->setSamplesFromTimeTAndYValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
             }
         }
 

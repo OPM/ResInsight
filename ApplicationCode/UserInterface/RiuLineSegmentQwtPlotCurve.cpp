@@ -51,30 +51,30 @@ RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool removeNegativeValues)
 {
-    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
+    CVF_ASSERT(xValues.size() == yValues.size());
 
     QPolygonF points;
     std::vector< std::pair<size_t, size_t> > filteredIntervals;
     {
-        std::vector<double> filteredTimeHistoryValues;
-        std::vector<QDateTime> filteredDateTimes;
+        std::vector<double> filteredYValues;
+        std::vector<double> filteredXValues;
 
         {
             std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
+            RigCurveDataTools::calculateIntervalsOfValidValues(yValues, &intervalsOfValidValues, removeNegativeValues);
 
-            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
-            RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
+            RigCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
+            RigCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
 
             RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
         }
 
-        for ( size_t i = 0; i < filteredDateTimes.size(); i++ )
+        points.reserve(static_cast<int>(filteredXValues.size()));
+        for ( size_t i = 0; i < filteredXValues.size(); i++ )
         {
-            double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
-            points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
+            points << QPointF(filteredXValues[i], filteredYValues[i]);
         }
     }
 
@@ -85,68 +85,17 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndValues(const std::vector<time_t>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool removeNegativeValues)
 {
-    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
-
-    QPolygonF points;
-    std::vector< std::pair<size_t, size_t> > filteredIntervals;
-    {
-        std::vector<double> filteredTimeHistoryValues;
-        std::vector<time_t> filteredDateTimes;
-
-        {
-            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
-
-            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
-            RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
-
-            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
-        }
-
-        for (size_t i = 0; i < filteredDateTimes.size(); i++)
-        {
-            double milliSecSinceEpoch = filteredDateTimes[i] * 1000; // This is kind of hack, as the c++ standard does not state what time_t is. "Almost always" secs since epoch according to cppreference.com
-            points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
-        }
-    }
-
-    this->setSamples(points);
-    this->setLineSegmentStartStopIndices(filteredIntervals);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, removeNegativeValues);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeAndValues(const std::vector<double>& times, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool removeNegativeValues)
 {
-    CVF_ASSERT(times.size() == timeHistoryValues.size());
-
-    QPolygonF points;
-    std::vector< std::pair<size_t, size_t> > filteredIntervals;
-    {
-        std::vector<double> filteredTimeHistoryValues;
-        std::vector<double> filteredTimes;
-
-        {
-            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
-
-            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
-            RigCurveDataTools::getValuesByIntervals(times, intervalsOfValidValues, &filteredTimes);
-
-            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
-        }
-
-        for ( size_t i = 0; i < filteredTimes.size(); i++ )
-        {
-            points << QPointF(filteredTimes[i], filteredTimeHistoryValues[i]);
-        }
-    }
-
-    this->setSamples(points);
-    this->setLineSegmentStartStopIndices(filteredIntervals);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, removeNegativeValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,4 +200,45 @@ void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vecto
 void RiuLineSegmentQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
 {
     m_symbolSkipPixelDistance = distance >= 0.0f ? distance: 0.0f;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RiuLineSegmentQwtPlotCurve::fromQDateTime(const std::vector<QDateTime>& dateTimes)
+{
+    std::vector<double> doubleValues;
+
+    if (!dateTimes.empty())
+    {
+        doubleValues.reserve(dateTimes.size());
+
+        for (const auto& dt : dateTimes)
+        {
+            doubleValues.push_back(QwtDate::toDouble(dt));
+        }
+    }
+
+    return doubleValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RiuLineSegmentQwtPlotCurve::fromTime_t(const std::vector<time_t>& timeSteps)
+{
+    std::vector<double> doubleValues;
+
+    if (!timeSteps.empty())
+    {
+        doubleValues.reserve(timeSteps.size());
+        for (const auto& time : timeSteps)
+        {
+            double milliSecSinceEpoch = time * 1000; // This is kind of hack, as the c++ standard does not state what time_t is. "Almost always" secs since epoch according to cppreference.com
+        
+            doubleValues.push_back(milliSecSinceEpoch);
+        }
+    }
+
+    return doubleValues;
 }

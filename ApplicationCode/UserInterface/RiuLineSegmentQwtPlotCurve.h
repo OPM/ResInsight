@@ -47,14 +47,21 @@ public:
     explicit RiuLineSegmentQwtPlotCurve(const QString &title = QString::null);
     virtual ~RiuLineSegmentQwtPlotCurve();
 
-    void         setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
-    void         setSamplesFromTimeTAndValues(const std::vector<time_t>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
-    void         setSamplesFromTimeAndValues(const std::vector<double>& times, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
+    void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
+                                                 const std::vector<double>& yValues,
+                                                 bool removeNegativeValues);
+    
+    void         setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes,
+                                               const std::vector<double>& yValues,
+                                               bool removeNegativeValues);
+
+    void         setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes,
+                                               const std::vector<double>& yValues,
+                                               bool removeNegativeValues);
 
     void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 
     void         setSymbolSkipPixelDistance(float distance);
-
 
 protected:
     virtual void drawCurve(QPainter* p, int style,
@@ -68,6 +75,10 @@ protected:
                              const QwtScaleMap &yMap, 
                              const QRectF &canvasRect, 
                              int from, int to) const override;
+
+private:
+    static std::vector<double>  fromQDateTime(const std::vector<QDateTime>& dateTimes);
+    static std::vector<double>  fromTime_t(const std::vector<time_t>& timeSteps);
 
 private:
     std::vector< std::pair<size_t, size_t> > m_polyLineStartStopIndices;

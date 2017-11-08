@@ -160,7 +160,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(QwtPlot* plot, const QS
     timeHistoryValues.push_back(timeHistoryValue);
     timeHistoryValues.push_back(timeHistoryValue);
 
-    curve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues, false);
+    curve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime& date
     CVF_ASSERT(!m_dateToColorMap.empty());
 
     RiuLineSegmentQwtPlotCurve* plotCurve = createEmptyCurve(m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime]);
-    plotCurve->setSamplesFromTimeAndValues(xVals, yVals, false);
+    plotCurve->setSamplesFromXValuesAndYValues(xVals, yVals, false);
     m_flowCapVsStorageCapPlot->replot();
 }
 
@@ -196,7 +196,7 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve(const QDateTime& dateTi
     CVF_ASSERT(!m_dateToColorMap.empty());
 
     RiuLineSegmentQwtPlotCurve* plotCurve = createEmptyCurve(m_sweepEffPlot, dateTime.toString(),  m_dateToColorMap[dateTime]);
-    plotCurve->setSamplesFromTimeAndValues(xVals, yVals, false);
+    plotCurve->setSamplesFromXValuesAndYValues(xVals, yVals, false);
 
     m_sweepEffPlot->replot();
 }
