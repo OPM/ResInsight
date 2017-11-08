@@ -83,11 +83,6 @@ public:
     QString                                         currentWellName() const;
     int                                             branchIndex() const;
 
-    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
-    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
-    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
-    static bool                                     hasPressureData(RimWellPath* wellPath);
-    static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
     static const char*                              plotNameFormatString();
 
     void                                            applyInitialSelections();
@@ -106,36 +101,17 @@ protected:
     virtual void                                    onLoadDataAndUpdate() override;
 
 private:
-    static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
-                                                                     const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
-    static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
-                                                                      const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateEditorsFromCurves();
     void                                            updateWidgetTitleWindowTitle();
 
     void                                            syncCurvesFromUiSelection();
 
-    std::vector<RimWellLogFile*>                    wellLogFilesContainingPressure(const QString& wellName) const;
-    RimWellLogFileChannel*                          getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile) const;
-
-    RimWellPath*                                    wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const;
-    
-    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
-    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps, 
-                                                                       const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair);
-    static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RifWellRftAddress>>& map, const QDateTime& timeStep);
-
     std::set<std::pair<RifWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefsFromCurves() const;
-    std::pair<RifWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
+
     void                                            updateCurvesInPlot(const std::set<std::pair<RifWellRftAddress, QDateTime>>& allCurveDefs,
                                                                        const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);

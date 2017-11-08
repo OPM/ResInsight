@@ -31,6 +31,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPlotTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -320,7 +321,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
             for (RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles())
             {
-                if (!isRftChild || RimWellRftPlot::hasPressureData(wellLogFile))
+                if (!isRftChild || RimWellPlotTools::hasPressureData(wellLogFile))
                 {
                     QFileInfo fileInfo(wellLogFile->fileName());
                     options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));

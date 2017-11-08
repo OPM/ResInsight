@@ -16,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellRftPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellPltPlot.h
 ${CEE_CURRENT_LIST_DIR}RimRftAddress.h
+${CEE_CURRENT_LIST_DIR}RimWellPlotTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -30,6 +31,7 @@ ${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellRftPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPltPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimRftAddress.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPlotTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
