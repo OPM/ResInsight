@@ -70,6 +70,8 @@ RiaPreferences::RiaPreferences(void)
     showHud.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "Show Class Names", "", "", "");
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
+    appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -119,6 +121,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &useShaders ||
             field == &showHud ||
             field == &appendClassNameToUiText ||
+            field == &appendFieldKeywordToToolTipText ||
             field == &showLasCurveWithoutTvdWarning)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
@@ -177,6 +180,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     else if (uiConfigName == m_tabNames[3])
     {
         uiOrdering.add(&appendClassNameToUiText);
+        uiOrdering.add(&appendFieldKeywordToToolTipText);
     }
 
     uiOrdering.skipRemainingFields(true);

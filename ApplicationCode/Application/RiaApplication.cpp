@@ -1739,6 +1739,8 @@ void RiaApplication::applyPreferences()
             view->scheduleCreateDisplayModelAndRedraw();
         }
     }
+
+    caf::PdmUiItem::enableExtraDebugText(m_preferences->appendFieldKeywordToToolTipText());
 }
 
 //--------------------------------------------------------------------------------------------------
