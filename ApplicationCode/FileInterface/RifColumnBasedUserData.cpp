@@ -85,9 +85,14 @@ bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddres
         const ColumnInfo* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
         if (!ci) return false;
 
-        for (const auto& v : ci->values)
+        if (!ci->values.empty())
         {
-            values->push_back(v);
+            values->resize(ci->values.size());
+
+            for (const auto& v : ci->values)
+            {
+                values->push_back(v);
+            }
         }
     }
 
