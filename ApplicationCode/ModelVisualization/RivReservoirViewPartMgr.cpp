@@ -424,7 +424,6 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
         cvf::ref<cvf::UByteArray> cellVisibility = m_propFilteredGeometryFrames[frameIndex]->cellVisibility(gIdx); 
         cvf::ref<cvf::UByteArray> rangeVisibility; 
         cvf::ref<cvf::UByteArray> fenceVisibility; 
-        cvf::cref<cvf::UByteArray> isWellCell = res->wellCellsInGrid(gIdx); 
 
         if (hasActiveRangeFilters && hasVisibleWellCells)
         {

@@ -1298,18 +1298,6 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
             const std::vector< RigWellResultFrame >& wellResFrames = simWellData->m_wellCellsTimeSteps;
             for (size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx)
             {
-                // Add the wellhead cell if it is active
-                if (wellResFrames[wfIdx].m_wellHead.m_gridIndex == grid->gridIndex())
-                {
-                    size_t gridCellIndex = wellResFrames[wfIdx].m_wellHead.m_gridCellIndex;
-                    size_t reservoirCellIndex = grid->reservoirCellIndex(gridCellIndex);
-
-                    if (activeCellInfo->isActive(reservoirCellIndex))
-                    {
-                        (*visibleCells)[gridCellIndex] = true;
-                    }
-                }
-
                 // Add all the cells from the branches
 
                 const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;

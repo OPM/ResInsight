@@ -213,27 +213,11 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
         {
             RigWellResultFrame& wellCells =  m_simWellData[wIdx]->m_wellCellsTimeSteps[tIdx];
 
-            // Well head
-            {
-                size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
-                size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
-
-                if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
-                {
-                    size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
-                    if (m_activeCellInfo->isActive(reservoirCellIndex) 
-                        || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
-                    {
-                        m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                        m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
-                    }
-                }
-            }
-
             // Well result branches
             for (size_t sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
             {
                 RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[sIdx];
+
                 size_t cdIdx;
                 for (cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx)
                 {
