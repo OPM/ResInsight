@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT(RimGridCollection, "GridCollection");
 //--------------------------------------------------------------------------------------------------
 RimGridCollection::RimGridCollection()
 {
-    CAF_PDM_InitObject("Grids", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitObject("Grids", ":/draw_style_meshlines_24x24.png", "", "");
 
     CAF_PDM_InitField(&isActive, "IsActive", true, "Show grid cells", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
