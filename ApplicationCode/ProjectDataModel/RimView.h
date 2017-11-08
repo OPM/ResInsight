@@ -131,7 +131,7 @@ public:
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
    
-    void                                    showGridCells(bool enableHideGridCells);
+    void                                    showGridCells(bool enableGridCells);
     bool                                    isGridVisualizationMode() const;
 
     void                                    setScaleZAndUpdate(double scaleZ);

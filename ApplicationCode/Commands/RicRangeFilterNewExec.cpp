@@ -19,9 +19,12 @@
 
 #include "RicRangeFilterNewExec.h"
 
+#include "RiaApplication.h"
+
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimView.h"
+
 #include "RiuMainWindow.h"
 
 
@@ -73,6 +76,12 @@ void RicRangeFilterNewExec::redo()
         m_cellRangeFilterCollection->updateConnectedEditors();
 
         RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
+        
+        RimView* view = nullptr;
+        m_cellRangeFilterCollection->firstAncestorOrThisOfTypeAsserted(view);
+
+        //Enable display of grid cells, to be able to show generated range filter
+        view->showGridCells(true);
     }
 }
 
