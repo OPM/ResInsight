@@ -20,6 +20,7 @@
 
 
 #include "RifWellRftAddressQMetaType.h"
+#include "RiaRftPltCurveDefinition.h"
 
 #include <QMetaType>
 
@@ -63,12 +64,30 @@ public:
 
     static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& wellName);
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& wellName);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase, const QString& wellName);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile);
+
+    static std::set<QDateTime>                              timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& wellName);
+    static std::set<QDateTime>                              timeStepsFromGridCase(RimEclipseCase* gridCase);
+    static QDateTime                                        timeStepFromWellLogFile(RimWellLogFile* wellLogFile);
+
+    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& wellName);
+    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
+    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps,
                                                                               const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair);
     static bool                                             mapContainsTimeStep(const std::map<QDateTime, std::set<RifWellRftAddress>>& map, const QDateTime& timeStep);
 
-    static std::pair<RifWellRftAddress, QDateTime>          curveDefFromCurve(const RimWellLogCurve* curve);
+    static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
+
+    template<typename T>
+    static void appendSet(std::set<T>& destSet, const std::set<T>& setToAppend);
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+void RimWellPlotTools::appendSet(std::set<T>& destSet, const std::set<T>& setToAppend)
+{
+    destSet.insert(setToAppend.begin(), setToAppend.end());
+}
+

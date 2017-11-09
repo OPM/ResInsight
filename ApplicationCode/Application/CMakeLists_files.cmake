@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RiaDefines.h
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.h
 ${CEE_CURRENT_LIST_DIR}RiaPorosityModel.h
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveDefinition.h
+${CEE_CURRENT_LIST_DIR}RiaRftPltCurveDefinition.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -19,6 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RiaMain.cpp
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.cpp
 ${CEE_CURRENT_LIST_DIR}RiaPorosityModel.cpp
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveDefinition.cpp
+${CEE_CURRENT_LIST_DIR}RiaRftPltCurveDefinition.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

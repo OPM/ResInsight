@@ -21,6 +21,8 @@
 
 #include "RimViewWindow.h"
 
+#include "RiaRftPltCurveDefinition.h"
+
 #include "RimCase.h"
 #include "RimPlotCurve.h"
 
@@ -109,11 +111,11 @@ private:
 
     void                                            syncCurvesFromUiSelection();
 
-    std::set<std::pair<RifWellRftAddress, QDateTime>> selectedCurveDefs() const;
-    std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefsFromCurves() const;
+    std::set<RiaRftPltCurveDefinition>              selectedCurveDefs() const;
+    std::set<RiaRftPltCurveDefinition>              curveDefsFromCurves() const;
 
-    void                                            updateCurvesInPlot(const std::set<std::pair<RifWellRftAddress, QDateTime>>& allCurveDefs,
-                                                                       const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefsToAdd,
+    void                                            updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
+                                                                       const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;
