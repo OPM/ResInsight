@@ -70,6 +70,15 @@ void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg)
 
     m_textEdit->moveCursor(QTextCursor::End);
     m_textEdit->ensureCursorVisible();
+
+    if (messageLevel == RI_LL_ERROR || messageLevel == RI_LL_WARNING)
+    {
+        QDockWidget* parentDockWidget = dynamic_cast<QDockWidget*>(this->parent());
+        if (parentDockWidget && !parentDockWidget->isVisible())
+        {
+            parentDockWidget->toggleViewAction()->trigger();
+        }
+    }
 }
 
 
