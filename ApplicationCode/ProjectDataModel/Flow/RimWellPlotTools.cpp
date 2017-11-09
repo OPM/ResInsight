@@ -39,6 +39,20 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include <regex>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::set<QString> RimWellPlotTools::PRESSURE_DATA_NAMES = { "PRESSURE", "PRES_FORM" };
+
+const std::set<QString> RimWellPlotTools::OIL_CHANNEL_NAMES = { "QOZT", "QOIL", "^.*\\D_QOIL" };
+const std::set<QString> RimWellPlotTools::GAS_CHANNEL_NAMES = { "QGZT", "QGAS", "^.*\\D_QGAS" };
+const std::set<QString> RimWellPlotTools::WATER_CHANNEL_NAMES = { "QWZT", "QWAT", "^.*\\D_QWAT" };
+const std::set<QString> RimWellPlotTools::TOTAL_CHANNEL_NAMES = { "QTZT", "QTOT", "^.*\\D_QTOT" };
+
+std::set<QString> RimWellPlotTools::FLOW_DATA_NAMES = {};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -46,7 +60,7 @@
 class StaticFieldsInitializer
 {
 public:
-    StaticFieldsInitializer() 
+    StaticFieldsInitializer()
     {
         // Init static list
         RimWellPlotTools::FLOW_DATA_NAMES.insert(RimWellPlotTools::OIL_CHANNEL_NAMES.begin(), RimWellPlotTools::OIL_CHANNEL_NAMES.end());
@@ -54,20 +68,7 @@ public:
         RimWellPlotTools::FLOW_DATA_NAMES.insert(RimWellPlotTools::WATER_CHANNEL_NAMES.begin(), RimWellPlotTools::WATER_CHANNEL_NAMES.end());
         RimWellPlotTools::FLOW_DATA_NAMES.insert(RimWellPlotTools::TOTAL_CHANNEL_NAMES.begin(), RimWellPlotTools::TOTAL_CHANNEL_NAMES.end());
     }
-};
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::set<QString> RimWellPlotTools::PRESSURE_DATA_NAMES = { "PRESSURE", "PRES_FORM" };
-
-const std::set<QString> RimWellPlotTools::OIL_CHANNEL_NAMES = { "QOZT", "QOIL" };
-const std::set<QString> RimWellPlotTools::GAS_CHANNEL_NAMES = { "QGZT", "QGAS" };
-const std::set<QString> RimWellPlotTools::WATER_CHANNEL_NAMES = { "QWZT", "QWAT" };
-const std::set<QString> RimWellPlotTools::TOTAL_CHANNEL_NAMES = { "QTZT", "QTOT" };
-
-std::set<QString> RimWellPlotTools::FLOW_DATA_NAMES = {};
-
+} staticFieldsInitializer;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -167,7 +168,7 @@ bool RimWellPlotTools::hasFlowData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::isFlowChannel(RimWellLogFileChannel* channel)
 {
-    return FLOW_DATA_NAMES.count(channel->name()) > 0;
+    return tryMatchChannelName(FLOW_DATA_NAMES, channel->name());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ bool RimWellPlotTools::isFlowChannel(RimWellLogFileChannel* channel)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::isOilFlowChannel(const QString& channelName)
 {
-    return OIL_CHANNEL_NAMES.count(channelName) > 0;
+    return tryMatchChannelName(OIL_CHANNEL_NAMES, channelName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +184,7 @@ bool RimWellPlotTools::isOilFlowChannel(const QString& channelName)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::isGasFlowChannel(const QString& channelName)
 {
-    return GAS_CHANNEL_NAMES.count(channelName) > 0;
+    return tryMatchChannelName(GAS_CHANNEL_NAMES, channelName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +192,7 @@ bool RimWellPlotTools::isGasFlowChannel(const QString& channelName)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::isWaterFlowChannel(const QString& channelName)
 {
-    return WATER_CHANNEL_NAMES.count(channelName) > 0;
+    return tryMatchChannelName(WATER_CHANNEL_NAMES, channelName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,7 +663,15 @@ bool RimWellPlotTools::tryMatchChannelName(const std::set<QString>& channelNames
 {
     auto itr = std::find_if(channelNames.begin(), channelNames.end(), [&](const QString& channelName)
     {
-        return channelName.contains(channelNameToMatch, Qt::CaseInsensitive);
+        if (channelName.startsWith('^'))
+        {
+            std::regex pattern(channelName.toStdString());
+            return std::regex_match(channelNameToMatch.toStdString(), pattern);
+        }
+        else
+        {
+            return (bool)channelName.contains(channelNameToMatch, Qt::CaseInsensitive);
+        }
     });
     return itr != channelNames.end();
 }

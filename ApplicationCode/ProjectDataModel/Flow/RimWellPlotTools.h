@@ -36,7 +36,6 @@ class RimWellPath;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
 
-
 //==================================================================================================
 ///  
 //==================================================================================================
@@ -109,10 +108,7 @@ public:
     template<typename T>
     static void appendSet(std::set<T>& destSet, const std::set<T>& setToAppend);
 
-private:
     friend class StaticFieldsInitializer;
-
-    static StaticFieldsInitializer  ms_staticFieldInitializer;
 };
 
 //--------------------------------------------------------------------------------------------------
