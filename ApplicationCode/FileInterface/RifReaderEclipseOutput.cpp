@@ -1139,25 +1139,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_flowRate = volumeRate; 
         resultPoint.m_oilRate   =   oilRate;
         resultPoint.m_waterRate = waterRate;
-
-        /// Unit conversion for use with Well Allocation plots
-        // Convert Gas to oil equivalents
-        // If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel) 
-
-        // Unused Gas to Barrel conversion 
-        // we convert gas to stb as well. Based on 
-        // 1 [stb] = 0.15898729492800007 [m^3]
-        // 1 [ft]  = 0.3048 [m]
-        // megaFt3ToStbFactor = 1.0 / (1.0e-6 * 0.15898729492800007 * ( 1.0 / 0.3048 )^3 )
-        // double megaFt3ToStbFactor = 178107.60668;
-        
-        double fieldGasToOilEquivalent  = 1.0e6/5800; // Mega ft^3 to BOE
-        double metricGasToOilEquivalent = 1.0/1.0e3; // Sm^3 Gas to Sm^3 oe  
-
-        if (m_eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_FIELD)  gasRate = fieldGasToOilEquivalent * gasRate; 
-        if (m_eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_METRIC) gasRate = metricGasToOilEquivalent * gasRate; 
-
-        resultPoint.m_gasRate   =   gasRate;
+ 
+        resultPoint.m_gasRate   =   RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(m_eclipseCase->unitsType(), gasRate);
     }
 
     return resultPoint;

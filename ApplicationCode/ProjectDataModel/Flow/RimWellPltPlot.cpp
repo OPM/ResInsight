@@ -668,11 +668,12 @@ public:
 
             RigWellResultPoint resPoint;
             resPoint.m_isOpen = true;
-            resPoint.m_gridIndex = 0; // Always main grod
+            resPoint.m_gridIndex = 0; // Always main grid
             resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have main grid results from RFT
 
-            resPoint.m_oilRate   = gasRates[it->second];  
-            resPoint.m_gasRate   = oilRates[it->second];  
+            resPoint.m_gasRate   =   RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(eclCase->eclipseCaseData()->unitsType(),  
+                                                                                                    gasRates[it->second]);
+            resPoint.m_oilRate   = oilRates[it->second];  
             resPoint.m_waterRate = watRates[it->second];
 
             m_pipeBranchWellResultPoints.push_back(resPoint);
