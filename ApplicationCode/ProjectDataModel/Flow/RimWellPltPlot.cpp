@@ -895,6 +895,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         curveGroupId++;
     }
+    m_wellLogPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
