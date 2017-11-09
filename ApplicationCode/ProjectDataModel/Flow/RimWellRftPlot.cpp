@@ -446,9 +446,9 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 std::set < RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
-    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(m_wellPathNameOrSimWellName);
-    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(m_wellPathNameOrSimWellName);
     const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
+    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
+    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
     {
@@ -514,6 +514,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                                         const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                         const std::set<RimWellLogCurve*>& curvesToDelete)
 {
+    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
     RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
 
     // Delete curves
@@ -547,7 +548,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
 
             cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(plotTrack->curveCount());
             curve->setColor(curveColor);
-            curve->setFromSimulationWellName(m_wellPathNameOrSimWellName, m_branchIndex);
+            curve->setFromSimulationWellName(simWellName, m_branchIndex);
 
             // Fetch cases and time steps
             auto gridCase = curveDefToAdd.address().eclCase();
@@ -594,6 +595,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             }
         }
     }
+
+    m_wellLogPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
