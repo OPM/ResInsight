@@ -70,7 +70,7 @@ public:
     RigAccWellFlowCalculator(const std::vector <cvf::Vec3d> &         pipeBranchCLCoords,
                              const std::vector <RigWellResultPoint> & pipeBranchCellIds,
                              const std::vector <double> &             pipeBranchMeasuredDepths,
-                             double smallContribThreshold);
+                             bool totalFlowOnly);
 
     const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
@@ -123,6 +123,7 @@ private:
     std::vector<QString>                                    m_tracerNames;
     double                                                  m_smallContributionsThreshold;
     bool                                                    m_isProducer;
+    bool                                                    m_useTotalWellPhaseRateOnly;
 
     struct BranchFlow
     {

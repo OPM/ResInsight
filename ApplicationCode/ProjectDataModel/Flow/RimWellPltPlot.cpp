@@ -830,11 +830,11 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
              if ( resultPointCalc->pipeBranchCLCoords().size() )
              {
-
+                
                  RigAccWellFlowCalculator wfAccumulator(resultPointCalc->pipeBranchCLCoords(),
                                                         resultPointCalc->pipeBranchWellResultPoints(),
                                                         resultPointCalc->pipeBranchMeasuredDepths(),
-                                                        0.0);
+                                                        false); // m_phaseSelectionMode() != FLOW_TYPE_PHASE_SPLIT); The total flow is reservoir conditions must be careful
 
                  const std::vector<double>& depthValues = wfAccumulator.pseudoLengthFromTop(0);
                  std::vector<QString> tracerNames = wfAccumulator.tracerNames();
@@ -847,7 +847,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                      if (    tracerName == RIG_FLOW_OIL_NAME  && selectedPhases.count(FLOW_PHASE_OIL) 
                           || tracerName == RIG_FLOW_GAS_NAME  && selectedPhases.count(FLOW_PHASE_GAS)
-                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(FLOW_PHASE_WATER) )
+                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(FLOW_PHASE_WATER)
+                          || tracerName == RIG_FLOW_TOTAL_NAME &&  selectedPhases.count(FLOW_PHASE_TOTAL) )
                      {
                          const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
                          addStackedCurve(curveName + ", " + tracerName, 

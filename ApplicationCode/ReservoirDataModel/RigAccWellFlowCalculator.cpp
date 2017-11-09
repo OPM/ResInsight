@@ -46,8 +46,6 @@ size_t RigEclCellIndexCalculator::resultCellIndex(size_t gridIndex, size_t gridC
 /// 
 //==================================================================================================
 
-#define USE_WELL_PHASE_RATES
-
 //--------------------------------------------------------------------------------------------------
 /// 
 /// The pipeBranchesWellResultPoints are describing the lines between the points, starting with the first line 
@@ -64,7 +62,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
                                                    m_tracerCellFractionValues(&tracerCellFractionValues),
                                                    m_cellIndexCalculator(cellIndexCalculator),
                                                    m_smallContributionsThreshold(smallContribThreshold),
-                                                   m_isProducer(isProducer)
+                                                   m_isProducer(isProducer),
+                                                   m_useTotalWellPhaseRateOnly(false)
 {
     m_connectionFlowPrBranch.resize(m_pipeBranchesWellResultPoints.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesWellResultPoints.size());
@@ -93,24 +92,29 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
                                                    m_tracerCellFractionValues(nullptr),
                                                    m_cellIndexCalculator(RigEclCellIndexCalculator(nullptr, nullptr)),
                                                    m_smallContributionsThreshold(smallContribThreshold),
-                                                   m_isProducer(true)
+                                                   m_isProducer(true),
+                                                   m_useTotalWellPhaseRateOnly(false)
 {
     m_connectionFlowPrBranch.resize(m_pipeBranchesWellResultPoints.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesWellResultPoints.size());
 
-#ifdef USE_WELL_PHASE_RATES
-    m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
-    m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
-    m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
-#else
-    m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
-#endif
+    if ( !m_useTotalWellPhaseRateOnly )
+    {
+        m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
+        m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
+        m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
+    }
+    else
+    {
+        m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+    }
+
     initializePipeBranchesMeasuredDepths();
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
-#ifdef USE_WELL_PHASE_RATES
-    sortTracers();
-#endif
+
+    if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
+
 }
 
 
@@ -120,11 +124,12 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector<cvf::Vec3d>&         pipeBranchCLCoords,
                                                    const std::vector <RigWellResultPoint> & pipeBranchesWellResultPoints,
                                                    const std::vector <double> &             pipeBranchMeasuredDepths,
-                                                   double smallContribThreshold)
+                                                   bool totalFlowOnly)
                                                  : m_tracerCellFractionValues(nullptr),
                                                    m_cellIndexCalculator(RigEclCellIndexCalculator(nullptr, nullptr)),
-                                                   m_smallContributionsThreshold(smallContribThreshold),
-                                                   m_isProducer(true)
+                                                   m_smallContributionsThreshold(0.0),
+                                                   m_isProducer(true),
+                                                   m_useTotalWellPhaseRateOnly(totalFlowOnly)
 {
     m_pipeBranchesCLCoords.push_back(pipeBranchCLCoords);
     m_pipeBranchesWellResultPoints.push_back(pipeBranchesWellResultPoints);
@@ -134,19 +139,22 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector<cvf::Vec3d>
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesWellResultPoints.size());
 
 
-    #ifdef USE_WELL_PHASE_RATES
-    m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
-    m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
-    m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
-    #else
-    m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
-    #endif
+    if ( !m_useTotalWellPhaseRateOnly )
+    {
+        m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
+        m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
+        m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
+    }
+    else
+    {
+        m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+    }
+
     initializePipeBranchesMeasuredDepths();
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
-    #ifdef USE_WELL_PHASE_RATES
-    sortTracers();
-    #endif
+
+    if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -717,13 +725,16 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer(cons
     }
     else
     {
-        #ifdef USE_WELL_PHASE_RATES
-        flowPrTracer[0] = wellCell.oilRate();
-        flowPrTracer[1] = wellCell.gasRate();
-        flowPrTracer[2] = wellCell.waterRate();
-        #else
-        flowPrTracer[0] = wellCell.flowRate();
-        #endif
+        if ( !m_useTotalWellPhaseRateOnly )
+        {
+            flowPrTracer[0] = wellCell.oilRate();
+            flowPrTracer[1] = wellCell.gasRate();
+            flowPrTracer[2] = wellCell.waterRate();
+        }
+        else
+        {
+            flowPrTracer[0] = wellCell.flowRate();
+        }
     }
  
     return flowPrTracer;
