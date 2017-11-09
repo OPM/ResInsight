@@ -36,22 +36,25 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimTools.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimOilField.h"
-#include "RimWellPathCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -60,7 +63,6 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
-#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
@@ -721,6 +723,15 @@ void RimEclipseCase::reloadDataAndUpdate()
         RimProject* project = RiaApplication::instance()->project();
         if (project)
         {
+            RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+            if (sumCaseColl)
+            {
+                for (auto sumCase : sumCaseColl->allSummaryCases())
+                {
+                    sumCase->createSummaryReaderInterface();
+                }
+            }
+
             if (project->mainPlotCollection())
             {
                 RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
