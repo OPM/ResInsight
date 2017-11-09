@@ -61,6 +61,7 @@ public:
     std::string                             unitName();
 
     std::vector<double>                     yValues() const;
+    std::vector<double>                     xValues() const;
     const std::vector<time_t>&              timeSteps() const;
 
     void                                    setYAxis(RiaDefines::PlotAxis plotAxis);
@@ -77,8 +78,7 @@ protected:
     virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
 private:
-    RifSummaryReaderInterface*              summaryReader() const;
-    bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
+    RifSummaryReaderInterface*              yValuesSummaryReader() const;
 
     void                                    calculateCurveInterpolationFromAddress();
 
