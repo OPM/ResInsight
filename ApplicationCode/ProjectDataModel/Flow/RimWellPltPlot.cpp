@@ -43,6 +43,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPlotTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RiuWellPltPlot.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -59,70 +60,29 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 
-
-//--------------------------------------------------------------------------------------------------
-/// Move to tools class
-//--------------------------------------------------------------------------------------------------
-RimWellPath* wellPathByWellPathNameOrSimWellName(const QString& wellPathNameOrSimwellName)
-{
-    RimProject* proj = RiaApplication::instance()->project();
-    RimWellPath* wellPath = proj->wellPathByName(wellPathNameOrSimwellName);
-
-    return wellPath != nullptr ? wellPath : proj->wellPathFromSimulationWell(wellPathNameOrSimwellName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Move to tools class
-//--------------------------------------------------------------------------------------------------
-QString simWellName(const QString& wellPathNameOrSimWellName)
-{
-    RimWellPath* wellPath = wellPathByWellPathNameOrSimWellName(wellPathNameOrSimWellName);
-    return wellPath != nullptr ? wellPath->associatedSimulationWell() : wellPathNameOrSimWellName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Move to tools class
-//--------------------------------------------------------------------------------------------------
-bool tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch)
-{
-    auto itr = std::find_if(channelNames.begin(), channelNames.end(), [&](const QString& channelName)
-    {
-        return channelName.contains(channelNameToMatch, Qt::CaseInsensitive);
-    });
-    return itr != channelNames.end();
-}
-
-
-
 CAF_PDM_SOURCE_INIT(RimWellPltPlot, "WellPltPlot"); 
 
 namespace caf
 {
 template<>
-void caf::AppEnum< RimWellPltPlot::FlowType>::setUp()
+void caf::AppEnum< FlowType>::setUp()
 {
-    addItem(RimWellPltPlot::FLOW_TYPE_TOTAL, "TOTAL", "Total Flow");
-    addItem(RimWellPltPlot::FLOW_TYPE_PHASE_SPLIT, "PHASE_SPLIT", "Phase Split");
+    addItem(FLOW_TYPE_TOTAL, "TOTAL", "Total Flow");
+    addItem(FLOW_TYPE_PHASE_SPLIT, "PHASE_SPLIT", "Phase Split");
 }
 
 template<>
-void caf::AppEnum< RimWellPltPlot::FlowPhase>::setUp()
+void caf::AppEnum< FlowPhase>::setUp()
 {
-    addItem(RimWellPltPlot::PHASE_OIL, "PHASE_OIL", "Oil");
-    addItem(RimWellPltPlot::PHASE_GAS, "PHASE_GAS", "Gas");
-    addItem(RimWellPltPlot::PHASE_WATER, "PHASE_WATER", "Water");
+    addItem(FLOW_PHASE_OIL, "PHASE_OIL", "Oil");
+    addItem(FLOW_PHASE_GAS, "PHASE_GAS", "Gas");
+    addItem(FLOW_PHASE_WATER, "PHASE_WATER", "Water");
 }
 }
-
-const std::set<QString> RimWellPltPlot::OIL_CHANNEL_NAMES =   { "QOZT", "QOIL" };
-const std::set<QString> RimWellPltPlot::GAS_CHANNEL_NAMES =   { "QGZT", "QGAS" };
-const std::set<QString> RimWellPltPlot::WATER_CHANNEL_NAMES = { "QWZT", "QWAT" };
-const std::set<QString> RimWellPltPlot::TOTAL_CHANNEL_NAMES = { "QTZT", "QTOT" };
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimWellPltPlot::FLOW_DATA_NAMES = { };
 const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 
 //--------------------------------------------------------------------------------------------------
@@ -130,12 +90,6 @@ const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 //--------------------------------------------------------------------------------------------------
 RimWellPltPlot::RimWellPltPlot()
 {
-    // Init static list
-    FLOW_DATA_NAMES.insert(OIL_CHANNEL_NAMES.begin(), OIL_CHANNEL_NAMES.end());
-    FLOW_DATA_NAMES.insert(GAS_CHANNEL_NAMES.begin(), GAS_CHANNEL_NAMES.end());
-    FLOW_DATA_NAMES.insert(WATER_CHANNEL_NAMES.begin(), WATER_CHANNEL_NAMES.end());
-    FLOW_DATA_NAMES.insert(TOTAL_CHANNEL_NAMES.begin(), TOTAL_CHANNEL_NAMES.end());
-
     CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("PLT Plot"), "Name", "", "", "");
@@ -171,7 +125,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_phases, "Phases", "Phases", "", "", "");
     m_phases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-    m_phases = std::vector<caf::AppEnum<FlowPhase>>({ FlowPhase::PHASE_OIL, FlowPhase::PHASE_GAS, FlowPhase::PHASE_WATER });
+    m_phases = std::vector<caf::AppEnum<FlowPhase>>({ FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER });
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;
@@ -331,18 +285,6 @@ void RimWellPltPlot::updateSelectedTimeStepsFromSelectedSources()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPltPlot::FlowPhase RimWellPltPlot::flowPhaseFromChannelName(const QString& channelName)
-{
-    if (tryMatchChannelName(OIL_CHANNEL_NAMES, channelName)) return PHASE_OIL;
-    if (tryMatchChannelName(GAS_CHANNEL_NAMES, channelName)) return PHASE_GAS;
-    if (tryMatchChannelName(WATER_CHANNEL_NAMES, channelName)) return PHASE_WATER;
-    if (tryMatchChannelName(TOTAL_CHANNEL_NAMES, channelName)) return PHASE_TOTAL;
-    return PHASE_NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setPlotXAxisTitles(RimWellLogTrack* plotTrack)
 {
     std::vector<RimEclipseCase*> cases = eclipseCases();
@@ -429,7 +371,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 
     if (m_wellLogPlot->trackCount() > 0)
     {
-        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(rimCase, trajectoryType, wellPath, simWellName(m_wellPathName), m_branchIndex);
+        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(rimCase, trajectoryType, wellPath, RimWellPlotTools::simWellName(m_wellPathName), m_branchIndex);
     }
 }
 
@@ -509,258 +451,12 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPltPlot::wellLogFilesContainingFlow(const QString& wellPathName) const
-{
-    std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const project = RiaApplication::instance()->project();
-
-    for (const auto& wellPath : project->allWellPaths())
-    {
-        bool hasPressure = false;
-        const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
-
-        for (RimWellLogFile* const file : files)
-        {
-            size_t timeStepCount = timeStepsFromWellLogFile(file).size();
-
-            if (timeStepCount == 0) continue;
-            if(RiaWellNameComparer::tryFindMatchingWellPath(wellPathName).isEmpty()) continue;
-
-            if (hasFlowData(file))
-            {
-                wellLogFiles.push_back(file);
-            }
-        }
-    }
-    return wellLogFiles;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RimWellPltPlot::getFlowChannelsFromWellFile(const RimWellLogFile* wellLogFile) const
-{
-    std::vector<RimWellLogFileChannel*> channels;
-    if(wellLogFile != nullptr)
-    {
-        for (RimWellLogFileChannel* const channel : wellLogFile->wellLogChannels())
-        {
-            if (isFlowChannel(channel))
-            {
-                channels.push_back(channel);
-            }
-        }
-    }
-    return channels;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPltPlot::wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const
-{
-    RimProject* const project = RiaApplication::instance()->project();
-    for (const auto& oilField : project->oilFields)
-    {
-        auto wellPaths = std::vector<RimWellPath*>(oilField->wellPathCollection()->wellPaths.begin(), oilField->wellPathCollection()->wellPaths.end());
-
-        for (const auto& wellPath : wellPaths)
-        {
-            for (RimWellLogFile* const file : wellPath->wellLogFiles())
-            {
-                if (file == wellLogFile)
-                {
-                    return wellPath;
-                }
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::tuple<RimEclipseResultCase*, bool/*hasPressure*/, bool /*hasRftData*/>> 
-RimWellPltPlot::eclipseCasesForWell(const QString& wellName) const
-{
-    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> cases;
-    const RimProject* const project = RiaApplication::instance()->project();
-
-    for (const auto& oilField : project->oilFields)
-    {
-        const RimEclipseCaseCollection* const eclCaseColl = oilField->analysisModels();
-        for (RimEclipseCase* eCase : eclCaseColl->cases())
-        {
-            auto eclCase = dynamic_cast<RimEclipseResultCase*>(eCase);
-            if (eclCase != nullptr)
-            {
-                RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
-                for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
-                {
-                    if (QString::compare(wellResult->m_wellName, wellName) == 0)
-                    {
-                        bool hasRftData = eclCase->rftReader() != nullptr;
-                        cases.push_back(std::make_tuple(eclCase, true, hasRftData));
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseResultCase*> 
-RimWellPltPlot::gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
-{
-    std::vector<RimEclipseResultCase*> cases;
-    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
-    {
-        bool hasPressureData = std::get<1>(eclCaseTuple);
-        size_t timeStepCount = timeStepsFromGridCase(std::get<0>(eclCaseTuple)).size();
-        if (hasPressureData && timeStepCount > 0)
-        {
-            cases.push_back(std::get<0>(eclCaseTuple));
-        }
-    }
-    return cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseResultCase*> 
-RimWellPltPlot::rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const
-{
-    std::vector<RimEclipseResultCase*> cases;
-    for (const std::tuple<RimEclipseResultCase*, bool, bool>& eclCaseTuple : eclipseCasesTuple)
-    {
-        bool hasRftData = std::get<2>(eclCaseTuple);
-        size_t timeStepCount = timeStepsFromRftCase(std::get<0>(eclCaseTuple)).size();
-        if (hasRftData && timeStepCount > 0)
-        {
-            cases.push_back(std::get<0>(eclCaseTuple));
-        }
-    }
-    return cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
-{
-    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
-    RifReaderEclipseRft* const reader = rftCase->rftReader();
-    if (reader != nullptr)
-    {
-        for (const QDateTime& timeStep : reader->availableTimeSteps(simWellName(m_wellPathName), RifEclipseRftAddress::PRESSURE))
-        {
-            if (timeStepsMap.count(timeStep) == 0)
-            {
-                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
-            }
-            timeStepsMap[timeStep].insert(RifWellRftAddress(RifWellRftAddress::RFT, rftCase));
-        }
-    }
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress>> RimWellPltPlot::timeStepsFromGridCase(RimEclipseCase* gridCase) const
-{
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-
-    std::map<QDateTime, std::set<RifWellRftAddress> > timeStepsMap;
-    {
-        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates())
-        {
-            if (timeStepsMap.count(timeStep) == 0)
-            {
-                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
-            }
-            timeStepsMap[timeStep].insert(RifWellRftAddress(RifWellRftAddress::GRID, gridCase));
-        }
-    }
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress> > RimWellPltPlot::timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const
-{
-    std::map<QDateTime, std::set<RifWellRftAddress> > timeStepsMap;
-
-    QDateTime timeStep = wellLogFile->date();
-
-    if (timeStepsMap.count(timeStep) == 0)
-    {
-        timeStepsMap.insert(std::make_pair(timeStep, std::set<RifWellRftAddress>()));
-    }
-    timeStepsMap[timeStep].insert(RifWellRftAddress(RifWellRftAddress::OBSERVED, wellLogFile));
-
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifWellRftAddress>> 
-RimWellPltPlot::adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps,
-                                  const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair)
-{
-    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
-
-    if (allTimeSteps.size() > 0)
-    {
-        auto itr = std::find_if(allTimeSteps.begin(), allTimeSteps.end(), 
-                                [searchTimeStepPair](const std::pair<QDateTime, std::set<RifWellRftAddress>>& dt)
-        {
-            return dt.first > searchTimeStepPair.first;
-        });
-
-        auto itrEnd = itr != allTimeSteps.end() ? itr + 1 : itr;
-
-        for (itr = itrEnd - 1; itr != allTimeSteps.begin() && (*itr).first >= searchTimeStepPair.first; itr--);
-        auto itrFirst = itr;
-
-        timeStepsMap.insert(itrFirst, itrEnd);
-    }
-
-    // Add searched time step in case it is not included
-    addTimeStepToMap(timeStepsMap, searchTimeStepPair);
-
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::mapContainsTimeStep(const std::map<QDateTime, std::set<RifWellRftAddress>>& map, const QDateTime& timeStep)
-{
-    return std::find_if(map.begin(), map.end(), [timeStep](const std::pair<QDateTime, std::set<RifWellRftAddress>>& pair)
-    {
-        return pair.first == timeStep;
-    }) != map.end();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurveDefs() const
 {
     std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefs;
-    const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesForWell(simWellName(m_wellPathName));
-    const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
-    const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(RimWellPlotTools::simWellName(m_wellPathName));
+    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(RimWellPlotTools::simWellName(m_wellPathName));
+    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
     {
@@ -770,8 +466,8 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
             {
                 for (RimEclipseResultCase* const rftCase : rftCases)
                 {
-                    const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromRftCase(rftCase);
-                    if (mapContainsTimeStep(timeStepsMap , timeStep))
+                    const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromRftCase(rftCase, simWellName);
+                    if (timeSteps.count(timeStep) > 0)
                     {
                         curveDefs.insert(std::make_pair(addr, timeStep));
                     }
@@ -781,8 +477,8 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
             {
                 for (RimEclipseResultCase* const gridCase : gridCases)
                 {
-                    const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromGridCase(gridCase);
-                    if (mapContainsTimeStep(timeStepsMap, timeStep))
+                    const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromGridCase(gridCase);
+                    if (timeSteps.count(timeStep) > 0)
                     {
                         curveDefs.insert(std::make_pair(addr, timeStep));
                     }
@@ -793,8 +489,8 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
             {
                 if (addr.wellLogFile() != nullptr)
                 {
-                    const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsMap = timeStepsFromWellLogFile(addr.wellLogFile());
-                    if (mapContainsTimeStep(timeStepsMap, timeStep))
+                    const QDateTime& wellLogFileTimeStep = RimWellPlotTools::timeStepFromWellLogFile(addr.wellLogFile());
+                    if (wellLogFileTimeStep == timeStep)
                     {
                         curveDefs.insert(std::make_pair(RifWellRftAddress(RifWellRftAddress::OBSERVED, addr.wellLogFile()), timeStep));
                     }
@@ -919,9 +615,9 @@ public:
                                 QDateTime m_timeStep)
     {
 
-        RifEclipseRftAddress gasRateAddress(simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::GRAT);
-        RifEclipseRftAddress oilRateAddress(simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::ORAT);
-        RifEclipseRftAddress watRateAddress(simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::WRAT);
+        RifEclipseRftAddress gasRateAddress(RimWellPlotTools::simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::GRAT);
+        RifEclipseRftAddress oilRateAddress(RimWellPlotTools::simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::ORAT);
+        RifEclipseRftAddress watRateAddress(RimWellPlotTools::simWellName(wellPathName), m_timeStep, RifEclipseRftAddress::WRAT);
 
         std::vector<caf::VecIjk> rftIndices;
         eclCase->rftReader()->cellIndices(gasRateAddress, &rftIndices);
@@ -1014,7 +710,7 @@ public:
          
         std::map<size_t, std::pair<size_t, size_t> > globCellIdxToIdxInSimWellBranch;
 
-        const RimWellPath* wellPath = wellPathByWellPathNameOrSimWellName(wellPathName);
+        const RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(wellPathName);
         const RigSimWellData* simWell = wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData(wellPath->associatedSimulationWell()) : nullptr;
 
         if (!simWell) return;
@@ -1095,7 +791,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     int curveGroupId = 0;
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimWellPath* wellPath = wellPathByWellPathNameOrSimWellName(m_wellPathName);
+    RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
     RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
 
 
@@ -1104,7 +800,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     {
         std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
-            std::set<FlowPhase>({ PHASE_TOTAL });
+            std::set<FlowPhase>({ FLOW_PHASE_TOTAL });
         
         RifWellRftAddress sourceDef = curveDefToAdd.first;
         QDateTime timeStep = curveDefToAdd.second;
@@ -1149,9 +845,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                   tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE :
                                   cvf::Color3f::DARK_GRAY;
 
-                     if (    tracerName == RIG_FLOW_OIL_NAME  && selectedPhases.count(PHASE_OIL) 
-                          || tracerName == RIG_FLOW_GAS_NAME  && selectedPhases.count(PHASE_GAS)
-                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(PHASE_WATER) )
+                     if (    tracerName == RIG_FLOW_OIL_NAME  && selectedPhases.count(FLOW_PHASE_OIL) 
+                          || tracerName == RIG_FLOW_GAS_NAME  && selectedPhases.count(FLOW_PHASE_GAS)
+                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(FLOW_PHASE_WATER) )
                      {
                          const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
                          addStackedCurve(curveName + ", " + tracerName, 
@@ -1174,14 +870,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                 if (rigWellLogFile != nullptr)
                 {
-                    for (RimWellLogFileChannel* channel : getFlowChannelsFromWellFile(wellLogFile))
+                    for (RimWellLogFileChannel* channel : RimWellPlotTools::getFlowChannelsFromWellFile(wellLogFile))
                     {
                         const auto& channelName = channel->name();
-                        if (selectedPhases.count(flowPhaseFromChannelName(channelName)) > 0)
+                        if (selectedPhases.count(RimWellPlotTools::flowPhaseFromChannelName(channelName)) > 0)
                         {
-                            auto color = OIL_CHANNEL_NAMES.count(channelName) > 0 ? cvf::Color3f::DARK_GREEN :
-                                         GAS_CHANNEL_NAMES.count(channelName) > 0 ? cvf::Color3f::DARK_RED :
-                                         WATER_CHANNEL_NAMES.count(channelName) > 0 ? cvf::Color3f::BLUE :
+                            auto color = RimWellPlotTools::isOilFlowChannel(channelName) ? cvf::Color3f::DARK_GREEN :
+                                         RimWellPlotTools::isGasFlowChannel(channelName) ? cvf::Color3f::DARK_RED :
+                                         RimWellPlotTools::isWaterFlowChannel(channelName) ? cvf::Color3f::BLUE :
                                          cvf::Color3f::DARK_GRAY;
 
                             addStackedCurve(curveName + ", " + channelName, 
@@ -1260,7 +956,7 @@ std::vector<RifWellRftAddress> RimWellPltPlot::selectedSources() const
     {
         if (addr.sourceType() == RifWellRftAddress::OBSERVED)
         {
-            for (RimWellLogFile* const wellLogFile : wellLogFilesContainingFlow(m_wellPathName))
+            for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName))
             {
                 sources.push_back(RifWellRftAddress(RifWellRftAddress::OBSERVED, wellLogFile));
             }
@@ -1346,58 +1042,6 @@ int RimWellPltPlot::branchIndex() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::hasFlowData(const RimWellLogFile* wellLogFile)
-{
-    for (RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels())
-    {
-        if (isFlowChannel(wellLogChannel)) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::hasFlowData(RimWellPath* wellPath)
-{
-    for (RimWellLogFile* const wellLogFile : wellPath->wellLogFiles())
-    {
-        if (hasFlowData(wellLogFile))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::isFlowChannel(RimWellLogFileChannel* channel)
-{
-    return FLOW_DATA_NAMES.count(channel->name()) > 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::hasFlowData(RimEclipseResultCase* gridCase)
-{
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-
-    for (const QString& channelName : FLOW_DATA_NAMES)
-    {
-        size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, channelName);
-
-        if (resultIndex != cvf::UNDEFINED_SIZE_T) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const char* RimWellPltPlot::plotNameFormatString()
 {
     return PLOT_NAME_QFORMAT_STRING;
@@ -1409,6 +1053,7 @@ const char* RimWellPltPlot::plotNameFormatString()
 QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
+    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
     if (fieldNeedingOptions == &m_wellPathName)
     {
@@ -1418,9 +1063,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     {
         std::set<RifWellRftAddress> optionAddresses;
 
-        const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(simWellName(m_wellPathName));
-
-        const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
+        const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
         if (rftCases.size() > 0)
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::RFT), true));
@@ -1434,7 +1077,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
             options.push_back(item);
         }
 
-        const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+        const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
         if (gridCases.size() > 0)
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::GRID), true));
@@ -1448,7 +1091,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
             options.push_back(item);
         }
 
-        if (wellLogFilesContainingFlow(m_wellPathName).size() > 0)
+        if (RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName).size() > 0)
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::OBSERVED), true));
 
@@ -1467,7 +1110,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     {
         RimProject* proj = RiaApplication::instance()->project();
 
-        size_t branchCount = proj->simulationWellBranches(simWellName(m_wellPathName)).size();
+        size_t branchCount = proj->simulationWellBranches(simWellName).size();
 
         for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
         {
@@ -1485,9 +1128,9 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_phases)
     {
-        options.push_back(caf::PdmOptionItemInfo("Oil", PHASE_OIL));
-        options.push_back(caf::PdmOptionItemInfo("Gas", PHASE_GAS));
-        options.push_back(caf::PdmOptionItemInfo("Water", PHASE_WATER));
+        options.push_back(caf::PdmOptionItemInfo("Oil", FLOW_PHASE_OIL));
+        options.push_back(caf::PdmOptionItemInfo("Gas", FLOW_PHASE_GAS));
+        options.push_back(caf::PdmOptionItemInfo("Water", FLOW_PHASE_WATER));
     }
 
     return options;
@@ -1559,11 +1202,13 @@ QImage RimWellPltPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
+
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathName);
     
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj->simulationWellBranches(simWellName(m_wellPathName)).size() > 1)
+    if (proj->simulationWellBranches(simWellName).size() > 1)
     {
         uiOrdering.add(&m_branchIndex);
     }
@@ -1670,37 +1315,6 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
-                                       const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd)
-{
-    auto timeStepMapToAdd = std::map<QDateTime, std::set<RifWellRftAddress>> { timeStepToAdd };
-    addTimeStepsToMap(destMap, timeStepMapToAdd);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap, 
-                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd)
-{
-    for (const auto& timeStepPair : timeStepsToAdd)
-    {
-        if (timeStepPair.first.isValid())
-        {
-            if (destMap.count(timeStepPair.first) == 0)
-            {
-                destMap.insert(std::make_pair(timeStepPair.first, std::set<RifWellRftAddress>()));
-            }
-            auto addresses = timeStepPair.second;
-            destMap[timeStepPair.first].insert(addresses.begin(), addresses.end());
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep)
 {
     for (auto& timeStepPair : m_timeStepsToAddresses)
@@ -1754,10 +1368,10 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options)
 {
+    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
     std::map<QDateTime, std::set<RifWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
-    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(simWellName(wellPathNameOrSimWellName));
-    const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
-    const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
+    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
+    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
 
     // First update timeSteps to Address 'cache'
     std::vector<RifWellRftAddress> selSources = selectedSources();
@@ -1769,22 +1383,21 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
         {
             for (RimEclipseResultCase* const rftCase : rftCases)
             {
-                addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromRftCase(rftCase));
+                RimWellPlotTools::addTimeStepsToMap(obsAndRftTimeStepsMap, RimWellPlotTools::timeStepsMapFromRftCase(rftCase, simWellName));
             }
         }
         else if (selection.sourceType() == RifWellRftAddress::GRID)
         {
             for (RimEclipseResultCase* const gridCase : gridCases)
             {
-                addTimeStepsToMap(gridTimeStepsMap, timeStepsFromGridCase(gridCase));
+                RimWellPlotTools::addTimeStepsToMap(gridTimeStepsMap, RimWellPlotTools::timeStepsMapFromGridCase(gridCase));
             }
         }
-        else
-        if (selection.sourceType() == RifWellRftAddress::OBSERVED)
+        else if (selection.sourceType() == RifWellRftAddress::OBSERVED)
         {
             if (selection.wellLogFile() != nullptr)
             {
-                addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromWellLogFile(selection.wellLogFile()));
+                RimWellPlotTools::addTimeStepsToMap(obsAndRftTimeStepsMap, RimWellPlotTools::timeStepsMapFromWellLogFile(selection.wellLogFile()));
             }
         }
     }
@@ -1799,14 +1412,14 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
 
         for (const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepPair : obsAndRftTimeStepsMap)
         {
-            const std::map<QDateTime, std::set<RifWellRftAddress>>& adjTimeSteps = adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
-            addTimeStepsToMap(displayTimeStepsMap, adjTimeSteps);
+            const std::map<QDateTime, std::set<RifWellRftAddress>>& adjTimeSteps = RimWellPlotTools::adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
+            RimWellPlotTools::addTimeStepsToMap(displayTimeStepsMap, adjTimeSteps);
         }
 
         // Add the first grid time step (from the total grid time steps list)
         if (gridTimeStepsVector.size() > 0)
         {
-            addTimeStepToMap(displayTimeStepsMap, gridTimeStepsVector.front());
+            RimWellPlotTools::addTimeStepToMap(displayTimeStepsMap, gridTimeStepsVector.front());
         }
 
         // Add already selected time steps
@@ -1817,13 +1430,13 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
                 const std::set<RifWellRftAddress> sourceAddresses = m_timeStepsToAddresses[timeStep];
                 if (isAnySourceAddressSelected(sourceAddresses))
                 {
-                    addTimeStepToMap(displayTimeStepsMap, std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
+                    RimWellPlotTools::addTimeStepToMap(displayTimeStepsMap, std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
                 }
             }
         }
     }
 
-    addTimeStepsToMap(m_timeStepsToAddresses, displayTimeStepsMap);
+    RimWellPlotTools::addTimeStepsToMap(m_timeStepsToAddresses, displayTimeStepsMap);
 
     // Create vector of all time steps
     std::vector<QDateTime> allTimeSteps;

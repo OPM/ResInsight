@@ -39,11 +39,23 @@ class RigEclipseCaseData;
 
 //==================================================================================================
 ///  
+//==================================================================================================
+enum FlowType { FLOW_TYPE_TOTAL, FLOW_TYPE_PHASE_SPLIT };
+enum FlowPhase { FLOW_PHASE_NONE, FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER, FLOW_PHASE_TOTAL };
+
+//==================================================================================================
 ///  
 //==================================================================================================
 class RimWellPlotTools
 {
     static const std::set<QString> PRESSURE_DATA_NAMES;
+
+    static const std::set<QString> OIL_CHANNEL_NAMES;
+    static const std::set<QString> GAS_CHANNEL_NAMES;
+    static const std::set<QString> WATER_CHANNEL_NAMES;
+    static const std::set<QString> TOTAL_CHANNEL_NAMES;
+
+    static std::set<QString> FLOW_DATA_NAMES;
 
 public:
     static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
@@ -52,24 +64,36 @@ public:
     static bool                                     hasPressureData(RimWellPath* wellPath);
     static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
 
+    static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
+    static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
+    static bool                                     isOilFlowChannel(const QString& channelName);
+    static bool                                     isGasFlowChannel(const QString& channelName);
+    static bool                                     isWaterFlowChannel(const QString& channelName);
+    static bool                                     hasFlowData(RimEclipseResultCase* gridCase);
+    static bool                                     hasFlowData(RimWellPath* wellPath);
+    static FlowPhase                                flowPhaseFromChannelName(const QString& channelName);
+
     static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                      const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
     static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
 
-    static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellName);
+    static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& simWellName);
     static RimWellLogFileChannel*                   getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile);
+
+    static std::vector<RimWellLogFile*>             wellLogFilesContainingFlow(const QString& wellName);
+    static std::vector<RimWellLogFileChannel*>      getFlowChannelsFromWellFile(const RimWellLogFile* wellLogFile);
 
     static RimWellPath*                             wellPathFromWellLogFile(const RimWellLogFile* wellLogFile);
 
-    static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& wellName);
-    static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& wellName);
+    static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& simWellName);
+    static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
 
-    static std::set<QDateTime>                              timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& wellName);
+    static std::set<QDateTime>                              timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
     static std::set<QDateTime>                              timeStepsFromGridCase(RimEclipseCase* gridCase);
     static QDateTime                                        timeStepFromWellLogFile(RimWellLogFile* wellLogFile);
 
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& wellName);
+    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
     static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
     static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps,
@@ -78,8 +102,17 @@ public:
 
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
 
+    static RimWellPath*                             wellPathByWellPathNameOrSimWellName(const QString& wellPathNameOrSimwellName);
+    static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
+    static bool                                     tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch);
+
     template<typename T>
     static void appendSet(std::set<T>& destSet, const std::set<T>& setToAppend);
+
+private:
+    friend class StaticFieldsInitializer;
+
+    static StaticFieldsInitializer  ms_staticFieldInitializer;
 };
 
 //--------------------------------------------------------------------------------------------------

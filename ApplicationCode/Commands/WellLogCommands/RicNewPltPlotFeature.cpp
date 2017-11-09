@@ -66,12 +66,12 @@ bool RicNewPltPlotFeature::isCommandEnabled()
         RimEclipseResultCase* eclCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseResultCase*>();
         if (simWell != nullptr)
         {
-            enable &= RimWellPltPlot::hasFlowData(eclCase);
+            enable &= RimWellPlotTools::hasFlowData(eclCase);
         }
     }
     else if (rimWellPath)
     {
-        enable &= RimWellPltPlot::hasFlowData(rimWellPath);
+        enable &= RimWellPlotTools::hasFlowData(rimWellPath);
     }
     return enable;
 }

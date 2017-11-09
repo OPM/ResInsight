@@ -22,7 +22,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimTools.h"
-#include "RimWellPltPlot.h"
+//#include "RimWellPltPlot.h"
+#include "RimWellPlotTools.h"
+
 #include "RiaDateStringParser.h"
 
 #include "RigWellLogFile.h"
@@ -238,7 +240,7 @@ std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogFile::hasFlowData() const
 {
-    return RimWellPltPlot::hasFlowData(this);
+    return RimWellPlotTools::hasFlowData(this);
 }
 
 //--------------------------------------------------------------------------------------------------

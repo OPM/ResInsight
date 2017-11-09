@@ -134,7 +134,7 @@ private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
-    caf::PdmField<QString>                          m_wellName;
+    caf::PdmField<QString>                          m_wellPathNameOrSimWellName;
     caf::PdmField<int>                              m_branchIndex;
     caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
     
