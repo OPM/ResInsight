@@ -214,29 +214,48 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_NONE;
 
-    std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
-    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
-    std::vector<double> stackedValues(depthValues.size(), 0.0);
-     
-    std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups =  wellLogTrack->visibleStackedCurves();
-    std::vector<RimWellFlowRateCurve*> stackedCurves;
-    if (stackedCurveGroups.count(groupId()) > 0)
+    std::vector<double> depthValues;
+    std::vector<double> stackedValues;
+    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices;
     {
-        stackedCurves = stackedCurveGroups[groupId()];
+        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
+
+        std::vector<RimWellFlowRateCurve*> stackedCurves;
+
+        if (stackedCurveGroups.count(groupId()) > 0)
+        {
+            stackedCurves = stackedCurveGroups[groupId()];
+        }
+
+        std::vector<double> allDepthValues = m_curveData->measuredDepths();
+        std::vector<double> allStackedValues(allDepthValues.size());
+
+        double zPos = -0.1;
+        for (RimWellFlowRateCurve * stCurve : stackedCurves)
+        {
+            std::vector<double> allValues = stCurve->curveData()->xValues();
+
+            for (size_t i = 0; i < allValues.size(); ++i)
+            {
+                if (allValues[i] != HUGE_VAL)
+                {
+                    allStackedValues[i] += allValues[i];
+                }
+            }
+
+            if (stCurve == this) break;
+            zPos -= 1.0;
+        }
+
+        RigWellLogCurveData tempCurveData;
+        tempCurveData.setValuesAndMD(allStackedValues, allDepthValues, RiaDefines::UNIT_NONE, false);
+
+        depthValues = tempCurveData.measuredDepthPlotValues(displayUnit);
+        stackedValues = tempCurveData.xPlotValues();
+        polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
     }
 
     double zPos = -0.1;
-    for ( RimWellFlowRateCurve * stCurve: stackedCurves )
-    {
-        std::vector<double> values = stCurve->curveData()->xPlotValues();
-        for ( size_t i = 0; i < values.size(); ++i )
-        {
-            stackedValues[i] += values[i]; 
-        }
-
-        if ( stCurve == this ) break;
-        zPos -= 1.0;
-    }
 
     // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
 
