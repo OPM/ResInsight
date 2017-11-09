@@ -474,16 +474,35 @@ void RimWellLogTrack::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesData(RimCase* rimCase, TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex)
+void RimWellLogTrack::setAndUpdateWellPathFormationNamesData(RimCase* rimCase, RimWellPath* wellPath)
 {
     m_formationCase = rimCase;
-    m_formationTrajectoryType = trajectoryType;
+    m_formationTrajectoryType = RimWellLogTrack::WELL_PATH;
     m_formationWellPath = wellPath;
+    m_formationSimWellName = "";
+    m_formationBranchIndex = -1;
+
+    updateConnectedEditors();
+    
+    if (m_showFormations)
+    {
+        updateFormationNamesOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, QString simWellName, int branchIndex)
+{
+    m_formationCase = rimCase;
+    m_formationTrajectoryType = RimWellLogTrack::SIMULATION_WELL;
+    m_formationWellPath = nullptr;
     m_formationSimWellName = simWellName;
     m_formationBranchIndex = branchIndex;
 
     updateConnectedEditors();
-    
+
     if (m_showFormations)
     {
         updateFormationNamesOnPlot();

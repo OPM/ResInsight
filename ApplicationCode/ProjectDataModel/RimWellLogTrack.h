@@ -84,8 +84,8 @@ public:
     void detachAllCurves();
 
     void loadDataAndUpdate();
-    void updateFormationNamesData(RimCase* rimCase, TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex);
-
+    void setAndUpdateWellPathFormationNamesData(RimCase* rimCase, RimWellPath* wellPath);
+    void setAndUpdateSimWellFormationNamesData(RimCase* rimCase, QString simWellName, int branchIndex);
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateXZoomAndParentPlotDepthZoom();
     void updateXZoom();

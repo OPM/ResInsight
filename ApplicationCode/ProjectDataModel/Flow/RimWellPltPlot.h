@@ -79,8 +79,7 @@ public:
 
     void                                            setCurrentWellName(const QString& currWellName);
     QString                                         currentWellName() const;
-    int                                             branchIndex() const;
-
+    
     static const char*                              plotNameFormatString();
 
     //void                                            applyInitialSelections();
@@ -146,7 +145,6 @@ private:
     caf::PdmField<QString>                          m_userName;
 
     caf::PdmField<QString>                          m_wellPathName;
-    caf::PdmField<int>                              m_branchIndex;
 
     caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
     caf::PdmChildArrayField<RimRftAddress*>         m_selectedSourcesForIo;

@@ -260,7 +260,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
     {
         for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
         {
-            m_wellLogPlot->trackByIndex(i)->updateFormationNamesData(nullptr, RimWellLogTrack::WELL_PATH, nullptr, QString(), 0);
+            m_wellLogPlot->trackByIndex(i)->setAndUpdateWellPathFormationNamesData(nullptr, nullptr);
         }
         return;
     }
@@ -292,7 +292,14 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 
     if (m_wellLogPlot->trackCount() > 0)
     {
-        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(rimCase, trajectoryType, wellPath, m_wellPathNameOrSimWellName, m_branchIndex);
+        if (trajectoryType == RimWellLogTrack::SIMULATION_WELL)
+        {
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(rimCase, m_wellPathNameOrSimWellName, m_branchIndex);
+        }
+        else if (trajectoryType == RimWellLogTrack::WELL_PATH)
+        {
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(rimCase, wellPath);
+        }
     }
 }
 

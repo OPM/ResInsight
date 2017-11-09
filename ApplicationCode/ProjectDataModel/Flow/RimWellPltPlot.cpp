@@ -105,7 +105,6 @@ RimWellPltPlot::RimWellPltPlot()
     m_wellLogPlot.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathName, "WellName", "WellName", "", "", "");
-    CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "BranchIndex", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SourcesInternal", "SourcesInternal", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -339,7 +338,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
     {
         for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
         {
-            m_wellLogPlot->trackByIndex(i)->updateFormationNamesData(nullptr, RimWellLogTrack::WELL_PATH, nullptr, QString(), 0);
+            m_wellLogPlot->trackByIndex(i)->setAndUpdateWellPathFormationNamesData(nullptr, nullptr);
         }
         return;
     }
@@ -371,7 +370,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 
     if (m_wellLogPlot->trackCount() > 0)
     {
-        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(rimCase, trajectoryType, wellPath, RimWellPlotTools::simWellName(m_wellPathName), m_branchIndex);
+        m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(rimCase, wellPath);
     }
 }
 
@@ -1034,14 +1033,6 @@ QString RimWellPltPlot::currentWellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimWellPltPlot::branchIndex() const
-{
-    return m_branchIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const char* RimWellPltPlot::plotNameFormatString()
 {
     return PLOT_NAME_QFORMAT_STRING;
@@ -1106,22 +1097,6 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     {
         calculateValueOptionsForTimeSteps(m_wellPathName, options);
     }
-    else if (fieldNeedingOptions == &m_branchIndex)
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-
-        size_t branchCount = proj->simulationWellBranches(simWellName).size();
-
-        for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
-        {
-            options.push_back(caf::PdmOptionItemInfo("Branch " + QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
-        }
-
-        if (options.size() == 0)
-        {
-            options.push_front(caf::PdmOptionItemInfo("None", -1));
-        }
-    }
 
     if (fieldNeedingOptions == &m_phaseSelectionMode)
     {
@@ -1148,7 +1123,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         setDescription(QString(plotNameFormatString()).arg(m_wellPathName));
     }
 
-    if (changedField == &m_wellPathName || changedField == &m_branchIndex)
+    if (changedField == &m_wellPathName)
     {
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
         for (RimWellLogCurve* const curve : plotTrack->curvesVector())
@@ -1207,12 +1182,6 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathName);
     
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->simulationWellBranches(simWellName).size() > 1)
-    {
-        uiOrdering.add(&m_branchIndex);
-    }
-
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", "Sources");
     sourcesGroup->add(&m_selectedSources);
 
