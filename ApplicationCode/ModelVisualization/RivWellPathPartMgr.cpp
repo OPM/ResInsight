@@ -463,21 +463,6 @@ size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::updateWellLabelTextColor(cvf::Color3f color)
-{
-    if (m_wellLabelPart.p())
-    {
-        cvf::DrawableText* drawableText = dynamic_cast<cvf::DrawableText*>(m_wellLabelPart->drawable());
-        if (drawableText)
-        {
-            drawableText->setTextColor(color);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
 {
     if (!m_rimWellPath) return nullptr;

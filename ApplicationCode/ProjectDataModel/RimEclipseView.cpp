@@ -462,7 +462,6 @@ void RimEclipseView::createDisplayModel()
     wellPathCollection()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
-    m_viewer->updateWellPathTextColor();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
     // Create Scenes from the frameModels

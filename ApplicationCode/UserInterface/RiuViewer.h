@@ -80,8 +80,6 @@ public:
 
     void            updateAnnotationItems();
 
-    void            updateWellPathTextColor();
-
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();

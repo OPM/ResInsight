@@ -72,8 +72,6 @@ public:
 
     size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
 
-    void                          updateWellLabelTextColor(cvf::Color3f color);
-
 private:
     void                          appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
                                                                  const caf::DisplayCoordTransform* displayCoordTransform,
