@@ -188,10 +188,12 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(int 
                 stimPlanCell.setConductivityValue(cvf::UNDEFINED_DOUBLE);
             }
 
+            // The well path is intersecting the fracture at origo in the fracture coordinate system
+            // Find the Stimplan cell where the well path is intersecting
 
-            if ( cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0 )
+            if ( cellPolygon[0].x() <= 0.0 && cellPolygon[1].x() >= 0.0 )
             {
-                if ( cellPolygon[1].y() > 0.0 && cellPolygon[2].y() < 0.0 )
+                if ( cellPolygon[1].y() >= 0.0 && cellPolygon[2].y() <= 0.0 )
                 {
                     wellCenterStimPlanCellIJ = std::make_pair(stimPlanCell.getI(), stimPlanCell.getJ());
                     RiaLogging::debug(QString("Setting wellCenterStimPlanCell at cell %1, %2").
