@@ -128,7 +128,10 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
         }
     }
 
+
     if (!m_ecl_file) return false;
+
+    m_availablePhases = RifEclipseOutputFileTools::findAvailablePhases(m_ecl_file);
 
     return true;
 }
@@ -344,6 +347,14 @@ int RifEclipseUnifiedRestartFileAccess::readUnitsType()
     openFile();
 
     return RifEclipseOutputFileTools::readUnitsType(m_ecl_file);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifEclipseUnifiedRestartFileAccess::availablePhases() const
+{
+    return m_availablePhases;
 }
 
 //--------------------------------------------------------------------------------------------------

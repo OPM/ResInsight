@@ -54,6 +54,8 @@ public:
     virtual void                readWellData(well_info_type* well_info, bool importCompleteMswData);
     virtual int                 readUnitsType();
 
+    virtual std::set<RiaDefines::PhaseType> availablePhases() const override;
+
 private:
     void                        openTimeStep(size_t timeStep);
 
@@ -63,4 +65,5 @@ private:
     std::vector<double>             m_daysSinceSimulationStart;
 
     std::vector< ecl_file_type* >   m_ecl_files;
+    std::set<RiaDefines::PhaseType> m_availablePhases;
 };

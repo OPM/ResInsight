@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
 #include "cvfBase.h"
@@ -31,6 +32,7 @@
 #include <QStringList>
 
 #include <vector>
+#include <set>
 
 
 class RigEclipseCaseData;
@@ -62,6 +64,8 @@ public:
     std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }
 
     void                        setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices);
+
+    virtual std::set<RiaDefines::PhaseType>  availablePhases() const;
 
 protected:
     bool                        isTimeStepIncludedByFilter(size_t timeStepIndex) const;

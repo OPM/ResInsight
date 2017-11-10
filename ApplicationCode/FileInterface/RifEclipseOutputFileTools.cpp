@@ -386,6 +386,40 @@ QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFile
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(ecl_file_type* ecl_file)
+{
+    std::set<RiaDefines::PhaseType> phaseTypes;
+
+    if (ecl_file)
+    {
+        const ecl_kw_type* intehead = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+        if (intehead)
+        {
+            int phases = ecl_kw_iget_int(intehead, INTEHEAD_PHASE_INDEX);
+
+            if (phases & ECL_OIL_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::OIL_PHASE);
+            }
+
+            if (phases & ECL_GAS_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::GAS_PHASE);
+            }
+
+            if (phases & ECL_WATER_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::WATER_PHASE);
+            }
+        }
+    }
+
+    return phaseTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps)
 {
     if (!reportSteps) return;

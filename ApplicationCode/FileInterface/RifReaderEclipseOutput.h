@@ -68,6 +68,8 @@ public:
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 
+    virtual std::set<RiaDefines::PhaseType> availablePhases() const override;
+
 private:
     bool                    readActiveCellInfo();
     void                    buildMetaData();

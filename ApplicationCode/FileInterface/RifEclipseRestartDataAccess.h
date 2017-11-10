@@ -108,4 +108,6 @@ public:
 
     virtual void                readWellData(well_info_type * well_info, bool importCompleteMswData) = 0;
     virtual int                 readUnitsType() = 0;
+
+    virtual std::set<RiaDefines::PhaseType> availablePhases() const = 0;
 };

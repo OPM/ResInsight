@@ -69,6 +69,8 @@ public:
 
     static QString      createIndexFileName(const QString& resultFileName);
 
+    static std::set<RiaDefines::PhaseType> findAvailablePhases(ecl_file_type* ecl_file);
+
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);
 };

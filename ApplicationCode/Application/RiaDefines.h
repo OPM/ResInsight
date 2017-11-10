@@ -102,5 +102,11 @@ namespace RiaDefines
 
     double minimumDefaultValuePlot();
     double maximumDefaultValuePlot();
+
+    enum PhaseType {
+        OIL_PHASE,
+        GAS_PHASE,
+        WATER_PHASE
+    };
 };
 

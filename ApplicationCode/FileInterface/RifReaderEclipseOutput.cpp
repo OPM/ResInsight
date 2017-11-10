@@ -2079,6 +2079,19 @@ void RifReaderEclipseOutput::transferCoarseningInfo(const ecl_grid_type* eclGrid
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifReaderEclipseOutput::availablePhases() const
+{
+    if (m_dynamicResultsAccess.notNull())
+    {
+        return m_dynamicResultsAccess->availablePhases();
+    }
+
+    return std::set<RiaDefines::PhaseType>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::string RifReaderEclipseOutput::ertGridName(size_t gridNr)
 {
     std::string gridName;

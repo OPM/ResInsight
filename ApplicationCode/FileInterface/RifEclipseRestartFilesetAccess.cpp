@@ -294,6 +294,13 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
         ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
+
+        if (ecl_file)
+        {
+            auto phases = RifEclipseOutputFileTools::findAvailablePhases(ecl_file);
+
+            m_availablePhases.insert(phases.begin(), phases.end());
+        }
     }
 }
 
@@ -311,6 +318,14 @@ int RifEclipseRestartFilesetAccess::readUnitsType()
     }
 
     return RifEclipseOutputFileTools::readUnitsType(ecl_file);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifEclipseRestartFilesetAccess::availablePhases() const
+{
+    return m_availablePhases;
 }
 
 //--------------------------------------------------------------------------------------------------

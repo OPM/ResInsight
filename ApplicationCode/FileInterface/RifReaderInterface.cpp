@@ -67,6 +67,14 @@ void RifReaderInterface::setTimeStepFilter(const std::vector<size_t>& fileTimeSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifReaderInterface::availablePhases() const
+{
+    return std::set<RiaDefines::PhaseType>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
 {
     if (m_fileTimeStepIndices.empty()) return true;
