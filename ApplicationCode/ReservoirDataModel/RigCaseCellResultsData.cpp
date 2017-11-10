@@ -382,7 +382,6 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
     cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
     m_statisticsDataCache.push_back(dataCache.p());
 
-
     return scalarResultIndex;
 }
 
@@ -1204,6 +1203,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 {
+    // Compute SGAS based on SWAT if the simulation contains no oil
+    testAndComputeSgasForTimeStep(timeStepIndex);
+
     size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
     size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
 
@@ -1292,6 +1294,79 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
+{
+    size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
+    if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T)
+    {
+        return;
+    }
+
+    if (m_readerInterface.isNull()) return;
+
+    std::set<RiaDefines::PhaseType> phases = m_readerInterface->availablePhases();
+    if (phases.count(RiaDefines::GAS_PHASE) == 0) return;
+    if (phases.count(RiaDefines::OIL_PHASE) > 0) return;
+
+    // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
+
+    size_t scalarIndexSGAS = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS", false);
+    if (this->cellScalarResults(scalarIndexSGAS).size() > timeStepIndex)
+    {
+        std::vector<double>& values = this->cellScalarResults(scalarIndexSGAS)[timeStepIndex];
+        if (values.size() > 0) return;
+    }
+
+    size_t swatResultValueCount = 0;
+    size_t swatTimeStepCount = 0;
+
+    {
+        std::vector<double>& swatForTimeStep = this->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        if (swatForTimeStep.size() > 0)
+        {
+            swatResultValueCount = swatForTimeStep.size();
+            swatTimeStepCount = this->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepInfos.size();
+        }
+    }
+
+    this->cellScalarResults(scalarIndexSGAS).resize(swatTimeStepCount);
+
+    if (this->cellScalarResults(scalarIndexSGAS, timeStepIndex).size() > 0)
+    {
+        return;
+    }
+
+    this->cellScalarResults(scalarIndexSGAS, timeStepIndex).resize(swatResultValueCount);
+
+    std::vector<double>* swatForTimeStep = NULL;
+
+    {
+        swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        if (swatForTimeStep->size() == 0)
+        {
+            swatForTimeStep = NULL;
+        }
+    }
+
+    std::vector<double>& sgasForTimeStep = this->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+
+#pragma omp parallel for
+    for (int idx = 0; idx < static_cast<int>(swatResultValueCount); idx++)
+    {
+        double sgasValue = 1.0;
+
+        if (swatForTimeStep)
+        {
+            sgasValue -= swatForTimeStep->at(idx);
+        }
+
+        sgasForTimeStep[idx] = sgasValue;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

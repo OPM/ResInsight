@@ -135,6 +135,8 @@ public:
                                                         findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
 private: // from RimReservoirCellResultsStorage
     void                                               computeSOILForTimeStep(size_t timeStepIndex);
+    void                                               testAndComputeSgasForTimeStep(size_t timeStepIndex);
+    
     void                                               computeRiTransComponent(const QString& riTransComponentResultName);
     void                                               computeNncCombRiTrans();
 
