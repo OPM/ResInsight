@@ -905,10 +905,10 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPl
     RimProject* proj = RiaApplication::instance()->project();
     std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(simWellName);
     
+    if (wellPaths.size() == 0) return nullptr;
+    
     CVF_ASSERT(branchIndex < static_cast<int>(wellPaths.size()));
      
-    if (wellPaths.size() == 0) return nullptr;
-
     return (wellLogCollection->findOrCreateSimWellExtractor(simWellName,
                                                             QString("Find or create sim well extractor"), 
                                                             wellPaths[branchIndex], 
