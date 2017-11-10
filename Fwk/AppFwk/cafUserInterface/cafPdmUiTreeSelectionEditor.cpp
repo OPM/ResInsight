@@ -367,13 +367,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSelectedOn()
 {
-    if (!m_proxyModel) return;
-
-    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-    for (auto mi : selectedIndexes)
-    {
-        m_proxyModel->setData(mi, true, Qt::CheckStateRole);
-    }
+    this->setCheckedStateOfSelected(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,13 +375,19 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOn()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSelectedOff()
 {
+    this->setCheckedStateOfSelected(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::setCheckedStateOfSelected(bool checked)
+{
     if (!m_proxyModel) return;
 
-    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-    for (auto mi : selectedIndexes)
-    {
-        m_proxyModel->setData(mi, false, Qt::CheckStateRole);
-    }
+    QItemSelection selectionInProxyModel = m_treeView->selectionModel()->selection();
+    QItemSelection selectionInSourceModel = m_proxyModel->mapSelectionToSource(selectionInProxyModel);
+    m_model->setCheckedStateForItems(selectionInSourceModel.indexes(), checked);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,31 +395,36 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOff()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
 {
-    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-    for (auto mi : selectedIndexes)
-    {
-        for (int i = 0; i < m_proxyModel->rowCount(mi); i++)
-        {
-            QModelIndex childIndex = m_proxyModel->index(i, 0, mi);
-            m_proxyModel->setData(childIndex, true, Qt::CheckStateRole);
-        }
-    }
+    this->setCheckedStateForSubItemsOfSelected(true);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSubItemsOff()
 {
-    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-    for (auto mi : selectedIndexes)
+    this->setCheckedStateForSubItemsOfSelected(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::setCheckedStateForSubItemsOfSelected(bool checked)
+{
+    QModelIndexList selectedProxyIndexes = m_treeView->selectionModel()->selectedIndexes();
+    QModelIndexList sourceIndexesToSubItems;
+
+    for (auto mi : selectedProxyIndexes)
     {
         for (int i = 0; i < m_proxyModel->rowCount(mi); i++)
         {
-            QModelIndex childIndex = m_proxyModel->index(i, 0, mi);
-            m_proxyModel->setData(childIndex, false, Qt::CheckStateRole);
+            QModelIndex childProxyIndex = m_proxyModel->index(i, 0, mi);
+            sourceIndexesToSubItems.push_back(m_proxyModel->mapToSource(childProxyIndex));
         }
     }
+
+    m_model->setCheckedStateForItems(sourceIndexesToSubItems, checked);
 }
 
 //--------------------------------------------------------------------------------------------------

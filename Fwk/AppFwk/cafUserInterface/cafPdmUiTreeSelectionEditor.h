@@ -113,6 +113,8 @@ private slots:
     void                slotClicked(const QModelIndex& current);
 
 private:
+    void                setCheckedStateOfSelected(bool checked);
+    void                setCheckedStateForSubItemsOfSelected(bool checked);
     void                checkAllItems();
     void                unCheckAllItems();
 
