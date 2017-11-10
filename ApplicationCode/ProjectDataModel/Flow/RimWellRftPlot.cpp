@@ -294,13 +294,21 @@ void RimWellRftPlot::updateFormationsOnPlot() const
     {
         if (trajectoryType == RimWellLogTrack::SIMULATION_WELL)
         {
-            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(rimCase, m_wellPathNameOrSimWellName, m_branchIndex);
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(rimCase, associatedSimWellName(), m_branchIndex);
         }
         else if (trajectoryType == RimWellLogTrack::WELL_PATH)
         {
             m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(rimCase, wellPath);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellRftPlot::associatedSimWellName() const
+{
+    return RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,21 +320,21 @@ void RimWellRftPlot::applyInitialSelections()
     std::set<QDateTime> rftTimeSteps;
     std::set<QDateTime> observedTimeSteps;
     std::set<QDateTime> gridTimeSteps;
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
+    const QString simWellName = associatedSimWellName();
 
-    for(RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell(m_wellPathNameOrSimWellName))
+    for(RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell(simWellName))
     {
         sourcesToSelect.push_back(RifWellRftAddress(RifWellRftAddress::RFT, rftCase));
         RimWellPlotTools::appendSet(rftTimeSteps, RimWellPlotTools::timeStepsFromRftCase(rftCase, simWellName));
     }
     
-    for (RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell(m_wellPathNameOrSimWellName))
+    for (RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell(simWellName))
     {
         sourcesToSelect.push_back(RifWellRftAddress(RifWellRftAddress::GRID, gridCase));
         RimWellPlotTools::appendSet(gridTimeSteps, RimWellPlotTools::timeStepsFromGridCase(gridCase));
     }
     
-    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName);
+    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(simWellName);
     if(wellLogFiles.size() > 0)
     {
         sourcesToSelect.push_back(RifWellRftAddress(RifWellRftAddress::OBSERVED));
@@ -446,7 +454,8 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 std::set < RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
+    const QString simWellName = associatedSimWellName();
+
     const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
 
@@ -514,7 +523,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                                         const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                         const std::set<RimWellLogCurve*>& curvesToDelete)
 {
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
+    const QString simWellName = associatedSimWellName();
     RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
 
     // Delete curves
@@ -534,12 +543,11 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             auto rftCase = curveDefToAdd.address().eclCase();
             curve->setEclipseResultCase(dynamic_cast<RimEclipseResultCase*>(rftCase));
 
-            RifEclipseRftAddress address(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
+            RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(1);
 
             applyCurveAppearance(curve);
-            curve->loadDataAndUpdate(true);
         }
         else if (curveDefToAdd.address().sourceType() == RifWellRftAddress::GRID)
         {
@@ -573,7 +581,6 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                 curve->setZOrder(0);
 
                 applyCurveAppearance(curve);
-                curve->loadDataAndUpdate(false);
             }
         }
         else if (curveDefToAdd.address().sourceType() == RifWellRftAddress::OBSERVED)
@@ -591,7 +598,6 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                 curve->setZOrder(2);
 
                 applyCurveAppearance(curve);
-                curve->loadDataAndUpdate(true);
             }
         }
     }
@@ -635,7 +641,7 @@ std::vector<RifWellRftAddress> RimWellRftPlot::selectedSources() const
     {
         if (addr.sourceType() == RifWellRftAddress::OBSERVED)
         {
-            for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName))
+            for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure(associatedSimWellName()))
             {
                 sources.push_back(RifWellRftAddress(RifWellRftAddress::OBSERVED, wellLogFile));
             }
@@ -673,7 +679,7 @@ RimWellLogPlot* RimWellRftPlot::wellLogPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::setCurrentWellName(const QString& currWellName)
+void RimWellRftPlot::setSimWellOrWellPathName(const QString& currWellName)
 {
     m_wellPathNameOrSimWellName = currWellName;
 }
@@ -681,7 +687,7 @@ void RimWellRftPlot::setCurrentWellName(const QString& currWellName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellRftPlot::currentWellName() const
+QString RimWellRftPlot::simWellOrWellPathName() const
 {
     return m_wellPathNameOrSimWellName;
 }
@@ -707,8 +713,9 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
     QList<caf::PdmOptionItemInfo> options;
+
+    const QString simWellName = associatedSimWellName();
 
     if (fieldNeedingOptions == &m_wellPathNameOrSimWellName)
     {
@@ -742,7 +749,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             options.push_back(item);
         }
 
-        if (RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName).size() > 0)
+        if (RimWellPlotTools::wellLogFilesContainingPressure(simWellName).size() > 0)
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::OBSERVED), true));
 
@@ -760,7 +767,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     {
         RimProject* proj = RiaApplication::instance()->project();
 
-        size_t branchCount = proj->simulationWellBranches(m_wellPathNameOrSimWellName).size();
+        size_t branchCount = proj->simulationWellBranches(simWellName).size();
 
         for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
         {
@@ -849,7 +856,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_wellPathNameOrSimWellName);
     
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj->simulationWellBranches(m_wellPathNameOrSimWellName).size() > 1)
+    if (proj->simulationWellBranches(associatedSimWellName()).size() > 1)
     {
         uiOrdering.add(&m_branchIndex);
     }
@@ -931,7 +938,8 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options)
 {
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathNameOrSimWellName);
+    const QString simWellName = associatedSimWellName();
+
     std::map<QDateTime, std::set<RifWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
     const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);

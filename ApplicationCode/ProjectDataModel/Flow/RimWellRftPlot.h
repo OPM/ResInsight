@@ -81,8 +81,8 @@ public:
 
     RimWellLogPlot*                                 wellLogPlot() const;
 
-    void                                            setCurrentWellName(const QString& currWellName);
-    QString                                         currentWellName() const;
+    void                                            setSimWellOrWellPathName(const QString& currWellName);
+    QString                                         simWellOrWellPathName() const;
     int                                             branchIndex() const;
 
     static const char*                              plotNameFormatString();
@@ -130,6 +130,8 @@ private:
     void                                            updateSelectedTimeStepsFromSelectedSources();
 
     void                                            updateFormationsOnPlot() const;
+    QString                                         associatedSimWellName() const;
+
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
