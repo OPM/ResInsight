@@ -175,17 +175,19 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     bool itemCountHasChaged = false;
     if (m_model->optionItemCount() != options.size()) itemCountHasChaged = true;
+    
+    QVariant fieldValue = field()->uiValue();
+    m_model->setUiValueCache(&fieldValue);
 
     // TODO: If the count is different between incoming and current list of items,
     // use cafQTreeViewStateSerializer to restore collapsed state
     m_model->setOptions(this, options);
-
+    
     if (itemCountHasChaged)
     {
         m_treeView->expandAll();
     }
 
-    QVariant fieldValue = field()->uiValue();
     if (PdmUiTreeSelectionQModel::isSingleValueField(fieldValue))
     {
         m_textFilterLineEdit->hide();
@@ -251,6 +253,8 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
     }
+    
+    m_model->resetUiValueCache();
 }
 
 //--------------------------------------------------------------------------------------------------

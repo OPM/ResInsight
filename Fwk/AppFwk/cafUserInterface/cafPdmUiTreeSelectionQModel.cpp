@@ -50,7 +50,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/) : QAbstractItemModel(parent)
+caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/) 
+   : QAbstractItemModel(parent), 
+     m_uiValueCache(nullptr)
 {
     m_uiFieldHandle = nullptr;
     m_tree = nullptr;
@@ -148,7 +150,7 @@ int caf::PdmUiTreeSelectionQModel::optionItemCount() const
 void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options)
 {
     m_uiFieldHandle = field;
-    
+
     if (m_options.size() != options.size())
     {
         beginResetModel();
@@ -307,7 +309,9 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         {
             if (m_uiFieldHandle && m_uiFieldHandle->field())
             {
-                QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+                // Avoid calling the seriously heavy uiValue method if we have a temporary valid cache.
+
+                QVariant fieldValue = m_uiValueCache ? *m_uiValueCache : m_uiFieldHandle->field()->uiValue();
                 if (isSingleValueField(fieldValue))
                 {
                      int row = fieldValue.toInt();
@@ -387,7 +391,6 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 
             if (!m_singleSelectionMode)
             {
-                QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
                 QList<QVariant> fieldValueSelection = fieldValue.toList();
 
                 for (auto v : fieldValueSelection)
