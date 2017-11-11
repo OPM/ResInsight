@@ -210,13 +210,20 @@ void RimPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurvePresentation()
+void RimPlotCurve::updateCurvePresentation(bool updatePlotLegend)
 {
     this->updateCurveVisibility();
-    this->updateCurveNameAndUpdatePlotLegend();
+
+    if (updatePlotLegend)
+    {
+        this->updateCurveNameAndUpdatePlotLegend();
+    }
+    else
+    {
+        this->updateCurveNameNoLegendUpdate();
+    }
 
     updateCurveAppearance();
-    // Todo: Rest of the curve setup controlled from this class
 }
 
 //--------------------------------------------------------------------------------------------------

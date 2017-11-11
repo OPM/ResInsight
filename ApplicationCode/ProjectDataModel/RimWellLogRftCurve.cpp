@@ -265,7 +265,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    RimWellLogCurve::updateCurvePresentation();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     m_isUsingPseudoLength = false;
     
@@ -322,8 +322,11 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        updateZoomInParentPlot();
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if ( updateParentPlot && m_parentQwtPlot)
+        {
+            updateZoomInParentPlot();
+            m_parentQwtPlot->replot();
+        }
     }
 }
 

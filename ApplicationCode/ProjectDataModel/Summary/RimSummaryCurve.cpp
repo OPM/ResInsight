@@ -377,17 +377,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    this->updateCurveVisibility();
-    if (updateParentPlot)
-    {
-        this->updateCurveNameAndUpdatePlotLegend();
-    }
-    else
-    {
-        this->updateCurveNameNoLegendUpdate();
-    }
-
-    updateCurveAppearance();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
 

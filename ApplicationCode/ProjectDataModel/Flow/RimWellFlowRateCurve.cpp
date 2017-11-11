@@ -134,7 +134,7 @@ QString RimWellFlowRateCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    RimWellLogCurve::updateCurvePresentation();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     if (isCurveVisible())
     {

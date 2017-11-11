@@ -130,7 +130,7 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    this->RimPlotCurve::updateCurvePresentation();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     if (isCurveVisible())
     {

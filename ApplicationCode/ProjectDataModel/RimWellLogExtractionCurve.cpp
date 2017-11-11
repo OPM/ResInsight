@@ -291,7 +291,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    RimWellLogCurve::updateCurvePresentation();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     if (isCurveVisible())
     {

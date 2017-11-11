@@ -106,7 +106,7 @@ protected:
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
 
-    void                            updateCurvePresentation();
+    void                            updateCurvePresentation(bool updatePlotLegend);
     virtual void                    updateCurveAppearance();
 
     void                            updateOptionSensitivity();

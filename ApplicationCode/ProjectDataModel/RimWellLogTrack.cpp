@@ -449,14 +449,16 @@ void RimWellLogTrack::loadDataAndUpdate()
 {
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType(wellLogPlot);
+
     if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
         m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
+
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->loadDataAndUpdate(true);
+        curves[cIdx]->loadDataAndUpdate(false);
     }
 
     if (m_showFormations)
@@ -467,8 +469,14 @@ void RimWellLogTrack::loadDataAndUpdate()
     {
         setFormationFieldsUiReadOnly(true);
     }
-   
-    updateFormationNamesOnPlot();
+
+    if ( m_wellLogTrackPlotWidget )
+    {
+        m_wellLogTrackPlotWidget->updateLegend();
+        this->updateAxisScaleEngine();
+        this->updateFormationNamesOnPlot();
+        this->updateXZoomAndParentPlotDepthZoom();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
