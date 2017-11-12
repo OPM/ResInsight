@@ -91,6 +91,8 @@ public:
     void updateXZoomAndParentPlotDepthZoom();
     void updateXZoom();
 
+    void setShowFormations(bool on);
+
     RiuWellLogTrack* viewer();
     
     RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;

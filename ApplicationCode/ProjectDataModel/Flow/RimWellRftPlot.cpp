@@ -258,6 +258,8 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 {
     if (m_wellLogPlot->trackCount() > 0)
     {
+        m_wellLogPlot->trackByIndex(0)->setShowFormations(true);
+
         RimProject* proj = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
 

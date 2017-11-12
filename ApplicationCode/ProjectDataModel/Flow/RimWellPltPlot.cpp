@@ -1119,6 +1119,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             plotTrack->removeCurve(curve);
         }
         m_timeStepsToAddresses.clear();
+        updateFormationsOnPlot();
     }
     else if (changedField == &m_selectedSources)
     {
@@ -1128,6 +1129,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_selectedSources ||
         changedField == &m_selectedTimeSteps)
     {
+        updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
     }
@@ -1254,6 +1256,11 @@ void RimWellPltPlot::initAfterLoad()
         }
     }
     m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
+
+    if( m_wellLogPlot->trackCount() > 0);
+    {
+        m_wellLogPlot->trackByIndex(0)->setShowFormations(true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1438,6 +1445,7 @@ void RimWellPltPlot::onLoadDataAndUpdate()
     }
 
     updateMdiWindowVisibility();
+    updateFormationsOnPlot();
     syncCurvesFromUiSelection();
     m_wellLogPlot->loadDataAndUpdate();
 }
