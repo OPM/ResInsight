@@ -253,7 +253,7 @@ void RimWellPlotTools::addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRft
         }
     }
 }
-
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -285,6 +285,35 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure(co
             }
         }
     }
+    return wellLogFiles;
+}
+#endif
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure(const QString& simWellName)
+{
+    std::vector<RimWellLogFile*> wellLogFiles;
+    const RimProject* const project = RiaApplication::instance()->project();
+    std::vector<RimWellPath*> wellPaths = project->allWellPaths();
+
+    for (auto wellPath : wellPaths)
+    {
+        if (simWellName == wellPath->associatedSimulationWell())
+        {
+            const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
+
+            for (RimWellLogFile* file : files)
+            {
+                if (hasPressureData(file))
+                {
+                    wellLogFiles.push_back(file);
+                } 
+            }
+        }
+    }
+
     return wellLogFiles;
 }
 
