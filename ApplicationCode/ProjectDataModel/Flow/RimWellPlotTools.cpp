@@ -342,6 +342,34 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const 
 {
     std::vector<RimWellLogFile*> wellLogFiles;
     const RimProject* const project = RiaApplication::instance()->project();
+    std::vector<RimWellPath*> wellPaths = project->allWellPaths();
+
+    for ( auto wellPath : wellPaths )
+    {
+        if ( wellPath->name() == wellPathName )
+        {
+            std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
+
+            for ( RimWellLogFile* file : files )
+            {
+                if ( hasFlowData(file) )
+                {
+                    wellLogFiles.push_back(file);
+                }
+            }
+        }
+    }
+    return wellLogFiles;
+}
+
+#if 0
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const QString& wellPathName)
+{
+    std::vector<RimWellLogFile*> wellLogFiles;
+    const RimProject* const project = RiaApplication::instance()->project();
 
     for (const auto& wellPath : project->allWellPaths())
     {
@@ -363,7 +391,7 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const 
     }
     return wellLogFiles;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
