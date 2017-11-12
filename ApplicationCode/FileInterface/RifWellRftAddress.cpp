@@ -125,6 +125,43 @@ QTextStream& operator >> (QTextStream& str, RifWellRftAddress& source)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// This sort order controls the plot order in PLT plot. (Layer-wise)
+/// Observed data is supposed to be the bottom layers (first)
+//--------------------------------------------------------------------------------------------------
+bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
+{
+    if ( addr1.m_sourceType != addr2.m_sourceType )
+    {
+        return addr1.m_sourceType < addr2.m_sourceType;
+    }
+
+    if ( addr1.m_sourceType == RifWellRftAddress::NONE ) return false; // 
+    
+    if (addr1.m_sourceType == RifWellRftAddress::OBSERVED) 
+    { 
+        if(addr1.wellLogFile() && addr2.wellLogFile()) 
+        {
+            return addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName();
+        }
+        else
+        {
+            return addr1.wellLogFile() < addr2.wellLogFile();
+        }
+    }
+    else 
+    {
+        if ( addr1.eclCase() && addr2.eclCase() )
+        {
+            return addr1.eclCase()->caseId() < addr2.eclCase()->caseId();
+        }
+        else
+        {
+            return addr1.eclCase() < addr2.eclCase();
+        }
+    }
+}
+#if 0
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
@@ -135,3 +172,4 @@ bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
          addr1.wellLogFile() != nullptr && addr2.wellLogFile() != nullptr ?  addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName() :
          addr1.wellLogFile() < addr2.wellLogFile());
 }
+#endif

@@ -44,9 +44,9 @@ public:
     enum SourceType
     {
         NONE,
+        OBSERVED,
         RFT,
-        GRID,
-        OBSERVED
+        GRID
     };
 
     RifWellRftAddress();
