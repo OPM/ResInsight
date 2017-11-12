@@ -603,6 +603,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
     }
 
     m_wellLogPlot->loadDataAndUpdate();
+    m_wellLogPlot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
