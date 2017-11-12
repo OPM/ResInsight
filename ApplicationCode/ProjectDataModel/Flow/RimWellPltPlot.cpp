@@ -255,6 +255,7 @@ void RimWellPltPlot::deleteViewWidget()
 //    newCurve->setLineStyle(currentLineStyle);
 //}
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -280,7 +281,7 @@ void RimWellPltPlot::updateSelectedTimeStepsFromSelectedSources()
     }
     m_selectedTimeSteps = newTimeStepsSelections;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -775,8 +776,6 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     RimProject* proj = RiaApplication::instance()->project();
     RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
-    RimWellLogPlotCollection* wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
-
 
     // Add curves
     for (const std::pair<RifWellRftAddress, QDateTime>& curveDefToAdd : curveDefs)
@@ -789,11 +788,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         QDateTime timeStep = curveDefToAdd.second;
 
         std::unique_ptr<RigResultPointCalculator> resultPointCalc;
+
         QString curveName;
-        curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
-        curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
-        if (sourceDef.sourceType() == RifWellRftAddress::RFT) curveName += ", RFT";
-        curveName += ", " + timeStep.toString();
+        {
+            curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
+            curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
+            if ( sourceDef.sourceType() == RifWellRftAddress::RFT ) curveName += ", RFT";
+            curveName += ", " + timeStep.toString();
+        }
 
         if ( sourceDef.sourceType() == RifWellRftAddress::RFT )
         {
@@ -848,11 +850,11 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         else if ( sourceDef.sourceType() == RifWellRftAddress::OBSERVED )
         {
             RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
-            if(wellLogFile!= nullptr)
+            if ( wellLogFile )
             {
                 RigWellLogFile* rigWellLogFile = wellLogFile->wellLogFile();
 
-                if (rigWellLogFile != nullptr)
+                if ( rigWellLogFile )
                 {
                     for (RimWellLogFileChannel* channel : RimWellPlotTools::getFlowChannelsFromWellFile(wellLogFile))
                     {
@@ -1120,8 +1122,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_selectedSources)
     {
-        // Update time steps selections based on source selections
-        updateSelectedTimeStepsFromSelectedSources();
+      
     }
 
     if (changedField == &m_selectedSources ||
