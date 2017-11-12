@@ -334,43 +334,26 @@ std::vector<RimEclipseCase*> RimWellPltPlot::eclipseCases() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::updateFormationsOnPlot() const
 {
-    if (m_selectedTimeSteps().empty())
-    {
-        for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
-        {
-            m_wellLogPlot->trackByIndex(i)->setAndUpdateWellPathFormationNamesData(nullptr, nullptr);
-        }
-        return;
-    }
-
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* oilField = proj->activeOilField();
-
-    RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
-    RimWellPath* wellPath = proj->wellPathByName(m_wellPathName);
-
-    RimWellLogTrack::TrajectoryType trajectoryType;
-
-    if (wellPath)
-    {
-        trajectoryType = RimWellLogTrack::WELL_PATH;
-    }
-    else
-    {
-        trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-    }
-
-    RimCase* rimCase = nullptr;
-    std::vector<RimCase*> cases;
-    proj->allCases(cases);
-    if (!cases.empty())
-    {
-        rimCase = cases[0];
-    }
-
     if (m_wellLogPlot->trackCount() > 0)
     {
-        m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(rimCase, wellPath);
+        RimProject* proj = RiaApplication::instance()->project();
+        RimWellPath* wellPath = proj->wellPathByName(m_wellPathName);
+
+        RimCase* formationNamesCase = m_wellLogPlot->trackByIndex(0)->formationNamesCase();
+
+        if ( !formationNamesCase )
+        {
+            /// Set default case. Todo : Use the first of the selected cases in the plot
+            std::vector<RimCase*> cases;
+            proj->allCases(cases);
+
+            if ( !cases.empty() )
+            {
+                formationNamesCase = cases[0];
+            }
+        }
+        
+        m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(formationNamesCase, wellPath);
     }
 }
 

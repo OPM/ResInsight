@@ -256,49 +256,43 @@ void RimWellRftPlot::updateSelectedTimeStepsFromSelectedSources()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateFormationsOnPlot() const
 {
-    if (m_selectedTimeSteps().empty())
-    {
-        for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
-        {
-            m_wellLogPlot->trackByIndex(i)->setAndUpdateWellPathFormationNamesData(nullptr, nullptr);
-        }
-        return;
-    }
-
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* oilField = proj->activeOilField();
-
-    RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
-    RimWellPath* wellPath = wellPathCollection->wellPathByName(m_wellPathNameOrSimWellName);
-
-    RimWellLogTrack::TrajectoryType trajectoryType;
-
-    if (wellPath)
-    {
-        trajectoryType = RimWellLogTrack::WELL_PATH;
-    }
-    else
-    {
-        trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-    }
-
-    RimCase* rimCase = nullptr;
-    std::vector<RimCase*> cases;
-    proj->allCases(cases);
-    if (!cases.empty())
-    {
-        rimCase = cases[0];
-    }
-
     if (m_wellLogPlot->trackCount() > 0)
     {
+        RimProject* proj = RiaApplication::instance()->project();
+        RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
+
+        RimWellLogTrack::TrajectoryType trajectoryType;
+
+        if ( wellPath )
+        {
+            trajectoryType = RimWellLogTrack::WELL_PATH;
+        }
+        else
+        {
+            trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+        }
+
+        RimCase* formationNamesCase = m_wellLogPlot->trackByIndex(0)->formationNamesCase();
+
+        if ( !formationNamesCase )
+        {
+            /// Set default case. Todo : Use the first of the selected cases in the plot
+            std::vector<RimCase*> cases;
+            proj->allCases(cases);
+
+            if ( !cases.empty() )
+            {
+                formationNamesCase = cases[0];
+            }
+        }
+
         if (trajectoryType == RimWellLogTrack::SIMULATION_WELL)
         {
-            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(rimCase, associatedSimWellName(), m_branchIndex);
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(formationNamesCase, associatedSimWellName(), m_branchIndex);
         }
         else if (trajectoryType == RimWellLogTrack::WELL_PATH)
         {
-            m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(rimCase, wellPath);
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(formationNamesCase, wellPath);
         }
     }
 }

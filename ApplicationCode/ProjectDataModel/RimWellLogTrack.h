@@ -79,6 +79,7 @@ public:
     void setXAxisTitle(const QString& text);
     void setFormationBranchIndex(int branchIndex);
     int  formationBranchIndex() const;
+    RimCase* formationNamesCase() const; 
 
     void recreateViewer();
     void detachAllCurves();
