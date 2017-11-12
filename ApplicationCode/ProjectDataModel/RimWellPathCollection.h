@@ -66,6 +66,8 @@ public:
 
     void                                setProject(RimProject* project);
 
+    QString                             newestAddedWellName() { return m_newestAddedWellName; }
+
     enum WellVisibilityType
     {
         FORCE_ALL_OFF,
@@ -129,4 +131,5 @@ private:
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
 
     RifWellPathImporter*                m_wellPathImporter;
+    QString                             m_newestAddedWellName;
 };

@@ -96,6 +96,7 @@ RimWellPathCollection::RimWellPathCollection()
     wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathImporter = new RifWellPathImporter;
+    m_newestAddedWellName = QString();
 }
 
 
@@ -271,6 +272,11 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         }
 
         progress.incrementProgress();
+    }
+
+    if (!wellPathArray.empty())
+    {
+        m_newestAddedWellName = wellPathArray.back()->name();
     }
 
     this->sortWellsByName();
