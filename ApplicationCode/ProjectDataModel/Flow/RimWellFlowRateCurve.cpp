@@ -217,6 +217,8 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     std::vector<double> depthValues;
     std::vector<double> stackedValues;
     std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices;
+    double zPos = -10000.0 + 100*groupId(); // Z-position of curve, to draw them in correct order hiding the things behind
+    // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting above the grid
     {
         std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
 
@@ -230,7 +232,6 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         std::vector<double> allDepthValues = m_curveData->measuredDepths();
         std::vector<double> allStackedValues(allDepthValues.size());
 
-        double zPos = -0.1;
         for (RimWellFlowRateCurve * stCurve : stackedCurves)
         {
             std::vector<double> allValues = stCurve->curveData()->xValues();
@@ -254,8 +255,6 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         stackedValues = tempCurveData.xPlotValues();
         polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
     }
-
-    double zPos = -0.1;
 
     // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
 
@@ -302,7 +301,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     m_qwtPlotCurve->setSamples(stackedValues.data(), depthValues.data(), static_cast<int>(depthValues.size()));
     m_qwtPlotCurve->setLineSegmentStartStopIndices(polyLineStartStopIndices);
 
-    m_qwtPlotCurve->setZ(doFillCurve() ? zPos : zPos + 10 /*?*/);
+    m_qwtPlotCurve->setZ(zPos);
 }
 
 //--------------------------------------------------------------------------------------------------
