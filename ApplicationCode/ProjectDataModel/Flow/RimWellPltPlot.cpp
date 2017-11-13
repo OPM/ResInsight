@@ -1259,7 +1259,7 @@ void RimWellPltPlot::setupBeforeSave()
 void RimWellPltPlot::initAfterLoad()
 {
     std::set<RifDataSourceForRftPlt> selectedSources;
-    for (RimRftAddress* addr : m_selectedSourcesForIo)
+    for (RimDataSourceForRftPlt* addr : m_selectedSourcesForIo)
     {
         if (addr->address().sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
@@ -1281,7 +1281,7 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
     m_selectedSourcesForIo.clear();
     for (const RifDataSourceForRftPlt& addr : selectedSourcesAndTimeSteps())
     {
-        m_selectedSourcesForIo.push_back(new RimRftAddress(addr));
+        m_selectedSourcesForIo.push_back(new RimDataSourceForRftPlt(addr));
     }
 }
 

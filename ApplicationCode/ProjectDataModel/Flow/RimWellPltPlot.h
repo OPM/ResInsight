@@ -20,7 +20,7 @@
 #include "RimViewWindow.h"
 #include "RigFlowDiagResultAddress.h"
 
-#include "RimRftAddress.h"
+#include "RimDataSourceForRftPlt.h"
 #include "RifDataSourceForRftPltQMetaType.h"
 #include "RimPlotCurve.h"
 #include "RimWellPlotTools.h"
@@ -148,7 +148,7 @@ private:
     caf::PdmField<QString>                          m_wellPathName;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>>   m_selectedSources;
-    caf::PdmChildArrayField<RimRftAddress*>         m_selectedSourcesForIo;
+    caf::PdmChildArrayField<RimDataSourceForRftPlt*>         m_selectedSourcesForIo;
 
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 

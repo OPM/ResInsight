@@ -15,7 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.h
 ${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellRftPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellPltPlot.h
-${CEE_CURRENT_LIST_DIR}RimRftAddress.h
+${CEE_CURRENT_LIST_DIR}RimDataSourceForRftPlt.h
 ${CEE_CURRENT_LIST_DIR}RimWellPlotTools.h
 )
 
@@ -30,7 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.cpp
 ${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellRftPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPltPlot.cpp
-${CEE_CURRENT_LIST_DIR}RimRftAddress.cpp
+${CEE_CURRENT_LIST_DIR}RimDataSourceForRftPlt.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPlotTools.cpp
 )
 

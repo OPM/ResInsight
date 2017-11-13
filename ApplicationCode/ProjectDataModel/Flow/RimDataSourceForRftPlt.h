@@ -42,18 +42,18 @@ class RimEclipseCase;
 ///  
 ///  
 //==================================================================================================
-class RimRftAddress : public caf::PdmObject
+class RimDataSourceForRftPlt : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimRftAddress();
-    RimRftAddress(const RifDataSourceForRftPlt& addr);
+    RimDataSourceForRftPlt();
+    RimDataSourceForRftPlt(const RifDataSourceForRftPlt& addr);
 
     void setAddress(const RifDataSourceForRftPlt& address);
     RifDataSourceForRftPlt address() const;
 
-    RimRftAddress& operator=(const RimRftAddress& other);
+    RimDataSourceForRftPlt& operator=(const RimDataSourceForRftPlt& other);
 
 private:
     void InitPdmObject();

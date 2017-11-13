@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimRftAddress.h"
+#include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
 #include "RimWellLogFile.h"
 
@@ -41,12 +41,12 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CAF_PDM_SOURCE_INIT(RimRftAddress, "RftAddress");
+CAF_PDM_SOURCE_INIT(RimDataSourceForRftPlt, "RftAddress");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRftAddress::RimRftAddress()
+RimDataSourceForRftPlt::RimDataSourceForRftPlt()
 {
     InitPdmObject();
 }
@@ -54,7 +54,7 @@ RimRftAddress::RimRftAddress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRftAddress::RimRftAddress(const RifDataSourceForRftPlt& addr)
+RimDataSourceForRftPlt::RimDataSourceForRftPlt(const RifDataSourceForRftPlt& addr)
 {
     InitPdmObject();
     setAddress(addr);
@@ -63,7 +63,7 @@ RimRftAddress::RimRftAddress(const RifDataSourceForRftPlt& addr)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimRftAddress::setAddress(const RifDataSourceForRftPlt& address)
+void RimDataSourceForRftPlt::setAddress(const RifDataSourceForRftPlt& address)
 {
     m_sourceType = address.sourceType();
     m_eclCase = address.eclCase();
@@ -73,7 +73,7 @@ void RimRftAddress::setAddress(const RifDataSourceForRftPlt& address)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt RimRftAddress::address() const
+RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 {
     return m_eclCase() != nullptr ?
         RifDataSourceForRftPlt(m_sourceType(), m_eclCase()) :
@@ -83,7 +83,7 @@ RifDataSourceForRftPlt RimRftAddress::address() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimRftAddress::InitPdmObject()
+void RimDataSourceForRftPlt::InitPdmObject()
 {
     CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "SourceType", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "EclipseCase", "", "", "");
@@ -93,7 +93,7 @@ void RimRftAddress::InitPdmObject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRftAddress& RimRftAddress::operator=(const RimRftAddress& other)
+RimDataSourceForRftPlt& RimDataSourceForRftPlt::operator=(const RimDataSourceForRftPlt& other)
 {
     m_sourceType = other.m_sourceType();
     m_eclCase = other.m_eclCase();
