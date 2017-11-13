@@ -442,21 +442,17 @@ RimWellPath* RimWellPlotTools::wellPathFromWellLogFile(const RimWellLogFile* wel
 std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell(const QString& simWellName)
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject* const project = RiaApplication::instance()->project();
+    const RimProject* project = RiaApplication::instance()->project();
 
-    for (RimEclipseCase* const eclCase : project->eclipseCases())
+    for (RimEclipseCase* eclCase : project->eclipseCases())
     {
         RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(eclCase);
         if (resultCase != nullptr)
         {
-            RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
-            for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
+            if ( eclCase->eclipseCaseData()->findSimWellData(simWellName) )
             {
-                if (wellResult->m_wellName == simWellName)
-                {
-                    cases.push_back(resultCase);
-                    break;
-                }
+                cases.push_back(resultCase);
+                break;
             }
         }
     }
@@ -469,22 +465,17 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell(const QStr
 std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell(const QString& simWellName)
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject* const project = RiaApplication::instance()->project();
+    const RimProject* project = RiaApplication::instance()->project();
 
-    for (RimEclipseCase* const eclCase : project->eclipseCases())
+    for (RimEclipseCase* eclCase : project->eclipseCases())
     {
         RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(eclCase);
-        if (resultCase != nullptr && resultCase->rftReader() != nullptr)
+
+        if (resultCase 
+            && resultCase->rftReader() 
+            && resultCase->rftReader()->wellNames().count(simWellName))
         {
-            RigEclipseCaseData* const eclipseCaseData = eclCase->eclipseCaseData();
-            for (const cvf::ref<RigSimWellData>& wellResult : eclipseCaseData->wellResults())
-            {
-                if (wellResult->m_wellName == simWellName)
-                {
-                    cases.push_back(resultCase);
-                    break;
-                }
-            }
+            cases.push_back(resultCase);
         }
     }
     return cases;
