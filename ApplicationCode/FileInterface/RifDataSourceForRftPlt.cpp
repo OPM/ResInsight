@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifWellRftAddress.h"
+#include "RifDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
 #include "RimWellLogFile.h"
 
@@ -29,14 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress::RifWellRftAddress() : m_sourceType(SourceType::NONE)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt() : m_sourceType(SourceType::NONE)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress::RifWellRftAddress(SourceType sourceType, RimEclipseCase* eclCase)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimEclipseCase* eclCase)
 {
     CVF_ASSERT(sourceType == SourceType::RFT || sourceType == SourceType::GRID);
     CVF_ASSERT(eclCase != nullptr);
@@ -48,7 +48,7 @@ RifWellRftAddress::RifWellRftAddress(SourceType sourceType, RimEclipseCase* eclC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress::RifWellRftAddress(SourceType sourceType, RimWellLogFile* wellLogFile)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile)
 {
     CVF_ASSERT(sourceType == SourceType::OBSERVED);
 
@@ -59,7 +59,7 @@ RifWellRftAddress::RifWellRftAddress(SourceType sourceType, RimWellLogFile* well
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress::SourceType RifWellRftAddress::sourceType() const
+RifDataSourceForRftPlt::SourceType RifDataSourceForRftPlt::sourceType() const
 {
     return m_sourceType;
 }
@@ -67,7 +67,7 @@ RifWellRftAddress::SourceType RifWellRftAddress::sourceType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RifWellRftAddress::eclCase() const
+RimEclipseCase* RifDataSourceForRftPlt::eclCase() const
 {
     return m_eclCase;
 }
@@ -75,7 +75,7 @@ RimEclipseCase* RifWellRftAddress::eclCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RifWellRftAddress::wellLogFile() const
+RimWellLogFile* RifDataSourceForRftPlt::wellLogFile() const
 {
     return m_wellLogFile;
 }
@@ -83,7 +83,7 @@ RimWellLogFile* RifWellRftAddress::wellLogFile() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RifWellRftAddress::sourceTypeUiText(SourceType sourceType)
+QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
 {
     switch (sourceType)
     {
@@ -97,7 +97,7 @@ QString RifWellRftAddress::sourceTypeUiText(SourceType sourceType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool operator==(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
+bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2)
 {
     return addr1.sourceType() == addr2.sourceType() 
         && addr1.eclCase() == addr2.eclCase() 
@@ -107,7 +107,7 @@ bool operator==(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator << (QTextStream& str, const RifWellRftAddress& addr)
+QTextStream& operator << (QTextStream& str, const RifDataSourceForRftPlt& addr)
 {
     // Not implemented
     CVF_ASSERT(false);
@@ -117,7 +117,7 @@ QTextStream& operator << (QTextStream& str, const RifWellRftAddress& addr)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator >> (QTextStream& str, RifWellRftAddress& source)
+QTextStream& operator >> (QTextStream& str, RifDataSourceForRftPlt& source)
 {
     // Not implemented
     CVF_ASSERT(false);
@@ -128,16 +128,16 @@ QTextStream& operator >> (QTextStream& str, RifWellRftAddress& source)
 /// This sort order controls the plot order in PLT plot. (Layer-wise)
 /// Observed data is supposed to be the bottom layers (first)
 //--------------------------------------------------------------------------------------------------
-bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
+bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2)
 {
     if ( addr1.m_sourceType != addr2.m_sourceType )
     {
         return addr1.m_sourceType < addr2.m_sourceType;
     }
 
-    if ( addr1.m_sourceType == RifWellRftAddress::NONE ) return false; // 
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::NONE ) return false; // 
     
-    if (addr1.m_sourceType == RifWellRftAddress::OBSERVED) 
+    if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED) 
     { 
         if(addr1.wellLogFile() && addr2.wellLogFile()) 
         {

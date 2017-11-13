@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(RifWellRftAddress address, const QDateTime timeStep)
+RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(RifDataSourceForRftPlt address, const QDateTime timeStep)
 {
     m_curveDefinition = std::make_pair(address, timeStep);
 }
@@ -30,7 +30,7 @@ RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(RifWellRftAddress address, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress RiaRftPltCurveDefinition::address() const
+RifDataSourceForRftPlt RiaRftPltCurveDefinition::address() const
 {
     return m_curveDefinition.first;
 }

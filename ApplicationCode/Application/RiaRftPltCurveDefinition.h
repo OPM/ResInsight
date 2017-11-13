@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifWellRftAddress.h"
+#include "RifDataSourceForRftPlt.h"
 
 #include <QString>
 
@@ -33,13 +33,13 @@ class RimSummaryCase;
 class RiaRftPltCurveDefinition
 {
 public:
-    explicit RiaRftPltCurveDefinition(RifWellRftAddress address, const QDateTime timeStep);
+    explicit RiaRftPltCurveDefinition(RifDataSourceForRftPlt address, const QDateTime timeStep);
 
-    RifWellRftAddress               address() const;
+    RifDataSourceForRftPlt               address() const;
     QDateTime                       timeStep() const;
 
     bool operator < (const RiaRftPltCurveDefinition& other) const;
 
 private:
-    std::pair<RifWellRftAddress, QDateTime>  m_curveDefinition;
+    std::pair<RifDataSourceForRftPlt, QDateTime>  m_curveDefinition;
 };

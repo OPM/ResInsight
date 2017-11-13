@@ -18,7 +18,7 @@
 #pragma once
 
 #include <QMetaType>
-#include "RifWellRftAddress.h"
+#include "RifDataSourceForRftPlt.h"
 
-Q_DECLARE_METATYPE(RifWellRftAddress);
+Q_DECLARE_METATYPE(RifDataSourceForRftPlt);
 

@@ -38,7 +38,7 @@ class RimEclipseCase;
 ///  
 ///  
 //==================================================================================================
-class RifWellRftAddress
+class RifDataSourceForRftPlt
 {
 public:
     enum SourceType
@@ -49,9 +49,9 @@ public:
         GRID
     };
 
-    RifWellRftAddress();
-    RifWellRftAddress(SourceType sourceType, RimEclipseCase* eclCase);
-    RifWellRftAddress(SourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
+    RifDataSourceForRftPlt();
+    RifDataSourceForRftPlt(SourceType sourceType, RimEclipseCase* eclCase);
+    RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
 
     SourceType   sourceType() const;
     RimEclipseCase* eclCase() const;
@@ -59,8 +59,8 @@ public:
 
     static QString sourceTypeUiText(SourceType sourceType);
 
-    friend QTextStream& operator >> (QTextStream& str, RifWellRftAddress& addr);
-    friend bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2);
+    friend QTextStream& operator >> (QTextStream& str, RifDataSourceForRftPlt& addr);
+    friend bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);
 
 private:
     SourceType                      m_sourceType;
@@ -68,7 +68,7 @@ private:
     caf::PdmPointer<RimWellLogFile> m_wellLogFile;
 };
 
-bool operator==(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2);
-QTextStream& operator <<(QTextStream& str, const RifWellRftAddress& addr);
-QTextStream& operator >> (QTextStream& str, RifWellRftAddress& addr);
-bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2);
+bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);
+QTextStream& operator <<(QTextStream& str, const RifDataSourceForRftPlt& addr);
+QTextStream& operator >> (QTextStream& str, RifDataSourceForRftPlt& addr);
+bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);

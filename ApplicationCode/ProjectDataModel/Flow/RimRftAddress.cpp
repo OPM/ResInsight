@@ -29,12 +29,12 @@ namespace caf
 {
 
     template<>
-    void caf::AppEnum<RifWellRftAddress::SourceType>::setUp()
+    void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
     {
-        addItem(RifWellRftAddress::SourceType::RFT, "RFT", "RFT Cases");
-        addItem(RifWellRftAddress::SourceType::GRID, "GRID", "Grid Cases");
-        addItem(RifWellRftAddress::SourceType::OBSERVED, "OBSERVED", "Observed Data");
-        setDefault(RifWellRftAddress::SourceType::NONE);
+        addItem(RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Cases");
+        addItem(RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases");
+        addItem(RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data");
+        setDefault(RifDataSourceForRftPlt::SourceType::NONE);
     }
 }
 
@@ -54,7 +54,7 @@ RimRftAddress::RimRftAddress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRftAddress::RimRftAddress(const RifWellRftAddress& addr)
+RimRftAddress::RimRftAddress(const RifDataSourceForRftPlt& addr)
 {
     InitPdmObject();
     setAddress(addr);
@@ -63,7 +63,7 @@ RimRftAddress::RimRftAddress(const RifWellRftAddress& addr)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimRftAddress::setAddress(const RifWellRftAddress& address)
+void RimRftAddress::setAddress(const RifDataSourceForRftPlt& address)
 {
     m_sourceType = address.sourceType();
     m_eclCase = address.eclCase();
@@ -73,11 +73,11 @@ void RimRftAddress::setAddress(const RifWellRftAddress& address)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifWellRftAddress RimRftAddress::address() const
+RifDataSourceForRftPlt RimRftAddress::address() const
 {
     return m_eclCase() != nullptr ?
-        RifWellRftAddress(m_sourceType(), m_eclCase()) :
-        RifWellRftAddress(m_sourceType(), m_wellLogFile());
+        RifDataSourceForRftPlt(m_sourceType(), m_eclCase()) :
+        RifDataSourceForRftPlt(m_sourceType(), m_wellLogFile());
 }
 
 //--------------------------------------------------------------------------------------------------

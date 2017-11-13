@@ -441,18 +441,18 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurveDefs() const
+std::set < std::pair<RifDataSourceForRftPlt, QDateTime>> RimWellPltPlot::selectedCurveDefs() const
 {
-    std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefs;
+    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> curveDefs;
     const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(RimWellPlotTools::simWellName(m_wellPathName));
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(RimWellPlotTools::simWellName(m_wellPathName));
     const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
     {
-        for (const RifWellRftAddress& addr : selectedSources())
+        for (const RifDataSourceForRftPlt& addr : selectedSources())
         {
-            if (addr.sourceType() == RifWellRftAddress::RFT)
+            if (addr.sourceType() == RifDataSourceForRftPlt::RFT)
             {
                 for (RimEclipseResultCase* const rftCase : rftCases)
                 {
@@ -463,7 +463,7 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
                     }
                 }
             }
-            else if (addr.sourceType() == RifWellRftAddress::GRID)
+            else if (addr.sourceType() == RifDataSourceForRftPlt::GRID)
             {
                 for (RimEclipseResultCase* const gridCase : gridCases)
                 {
@@ -475,14 +475,14 @@ std::set < std::pair<RifWellRftAddress, QDateTime>> RimWellPltPlot::selectedCurv
                 }
             }
             else
-            if (addr.sourceType() == RifWellRftAddress::OBSERVED)
+            if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED)
             {
                 if (addr.wellLogFile() != nullptr)
                 {
                     const QDateTime& wellLogFileTimeStep = RimWellPlotTools::timeStepFromWellLogFile(addr.wellLogFile());
                     if (wellLogFileTimeStep == timeStep)
                     {
-                        curveDefs.insert(std::make_pair(RifWellRftAddress(RifWellRftAddress::OBSERVED, addr.wellLogFile()), timeStep));
+                        curveDefs.insert(std::make_pair(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, addr.wellLogFile()), timeStep));
                     }
                 }
             }
@@ -768,7 +768,7 @@ public:
 void RimWellPltPlot::syncCurvesFromUiSelection()
 {
     RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex(0);
-    const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs = selectedCurveDefs();
+    const std::set<std::pair<RifDataSourceForRftPlt, QDateTime>>& curveDefs = selectedCurveDefs();
 
     setPlotXAxisTitles(plotTrack);
 
@@ -785,13 +785,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
 
     // Add curves
-    for (const std::pair<RifWellRftAddress, QDateTime>& curveDefToAdd : curveDefs)
+    for (const std::pair<RifDataSourceForRftPlt, QDateTime>& curveDefToAdd : curveDefs)
     {
         std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
             std::set<FlowPhase>({ FLOW_PHASE_TOTAL });
         
-        RifWellRftAddress sourceDef = curveDefToAdd.first;
+        RifDataSourceForRftPlt sourceDef = curveDefToAdd.first;
         QDateTime timeStep = curveDefToAdd.second;
 
         std::unique_ptr<RigResultPointCalculator> resultPointCalc;
@@ -800,17 +800,17 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
-            if ( sourceDef.sourceType() == RifWellRftAddress::RFT ) curveName += ", RFT";
+            if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
             curveName += ", " + timeStep.toString();
         }
 
-        if ( sourceDef.sourceType() == RifWellRftAddress::RFT )
+        if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT )
         {
             resultPointCalc.reset(new RigRftResultPointCalculator(m_wellPathName,
                                                                   dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
                                                                   timeStep));
         }
-        else if (sourceDef.sourceType() == RifWellRftAddress::GRID)
+        else if (sourceDef.sourceType() == RifDataSourceForRftPlt::GRID)
         {
             resultPointCalc.reset(new RigSimWellResultPointCalculator(m_wellPathName,
                                                                       dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
@@ -854,7 +854,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                  }
              }
         }
-        else if ( sourceDef.sourceType() == RifWellRftAddress::OBSERVED )
+        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
         {
             RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
             if ( wellLogFile )
@@ -919,21 +919,21 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
 //--------------------------------------------------------------------------------------------------
 bool RimWellPltPlot::isOnlyGridSourcesSelected() const
 {
-    const std::vector<RifWellRftAddress>& selSources = m_selectedSources();
-    return std::find_if(selSources.begin(), selSources.end(), [](const RifWellRftAddress& addr)
+    const std::vector<RifDataSourceForRftPlt>& selSources = m_selectedSources();
+    return std::find_if(selSources.begin(), selSources.end(), [](const RifDataSourceForRftPlt& addr)
     {
-        return addr.sourceType() == RifWellRftAddress::RFT || addr.sourceType() == RifWellRftAddress::OBSERVED;
+        return addr.sourceType() == RifDataSourceForRftPlt::RFT || addr.sourceType() == RifDataSourceForRftPlt::OBSERVED;
     }) == selSources.end();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPltPlot::isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const
+bool RimWellPltPlot::isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const
 {
-    const std::vector<RifWellRftAddress>& selectedSourcesVector = m_selectedSources();
-    const auto selectedSources = std::set<RifWellRftAddress>(selectedSourcesVector.begin(), selectedSourcesVector.end());
-    std::vector<RifWellRftAddress> intersectVector;
+    const std::vector<RifDataSourceForRftPlt>& selectedSourcesVector = m_selectedSources();
+    const auto selectedSources = std::set<RifDataSourceForRftPlt>(selectedSourcesVector.begin(), selectedSourcesVector.end());
+    std::vector<RifDataSourceForRftPlt> intersectVector;
 
     std::set_intersection(selectedSources.begin(), selectedSources.end(),
                           addresses.begin(), addresses.end(), std::inserter(intersectVector, intersectVector.end()));
@@ -943,16 +943,16 @@ bool RimWellPltPlot::isAnySourceAddressSelected(const std::set<RifWellRftAddress
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifWellRftAddress> RimWellPltPlot::selectedSources() const
+std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSources() const
 {
-    std::vector<RifWellRftAddress> sources;
-    for (const RifWellRftAddress& addr : m_selectedSources())
+    std::vector<RifDataSourceForRftPlt> sources;
+    for (const RifDataSourceForRftPlt& addr : m_selectedSources())
     {
-        if (addr.sourceType() == RifWellRftAddress::OBSERVED)
+        if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
             for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName))
             {
-                sources.push_back(RifWellRftAddress(RifWellRftAddress::OBSERVED, wellLogFile));
+                sources.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, wellLogFile));
             }
         }
         else
@@ -964,16 +964,16 @@ std::vector<RifWellRftAddress> RimWellPltPlot::selectedSources() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifWellRftAddress> RimWellPltPlot::selectedSourcesAndTimeSteps() const
+std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesAndTimeSteps() const
 {
-    std::vector<RifWellRftAddress> sources;
-    for (const RifWellRftAddress& addr : m_selectedSources())
+    std::vector<RifDataSourceForRftPlt> sources;
+    for (const RifDataSourceForRftPlt& addr : m_selectedSources())
     {
-        if (addr.sourceType() == RifWellRftAddress::OBSERVED)
+        if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
             for (const QDateTime& timeStep : m_selectedTimeSteps())
             {
-                for (const RifWellRftAddress& address : m_timeStepsToAddresses.at(timeStep))
+                for (const RifDataSourceForRftPlt& address : m_timeStepsToAddresses.at(timeStep))
                 {
                     sources.push_back(address);
                 }
@@ -1047,17 +1047,17 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedSources)
     {
-        std::set<RifWellRftAddress> optionAddresses;
+        std::set<RifDataSourceForRftPlt> optionAddresses;
 
         const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
         if (rftCases.size() > 0)
         {
-            options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::RFT), true));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::RFT), true));
         }
 
         for (const auto& rftCase : rftCases)
         {
-            auto addr = RifWellRftAddress(RifWellRftAddress::RFT, rftCase);
+            auto addr = RifDataSourceForRftPlt(RifDataSourceForRftPlt::RFT, rftCase);
             auto item = caf::PdmOptionItemInfo(rftCase->caseUserDescription(), QVariant::fromValue(addr));
             item.setLevel(1);
             options.push_back(item);
@@ -1066,12 +1066,12 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
         const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
         if (gridCases.size() > 0)
         {
-            options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::GRID), true));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::GRID), true));
         }
 
         for (const auto& gridCase : gridCases)
         {
-            auto addr = RifWellRftAddress(RifWellRftAddress::GRID, gridCase);
+            auto addr = RifDataSourceForRftPlt(RifDataSourceForRftPlt::GRID, gridCase);
             auto item = caf::PdmOptionItemInfo(gridCase->caseUserDescription(), QVariant::fromValue(addr));
             item.setLevel(1);
             options.push_back(item);
@@ -1079,9 +1079,9 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
 
         if (RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName).size() > 0)
         {
-            options.push_back(caf::PdmOptionItemInfo::createHeader(RifWellRftAddress::sourceTypeUiText(RifWellRftAddress::OBSERVED), true));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::OBSERVED), true));
 
-            auto addr = RifWellRftAddress(RifWellRftAddress::OBSERVED);
+            auto addr = RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED);
             auto item = caf::PdmOptionItemInfo("Observed Data", QVariant::fromValue(addr));
             item.setLevel(1);
             options.push_back(item);
@@ -1258,19 +1258,19 @@ void RimWellPltPlot::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::initAfterLoad()
 {
-    std::set<RifWellRftAddress> selectedSources;
+    std::set<RifDataSourceForRftPlt> selectedSources;
     for (RimRftAddress* addr : m_selectedSourcesForIo)
     {
-        if (addr->address().sourceType() == RifWellRftAddress::OBSERVED)
+        if (addr->address().sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
-            selectedSources.insert(RifWellRftAddress(RifWellRftAddress::OBSERVED));
+            selectedSources.insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED));
         }
         else
         {
             selectedSources.insert(addr->address());
         }
     }
-    m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
+    m_selectedSources = std::vector<RifDataSourceForRftPlt>(selectedSources.begin(), selectedSources.end());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1279,7 +1279,7 @@ void RimWellPltPlot::initAfterLoad()
 void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 {
     m_selectedSourcesForIo.clear();
-    for (const RifWellRftAddress& addr : selectedSourcesAndTimeSteps())
+    for (const RifDataSourceForRftPlt& addr : selectedSourcesAndTimeSteps())
     {
         m_selectedSourcesForIo.push_back(new RimRftAddress(addr));
     }
@@ -1288,13 +1288,13 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep)
+void RimWellPltPlot::updateTimeStepsToAddresses(const std::vector<RifDataSourceForRftPlt>& addressesToKeep)
 {
     for (auto& timeStepPair : m_timeStepsToAddresses)
     {
-        std::vector<RifWellRftAddress> addressesToDelete;
-        std::set<RifWellRftAddress> keepAddresses = std::set<RifWellRftAddress>(addressesToKeep.begin(), addressesToKeep.end());
-        std::set<RifWellRftAddress>& currentAddresses = timeStepPair.second;
+        std::vector<RifDataSourceForRftPlt> addressesToDelete;
+        std::set<RifDataSourceForRftPlt> keepAddresses = std::set<RifDataSourceForRftPlt>(addressesToKeep.begin(), addressesToKeep.end());
+        std::set<RifDataSourceForRftPlt>& currentAddresses = timeStepPair.second;
 
         std::set_difference(currentAddresses.begin(), currentAddresses.end(),
                             keepAddresses.begin(), keepAddresses.end(),
@@ -1342,31 +1342,31 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options)
 {
     const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
-    std::map<QDateTime, std::set<RifWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
+    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
     const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
 
     // First update timeSteps to Address 'cache'
-    std::vector<RifWellRftAddress> selSources = selectedSources();
+    std::vector<RifDataSourceForRftPlt> selSources = selectedSources();
     updateTimeStepsToAddresses(selectedSources());
 
-    for (const RifWellRftAddress& selection : selSources)
+    for (const RifDataSourceForRftPlt& selection : selSources)
     {
-        if (selection.sourceType() == RifWellRftAddress::RFT)
+        if (selection.sourceType() == RifDataSourceForRftPlt::RFT)
         {
             for (RimEclipseResultCase* const rftCase : rftCases)
             {
                 RimWellPlotTools::addTimeStepsToMap(obsAndRftTimeStepsMap, RimWellPlotTools::timeStepsMapFromRftCase(rftCase, simWellName));
             }
         }
-        else if (selection.sourceType() == RifWellRftAddress::GRID)
+        else if (selection.sourceType() == RifDataSourceForRftPlt::GRID)
         {
             for (RimEclipseResultCase* const gridCase : gridCases)
             {
                 RimWellPlotTools::addTimeStepsToMap(gridTimeStepsMap, RimWellPlotTools::timeStepsMapFromGridCase(gridCase));
             }
         }
-        else if (selection.sourceType() == RifWellRftAddress::OBSERVED)
+        else if (selection.sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
             if (selection.wellLogFile() != nullptr)
             {
@@ -1381,11 +1381,11 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
     }
     else
     {
-        const auto gridTimeStepsVector = std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>(gridTimeStepsMap.begin(), gridTimeStepsMap.end());
+        const auto gridTimeStepsVector = std::vector<std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>>(gridTimeStepsMap.begin(), gridTimeStepsMap.end());
 
-        for (const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepPair : obsAndRftTimeStepsMap)
+        for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : obsAndRftTimeStepsMap)
         {
-            const std::map<QDateTime, std::set<RifWellRftAddress>>& adjTimeSteps = RimWellPlotTools::adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
+            const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& adjTimeSteps = RimWellPlotTools::adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
             RimWellPlotTools::addTimeStepsToMap(displayTimeStepsMap, adjTimeSteps);
         }
 
@@ -1400,7 +1400,7 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
         {
             if (m_timeStepsToAddresses.count(timeStep) > 0)
             {
-                const std::set<RifWellRftAddress> sourceAddresses = m_timeStepsToAddresses[timeStep];
+                const std::set<RifDataSourceForRftPlt> sourceAddresses = m_timeStepsToAddresses[timeStep];
                 if (isAnySourceAddressSelected(sourceAddresses))
                 {
                     RimWellPlotTools::addTimeStepToMap(displayTimeStepsMap, std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
@@ -1413,13 +1413,13 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
 
     // Create vector of all time steps
     std::vector<QDateTime> allTimeSteps;
-    for (const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepPair : m_timeStepsToAddresses)
+    for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : m_timeStepsToAddresses)
     {
         allTimeSteps.push_back(timeStepPair.first);
     }
 
     const QString dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
-    for (const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepPair : displayTimeStepsMap)
+    for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : displayTimeStepsMap)
     {
         options.push_back(caf::PdmOptionItemInfo(timeStepPair.first.toString(dateFormatString), timeStepPair.first));
     }

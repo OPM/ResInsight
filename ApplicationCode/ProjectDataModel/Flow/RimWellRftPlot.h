@@ -26,7 +26,7 @@
 #include "RimCase.h"
 #include "RimPlotCurve.h"
 
-#include "RifWellRftAddressQMetaType.h"
+#include "RifDataSourceForRftPltQMetaType.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -119,8 +119,8 @@ private:
                                                                        const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
     bool                                            isOnlyGridSourcesSelected() const;
-    bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;
-    std::vector<RifWellRftAddress>                  selectedSources() const;
+    bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
+    std::vector<RifDataSourceForRftPlt>                  selectedSources() const;
 
     // RimViewWindow overrides
 
@@ -139,7 +139,7 @@ private:
 
     caf::PdmField<QString>                          m_wellPathNameOrSimWellName;
     caf::PdmField<int>                              m_branchIndex;
-    caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
+    caf::PdmField<std::vector<RifDataSourceForRftPlt>>   m_selectedSources;
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
@@ -147,7 +147,7 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
-    std::map<QDateTime, std::set<RifWellRftAddress>> m_timeStepsToAddresses;
+    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> m_timeStepsToAddresses;
 
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
     bool m_isOnLoad;

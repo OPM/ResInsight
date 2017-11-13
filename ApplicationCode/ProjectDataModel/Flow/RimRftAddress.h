@@ -26,7 +26,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmPointer.h"
 
-#include "RifWellRftAddressQMetaType.h"
+#include "RifDataSourceForRftPltQMetaType.h"
 
 #include "cafAppEnum.h"
 
@@ -48,17 +48,17 @@ class RimRftAddress : public caf::PdmObject
 
 public:
     RimRftAddress();
-    RimRftAddress(const RifWellRftAddress& addr);
+    RimRftAddress(const RifDataSourceForRftPlt& addr);
 
-    void setAddress(const RifWellRftAddress& address);
-    RifWellRftAddress address() const;
+    void setAddress(const RifDataSourceForRftPlt& address);
+    RifDataSourceForRftPlt address() const;
 
     RimRftAddress& operator=(const RimRftAddress& other);
 
 private:
     void InitPdmObject();
 
-    caf::PdmField<caf::AppEnum<RifWellRftAddress::SourceType> > m_sourceType;
+    caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType> > m_sourceType;
     caf::PdmPtrField<RimEclipseCase*>                           m_eclCase;
     caf::PdmPtrField<RimWellLogFile*>                           m_wellLogFile;
 };

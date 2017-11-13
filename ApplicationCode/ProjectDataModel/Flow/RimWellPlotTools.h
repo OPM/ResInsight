@@ -19,7 +19,7 @@
 #pragma once
 
 
-#include "RifWellRftAddressQMetaType.h"
+#include "RifDataSourceForRftPltQMetaType.h"
 #include "RiaRftPltCurveDefinition.h"
 
 #include <QMetaType>
@@ -72,10 +72,10 @@ public:
     static bool                                     hasFlowData(RimWellPath* wellPath);
     static FlowPhase                                flowPhaseFromChannelName(const QString& channelName);
 
-    static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
-                                                                     const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
-    static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
-                                                                      const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
+    static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
+                                                                     const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepToAdd);
+    static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
+                                                                      const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd);
 
     static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& simWellName);
     static RimWellLogFileChannel*                   getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile);
@@ -92,12 +92,12 @@ public:
     static std::set<QDateTime>                              timeStepsFromGridCase(RimEclipseCase* gridCase);
     static QDateTime                                        timeStepFromWellLogFile(RimWellLogFile* wellLogFile);
 
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile);
-    static std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps,
-                                                                              const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair);
-    static bool                                             mapContainsTimeStep(const std::map<QDateTime, std::set<RifWellRftAddress>>& map, const QDateTime& timeStep);
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile);
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>>& allTimeSteps,
+                                                                              const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& searchTimeStepPair);
+    static bool                                             mapContainsTimeStep(const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& map, const QDateTime& timeStep);
 
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
 

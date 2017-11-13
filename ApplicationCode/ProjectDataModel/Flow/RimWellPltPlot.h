@@ -21,7 +21,7 @@
 #include "RigFlowDiagResultAddress.h"
 
 #include "RimRftAddress.h"
-#include "RifWellRftAddressQMetaType.h"
+#include "RifDataSourceForRftPltQMetaType.h"
 #include "RimPlotCurve.h"
 #include "RimWellPlotTools.h"
 
@@ -105,7 +105,7 @@ protected:
     void                                            syncSourcesIoFieldFromGuiField();
 
 private:
-    void                                            updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep);
+    void                                            updateTimeStepsToAddresses(const std::vector<RifDataSourceForRftPlt>& addressesToKeep);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
@@ -113,9 +113,9 @@ private:
 
     void                                            syncCurvesFromUiSelection();
 
-    std::set<std::pair<RifWellRftAddress, QDateTime>> selectedCurveDefs() const;
-    std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefsFromCurves() const;
-    std::pair<RifWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
+    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> selectedCurveDefs() const;
+    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> curveDefsFromCurves() const;
+    std::pair<RifDataSourceForRftPlt, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
@@ -125,9 +125,9 @@ private:
                                                                     bool doFillCurve);
 
     bool                                            isOnlyGridSourcesSelected() const;
-    bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;
-    std::vector<RifWellRftAddress>                  selectedSources() const;
-    std::vector<RifWellRftAddress>                  selectedSourcesAndTimeSteps() const;
+    bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
+    std::vector<RifDataSourceForRftPlt>                  selectedSources() const;
+    std::vector<RifDataSourceForRftPlt>                  selectedSourcesAndTimeSteps() const;
 
     // RimViewWindow overrides
 
@@ -147,7 +147,7 @@ private:
 
     caf::PdmField<QString>                          m_wellPathName;
 
-    caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
+    caf::PdmField<std::vector<RifDataSourceForRftPlt>>   m_selectedSources;
     caf::PdmChildArrayField<RimRftAddress*>         m_selectedSourcesForIo;
 
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
@@ -156,7 +156,7 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
-    std::map<QDateTime, std::set<RifWellRftAddress>>    m_timeStepsToAddresses;
+    std::map<QDateTime, std::set<RifDataSourceForRftPlt>>    m_timeStepsToAddresses;
 
     caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
