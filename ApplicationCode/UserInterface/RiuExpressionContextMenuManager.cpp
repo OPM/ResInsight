@@ -25,23 +25,27 @@ const std::map<QString, std::set<QString>> RiuExpressionContextMenuManager::MENU
     {
         "Basic Operators", 
         {
-            "+", "-", "*", "/", "%", "^"
+            "+", "-", "*", "/", "x^n"
         }
     },
     {
         "Assignment Operators",
         {
-            ":=", "+=", "-=", "*=", "/=", "%="
+            ":="
         }
     },
     {
-        "Functions",
+        "Scalar Functions",
         {
-            "abs(x)", "avg(x, y, ...)", "ceil(x)", "clamp(r0, x, r1)", 
-            "floor(x)", "frac(x)", "log(x)", "log10(x)",
-            "max(x, y, ...)", "min(x, y, ...)", "pow(x, y)", "root(x, y)",
-            "round(x)", "roundn(x, d)", "sgn(x)", "sqrt(x)", "sum(x, y, ...)", 
-            "trunc(x)"
+            "avg(x)", "max(x)", "min(x)"
+        }
+    },
+    {
+        "Vector Functions",
+        {
+            "abs(x)", "ceil(x)", "floor(x)", "frac(x)", 
+            "log(x)", "log10(x)", "pow(x, n)", "round(x)",
+            "sgn(x)", "sqrt(x)", "trunc(x)"
         }
     },
     {
