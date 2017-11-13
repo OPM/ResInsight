@@ -48,8 +48,10 @@ public:
     void                                                        values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
     void                                                        cellIndices(const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices);
 
-    std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName);
-    std::vector<RifEclipseRftAddress::RftWellLogChannelName>    availableWellLogChannels(const QString& wellName);
+    std::set<QDateTime>                                         availableTimeSteps(const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels);
+
+    std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName);
+    std::vector<RifEclipseRftAddress::RftWellLogChannelType>    availableWellLogChannels(const QString& wellName);
     const std::set<QString>&                                    wellNames();
     bool                                                        wellHasRftData(QString wellName);
 

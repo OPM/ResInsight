@@ -21,8 +21,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelName wellLogChannelName) :
-    m_wellName(wellName), m_wellLogChannelName(wellLogChannelName)
+RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannelName) :
+    m_wellName(wellName), m_wellLogChannel(wellLogChannelName)
 {
     timeStep.setTimeSpec(Qt::TimeSpec::UTC);
 
@@ -37,7 +37,7 @@ bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
 {
     if (first.wellName() != second.wellName()) return false;
     if (first.timeStep() != second.timeStep()) return false;
-    if (first.wellLogChannelName() != second.wellLogChannelName()) return false;
+    if (first.wellLogChannel() != second.wellLogChannel()) return false;
     
     return true;
 }
@@ -49,7 +49,7 @@ bool operator<(const RifEclipseRftAddress& first, const RifEclipseRftAddress& se
 {
     if (first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
     if (first.timeStep() != second.timeStep()) return (first.timeStep() < second.timeStep());
-    if (first.wellLogChannelName() != second.wellLogChannelName()) return (first.wellLogChannelName() < second.wellLogChannelName());
+    if (first.wellLogChannel() != second.wellLogChannel()) return (first.wellLogChannel() < second.wellLogChannel());
 
     return false;
 }

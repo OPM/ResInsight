@@ -140,7 +140,7 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
 
     ecl_rft_node_type* node = ecl_rft_file_iget_node(m_ecl_rft_file, index);
     
-    RifEclipseRftAddress::RftWellLogChannelName wellLogChannelName = rftAddress.wellLogChannelName();
+    RifEclipseRftAddress::RftWellLogChannelType wellLogChannelName = rftAddress.wellLogChannel();
 
     switch (wellLogChannelName)
     {
@@ -245,7 +245,7 @@ void RifReaderEclipseRft::cellIndices(const RifEclipseRftAddress& rftAddress, st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName)
+std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName)
 {
     if (!m_ecl_rft_file)
     {
@@ -258,7 +258,7 @@ std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& we
 
     for (const RifEclipseRftAddress& address : m_eclipseRftAddresses)
     {
-        if (address.wellName() == wellName && address.wellLogChannelName() == wellLogChannelName)
+        if (address.wellName() == wellName && address.wellLogChannel() == wellLogChannelName)
         {
             timeSteps.push_back(address.timeStep());
         }
@@ -269,14 +269,38 @@ std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& we
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::availableWellLogChannels(const QString& wellName)
+std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels)
 {
     if (!m_ecl_rft_file)
     {
         open();
     }
 
-    std::vector<RifEclipseRftAddress::RftWellLogChannelName> wellLogChannelNames;
+    std::set<QDateTime> timeSteps;
+
+    if (wellName == "") return timeSteps;
+
+    for (const RifEclipseRftAddress& address : m_eclipseRftAddresses)
+    {
+        if (address.wellName() == wellName && relevantChannels.count( address.wellLogChannel()) )
+        {
+            timeSteps.insert(address.timeStep());
+        }
+    }
+    return timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::availableWellLogChannels(const QString& wellName)
+{
+    if (!m_ecl_rft_file)
+    {
+        open();
+    }
+
+    std::vector<RifEclipseRftAddress::RftWellLogChannelType> wellLogChannelNames;
 
     if (wellName == "") return wellLogChannelNames;
 
@@ -288,7 +312,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
     {
         if (address.wellName() == wellName)
         {
-            RifEclipseRftAddress::RftWellLogChannelName name = address.wellLogChannelName();
+            RifEclipseRftAddress::RftWellLogChannelType name = address.wellLogChannel();
             
             if (!pressureFound)
             {
@@ -301,7 +325,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
 
             if (!rftFound)
             {
-                if ( name == RifEclipseRftAddress::RftWellLogChannelName::SWAT )
+                if ( name == RifEclipseRftAddress::RftWellLogChannelType::SWAT )
                 {
                     rftFound = true;
                     if (pltFound && pressureFound) break;
@@ -311,7 +335,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
             
             if (!pltFound)
             {
-                if ( name == RifEclipseRftAddress::RftWellLogChannelName::WRAT )
+                if ( name == RifEclipseRftAddress::RftWellLogChannelType::WRAT )
                 {
                     pltFound = true;
                     if (rftFound && pressureFound) break;
@@ -326,15 +350,15 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
     }
     if (rftFound)
     {
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SWAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SOIL);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SGAS);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SWAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SOIL);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SGAS);
     }
     if (pltFound)
     {
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::WRAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::ORAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::GRAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::WRAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::ORAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::GRAT);
     }
 
     return wellLogChannelNames;

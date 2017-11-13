@@ -59,7 +59,7 @@
 namespace caf
 {
     template<>
-    void caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelName >::setUp()
+    void caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelType >::setUp()
     {
         addItem(RifEclipseRftAddress::NONE, "NONE", "None");
         addItem(RifEclipseRftAddress::DEPTH, "DEPTH", "Depth");
@@ -141,7 +141,7 @@ void RimWellLogRftCurve::setRftAddress(RifEclipseRftAddress address)
 {
     m_timeStep = address.timeStep();
     m_wellName = address.wellName();
-    m_wellLogChannelName = address.wellLogChannelName();
+    m_wellLogChannelName = address.wellLogChannel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
     RifReaderEclipseRft* reader = rftReader();
     if (!reader) return;
 
-    std::vector<RifEclipseRftAddress::RftWellLogChannelName> channelNames = reader->availableWellLogChannels(m_wellName);
+    std::vector<RifEclipseRftAddress::RftWellLogChannelType> channelNames = reader->availableWellLogChannels(m_wellName);
 
     if (channelNames.empty())
     {
@@ -247,10 +247,10 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back(m_eclipseResultCase->caseName());
     }
-    if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::text(RifEclipseRftAddress::NONE))
+    if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
     { 
-        RifEclipseRftAddress::RftWellLogChannelName channelNameEnum = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::fromText(wellLogChannelName());
-        name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelNameEnum));
+        RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText(wellLogChannelName());
+        name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelNameEnum));
     }
     if ( !m_timeStep().isNull())
     {
@@ -386,14 +386,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
         RifReaderEclipseRft* reader = rftReader();
         if (reader)
         {
-            for (const RifEclipseRftAddress::RftWellLogChannelName& channelName : reader->availableWellLogChannels(m_wellName))
+            for (const RifEclipseRftAddress::RftWellLogChannelType& channelName : reader->availableWellLogChannels(m_wellName))
             {
-                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelName), channelName));
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelName), channelName));
             }
         }
         if (options.empty())
         {
-            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
         }
     }
     else if (fieldNeedingOptions == &m_timeStep)

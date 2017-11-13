@@ -32,7 +32,7 @@ class RifEclipseRftAddress
 {
 public:
 
-    enum RftWellLogChannelName
+    enum RftWellLogChannelType
     {
         NONE,
         DEPTH,
@@ -46,16 +46,16 @@ public:
     };
 
 public:
-    RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelName wellLogChannelName);
+    RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel);
 
     const QString&                wellName() const { return m_wellName; }
     QDateTime                     timeStep() const { return m_timeStep; }
-    const RftWellLogChannelName&  wellLogChannelName() const  { return m_wellLogChannelName; }
+    const RftWellLogChannelType&  wellLogChannel() const  { return m_wellLogChannel; }
 
 private:
     QString                 m_wellName;
     QDateTime               m_timeStep;
-    RftWellLogChannelName   m_wellLogChannelName;
+    RftWellLogChannelType   m_wellLogChannel;
 };
 
 bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& second);
