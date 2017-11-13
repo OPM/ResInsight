@@ -128,6 +128,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;
+    m_isOnLoad = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1256,11 +1257,6 @@ void RimWellPltPlot::initAfterLoad()
         }
     }
     m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
-
-    if( m_wellLogPlot->trackCount() > 0);
-    {
-        m_wellLogPlot->trackByIndex(0)->setShowFormations(true);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1442,6 +1438,15 @@ void RimWellPltPlot::onLoadDataAndUpdate()
     {
         initAfterLoad();
         m_doInitAfterLoad = false;
+    }
+
+    if (m_isOnLoad)
+    {
+        if (m_wellLogPlot->trackCount() > 0)
+        {
+            m_wellLogPlot->trackByIndex(0)->setShowFormations(true);
+        }
+        m_isOnLoad = false;
     }
 
     updateMdiWindowVisibility();

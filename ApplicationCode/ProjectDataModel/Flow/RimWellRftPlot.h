@@ -149,4 +149,5 @@ private:
     std::map<QDateTime, std::set<RifWellRftAddress>> m_timeStepsToAddresses;
 
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
+    bool m_isOnLoad;
 };

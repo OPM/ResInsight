@@ -161,4 +161,5 @@ private:
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
 
     bool                                            m_doInitAfterLoad;
+    bool                                            m_isOnLoad;
 };
