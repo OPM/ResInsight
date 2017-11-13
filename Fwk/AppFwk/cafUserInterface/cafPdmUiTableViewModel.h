@@ -57,6 +57,9 @@ class PdmUiTreeOrdering;
 class PdmUiTreeViewEditor;
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class TableViewPushButton : public QPushButton
 {
     Q_OBJECT
@@ -71,10 +74,6 @@ private:
 };
 
 
-//==================================================================================================
-//
-//
-//==================================================================================================
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +107,7 @@ public:
 private:
     int                     getFieldIndex(PdmFieldHandle* field) const;
     void                    recreateTableItemEditors();
+    PdmUiFieldHandle*       getUiFieldHandle(const QModelIndex& index) const;
 
     friend class PdmUiTableViewDelegate;
     QWidget*                getEditorWidgetAndTransferOwnership(QWidget* parent, const QModelIndex &index);

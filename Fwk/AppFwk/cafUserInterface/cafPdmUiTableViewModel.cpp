@@ -118,7 +118,7 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
     {
         if (orientation == Qt::Horizontal)
         {
-            PdmUiFieldHandle* uiFieldHandle = getField(createIndex(0, section))->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(createIndex(0, section));
             if (uiFieldHandle)
             {
                 return uiFieldHandle->uiName(m_currentConfigName);
@@ -152,8 +152,7 @@ Qt::ItemFlags PdmUiTableViewModel::flags(const QModelIndex &index) const
         flagMask = flagMask | Qt::ItemIsEditable;
     }
 
-    PdmFieldHandle* field = getField(index);
-    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(index);
     if (uiFieldHandle)
     {
         if (uiFieldHandle->isUiReadOnly(m_currentConfigName))
@@ -177,12 +176,14 @@ bool PdmUiTableViewModel::setData(const QModelIndex &index, const QVariant &valu
             SelectionManager::instance()->clear(SelectionManager::CURRENT);
 
             bool toggleOn = (value == Qt::Checked);
-            PdmFieldHandle* field = getField(index);
 
-            PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-            PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, toggleOn);
+            PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(index);
+            if (uiFieldHandle)
+            {
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, toggleOn);
 
-            return true;
+                return true;
+            }
         }
     }   
 
@@ -532,6 +533,20 @@ void PdmUiTableViewModel::recreateTableItemEditors()
             m_tableItemEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiFieldHandle* PdmUiTableViewModel::getUiFieldHandle(const QModelIndex& index) const
+{
+    auto fieldHandle = getField(index);
+    if (fieldHandle)
+    {
+        return fieldHandle->uiCapability();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
