@@ -49,6 +49,7 @@
 
 #include "RiuWellRftPlot.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
@@ -78,8 +79,6 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot.uiCapability()->setUiHidden(true);
     m_wellLogPlot = new RimWellLogPlot();
     m_wellLogPlot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
-    m_wellLogPlot.uiCapability()->setUiTreeHidden(true);
-    m_wellLogPlot.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathNameOrSimWellName, "WellName", "WellName", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "BranchIndex", "", "", "");
@@ -822,6 +821,14 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         //m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

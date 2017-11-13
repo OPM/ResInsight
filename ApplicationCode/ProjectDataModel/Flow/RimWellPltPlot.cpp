@@ -22,42 +22,50 @@
 #include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
 #include "RiaWellNameComparer.h"
+
 #include "RifReaderEclipseRft.h"
+
+#include "RigAccWellFlowCalculator.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimTools.h"
+#include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
-#include "RimWellFlowRateCurve.h"
+
 #include "RiuWellPltPlot.h"
+
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include <tuple>
+#include "cafVecIjk.h"
+
 #include <algorithm>
 #include <iterator>
-#include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
-#include "RigWellLogExtractor.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigMainGrid.h"
-#include "cafVecIjk.h"
-#include "RigAccWellFlowCalculator.h"
-#include "RimSummaryCurveAppearanceCalculator.h"
+#include <tuple>
+
 
 
 CAF_PDM_SOURCE_INIT(RimWellPltPlot, "WellPltPlot"); 
@@ -101,8 +109,6 @@ RimWellPltPlot::RimWellPltPlot()
     m_wellLogPlot.uiCapability()->setUiHidden(true);
     m_wellLogPlot = new RimWellLogPlot();
     m_wellLogPlot->setDepthType(RimWellLogPlot::MEASURED_DEPTH);
-    m_wellLogPlot.uiCapability()->setUiTreeHidden(true);
-    m_wellLogPlot.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathName, "WellName", "WellName", "", "", "");
 
@@ -1144,6 +1150,14 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         syncCurvesFromUiSelection();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
