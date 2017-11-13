@@ -91,6 +91,7 @@ RimSummaryPlot* RimSummaryCrossPlotCollection::addSummaryPlot()
     m_summaryCrossPlots().push_back(plot);
 
     plot->setDescription(QString("Summary Cross Plot %1").arg(m_summaryCrossPlots.size()));
+    plot->setAsCrossPlot();
 
     return plot;
 }

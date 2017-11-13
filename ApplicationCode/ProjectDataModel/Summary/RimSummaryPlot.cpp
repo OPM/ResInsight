@@ -72,6 +72,7 @@ RimSummaryPlot::RimSummaryPlot()
 
 	CAF_PDM_InitFieldNoDefault(&m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "");
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden(true);
+    m_summaryCurveCollection = new RimSummaryCurveCollection;
 
 	CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
     m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden(true);
@@ -84,25 +85,28 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
+    m_leftYAxisProperties = new RimSummaryYAxisProperties;
+    m_leftYAxisProperties->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
 
     CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
     m_rightYAxisProperties.uiCapability()->setUiTreeHidden(true);
+    m_rightYAxisProperties = new RimSummaryYAxisProperties;
+    m_rightYAxisProperties->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
+
+    CAF_PDM_InitFieldNoDefault(&m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis", "", "", "");
+    m_bottomAxisProperties.uiCapability()->setUiTreeHidden(true);
+    m_bottomAxisProperties = new RimSummaryYAxisProperties;
+    m_bottomAxisProperties->setNameAndAxis("Bottom X-Axis", QwtPlot::xBottom);
 
     CAF_PDM_InitFieldNoDefault(&m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "");
     m_timeAxisProperties.uiCapability()->setUiTreeHidden(true);
+    m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
     m_isAutoZoom.uiCapability()->setUiHidden(true);
 
-    m_summaryCurveCollection = new RimSummaryCurveCollection;
-
-    m_leftYAxisProperties = new RimSummaryYAxisProperties;
-    m_leftYAxisProperties->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
-
-    m_rightYAxisProperties = new RimSummaryYAxisProperties;
-    m_rightYAxisProperties->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
-
-    m_timeAxisProperties = new RimSummaryTimeAxisProperties;
+    CAF_PDM_InitField(&m_isCrossPlot, "IsCrossPlot", false, "Cross Plot", "", "", "");
+    m_isCrossPlot.uiCapability()->setUiHidden(true);
 
     setAsPlotMdiWindow();
 }
@@ -1013,7 +1017,15 @@ QImage RimSummaryPlot::snapshotWindowContent()
 void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
-    axisFolder->add(&m_timeAxisProperties);
+
+    if (!m_isCrossPlot())
+    {
+        axisFolder->add(&m_timeAxisProperties);
+    }
+    else
+    {
+        axisFolder->add(&m_bottomAxisProperties);
+    }
     axisFolder->add(&m_leftYAxisProperties);
     axisFolder->add(&m_rightYAxisProperties);
 
@@ -1140,6 +1152,14 @@ QString RimSummaryPlot::description() const
 void RimSummaryPlot::setShowDescription(bool showDescription)
 {
     m_showPlotTitle = showDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setAsCrossPlot()
+{
+    m_isCrossPlot = true;
 }
 
 //--------------------------------------------------------------------------------------------------
