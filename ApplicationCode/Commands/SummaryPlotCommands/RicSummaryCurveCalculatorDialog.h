@@ -22,7 +22,7 @@
 #include <memory>
 
 class RicSummaryCurveCalculatorEditor;
-class RicSummaryCurveCalculator;
+class RimSummaryCalculation;
 
 //==================================================================================================
 ///  
@@ -34,7 +34,7 @@ public:
     RicSummaryCurveCalculatorDialog(QWidget* parent);
     ~RicSummaryCurveCalculatorDialog();
 
-    RicSummaryCurveCalculator* calculator() const;
+    void setCalculationAndUpdateUi(RimSummaryCalculation* calculation);
 
 private:
     void setUp();

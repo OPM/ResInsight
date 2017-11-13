@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSummaryCurveCalculatorDialog.h"
+
 #include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorEditor.h"
 
@@ -45,9 +46,11 @@ RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculator* RicSummaryCurveCalculatorDialog::calculator() const
+void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi(RimSummaryCalculation* calculation)
 {
-    return m_summaryCalcEditor->calculator();
+    m_summaryCalcEditor->calculator()->setCurrentCalculation(calculation);
+
+    m_summaryCalcEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------

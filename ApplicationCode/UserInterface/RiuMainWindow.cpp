@@ -62,6 +62,7 @@
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicShowSummaryCurveCalculatorFeature.h"
 
 #include "cvfTimer.h"
 
@@ -196,6 +197,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
     {
         editSumCurves->closeDialogAndResetTargetPlot();
     }
+
+    RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog();
 }
 
 //--------------------------------------------------------------------------------------------------

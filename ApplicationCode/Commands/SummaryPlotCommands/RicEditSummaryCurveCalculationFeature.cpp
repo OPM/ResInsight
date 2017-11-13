@@ -18,8 +18,9 @@
 
 #include "RicEditSummaryCurveCalculationFeature.h"
 
-#include "RicSummaryCurveCalculatorDialog.h"
+#include "RicShowSummaryCurveCalculatorFeature.h"
 #include "RicSummaryCurveCalculator.h"
+#include "RicSummaryCurveCalculatorDialog.h"
 
 #include "RimSummaryPlot.h"
 #include "RimSummaryCurve.h"
@@ -67,12 +68,10 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered(bool isChecked)
         calculation = reader != nullptr ? reader->findCalculationByName(selectedAddress) : nullptr;
     }
 
-    RicSummaryCurveCalculatorDialog dlg(nullptr);
-
-    RicSummaryCurveCalculator* calculator = dlg.calculator();
-    calculator->setCurrentCalculation(calculation);
-    calculator->updateConnectedEditors();
-    dlg.exec();
+    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+    dialog->setCalculationAndUpdateUi(calculation);
+    dialog->show();
+    dialog->raise();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,16 +20,30 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
-#include "RimSummaryPlot.h"
-
-#include "cafPdmObject.h"
-#include "cafSelectionManager.h"
-#include "cafSelectionManagerTools.h"
-
 #include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicShowSummaryCurveCalculatorFeature, "RicShowSummaryCurveCalculatorFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog()
+{
+    static RicSummaryCurveCalculatorDialog* singleton = new RicSummaryCurveCalculatorDialog(nullptr);
+    
+    return singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
+{
+    auto dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+
+    dialog->hide();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,8 +58,12 @@ bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowSummaryCurveCalculatorFeature::onActionTriggered(bool isChecked)
 {
-    RicSummaryCurveCalculatorDialog dlg(nullptr);
-    dlg.exec();
+    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+
+    dialog->setCalculationAndUpdateUi(nullptr);
+
+    dialog->show();
+    dialog->raise();
 }
 
 //--------------------------------------------------------------------------------------------------
