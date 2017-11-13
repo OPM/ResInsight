@@ -69,8 +69,8 @@ public:
 
     int                     optionItemCount() const;
     void                    setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
-    void                    setUiValueCache(const QVariant* uiValuesCache ) {m_uiValueCache = uiValuesCache; }
-    void                    resetUiValueCache() { m_uiValueCache = nullptr; }
+    void                    setUiValueCache(const QVariant* uiValuesCache );
+    void                    resetUiValueCache();
 
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
     virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;

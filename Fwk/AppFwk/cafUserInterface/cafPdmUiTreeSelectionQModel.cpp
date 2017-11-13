@@ -179,6 +179,22 @@ void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* fiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::setUiValueCache(const QVariant* uiValuesCache)
+{
+    m_uiValueCache = uiValuesCache;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::resetUiValueCache()
+{
+    m_uiValueCache = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const caf::PdmOptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem(const QModelIndex &index) const
 {
     int opIndex = optionIndex(index);
