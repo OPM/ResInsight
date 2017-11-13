@@ -410,6 +410,6 @@ void RiuWellLogPlot::scheduleUpdateChildrenLayout()
     if (!m_scheduleUpdateChildrenLayoutTimer->isActive())
     {
         m_scheduleUpdateChildrenLayoutTimer->setSingleShot(true);
-        m_scheduleUpdateChildrenLayoutTimer->start(10);
+        m_scheduleUpdateChildrenLayoutTimer->start(100);
     }
 }
