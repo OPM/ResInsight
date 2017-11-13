@@ -350,7 +350,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicPasteSummaryCurveFeature";
             commandIds << "Separator";
-            commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
@@ -365,7 +364,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicPasteSummaryCurveFilterFeature";
             commandIds << "Separator";
-            commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
