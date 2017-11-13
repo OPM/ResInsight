@@ -32,7 +32,7 @@
 
 class RimWellLogFile;
 class RimEclipseCase;
-
+class RifReaderEclipseRft;
 
 //==================================================================================================
 ///  
@@ -55,6 +55,7 @@ public:
 
     SourceType   sourceType() const;
     RimEclipseCase* eclCase() const;
+    RifReaderEclipseRft* rftReader() const;
     RimWellLogFile* wellLogFile() const;
 
     static QString sourceTypeUiText(SourceType sourceType);

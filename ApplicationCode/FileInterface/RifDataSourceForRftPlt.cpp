@@ -24,6 +24,7 @@
 #include "cvfAssert.h"
 #include <QString>
 #include <QTextStream>
+#include "RimEclipseResultCase.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +71,21 @@ RifDataSourceForRftPlt::SourceType RifDataSourceForRftPlt::sourceType() const
 RimEclipseCase* RifDataSourceForRftPlt::eclCase() const
 {
     return m_eclCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseRft* RifDataSourceForRftPlt::rftReader() const
+{
+    if (m_sourceType == RFT)
+    {
+        auto eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclCase.p());
+
+        if (eclResCase ) return eclResCase->rftReader();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
