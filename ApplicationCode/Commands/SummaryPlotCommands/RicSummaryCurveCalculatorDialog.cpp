@@ -56,6 +56,16 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi(RimSummaryCalcul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
+{
+    // Test for dirty
+
+    accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::setUp()
 {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -64,9 +74,8 @@ void RicSummaryCurveCalculatorDialog::setUp()
     m_summaryCalcEditor = std::unique_ptr<RicSummaryCurveCalculatorEditor>(new RicSummaryCurveCalculatorEditor());
     mainLayout->addWidget(m_summaryCalcEditor->getOrCreateWidget(this));
 
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(slotTryCloseDialog()));
 
     mainLayout->addWidget(buttonBox);
     

@@ -30,11 +30,16 @@ class RimSummaryCalculation;
 //==================================================================================================
 class RicSummaryCurveCalculatorDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     RicSummaryCurveCalculatorDialog(QWidget* parent);
     ~RicSummaryCurveCalculatorDialog();
 
     void setCalculationAndUpdateUi(RimSummaryCalculation* calculation);
+
+private slots:
+    void slotTryCloseDialog();
 
 private:
     void setUp();
