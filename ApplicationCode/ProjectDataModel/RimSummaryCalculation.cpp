@@ -65,6 +65,8 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitFieldNoDefault(&m_timesteps, "TimeSteps", "Time Steps", "", "", "");
 
     m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>(new RiuExpressionContextMenuManager());
+
+    m_isDirty = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,6 +83,14 @@ void RimSummaryCalculation::setDescription(const QString& description)
 QString RimSummaryCalculation::description() const
 {
     return m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::isDirty() const
+{
+    return m_isDirty;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +310,8 @@ bool RimSummaryCalculation::calculate()
     {
         // Copy time vector from source
         m_timesteps = sourceTimeSteps;
+
+        m_isDirty = false;
     }
     else
     {
@@ -355,6 +367,16 @@ void RimSummaryCalculation::attachToWidget()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    m_isDirty = true;
+
+    PdmObject::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
 //--------------------------------------------------------------------------------------------------

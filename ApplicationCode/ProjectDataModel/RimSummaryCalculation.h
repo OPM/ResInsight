@@ -42,6 +42,8 @@ public:
     void                            setDescription(const QString& description);
     QString                         description() const;
 
+    bool                            isDirty() const;
+
     caf::PdmChildArrayFieldHandle*  variables();
 
     const std::vector<double>&      values() const;
@@ -60,7 +62,11 @@ public:
     static QString                  findLeftHandSide(const QString& expresion);
     void                            attachToWidget();
 
+
 private:
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+                                                     const QVariant& newValue) override;
+
     RimSummaryCalculationVariable*  findByName(const QString& name) const;
     RimSummaryCalculationVariable*  addVariable(const QString& name);
     void                            deleteVariable(RimSummaryCalculationVariable* calcVariable);
@@ -78,4 +84,6 @@ private:
     caf::PdmField<std::vector<time_t>>                  m_timesteps;
 
     std::unique_ptr<RiuExpressionContextMenuManager>    m_exprContextMenuMgr;
+
+    bool                                                m_isDirty;
 };

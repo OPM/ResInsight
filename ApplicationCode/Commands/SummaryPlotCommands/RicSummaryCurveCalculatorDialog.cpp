@@ -21,8 +21,12 @@
 #include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorEditor.h"
 
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculation.h"
+
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -58,7 +62,45 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi(RimSummaryCalcul
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 {
-    // Test for dirty
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+
+    if (dirtyCount() > 0)
+    {
+        QMessageBox msgBox(this);
+        msgBox.setIcon(QMessageBox::Question);
+
+        QString questionText = QString("Detected calculation expression text modifications.");
+
+        msgBox.setText(questionText);
+        msgBox.setInformativeText("Do you want to trigger calculation?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::No)
+        {
+            reject();
+        }
+        else if (ret == QMessageBox::Yes)
+        {
+            for (auto c : calculationCollection->calculations())
+            {
+                if (c->isDirty())
+                {
+                    c->calculate();
+                    c->updateDependentCurvesAndPlots();
+                }
+            }
+
+            if (dirtyCount() > 0)
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
+    }
 
     accept();
 }
@@ -82,3 +124,21 @@ void RicSummaryCurveCalculatorDialog::setUp()
     m_summaryCalcEditor->updateUi();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
+{
+    size_t count = 0;
+
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+    for (auto c : calculationCollection->calculations())
+    {
+        if (c->isDirty())
+        {
+            count++;
+        }
+    }
+
+    return count;
+}

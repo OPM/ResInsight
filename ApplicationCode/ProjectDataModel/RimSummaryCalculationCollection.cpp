@@ -113,14 +113,7 @@ void RimSummaryCalculationCollection::deleteCalculation(RimSummaryCalculation* c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculations() const
 {
-    std::vector<RimSummaryCalculation*> calcs;
-
-    for (auto c : m_calcuations)
-    {
-        calcs.push_back(c);
-    }
-
-    return calcs;
+    return m_calcuations.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

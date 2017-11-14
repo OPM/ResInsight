@@ -41,8 +41,10 @@ public:
 private slots:
     void slotTryCloseDialog();
 
+
 private:
     void setUp();
+    size_t dirtyCount() const;
 
 private:
     std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcEditor;
