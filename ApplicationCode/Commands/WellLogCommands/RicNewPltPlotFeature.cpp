@@ -58,20 +58,15 @@ bool RicNewPltPlotFeature::isCommandEnabled()
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
 
     RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
-    RimWellPath* rimWellPath = simWell == nullptr ? caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>() : nullptr;
     
     bool enable = true;
     if (simWell != nullptr)
     {
-        RimEclipseResultCase* eclCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseResultCase*>();
-        if (simWell != nullptr)
-        {
-            enable &= RimWellPlotTools::hasFlowData(eclCase);
-        }
-    }
-    else if (rimWellPath)
-    {
-        enable &= RimWellPlotTools::hasFlowData(rimWellPath);
+        RimProject* proj = RiaApplication::instance()->project();
+        QString simWellName = simWell->name();
+
+        RimWellPath* wellPath = proj->wellPathFromSimulationWell(simWellName);
+        enable = wellPath != nullptr;
     }
     return enable;
 }

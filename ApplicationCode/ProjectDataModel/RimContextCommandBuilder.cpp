@@ -235,7 +235,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
-            commandIds << "RicNewRftPlotFeature";
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {
