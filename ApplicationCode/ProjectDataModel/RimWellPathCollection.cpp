@@ -244,6 +244,11 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellPathArray.size());
     }
 
+    if (!wellPathArray.empty())
+    {
+        m_newestAddedWellName = wellPathArray.back()->name();
+    }
+
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
@@ -272,11 +277,6 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         }
 
         progress.incrementProgress();
-    }
-
-    if (!wellPathArray.empty())
-    {
-        m_newestAddedWellName = wellPathArray.back()->name();
     }
 
     this->sortWellsByName();
