@@ -679,6 +679,15 @@ void RiaApplication::loadAndUpdatePlotData()
         }
     }
     
+    if (scpColl)
+    {
+        for (auto plot : scpColl->summaryPlots())
+        {
+            plot->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+
     if (flowColl)
     {
         plotProgress.setNextProgressIncrement(flowColl->plotCount());
