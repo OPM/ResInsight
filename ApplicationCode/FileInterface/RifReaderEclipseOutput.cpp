@@ -614,34 +614,40 @@ void RifReaderEclipseOutput::transferStaticNNCData(const ecl_grid_type* mainEclG
 
     // Get the data from ERT
     ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(mainEclGrid);
-    ecl_nnc_data_type* tran_data = ecl_nnc_data_alloc_tran(mainEclGrid, nnc_geo, ecl_file_get_global_view(init_file));
-
-    int numNNC = ecl_nnc_data_get_size(tran_data);
-    int geometrySize = ecl_nnc_geometry_size(nnc_geo);
-    CVF_ASSERT(numNNC == geometrySize);
-
-    if (numNNC > 0)
+    if (nnc_geo)
     {
-        // Transform to our own data structures
-
-        mainGrid->nncData()->connections().resize(numNNC);
-        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameCombTrans());
-        const double* transValues = ecl_nnc_data_get_values(tran_data);
-
-        for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+        ecl_nnc_data_type* tran_data = ecl_nnc_data_alloc_tran(mainEclGrid, nnc_geo, ecl_file_get_global_view(init_file));
+        if (tran_data)
         {
-            const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget(nnc_geo, nIdx);
-            RigGridBase* grid1 =  mainGrid->gridByIndex(geometry_pair->grid_nr1);
-            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(geometry_pair->global_index1);
-            RigGridBase* grid2 =  mainGrid->gridByIndex(geometry_pair->grid_nr2);
-            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(geometry_pair->global_index2);
+            int numNNC = ecl_nnc_data_get_size(tran_data);
+            int geometrySize = ecl_nnc_geometry_size(nnc_geo);
+            CVF_ASSERT(numNNC == geometrySize);
 
-            transmissibilityValues[nIdx] = transValues[nIdx];
+            if (numNNC > 0)
+            {
+                // Transform to our own data structures
+
+                mainGrid->nncData()->connections().resize(numNNC);
+                std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameCombTrans());
+                const double* transValues = ecl_nnc_data_get_values(tran_data);
+
+                for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+                {
+                    const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget(nnc_geo, nIdx);
+                    RigGridBase* grid1 =  mainGrid->gridByIndex(geometry_pair->grid_nr1);
+                    mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(geometry_pair->global_index1);
+                    RigGridBase* grid2 =  mainGrid->gridByIndex(geometry_pair->grid_nr2);
+                    mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(geometry_pair->global_index2);
+
+                    transmissibilityValues[nIdx] = transValues[nIdx];
+                }
+            }
+
+            ecl_nnc_data_free(tran_data);
         }
-    }
 
-    ecl_nnc_geometry_free(nnc_geo);
-    ecl_nnc_data_free(tran_data);
+        ecl_nnc_geometry_free(nnc_geo);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
