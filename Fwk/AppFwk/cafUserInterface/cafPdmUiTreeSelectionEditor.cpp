@@ -195,9 +195,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
     {
-
-        connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-
         caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
         if (uiObject)
         {
@@ -216,7 +213,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         else
         {
             m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-            m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
         }
 
         if (!m_attributes.showTextFilter)
@@ -291,6 +287,9 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
    
     m_treeView = treeViewHeightHint;
 
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+
     layout->addWidget(treeViewHeightHint);
 
     return frame;
@@ -324,7 +323,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
         }
     }
 
-    if (onlyHeadersInSelection)
+    if (onlyHeadersInSelection && selectedIndexes.size() > 0)
     {
         {
             QAction* act = new QAction("Sub Items On", this);
