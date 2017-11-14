@@ -29,7 +29,7 @@
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
-#include "RimSummaryYAxisProperties.h"
+#include "RimSummaryAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSummaryQwtPlot.h"
@@ -85,17 +85,17 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_leftYAxisProperties = new RimSummaryYAxisProperties;
+    m_leftYAxisProperties = new RimSummaryAxisProperties;
     m_leftYAxisProperties->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
 
     CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
     m_rightYAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_rightYAxisProperties = new RimSummaryYAxisProperties;
+    m_rightYAxisProperties = new RimSummaryAxisProperties;
     m_rightYAxisProperties->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
 
     CAF_PDM_InitFieldNoDefault(&m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis", "", "", "");
     m_bottomAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_bottomAxisProperties = new RimSummaryYAxisProperties;
+    m_bottomAxisProperties = new RimSummaryAxisProperties;
     m_bottomAxisProperties->setNameAndAxis("Bottom X-Axis", QwtPlot::xBottom);
 
     CAF_PDM_InitFieldNoDefault(&m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "");
@@ -501,7 +501,7 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
         qwtAxis = QwtPlot::yRight;
     }
 
-    RimSummaryYAxisProperties* yAxisProperties = yAxisPropertiesForAxis(plotAxis);
+    RimSummaryAxisProperties* yAxisProperties = yAxisPropertiesForAxis(plotAxis);
     if (yAxisProperties->isActive() && hasVisibleCurvesForAxis(plotAxis))
     {
         m_qwtPlot->enableAxis(qwtAxis, true);
@@ -530,7 +530,7 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
 {
-    RimSummaryYAxisProperties* yAxisProps = yAxisPropertiesForAxis(plotAxis);
+    RimSummaryAxisProperties* yAxisProps = yAxisPropertiesForAxis(plotAxis);
 
     if (yAxisProps->isLogarithmicScaleEnabled)
     {
@@ -639,9 +639,9 @@ bool RimSummaryPlot::hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryYAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const
+RimSummaryAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const
 {
-    RimSummaryYAxisProperties* yAxisProps = nullptr;
+    RimSummaryAxisProperties* yAxisProps = nullptr;
 
     if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
     {

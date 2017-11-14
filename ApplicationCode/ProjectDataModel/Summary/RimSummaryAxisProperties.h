@@ -36,7 +36,7 @@
 ///  
 ///  
 //==================================================================================================
-class RimSummaryYAxisProperties : public caf::PdmObject
+class RimSummaryAxisProperties : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -55,7 +55,7 @@ public:
     };
 
 public:
-    RimSummaryYAxisProperties();
+    RimSummaryAxisProperties();
 
     void                        setNameAndAxis(const QString& name, QwtPlot::Axis axis);
     QwtPlot::Axis               qwtPlotAxisType() const;

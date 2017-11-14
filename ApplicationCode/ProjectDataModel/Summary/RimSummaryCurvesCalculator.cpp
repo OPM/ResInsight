@@ -22,7 +22,7 @@
 
 #include "RiaDefines.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryYAxisProperties.h"
+#include "RimSummaryAxisProperties.h"
 #include "RimAsciiDataCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
@@ -97,7 +97,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
+RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryAxisProperties* axisProperties,
     const std::vector<RimSummaryCurve*>& summaryCurves,
     const std::vector<RimAsciiDataCurve*>& asciiCurves,
     const std::set<QString>& timeHistoryCurveQuantities)
@@ -131,10 +131,10 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 
         switch (m_axisProperties->titlePositionEnum())
         {
-            case RimSummaryYAxisProperties::AXIS_TITLE_CENTER:
+            case RimSummaryAxisProperties::AXIS_TITLE_CENTER:
             axisTitleY.setRenderFlags(Qt::AlignCenter);
             break;
-            case RimSummaryYAxisProperties::AXIS_TITLE_END:
+            case RimSummaryAxisProperties::AXIS_TITLE_END:
             axisTitleY.setRenderFlags(Qt::AlignRight);
             break;
         }
@@ -150,15 +150,15 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
     }
 
     {
-        if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO)
+        if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_AUTO)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw);
         }
-        else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL)
+        else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new DecimalScaleDraw);
         }
-        else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
+        else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new ScientificScaleDraw());
         }

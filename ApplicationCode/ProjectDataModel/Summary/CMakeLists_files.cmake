@@ -22,7 +22,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.h
-${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
+${CEE_CURRENT_LIST_DIR}RimSummaryAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimObservedData.h
 ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.h
@@ -50,7 +50,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.cpp
-${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedData.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.cpp

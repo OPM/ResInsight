@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryYAxisProperties.h"
+#include "RimSummaryAxisProperties.h"
 
 #include "RimSummaryPlot.h"
 #include "RiaDefines.h"
@@ -25,35 +25,35 @@
 namespace caf
 {
     template<>
-    void caf::AppEnum< RimSummaryYAxisProperties::NumberFormatType >::setUp()
+    void caf::AppEnum< RimSummaryAxisProperties::NumberFormatType >::setUp()
     {
-        addItem(RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO,      "NUMBER_FORMAT_AUTO",       "Auto");
-        addItem(RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL,   "NUMBER_FORMAT_DECIMAL",    "Decimal");
-        addItem(RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC,"NUMBER_FORMAT_SCIENTIFIC", "Scientific");
+        addItem(RimSummaryAxisProperties::NUMBER_FORMAT_AUTO,      "NUMBER_FORMAT_AUTO",       "Auto");
+        addItem(RimSummaryAxisProperties::NUMBER_FORMAT_DECIMAL,   "NUMBER_FORMAT_DECIMAL",    "Decimal");
+        addItem(RimSummaryAxisProperties::NUMBER_FORMAT_SCIENTIFIC,"NUMBER_FORMAT_SCIENTIFIC", "Scientific");
 
-        setDefault(RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO);
+        setDefault(RimSummaryAxisProperties::NUMBER_FORMAT_AUTO);
     }
 }
 
 namespace caf
 {
 template<>
-void caf::AppEnum< RimSummaryYAxisProperties::AxisTitlePositionType >::setUp()
+void caf::AppEnum< RimSummaryAxisProperties::AxisTitlePositionType >::setUp()
 {
-    addItem(RimSummaryYAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
-    addItem(RimSummaryYAxisProperties::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
+    addItem(RimSummaryAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
+    addItem(RimSummaryAxisProperties::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
 
-    setDefault(RimSummaryYAxisProperties::AXIS_TITLE_CENTER);
+    setDefault(RimSummaryAxisProperties::AXIS_TITLE_CENTER);
 }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
+CAF_PDM_SOURCE_INIT(RimSummaryAxisProperties, "SummaryYAxisProperties");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryYAxisProperties::RimSummaryYAxisProperties()
+RimSummaryAxisProperties::RimSummaryAxisProperties()
 {
     CAF_PDM_InitObject("Y-Axis Properties", ":/LeftAxis16x16.png", "", "");
 
@@ -81,7 +81,7 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryYAxisProperties::userDescriptionField()
+caf::PdmFieldHandle* RimSummaryAxisProperties::userDescriptionField()
 {
     return &m_name;
 }
@@ -89,7 +89,7 @@ caf::PdmFieldHandle* RimSummaryYAxisProperties::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryYAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -116,7 +116,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryYAxisProperties::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
     titleGroup.add(&isAutoTitle);
@@ -135,7 +135,7 @@ void RimSummaryYAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
+void RimSummaryAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
 {
     m_name = name;
     m_axis = axis;
@@ -146,7 +146,7 @@ void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RimSummaryYAxisProperties::qwtPlotAxisType() const
+QwtPlot::Axis RimSummaryAxisProperties::qwtPlotAxisType() const
 {
     return m_axis;
 }
@@ -154,7 +154,7 @@ QwtPlot::Axis RimSummaryYAxisProperties::qwtPlotAxisType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryYAxisProperties::plotAxisType() const
+RiaDefines::PlotAxis RimSummaryAxisProperties::plotAxisType() const
 {
     if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
 
@@ -164,7 +164,7 @@ RiaDefines::PlotAxis RimSummaryYAxisProperties::plotAxisType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryYAxisProperties::isActive() const
+bool RimSummaryAxisProperties::isActive() const
 {
     return m_isActive;
 }
@@ -172,7 +172,7 @@ bool RimSummaryYAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
     if (changedField == &isAutoTitle)
@@ -211,7 +211,7 @@ void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::updateOptionSensitivity()
+void RimSummaryAxisProperties::updateOptionSensitivity()
 {
     customTitle.uiCapability()->setUiReadOnly(isAutoTitle);
 }
@@ -219,7 +219,7 @@ void RimSummaryYAxisProperties::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::initAfterRead()
+void RimSummaryAxisProperties::initAfterRead()
 {
     updateOptionSensitivity();
 }
@@ -227,7 +227,7 @@ void RimSummaryYAxisProperties::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryYAxisProperties::objectToggleField()
+caf::PdmFieldHandle* RimSummaryAxisProperties::objectToggleField()
 {
     return &m_isActive;
 }

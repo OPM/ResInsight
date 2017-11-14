@@ -24,7 +24,7 @@
 
 class RimAsciiDataCurve;
 class RimSummaryCurve;
-class RimSummaryYAxisProperties;
+class RimSummaryAxisProperties;
 
 class RiuSummaryQwtPlot;
 
@@ -33,7 +33,7 @@ class QwtPlotCurve;
 class RimSummaryPlotYAxisFormatter
 {
 public:
-    RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
+    RimSummaryPlotYAxisFormatter(RimSummaryAxisProperties* axisProperties,
         const std::vector<RimSummaryCurve*>& summaryCurves,
         const std::vector<RimAsciiDataCurve*>& asciiCurves,
         const std::set<QString>& timeHistoryCurveQuantities);
@@ -44,7 +44,7 @@ private:
     QString autoAxisTitle() const;
 
 private:
-    RimSummaryYAxisProperties*            m_axisProperties;
+    RimSummaryAxisProperties*             m_axisProperties;
     const std::vector<RimSummaryCurve*>   m_summaryCurves;
     const std::vector<RimAsciiDataCurve*> m_asciiDataCurves;
     const std::set<QString>               m_timeHistoryCurveQuantities;

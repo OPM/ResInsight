@@ -34,7 +34,7 @@ class RimSummaryCurve;
 class RimSummaryCurveCollection;
 class RimSummaryCurveFilter;
 class RimSummaryTimeAxisProperties;
-class RimSummaryYAxisProperties;
+class RimSummaryAxisProperties;
 class RiuSummaryQwtPlot;
 
 class QwtInterval;
@@ -128,7 +128,7 @@ private:
     std::vector<RimAsciiDataCurve*>                 visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
-    RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    RimSummaryAxisProperties*                       yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
@@ -145,10 +145,10 @@ private:
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
     caf::PdmField<bool>                                 m_isAutoZoom;
-    caf::PdmChildField<RimSummaryYAxisProperties*>      m_leftYAxisProperties;
-    caf::PdmChildField<RimSummaryYAxisProperties*>      m_rightYAxisProperties;
+    caf::PdmChildField<RimSummaryAxisProperties*>       m_leftYAxisProperties;
+    caf::PdmChildField<RimSummaryAxisProperties*>       m_rightYAxisProperties;
 
-    caf::PdmChildField<RimSummaryYAxisProperties*>      m_bottomAxisProperties;
+    caf::PdmChildField<RimSummaryAxisProperties*>       m_bottomAxisProperties;
     caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
