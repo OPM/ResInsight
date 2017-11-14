@@ -55,7 +55,8 @@ public:
     {
         CS_VERTICAL,
         CS_HORIZONTAL,
-        CS_TWO_POINTS
+        CS_TWO_POINTS,
+        CS_AZIMUTHDIP,
     };
 
 public:
@@ -100,11 +101,13 @@ protected:
 private:                                    
     caf::PdmField<int>                      m_branchIndex;
     caf::PdmField<double>                   m_extentLength;
+    caf::PdmField<double>                   m_azimuthAngle;
+    caf::PdmField<double>                   m_dipAngle;
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
     caf::PdmField< std::vector< cvf::Vec3d> >  m_customExtrusionPoints;
 
-    RimSimWellInViewCollection*               simulationWellCollection();
+    RimSimWellInViewCollection*             simulationWellCollection();
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;

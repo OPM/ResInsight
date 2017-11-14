@@ -62,7 +62,8 @@ void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
 {
     addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
     addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
-    addItem(RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS",    "Defined by two points");
+    addItem(RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points");
+    addItem(RimIntersection::CS_AZIMUTHDIP, "CS_AZIMUTHDIP", "Azimuth, Dip");
     setDefault(RimIntersection::CS_VERTICAL);
 }
 
@@ -88,10 +89,13 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
+    CAF_PDM_InitField(&m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "");
+    CAF_PDM_InitField(&m_dipAngle,     "DipAngle",     0.0, "Dip Angle", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
 
-    CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
-    CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
+    CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,    "Branch", "", "", "");
+    CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
@@ -173,6 +177,11 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
+
+    if (changedField == &m_azimuthAngle || changedField == &m_dipAngle)
+    {
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +221,11 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         optionsGroup->add(&m_customExtrusionPoints);
         optionsGroup->add(&inputExtrusionPointsFromViewerEnabled);
     }
+    else if (direction == CS_AZIMUTHDIP)
+    {
+        optionsGroup->add(&m_azimuthAngle);
+        optionsGroup->add(&m_dipAngle);
+    }
 
     optionsGroup->add(&m_extentLength);
     optionsGroup->add(&showInactiveCells);
@@ -226,7 +240,6 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
 
     updateWellExtentDefaultValue();
-
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -303,7 +316,7 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
 {
-    RimEclipseView* eclipseView = NULL;
+    RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
@@ -311,7 +324,7 @@ RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
         return eclipseView->wellCollection;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,7 +453,7 @@ void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
     {
         size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount-1;
         cvf::Vec3d startDirection = (polyLine[0] - polyLine[endIdxOffset]);
-        startDirection[2] = 0; // Remove z. make extent lenght be horizontally
+        startDirection[2] = 0; // Remove z. make extent length be horizontally
         if (startDirection.length() < 1e-2)
         {
             startDirection = polyLine.front() - polyLine.back();
@@ -465,7 +478,7 @@ void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateWellExtentDefaultValue()
 {
-    RimCase* ownerCase = NULL;
+    RimCase* ownerCase = nullptr;
     firstAncestorOrThisOfType(ownerCase);
 
     if (ownerCase)
@@ -503,7 +516,7 @@ void RimIntersection::updateName()
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 {
-    RimCase* ownerCase = NULL;
+    RimCase* ownerCase = nullptr;
     firstAncestorOrThisOfType(ownerCase);
     
     std::vector<cvf::Vec3d> clippedPolyLine;
@@ -651,6 +664,13 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
     {
         dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }
+    else if (direction() == RimIntersection::CS_AZIMUTHDIP)
+    {
+        double azimuthInRad = cvf::Math::toRadians(m_azimuthAngle);
+        double dipInRad = cvf::Math::toRadians(m_dipAngle);
+
+        dir = cvf::Vec3d(cvf::Math::sin(azimuthInRad), cvf::Math::cos(azimuthInRad), -cvf::Math::sin(dipInRad));
+    }
 
     return dir;
 }
@@ -660,9 +680,9 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
-    m_crossSectionPartMgr = NULL;
+    m_crossSectionPartMgr = nullptr;
 
-    RimView* rimView = NULL;
+    RimView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
