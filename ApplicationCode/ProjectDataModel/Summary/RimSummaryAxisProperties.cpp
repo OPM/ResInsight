@@ -141,6 +141,7 @@ void RimSummaryAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis
     m_axis = axis;
 
     if (axis == QwtPlot::yRight) this->setUiIcon(QIcon(":/RightAxis16x16.png"));
+    if (axis == QwtPlot::xBottom) this->setUiIcon(QIcon(":/BottomAxis16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,6 +158,7 @@ QwtPlot::Axis RimSummaryAxisProperties::qwtPlotAxisType() const
 RiaDefines::PlotAxis RimSummaryAxisProperties::plotAxisType() const
 {
     if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
+    if (m_axis == QwtPlot::xBottom) return RiaDefines::PLOT_AXIS_BOTTOM;
 
     return RiaDefines::PLOT_AXIS_LEFT;
 }

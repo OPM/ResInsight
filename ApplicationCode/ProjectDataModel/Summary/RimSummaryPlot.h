@@ -133,6 +133,7 @@ private:
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateTimeAxis();
+    void                                            updateBottomXAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
 private:

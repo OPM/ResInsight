@@ -97,7 +97,8 @@ namespace RiaDefines
     enum PlotAxis
     {
         PLOT_AXIS_LEFT,
-        PLOT_AXIS_RIGHT
+        PLOT_AXIS_RIGHT,
+        PLOT_AXIS_BOTTOM
     };
 
     double minimumDefaultValuePlot();

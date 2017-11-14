@@ -134,7 +134,14 @@ void RimSummaryPlot::updateAxes()
 
     updateZoomInQwt();
 
-    updateTimeAxis();
+    if (m_isCrossPlot)
+    {
+        updateBottomXAxis();
+    }
+    else
+    {
+        updateTimeAxis();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +176,14 @@ void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
     }
     else if (axis == QwtPlot::xBottom)
     {
-        plotwindow->selectAsCurrentItem(m_timeAxisProperties);
+        if (m_isCrossPlot)
+        {
+            plotwindow->selectAsCurrentItem(m_bottomAxisProperties);
+        }
+        else
+        {
+            plotwindow->selectAsCurrentItem(m_timeAxisProperties);
+        }
     }
 }
 
@@ -576,35 +590,51 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
 {
     std::vector<RimSummaryCurve*> curves;
 
-    for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
+    if (plotAxis == RiaDefines::PLOT_AXIS_BOTTOM)
     {
-        if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+        if (m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible())
         {
-            curves.push_back(curve);
-        }
-    }
-
-    for (RimSummaryCurveFilter * curveFilter : m_curveFilters_OBSOLETE)
-    {
-        if (curveFilter->isCurvesVisible())
-        {
-            for (RimSummaryCurve* curve : curveFilter->curves())
+            for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
             {
-                if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+                if (curve->isCurveVisible())
                 {
                     curves.push_back(curve);
                 }
             }
         }
     }
-
-    if (m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible())
+    else
     {
-        for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
+        for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
         {
             if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
             {
                 curves.push_back(curve);
+            }
+        }
+
+        for (RimSummaryCurveFilter * curveFilter : m_curveFilters_OBSOLETE)
+        {
+            if (curveFilter->isCurvesVisible())
+            {
+                for (RimSummaryCurve* curve : curveFilter->curves())
+                {
+                    if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+                    {
+                        curves.push_back(curve);
+                    }
+                }
+            }
+        }
+
+        if (m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible())
+        {
+            for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
+            {
+                if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+                {
+                    curves.push_back(curve);
+                }
             }
         }
     }
@@ -665,9 +695,12 @@ std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesFo
 
     for (auto c : m_gridTimeHistoryCurves)
     {
-        if (c->isCurveVisible() && c->yAxis() == plotAxis)
+        if (c->isCurveVisible())
         {
-            curves.push_back(c);
+            if (c->yAxis() == plotAxis || plotAxis == RiaDefines::PLOT_AXIS_BOTTOM)
+            {
+                curves.push_back(c);
+            }
         }
     }
 
@@ -683,9 +716,12 @@ std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis(Ri
 
     for (auto c : m_asciiDataCurves)
     {
-        if (c->isCurveVisible() && c->yAxis() == plotAxis)
+        if (c->isCurveVisible())
         {
-            curves.push_back(c);
+            if (c->yAxis() == plotAxis || plotAxis == RiaDefines::PLOT_AXIS_BOTTOM)
+            {
+                curves.push_back(c);
+            }
         }
     }
 
@@ -749,7 +785,35 @@ void RimSummaryPlot::updateTimeAxis()
         timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
         m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateBottomXAxis()
+{
+    if (!m_qwtPlot) return;
+
+    QwtPlot::Axis qwtAxis = QwtPlot::xBottom;
+
+    RimSummaryAxisProperties* yAxisProperties = m_bottomAxisProperties();
+
+    if (yAxisProperties->isActive())
+    {
+        m_qwtPlot->enableAxis(qwtAxis, true);
+
+        std::set<QString> timeHistoryQuantities;
+
+        RimSummaryPlotYAxisFormatter calc(yAxisProperties,
+                                          visibleSummaryCurvesForAxis(RiaDefines::PLOT_AXIS_BOTTOM),
+                                          visibleAsciiDataCurvesForAxis(RiaDefines::PLOT_AXIS_BOTTOM),
+                                          timeHistoryQuantities);
+        calc.applyYAxisPropertiesToPlot(m_qwtPlot);
+    }
+    else
+    {
+        m_qwtPlot->enableAxis(qwtAxis, false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -788,9 +852,18 @@ void RimSummaryPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterva
     m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
     m_rightYAxisProperties->updateConnectedEditors();
 
-    m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
-    m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
-    m_timeAxisProperties->updateConnectedEditors();
+    if (m_isCrossPlot)
+    {
+        m_bottomAxisProperties->visibleRangeMax = timeAxis.maxValue();
+        m_bottomAxisProperties->visibleRangeMin = timeAxis.minValue();
+        m_bottomAxisProperties->updateConnectedEditors();
+    }
+    else
+    {
+        m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
+        m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
+        m_timeAxisProperties->updateConnectedEditors();
+    }
 
     disableAutoZoom();
 }
@@ -1017,13 +1090,13 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 {
     caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
 
-    if (!m_isCrossPlot)
+    if (m_isCrossPlot)
     {
-        axisFolder->add(&m_timeAxisProperties);
+        axisFolder->add(&m_bottomAxisProperties);
     }
     else
     {
-        axisFolder->add(&m_bottomAxisProperties);
+        axisFolder->add(&m_timeAxisProperties);
     }
     axisFolder->add(&m_leftYAxisProperties);
     axisFolder->add(&m_rightYAxisProperties);
@@ -1102,8 +1175,17 @@ void RimSummaryPlot::setZoomIntervalsInQwtPlot()
     left.setMaxValue(m_leftYAxisProperties->visibleRangeMax());
     right.setMinValue(m_rightYAxisProperties->visibleRangeMin());
     right.setMaxValue(m_rightYAxisProperties->visibleRangeMax());
-    time.setMinValue(m_timeAxisProperties->visibleRangeMin());
-    time.setMaxValue(m_timeAxisProperties->visibleRangeMax());
+
+    if (m_isCrossPlot)
+    {
+        time.setMinValue(m_bottomAxisProperties->visibleRangeMin());
+        time.setMaxValue(m_bottomAxisProperties->visibleRangeMax());
+    }
+    else
+    {
+        time.setMinValue(m_timeAxisProperties->visibleRangeMin());
+        time.setMaxValue(m_timeAxisProperties->visibleRangeMax());
+    }
 
     m_qwtPlot->setZoomWindow(left, right, time);
 }
