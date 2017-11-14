@@ -27,6 +27,8 @@
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"
 #include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
+#include "ert/ecl/ecl_nnc_data.h"
 
 #include "cafProgressInfo.h"
 
@@ -415,6 +417,46 @@ std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(e
     }
 
     return phaseTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
+                                                    ecl_file_view_type* summaryView,
+                                                    std::vector<double>* waterFlux, 
+                                                    std::vector<double>* oilFlux, 
+                                                    std::vector<double>* gasFlux)
+{
+    ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(grid);
+    if (nnc_geo)
+    {
+        ecl_nnc_data_type* waterFluxData = ecl_nnc_data_alloc_wat_flux(grid, nnc_geo, summaryView);
+        if (waterFluxData)
+        {
+            const double* waterFluxValues = ecl_nnc_data_get_values(waterFluxData);
+            waterFlux->insert(waterFlux->end(), &waterFluxValues[0], &waterFluxValues[ecl_nnc_data_get_size(waterFluxData)]);
+            ecl_nnc_data_free(waterFluxData);
+        }
+
+        ecl_nnc_data_type* oilFluxData = ecl_nnc_data_alloc_oil_flux(grid, nnc_geo, summaryView);
+        if (oilFluxData)
+        {
+            const double* oilFluxValues = ecl_nnc_data_get_values(oilFluxData);
+            oilFlux->insert(oilFlux->end(), &oilFluxValues[0], &oilFluxValues[ecl_nnc_data_get_size(oilFluxData)]);
+            ecl_nnc_data_free(oilFluxData);
+        }
+
+        ecl_nnc_data_type* gasFluxData = ecl_nnc_data_alloc_gas_flux(grid, nnc_geo, summaryView);
+        if (gasFluxData)
+        {
+            const double* gasFluxValues = ecl_nnc_data_get_values(gasFluxData);
+            gasFlux->insert(gasFlux->end(), &gasFluxValues[0], &gasFluxValues[ecl_nnc_data_get_size(gasFluxData)]);
+            ecl_nnc_data_free(gasFluxData);
+        }
+
+        ecl_nnc_geometry_free(nnc_geo);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

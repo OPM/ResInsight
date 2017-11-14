@@ -71,6 +71,10 @@ public:
 
     static std::set<RiaDefines::PhaseType> findAvailablePhases(ecl_file_type* ecl_file);
 
+    static void         transferNncFluxData(const ecl_grid_type* grid, ecl_file_view_type* summaryView,
+                                            std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux);
+
+
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);
 };

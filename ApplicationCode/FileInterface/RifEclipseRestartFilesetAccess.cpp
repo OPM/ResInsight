@@ -232,28 +232,8 @@ bool RifEclipseRestartFilesetAccess::dynamicNNCResults(const ecl_grid_type* grid
     }
 
     ecl_file_view_type* summaryView = ecl_file_get_global_view(m_ecl_files[timeStep]);
-    ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(grid);
 
-    {
-        ecl_nnc_data_type* waterFluxData = ecl_nnc_data_alloc_wat_flux(grid, nnc_geo, summaryView);
-        const double* waterFluxValues = ecl_nnc_data_get_values(waterFluxData);
-        waterFlux->insert(waterFlux->end(), &waterFluxValues[0], &waterFluxValues[ecl_nnc_data_get_size(waterFluxData)]);
-        ecl_nnc_data_free(waterFluxData);
-    }
-    {
-        ecl_nnc_data_type* oilFluxData = ecl_nnc_data_alloc_oil_flux(grid, nnc_geo, summaryView);
-        const double* oilFluxValues = ecl_nnc_data_get_values(oilFluxData);
-        oilFlux->insert(oilFlux->end(), &oilFluxValues[0], &oilFluxValues[ecl_nnc_data_get_size(oilFluxData)]);
-        ecl_nnc_data_free(oilFluxData);
-    }
-    {
-        ecl_nnc_data_type* gasFluxData = ecl_nnc_data_alloc_gas_flux(grid, nnc_geo, summaryView);
-        const double* gasFluxValues = ecl_nnc_data_get_values(gasFluxData);
-        gasFlux->insert(gasFlux->end(), &gasFluxValues[0], &gasFluxValues[ecl_nnc_data_get_size(gasFluxData)]);
-        ecl_nnc_data_free(gasFluxData);
-    }
-
-    ecl_nnc_geometry_free(nnc_geo);
+    RifEclipseOutputFileTools::transferNncFluxData(grid, summaryView, waterFlux, oilFlux, gasFlux);
 
     return true;
 }
