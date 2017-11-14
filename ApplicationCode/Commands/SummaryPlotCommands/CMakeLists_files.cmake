@@ -32,6 +32,7 @@ ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurveCalculationFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorDialog.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorEditor.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculator.h
+${CEE_CURRENT_LIST_DIR}RicNewSummaryCrossPlotCurveFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -61,6 +62,7 @@ ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurveCalculationFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorEditor.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculator.cpp
+${CEE_CURRENT_LIST_DIR}RicNewSummaryCrossPlotCurveFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

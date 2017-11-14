@@ -336,6 +336,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEditSummaryPlotFeature";
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicNewSummaryCrossPlotCurveFeature";
             commandIds << "Separator";
             commandIds << "RicShowSummaryCurveCalculatorFeature";
             commandIds << "Separator";
@@ -350,6 +351,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicNewSummaryCrossPlotCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
