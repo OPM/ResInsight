@@ -61,7 +61,6 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
         RimSummaryCurve* newCurve = new RimSummaryCurve();
         cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
         newCurve->setColor(curveColor);
-        newCurve->setAsCrossPlotCurve();
 
         plot->addCurveAndUpdate(newCurve);
 

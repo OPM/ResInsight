@@ -51,8 +51,6 @@ public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
 
-    void                                    setAsCrossPlotCurve();
-
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     RimSummaryCase*                         summaryCase() const; 
 
@@ -91,6 +89,8 @@ private:
                                                                                  RimSummaryCase* summaryCase,
                                                                                  RimSummaryFilter* summaryFilter);
 
+    bool                                    isCrossPlotCurve() const;
+
 private:
     // Y values
     caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;
@@ -105,8 +105,6 @@ private:
     caf::PdmField<QString>                  m_xValuesSelectedVariableDisplayField;
     caf::PdmChildField<RimSummaryFilter*>   m_xValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress> m_xValuesUiFilterResultSelection;
-
-    caf::PdmField<bool>                     m_isCrossPlot;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;

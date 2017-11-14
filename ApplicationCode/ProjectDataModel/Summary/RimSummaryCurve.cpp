@@ -28,6 +28,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
@@ -132,9 +133,6 @@ RimSummaryCurve::RimSummaryCurve()
     
     // Other members
 
-    CAF_PDM_InitField(&m_isCrossPlot, "IsCrossPlot", false, "Cross Plot Curve", "", "", "");
-    //m_isCrossPlot.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
@@ -152,14 +150,6 @@ RimSummaryCurve::RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve::~RimSummaryCurve()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setAsCrossPlotCurve()
-{
-    m_isCrossPlot = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,7 +347,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         bool shouldPopulateViewWithEmptyData = false;
 
-        if (m_isCrossPlot())
+        if (isCrossPlotCurve())
         {
             std::vector<double> xValues = this->xValues();
 
@@ -424,24 +414,22 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 {
     RimPlotCurve::updateOptionSensitivity();
 
-    uiOrdering.add(&m_isCrossPlot);
-
     {
         QString curveDataGroupName = "Summary Vector";
-        if (m_isCrossPlot()) curveDataGroupName += " Y";
+        if (isCrossPlotCurve()) curveDataGroupName += " Y";
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
         curveDataGroup->add(&m_yValuesSummaryCase);
         curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
 
         QString curveVarSelectionGroupName = "Vector Selection";
-        if (m_isCrossPlot()) curveVarSelectionGroupName += " Y";
+        if (isCrossPlotCurve()) curveVarSelectionGroupName += " Y";
         caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword(curveVarSelectionGroupName, "Vector Selection Y");
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
     }
 
-    if (m_isCrossPlot())
+    if (isCrossPlotCurve())
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector X");
         curveDataGroup->add(&m_xValuesSummaryCase);
@@ -497,6 +485,18 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
 
         options->push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::isCrossPlotCurve() const
+{
+    RimSummaryCrossPlot* crossPlot = nullptr;
+    this->firstAncestorOrThisOfType(crossPlot);
+    if (crossPlot) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
