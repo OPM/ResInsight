@@ -37,7 +37,7 @@ const std::map<QString, std::set<QString>> RiuExpressionContextMenuManager::MENU
     {
         "Scalar Functions",
         {
-            "avg(x)", "max(x)", "min(x)"
+            "avg(x)", "max(x)", "min(x)", "sum(x)"
         }
     },
     {
