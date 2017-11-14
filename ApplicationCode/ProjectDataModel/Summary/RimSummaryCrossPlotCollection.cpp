@@ -19,6 +19,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 
 #include "RimSummaryPlot.h"
+#include "RimSummaryCrossPlot.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCrossPlotCollection, "SummaryCrossPlotCollection");
@@ -87,11 +88,10 @@ void RimSummaryCrossPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionIte
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RimSummaryCrossPlotCollection::addSummaryPlot()
 {
-    RimSummaryPlot* plot = new RimSummaryPlot();
+    RimSummaryPlot* plot = new RimSummaryCrossPlot();
     m_summaryCrossPlots().push_back(plot);
 
     plot->setDescription(QString("Summary Cross Plot %1").arg(m_summaryCrossPlots.size()));
-    plot->setAsCrossPlot();
 
     return plot;
 }

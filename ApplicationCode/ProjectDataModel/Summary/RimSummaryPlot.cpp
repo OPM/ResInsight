@@ -105,10 +105,9 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
     m_isAutoZoom.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_isCrossPlot, "IsCrossPlot", false, "Cross Plot", "", "", "");
-    m_isCrossPlot.uiCapability()->setUiHidden(true);
-
     setAsPlotMdiWindow();
+
+    m_isCrossPlot = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1018,7 +1017,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 {
     caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
 
-    if (!m_isCrossPlot())
+    if (!m_isCrossPlot)
     {
         axisFolder->add(&m_timeAxisProperties);
     }

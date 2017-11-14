@@ -56,8 +56,6 @@ public:
     QString                                         description() const;
     void                                            setShowDescription(bool showDescription);
 
-    void                                            setAsCrossPlot();
-
     void                                            addCurveAndUpdate(RimSummaryCurve* curve);
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
 
@@ -122,6 +120,8 @@ protected:
 
     virtual QImage                                  snapshotWindowContent() override;
 
+    void                                            setAsCrossPlot();
+
 private:
     std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
@@ -156,5 +156,5 @@ private:
     caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves_OBSOLETE;
     caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters_OBSOLETE;
 
-    caf::PdmField<bool>                                 m_isCrossPlot;
+    bool                                                m_isCrossPlot;
 };

@@ -30,6 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RimObservedEclipseUserData.h
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -58,6 +59,7 @@ ${CEE_CURRENT_LIST_DIR}RimObservedEclipseUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
