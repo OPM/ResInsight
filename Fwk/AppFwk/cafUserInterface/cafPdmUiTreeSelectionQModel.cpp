@@ -225,12 +225,13 @@ Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags(const QModelIndex &index) con
     {
         const caf::PdmOptionItemInfo* optionItemInfo = optionItem(index);
 
-        if (optionItemInfo->isReadOnly())
+        if (!optionItemInfo->isHeading())
         {
-            return QAbstractItemModel::flags(index)^Qt::ItemIsEnabled;
-        }
-        else if (!optionItemInfo->isHeading())
-        {
+            if (optionItemInfo->isReadOnly())
+            {
+                return QAbstractItemModel::flags(index)^Qt::ItemIsEnabled;
+            }
+
             return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
         }
     }
