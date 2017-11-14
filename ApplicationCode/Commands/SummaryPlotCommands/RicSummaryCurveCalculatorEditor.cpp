@@ -86,7 +86,11 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
         }
     }
 
-    m_firstRowRightLayout->insertLayout(layoutItemIndex++, m_parseButtonLayout);
+    if (m_firstRowRightLayout->itemAt(layoutItemIndex) != m_parseButtonLayout)
+    {
+        m_firstRowRightLayout->insertLayout(layoutItemIndex, m_parseButtonLayout);
+    }
+    layoutItemIndex++;
 
     if (m_calculator->currentCalculation())
     {
@@ -96,7 +100,12 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
         m_pdmTableView->setListField(nullptr);
 
     m_firstRowRightLayout->insertWidget(layoutItemIndex++, m_pdmTableView);
-    m_firstRowRightLayout->insertLayout(layoutItemIndex++, m_calculateButtonLayout);
+
+    if (m_firstRowRightLayout->itemAt(layoutItemIndex) != m_calculateButtonLayout)
+    {
+        m_firstRowRightLayout->insertLayout(layoutItemIndex, m_calculateButtonLayout);
+    }
+    layoutItemIndex++;
 
     m_pdmTableView->tableView()->resizeColumnsToContents();
 }
