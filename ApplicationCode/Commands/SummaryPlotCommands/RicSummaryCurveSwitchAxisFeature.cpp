@@ -78,15 +78,15 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
     for (RimSummaryCurve* summaryCurve : selectedSoloCurves)
     {
-        RiaDefines::PlotAxis plotAxis = summaryCurve->yAxis();
+        RiaDefines::PlotAxis plotAxis = summaryCurve->axisY();
 
         if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
         {
-            summaryCurve->setYAxis(RiaDefines::PLOT_AXIS_RIGHT);
+            summaryCurve->setLeftOrRightAxisY(RiaDefines::PLOT_AXIS_RIGHT);
         }
         else
         {
-            summaryCurve->setYAxis(RiaDefines::PLOT_AXIS_LEFT);
+            summaryCurve->setLeftOrRightAxisY(RiaDefines::PLOT_AXIS_LEFT);
         }
 
         summaryCurve->updateQwtPlotAxis();

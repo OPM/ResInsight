@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT(RicEditSummaryCurveCalculationFeature, "RicEditSummaryCurveC
 bool RicEditSummaryCurveCalculationFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
-    return selectedCurves.size() == 1 && selectedCurves.front()->summaryAddress().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED;
+    return selectedCurves.size() == 1 && selectedCurves.front()->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered(bool isChecked)
 
     if (selectedCurves.size() > 0)
     {
-        RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddress();
+        RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddressY();
 
         RimProject* proj = RiaApplication::instance()->project();
         RifCalculatedSummaryCurveReader* reader = dynamic_cast<RifCalculatedSummaryCurveReader*>(proj->calculationCollection->calculationSummaryCase()->summaryReader());

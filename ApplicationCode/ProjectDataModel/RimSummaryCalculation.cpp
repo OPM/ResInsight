@@ -441,7 +441,7 @@ void RimSummaryCalculation::updateDependentCurvesAndPlots()
 
         for (RimSummaryCurve* sumCurve : sumPlot->summaryCurves())
         {
-            if (sumCurve->summaryAddress().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+            if (sumCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
             {
                 sumCurve->updateConnectedEditors();
 

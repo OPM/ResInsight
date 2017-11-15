@@ -175,9 +175,9 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* s
     for (RimSummaryCurve* summaryCurve : m_curves)
     {
         if (!summaryCurve) continue;
-        if (!summaryCurve->summaryCase()) continue;
+        if (!summaryCurve->summaryCaseY()) continue;
 
-        if (summaryCurve->summaryCase() == summaryCase)
+        if (summaryCurve->summaryCaseY() == summaryCase)
         {
             summaryCurvesToDelete.push_back(summaryCurve);
         }

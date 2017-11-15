@@ -51,21 +51,24 @@ public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
 
-    void                                    setSummaryCase(RimSummaryCase* sumCase);
-    RimSummaryCase*                         summaryCase() const; 
+    // Y Axis functions
+    void                                    setSummaryCaseY(RimSummaryCase* sumCase);
+    RimSummaryCase*                         summaryCaseY() const; 
+    void                                    setSummaryAddressY(const RifEclipseSummaryAddress& address);
+    RifEclipseSummaryAddress                summaryAddressY() const;
+    std::string                             unitNameY() const;
+    std::vector<double>                     valuesY() const;
+    void                                    setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis                    axisY() const;
 
-    RifEclipseSummaryAddress                summaryAddress();
-    void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
-    std::string                             unitName();
+    // X Axis functions
+    RifEclipseSummaryAddress                summaryAddressX() const;
+    std::string                             unitNameX() const;
+    std::vector<double>                     valuesX() const;
 
-    std::vector<double>                     yValues() const;
-    std::vector<double>                     xValues() const;
+    // Other
     const std::vector<time_t>&              timeSteps() const;
-
-    void                                    setYAxis(RiaDefines::PlotAxis plotAxis);
-    RiaDefines::PlotAxis                    yAxis() const;
     void                                    updateQwtPlotAxis();
-
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
 protected:
@@ -76,7 +79,8 @@ protected:
     virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
 private:
-    RifSummaryReaderInterface*              yValuesSummaryReader() const;
+    RifSummaryReaderInterface*              valuesSummaryReaderX() const;
+    RifSummaryReaderInterface*              valuesSummaryReaderY() const;
 
     void                                    calculateCurveInterpolationFromAddress();
 

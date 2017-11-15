@@ -266,7 +266,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
         for (RimSummaryCurve* curve : curves)
         {
             if (!curve->isCurveVisible()) continue;
-            QString curveCaseName = curve->summaryCase()->caseName();
+            QString curveCaseName = curve->summaryCaseY()->caseName();
 
             size_t casePosInList = cvf::UNDEFINED_SIZE_T;
             for (size_t i = 0; i < caseNames.size(); i++)
@@ -282,7 +282,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
                 timeSteps.push_back(curveTimeSteps);
 
                 std::vector<std::vector<double> > curveDataForCase;
-                std::vector<double> curveYData = curve->yValues();
+                std::vector<double> curveYData = curve->valuesY();
                 curveDataForCase.push_back(curveYData);
                 allCurveData.push_back(curveDataForCase);
 
@@ -292,7 +292,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
             }
             else
             {
-                std::vector<double> curveYData = curve->yValues();
+                std::vector<double> curveYData = curve->valuesY();
                 allCurveData[casePosInList].push_back(curveYData);
 
                 QString curveName = curve->curveName();
@@ -552,7 +552,7 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
 
         for (RimSummaryCurve* c : visibleSummaryCurvesForAxis(plotAxis))
         {
-            std::vector<double> curveValues = c->yValues();
+            std::vector<double> curveValues = c->valuesY();
             yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
             plotCurves.push_back(c->qwtPlotCurve());
         }
@@ -607,7 +607,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
     {
         for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
         {
-            if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+            if (curve->isCurveVisible() && curve->axisY() == plotAxis)
             {
                 curves.push_back(curve);
             }
@@ -619,7 +619,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
             {
                 for (RimSummaryCurve* curve : curveFilter->curves())
                 {
-                    if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+                    if (curve->isCurveVisible() && curve->axisY() == plotAxis)
                     {
                         curves.push_back(curve);
                     }
@@ -631,7 +631,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
         {
             for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
             {
-                if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
+                if (curve->isCurveVisible() && curve->axisY() == plotAxis)
                 {
                     curves.push_back(curve);
                 }
@@ -962,9 +962,9 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
     for (RimSummaryCurve* summaryCurve : m_summaryCurves_OBSOLETE)
     {
         if (!summaryCurve) continue;
-        if (!summaryCurve->summaryCase()) continue;
+        if (!summaryCurve->summaryCaseY()) continue;
 
-        if (summaryCurve->summaryCase() == summaryCase)
+        if (summaryCurve->summaryCaseY() == summaryCase)
         {
             summaryCurvesToDelete.push_back(summaryCurve);
         }

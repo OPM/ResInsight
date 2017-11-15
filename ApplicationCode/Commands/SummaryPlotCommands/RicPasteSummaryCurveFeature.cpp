@@ -81,7 +81,7 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         // If source curve is part of a curve filter, resolve of references to the summary case does not
         // work when pasting the new curve into a plot. Must set summary case manually.
-        newObject->setSummaryCase(sourceObjects[i]->summaryCase());
+        newObject->setSummaryCaseY(sourceObjects[i]->summaryCaseY());
 
         newObject->initAfterReadRecursively();
 

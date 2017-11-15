@@ -53,13 +53,13 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
     {
         for (RimSummaryCurve* curve : plot->summaryCurves())
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddress();
+            RifEclipseSummaryAddress adr = curve->summaryAddressY();
             if (adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
             {
                 if (adr.quantityName() == previousCurveName.toStdString())
                 {
                     RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedCurveAddress(currentCurveName.toStdString());
-                    curve->setSummaryAddress(updatedAdr);
+                    curve->setSummaryAddressY(updatedAdr);
                 }
             }
         }

@@ -69,7 +69,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
         if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
-            newCurve->setSummaryCase(defaultCase);
+            newCurve->setSummaryCaseY(defaultCase);
 
             newCurve->loadDataAndUpdate(true);
         }

@@ -394,8 +394,8 @@ void RimSummaryCurveFilter::syncUiSelectionFromCurves()
     // Populate the existingCurveDefinitions from the existing curves
     for(RimSummaryCurve* curve: m_curves)
     {
-        existingCurveDefinitions.insert(curve->summaryAddress());
-        referredCases.insert(curve->summaryCase());
+        existingCurveDefinitions.insert(curve->summaryAddressY());
+        referredCases.insert(curve->summaryCaseY());
     }
 
     if (m_curves.size()) // Only sync the selected cases if we actually have some curves. To avoid user getting an empty variable list accidentally
@@ -440,7 +440,7 @@ void RimSummaryCurveFilter::updatePlotAxisForCurves()
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->setYAxis(m_plotAxis());
+        curve->setLeftOrRightAxisY(m_plotAxis());
         curve->updateQwtPlotAxis();
     }
 
@@ -473,7 +473,7 @@ std::set<std::string> RimSummaryCurveFilter::unitNames()
     std::set<std::string> unitNames;
     for(RimSummaryCurve* curve: m_curves)
     {
-        if (curve->isCurveVisible()) unitNames.insert( curve->unitName());
+        if (curve->isCurveVisible()) unitNames.insert( curve->unitNameY());
     }
     return unitNames;
 }
@@ -503,9 +503,9 @@ void RimSummaryCurveFilter::removeCurvesAssosiatedWithCase(RimSummaryCase* summa
     for (RimSummaryCurve* summaryCurve : m_curves)
     {
         if (!summaryCurve) continue;
-        if (!summaryCurve->summaryCase()) continue;
+        if (!summaryCurve->summaryCaseY()) continue;
 
-        if (summaryCurve->summaryCase() == summaryCase)
+        if (summaryCurve->summaryCaseY() == summaryCase)
         {
             summaryCurvesToDelete.push_back(summaryCurve);
         }
@@ -587,9 +587,9 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<RiaS
 
         RimSummaryCurve* curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot(m_parentQwtPlot);
-        curve->setSummaryCase(currentCase);
-        curve->setSummaryAddress(caseAddrPair.summaryAddress());
-        curve->setYAxis(m_plotAxis());
+        curve->setSummaryCaseY(currentCase);
+        curve->setSummaryAddressY(caseAddrPair.summaryAddress());
+        curve->setLeftOrRightAxisY(m_plotAxis());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
 
         m_curves.push_back(curve);

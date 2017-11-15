@@ -155,7 +155,7 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
+void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
 {
 	m_yValuesSummaryCase = sumCase;
 }
@@ -163,7 +163,7 @@ void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCurve::summaryCase() const
+RimSummaryCase* RimSummaryCurve::summaryCaseY() const
 {
     return m_yValuesSummaryCase();
 }
@@ -171,7 +171,15 @@ RimSummaryCase* RimSummaryCurve::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
+RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
+{
+    return m_xValuesCurveVariable->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 {
     return m_yValuesCurveVariable->address();
 }
@@ -179,7 +187,7 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
+void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address)
 {
     m_yValuesCurveVariable->setAddress(address);
 
@@ -191,10 +199,10 @@ void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryCurve::unitName()
+std::string RimSummaryCurve::unitNameY() const
 {
-    RifSummaryReaderInterface* reader = yValuesSummaryReader();
-    if (reader) return reader->unitName(this->summaryAddress());
+    RifSummaryReaderInterface* reader = valuesSummaryReaderY();
+    if (reader) return reader->unitName(this->summaryAddressY());
 
     return "";
 }
@@ -202,11 +210,22 @@ std::string RimSummaryCurve::unitName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimSummaryCurve::yValues() const
+std::string RimSummaryCurve::unitNameX() const
+{
+    RifSummaryReaderInterface* reader = valuesSummaryReaderX();
+    if (reader) return reader->unitName(this->summaryAddressX());
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSummaryCurve::valuesY() const
 {
     std::vector<double> values;
 
-    RifSummaryReaderInterface* reader = yValuesSummaryReader();
+    RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
     if ( !reader ) return values;
 
@@ -219,7 +238,7 @@ std::vector<double> RimSummaryCurve::yValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimSummaryCurve::xValues() const
+std::vector<double> RimSummaryCurve::valuesX() const
 {
     std::vector<double> values;
 
@@ -240,7 +259,7 @@ std::vector<double> RimSummaryCurve::xValues() const
 const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 {
     static std::vector<time_t> emptyVector;
-    RifSummaryReaderInterface* reader = yValuesSummaryReader();
+    RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
     if ( !reader ) return emptyVector;
 
@@ -252,7 +271,7 @@ const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
+void RimSummaryCurve::setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
 }
@@ -260,7 +279,7 @@ void RimSummaryCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryCurve::yAxis() const
+RiaDefines::PlotAxis RimSummaryCurve::axisY() const
 {
     return m_plotAxis();
 }
@@ -310,7 +329,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    return m_curveNameConfig->curveName(m_yValuesCurveVariable->address());
+    QString name = m_curveNameConfig->curveName(m_yValuesCurveVariable->address());
+
+    if (isCrossPlotCurve())
+    {
+        QString xCurveName = m_curveNameConfig->curveName(m_xValuesCurveVariable->address());
+
+        name += " | " + xCurveName;
+    }
+
+    return name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,17 +369,17 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
     if (isCurveVisible())
     {
-        std::vector<double> yValues = this->yValues();
+        std::vector<double> yValues = this->valuesY();
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
-        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
+        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->axisY());
 
         bool shouldPopulateViewWithEmptyData = false;
 
         if (isCrossPlotCurve())
         {
-            std::vector<double> xValues = this->xValues();
+            std::vector<double> xValues = this->valuesX();
 
             if (!yValues.empty() && yValues.size() == xValues.size())
             {
@@ -509,7 +537,7 @@ void RimSummaryCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
     {
-        if (this->yAxis() == RiaDefines::PLOT_AXIS_LEFT)
+        if (this->axisY() == RiaDefines::PLOT_AXIS_LEFT)
         {
             m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
         }
@@ -577,7 +605,17 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryCurve::yValuesSummaryReader() const
+RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderX() const
+{
+    if (!m_xValuesSummaryCase()) return nullptr;
+
+    return m_xValuesSummaryCase()->summaryReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderY() const
 {
     if (!m_yValuesSummaryCase()) return nullptr;
 

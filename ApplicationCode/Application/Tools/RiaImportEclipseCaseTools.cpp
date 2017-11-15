@@ -157,7 +157,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                             {
                                 //TODO: When removing curve filter functionality, move this to summaryCurveCollection
                                 //loop and update "if (parentCollection)"-block
-                                summaryCurve->setSummaryCase(newSumCase);
+                                summaryCurve->setSummaryCaseY(newSumCase);
                                 summaryCurve->updateConnectedEditors();
 
                                 RimSummaryCurveFilter* parentFilter = nullptr;

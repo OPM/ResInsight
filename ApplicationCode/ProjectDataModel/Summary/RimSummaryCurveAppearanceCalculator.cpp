@@ -283,16 +283,16 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     m_currentCurveBaseColor = cvf::Color3f(0, 0, 0);
     m_currentCurveGradient = 0.0f;
 
-    int caseAppearanceIdx = m_caseToAppearanceIdxMap[curve->summaryCase()];
-    int varAppearanceIdx = m_varToAppearanceIdxMap[curve->summaryAddress().quantityName()];
-    int welAppearanceIdx = m_welToAppearanceIdxMap[curve->summaryAddress().wellName()];
-    int grpAppearanceIdx = m_grpToAppearanceIdxMap[curve->summaryAddress().wellGroupName()];
-    int regAppearanceIdx = m_regToAppearanceIdxMap[curve->summaryAddress().regionNumber()];
+    int caseAppearanceIdx = m_caseToAppearanceIdxMap[curve->summaryCaseY()];
+    int varAppearanceIdx = m_varToAppearanceIdxMap[curve->summaryAddressY().quantityName()];
+    int welAppearanceIdx = m_welToAppearanceIdxMap[curve->summaryAddressY().wellName()];
+    int grpAppearanceIdx = m_grpToAppearanceIdxMap[curve->summaryAddressY().wellGroupName()];
+    int regAppearanceIdx = m_regToAppearanceIdxMap[curve->summaryAddressY().regionNumber()];
 
     // Remove index for curves without value at the specific dimension
-    if(curve->summaryAddress().wellName().empty())  welAppearanceIdx = -1;
-    if(curve->summaryAddress().wellGroupName().empty())  grpAppearanceIdx = -1;
-    if(curve->summaryAddress().regionNumber() < 0)  regAppearanceIdx = -1;
+    if(curve->summaryAddressY().wellName().empty())  welAppearanceIdx = -1;
+    if(curve->summaryAddressY().wellGroupName().empty())  grpAppearanceIdx = -1;
+    if(curve->summaryAddressY().regionNumber() < 0)  regAppearanceIdx = -1;
 
     setOneCurveAppearance(m_caseAppearanceType,   m_caseCount,     caseAppearanceIdx, curve);
     setOneCurveAppearance(m_wellAppearanceType,   m_wellCount,     welAppearanceIdx,  curve);
@@ -303,7 +303,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     { 
         int subColorIndex = -1;
         char secondChar = 0;
-        std::string varname = curve->summaryAddress().quantityName();
+        std::string varname = curve->summaryAddressY().quantityName();
         if (varname.size() > 1) secondChar = varname[1];
 
         subColorIndex = m_secondCharToVarToAppearanceIdxMap[secondChar][varname];
@@ -340,7 +340,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
 
-    if ( curve->summaryCase()->isObservedData() )
+    if ( curve->summaryCaseY()->isObservedData() )
     {
         curve->setLineStyle(RimPlotCurve::STYLE_NONE);
 

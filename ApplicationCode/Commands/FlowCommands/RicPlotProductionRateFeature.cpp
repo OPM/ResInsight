@@ -293,10 +293,10 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     RimSummaryCurve* newCurve = new RimSummaryCurve();
     plot->addCurveAndUpdate(newCurve);
 
-    newCurve->setSummaryCase(gridSummaryCase);
-    newCurve->setSummaryAddress(addr);
+    newCurve->setSummaryCaseY(gridSummaryCase);
+    newCurve->setSummaryAddressY(addr);
     newCurve->setColor(color);
-    newCurve->setYAxis(plotAxis);
+    newCurve->setLeftOrRightAxisY(plotAxis);
 
     return newCurve;
 }

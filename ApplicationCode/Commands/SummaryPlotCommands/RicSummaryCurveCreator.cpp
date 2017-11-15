@@ -294,7 +294,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
         for (const auto& curve : currentCurvesInPreviewPlot)
         {
-            currentCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCase(), curve->summaryAddress()));
+            currentCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
         }
         
         if (allCurveDefinitions.size() < currentCurvesInPreviewPlot.size())
@@ -307,7 +307,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
             for (const auto& curve : currentCurvesInPreviewPlot)
             {
-                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(curve->summaryCase(), curve->summaryAddress());
+                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY());
                 if (deleteCurveDefs.count(curveDef) > 0)
                     curvesToDelete.insert(curve);
             }
@@ -347,8 +347,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
     {
         RimSummaryCase* currentCase = curveDef.summaryCase();
         RimSummaryCurve* curve = new RimSummaryCurve();
-        curve->setSummaryCase(currentCase);
-        curve->setSummaryAddress(curveDef.summaryAddress());
+        curve->setSummaryCaseY(currentCase);
+        curve->setSummaryAddressY(curveDef.summaryAddress());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
@@ -470,9 +470,9 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     m_previewPlot->deleteAllSummaryCurves();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
-        bool isObservedDataCase = isObservedData(curve->summaryCase());
+        bool isObservedDataCase = isObservedData(curve->summaryCaseY());
 
-        curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCase(), curve->summaryAddress()));
+        curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
 
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot(curve, m_previewPlot.get(), true);
@@ -482,12 +482,12 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
-        sourceCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+        sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
     }
 
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
-        auto curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
+        auto curveDef = std::make_pair(curve->summaryCaseY(), curve->summaryAddressY());
         if (sourceCurveDefs.count(curveDef) == 0)
             curve->setCurveVisiblity(false);
     }
@@ -539,7 +539,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     curveCopy->resolveReferencesRecursively();
 
     // The curve creator is not a descendant of the project, and need to be set manually
-    curveCopy->setSummaryCase(curve->summaryCase());
+    curveCopy->setSummaryCaseY(curve->summaryCaseY());
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate(false);
 }
@@ -628,7 +628,7 @@ std::set<RiaSummaryCurveDefinition> RicSummaryCurveCreator::allPreviewCurveDefs(
 
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
-        allCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCase(), curve->summaryAddress()));
+        allCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
     }
     return allCurveDefs;
 }

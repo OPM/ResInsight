@@ -195,11 +195,21 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
 
-    for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+    if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
     {
-        if ( rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
+        for (RimSummaryCurve* rimCurve : m_summaryCurves)
         {
-            unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
+            unitToQuantityNameMap[rimCurve->unitNameX()].insert(rimCurve->summaryAddressX().quantityName());
+        }
+    }
+    else
+    {
+        for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+        {
+            if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+            {
+                unitToQuantityNameMap[rimCurve->unitNameY()].insert(rimCurve->summaryAddressY().quantityName());
+            }
         }
     }
 

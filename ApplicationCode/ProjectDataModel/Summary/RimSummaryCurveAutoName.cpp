@@ -65,7 +65,7 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
 
         if (m_unit && summaryCurve)
         {
-            text += "[" + summaryCurve->unitName() + "]";
+            text += "[" + summaryCurve->unitNameY() + "]";
         }
     }
 
@@ -179,10 +179,10 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
     {
         if (m_caseName)
         {
-            if (summaryCurve && summaryCurve->summaryCase())
+            if (summaryCurve && summaryCurve->summaryCaseY())
             {
                 if (text.size() > 0) text += ", ";
-                text += summaryCurve->summaryCase()->caseName().toStdString();
+                text += summaryCurve->summaryCaseY()->caseName().toStdString();
             }
         }
     }
