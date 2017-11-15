@@ -126,7 +126,7 @@ private:
 
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
-    std::vector<RifDataSourceForRftPlt>                  selectedSources() const;
+    std::vector<RifDataSourceForRftPlt>                  expandSelectedSources() const;
     std::vector<RifDataSourceForRftPlt>                  selectedSourcesAndTimeSteps() const;
 
     // RimViewWindow overrides

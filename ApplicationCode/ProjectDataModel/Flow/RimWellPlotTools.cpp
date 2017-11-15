@@ -244,10 +244,6 @@ void RimWellPlotTools::addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSou
     {
         if (timeStepPair.first.isValid())
         {
-            if (destMap.count(timeStepPair.first) == 0)
-            {
-                destMap.insert(std::make_pair(timeStepPair.first, std::set<RifDataSourceForRftPlt>()));
-            }
             auto addresses = timeStepPair.second;
             destMap[timeStepPair.first].insert(addresses.begin(), addresses.end());
         }
@@ -618,6 +614,32 @@ RimWellPlotTools::adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::
     addTimeStepToMap(timeStepsMap, searchTimeStepPair);
 
     return timeStepsMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RimWellPlotTools::findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, 
+                                                                      const std::set<QDateTime>& availableTimeSteps)
+{
+    std::set<QDateTime> resultTimeSteps;
+    for (const QDateTime& baseTimeStep: baseTimeLine )
+    {
+        auto itToEqualOrLargerTime = availableTimeSteps.lower_bound(baseTimeStep);
+        if (itToEqualOrLargerTime != availableTimeSteps.end())
+        {
+            resultTimeSteps.insert(*itToEqualOrLargerTime);
+            if (  *itToEqualOrLargerTime != baseTimeStep 
+                && itToEqualOrLargerTime != availableTimeSteps.begin() ) 
+            {
+                // Found a larger time, then add the timestep before it as the adjacent timestep before the base timestep
+                itToEqualOrLargerTime--;
+                resultTimeSteps.insert(*itToEqualOrLargerTime);
+            }    
+        }
+    }
+
+    return resultTimeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

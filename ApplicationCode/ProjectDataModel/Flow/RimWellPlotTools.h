@@ -97,6 +97,7 @@ public:
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>>& allTimeSteps,
                                                                               const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& searchTimeStepPair);
+    static std::set<QDateTime>                              findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, const std::set<QDateTime>& availableTimeSteps);
     static bool                                             mapContainsTimeStep(const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& map, const QDateTime& timeStep);
 
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
