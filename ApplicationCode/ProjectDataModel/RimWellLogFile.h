@@ -65,7 +65,7 @@ public:
     QString                              wellName() const;
     QDateTime                            date() const;
                                          
-    RigWellLogFile*                      wellLogFile()           { return m_wellLogDataFile.p(); }
+    RigWellLogFile*                      wellLogFileData()           { return m_wellLogDataFile.p(); }
     std::vector<RimWellLogFileChannel*>  wellLogChannels() const;
 
     bool                                 hasFlowData() const;

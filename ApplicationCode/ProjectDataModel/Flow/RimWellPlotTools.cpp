@@ -645,6 +645,28 @@ std::set<QDateTime> RimWellPlotTools::findMatchingOrAdjacentTimeSteps(const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps(RimEclipseCase * eclCase, 
+                                                                const QString& simWellName)
+{
+    std::set<QDateTime> availebleTimeSteps; 
+
+    std::vector<QDateTime> allTimeSteps = eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+    const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData(simWellName);
+
+    for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
+    {
+        if ( simWell->hasWellResult(tsIdx) )
+        {
+            availebleTimeSteps.insert(allTimeSteps[tsIdx]);
+        }
+    }
+
+    return availebleTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::mapContainsTimeStep(const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& map, const QDateTime& timeStep)
 {
     return std::find_if(map.begin(), map.end(), [timeStep](const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& pair)

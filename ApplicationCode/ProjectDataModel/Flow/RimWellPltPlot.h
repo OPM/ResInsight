@@ -89,9 +89,10 @@ protected:
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
     virtual QImage                                  snapshotWindowContent() override;
-
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -100,19 +101,13 @@ protected:
     virtual void                                    initAfterRead() override;
     virtual void                                    setupBeforeSave() override;
     void                                            initAfterLoad();
-    void                                            syncSourcesIoFieldFromGuiField();
 
 private:
-    void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
-    void                                            updateWidgetTitleWindowTitle();
-
+    void                                            syncSourcesIoFieldFromGuiField();
     void                                            syncCurvesFromUiSelection();
 
     std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> selectedCurveDefs() const;
-    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> curveDefsFromCurves() const;
-    std::pair<RifDataSourceForRftPlt, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
@@ -121,19 +116,15 @@ private:
                                                                     int curveGroupId,
                                                                     bool doFillCurve);
 
-    bool                                            isOnlyGridSourcesSelected() const;
-    bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
-    std::vector<RifDataSourceForRftPlt>                  expandSelectedSources() const;
+    std::vector<RifDataSourceForRftPlt>             selectedSourcesExpanded() const;
 
     // RimViewWindow overrides
 
+    void                                            updateWidgetTitleWindowTitle();
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
-    //void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
-    void                                            updateSelectedTimeStepsFromSelectedSources();
     void                                            setPlotXAxisTitles(RimWellLogTrack* plotTrack);
-    std::vector<RimEclipseCase*>                    eclipseCases() const;
 
     void                                            updateFormationsOnPlot() const;
 
