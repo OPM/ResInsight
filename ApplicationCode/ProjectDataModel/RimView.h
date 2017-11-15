@@ -175,6 +175,9 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
 
     virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
+
+    Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
+
 protected:
 
     void                                    setDefaultView();

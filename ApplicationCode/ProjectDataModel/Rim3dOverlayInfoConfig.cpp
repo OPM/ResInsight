@@ -144,6 +144,231 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimEclipseView* eclipseView) 
+{
+    HistogramData histData;
+    bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+
+    if (isResultsInfoRelevant)
+    {
+        size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+
+        if (scalarIndex != cvf::UNDEFINED_SIZE_T)
+        {
+
+            if (m_statisticsCellRange == ALL_CELLS)
+            {
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, histData.min, histData.max);
+                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, histData.p10, histData.p90);
+                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, histData.mean);
+                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, histData.sum);
+                    histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int currentTimeStep = eclipseView->currentTimeStep();
+                    if (eclipseView->cellResult()->hasStaticResult())
+                    {
+                        currentTimeStep = 0;
+                    }
+
+                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, histData.min, histData.max);
+                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, histData.p10, histData.p90);
+                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, histData.mean);
+                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, histData.sum);
+                    histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
+                }
+                else
+                {
+                    CVF_ASSERT(false);
+                }
+            }
+            else if (m_statisticsCellRange == VISIBLE_CELLS)
+            {
+                updateVisCellStatsIfNeeded();
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    // TODO: Only valid if we have no dynamic property filter
+                    m_visibleCellStatistics->meanCellScalarValues(histData.mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(histData.min, histData.max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(histData.p10, histData.p90);
+                    m_visibleCellStatistics->sumCellScalarValues(histData.sum);
+
+                    histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int currentTimeStep = eclipseView->currentTimeStep();
+                    if (eclipseView->cellResult()->hasStaticResult())
+                    {
+                        currentTimeStep = 0;
+                    }
+
+                    m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, histData.mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, histData.min, histData.max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, histData.p10, histData.p90);
+                    m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, histData.sum);
+
+                    histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
+                }
+            }
+        }
+        else if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+        {
+            if (m_statisticsTimeRange == CURRENT_TIMESTEP || m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
+            {
+                int currentTimeStep = eclipseView->currentTimeStep();
+
+                if (m_statisticsCellRange == ALL_CELLS)
+                {
+                    RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
+                    RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
+
+                    fldResults->minMaxScalarValues(resAddr, currentTimeStep, &histData.min, &histData.max);
+                    fldResults->p10p90ScalarValues(resAddr, currentTimeStep, &histData.p10, &histData.p90);
+                    fldResults->meanScalarValue(resAddr, currentTimeStep, &histData.mean);
+                    fldResults->sumScalarValue(resAddr, currentTimeStep, &histData.sum);
+                    histData.histogram = &(fldResults->scalarValuesHistogram(resAddr, currentTimeStep));
+                }
+                else if (m_statisticsCellRange == VISIBLE_CELLS)
+                {
+                    updateVisCellStatsIfNeeded();
+
+                    m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, histData.mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, histData.min, histData.max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, histData.p10, histData.p90);
+                    m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, histData.sum);
+
+                    histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
+                }
+            }
+        }
+    }
+    return histData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
+{
+    QString infoText;
+
+    if (showCaseInfo())
+    {
+        QString caseName;
+        QString totCellCount;
+        QString activeCellCountText;
+        QString fractureActiveCellCount;
+        QString iSize, jSize, kSize;
+        QString zScale;
+
+        if (eclipseView->mainGrid())
+        {
+            caseName = eclipseView->eclipseCase()->caseUserDescription();
+            totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
+            size_t mxActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount();
+            size_t frActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount();
+            if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
+            activeCellCountText += QString::number(mxActCellCount);
+            if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
+
+            iSize = QString::number(eclipseView->mainGrid()->cellCountI());
+            jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
+            kSize = QString::number(eclipseView->mainGrid()->cellCountK());
+
+            zScale = QString::number(eclipseView->scaleZ());
+
+        }
+
+        infoText += QString(
+            "<p><b><center>-- %1 --</center></b><p>  "
+            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
+            "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
+    }
+
+    return infoText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView)
+{
+    QString infoText;
+    bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+
+    if (eclipseView->cellResult()->isTernarySaturationSelected())
+    {
+        QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+        infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+    }
+
+    if (isResultsInfoRelevant)
+    {
+        QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+        QString timeRangeText = m_statisticsTimeRange().uiText();
+        if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+        {
+            timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
+        }
+
+        infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+        infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
+        infoText += QString("<table border=0 cellspacing=5 >"
+                            "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                            "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                            "</table>").arg(histData.min).arg(histData.p10).arg(histData.mean).arg(histData.p90).arg(histData.max).arg(histData.sum);
+
+        if (eclipseView->faultResultSettings()->hasValidCustomResult())
+        {
+            QString faultMapping;
+            bool isShowingGrid = eclipseView->faultCollection()->isGridVisualizationMode();
+            if (!isShowingGrid)
+            {
+                if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING)
+                {
+                    faultMapping = "Cells behind fault";
+                }
+                else if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING)
+                {
+                    faultMapping = "Cells in front of fault";
+                }
+                else
+                {
+                    faultMapping = "Cells in front and behind fault";
+                }
+            }
+            else
+            {
+                faultMapping = "Cells in front and behind fault";
+            }
+
+            infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
+            infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName());
+        }
+    }
+
+    if (eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult())
+    {
+        double min, max;
+        QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiShortName();
+        eclipseView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
+        infoText += QString("<b>Cell Edge Property:</b> %1 ").arg(cellEdgeName);
+        infoText += QString("<table border=0 cellspacing=5 >"
+                            "<tr> <td>Min</td> <td></td> <td></td> <td></td> <td>Max</td> </tr>"
+                            "<tr> <td>%1</td>  <td></td> <td></td> <td></td> <td> %2</td></tr>"
+                            "</table>").arg(min).arg(max);
+    }
+
+    return infoText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
     this->updateUiIconFromToggleField();
@@ -224,216 +449,23 @@ void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 {
-    double min = HUGE_VAL, max = HUGE_VAL;
-    double p10 = HUGE_VAL, p90 = HUGE_VAL;
-    double mean = HUGE_VAL;
-    double sum = 0.0;
-    const std::vector<size_t>* histogram = NULL;
-
-    bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+    HistogramData histData;
 
     if (showHistogram() || showResultInfo())
     {
-        if (isResultsInfoRelevant)
-        {
-            size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
-            if (scalarIndex != cvf::UNDEFINED_SIZE_T)
-            {
-
-                if (m_statisticsCellRange == ALL_CELLS)
-                {
-                    if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                    {
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
-                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, sum);
-                        histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
-                    }
-                    else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                    {
-                        int currentTimeStep = eclipseView->currentTimeStep();
-                        if (eclipseView->cellResult()->hasStaticResult())
-                        {
-                            currentTimeStep = 0;
-                        }
-
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
-                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
-                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
-                        histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
-                    }
-                    else
-                    {
-                        CVF_ASSERT(false);
-                    }
-                }
-                else if (m_statisticsCellRange == VISIBLE_CELLS)
-                {
-                    updateVisCellStatsIfNeeded();
-                    if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                    {
-                        // TODO: Only valid if we have no dynamic property filter
-                        m_visibleCellStatistics->meanCellScalarValues(mean);
-                        m_visibleCellStatistics->minMaxCellScalarValues(min, max);
-                        m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
-                        m_visibleCellStatistics->sumCellScalarValues(sum);
-
-                        histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
-                    }
-                    else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                    {
-                        int currentTimeStep = eclipseView->currentTimeStep();
-                        if (eclipseView->cellResult()->hasStaticResult())
-                        {
-                            currentTimeStep = 0;
-                        }
-
-                        m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
-                        m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
-                        m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
-                        m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
-
-                        histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
-                    }
-                }
-            }
-            else if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
-            {
-                if (m_statisticsTimeRange == CURRENT_TIMESTEP || m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
-                {
-                    int currentTimeStep = eclipseView->currentTimeStep();
-
-                    if (m_statisticsCellRange == ALL_CELLS)
-                    {
-                        RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
-                        RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
-
-                        fldResults->minMaxScalarValues(resAddr, currentTimeStep, &min, &max);
-                        fldResults->p10p90ScalarValues(resAddr, currentTimeStep, &p10, &p90);
-                        fldResults->meanScalarValue(resAddr, currentTimeStep, &mean);
-                        fldResults->sumScalarValue(resAddr, currentTimeStep, &sum);
-                        histogram = &(fldResults->scalarValuesHistogram(resAddr, currentTimeStep));
-                    }
-                    else if (m_statisticsCellRange == VISIBLE_CELLS)
-                    {
-                        updateVisCellStatsIfNeeded();
-
-                        m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
-                        m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
-                        m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
-                        m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
-
-                        histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
-                    }
-                }
-            }
-        }
+        histData = histogramData(eclipseView);
     }
 
     QString infoText;
 
     if (showCaseInfo())
     {
-        QString caseName;
-        QString totCellCount;
-        QString activeCellCountText;
-        QString fractureActiveCellCount;
-        QString iSize, jSize, kSize;
-        QString zScale;
-
-        if (eclipseView->mainGrid())
-        {
-            caseName = eclipseView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
-            size_t mxActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount();
-            size_t frActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount();
-            if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
-            activeCellCountText += QString::number(mxActCellCount);
-            if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
-
-            iSize = QString::number(eclipseView->mainGrid()->cellCountI());
-            jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
-            kSize = QString::number(eclipseView->mainGrid()->cellCountK());
-
-            zScale = QString::number(eclipseView->scaleZ());
-
-        }
-
-        infoText += QString(
-            "<p><b><center>-- %1 --</center></b><p>  "
-            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
-            "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
+        infoText = caseInfoText(eclipseView);
     }
 
     if (showResultInfo())
     {
-
-        if (eclipseView->cellResult()->isTernarySaturationSelected())
-        {
-            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
-            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
-        }
-
-        if (isResultsInfoRelevant)
-        {
-            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
-            QString timeRangeText = m_statisticsTimeRange().uiText();
-            if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
-            {
-                timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
-            }
-
-            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
-            infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
-            infoText += QString("<table border=0 cellspacing=5 >"
-                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
-                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
-
-            if (eclipseView->faultResultSettings()->hasValidCustomResult())
-            {
-                QString faultMapping;
-                bool isShowingGrid = eclipseView->faultCollection()->isGridVisualizationMode();
-                if (!isShowingGrid)
-                {
-                    if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING)
-                    {
-                        faultMapping = "Cells behind fault";
-                    }
-                    else if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING)
-                    {
-                        faultMapping = "Cells in front of fault";
-                    }
-                    else
-                    {
-                        faultMapping = "Cells in front and behind fault";
-                    }
-                }
-                else
-                {
-                    faultMapping = "Cells in front and behind fault";
-                }
-
-                infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
-                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName());
-            }
-        }
-
-        if (eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult())
-        {
-            double min, max;
-            QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiShortName();
-            eclipseView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
-            infoText += QString("<b>Cell Edge Property:</b> %1 ").arg(cellEdgeName);
-            infoText += QString("<table border=0 cellspacing=5 >"
-                "<tr> <td>Min</td> <td></td> <td></td> <td></td> <td>Max</td> </tr>"
-                "<tr> <td>%1</td>  <td></td> <td></td> <td></td> <td> %2</td></tr>"
-                "</table>").arg(min).arg(max);
-
-        }
-
+        infoText += resultInfoText(histData, eclipseView);
     }
 
     if (!infoText.isEmpty())
@@ -443,11 +475,13 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
     if (showHistogram())
     {
-        if (isResultsInfoRelevant && histogram)
+        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        
+        if (isResultsInfoRelevant && histData.histogram)
         {
             eclipseView->viewer()->showHistogram(true);
-            eclipseView->viewer()->setHistogram(min, max, *histogram);
-            eclipseView->viewer()->setHistogramPercentiles(p10, p90, mean);
+            eclipseView->viewer()->setHistogram(histData.min, histData.max, *histData.histogram);
+            eclipseView->viewer()->setHistogramPercentiles(histData.p10, histData.p90, histData.mean);
         }
     }
 }

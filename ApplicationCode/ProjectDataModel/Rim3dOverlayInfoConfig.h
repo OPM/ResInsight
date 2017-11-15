@@ -27,6 +27,7 @@
 #include "cvfObject.h"
 
 #include "cvfVector2.h"
+#include <cmath>
 
 class RimEclipseView;
 class RimGeoMechView;
@@ -41,6 +42,20 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+    class HistogramData
+    {
+    public:
+        HistogramData() : min(HUGE_VAL), max(HUGE_VAL), p10(HUGE_VAL), p90(HUGE_VAL), mean(HUGE_VAL), sum(0.0) {}
+
+        double min;
+        double max;
+        double p10;
+        double p90;
+        double mean;
+        double sum;
+        const std::vector<size_t>* histogram;
+    };
+
 public:
     Rim3dOverlayInfoConfig();
     virtual ~Rim3dOverlayInfoConfig();
@@ -50,6 +65,10 @@ public:
     void setReservoirView(RimView* ownerView);
 
     void                                        setPosition(cvf::Vec2ui position);
+
+    HistogramData                               histogramData(RimEclipseView* eclipseView);
+    QString                                     caseInfoText(RimEclipseView* eclipseView);
+    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView);
 
     enum StatisticsTimeRangeType
     {

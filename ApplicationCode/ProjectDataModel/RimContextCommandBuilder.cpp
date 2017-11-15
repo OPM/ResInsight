@@ -72,6 +72,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimWellLogFile.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
@@ -435,6 +436,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimFlowPlotCollection*>(uiItem))
         {
             commandIds << "RicShowFlowCharacteristicsPlotFeature";
+        }
+        else if (dynamic_cast<Rim3dOverlayInfoConfig*>(uiItem))
+        {
+            commandIds << "RicShowGridStatisticsFeature";
         }
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         else if (dynamic_cast<RimSimWellFracture*>(uiItem))
