@@ -249,41 +249,6 @@ void RimWellPlotTools::addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSou
         }
     }
 }
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure(const QString& wellPathName)
-{
-    std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const project = RiaApplication::instance()->project();
-
-    for (const auto& oilField : project->oilFields)
-    {
-        auto wellPathsVector = std::vector<RimWellPath*>(oilField->wellPathCollection()->wellPaths.begin(), oilField->wellPathCollection()->wellPaths.end());
-
-        for (const auto& wellPath : wellPathsVector)
-        {
-            bool hasPressure = false;
-            const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
-
-            for (RimWellLogFile* const file : files)
-            {
-                size_t timeStepCount = timeStepsMapFromWellLogFile(file).size();    // todo: only one timestep
-
-                if (timeStepCount == 0) continue;
-                if (RiaWellNameComparer::tryFindMatchingWellPath(wellPathName).isEmpty()) continue;
-
-                if (hasPressureData(file))
-                {
-                    wellLogFiles.push_back(file);
-                }
-            }
-        }
-    }
-    return wellLogFiles;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -358,36 +323,6 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const 
     return wellLogFiles;
 }
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const QString& wellPathName)
-{
-    std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const project = RiaApplication::instance()->project();
-
-    for (const auto& wellPath : project->allWellPaths())
-    {
-        bool hasPressure = false;
-        const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
-
-        for (RimWellLogFile* const file : files)
-        {
-            size_t timeStepCount = timeStepsMapFromWellLogFile(file).size();    // todo: only one timestep
-
-            if (timeStepCount == 0) continue;
-            if (RiaWellNameComparer::tryFindMatchingWellPath(wellPathName).isEmpty()) continue;
-
-            if (hasFlowData(file))
-            {
-                wellLogFiles.push_back(file);
-            }
-        }
-    }
-    return wellLogFiles;
-}
-#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -662,17 +597,6 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps(RimEclipseCase *
     }
 
     return availebleTimeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::mapContainsTimeStep(const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& map, const QDateTime& timeStep)
-{
-    return std::find_if(map.begin(), map.end(), [timeStep](const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& pair)
-    {
-        return pair.first == timeStep;
-    }) != map.end();
 }
 
 //--------------------------------------------------------------------------------------------------
