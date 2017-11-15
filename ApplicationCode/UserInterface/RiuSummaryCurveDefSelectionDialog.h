@@ -18,13 +18,16 @@
 
 #pragma once
 
+#include "RiaSummaryCurveDefinition.h"
+
 #include <QDialog>
+
 #include <memory>
 
 class QLabel;
 
-class RiuSummaryCurveDefSelectionEditor;
 class RiuSummaryCurveDefSelection;
+class RiuSummaryCurveDefSelectionEditor;
 
 //==================================================================================================
 ///  
@@ -36,9 +39,12 @@ public:
     RiuSummaryCurveDefSelectionDialog(QWidget* parent);
     ~RiuSummaryCurveDefSelectionDialog();
 
-    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+    void                                    setCaseAndAddress(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address);
+    std::vector<RiaSummaryCurveDefinition>  curveSelection() const;
 
-    void    updateLabel();
+private:
+    RiuSummaryCurveDefSelection*            summaryAddressSelection() const;
+    void                                    updateLabel();
 
 private:
     std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;

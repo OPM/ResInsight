@@ -35,10 +35,12 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
@@ -97,6 +99,12 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesCurveVariable.uiCapability()->setUiHidden(true);
     m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "");
+    m_yPushButtonSelectSummaryAddress = false;
+    m_yPushButtonSelectSummaryAddress.xmlCapability()->disableIO();
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     m_yValuesCurveVariable = new RimSummaryAddress;
 
 
@@ -127,6 +135,12 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "x_SummaryAddress", "SummaryAddress", "", "", "");
     m_xValuesCurveVariable.uiCapability()->setUiHidden(true);
     m_xValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_xPushButtonSelectSummaryAddress, "x_SelectAddress", "", "", "", "");
+    m_xPushButtonSelectSummaryAddress = false;
+    m_xPushButtonSelectSummaryAddress.xmlCapability()->disableIO();
+    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_xValuesCurveVariable = new RimSummaryAddress;
 
@@ -441,6 +455,22 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (&m_yPushButtonSelectSummaryAddress == field ||
+        &m_xPushButtonSelectSummaryAddress == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Select Address";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimPlotCurve::updateOptionSensitivity();
@@ -458,6 +488,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
+
+        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
     }
 
     if (isCrossPlotCurve())
@@ -470,6 +502,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_xValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_xValuesUiFilterResultSelection);
+
+        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
     }
 
     uiOrdering.add(&m_plotAxis);
@@ -561,29 +595,29 @@ void RimSummaryCurve::applyCurveAutoNameSettings(const RimSummaryCurveAutoName& 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
+    this->RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
     
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
     CVF_ASSERT(plot);
+
+    bool loadAndUpdate = false;
 
     if(changedField == &m_yValuesUiFilterResultSelection)
     {
         m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
         this->calculateCurveInterpolationFromAddress();
-        this->loadDataAndUpdate(true);
 
-        plot->updateAxes();
+        loadAndUpdate = true;
     } 
     else if (changedField == &m_xValuesUiFilterResultSelection)
     {
         m_xValuesCurveVariable->setAddress(m_xValuesUiFilterResultSelection());
 
         this->calculateCurveInterpolationFromAddress();
-        this->loadDataAndUpdate(true);
 
-        plot->updateAxes();
+        loadAndUpdate = true;
     }
     else if (&m_showCurve == changedField)
     {
@@ -599,6 +633,47 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         plot->updateCaseNameHasChanged();
         this->onLoadDataAndUpdate(true);
+    }
+    else if (changedField == &m_yPushButtonSelectSummaryAddress)
+    {
+        RiuSummaryCurveDefSelectionDialog dlg(nullptr);
+        dlg.setCaseAndAddress(m_yValuesSummaryCase(), m_yValuesCurveVariable->address());
+        
+        if (dlg.exec() == QDialog::Accepted)
+        {
+            auto curveSelection = dlg.curveSelection();
+            if (curveSelection.size() > 0)
+            {
+                m_yValuesSummaryCase = curveSelection[0].summaryCase();
+                m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+
+                loadAndUpdate = true;
+            }
+        }
+    }
+    else if (changedField == &m_xPushButtonSelectSummaryAddress)
+    {
+        RiuSummaryCurveDefSelectionDialog dlg(nullptr);
+        dlg.setCaseAndAddress(m_xValuesSummaryCase(), m_xValuesCurveVariable->address());
+
+        if (dlg.exec() == QDialog::Accepted)
+        {
+            auto curveSelection = dlg.curveSelection();
+            if (curveSelection.size() > 0)
+            {
+                m_xValuesSummaryCase = curveSelection[0].summaryCase();
+                m_xValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+
+                loadAndUpdate = true;
+            }
+        }
+    }
+
+    if (loadAndUpdate)
+    {
+        this->loadDataAndUpdate(true);
+
+        plot->updateAxes();
     }
 }
 

@@ -25,7 +25,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 
-#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -86,22 +85,15 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 
         {
             RiuSummaryCurveDefSelectionDialog dlg(nullptr);
-            {
-                std::vector<RiaSummaryCurveDefinition> sumCasePairs;
-                sumCasePairs.push_back(RiaSummaryCurveDefinition(m_case(), m_summaryAddress->address()));
-
-                dlg.summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
-                dlg.summaryAddressSelection()->updateConnectedEditors();
-                dlg.updateLabel();
-            }
+            dlg.setCaseAndAddress(m_case(), m_summaryAddress->address());
 
             if (dlg.exec() == QDialog::Accepted)
             {
-                std::vector<RiaSummaryCurveDefinition> sumCasePairs = dlg.summaryAddressSelection()->selectedCurveDefinitions();
-                if (sumCasePairs.size() == 1)
+                std::vector<RiaSummaryCurveDefinition> curveSelection = dlg.curveSelection();
+                if (curveSelection.size() > 0)
                 {
-                    m_case = sumCasePairs[0].summaryCase();
-                    m_summaryAddress->setAddress(sumCasePairs[0].summaryAddress());
+                    m_case = curveSelection[0].summaryCase();
+                    m_summaryAddress->setAddress(curveSelection[0].summaryAddress());
 
                     updateContainingEditor = true;
                 }

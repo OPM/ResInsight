@@ -88,6 +88,7 @@ private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
     static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCase* summaryCase,
@@ -102,6 +103,7 @@ private:
     caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
     caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
+    caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
 
     // X values
     caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
@@ -109,6 +111,7 @@ private:
     caf::PdmField<QString>                  m_xValuesSelectedVariableDisplayField;
     caf::PdmChildField<RimSummaryFilter*>   m_xValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress> m_xValuesUiFilterResultSelection;
+    caf::PdmField<bool>                     m_xPushButtonSelectSummaryAddress;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
