@@ -319,7 +319,7 @@ QString RimSummaryCurve::createCurveAutoName()
 void RimSummaryCurve::updateZoomInParentPlot()
 {
     RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType(plot);
+    firstAncestorOrThisOfTypeAsserted(plot);
 
     plot->updateZoomInQwt(); 
 }
@@ -332,13 +332,15 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
     this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
-
     m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
+
+    m_xValuesSelectedVariableDisplayField = QString::fromStdString(m_xValuesCurveVariable->address().uiText());
+    m_xValuesUiFilterResultSelection = m_xValuesCurveVariable->address();
+
     updateConnectedEditors();
 
     if (isCurveVisible())
     {
-        std::vector<time_t> dateTimes = this->timeSteps();
         std::vector<double> yValues = this->yValues();
 
         RimSummaryPlot* plot = nullptr;
@@ -362,6 +364,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         else
         {
+            std::vector<time_t> dateTimes = this->timeSteps();
             if (dateTimes.size() > 0 && dateTimes.size() == yValues.size())
             {
                 if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
@@ -397,7 +400,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             m_qwtPlotCurve->setSamplesFromXValuesAndYValues(std::vector<double>(), std::vector<double>(), isLogCurve);
         }
 
-        if ( updateParentPlot && m_parentQwtPlot)
+        if (updateParentPlot && m_parentQwtPlot)
         {
             updateZoomInParentPlot();
             m_parentQwtPlot->replot();
