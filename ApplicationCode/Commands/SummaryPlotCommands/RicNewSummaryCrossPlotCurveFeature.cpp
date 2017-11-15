@@ -19,6 +19,7 @@
 #include "RicNewSummaryCrossPlotCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -26,7 +27,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlot.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainPlotWindow.h"
@@ -45,7 +46,7 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotCurveFeature, "RicNewSummaryCrossPlotC
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled()
 {
-    return (selectedSummaryPlot());
+    return (selectedCrossPlot());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
 
-    RimSummaryPlot* plot = selectedSummaryPlot();
+    RimSummaryCrossPlot* plot = selectedCrossPlot();
     if (plot)
     {
         RimSummaryCurve* newCurve = new RimSummaryCurve();
@@ -91,19 +92,15 @@ void RicNewSummaryCrossPlotCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicNewSummaryCrossPlotCurveFeature::selectedSummaryPlot() const
+RimSummaryCrossPlot* RicNewSummaryCrossPlotCurveFeature::selectedCrossPlot() const
 {
-    RimSummaryPlot* sumPlot = nullptr;
+    RimSummaryCrossPlot* crossPlot = nullptr;
 
     caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
     if (selObj)
     {
-        selObj->firstAncestorOrThisOfType(sumPlot);
+        crossPlot = RiaSummaryTools::parentCrossPlot(selObj);
     }
 
-    RimSummaryCrossPlotCollection* crossPlotColl = nullptr;
-    sumPlot->firstAncestorOrThisOfType(crossPlotColl);
-    if (!crossPlotColl) return nullptr;
-
-    return sumPlot;
+    return crossPlot;
 }

@@ -326,7 +326,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicPasteWellLogCurveFeature";
         }
-        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {
             commandIds << "RicPasteSummaryCurveFeature";
             commandIds << "RicPasteSummaryCurveFilterFeature";

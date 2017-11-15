@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicSummaryCurveCreator.h"
@@ -32,6 +33,7 @@
 #include "RiuMainPlotWindow.h"
 
 #include "cvfAssert.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -43,7 +45,17 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimSummaryPlotCollection* sumPlotColl = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
+    }
+
+    if (sumPlotColl) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,8 +19,15 @@
 #pragma once
 
 class RimSummaryPlotCollection;
+class RimSummaryPlot;
+class RimSummaryCrossPlot;
+class RimSummaryCrossPlotCollection;
 
 class QString;
+
+namespace caf {
+    class PdmObject;
+}
 
 //==================================================================================================
 // 
@@ -31,4 +38,10 @@ public:
     static RimSummaryPlotCollection*    summaryPlotCollection();
     static void                         notifyCalculatedCurveNameHasChanged(const QString& previousCurveName,
                                                                             const QString& currentCurveName);
+
+    static RimSummaryPlot*                  parentSummaryPlot(caf::PdmObject* object);
+    static RimSummaryPlotCollection*        parentSummaryPlotCollection(caf::PdmObject* object);
+
+    static RimSummaryCrossPlot*             parentCrossPlot(caf::PdmObject* object);
+    static RimSummaryCrossPlotCollection*   parentCrossPlotCollection(caf::PdmObject* object);
 };

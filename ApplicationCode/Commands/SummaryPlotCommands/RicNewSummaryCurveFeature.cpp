@@ -103,7 +103,7 @@ RimSummaryPlot* RicNewSummaryCurveFeature::selectedSummaryPlot() const
     caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
     if (selObj)
     {
-        selObj->firstAncestorOrThisOfType(sumPlot);
+        sumPlot = RiaSummaryTools::parentSummaryPlot(selObj);
     }
 
     return sumPlot;

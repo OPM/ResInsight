@@ -22,7 +22,7 @@
 
 #include <vector>
 
-class RimSummaryPlot;
+class RimSummaryCrossPlot;
 
 //==================================================================================================
 /// 
@@ -36,5 +36,5 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryPlot* selectedSummaryPlot() const;
+    RimSummaryCrossPlot* selectedCrossPlot() const;
 };

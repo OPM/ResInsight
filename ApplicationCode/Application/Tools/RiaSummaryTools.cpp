@@ -24,9 +24,13 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+
+#include "cafPdmObject.h"
+#include "RimSummaryCrossPlotCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -60,4 +64,69 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RiaSummaryTools::parentSummaryPlot(caf::PdmObject* object)
+{
+    if (parentCrossPlot(object))
+    {
+        return nullptr;
+    }
+
+    RimSummaryPlot* summaryPlot = nullptr;
+
+    if (object)
+    {
+        object->firstAncestorOrThisOfType(summaryPlot);
+    }
+
+    return summaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection(caf::PdmObject* object)
+{
+    RimSummaryPlotCollection* summaryPlotColl = nullptr;
+
+    if (object)
+    {
+        object->firstAncestorOrThisOfType(summaryPlotColl);
+    }
+
+    return summaryPlotColl;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot(caf::PdmObject* object)
+{
+    RimSummaryCrossPlot* crossPlot = nullptr;
+
+    if (object)
+    {
+        object->firstAncestorOrThisOfType(crossPlot);
+    }
+
+    return crossPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection(caf::PdmObject* object)
+{
+    RimSummaryCrossPlotCollection* crossPlotColl = nullptr;
+
+    if (object)
+    {
+        object->firstAncestorOrThisOfType(crossPlotColl);
+    }
+
+    return crossPlotColl;
 }
