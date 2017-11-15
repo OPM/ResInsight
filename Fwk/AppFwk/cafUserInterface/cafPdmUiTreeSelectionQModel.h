@@ -95,8 +95,8 @@ private:
     void                            recursiveNotifyChildren(const QModelIndex& index);
 
 private:
-    QList<caf::PdmOptionItemInfo>   m_options;
-    caf::PdmUiFieldEditorHandle*    m_uiFieldHandle;
+    QList<caf::PdmOptionItemInfo>            m_options;
+    QPointer<caf::PdmUiFieldEditorHandle>    m_uiFieldHandle;
 
     const QVariant*                 m_uiValueCache; 
 

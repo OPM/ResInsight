@@ -158,9 +158,9 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_model)
     {
-        m_model = new caf::PdmUiTreeSelectionQModel(m_treeView);
+        m_model = new caf::PdmUiTreeSelectionQModel(this);
         
-        m_proxyModel = new FilterLeafNodesOnlyProxyModel;
+        m_proxyModel = new FilterLeafNodesOnlyProxyModel(this);
         m_proxyModel->setSourceModel(m_model);
         m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         
