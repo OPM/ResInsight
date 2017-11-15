@@ -72,6 +72,8 @@ namespace RiaDefines
     QString riAreaNormTranZResultName();
     QString combinedRiAreaNormTranResultName();
 
+    QString mobilePoreVolumeName();
+
     QString completionTypeResultName();
 
     // Mock model text identifiers
