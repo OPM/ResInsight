@@ -107,7 +107,7 @@ private:
     void                                            syncSourcesIoFieldFromGuiField();
     void                                            syncCurvesFromUiSelection();
 
-    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> selectedCurveDefs() const;
+    std::set<RiaRftPltCurveDefinition>              selectedCurveDefs() const;
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,

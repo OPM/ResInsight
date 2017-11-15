@@ -261,9 +261,9 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set < std::pair<RifDataSourceForRftPlt, QDateTime>> RimWellPltPlot::selectedCurveDefs() const
+std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 {
-    std::set<std::pair<RifDataSourceForRftPlt, QDateTime>> curveDefs;
+    std::set<RiaRftPltCurveDefinition> curveDefs;
     const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
     std::set<QDateTime> selectedTimeSteps(m_selectedTimeSteps.v().begin(), m_selectedTimeSteps.v().end());
@@ -279,7 +279,7 @@ std::set < std::pair<RifDataSourceForRftPlt, QDateTime>> RimWellPltPlot::selecte
             {
                 if ( selectedTimeSteps.count(time) )
                 {
-                    curveDefs.insert(std::make_pair(addr, time));
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
             }
         }
@@ -291,7 +291,7 @@ std::set < std::pair<RifDataSourceForRftPlt, QDateTime>> RimWellPltPlot::selecte
             {
                 if ( selectedTimeSteps.count(time) )
                 {
-                    curveDefs.insert(std::make_pair(addr, time));
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
             }
         }
@@ -301,7 +301,7 @@ std::set < std::pair<RifDataSourceForRftPlt, QDateTime>> RimWellPltPlot::selecte
             {
                 if ( selectedTimeSteps.count(addr.wellLogFile()->date()) )
                 {
-                    curveDefs.insert(std::make_pair(addr, addr.wellLogFile()->date()));
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, addr.wellLogFile()->date()));
                 }
             }
         }
@@ -518,7 +518,7 @@ public:
 void RimWellPltPlot::syncCurvesFromUiSelection()
 {
     RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex(0);
-    const std::set<std::pair<RifDataSourceForRftPlt, QDateTime>>& curveDefs = selectedCurveDefs();
+    const std::set<RiaRftPltCurveDefinition>& curveDefs = selectedCurveDefs();
 
     setPlotXAxisTitles(plotTrack);
 
@@ -532,14 +532,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
 
     // Add curves
-    for (const std::pair<RifDataSourceForRftPlt, QDateTime>& curveDefToAdd : curveDefs)
+    for (const RiaRftPltCurveDefinition& curveDefToAdd : curveDefs)
     {
         std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
             std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
             std::set<FlowPhase>({ FLOW_PHASE_TOTAL });
         
-        RifDataSourceForRftPlt sourceDef = curveDefToAdd.first;
-        QDateTime timeStep = curveDefToAdd.second;
+        RifDataSourceForRftPlt sourceDef = curveDefToAdd.address();
+        QDateTime timeStep = curveDefToAdd.timeStep();
 
         std::unique_ptr<RigResultPointCalculator> resultPointCalc;
 
