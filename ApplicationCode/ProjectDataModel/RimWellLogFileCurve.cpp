@@ -312,20 +312,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
         }
     }
 
-    if (fieldNeedingOptions == &m_wellLogFile)
+    if ( fieldNeedingOptions == &m_wellLogFile )
     {
-        
-        if (m_wellPath() && m_wellPath->wellLogFiles().size() > 0)
+        if ( m_wellPath() && m_wellPath->wellLogFiles().size() > 0 )
         {
-            bool isRftChild = isRftPlotChild();
-
-            for (RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles())
+            for ( RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles() )
             {
-                if (!isRftChild || RimWellPlotTools::hasPressureData(wellLogFile))
-                {
-                    QFileInfo fileInfo(wellLogFile->fileName());
-                    options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
-                }
+                QFileInfo fileInfo(wellLogFile->fileName());
+                options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
             }
         }
     }
