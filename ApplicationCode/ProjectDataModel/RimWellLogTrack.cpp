@@ -391,7 +391,7 @@ void RimWellLogTrack::insertCurve(RimWellLogCurve* curve, size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::removeCurve(RimWellLogCurve* curve)
+void RimWellLogTrack::takeOutCurve(RimWellLogCurve* curve)
 {
     size_t index = curves.index(curve);
     if ( index < curves.size())
@@ -399,6 +399,14 @@ void RimWellLogTrack::removeCurve(RimWellLogCurve* curve)
         curves[index]->detachQwtCurve();
         curves.removeChildObject(curve);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::deleteAllCurves()
+{
+    curves.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

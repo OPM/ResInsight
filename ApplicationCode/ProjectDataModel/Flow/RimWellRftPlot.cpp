@@ -521,10 +521,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
     RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
 
     // Delete curves
-    for (RimWellLogCurve* const curve : curvesToDelete)
-    {
-        plotTrack->removeCurve(curve);
-    }
+    plotTrack->deleteAllCurves();
 
     // Add new curves
     for (const RiaRftPltCurveDefinition& curveDefToAdd : curveDefsToAdd)
@@ -796,10 +793,8 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_wellPathNameOrSimWellName || changedField == &m_branchIndex)
     {
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
-        for (RimWellLogCurve* const curve : plotTrack->curvesVector())
-        {
-            plotTrack->removeCurve(curve);
-        }
+        plotTrack->deleteAllCurves();
+
         m_timeStepsToAddresses.clear();
         updateEditorsFromCurves();
         updateFormationsOnPlot();

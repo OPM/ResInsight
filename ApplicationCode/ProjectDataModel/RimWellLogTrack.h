@@ -73,7 +73,9 @@ public:
     bool isVisible();
     void addCurve(RimWellLogCurve* curve);
     void insertCurve(RimWellLogCurve* curve, size_t index);
-    void removeCurve(RimWellLogCurve* curve);
+    void takeOutCurve(RimWellLogCurve* curve);
+    void deleteAllCurves();
+
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
     void setXAxisTitle(const QString& text);
