@@ -82,8 +82,6 @@ public:
     
     static const char*                              plotNameFormatString();
 
-    //void                                            applyInitialSelections();
-
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
@@ -105,7 +103,6 @@ protected:
     void                                            syncSourcesIoFieldFromGuiField();
 
 private:
-    void                                            updateTimeStepsToAddresses(const std::vector<RifDataSourceForRftPlt>& addressesToKeep);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
@@ -127,7 +124,6 @@ private:
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
     std::vector<RifDataSourceForRftPlt>                  expandSelectedSources() const;
-    std::vector<RifDataSourceForRftPlt>                  selectedSourcesAndTimeSteps() const;
 
     // RimViewWindow overrides
 
@@ -155,8 +151,6 @@ private:
     QPointer<RiuWellPltPlot>                        m_wellLogPlotWidget;
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
-
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>>    m_timeStepsToAddresses;
 
     caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
