@@ -116,6 +116,6 @@ void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIn
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo(m_resVarAddr);
 
-    RigWeightedMeanCalc::weightedMeanOverCells(&weights, values, m_cellVisibilities.p(), actCellInfo, true, &result);
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, values, m_cellVisibilities.p(), true, actCellInfo, true, &result);
 }
 

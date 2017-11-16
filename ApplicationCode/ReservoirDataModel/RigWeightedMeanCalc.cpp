@@ -28,71 +28,48 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWeightedMeanCalc::weightedMeanOverCells(const std::vector<double>* weights, 
-                                                const std::vector<double>* values, 
-                                                const cvf::UByteArray* cellVisibilities, 
+void RigWeightedMeanCalc::weightedMeanOverCells(const std::vector<double>* weights,
+                                                const std::vector<double>* values,
+                                                const cvf::UByteArray* cellVisibilities,
+                                                bool isUsingVisibleCells,
                                                 const RigActiveCellInfo* actCellInfo, 
                                                 bool isUsingActiveIndex, 
                                                 double *result)
 {
-    if (!(weights && values && cellVisibilities && result)) return;
+    if (!(weights && values && result)) return;
+    if (!cellVisibilities && isUsingVisibleCells) return;
     if (!actCellInfo && isUsingActiveIndex) return;
 
     if (weights->empty() || values->empty()) return;
-    if (weights->size() != values->size()) return;
 
     double weightedSum = 0.0;
     double weightSum = 0.0;
 
-    for (size_t cIdx = 0; cIdx < cellVisibilities->size(); ++cIdx)
+    for (size_t cIdx = 0; cIdx < actCellInfo->reservoirCellCount(); ++cIdx)
     {
-        if (!(*cellVisibilities)[cIdx]) continue;
-
-        size_t cellResultIndex = cIdx;
-        if (isUsingActiveIndex)
+        if (isUsingVisibleCells)
         {
-            cellResultIndex = actCellInfo->cellResultIndex(cIdx);
+            if (!(*cellVisibilities)[cIdx]) continue;
         }
 
-        if (cellResultIndex == cvf::UNDEFINED_SIZE_T || cellResultIndex > values->size()) continue;
-
-        double weight = (*weights)[cellResultIndex];
-        double value = (*values)[cellResultIndex];
-
-        if (weight == HUGE_VAL || value == HUGE_VAL)
+        size_t cellResultIndex = actCellInfo->cellResultIndex(cIdx);
+        if (cellResultIndex == cvf::UNDEFINED_SIZE_T || cellResultIndex > weights->size())
         {
             continue;
         }
 
-        weightedSum += weight * value;
-        weightSum += weight;
-    }
+        double value;
 
-    if (weightSum != 0)
-    {
-        *result = weightedSum / weightSum;
-    }
-    else
-    {
-        *result = HUGE_VAL;
-    }
-}
+        if (isUsingActiveIndex)
+        {
+            value = (*values)[cellResultIndex];
+        }
+        else
+        {
+            value = (*values)[cIdx];
+        }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWeightedMeanCalc::weightedMean(const std::vector<double>* weights, const std::vector<double>* values, double* result)
-{
-    if (!weights || !values) return;
-    if (weights->size() != values->size()) return;
-
-    double weightedSum = 0;
-    double weightSum = 0;
-
-    for (size_t i = 0; i < values->size(); i++)
-    {
-        double weight = weights->at(i);
-        double value = values->at(i);
+        double weight = (*weights)[cellResultIndex];
 
         if (weight == HUGE_VAL || value == HUGE_VAL)
         {

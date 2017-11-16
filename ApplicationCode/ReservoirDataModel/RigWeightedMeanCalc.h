@@ -31,9 +31,8 @@ public:
     static void weightedMeanOverCells(const std::vector<double>* weights, 
                                       const std::vector<double>* values, 
                                       const cvf::UByteArray* cellVisibilities, 
+                                      bool isUsingVisibleCells,
                                       const RigActiveCellInfo* actCellInfo, 
                                       bool isUsingActiveIndex,
                                       double *result);
-
-    static void weightedMean(const std::vector<double>* weights, const std::vector<double>* values, double *result);
 };

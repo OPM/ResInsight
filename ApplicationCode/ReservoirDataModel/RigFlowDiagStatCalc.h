@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "RigStatisticsCalculator.h"
 #include "RigFlowDiagResultAddress.h"
+#include "RigStatisticsCalculator.h"
 
 class RigHistogramCalculator;
 class RigFlowDiagResults;
@@ -32,7 +32,7 @@ class RigFlowDiagResults;
 class RigFlowDiagStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigFlowDiagStatCalc(RigFlowDiagResults* femResultCollection, const RigFlowDiagResultAddress& resVarAddr);
+    RigFlowDiagStatCalc(RigFlowDiagResults* flowDiagResults, const RigFlowDiagResultAddress& resVarAddr);
 
     virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
     virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
@@ -40,6 +40,7 @@ public:
     virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
     virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
     virtual size_t  timeStepCount();
+    virtual void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
 
 private:
     RigFlowDiagResults*      m_resultsData;

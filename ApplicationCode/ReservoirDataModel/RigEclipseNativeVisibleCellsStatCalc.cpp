@@ -112,6 +112,6 @@ void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeS
 
     const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
 
-    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, m_cellVisibilities.p(), actCellInfo, m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex), &result);
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, m_cellVisibilities.p(), true, actCellInfo, m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex), &result);
 }
 

@@ -18,10 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFlowDiagStatCalc.h"
+
+#include "RigCaseCellResultsData.h"
 #include "RigFlowDiagResults.h"
+#include "RigStatisticsMath.h"
+#include "RigWeightedMeanCalc.h"
+
+#include "RimEclipseResultCase.h"
 
 #include <math.h>
-#include "RigStatisticsMath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -104,4 +109,24 @@ size_t RigFlowDiagStatCalc::timeStepCount()
     return m_resultsData->timeStepCount();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
+{
+    RimEclipseResultCase* eclCase = nullptr;
+    m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType(eclCase);
+    if (!eclCase) return;
+
+    RigCaseCellResultsData* caseCellResultsData = eclCase->results(RiaDefines::MATRIX_MODEL);
+
+    size_t mobPVResultIndex = caseCellResultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+
+    const std::vector<double>& weights = caseCellResultsData->cellScalarResults(mobPVResultIndex, 0);
+    const std::vector<double>* values = m_resultsData->resultValues(m_resVarAddr, timeStepIndex);
+
+    const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo(m_resVarAddr);
+
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, values, nullptr, false, actCellInfo, true, &mean);
+}
 

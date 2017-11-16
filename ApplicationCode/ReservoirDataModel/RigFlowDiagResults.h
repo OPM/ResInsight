@@ -74,6 +74,7 @@ public:
     const std::vector<size_t>&               scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex);
     const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr);
     const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex);
+    void                                     mobileVolumeWeightedMean(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean);
 
     std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int timeStepIndex);
     double                                   maxAbsPairFlux(int timeStepIndex);

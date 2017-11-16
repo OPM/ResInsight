@@ -668,6 +668,14 @@ const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues(const RigFlow
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::mobileVolumeWeightedMean(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean)
+{
+    this->statistics(resVarAddr)->mobileVolumeWeightedMean(timeStepIndex, *mean);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RigFlowDiagResults::injectorProducerPairFluxes(const std::string& injTracername, 
                                                                          const std::string& prodTracerName, 
                                                                          int timeStepIndex)

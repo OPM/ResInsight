@@ -280,6 +280,11 @@ const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues(size_t ti
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
 {
+    if (timeStepIndex >= m_statsPrTs.size())
+    {
+        m_statsPrTs.resize(timeStepIndex + 1);
+    }
+
     if (!m_statsPrTs[timeStepIndex].m_isVolumeWeightedMeanCalculated)
     {
         m_statisticsCalculator->mobileVolumeWeightedMean(timeStepIndex, m_statsPrTs[timeStepIndex].m_volumeWeightedMean);

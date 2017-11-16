@@ -292,6 +292,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
                         fldResults->p10p90ScalarValues(resAddr, currentTimeStep, &histData.p10, &histData.p90);
                         fldResults->meanScalarValue(resAddr, currentTimeStep, &histData.mean);
                         fldResults->sumScalarValue(resAddr, currentTimeStep, &histData.sum);
+                        fldResults->mobileVolumeWeightedMean(resAddr, currentTimeStep, &histData.weightedMean);
 
                         histData.histogram = &(fldResults->scalarValuesHistogram(resAddr, currentTimeStep));
                     }
