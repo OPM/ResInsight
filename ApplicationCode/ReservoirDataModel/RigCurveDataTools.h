@@ -31,14 +31,17 @@
 class RigCurveDataTools
 {
 public:
-    static void calculateIntervalsOfValidValues(const std::vector<double>& values, 
-                                                std::vector< std::pair<size_t, size_t> >* intervals,
+    typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
+
+public:
+    static void calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                CurveIntervals* intervals,
                                                 bool removeNegativeValues);
 
     template <typename T>
     static void getValuesByIntervals(const std::vector<T>& values,
-        const std::vector< std::pair<size_t, size_t> >& intervals,
-        std::vector<T>* filteredValues)
+                                     const CurveIntervals& intervals,
+                                     std::vector<T>* filteredValues)
     {
         CVF_ASSERT(filteredValues);
 
@@ -51,8 +54,8 @@ public:
         }
     }
 
-    static void computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                std::vector< std::pair<size_t, size_t> >* filteredIntervals);
+    static void computePolyLineStartStopIndices(const CurveIntervals& intervals,
+                                                std::vector<std::pair<size_t, size_t>>* lineStartAndStopIndices);
     
 private:
     static bool isValidValue(double value, bool removeNegativeValues);

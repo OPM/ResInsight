@@ -25,7 +25,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals, bool removeNegativeValues)
+void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                        CurveIntervals* intervals,
+                                                        bool removeNegativeValues)
 {
     CVF_ASSERT(intervals);
 
@@ -63,10 +65,10 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                          std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+void RigCurveDataTools::computePolyLineStartStopIndices(const CurveIntervals& intervals,
+                                                        std::vector<std::pair<size_t, size_t>>* lineStartAndStopIndices)
 {
-    CVF_ASSERT(fltrIntervals);
+    CVF_ASSERT(lineStartAndStopIndices);
 
     const size_t intervalCount = intervals.size();
     if (intervalCount < 1) return;
@@ -75,7 +77,7 @@ void RigCurveDataTools::computePolyLineStartStopIndices(const std::vector< std::
     for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
     {
         size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
-        fltrIntervals->push_back(std::make_pair(index, index + intervalSize - 1));
+        lineStartAndStopIndices->push_back(std::make_pair(index, index + intervalSize - 1));
 
         index += intervalSize;
     }
