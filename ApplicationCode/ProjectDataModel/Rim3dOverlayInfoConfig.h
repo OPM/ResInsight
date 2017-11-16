@@ -101,6 +101,10 @@ private:
 
     HistogramData                               histogramData(RimEclipseView* eclipseView);
     HistogramData                               histogramData(RimGeoMechView* geoMechView);
+    QString                                     caseInfoText(RimEclipseView* eclipseView);
+    QString                                     caseInfoText(RimGeoMechView* geoMechView);
+    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView);
+    QString                                     resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView);
 
     caf::PdmField<bool>                         active;
     caf::PdmField<bool>                         showAnimProgress;

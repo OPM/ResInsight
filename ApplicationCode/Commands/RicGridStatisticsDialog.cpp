@@ -62,11 +62,15 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
 
     // Define layout
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->setSpacing(0);
     layout->addWidget(m_label);
     layout->addWidget(m_textEdit);
-    layout->addWidget(m_historgramPlot);
-    layout->addWidget(m_aggregatedPlot);
+
+    QVBoxLayout* plotLayout = new QVBoxLayout();
+    plotLayout->setSpacing(0);
+    plotLayout->addWidget(m_historgramPlot);
+    plotLayout->addWidget(m_aggregatedPlot);
+    layout->addLayout(plotLayout);
+
     layout->addWidget(m_buttons);
     setLayout(layout);
 }
@@ -89,10 +93,10 @@ void RicGridStatisticsDialog::setLabel(const QString& labelText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setInfoText(RimEclipseView* eclipseView)
+void RicGridStatisticsDialog::setInfoText(RimView* view)
 {
-    Rim3dOverlayInfoConfig* overlayInfo = eclipseView->overlayInfoConfig();
-    if (eclipseView && overlayInfo)
+    Rim3dOverlayInfoConfig* overlayInfo = view->overlayInfoConfig();
+    if (view && overlayInfo)
     {
         QString text;
         text = overlayInfo->caseInfoText();
@@ -104,13 +108,13 @@ void RicGridStatisticsDialog::setInfoText(RimEclipseView* eclipseView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setHistogramData(RimEclipseView* eclipseView)
+void RicGridStatisticsDialog::setHistogramData(RimView* view)
 {
     deletePlotItems(m_historgramPlot);
     deletePlotItems(m_aggregatedPlot);
 
-    Rim3dOverlayInfoConfig* overlayInfo = eclipseView->overlayInfoConfig();
-    if (eclipseView && overlayInfo)
+    Rim3dOverlayInfoConfig* overlayInfo = view->overlayInfoConfig();
+    if (view && overlayInfo)
     {
         auto hist = new QwtPlotHistogram("Histogram");
         auto aggr = new QwtPlotCurve("Aggregated");

@@ -42,8 +42,8 @@ public:
     ~RicGridStatisticsDialog();
 
     void                    setLabel(const QString& labelText);
-    void                    setInfoText(RimEclipseView* eclipseView);
-    void                    setHistogramData(RimEclipseView* eclipseView);
+    void                    setInfoText(RimView* eclipseView);
+    void                    setHistogramData(RimView* eclipseView);
 
 private:
     void                    deletePlotItems(QwtPlot* plot);

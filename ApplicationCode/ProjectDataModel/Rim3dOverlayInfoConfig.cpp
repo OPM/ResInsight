@@ -163,11 +163,49 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData() 
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
+{
+    auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    
+    if (eclipseView) return histogramData(eclipseView);
+    if (geoMechView) return histogramData(geoMechView);
+    return HistogramData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::caseInfoText()
+{
+    auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+
+    if (eclipseView) return caseInfoText(eclipseView);
+    if (geoMechView) return caseInfoText(geoMechView);
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
+{
+    auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+
+    if (eclipseView) return resultInfoText(histData, eclipseView);
+    if (geoMechView) return resultInfoText(histData, geoMechView);
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimEclipseView* eclipseView) 
 {
     HistogramData histData;
 
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     if (eclipseView)
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
@@ -279,12 +317,79 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::caseInfoText()
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimGeoMechView* geoMechView)
+{
+    HistogramData histData;
+
+    if (geoMechView)
+    {
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
+        bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
+
+        if (isResultsInfoRelevant)
+        {
+            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
+            if (m_statisticsCellRange == ALL_CELLS)
+            {
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    caseData->femPartResults()->meanScalarValue(resAddress, &histData.mean);
+                    caseData->femPartResults()->minMaxScalarValues(resAddress, &histData.min, &histData.max);
+                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &histData.p10, &histData.p90);
+                    caseData->femPartResults()->sumScalarValue(resAddress, &histData.sum);
+
+                    histData.histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress));
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int timeStepIdx = geoMechView->currentTimeStep();
+                    caseData->femPartResults()->meanScalarValue(resAddress, timeStepIdx, &histData.mean);
+                    caseData->femPartResults()->minMaxScalarValues(resAddress, timeStepIdx, &histData.min, &histData.max);
+                    caseData->femPartResults()->p10p90ScalarValues(resAddress, timeStepIdx, &histData.p10, &histData.p90);
+                    caseData->femPartResults()->sumScalarValue(resAddress, timeStepIdx, &histData.sum);
+
+                    histData.histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress, timeStepIdx));
+                }
+            }
+            else if (m_statisticsCellRange == VISIBLE_CELLS)
+            {
+                this->updateVisCellStatsIfNeeded();
+
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    // TODO: Only valid if we have no dynamic property filter
+                    m_visibleCellStatistics->meanCellScalarValues(histData.mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(histData.min, histData.max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(histData.p10, histData.p90);
+                    m_visibleCellStatistics->sumCellScalarValues(histData.sum);
+
+                    histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int timeStepIdx = geoMechView->currentTimeStep();
+                    m_visibleCellStatistics->meanCellScalarValues(timeStepIdx, histData.mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(timeStepIdx, histData.min, histData.max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(timeStepIdx, histData.p10, histData.p90);
+                    m_visibleCellStatistics->sumCellScalarValues(timeStepIdx, histData.sum);
+
+                    histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(timeStepIdx));
+                }
+            }
+        }
+    }
+    return histData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
 {
     QString infoText;
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
 
-    if (eclipseView && showCaseInfo())
+    if (eclipseView)
     {
         QString caseName;
         QString totCellCount;
@@ -323,10 +428,36 @@ QString Rim3dOverlayInfoConfig::caseInfoText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
+QString Rim3dOverlayInfoConfig::caseInfoText(RimGeoMechView* geoMechView)
 {
     QString infoText;
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+
+    if (geoMechView)
+    {
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
+        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+
+        if (femParts)
+        {
+            QString caseName = geoMechCase->caseUserDescription();
+            QString cellCount = QString("%1").arg(femParts->totalElementCount());
+            QString zScale = QString::number(geoMechView->scaleZ());
+
+            infoText = QString(
+                "<p><b><center>-- %1 --</center></b><p>"
+                "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
+        }
+    }
+    return infoText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView)
+{
+    QString infoText;
 
     if (eclipseView)
     {
@@ -406,15 +537,62 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView)
+{
+    QString infoText;
+
+    if (geoMechView)
+    {
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
+        bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
+
+        if (isResultsInfoRelevant)
+        {
+            QString resultPos;
+            QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
+            QString compName = geoMechView->cellResultResultDefinition()->resultComponentUiName();
+
+            switch (geoMechView->cellResultResultDefinition()->resultPositionType())
+            {
+            case RIG_NODAL:
+                resultPos = "Nodal";
+                break;
+
+            case RIG_ELEMENT_NODAL:
+                resultPos = "Element nodal";
+                break;
+
+            case RIG_INTEGRATION_POINT:
+                resultPos = "Integration point";
+                break;
+
+            default:
+                break;
+            }
+
+            infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+
+            infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
+            infoText += QString("<table border=0 cellspacing=5 >"
+                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                                "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                "</table>").arg(histData.min).arg(histData.p10).arg(histData.mean).arg(histData.p90).arg(histData.max).arg(histData.sum);
+        }
+    }
+    return infoText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::showStatisticsInfoDialog()
 {
-    auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-
-    if (eclipseView)
+    if (m_viewDef)
     {
         m_gridStatisticsDialog->setLabel("Grid statistics");
-        m_gridStatisticsDialog->setInfoText(eclipseView);
-        m_gridStatisticsDialog->setHistogramData(eclipseView);
+        m_gridStatisticsDialog->setInfoText(m_viewDef);
+        m_gridStatisticsDialog->setHistogramData(m_viewDef);
         m_gridStatisticsDialog->resize(600, 800);
         m_gridStatisticsDialog->show();
         m_gridStatisticsDialog->raise();
@@ -461,8 +639,16 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         m_gridStatisticsDialog->setInfoText(reservoirView);
         m_gridStatisticsDialog->setHistogramData(reservoirView);
     }
+
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    if (geoMechView) updateGeoMech3DInfo(geoMechView);
+    if (geoMechView)
+    {
+        updateGeoMech3DInfo(geoMechView);
+
+        // Update statistics dialog
+        m_gridStatisticsDialog->setInfoText(geoMechView);
+        m_gridStatisticsDialog->setHistogramData(geoMechView);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -513,7 +699,6 @@ void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
 void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 {
     HistogramData histData;
-    double weightedMean = HUGE_VAL;
 
     if (showHistogram() || showResultInfo())
     {
@@ -555,71 +740,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
-    RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-    RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-    bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
-
-    // Retreive result stats if needed
-
-    double min = HUGE_VAL, max = HUGE_VAL;
-    double p10 = HUGE_VAL, p90 = HUGE_VAL;
-    double mean = HUGE_VAL;
-    double sum = 0.0;
-    const std::vector<size_t>* histogram = NULL;
+    HistogramData histData;
 
     if (showResultInfo() || showHistogram())
     {
-        if (isResultsInfoRelevant)
-        {
-            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
-            if (m_statisticsCellRange == ALL_CELLS)
-            {
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                {
-                    caseData->femPartResults()->meanScalarValue(resAddress, &mean);
-                    caseData->femPartResults()->minMaxScalarValues(resAddress, &min, &max);
-                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
-                    caseData->femPartResults()->sumScalarValue(resAddress, &sum);
-
-                    histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress));
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                {
-                    int timeStepIdx = geoMechView->currentTimeStep();
-                    caseData->femPartResults()->meanScalarValue(resAddress, timeStepIdx, &mean);
-                    caseData->femPartResults()->minMaxScalarValues(resAddress, timeStepIdx, &min, &max);
-                    caseData->femPartResults()->p10p90ScalarValues(resAddress, timeStepIdx, &p10, &p90);
-                    caseData->femPartResults()->sumScalarValue(resAddress, timeStepIdx, &sum);
-
-                    histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress, timeStepIdx));
-                }
-            }
-            else if (m_statisticsCellRange == VISIBLE_CELLS)
-            {
-                this->updateVisCellStatsIfNeeded();
-
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                {
-                    // TODO: Only valid if we have no dynamic property filter
-                    m_visibleCellStatistics->meanCellScalarValues(mean);
-                    m_visibleCellStatistics->minMaxCellScalarValues(min, max);
-                    m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
-                    m_visibleCellStatistics->sumCellScalarValues(sum);
-
-                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                {
-                    int timeStepIdx = geoMechView->currentTimeStep();
-                    m_visibleCellStatistics->meanCellScalarValues(timeStepIdx, mean);
-                    m_visibleCellStatistics->minMaxCellScalarValues(timeStepIdx, min, max);
-                    m_visibleCellStatistics->p10p90CellScalarValues(timeStepIdx, p10, p90);
-                    m_visibleCellStatistics->sumCellScalarValues(timeStepIdx, sum);
-
-                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(timeStepIdx));
-                }
-            }
-        }
+        histData = histogramData(geoMechView);
     }
 
     // Compose text
@@ -628,60 +753,12 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     if (showCaseInfo())
     {
-
-        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
-
-        if (femParts)
-        {
-            QString caseName = geoMechCase->caseUserDescription();
-            QString cellCount = QString("%1").arg(femParts->totalElementCount());
-            QString zScale = QString::number(geoMechView->scaleZ());
-
-            infoText = QString(
-                "<p><b><center>-- %1 --</center></b><p>"
-                "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
-        }
+        infoText = caseInfoText(geoMechView);
     }
 
     if (showResultInfo())
     {
-
-        if (isResultsInfoRelevant)
-        {
-            {
-                QString resultPos;
-                QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
-                QString compName = geoMechView->cellResultResultDefinition()->resultComponentUiName();
-
-                switch (geoMechView->cellResultResultDefinition()->resultPositionType())
-                {
-                case RIG_NODAL:
-                    resultPos = "Nodal";
-                    break;
-
-                case RIG_ELEMENT_NODAL:
-                    resultPos = "Element nodal";
-                    break;
-
-                case RIG_INTEGRATION_POINT:
-                    resultPos = "Integration point";
-                    break;
-
-                default:
-                    break;
-                }
-
-                infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
-            }
-            {
-                infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
-                infoText += QString("<table border=0 cellspacing=5 >"
-                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
-                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
-
-            }
-        }
+        infoText += resultInfoText(histData, geoMechView);
     }
 
     if (!infoText.isEmpty())
@@ -693,11 +770,15 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     if (showHistogram())
     {
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
+        bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
+
         if (isResultsInfoRelevant)
         {
             geoMechView->viewer()->showHistogram(true);
-            geoMechView->viewer()->setHistogram(min, max, *histogram);
-            geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
+            geoMechView->viewer()->setHistogram(histData.min, histData.max, *histData.histogram);
+            geoMechView->viewer()->setHistogramPercentiles(histData.p10, histData.p90, histData.mean);
         }
     }
 }

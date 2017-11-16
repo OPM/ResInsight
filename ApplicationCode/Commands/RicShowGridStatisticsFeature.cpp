@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechView.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -47,10 +48,15 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 {
     auto eclipseView = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseView*>();
+    auto geoMechView = caf::firstAncestorOfTypeFromSelectedObject<RimGeoMechView*>();
 
     if (eclipseView && eclipseView->overlayInfoConfig())
     {
         eclipseView->overlayInfoConfig()->showStatisticsInfoDialog();
+    }
+    else if (geoMechView && geoMechView->overlayInfoConfig())
+    {
+        geoMechView->overlayInfoConfig()->showStatisticsInfoDialog();
     }
 }
 
