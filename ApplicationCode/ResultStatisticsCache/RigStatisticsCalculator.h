@@ -20,8 +20,8 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfCollection.h"
+#include "cvfObject.h"
 
 #include <vector>
 
@@ -49,5 +49,7 @@ public:
 
     virtual size_t  timeStepCount() = 0;
 
-    static void posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg);
+    virtual void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
+
+    static void     posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg);
 };

@@ -49,7 +49,7 @@ public:
 
     void setReservoirView(RimView* ownerView);
 
-    void                                        setPosition(cvf::Vec2ui position);
+    void setPosition(cvf::Vec2ui position);
 
     enum StatisticsTimeRangeType
     {
@@ -77,6 +77,7 @@ private:
     caf::PdmField<bool>                         showAnimProgress;
     caf::PdmField<bool>                         showCaseInfo;
     caf::PdmField<bool>                         showResultInfo;
+    caf::PdmField<bool>                         showVolumeWeightedMean;
     caf::PdmField<bool>                         showHistogram;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;

@@ -90,6 +90,12 @@ void RigStatisticsCalculator::addDataToHistogramCalculator(RigHistogramCalculato
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
+{}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigStatisticsCalculator::posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg)
 {
     size_t i;

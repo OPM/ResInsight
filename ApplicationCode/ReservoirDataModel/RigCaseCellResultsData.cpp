@@ -41,7 +41,6 @@
 
 #include <math.h>
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -887,6 +886,14 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName(), false, 0);
         }
     }
+
+    //Mobile Pore Volume
+    {
+        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORV") != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false, 0);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1064,6 +1071,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             computeCompletionTypeForTimeStep(timeStepIdx);
             progressInfo.incrementProgress();
         }
+    }
+    else if (resultName == RiaDefines::mobilePoreVolumeName())
+    {
+        computeMobilePV();
     }
 
     if (type == RiaDefines::GENERATED)
@@ -2240,6 +2251,59 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
 double RigCaseCellResultsData::darchysValue()
 {
     return RiaEclipseUnitTools::darcysConstant(m_ownerCaseData->unitsType());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeMobilePV()
+{
+    std::vector<double> porvDataTemp;
+    std::vector<double> swcrDataTemp;
+    std::vector<double> multpvDataTemp;
+    
+    const std::vector<double>* porvResults = nullptr;
+    const std::vector<double>* swcrResults = nullptr;
+    const std::vector<double>* multpvResults = nullptr;
+
+    porvResults   = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "PORV", porvDataTemp);
+    swcrResults   = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "SWCR", swcrDataTemp);
+    multpvResults = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "MULTPV", multpvDataTemp);
+
+    CVF_ASSERT(!porvResults->empty());
+
+    size_t mobPVIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false);
+
+    std::vector<double> &mobPVResults = this->cellScalarResults(mobPVIdx)[0];
+
+    // Set up output container to correct number of results
+    mobPVResults.resize(porvResults->size());
+
+    if (!(multpvResults || swcrResults))
+    {
+        mobPVResults.assign(porvResults->begin(), porvResults->end());
+    }
+    else if (!multpvResults)
+    {
+        for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
+        {
+            mobPVResults[vIdx] = (*porvResults)[vIdx] * (1.0 - (*swcrResults)[vIdx]);
+        }
+    }
+    else if (!swcrResults)
+    {
+        for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
+        {
+            mobPVResults[vIdx] = (*multpvResults)[vIdx] * (*porvResults)[vIdx];
+        }
+    }
+    else
+    {
+        for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
+        {
+            mobPVResults[vIdx] = (*multpvResults)[vIdx] * (*porvResults)[vIdx] * (1.0 - (*swcrResults)[vIdx]);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

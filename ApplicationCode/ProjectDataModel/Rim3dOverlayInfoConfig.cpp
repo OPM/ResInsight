@@ -51,7 +51,6 @@
 
 #include <QMessageBox>
 
-
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -92,10 +91,11 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     CAF_PDM_InitField(&active, "Active", true, "Active", "", "", "");
     active.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "");
-    CAF_PDM_InitField(&showCaseInfo,     "ShowInfoText",     true, "Case Info", "", "", "");
-    CAF_PDM_InitField(&showResultInfo,   "ShowResultInfo",   true, "Result Info", "", "", "");
-    CAF_PDM_InitField(&showHistogram,    "ShowHistogram",    true, "Histogram", "", "", "");
+    CAF_PDM_InitField(&showAnimProgress,       "ShowAnimProgress",       true, "Animation progress", "", "", "");
+    CAF_PDM_InitField(&showCaseInfo,           "ShowInfoText",           true, "Case Info", "", "", "");
+    CAF_PDM_InitField(&showResultInfo,         "ShowResultInfo",         true, "Result Info", "", "", "");
+    CAF_PDM_InitField(&showHistogram,          "ShowHistogram",          true, "Histogram", "", "", "");
+    CAF_PDM_InitField(&showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
@@ -125,12 +125,27 @@ void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         if ( changedField == &m_statisticsCellRange ) m_statisticsCellRange = ALL_CELLS;
     }
 
+    if (changedField == &showResultInfo)
+    {
+        if (!showResultInfo())
+        {
+            showVolumeWeightedMean = false;
+            showVolumeWeightedMean.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            showVolumeWeightedMean = true;
+            showVolumeWeightedMean.uiCapability()->setUiReadOnly(false);
+        }
+    }
+
     this->update3DInfo();
 
     if (m_viewDef && m_viewDef->viewer())
     {
         m_viewDef->viewer()->update();
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,6 +212,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     visGroup->add(&showAnimProgress);
     visGroup->add(&showCaseInfo);
     visGroup->add(&showResultInfo);
+    visGroup->add(&showVolumeWeightedMean);
     visGroup->add(&showHistogram);
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
@@ -228,6 +244,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
     double p10 = HUGE_VAL, p90 = HUGE_VAL;
     double mean = HUGE_VAL;
     double sum = 0.0;
+    double weightedMean = HUGE_VAL;
     const std::vector<size_t>* histogram = NULL;
 
     bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
@@ -294,6 +311,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                         m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
                         m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
                         m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
+                        m_visibleCellStatistics->mobileVolumeWeightedMean(currentTimeStep, weightedMean);
 
                         histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
                     }
@@ -314,6 +332,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                         fldResults->p10p90ScalarValues(resAddr, currentTimeStep, &p10, &p90);
                         fldResults->meanScalarValue(resAddr, currentTimeStep, &mean);
                         fldResults->sumScalarValue(resAddr, currentTimeStep, &sum);
+                        
                         histogram = &(fldResults->scalarValuesHistogram(resAddr, currentTimeStep));
                     }
                     else if (m_statisticsCellRange == VISIBLE_CELLS)
@@ -324,6 +343,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                         m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
                         m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
                         m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
+                        m_visibleCellStatistics->mobileVolumeWeightedMean(currentTimeStep, weightedMean);
 
                         histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
                     }
@@ -369,7 +389,6 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
     if (showResultInfo())
     {
-
         if (eclipseView->cellResult()->isTernarySaturationSelected())
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
@@ -391,6 +410,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
                 "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                 "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
+
 
             if (eclipseView->faultResultSettings()->hasValidCustomResult())
             {
@@ -434,6 +454,10 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
         }
 
+        if (showVolumeWeightedMean() && weightedMean != HUGE_VAL)
+        {
+            infoText += QString("<b>Mobile Volume Weighted Mean:</b> %1").arg(weightedMean);
+        }
     }
 
     if (!infoText.isEmpty())
