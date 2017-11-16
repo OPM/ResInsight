@@ -499,9 +499,9 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                 curve->setCase(gridCase);
 
                 // Result definition
-                RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
+                RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition(); // Memory leak !!
                 resultDef->setResultVariable(resultDataInfo.second);
-                curve->setEclipseResultDefinition(resultDef);
+                curve->setEclipseResultDefinition(resultDef); // Strange construct ?
 
                 // Time step
                 const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromGridCase(gridCase);

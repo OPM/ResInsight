@@ -225,15 +225,6 @@ FlowPhase RimWellPlotTools::flowPhaseFromChannelName(const QString& channelName)
     return FLOW_PHASE_NONE;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPlotTools::addTimeStepToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
-                                      const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepToAdd)
-{
-    auto timeStepMapToAdd = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{ timeStepToAdd };
-    addTimeStepsToMap(destMap, timeStepMapToAdd);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -462,27 +453,6 @@ QDateTime RimWellPlotTools::timeStepFromWellLogFile(RimWellLogFile* wellLogFile)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName)
-{
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
-    RifReaderEclipseRft* const reader = rftCase->rftReader();
-    if (reader != nullptr)
-    {
-        for (const QDateTime& timeStep : reader->availableTimeSteps(simWellName, RifEclipseRftAddress::PRESSURE))
-        {
-            if (timeStepsMap.count(timeStep) == 0)
-            {
-                timeStepsMap.insert(std::make_pair(timeStep, std::set<RifDataSourceForRftPlt>()));
-            }
-            timeStepsMap[timeStep].insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::RFT, rftCase));
-        }
-    }
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase(RimEclipseCase* gridCase)
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
@@ -500,55 +470,6 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStep
             timeStepsMap[timeStep].insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::GRID, gridCase));
         }
     }
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifDataSourceForRftPlt> > RimWellPlotTools::timeStepsMapFromWellLogFile(RimWellLogFile* wellLogFile)
-{
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt> > timeStepsMap;
-
-    QDateTime timeStep = wellLogFile->date();
-
-    if (timeStepsMap.count(timeStep) == 0)
-    {
-        timeStepsMap.insert(std::make_pair(timeStep, std::set<RifDataSourceForRftPlt>()));
-    }
-    timeStepsMap[timeStep].insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, wellLogFile));
-
-    return timeStepsMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
-RimWellPlotTools::adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>>& allTimeSteps,
-                                  const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& searchTimeStepPair)
-{
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
-
-    if (allTimeSteps.size() > 0)
-    {
-        auto itr = std::find_if(allTimeSteps.begin(), allTimeSteps.end(),
-                                [searchTimeStepPair](const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& dt)
-        {
-            return dt.first > searchTimeStepPair.first;
-        });
-
-        auto itrEnd = itr != allTimeSteps.end() ? itr + 1 : itr;
-
-        for (itr = itrEnd - 1; itr != allTimeSteps.begin() && (*itr).first >= searchTimeStepPair.first; itr--);
-        auto itrFirst = itr;
-
-        timeStepsMap.insert(itrFirst, itrEnd);
-    }
-
-    // Add searched time step in case it is not included
-    addTimeStepToMap(timeStepsMap, searchTimeStepPair);
-
     return timeStepsMap;
 }
 
