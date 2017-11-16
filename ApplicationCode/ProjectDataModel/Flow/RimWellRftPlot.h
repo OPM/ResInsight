@@ -118,9 +118,7 @@ private:
     void                                            updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
                                                                        const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
-    bool                                            isOnlyGridSourcesSelected() const;
-    bool                                            isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const;
-    std::vector<RifDataSourceForRftPlt>                  selectedSources() const;
+    std::vector<RifDataSourceForRftPlt>                  selectedSourcesExpanded() const;
 
     // RimViewWindow overrides
 
@@ -128,7 +126,6 @@ private:
     virtual void                                    deleteViewWidget() override; 
 
     void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
-    void                                            updateSelectedTimeStepsFromSelectedSources();
 
     void                                            updateFormationsOnPlot() const;
     QString                                         associatedSimWellName() const;
@@ -146,8 +143,6 @@ private:
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
-
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> m_timeStepsToAddresses;
 
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
     bool m_isOnLoad;

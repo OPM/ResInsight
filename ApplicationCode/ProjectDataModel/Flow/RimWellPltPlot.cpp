@@ -799,7 +799,12 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
-        calculateValueOptionsForTimeSteps(m_wellPathName, options);
+        calculateValueOptionsForTimeSteps( RimWellPlotTools::simWellName(m_wellPathName), 
+                                          selectedSourcesExpanded(),
+                                          std::set<RifEclipseRftAddress::RftWellLogChannelType>({ RifEclipseRftAddress::ORAT, 
+                                                                                                  RifEclipseRftAddress::WRAT, 
+                                                                                                  RifEclipseRftAddress::GRAT }), 
+                                          options);
     }
 
     if (fieldNeedingOptions == &m_phaseSelectionMode)
@@ -1016,9 +1021,12 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options)
+void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& simWellName, 
+                                                       const std::vector<RifDataSourceForRftPlt>& selSources, 
+                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType> interestingRFTResults,
+                                                       QList<caf::PdmOptionItemInfo>& options)
 {
-    std::vector<RifDataSourceForRftPlt> selSources = selectedSourcesExpanded();
+    //std::vector<RifDataSourceForRftPlt> selSources = selectedSourcesExpanded();
     bool hasObservedData = false; 
     bool hasRftData = false; 
     bool hasGridData = false; 
@@ -1043,7 +1051,7 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
     std::map<QDateTime, std::set<RifDataSourceForRftPlt> > rftTimeStepsWithSources;
     std::map<QDateTime, std::set<RifDataSourceForRftPlt> > gridTimestepsWithSources;
 
-    QString simWellName = RimWellPlotTools::simWellName(wellPathNameOrSimWellName);
+   
 
     if (hasObservedData)
     {
@@ -1062,9 +1070,7 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
         {
             if (source.sourceType() == RifDataSourceForRftPlt::RFT && source.rftReader())
             {   
-                std::set<QDateTime> rftTimes = source.rftReader()->availableTimeSteps(simWellName, { RifEclipseRftAddress::ORAT, 
-                                                                                                     RifEclipseRftAddress::WRAT, 
-                                                                                                     RifEclipseRftAddress::GRAT } );
+                std::set<QDateTime> rftTimes = source.rftReader()->availableTimeSteps(simWellName, interestingRFTResults );
                 for ( const QDateTime& date: rftTimes)
                 {
                     rftTimeStepsWithSources[date].insert(source);
@@ -1117,16 +1123,25 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellPathNa
 
         // Fill final map 
         timestepsToShowWithSources = observedTimeStepsWithSources;
+      
+        std::set<QDateTime>& allFilteredTimesteps = filteredRftTimeSteps;
+        allFilteredTimesteps.insert(filteredGridTimeSteps.begin(), filteredGridTimeSteps.end());
 
-        for (const QDateTime& time: filteredRftTimeSteps) 
+        for (const QDateTime& time: allFilteredTimesteps) 
         {
-            std::set<RifDataSourceForRftPlt>& sourceSet = rftTimeStepsWithSources.find(time)->second;
-            timestepsToShowWithSources[time].insert(sourceSet.begin(), sourceSet.end());
-        }
-        for (const QDateTime& time: filteredGridTimeSteps) 
-        {
-            std::set<RifDataSourceForRftPlt>& sourceSet = gridTimestepsWithSources.find(time)->second;
-            timestepsToShowWithSources[time].insert(sourceSet.begin(), sourceSet.end());
+            auto rftTimeSourceSetIt = rftTimeStepsWithSources.find(time);
+            if ( rftTimeSourceSetIt != rftTimeStepsWithSources.end() )
+            {
+                std::set<RifDataSourceForRftPlt>& sourceSet = rftTimeSourceSetIt->second;
+                timestepsToShowWithSources[time].insert(sourceSet.begin(), sourceSet.end());
+            }
+
+            auto gridTimeSourceSetIt = gridTimestepsWithSources.find(time);
+            if ( gridTimeSourceSetIt != gridTimestepsWithSources.end() )
+            {
+                std::set<RifDataSourceForRftPlt>& sourceSet = gridTimeSourceSetIt->second;
+                timestepsToShowWithSources[time].insert(sourceSet.begin(), sourceSet.end());
+            }
         }
     }
     else

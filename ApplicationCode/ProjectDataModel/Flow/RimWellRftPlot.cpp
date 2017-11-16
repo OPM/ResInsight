@@ -55,6 +55,7 @@
 #include <algorithm>
 #include <iterator>
 #include <tuple>
+#include "RimWellPltPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 
@@ -225,31 +226,6 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     newCurve->setLineStyle(currentLineStyle);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::updateSelectedTimeStepsFromSelectedSources()
-{
-    std::vector<QDateTime> newTimeStepsSelections;
-    std::vector<RifDataSourceForRftPlt> selectedSourcesVector = selectedSources();
-    auto selectedSources = std::set<RifDataSourceForRftPlt>(selectedSourcesVector.begin(), selectedSourcesVector.end());
-
-    for (const QDateTime& timeStep : m_selectedTimeSteps())
-    {
-        if(m_timeStepsToAddresses.count(timeStep) > 0)
-        {
-            std::vector<RifDataSourceForRftPlt> intersectVector;
-            const std::set<RifDataSourceForRftPlt>& addresses = m_timeStepsToAddresses[timeStep];
-            std::set_intersection(selectedSources.begin(), selectedSources.end(),
-                                  addresses.begin(), addresses.end(), std::inserter(intersectVector, intersectVector.end()));
-            if(intersectVector.size() > 0)
-            {
-                newTimeStepsSelections.push_back(timeStep);
-            }
-        }
-    }
-    m_selectedTimeSteps = newTimeStepsSelections;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -383,7 +359,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
 
     m_selectedSources = std::vector<RifDataSourceForRftPlt>(selectedSources.begin(), selectedSources.end());
     m_selectedTimeSteps = std::vector<QDateTime>(selectedTimeSteps.begin(), selectedTimeSteps.end());
-    RimWellPlotTools::addTimeStepsToMap(m_timeStepsToAddresses, selectedTimeStepsMap);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,8 +388,10 @@ void RimWellRftPlot::updateWidgetTitleWindowTitle()
 void RimWellRftPlot::syncCurvesFromUiSelection()
 {
     RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex(0);
+
     const std::set<RiaRftPltCurveDefinition>& allCurveDefs = selectedCurveDefs();
     const std::set<RiaRftPltCurveDefinition>& curveDefsInPlot = curveDefsFromCurves();
+
     std::set<RimWellLogCurve*> curvesToDelete;
     std::set<RiaRftPltCurveDefinition> newCurveDefs;
 
@@ -421,6 +399,7 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
     {
         // Determine which curves to delete from plot
         std::set<RiaRftPltCurveDefinition> deleteCurveDefs;
+    
         std::set_difference(curveDefsInPlot.begin(), curveDefsInPlot.end(),
                             allCurveDefs.begin(), allCurveDefs.end(),
                             std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
@@ -429,7 +408,9 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
         {
             RiaRftPltCurveDefinition curveDef = RimWellPlotTools::curveDefFromCurve(curve);
             if (deleteCurveDefs.count(curveDef) > 0)
+            {
                 curvesToDelete.insert(curve);
+            }
         }
     }
     else
@@ -439,6 +420,7 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
                             curveDefsInPlot.begin(), curveDefsInPlot.end(),
                             std::inserter(newCurveDefs, newCurveDefs.end()));
     }
+
     updateCurvesInPlot(allCurveDefs, newCurveDefs, curvesToDelete);
 }
 
@@ -450,48 +432,48 @@ std::set < RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
     std::set<RiaRftPltCurveDefinition> curveDefs;
     const QString simWellName = associatedSimWellName();
 
-    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
-    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
+    std::set<QDateTime> selectedTimeSteps(m_selectedTimeSteps.v().begin(), m_selectedTimeSteps.v().end());
 
-    for (const QDateTime& timeStep : m_selectedTimeSteps())
+    for ( const RifDataSourceForRftPlt& addr : selectedSourcesExpanded() )
     {
-        for (const RifDataSourceForRftPlt& addr : selectedSources())
+        if ( addr.rftReader() )
         {
-            if (addr.sourceType() == RifDataSourceForRftPlt::RFT)
+            std::set<QDateTime> rftTimes = addr.rftReader()->availableTimeSteps(simWellName, 
+                                                                                std::set<RifEclipseRftAddress::RftWellLogChannelType>({ RifEclipseRftAddress::PRESSURE} ));
+            for ( const QDateTime& time : rftTimes )
             {
-                for (RimEclipseResultCase* const rftCase : rftCases)
+                if ( selectedTimeSteps.count(time) )
                 {
-                    const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromRftCase(rftCase, simWellName);
-                    if (timeSteps.count(timeStep) > 0)
-                    {
-                        curveDefs.insert(RiaRftPltCurveDefinition(addr, timeStep));
-                    }
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
             }
-            else if (addr.sourceType() == RifDataSourceForRftPlt::GRID)
+        }
+        else if ( addr.sourceType() == RifDataSourceForRftPlt::GRID && addr.eclCase() )
+        {
+            std::set<QDateTime> timeSteps = RimWellPlotTools::availableSimWellTimesteps(addr.eclCase(), simWellName);
+
+            for ( const QDateTime& time : timeSteps )
             {
-                for (RimEclipseResultCase* const gridCase : gridCases)
+                if ( selectedTimeSteps.count(time) )
                 {
-                    const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromGridCase(gridCase);
-                    if (timeSteps.count(timeStep) > 0)
-                    {
-                        curveDefs.insert(RiaRftPltCurveDefinition(addr, timeStep));
-                    }
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
             }
-            else if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED)
+        }
+        else if ( addr.sourceType() == RifDataSourceForRftPlt::OBSERVED )
+        {
+            if ( addr.wellLogFile() )
             {
-                if (addr.wellLogFile() != nullptr)
+                if ( selectedTimeSteps.count(addr.wellLogFile()->date()) )
                 {
-                    const QDateTime wellLogFileTimeStep = RimWellPlotTools::timeStepFromWellLogFile(addr.wellLogFile());
-                    if (wellLogFileTimeStep == timeStep)
-                    {
-                        curveDefs.insert(RiaRftPltCurveDefinition(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, addr.wellLogFile()), timeStep));
-                    }
+                    curveDefs.insert(RiaRftPltCurveDefinition(addr, addr.wellLogFile()->date()));
                 }
             }
         }
     }
+
+
+
     return curveDefs;
 }
 
@@ -524,7 +506,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
     plotTrack->deleteAllCurves();
 
     // Add new curves
-    for (const RiaRftPltCurveDefinition& curveDefToAdd : curveDefsToAdd)
+    for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
     {
         if (curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::RFT)
         {
@@ -600,36 +582,11 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellRftPlot::isOnlyGridSourcesSelected() const
-{
-    const std::vector<RifDataSourceForRftPlt>& selSources = m_selectedSources();
-    return std::find_if(selSources.begin(), selSources.end(), [](const RifDataSourceForRftPlt& addr)
-    {
-        return addr.sourceType() == RifDataSourceForRftPlt::RFT || addr.sourceType() == RifDataSourceForRftPlt::OBSERVED;
-    }) == selSources.end();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellRftPlot::isAnySourceAddressSelected(const std::set<RifDataSourceForRftPlt>& addresses) const
-{
-    const std::vector<RifDataSourceForRftPlt>& selectedSourcesVector = m_selectedSources();
-    const auto selectedSources = std::set<RifDataSourceForRftPlt>(selectedSourcesVector.begin(), selectedSourcesVector.end());
-    std::vector<RifDataSourceForRftPlt> intersectVector;
-
-    std::set_intersection(selectedSources.begin(), selectedSources.end(),
-                          addresses.begin(), addresses.end(), std::inserter(intersectVector, intersectVector.end()));
-    return intersectVector.size() > 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSources() const
+std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() const
 {
     std::vector<RifDataSourceForRftPlt> sources;
     for (const RifDataSourceForRftPlt& addr : m_selectedSources())
@@ -795,14 +752,11 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
         plotTrack->deleteAllCurves();
 
-        m_timeStepsToAddresses.clear();
         updateEditorsFromCurves();
         updateFormationsOnPlot();
     }
     else if (changedField == &m_selectedSources)
     {
-        // Update time steps selections based on source selections
-        updateSelectedTimeStepsFromSelectedSources();
     }
 
     if (changedField == &m_selectedSources ||
@@ -928,10 +882,7 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
         }
     }
 
-    if (options.size() == 0)
-    {
-        options.push_back(caf::PdmOptionItemInfo("None", "None"));
-    }
+    options.push_back(caf::PdmOptionItemInfo("None", "None"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -940,12 +891,15 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 void RimWellRftPlot::calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options)
 {
     const QString simWellName = associatedSimWellName();
+    RimWellPltPlot::calculateValueOptionsForTimeSteps(simWellName, selectedSourcesExpanded(), { RifEclipseRftAddress::PRESSURE }, options);
+
+    #if 0
 
     std::map<QDateTime, std::set<RifDataSourceForRftPlt>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
     const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell(simWellName);
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
 
-    for (const RifDataSourceForRftPlt& selection : selectedSources())
+    for (const RifDataSourceForRftPlt& selection : selectedSourcesExpanded())
     {
         if (selection.sourceType() == RifDataSourceForRftPlt::RFT)
         {
@@ -1018,6 +972,7 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemI
     {
         options.push_back(caf::PdmOptionItemInfo(timeStepPair.first.toString(dateFormatString), timeStepPair.first));
     }
+    #endif
 }
 
 //--------------------------------------------------------------------------------------------------

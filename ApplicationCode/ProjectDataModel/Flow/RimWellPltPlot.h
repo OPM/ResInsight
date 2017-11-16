@@ -36,6 +36,7 @@
 #include <QMetaType>
 #include <set>
 #include <map>
+#include "RifEclipseRftAddress.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -82,6 +83,11 @@ public:
     
     static const char*                              plotNameFormatString();
 
+    static void                                     calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, 
+                                                                                      const std::vector<RifDataSourceForRftPlt>& selSources, 
+                                                                                      const std::set<RifEclipseRftAddress::RftWellLogChannelType> interestingRFTResults,
+                                                                                      QList<caf::PdmOptionItemInfo>& options);
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
@@ -90,7 +96,6 @@ protected:
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, QList<caf::PdmOptionItemInfo>& options);
 
     virtual QImage                                  snapshotWindowContent() override;
 
