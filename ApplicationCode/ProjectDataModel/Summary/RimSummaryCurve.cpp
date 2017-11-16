@@ -100,10 +100,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_yPushButtonSelectSummaryAddress);
     m_yPushButtonSelectSummaryAddress = false;
-    m_yPushButtonSelectSummaryAddress.xmlCapability()->disableIO();
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_yValuesCurveVariable = new RimSummaryAddress;
 
@@ -137,10 +135,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_xPushButtonSelectSummaryAddress, "x_SelectAddress", "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_xPushButtonSelectSummaryAddress);
     m_xPushButtonSelectSummaryAddress = false;
-    m_xPushButtonSelectSummaryAddress.xmlCapability()->disableIO();
-    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_xValuesCurveVariable = new RimSummaryAddress;
 
