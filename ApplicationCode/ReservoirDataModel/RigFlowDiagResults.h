@@ -56,24 +56,24 @@ public:
     RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount);
     virtual ~RigFlowDiagResults();
 
-    const std::vector<double>*               resultValues(const RigFlowDiagResultAddress& resVarAddr,  size_t frameIndex);
+    const std::vector<double>*               resultValues(const RigFlowDiagResultAddress& resVarAddr,  size_t timeStepIndex);
     size_t                                   timeStepCount() { return m_timeStepCount; }
     const RigActiveCellInfo *                activeCellInfo(const RigFlowDiagResultAddress& resVarAddr);
 
-    void                                     minMaxScalarValues (const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
+    void                                     minMaxScalarValues (const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* localMin, double* localMax);
     void                                     minMaxScalarValues (const RigFlowDiagResultAddress& resVarAddr, double* globalMin, double* globalMax);
-    void                                     posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                     posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void                                     posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
     void                                     meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* meanValue);
-    void                                     meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* meanValue);
+    void                                     meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* meanValue);
     void                                     p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, double* p10, double* p90);
-    void                                     p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* p10, double* p90);
+    void                                     p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* p10, double* p90);
     void                                     sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* sum);
     void                                     sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* sum);
     const std::vector<size_t>&               scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr);
-    const std::vector<size_t>&               scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr, int frameIndex);
+    const std::vector<size_t>&               scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex);
     const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr);
-    const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex);
+    const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex);
 
     std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int frameIndex);
     double                                   maxAbsPairFlux(int frameIndex);
