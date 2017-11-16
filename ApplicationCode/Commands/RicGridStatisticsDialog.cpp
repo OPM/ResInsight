@@ -62,6 +62,7 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
 
     // Define layout
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->setSpacing(0);
     layout->addWidget(m_label);
     layout->addWidget(m_textEdit);
     layout->addWidget(m_historgramPlot);
@@ -94,8 +95,8 @@ void RicGridStatisticsDialog::setInfoText(RimEclipseView* eclipseView)
     if (eclipseView && overlayInfo)
     {
         QString text;
-        text = overlayInfo->caseInfoText(eclipseView);
-        text += overlayInfo->resultInfoText(overlayInfo->histogramData(eclipseView), eclipseView);
+        text = overlayInfo->caseInfoText();
+        text += overlayInfo->resultInfoText(overlayInfo->histogramData());
         m_textEdit->setText(text);
     }
 }
@@ -119,7 +120,7 @@ void RicGridStatisticsDialog::setHistogramData(RimEclipseView* eclipseView)
         aggr->setStyle(QwtPlotCurve::Steps);
         aggr->setCurveAttribute(QwtPlotCurve::Inverted);
 
-        Rim3dOverlayInfoConfig::HistogramData histogramData = overlayInfo->histogramData(eclipseView);
+        Rim3dOverlayInfoConfig::HistogramData histogramData = overlayInfo->histogramData();
 
         QVector<QwtIntervalSample> histSamples;
         QVector<QPointF> aggrSamples;

@@ -69,9 +69,9 @@ public:
 
     void setPosition(cvf::Vec2ui position);
 
-    HistogramData                               histogramData(RimEclipseView* eclipseView);
-    QString                                     caseInfoText(RimEclipseView* eclipseView);
-    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView);
+    HistogramData                               histogramData();
+    QString                                     caseInfoText();
+    QString                                     resultInfoText(const HistogramData& histData);
 
     void                                        showStatisticsInfoDialog();
 
