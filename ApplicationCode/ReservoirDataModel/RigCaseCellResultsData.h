@@ -117,6 +117,7 @@ public:
 
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
+    static const std::vector<double>*                  getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo,
 public:
     const std::vector<RigEclipseResultInfo>&                       infoForEachResultIndex() { return m_resultInfos;}
 

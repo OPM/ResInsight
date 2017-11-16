@@ -36,43 +36,6 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
-const std::vector<double>* getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo, 
-                                                          RigCaseCellResultsData* gridCellResults, 
-                                                          QString porvResultName, 
-                                                          std::vector<double> &activeCellsResultsTempContainer)
-{
-    size_t resultCellCount    = actCellInfo->reservoirCellResultCount();
-    size_t reservoirCellCount = actCellInfo->reservoirCellCount();
-
-    size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, porvResultName);
-    
-    if (scalarResultIndexPorv == cvf::UNDEFINED_SIZE_T) return nullptr;
-
-    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(scalarResultIndexPorv, 0));
-
-    if ( !gridCellResults->isUsingGlobalActiveIndex(scalarResultIndexPorv) )
-    {
-        // PORV is given for all cells
-
-        activeCellsResultsTempContainer.resize(resultCellCount, HUGE_VAL);
-
-        for ( size_t globalCellIndex = 0; globalCellIndex < reservoirCellCount; globalCellIndex++ )
-        {
-            size_t resultIdx = actCellInfo->cellResultIndex(globalCellIndex);
-            if ( resultIdx != cvf::UNDEFINED_SIZE_T )
-            {
-                activeCellsResultsTempContainer[resultIdx] = porvResults->at(globalCellIndex);
-            }
-        }
-        return &activeCellsResultsTempContainer;
-    }
-    else
-    {
-        return porvResults;
-    }
-}
-
 RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator(RimEclipseCase* caseToApply,
                                                                                  const std::vector<QString> tracerNames)
 {
@@ -87,12 +50,12 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     // PORV
     const std::vector<double>* porvResults = nullptr;
     std::vector<double> porvActiveCellsResultStorage;
-    porvResults = getResultIndexableStaticResult(actCellInfo, gridCellResults, "PORV", porvActiveCellsResultStorage);
+    porvResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "PORV", porvActiveCellsResultStorage);
 
     // SWCR if defined
 
     const std::vector<double>* swcrResults = nullptr;
-    swcrResults = getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
+    swcrResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
 
     std::vector<size_t> scalarResultIndexTracers;
     for (QString tracerName : tracerNames)

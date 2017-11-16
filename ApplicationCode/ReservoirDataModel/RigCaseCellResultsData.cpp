@@ -685,6 +685,42 @@ bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultTy
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigCaseCellResultsData::getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo, RigCaseCellResultsData* gridCellResults, QString porvResultName, std::vector<double> &activeCellsResultsTempContainer)
+{
+    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
+    size_t reservoirCellCount = actCellInfo->reservoirCellCount();
+
+    size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, porvResultName);
+
+    if (scalarResultIndexPorv == cvf::UNDEFINED_SIZE_T) return nullptr;
+
+    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(scalarResultIndexPorv, 0));
+
+    if (!gridCellResults->isUsingGlobalActiveIndex(scalarResultIndexPorv))
+    {
+        // PORV is given for all cells
+
+        activeCellsResultsTempContainer.resize(resultCellCount, HUGE_VAL);
+
+        for (size_t globalCellIndex = 0; globalCellIndex < reservoirCellCount; globalCellIndex++)
+        {
+            size_t resultIdx = actCellInfo->cellResultIndex(globalCellIndex);
+            if (resultIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                activeCellsResultsTempContainer[resultIdx] = porvResults->at(globalCellIndex);
+            }
+        }
+        return &activeCellsResultsTempContainer;
+    }
+    else
+    {
+        return porvResults;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
     std::vector<RigEclipseResultInfo>::const_iterator it;
