@@ -19,7 +19,7 @@
 
 #include "RigCurveDataTools.h"
 
-#include <cmath>
+#include <cmath> // Needed for HUGE_VAL on Linux 
 
 
 //--------------------------------------------------------------------------------------------------
@@ -35,20 +35,9 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
     size_t valueCount = values.size();
     while (vIdx < valueCount)
     {
-        double value = values[vIdx];
+        bool isValid = RigCurveDataTools::isValidValue(values[vIdx], removeNegativeValues);
 
-        bool isInvalidValueDetected = false;
-        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-        {
-            isInvalidValueDetected = true;
-        }
-
-        if (removeNegativeValues && value <= 0.0)
-        {
-            isInvalidValueDetected = true;
-        }
-
-        if (isInvalidValueDetected)
+        if (!isValid)
         {
             if (startIdx >= 0)
             {
@@ -92,3 +81,20 @@ void RigCurveDataTools::computePolyLineStartStopIndices(const std::vector< std::
     }
 }
 
+//-------------------------------------------------------------------------------------------------- 
+///  
+//-------------------------------------------------------------------------------------------------- 
+bool RigCurveDataTools::isValidValue(double value, bool removeNegativeValues)
+{
+    if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+    {
+        return false;
+    }
+
+    if (removeNegativeValues && std::signbit(value))
+    {
+        return false;
+    }
+
+    return true;
+}

@@ -53,4 +53,7 @@ public:
 
     static void computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
                                                 std::vector< std::pair<size_t, size_t> >* filteredIntervals);
+    
+private:
+    static bool isValidValue(double value, bool removeNegativeValues);
 };
