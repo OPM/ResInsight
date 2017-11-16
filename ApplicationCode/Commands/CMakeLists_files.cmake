@@ -143,7 +143,7 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.cpp
-		${CEE_CURRENT_LIST_DIR}RicShowGridStaticticsFeature.cpp
+		${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.cpp
     )
 endif()
 
