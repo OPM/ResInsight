@@ -427,6 +427,18 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set < RiaRftPltCurveDefinition > RimWellRftPlot::selectedCurveDefs() const
+{
+    return RimWellPltPlot::curveDefsFromTimesteps(associatedSimWellName(),
+                                                  m_selectedTimeSteps.v(),
+                                                  { RifEclipseRftAddress::PRESSURE },
+                                                  selectedSourcesExpanded());
+}
+
+#if 0
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::set < RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
@@ -476,7 +488,7 @@ std::set < RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 
     return curveDefs;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

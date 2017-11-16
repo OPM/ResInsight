@@ -263,12 +263,27 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 {
+    return curveDefsFromTimesteps(RimWellPlotTools::simWellName(m_wellPathName), 
+                                  m_selectedTimeSteps.v(), 
+                                  {RifEclipseRftAddress::ORAT,
+                                  RifEclipseRftAddress::WRAT,
+                                  RifEclipseRftAddress::GRAT}, 
+                                  selectedSourcesExpanded());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set < RiaRftPltCurveDefinition > RimWellPltPlot::curveDefsFromTimesteps(const QString& simWellName, 
+                                                                             const std::vector<QDateTime>& selectedTimeSteps,
+                                                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
+                                                                             const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded) 
+{
     std::set<RiaRftPltCurveDefinition> curveDefs;
-    const QString simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
-    std::set<QDateTime> selectedTimeSteps(m_selectedTimeSteps.v().begin(), m_selectedTimeSteps.v().end());
+    std::set<QDateTime> selectedTimeStepSet(selectedTimeSteps.begin(), selectedTimeSteps.end());
 
-    for ( const RifDataSourceForRftPlt& addr : selectedSourcesExpanded() )
+    for ( const RifDataSourceForRftPlt& addr : selectedSourcesExpanded )
     {
         if ( addr.rftReader() )
         {
@@ -277,7 +292,7 @@ std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
                                                                                                  RifEclipseRftAddress::GRAT });
             for ( const QDateTime& time : rftTimes )
             {
-                if ( selectedTimeSteps.count(time) )
+                if ( selectedTimeStepSet.count(time) )
                 {
                     curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
@@ -289,7 +304,7 @@ std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 
             for ( const QDateTime& time : timeSteps )
             {
-                if ( selectedTimeSteps.count(time) )
+                if ( selectedTimeStepSet.count(time) )
                 {
                     curveDefs.insert(RiaRftPltCurveDefinition(addr, time));
                 }
@@ -299,7 +314,7 @@ std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
         {
             if ( addr.wellLogFile() )
             {
-                if ( selectedTimeSteps.count(addr.wellLogFile()->date()) )
+                if ( selectedTimeStepSet.count(addr.wellLogFile()->date()) )
                 {
                     curveDefs.insert(RiaRftPltCurveDefinition(addr, addr.wellLogFile()->date()));
                 }
@@ -1023,7 +1038,7 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& simWellName, 
                                                        const std::vector<RifDataSourceForRftPlt>& selSources, 
-                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType> interestingRFTResults,
+                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
                                                        QList<caf::PdmOptionItemInfo>& options)
 {
     //std::vector<RifDataSourceForRftPlt> selSources = selectedSourcesExpanded();
