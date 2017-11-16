@@ -646,6 +646,8 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 loadAndUpdate = true;
             }
         }
+
+        m_yPushButtonSelectSummaryAddress = false;
     }
     else if (changedField == &m_xPushButtonSelectSummaryAddress)
     {
@@ -663,6 +665,8 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 loadAndUpdate = true;
             }
         }
+
+        m_xPushButtonSelectSummaryAddress = false;
     }
 
     if (loadAndUpdate)
