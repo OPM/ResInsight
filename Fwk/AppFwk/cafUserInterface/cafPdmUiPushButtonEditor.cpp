@@ -107,6 +107,26 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiPushButtonEditor::configureEditorForField(PdmFieldHandle* fieldHandle)
+{
+    if (fieldHandle)
+    {
+        if (fieldHandle->xmlCapability())
+        {
+            fieldHandle->xmlCapability()->disableIO();
+        }
+
+        if (fieldHandle->uiCapability())
+        {
+            fieldHandle->uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+            fieldHandle->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* PdmUiPushButtonEditor::createEditorWidget(QWidget * parent)
 {
     m_pushButton = new QPushButton("", parent);
