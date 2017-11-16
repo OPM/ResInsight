@@ -216,7 +216,6 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
 
             if (scalarIndex != cvf::UNDEFINED_SIZE_T)
             {
-
                 if (m_statisticsCellRange == ALL_CELLS)
                 {
                     if (m_statisticsTimeRange == ALL_TIMESTEPS)
@@ -239,6 +238,8 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
                         eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, histData.p10, histData.p90);
                         eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, histData.mean);
                         eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, histData.sum);
+                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(scalarIndex, currentTimeStep, histData.weightedMean);
+
                         histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
                     }
                     else

@@ -41,6 +41,7 @@ public:
     virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
     virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
     virtual size_t  timeStepCount();
+    virtual void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
 
 private:
     RigCaseCellResultsData* m_resultsData;

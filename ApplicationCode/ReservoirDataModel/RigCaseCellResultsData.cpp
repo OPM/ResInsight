@@ -168,6 +168,14 @@ void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->mobileVolumeWeightedMean(timeStepIndex, meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::resultCount() const
 {
     return m_cellScalarResults.size();

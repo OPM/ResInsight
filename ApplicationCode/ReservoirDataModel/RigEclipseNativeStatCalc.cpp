@@ -22,6 +22,7 @@
 #include "RigStatisticsMath.h"
 #include "RigCaseCellResultsData.h"
 #include "RigStatisticsMath.h"
+#include "RigWeightedMeanCalc.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -93,4 +94,19 @@ void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, doub
 size_t RigEclipseNativeStatCalc::timeStepCount()
 {
     return m_resultsData->timeStepCount(m_scalarResultIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseNativeStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
+{
+    size_t mobPVResultIndex = m_resultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+
+    const std::vector<double>& weights = m_resultsData->cellScalarResults(mobPVResultIndex, 0);
+    const std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+
+    const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
+
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, nullptr, false, actCellInfo, m_resultsData->isUsingGlobalActiveIndex(m_scalarResultIndex), &mean);
 }
