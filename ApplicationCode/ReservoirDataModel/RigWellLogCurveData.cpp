@@ -168,14 +168,10 @@ std::vector<double> RigWellLogCurveData::measuredDepthPlotValues(RiaDefines::Dep
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopIndices() const
+std::vector<std::pair<size_t, size_t>> RigWellLogCurveData::polylineStartStopIndices() const
 {
-    std::vector< std::pair<size_t, size_t> > lineStartStopIndices;
-    RigCurveDataTools::computePolyLineStartStopIndices(m_intervalsOfContinousValidValues, &lineStartStopIndices);
-
-    return lineStartStopIndices;
+    return RigCurveDataTools::computePolyLineStartStopIndices(m_intervalsOfContinousValidValues);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -250,8 +246,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData(d
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
-    std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-    RigCurveDataTools::calculateIntervalsOfValidValues(m_xValues, &intervalsOfValidValues, false);
+    std::vector<std::pair<size_t, size_t>> intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(m_xValues, false);
 
     m_intervalsOfContinousValidValues.clear();
 

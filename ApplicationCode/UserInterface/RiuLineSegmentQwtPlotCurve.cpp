@@ -62,13 +62,12 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
         std::vector<double> filteredXValues;
 
         {
-            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-            RigCurveDataTools::calculateIntervalsOfValidValues(yValues, &intervalsOfValidValues, removeNegativeValues);
+            auto intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(yValues, removeNegativeValues);
 
             RigCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
             RigCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
 
-            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+            filteredIntervals = RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues);
         }
 
         points.reserve(static_cast<int>(filteredXValues.size()));

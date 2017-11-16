@@ -25,11 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                        CurveIntervals* intervals,
-                                                        bool removeNegativeValues)
+RigCurveDataTools::CurveIntervals RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                                                     bool removeNegativeValues)
 {
-    CVF_ASSERT(intervals);
+    CurveIntervals intervals;
 
     int startIdx = -1;
     size_t vIdx = 0;
@@ -43,7 +42,7 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
         {
             if (startIdx >= 0)
             {
-                intervals->push_back(std::make_pair(startIdx, vIdx - 1));
+                intervals.push_back(std::make_pair(startIdx, vIdx - 1));
                 startIdx = -1;
             }
         }
@@ -57,30 +56,33 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
 
     if (startIdx >= 0 && startIdx < ((int)valueCount))
     {
-        intervals->push_back(std::make_pair(startIdx, valueCount - 1));
+        intervals.push_back(std::make_pair(startIdx, valueCount - 1));
     }
+
+    return intervals;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::computePolyLineStartStopIndices(const CurveIntervals& intervals,
-                                                        std::vector<std::pair<size_t, size_t>>* lineStartAndStopIndices)
+std::vector<std::pair<size_t, size_t>> RigCurveDataTools::computePolyLineStartStopIndices(const CurveIntervals& intervals)
 {
-    CVF_ASSERT(lineStartAndStopIndices);
+    std::vector<std::pair<size_t, size_t>> lineStartAndStopIndices;
 
     const size_t intervalCount = intervals.size();
-    if (intervalCount < 1) return;
+    if (intervalCount < 1) return lineStartAndStopIndices;
 
     size_t index = 0;
     for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
     {
         size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
-        lineStartAndStopIndices->push_back(std::make_pair(index, index + intervalSize - 1));
+        lineStartAndStopIndices.push_back(std::make_pair(index, index + intervalSize - 1));
 
         index += intervalSize;
     }
+
+    return lineStartAndStopIndices;
 }
 
 //-------------------------------------------------------------------------------------------------- 

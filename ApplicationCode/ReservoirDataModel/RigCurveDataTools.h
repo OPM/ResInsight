@@ -34,9 +34,8 @@ public:
     typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
 
 public:
-    static void calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                CurveIntervals* intervals,
-                                                bool removeNegativeValues);
+    static CurveIntervals calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                          bool removeNegativeValues);
 
     template <typename T>
     static void getValuesByIntervals(const std::vector<T>& values,
@@ -54,8 +53,7 @@ public:
         }
     }
 
-    static void computePolyLineStartStopIndices(const CurveIntervals& intervals,
-                                                std::vector<std::pair<size_t, size_t>>* lineStartAndStopIndices);
+    static std::vector<std::pair<size_t, size_t>> computePolyLineStartStopIndices(const CurveIntervals& intervals);
     
 private:
     static bool isValidValue(double value, bool removeNegativeValues);
