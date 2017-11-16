@@ -26,6 +26,7 @@
 
 #include <map>
 #include <set>
+#include "RifEclipseRftAddress.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -105,6 +106,15 @@ public:
     static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& simWellName);
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
     static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
+
+    static void                                     calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, 
+                                                                                      const std::vector<RifDataSourceForRftPlt>& selSources, 
+                                                                                      const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
+                                                                                      QList<caf::PdmOptionItemInfo>& options);
+    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
+                                                                           const std::vector<QDateTime>& selectedTimeStepVector, 
+                                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
+                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
 
 
     friend class StaticFieldsInitializer;

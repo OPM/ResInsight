@@ -105,7 +105,6 @@ protected:
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateEditorsFromCurves();
     void                                            updateWidgetTitleWindowTitle();

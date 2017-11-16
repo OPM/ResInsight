@@ -83,14 +83,6 @@ public:
     
     static const char*                              plotNameFormatString();
 
-    static void                                     calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, 
-                                                                                      const std::vector<RifDataSourceForRftPlt>& selSources, 
-                                                                                      const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
-                                                                                      QList<caf::PdmOptionItemInfo>& options);
-    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
-                                                                           const std::vector<QDateTime>& selectedTimeStepVector, 
-                                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
-                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
 
 protected:
     // Overridden PDM methods
