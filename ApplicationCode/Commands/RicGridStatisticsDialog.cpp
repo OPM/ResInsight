@@ -122,40 +122,43 @@ void RicGridStatisticsDialog::setHistogramData(RimEclipseView* eclipseView)
 
         Rim3dOverlayInfoConfig::HistogramData histogramData = overlayInfo->histogramData();
 
-        QVector<QwtIntervalSample> histSamples;
-        QVector<QPointF> aggrSamples;
-        double xStep = (histogramData.max - histogramData.min) / (*histogramData.histogram).size();
-        double xCurr = histogramData.min;
-        double aggrValue = 0.0;
-        for(size_t value : *histogramData.histogram)
+        if (histogramData.isValid())
         {
-            double xNext = xCurr + xStep;
-            histSamples.push_back(QwtIntervalSample(value, xCurr, xNext));
+            QVector<QwtIntervalSample> histSamples;
+            QVector<QPointF> aggrSamples;
+            double xStep = (histogramData.max - histogramData.min) / (*histogramData.histogram).size();
+            double xCurr = histogramData.min;
+            double aggrValue = 0.0;
+            for (size_t value : *histogramData.histogram)
+            {
+                double xNext = xCurr + xStep;
+                histSamples.push_back(QwtIntervalSample(value, xCurr, xNext));
 
-            aggrValue += value;
-            aggrSamples.push_back(QPointF(xCurr, aggrValue));
+                aggrValue += value;
+                aggrSamples.push_back(QPointF(xCurr, aggrValue));
 
-            xCurr = xNext;
+                xCurr = xNext;
+            }
+
+            // Axis
+            m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
+            m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
+
+            // Samples
+            hist->setSamples(histSamples);
+            aggr->setSamples(aggrSamples);
+            hist->attach(m_historgramPlot);
+            aggr->attach(m_aggregatedPlot);
+
+            // Markers
+            setMarkers(histogramData, m_historgramPlot);
+            setMarkers(histogramData, m_aggregatedPlot);
         }
-
-        // Axis
-        m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
-        m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
-
-        // Samples
-        hist->setSamples(histSamples);
-        aggr->setSamples(aggrSamples);
-        hist->attach(m_historgramPlot);
-        aggr->attach(m_aggregatedPlot);
-
-        // Markers
-        setMarkers(histogramData, m_historgramPlot);
-        setMarkers(histogramData, m_aggregatedPlot);
-
-        // Refresh plot
-        m_historgramPlot->replot();
-        m_aggregatedPlot->replot();
     }
+
+    // Refresh plot
+    m_historgramPlot->replot();
+    m_aggregatedPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

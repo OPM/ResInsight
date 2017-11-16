@@ -47,7 +47,7 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
     class HistogramData
     {
     public:
-        HistogramData() : min(HUGE_VAL), max(HUGE_VAL), p10(HUGE_VAL), p90(HUGE_VAL), mean(HUGE_VAL), weightedMean(HUGE_VAL), sum(0.0) {}
+        HistogramData() : min(HUGE_VAL), max(HUGE_VAL), p10(HUGE_VAL), p90(HUGE_VAL), mean(HUGE_VAL), weightedMean(HUGE_VAL), sum(0.0), histogram(nullptr) {}
 
         double min;
         double max;
@@ -57,6 +57,8 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
         double sum;
         double weightedMean;
         const std::vector<size_t>* histogram;
+
+        bool isValid() { return histogram && histogram->size() > 0; }
     };
 
 public:
@@ -96,6 +98,9 @@ protected:
 private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
+
+    HistogramData                               histogramData(RimEclipseView* eclipseView);
+    HistogramData                               histogramData(RimGeoMechView* geoMechView);
 
     caf::PdmField<bool>                         active;
     caf::PdmField<bool>                         showAnimProgress;
