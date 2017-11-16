@@ -77,10 +77,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     m_selectedTimeSteps.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeStepsUi, "SelectedTimeStepsUi", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_applyTimeSteps, "ApplyTimeSteps", "", "", "", "");
-    m_applyTimeSteps.xmlCapability()->setIOWritable(false);
-    m_applyTimeSteps.xmlCapability()->setIOReadable(false);
-    m_applyTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyTimeSteps);
+
     CAF_PDM_InitField(&m_maxPvFraction, "CellPVThreshold", 0.1, "Aquifer Cell Threshold", "", "Exclude Aquifer Effects by adding a Cell Pore Volume Threshold as Fraction of Total Pore Volume.", "");
 
 
@@ -93,13 +91,10 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault(&m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "");
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&m_showRegion, "ShowRegion", "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_showRegion);
+
     CAF_PDM_InitField(&m_minCommunication, "MinCommunication", 0.0, "Min Communication", "", "", "");
     CAF_PDM_InitField(&m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]", "", "", "");
-    m_showRegion.xmlCapability()->setIOWritable(false);
-    m_showRegion.xmlCapability()->setIOReadable(false);
-    m_showRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_showRegion.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
-
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();

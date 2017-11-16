@@ -99,17 +99,11 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
-    inputPolyLineFromViewerEnabled.xmlCapability()->setIOWritable(false);
-    inputPolyLineFromViewerEnabled.xmlCapability()->setIOReadable(false);
-    inputPolyLineFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-
+    caf::PdmUiPushButtonEditor::configureEditorForField(&inputPolyLineFromViewerEnabled);
     inputPolyLineFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault(&inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "", "", "", "");
-    inputExtrusionPointsFromViewerEnabled.xmlCapability()->setIOWritable(false);
-    inputExtrusionPointsFromViewerEnabled.xmlCapability()->setIOReadable(false);
-    inputExtrusionPointsFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-
+    caf::PdmUiPushButtonEditor::configureEditorForField(&inputExtrusionPointsFromViewerEnabled);
     inputExtrusionPointsFromViewerEnabled = false;
 
     uiCapability()->setUiTreeChildrenHidden(true);

@@ -159,16 +159,10 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitField(&m_wellColorForApply, "WellColorForApply", defaultApplyColor, "", "", "", "");
 
     CAF_PDM_InitField(&m_applySingleColorToWells, "ApplySingleColorToWells", false, "Uniform Pipe Colors", "", "", "");
-    m_applySingleColorToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applySingleColorToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
-    m_applySingleColorToWells.xmlCapability()->setIOReadable(false);
-    m_applySingleColorToWells.xmlCapability()->setIOWritable(false);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applySingleColorToWells);
 
     CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "Unique Pipe Colors", "", "", "");
-    m_applyIndividualColorsToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyIndividualColorsToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
-    m_applyIndividualColorsToWells.xmlCapability()->setIOReadable(false);
-    m_applyIndividualColorsToWells.xmlCapability()->setIOWritable(false);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyIndividualColorsToWells);
 
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);

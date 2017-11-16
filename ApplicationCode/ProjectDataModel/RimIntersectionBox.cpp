@@ -86,11 +86,7 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField         (&m_depthSliderStepSize, "DepthSliderStepSize", 0.5, "Depth Slider Step Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_show3DManipulator, "show3DManipulator", "", "", "", "");
-    m_show3DManipulator.xmlCapability()->setIOWritable(false);
-    m_show3DManipulator.xmlCapability()->setIOReadable(false);
-    m_show3DManipulator.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_show3DManipulator.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_show3DManipulator);
     m_show3DManipulator = false;
 }
 

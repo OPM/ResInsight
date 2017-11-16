@@ -76,10 +76,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     m_filteredTimeStepsText.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_applyReloadOfCase, "ApplyReloadOfCase", "", "", "", "");
-    m_applyReloadOfCase.xmlCapability()->setIOWritable(false);
-    m_applyReloadOfCase.xmlCapability()->setIOReadable(false);
-    m_applyReloadOfCase.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyReloadOfCase.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyReloadOfCase);
 }
 
 //--------------------------------------------------------------------------------------------------
