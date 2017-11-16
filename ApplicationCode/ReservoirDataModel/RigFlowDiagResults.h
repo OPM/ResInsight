@@ -92,6 +92,8 @@ public:
                                                                                            const std::vector<char>& visibleActiveCells,
                                                                                            double max_pv_fraction);
 
+    RimFlowDiagSolution*                     flowDiagSolution();
+
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection);

@@ -880,3 +880,11 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
 
     return solverInterface()->calculateFlowCharacteristics(&injectorResults, &producerResults, selectedCellIndices, max_pv_fraction);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RigFlowDiagResults::flowDiagSolution()
+{
+    { return m_flowDiagSolution; }
+}
