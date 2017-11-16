@@ -192,14 +192,23 @@ void RicGridStatisticsDialog::setMarkers(const Rim3dOverlayInfoConfig::Histogram
 
     QwtPlotMarker* marker;
 
-    marker = createVerticalPlotMarker(Qt::red, histData.p10);
-    marker->attach(plot);
+    if (histData.p10 != HUGE_VAL)
+    {
+        marker = createVerticalPlotMarker(Qt::red, histData.p10);
+        marker->attach(plot);
+    }
 
-    marker = createVerticalPlotMarker(Qt::red, histData.p90);
-    marker->attach(plot);
+    if (histData.p90 != HUGE_VAL)
+    {
+        marker = createVerticalPlotMarker(Qt::red, histData.p90);
+        marker->attach(plot);
+    }
 
-    marker = createVerticalPlotMarker(Qt::blue, histData.mean);
-    marker->attach(plot);
+    if (histData.mean != HUGE_VAL)
+    {
+        marker = createVerticalPlotMarker(Qt::blue, histData.mean);
+        marker->attach(plot);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
