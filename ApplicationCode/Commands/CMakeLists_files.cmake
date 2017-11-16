@@ -56,6 +56,9 @@ ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.h
+${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.h
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
@@ -122,6 +125,9 @@ ${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicReloadSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.cpp
+${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.cpp
 )
 
 
@@ -137,6 +143,7 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.cpp
+		${CEE_CURRENT_LIST_DIR}RicShowGridStaticticsFeature.cpp
     )
 endif()
 
@@ -147,6 +154,10 @@ ${SOURCE_GROUP_HEADER_FILES}
 
 list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
+)
+
+list(APPEND QT_MOC_HEADERS
+${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.h
 )
 
 source_group( "CommandFeature" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

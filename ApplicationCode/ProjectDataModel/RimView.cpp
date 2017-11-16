@@ -973,6 +973,14 @@ void RimView::updateAnnotationItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig* RimView::overlayInfoConfig() const
+{
+    return m_overlayInfoConfig;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::createHighlightAndGridBoxDisplayModelWithRedraw()
 {
     createHighlightAndGridBoxDisplayModel();
