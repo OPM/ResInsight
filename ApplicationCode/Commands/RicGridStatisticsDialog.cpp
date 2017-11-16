@@ -24,7 +24,6 @@
 #include "Rim3dOverlayInfoConfig.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuGridStatisticsHistogramWidget.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include <QVBoxLayout>
@@ -49,7 +48,6 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
     // Create widgets
     m_label = new QLabel();
     m_textEdit = new QTextEdit();
-    //m_histogram = new RiuGridStatisticsHistogramWidget(this);
     m_historgramPlot = new QwtPlot();
     m_aggregatedPlot = new QwtPlot();
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Close);
@@ -107,6 +105,9 @@ void RicGridStatisticsDialog::setInfoText(RimEclipseView* eclipseView)
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setHistogramData(RimEclipseView* eclipseView)
 {
+    deletePlotItems(m_historgramPlot);
+    deletePlotItems(m_aggregatedPlot);
+
     Rim3dOverlayInfoConfig* overlayInfo = eclipseView->overlayInfoConfig();
     if (eclipseView && overlayInfo)
     {
@@ -140,16 +141,37 @@ void RicGridStatisticsDialog::setHistogramData(RimEclipseView* eclipseView)
         m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
         m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
 
+        // Samples
         hist->setSamples(histSamples);
         aggr->setSamples(aggrSamples);
         hist->attach(m_historgramPlot);
         aggr->attach(m_aggregatedPlot);
 
+        // Markers
         setMarkers(histogramData, m_historgramPlot);
         setMarkers(histogramData, m_aggregatedPlot);
 
+        // Refresh plot
         m_historgramPlot->replot();
         m_aggregatedPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGridStatisticsDialog::deletePlotItems(QwtPlot* plot)
+{
+    auto itemList = plot->itemList();
+    for (auto item : itemList)
+    {
+        if (dynamic_cast<QwtPlotMarker*>(item)
+            || dynamic_cast<QwtPlotCurve*>(item)
+            || dynamic_cast<QwtPlotHistogram*>(item))
+        {
+            item->detach();
+            delete item;
+        }
     }
 }
 
@@ -189,10 +211,5 @@ QwtPlotMarker* RicGridStatisticsDialog::createVerticalPlotMarker(const QColor& c
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::slotDialogFinished()
 {
-    //RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
-    //if (plotwindow)
-    //{
-    //    plotwindow->cleanUpTemporaryWidgets();
-    //}
     close();
 }

@@ -28,11 +28,13 @@
 
 #include "cvfVector2.h"
 #include <cmath>
+#include <memory>
 
 class RimEclipseView;
 class RimGeoMechView;
 class RimView;
 class RigStatisticsDataCache;
+class RicGridStatisticsDialog;
 
 //==================================================================================================
 ///  
@@ -69,6 +71,8 @@ public:
     HistogramData                               histogramData(RimEclipseView* eclipseView);
     QString                                     caseInfoText(RimEclipseView* eclipseView);
     QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView);
+
+    void                                        showStatisticsInfoDialog();
 
     enum StatisticsTimeRangeType
     {
@@ -110,4 +114,6 @@ private:
     bool hasInvalidStatisticsCombination();
     bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
+
+    std::unique_ptr<RicGridStatisticsDialog>    m_gridStatisticsDialog;
 };

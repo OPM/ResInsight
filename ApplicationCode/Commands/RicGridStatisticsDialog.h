@@ -25,7 +25,6 @@
 class QLabel;
 class QTextEdit;
 class QDialogButtonBox;
-class RiuGridStatisticsHistogramWidget;
 class QwtPlot;
 class QwtPlotMarker;
 class RimEclipseView;
@@ -47,6 +46,7 @@ public:
     void                    setHistogramData(RimEclipseView* eclipseView);
 
 private:
+    void                    deletePlotItems(QwtPlot* plot);
     static void             setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot);
     static QwtPlotMarker*   createVerticalPlotMarker(const QColor& color, double xValue);
 
@@ -56,7 +56,6 @@ private slots:
 private:
     QLabel*                             m_label;
     QTextEdit*                          m_textEdit;
-    RiuGridStatisticsHistogramWidget*   m_histogram;
     QwtPlot*                            m_historgramPlot;
     QwtPlot*                            m_aggregatedPlot;
     QDialogButtonBox*                   m_buttons;

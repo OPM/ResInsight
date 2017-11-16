@@ -20,6 +20,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RicGridStatisticsDialog.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
@@ -102,6 +104,8 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     //m_statisticsCellRange.uiCapability()->setUiHidden(true);
 
     m_isVisCellStatUpToDate = false;
+
+    m_gridStatisticsDialog = std::unique_ptr<RicGridStatisticsDialog>(new RicGridStatisticsDialog(nullptr));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,6 +373,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::showStatisticsInfoDialog()
+{
+    auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+
+    if (eclipseView)
+    {
+        m_gridStatisticsDialog->setLabel("Grid statistics");
+        m_gridStatisticsDialog->setInfoText(eclipseView);
+        m_gridStatisticsDialog->setHistogramData(eclipseView);
+        m_gridStatisticsDialog->resize(600, 800);
+        m_gridStatisticsDialog->show();
+        m_gridStatisticsDialog->raise();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
     this->updateUiIconFromToggleField();
@@ -398,7 +420,14 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     }
 
     RimEclipseView * reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-    if (reservoirView) updateEclipse3DInfo(reservoirView);
+    if (reservoirView)
+    {
+        updateEclipse3DInfo(reservoirView);
+
+        // Update statistics dialog
+        m_gridStatisticsDialog->setInfoText(reservoirView);
+        m_gridStatisticsDialog->setHistogramData(reservoirView);
+    }
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (geoMechView) updateGeoMech3DInfo(geoMechView);
 }

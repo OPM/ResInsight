@@ -32,25 +32,6 @@
 
 CAF_CMD_SOURCE_INIT(RicShowGridStatisticsFeature, "RicShowGridStatisticsFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-//RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog()
-//{
-//    static RicSummaryCurveCalculatorDialog* singleton = new RicSummaryCurveCalculatorDialog(nullptr);
-//    
-//    return singleton;
-//}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-//void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
-//{
-//    auto dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
-//
-//    dialog->hide();
-//}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -65,19 +46,12 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 {
-    RicGridStatisticsDialog* dialog = new RicGridStatisticsDialog(nullptr);
-    dialog->setLabel("Grid statistics");
-
     auto eclipseView = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseView*>();
 
-    if (eclipseView)
+    if (eclipseView && eclipseView->overlayInfoConfig())
     {
-        dialog->setInfoText(eclipseView);
-        dialog->setHistogramData(eclipseView);
+        eclipseView->overlayInfoConfig()->showStatisticsInfoDialog();
     }
-
-    dialog->show();
-    dialog->raise();
 }
 
 //--------------------------------------------------------------------------------------------------

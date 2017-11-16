@@ -29,10 +29,6 @@ class RicShowGridStatisticsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    //static RicSummaryCurveCalculatorDialog* curveCalculatorDialog();
-    //static void                             hideCurveCalculatorDialog();
-
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
