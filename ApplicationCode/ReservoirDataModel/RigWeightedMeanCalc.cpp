@@ -33,7 +33,8 @@ void RigWeightedMeanCalc::weightedMeanOverCells(const std::vector<double>* weigh
                                                 bool isUsingActiveIndex, 
                                                 double *result)
 {
-    if (!(weights && values && cellVisibilities && actCellInfo && result)) return;
+    if (!(weights && values && cellVisibilities && result)) return;
+    if (!actCellInfo && isUsingActiveIndex) return;
 
     if (weights->empty() || values->empty()) return;
     if (weights->size() != values->size()) return;
