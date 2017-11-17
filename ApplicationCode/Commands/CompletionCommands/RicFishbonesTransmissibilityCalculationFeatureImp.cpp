@@ -79,7 +79,6 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
     findFishboneImportedLateralsWellBoreParts(wellBorePartsInCells, wellPath, settings);
     if (!wellBorePartsInCells.empty())
     {
-        //Don't include main bore if there are no fishbones
         findMainWellBoreParts(wellBorePartsInCells, wellPath, settings);
     }
 
@@ -88,20 +87,21 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
-    for (auto cellAndWellBoreParts : wellBorePartsInCells)
+    for (const auto& cellAndWellBoreParts : wellBorePartsInCells)
     {
         size_t cellIndex = cellAndWellBoreParts.first;
-        std::vector<WellBorePartForTransCalc> wellBoreParts = cellAndWellBoreParts.second;
+        const std::vector<WellBorePartForTransCalc>& wellBoreParts = cellAndWellBoreParts.second;
         size_t i, j, k;
         grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
         bool cellIsActive = activeCellInfo->isActive(cellIndex);
         if (!cellIsActive) continue;
 
-        //finding main bore and number of laterals
+        // Find main bore and number of laterals
+
         size_t numberOfLaterals = 0;
         CellDirection mainBoreDirection = DIR_I;
-        for (auto wellBorePart : wellBoreParts)
+        for (const auto& wellBorePart : wellBoreParts)
         {
             if (!wellBorePart.isMainBore)
             {
