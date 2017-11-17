@@ -710,6 +710,11 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     if (changedField == &m_wellPathNameOrSimWellName || changedField == &m_branchIndex)
     {
+        if (changedField == &m_wellPathNameOrSimWellName)
+        {
+            m_branchIndex = 0;
+        }
+
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
         plotTrack->deleteAllCurves();
 
