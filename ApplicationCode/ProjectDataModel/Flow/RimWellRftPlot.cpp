@@ -493,21 +493,19 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             auto gridCase = curveDefToAdd.address().eclCase();
             if (gridCase != nullptr)
             {
-                std::pair<size_t, QString> resultDataInfo = RimWellPlotTools::pressureResultDataInfo(gridCase->eclipseCaseData());
-
                 // Case
                 curve->setCase(gridCase);
-
-                // Result definition
-                RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition(); // Memory leak !!
-                resultDef->setResultVariable(resultDataInfo.second);
-                curve->setEclipseResultDefinition(resultDef); // Strange construct ?
+                curve->setEclipseResultVariable("PRESSURE"); 
 
                 // Time step
-                const std::set<QDateTime>& timeSteps = RimWellPlotTools::timeStepsFromGridCase(gridCase);
-                auto currentTimeStepItr = std::find_if(timeSteps.begin(), timeSteps.end(), 
-                                                       [curveDefToAdd](const QDateTime& timeStep) {return timeStep == curveDefToAdd.timeStep(); });
-                auto currentTimeStepIndex = std::distance(timeSteps.begin(), currentTimeStepItr);
+
+                std::vector<QDateTime> timeSteps = gridCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+                int currentTimeStepIndex = -1;
+                for (size_t tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx) 
+                {
+                    if (timeSteps[tsIdx] == curveDefToAdd.timeStep()){ currentTimeStepIndex = static_cast<int>(tsIdx); break;}
+                }
+
                 curve->setCurrentTimeStep(currentTimeStepIndex);
                 curve->setZOrder(0);
 

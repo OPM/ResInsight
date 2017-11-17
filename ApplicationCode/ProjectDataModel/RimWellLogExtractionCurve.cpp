@@ -919,7 +919,7 @@ void RimWellLogExtractionCurve::setCurrentTimeStep(int timeStep)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setEclipseResultDefinition(const RimEclipseResultDefinition* def)
+void RimWellLogExtractionCurve::setEclipseResultVariable(const QString& resVarname)
 {
-    m_eclipseResultDefinition->simpleCopy(def);
+    m_eclipseResultDefinition->setResultVariable(resVarname);
 }

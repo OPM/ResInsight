@@ -66,7 +66,7 @@ public:
     int             currentTimeStep() const;
     void            setCurrentTimeStep(int timeStep);
 
-    void            setEclipseResultDefinition(const RimEclipseResultDefinition* def);
+    void            setEclipseResultVariable(const QString& resVarname);
 
 protected:
     virtual QString                                createCurveAutoName();
