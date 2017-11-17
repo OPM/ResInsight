@@ -851,10 +851,6 @@ std::map<int, std::vector<RimWellFlowRateCurve*>> RimWellLogTrack::visibleStacke
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>(curve);
             if (wfrCurve != nullptr)
             {
-                if (stackedCurves.count(wfrCurve->groupId()) == 0)
-                {
-                    stackedCurves.insert(std::make_pair(wfrCurve->groupId(), std::vector<RimWellFlowRateCurve*>()));
-                }
                 stackedCurves[wfrCurve->groupId()].push_back(wfrCurve);
             }
         }
