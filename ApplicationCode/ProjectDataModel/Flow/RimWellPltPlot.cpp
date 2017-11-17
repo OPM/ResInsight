@@ -567,23 +567,41 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
             if ( wellLogFile )
             {
-                RigWellLogFile* rigWellLogFile = wellLogFile->wellLogFileData();
+                RigWellLogFile* wellLogFileData = wellLogFile->wellLogFileData();
 
-                if ( rigWellLogFile )
+                if ( wellLogFileData )
                 {
-                    for (RimWellLogFileChannel* channel : RimWellPlotTools::getFlowChannelsFromWellFile(wellLogFile))
+                    std::vector<RimWellLogFileChannel*> channels = RimWellPlotTools::getFlowChannelsFromWellFile(wellLogFile);
+                    
+                    std::multiset<std::tuple<double, QString, size_t> > sortedChannels;
+                    std::vector<std::vector<double> > channelData;
+                    channelData.resize(channels.size());
+                    
+                    for (size_t chIdx = 0; chIdx <  channels.size(); ++chIdx)
                     {
-                        const auto& channelName = channel->name();
+                        QString channelName = channels[chIdx]->name();
+                        channelData[chIdx] = wellLogFileData->values(channelName);
+                        if (channelData[chIdx].size())
+                        {
+                            sortedChannels.insert( {-fabs(channelData[chIdx].front()), channelName, chIdx} );
+                        }
+                    }
+
+                    std::vector<double> depthValues = wellLogFileData->depthValues();
+
+                    for ( const std::tuple<double, QString, size_t>& channelInfo: sortedChannels )
+                    {
+                        const auto& channelName = std::get<1>(channelInfo);
                         if (selectedPhases.count(RimWellPlotTools::flowPhaseFromChannelName(channelName)) > 0)
                         {
                             auto color = RimWellPlotTools::isOilFlowChannel(channelName) ? cvf::Color3f::DARK_GREEN :
-                                         RimWellPlotTools::isGasFlowChannel(channelName) ? cvf::Color3f::DARK_RED :
-                                         RimWellPlotTools::isWaterFlowChannel(channelName) ? cvf::Color3f::BLUE :
-                                         cvf::Color3f::DARK_GRAY;
+                                RimWellPlotTools::isGasFlowChannel(channelName) ? cvf::Color3f::DARK_RED :
+                                RimWellPlotTools::isWaterFlowChannel(channelName) ? cvf::Color3f::BLUE :
+                                cvf::Color3f::DARK_GRAY;
 
                             addStackedCurve(curveName + ", " + channelName, 
-                                            rigWellLogFile->depthValues(), 
-                                            rigWellLogFile->values(channelName),
+                                            depthValues, 
+                                            channelData[std::get<2>(channelInfo)],
                                             plotTrack, 
                                             color,
                                             curveGroupId, 
