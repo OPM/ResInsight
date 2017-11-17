@@ -23,6 +23,10 @@
 
 #include <cstddef>
 #include <vector>
+#include <utility>
+#include <tuple>
+
+class QDateTime;
 
 
 //==================================================================================================
@@ -54,7 +58,53 @@ public:
     }
 
     static std::vector<std::pair<size_t, size_t>> computePolyLineStartStopIndices(const CurveIntervals& intervals);
-    
-private:
+
+public:
+    // Helper methods, available as public to be able to access from unit tests
+
     static bool isValidValue(double value, bool removeNegativeValues);
+    static bool isValidValue(double value);
+};
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RigCurveDataInterpolationTools
+{
+public:
+    RigCurveDataInterpolationTools(const std::vector<double>&     valuesA,
+                                   const std::vector<QDateTime>&  timeStepsA,
+                                   const std::vector<double>&     valuesB,
+                                   const std::vector<QDateTime>&  timeStepsB);
+
+
+
+    RigCurveDataTools::CurveIntervals                   validIntervals() const;
+    std::vector<std::tuple<QDateTime, double, double>>  interpolatedCurveData() const;
+
+
+
+public:
+    // Helper methods, available as public to be able to access from unit tests
+
+    static std::vector<std::pair<QDateTime, QDateTime>> intersectingValidIntervals(const QDateTime& from,
+                                                                                   const QDateTime& to,
+                                                                                   const std::vector<std::pair<QDateTime, QDateTime>>& intervals);
+
+    static double interpolatedValue(const QDateTime& dt,
+                                    const std::vector<double>& values, 
+                                    const std::vector<QDateTime>& timeSteps);
+
+private:
+    void computeInterpolatedValues();
+
+private:
+    const std::vector<double>&      m_valuesA;
+    const std::vector<QDateTime>&   m_timeStepsA;
+    const std::vector<double>&      m_valuesB;
+    const std::vector<QDateTime>&   m_timeStepsB;
+
+    std::vector<std::tuple<QDateTime, double, double>>  m_interpolatedValues;
+    RigCurveDataTools::CurveIntervals                   m_curveIntervals;
 };
