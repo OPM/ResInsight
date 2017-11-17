@@ -156,29 +156,45 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 {
     RimWellLogCurve::updateCurveAppearance();
 
+    bool isLastCurveInGroup = false;
+    {
+        RimWellLogTrack* wellLogTrack;
+        firstAncestorOrThisOfTypeAsserted(wellLogTrack);
+        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
+        const std::vector<RimWellFlowRateCurve*>& curveGroup  = stackedCurveGroups[this->m_groupId];
+        isLastCurveInGroup = (curveGroup.back() == this);
+    }
+
     if ( isUsingConnectionNumberDepthType() )
     {
         m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
     }
 
-    if (m_doFillCurve)
+    if (m_doFillCurve || isLastCurveInGroup) // Fill the last curve in group with a transparent color to "tie" the group together
     {
         QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-        m_qwtPlotCurve->setBrush(QBrush( curveQColor));
+        QColor fillColor = curveQColor;
+        QColor lineColor = curveQColor.darker();
+
+        if (!m_doFillCurve && isLastCurveInGroup) 
+        { 
+            fillColor = QColor(24, 16, 10, 50);
+            lineColor = curveQColor;
+        }
 
         QLinearGradient gradient;
         gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gradient.setColorAt(0, curveQColor.darker(110));
-        gradient.setColorAt(0.15, curveQColor);
-        gradient.setColorAt(0.25, curveQColor);
-        gradient.setColorAt(0.4, curveQColor.darker(110));
-        gradient.setColorAt(0.6, curveQColor);
-        gradient.setColorAt(0.8, curveQColor.darker(110));
-        gradient.setColorAt(1, curveQColor);
+        gradient.setColorAt(0, fillColor.darker(110));
+        gradient.setColorAt(0.15, fillColor);
+        gradient.setColorAt(0.25, fillColor);
+        gradient.setColorAt(0.4, fillColor.darker(110));
+        gradient.setColorAt(0.6, fillColor);
+        gradient.setColorAt(0.8, fillColor.darker(110));
+        gradient.setColorAt(1, fillColor);
         m_qwtPlotCurve->setBrush(gradient);
 
         QPen curvePen = m_qwtPlotCurve->pen();
-        curvePen.setColor(curveQColor.darker());
+        curvePen.setColor(lineColor);
         m_qwtPlotCurve->setPen(curvePen);
         m_qwtPlotCurve->setOrientation(Qt::Horizontal);
         m_qwtPlotCurve->setBaseline(0.0);

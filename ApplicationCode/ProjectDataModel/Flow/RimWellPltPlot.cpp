@@ -613,12 +613,20 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
 
     curve->setColor(color);
     curve->setGroupId(curveGroupId);
-    curve->setDoFillCurve(doFillCurve);
-    curve->setSymbol(RimSummaryCurveAppearanceCalculator::cycledSymbol(curveGroupId));
 
+    if (curveGroupId == 0)
+    {
+        curve->setDoFillCurve(true);
+        curve->setSymbol(RimPlotCurve::SYMBOL_NONE);
+    }
+    else
+    {
+        curve->setDoFillCurve(false);
+        curve->setSymbol(RimSummaryCurveAppearanceCalculator::cycledSymbol(curveGroupId));
+    }
+
+    curve->setSymbolSkipDinstance(10);
     plotTrack->addCurve(curve);
-
-    curve->loadDataAndUpdate(true);
 }
 
 //--------------------------------------------------------------------------------------------------
