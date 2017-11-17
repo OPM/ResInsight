@@ -592,11 +592,14 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog()
 {
     if (m_viewDef)
     {
+        // Show dialog before setting data due to text edit auto height setting
+        m_gridStatisticsDialog->resize(600, 800);
+        m_gridStatisticsDialog->show();
+
         m_gridStatisticsDialog->setLabel("Grid statistics");
         m_gridStatisticsDialog->setInfoText(m_viewDef);
         m_gridStatisticsDialog->setHistogramData(m_viewDef);
-        m_gridStatisticsDialog->resize(600, 800);
-        m_gridStatisticsDialog->show();
+
         m_gridStatisticsDialog->raise();
     }
 }

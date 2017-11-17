@@ -67,6 +67,7 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
 
     QVBoxLayout* plotLayout = new QVBoxLayout();
     plotLayout->setSpacing(0);
+    //plotLayout->addStretch();
     plotLayout->addWidget(m_historgramPlot);
     plotLayout->addWidget(m_aggregatedPlot);
     layout->addLayout(plotLayout);
@@ -102,6 +103,7 @@ void RicGridStatisticsDialog::setInfoText(RimView* view)
         text = overlayInfo->caseInfoText();
         text += overlayInfo->resultInfoText(overlayInfo->histogramData());
         m_textEdit->setText(text);
+        adjustTextEditHeightToContent();
     }
 }
 
@@ -221,6 +223,15 @@ QwtPlotMarker* RicGridStatisticsDialog::createVerticalPlotMarker(const QColor& c
     marker->setLineStyle(QwtPlotMarker::VLine);
     marker->setLinePen(color, 2, Qt::SolidLine);
     return marker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGridStatisticsDialog::adjustTextEditHeightToContent()
+{
+    int docHeight = m_textEdit->document()->size().height();
+    m_textEdit->setFixedHeight(docHeight + 10);
 }
 
 //--------------------------------------------------------------------------------------------------

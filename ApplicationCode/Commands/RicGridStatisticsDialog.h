@@ -49,6 +49,7 @@ private:
     void                    deletePlotItems(QwtPlot* plot);
     static void             setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot);
     static QwtPlotMarker*   createVerticalPlotMarker(const QColor& color, double xValue);
+    void                    adjustTextEditHeightToContent();
 
 private slots:
     void slotDialogFinished();
