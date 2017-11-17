@@ -253,7 +253,7 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure(co
 
     for (auto wellPath : wellPaths)
     {
-        if (simWellName == wellPath->associatedSimulationWell())
+        if (simWellName == wellPath->associatedSimulationWellName())
         {
             const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
 
@@ -582,7 +582,7 @@ RimWellPath* RimWellPlotTools::wellPathByWellPathNameOrSimWellName(const QString
     RimProject* proj = RiaApplication::instance()->project();
     RimWellPath* wellPath = proj->wellPathByName(wellPathNameOrSimwellName);
 
-    return wellPath != nullptr ? wellPath : proj->wellPathFromSimulationWell(wellPathNameOrSimwellName);
+    return wellPath != nullptr ? wellPath : proj->wellPathFromSimWellName(wellPathNameOrSimwellName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ RimWellPath* RimWellPlotTools::wellPathByWellPathNameOrSimWellName(const QString
 QString RimWellPlotTools::simWellName(const QString& wellPathNameOrSimWellName)
 {
     RimWellPath* wellPath = wellPathByWellPathNameOrSimWellName(wellPathNameOrSimWellName);
-    return wellPath != nullptr ? wellPath->associatedSimulationWell() : wellPathNameOrSimWellName;
+    return wellPath != nullptr ? wellPath->associatedSimulationWellName() : wellPathNameOrSimWellName;
 }
 
 //--------------------------------------------------------------------------------------------------

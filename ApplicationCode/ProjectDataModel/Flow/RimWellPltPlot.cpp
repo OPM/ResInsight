@@ -76,8 +76,9 @@ namespace caf
 template<>
 void caf::AppEnum< FlowType>::setUp()
 {
-    addItem(FLOW_TYPE_TOTAL, "TOTAL", "Total Flow");
     addItem(FLOW_TYPE_PHASE_SPLIT, "PHASE_SPLIT", "Phase Split");
+    addItem(FLOW_TYPE_TOTAL, "TOTAL", "Total Flow");
+    setDefault(FLOW_TYPE_PHASE_SPLIT);
 }
 
 template<>
@@ -412,7 +413,7 @@ public:
         std::map<size_t, std::pair<size_t, size_t> > globCellIdxToIdxInSimWellBranch;
 
         const RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(wellPathName);
-        const RigSimWellData* simWell = wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData(wellPath->associatedSimulationWell()) : nullptr;
+        const RigSimWellData* simWell = wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData(wellPath->associatedSimulationWellName()) : nullptr;
 
         if (!simWell) return;
 
@@ -594,7 +595,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         curveGroupId++;
     }
+
     m_wellLogPlot->loadDataAndUpdate();
+    m_wellLogPlot->updateDepthZoom();
+    plotTrack->updateXZoom();
 }
 
 //--------------------------------------------------------------------------------------------------

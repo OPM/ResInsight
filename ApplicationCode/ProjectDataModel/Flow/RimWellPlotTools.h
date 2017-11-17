@@ -40,7 +40,7 @@ class RigEclipseCaseData;
 //==================================================================================================
 ///  
 //==================================================================================================
-enum FlowType { FLOW_TYPE_TOTAL, FLOW_TYPE_PHASE_SPLIT };
+enum FlowType {  FLOW_TYPE_PHASE_SPLIT, FLOW_TYPE_TOTAL };
 enum FlowPhase { FLOW_PHASE_NONE, FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER, FLOW_PHASE_TOTAL };
 
 //==================================================================================================

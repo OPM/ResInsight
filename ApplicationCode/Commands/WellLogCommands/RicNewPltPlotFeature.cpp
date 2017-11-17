@@ -65,7 +65,7 @@ bool RicNewPltPlotFeature::isCommandEnabled()
         RimProject* proj = RiaApplication::instance()->project();
         QString simWellName = simWell->name();
 
-        RimWellPath* wellPath = proj->wellPathFromSimulationWell(simWellName);
+        RimWellPath* wellPath = proj->wellPathFromSimWellName(simWellName);
         enable = wellPath != nullptr;
     }
     return enable;
@@ -81,22 +81,26 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
     RimPltPlotCollection* pltPlotColl = proj->mainPlotCollection()->pltPlotCollection();
     if (pltPlotColl)
     {
-        QString wellName;
+        QString wellPathName;
         RimWellPath* wellPath = nullptr;
         RimSimWellInView* eclipseWell = nullptr;
+
         if ((wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>()) != nullptr)
         {
-            wellName = wellPath->name();
+            wellPathName = wellPath->name();
         }
         else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
         {
-            wellName = eclipseWell->name();
+            RimWellPath* wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
+            if (!wellPath ) return;
+
+            wellPathName = wellPath->name();
         }
 
-        QString plotName = QString(RimWellPltPlot::plotNameFormatString()).arg(wellName);
+        QString plotName = QString(RimWellPltPlot::plotNameFormatString()).arg(wellPathName);
 
         RimWellPltPlot* pltPlot = new RimWellPltPlot();
-        pltPlot->setCurrentWellName(wellName);
+        pltPlot->setCurrentWellName(wellPathName);
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
         pltPlot->wellLogPlot()->addTrack(plotTrack);

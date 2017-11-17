@@ -118,8 +118,9 @@ public:
     RiaEclipseUnitTools::UnitSystem     unitSystem() const;
     static RimWellPath*                 fromFilePath(QString filePath);
 
-    const QString                       associatedSimulationWell() const;
+    const QString                       associatedSimulationWellName() const;
     int                                 associatedSimulationWellBranch() const;
+
     bool                                tryAssociateWithSimulationWell();
     bool                                isAssociatedWithSimulationWell() const;
     bool                                tryMatchName(QString wellPathName, 

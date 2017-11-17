@@ -477,7 +477,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
     RigEclipseWellLogExtractor* eclExtractor = nullptr;
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimWellPath* wellPath = proj->wellPathFromSimulationWell(m_wellName());
+    RimWellPath* wellPath = proj->wellPathFromSimWellName(m_wellName());
     eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, m_eclipseResultCase);
 
     if (!eclExtractor)

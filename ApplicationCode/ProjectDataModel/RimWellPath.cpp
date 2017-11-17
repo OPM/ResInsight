@@ -324,7 +324,7 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
         {
             if (wellPath->isAssociatedWithSimulationWell() && wellPath != this)
             {
-                associatedSimWells.insert(wellPath->associatedSimulationWell());
+                associatedSimWells.insert(wellPath->associatedSimulationWellName());
             }
         }
 
@@ -687,7 +687,7 @@ RimWellPath* RimWellPath::fromFilePath(QString filePath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RimWellPath::associatedSimulationWell() const
+const QString RimWellPath::associatedSimulationWellName() const
 {
     return m_simWellName;
 }

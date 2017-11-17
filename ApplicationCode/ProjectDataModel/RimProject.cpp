@@ -903,12 +903,12 @@ std::vector<const RigWellPath*> RimProject::simulationWellBranches(const QString
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimProject::wellPathFromSimulationWell(const QString& simWellName, int branchIndex)
+RimWellPath* RimProject::wellPathFromSimWellName(const QString& simWellName, int branchIndex)
 {
     std::vector<RimWellPath*> paths;
     for (RimWellPath* const path : allWellPaths())
     {
-        if (QString::compare(path->associatedSimulationWell(), simWellName) == 0 &&
+        if (QString::compare(path->associatedSimulationWellName(), simWellName) == 0 &&
             (branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex))
         {
             return path;

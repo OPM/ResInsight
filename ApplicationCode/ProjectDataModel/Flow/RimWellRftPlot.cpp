@@ -825,9 +825,9 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
         {
             wellNames.insert(wellPath->name());
 
-            if (!wellPath->associatedSimulationWell().isEmpty())
+            if (!wellPath->associatedSimulationWellName().isEmpty())
             {
-                simWellsAssociatedWithWellPath.insert(wellPath->associatedSimulationWell());
+                simWellsAssociatedWithWellPath.insert(wellPath->associatedSimulationWellName());
             }
         }
 
