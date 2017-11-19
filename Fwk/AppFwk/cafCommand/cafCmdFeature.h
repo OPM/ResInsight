@@ -77,7 +77,8 @@ public:
     virtual ~CmdFeature();
 
     QAction*        action();
-    QAction*        action(QString customText);
+    QAction*        actionWithCustomText(const QString& customText);
+    QAction*        actionWithUserData(const QString& customText, const QVariant& userData);
     void            refreshEnabledState();
     void            refreshCheckedState();
 
@@ -93,6 +94,7 @@ protected:
     virtual bool    isCommandChecked();
     
     void            disableModelChangeContribution();
+    const QVariant  userData() const;
 
 private:
     std::map<QString, QAction*> m_customTextToActionMap;

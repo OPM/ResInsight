@@ -75,7 +75,7 @@
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeOrdering.h"
-
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cvfBoundingBox.h"
 
 #include <QDir>
@@ -754,63 +754,9 @@ void RimProject::computeUtmAreaOfInterest()
 //--------------------------------------------------------------------------------------------------
 void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 {
-    QStringList commandIds = RimContextCommandBuilder::commandsFromSelection();
+    caf::CmdFeatureMenuBuilder menuBuilder = RimContextCommandBuilder::commandsFromSelection();
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    for (int i = 0; i < commandIds.size(); i++)
-    {
-        if (commandIds[i] == "Separator")
-        {
-            contextMenu.addSeparator();
-        }
-        else if (commandIds[i] == "RicExecuteScriptForCasesFeature")
-        {
-            // Execute script on selection of cases
-             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
-             if (ruiMainWindow)
-             { 
-                std::vector<RimCase*> cases;
-                ruiMainWindow->selectedCases(cases);
-
-                if (cases.size() > 0)
-                {
-                    QMenu* executeMenu = contextMenu.addMenu("Execute script");
-
-                    RiaApplication* app = RiaApplication::instance();
-                    RimProject* proj = app->project();
-                    if (proj && proj->scriptCollection())
-                    {
-                        RimScriptCollection* rootScriptCollection = proj->scriptCollection();
-
-                        // Root script collection holds a list of subdirectories of user defined script folders
-                        for (size_t i = 0; i < rootScriptCollection->subDirectories.size(); i++)
-                        {
-                            RimScriptCollection* subDir = rootScriptCollection->subDirectories[i];
-
-                            if (subDir)
-                            {
-                                appendScriptItems(executeMenu, subDir);
-                            }
-                        }
-                    }
-
-                    contextMenu.addSeparator();
-                    contextMenu.addMenu(executeMenu);
-                }
-            }
-        }
-        else
-        {
-            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-            if (feature->canFeatureBeExecuted())
-            {
-                QAction* act = commandManager->action(commandIds[i]);
-                CVF_ASSERT(act);
-
-                contextMenu.addAction(act);
-            }
-        }
-    }
+    menuBuilder.appendToMenu(&contextMenu);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,41 +929,6 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclip
     }
 
     RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
-{
-    CVF_ASSERT(menu);
-
-    QDir dir(scriptCollection->directory);
-    QMenu* subMenu = menu->addMenu(dir.dirName());
-
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    CVF_ASSERT(commandManager);
-
-    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
-    CVF_ASSERT(executeScriptFeature);
-
-    for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
-    {
-        RimCalcScript* calcScript = scriptCollection->calcScripts[i];
-        QFileInfo fi(calcScript->absolutePath());
-
-        QString menuText = fi.baseName();
-        QAction* scriptAction = subMenu->addAction(menuText, executeScriptFeature, SLOT(slotExecuteScriptForSelectedCases()));
-
-        scriptAction->setData(QVariant(calcScript->absolutePath()));
-    }
-
-    for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
-    {
-        RimScriptCollection* subDir = scriptCollection->subDirectories[i];
-
-        appendScriptItems(subMenu, subDir);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

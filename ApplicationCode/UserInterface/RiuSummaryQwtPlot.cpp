@@ -32,6 +32,7 @@
 #include "RiuQwtScalePicker.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -166,13 +167,13 @@ QSize RiuSummaryQwtPlot::minimumSizeHint() const
 void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
 
-    commandIds << "RicShowPlotDataFeature";
+    menuBuilder << "RicShowPlotDataFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {

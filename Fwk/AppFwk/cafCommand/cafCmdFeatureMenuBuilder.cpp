@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2014 Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,164 +34,176 @@
 //
 //##################################################################################################
 
+
+#include "cafCmdFeatureMenuBuilder.h"
+
 #include "cafCmdFeature.h"
-
-#include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafCmdSelectionHelper.h"
+#include "cafFactory.h" 
 
-#include "cafPdmUiModelChangeDetector.h"
+#include "cvfAssert.h"
+
+#include "defaultfeatures/cafCmdDeleteItemFeature.h"
+#include "defaultfeatures/cafCmdAddItemFeature.h"
 
 #include <QAction>
-
+#include <QMenu>
 
 namespace caf
 {
 
+//    typedef Factory<CmdFeature, std::string> CommandFeatureFactory;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CmdFeature::CmdFeature()
-    : m_triggerModelChange(true)
+CmdFeatureMenuBuilder::CmdFeatureMenuBuilder()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CmdFeature::~CmdFeature()
+CmdFeatureMenuBuilder::~CmdFeatureMenuBuilder()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::action()
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<(const QString& commandId)
 {
-    return this->actionWithCustomText(QString(""));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::actionWithCustomText(const QString& customText)
-{
-    return actionWithUserData(customText, QVariant());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::actionWithUserData(const QString& customText, const QVariant& userData)
-{
-    QAction* action = NULL;
-
-    std::map<QString, QAction*>::iterator it;
-    it = m_customTextToActionMap.find(customText);
-
-    if (it != m_customTextToActionMap.end() && it->second != NULL)
+    if (commandId == "Separator")
     {
-        action = it->second;
+        addSeparator();
     }
     else
     {
-        action = new QAction(this);
+        addCmdFeature(commandId);
+    }
+    return *this;
+}
 
-        if (!userData.isNull())
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeature(const QString commandId, const QString& uiText)
+{
+    MenuItem i;
+    i.itemType = MenuItem::COMMAND;
+    i.itemName = commandId;
+    i.uiText = uiText;
+    m_items.push_back(i);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeatureWithUserData(const QString commandId, const QString& uiText, const QVariant& userData)
+{
+    MenuItem i;
+    i.itemType = MenuItem::COMMAND;
+    i.itemName = commandId;
+    i.uiText = uiText;
+    i.userData = userData;
+    m_items.push_back(i);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addSeparator()
+{
+    MenuItem i;
+    i.itemType = MenuItem::SEPARATOR;
+    m_items.push_back(i);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName)
+{
+    MenuItem i;
+    i.itemType = MenuItem::SUBMENU_START;
+    i.itemName = menuName;
+    m_items.push_back(i);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuEnd()
+{
+    MenuItem i;
+    i.itemType = MenuItem::SUBMENU_END;
+    m_items.push_back(i);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
+{
+    CVF_ASSERT(menu);
+
+    std::vector<QMenu*> menus = { menu };
+    for (int i = 0; i < m_items.size(); i++)
+    {
+        if (m_items[i].itemType == MenuItem::SEPARATOR)
         {
-            action->setData(userData);
+            menu->addSeparator();
         }
-        connect(action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
-        m_customTextToActionMap[customText]= action;
-    }
-
-    this->setupActionLook(action);
-    if (!customText.isEmpty())
-    {
-        action->setText(customText);
-    }
-
-    return action;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void CmdFeature::refreshEnabledState()
-{
-    std::map<QString, QAction*>::iterator it;
-    bool isEnabled = this->isCommandEnabled();
-
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
-    {
-        it->second->setEnabled(isEnabled);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void CmdFeature::refreshCheckedState()
-{
-    std::map<QString, QAction*>::iterator it;
-    bool isChecked = this->isCommandChecked();
-
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
-    {
-        QAction* act = it->second;
-        if (act->isCheckable())
+        else if (m_items[i].itemType == MenuItem::SUBMENU_START)
         {
-            it->second->setChecked(isChecked);
+            QMenu* subMenu = menus.back()->addMenu(m_items[i].itemName);
+            menus.push_back(subMenu);
+        }
+        else if (m_items[i].itemType == MenuItem::SUBMENU_END)
+        {
+            if (menus.size() > 1)
+            {
+                menus.pop_back();
+            }
+        }
+        else
+        {
+            CmdFeatureManager* commandManager = CmdFeatureManager::instance();
+            QMenu* currentMenu = menus.back();
+            caf::CmdFeature* feature = commandManager->getCommandFeature(m_items[i].itemName.toStdString());
+            CVF_ASSERT(feature);
+
+            if (feature->canFeatureBeExecuted())
+            {
+                const QAction* act;
+                if (!m_items[i].userData.isNull())
+                {
+                    act = commandManager->actionWithUserData(m_items[i].itemName, m_items[i].uiText, m_items[i].userData);
+                }
+                else
+                {
+                    act = commandManager->action(m_items[i].itemName);
+                }
+                
+                CVF_ASSERT(act);
+
+                for (QAction* existingAct : currentMenu->actions())
+                {
+                    // If action exist, continue to make sure the action is positioned at the first
+                    // location of a command ID
+                    if (existingAct == act) continue;
+                }
+
+                currentMenu->addAction(const_cast<QAction*>(act));
+            }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool CmdFeature::canFeatureBeExecuted()
-{
-    return this->isCommandEnabled();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void CmdFeature::actionTriggered(bool isChecked)
-{
-    this->onActionTriggered(isChecked);
-
-    if (m_triggerModelChange)
-    {
-        caf::PdmUiModelChangeDetector::instance()->setModelChanged();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool CmdFeature::isCommandChecked()
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void CmdFeature::disableModelChangeContribution()
-{
-    m_triggerModelChange = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const QVariant CmdFeature::userData() const
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-    if (!action) return QVariant();
-
-    return action->data();
 }
 
 } // end namespace caf

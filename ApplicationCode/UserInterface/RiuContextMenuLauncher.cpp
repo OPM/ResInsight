@@ -31,9 +31,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuContextMenuLauncher::RiuContextMenuLauncher(QWidget* widget, const QStringList& commandIds) : 
+RiuContextMenuLauncher::RiuContextMenuLauncher(QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds) : 
     QObject(widget),
-    m_commandIds(commandIds)
+    m_menuBuilder(commandIds)
 {
     widget->installEventFilter(this);
 }
@@ -46,7 +46,7 @@ bool RiuContextMenuLauncher::eventFilter(QObject* watchedObject, QEvent* event)
     if (event->type() == QEvent::ContextMenu)
     {
         QMenu menu;
-        RimContextCommandBuilder::appendCommandsToMenu(m_commandIds, &menu);
+        m_menuBuilder.appendToMenu(&menu);
 
         if (menu.actions().size() > 0)
         {

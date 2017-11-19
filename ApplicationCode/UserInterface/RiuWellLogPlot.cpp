@@ -27,6 +27,7 @@
 #include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include "cvfAssert.h"
 
@@ -214,14 +215,14 @@ QSize RiuWellLogPlot::sizeHint() const
 void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
 
-    commandIds << "RicShowPlotDataFeature";
-    commandIds << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicShowPlotDataFeature";
+    menuBuilder << "RicShowContributingWellsFromPlotFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {

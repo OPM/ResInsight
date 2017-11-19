@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +19,19 @@
 
 #pragma once
 
-#include "cafCmdFeatureMenuBuilder.h"
+#include "cafCmdFeature.h"
 
-#include <QObject>
-#include <QStringList>
-
-class QEvent;
-class QWidget;
-
-
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
 /// 
-//--------------------------------------------------------------------------------------------------
-class RiuContextMenuLauncher : public QObject
+//==================================================================================================
+class RicMoveWellLogFilesFeature : public caf::CmdFeature
 {
-public:
-    explicit RiuContextMenuLauncher(QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds);
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    bool eventFilter(QObject* watched, QEvent* event) override;
 
-private:
-    caf::CmdFeatureMenuBuilder m_menuBuilder;
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
-

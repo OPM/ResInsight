@@ -73,6 +73,7 @@
 #include "cafCmdFeatureManager.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
@@ -279,7 +280,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         }
     }
 
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
@@ -297,21 +298,21 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                  
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-                commandIds << "RicNewWellPathFractureAtPosFeature";
+                menuBuilder << "RicNewWellPathFractureAtPosFeature";
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
-                commandIds << "RicNewWellLogCurveExtractionFeature";
-                commandIds << "RicNewWellLogFileCurveFeature";
-                commandIds << "RicNewRftPlotFeature";
-                commandIds << "RicNewPltPlotFeature";
-                commandIds << "Separator";
-                commandIds << "RicNewWellPathIntersectionFeature";
-                commandIds << "RicNewFishbonesSubsAtMeasuredDepthFeature";
-                commandIds << "RicNewPerforationIntervalAtMeasuredDepthFeature";
+                menuBuilder << "RicNewWellLogCurveExtractionFeature";
+                menuBuilder << "RicNewWellLogFileCurveFeature";
+                menuBuilder << "RicNewRftPlotFeature";
+                menuBuilder << "RicNewPltPlotFeature";
+                menuBuilder << "Separator";
+                menuBuilder << "RicNewWellPathIntersectionFeature";
+                menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
+                menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
             }
         }
 
@@ -326,19 +327,19 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
 
-                commandIds << "RicNewWellLogCurveExtractionFeature";
-                commandIds << "RicNewWellLogRftCurveFeature";
-                commandIds << "RicNewRftPlotFeature";
-                commandIds << "RicNewPltPlotFeature";
-                commandIds << "RicShowWellAllocationPlotFeature";
-                commandIds << "RicPlotProductionRateFeature";
-                commandIds << "Separator";
-                commandIds << "RicShowContributingWellsFeature";
-                commandIds << "Separator";
-                commandIds << "RicNewSimWellIntersectionFeature";
-                commandIds << "RicPlotProductionRateFeature";
+                menuBuilder << "RicNewWellLogCurveExtractionFeature";
+                menuBuilder << "RicNewWellLogRftCurveFeature";
+                menuBuilder << "RicNewRftPlotFeature";
+                menuBuilder << "RicNewPltPlotFeature";
+                menuBuilder << "RicShowWellAllocationPlotFeature";
+                menuBuilder << "RicPlotProductionRateFeature";
+                menuBuilder << "Separator";
+                menuBuilder << "RicShowContributingWellsFeature";
+                menuBuilder << "Separator";
+                menuBuilder << "RicNewSimWellIntersectionFeature";
+                menuBuilder << "RicPlotProductionRateFeature";
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-                commandIds << "RicNewSimWellFractureAtPosFeature";
+                menuBuilder << "RicNewSimWellFractureAtPosFeature";
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
             }
         }
@@ -348,19 +349,19 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // View Link commands
     if (!firstHitPart)
     {
-        commandIds << "RicLinkViewFeature";
-        commandIds << "RicShowLinkOptionsFeature";
-        commandIds << "RicSetMasterViewFeature";
-        commandIds << "RicUnLinkViewFeature";
+        menuBuilder << "RicLinkViewFeature";
+        menuBuilder << "RicShowLinkOptionsFeature";
+        menuBuilder << "RicSetMasterViewFeature";
+        menuBuilder << "RicUnLinkViewFeature";
     }
 
-    commandIds << "Separator";
-    commandIds << "RicNewGridTimeHistoryCurveFeature";
-    commandIds << "RicShowFlowCharacteristicsPlotFeature";
-    commandIds << "RicSaveEclipseInputVisibleCellsFeature";
-    commandIds << "RicShowGridStatisticsFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewGridTimeHistoryCurveFeature";
+    menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
+    menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+    menuBuilder << "RicShowGridStatisticsFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (!menu.isEmpty())
     {

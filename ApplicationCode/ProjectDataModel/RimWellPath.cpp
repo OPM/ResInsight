@@ -657,13 +657,21 @@ void RimWellPath::addWellLogFile(RimWellLogFile* logFileInfo)
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::deleteWellLogFile(RimWellLogFile* logFileInfo)
 {
+    detachWellLogFile(logFileInfo);
+    delete logFileInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::detachWellLogFile(RimWellLogFile* logFileInfo)
+{
     auto pdmObject = dynamic_cast<caf::PdmObjectHandle*>(logFileInfo);
     for (size_t i = 0; i < m_wellLogFiles.size(); i++)
     {
         if (m_wellLogFiles[i] == pdmObject)
         {
             m_wellLogFiles.removeChildObject(pdmObject);
-            delete pdmObject;
             break;
         }
     }

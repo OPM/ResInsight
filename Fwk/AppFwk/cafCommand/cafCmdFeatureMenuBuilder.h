@@ -42,9 +42,10 @@
 #include <set>
 
 #include <QObject>
-#include <QStringList>
+#include <QVariant>
 
 class QAction;
+class QMenu;
 
 namespace caf 
 {
@@ -54,40 +55,56 @@ class CmdFeature;
 //==================================================================================================
 /// 
 //==================================================================================================
-class CmdFeatureManager : public QObject
+class CmdFeatureMenuBuilder
 {
-    Q_OBJECT
-
 public:
-    static CmdFeatureManager* instance();
-    virtual ~CmdFeatureManager();
+    CmdFeatureMenuBuilder();
+    //CmdFeatureMenuBuilder(const CmdFeatureMenuBuilder& other);
+    virtual ~CmdFeatureMenuBuilder();
 
-    QAction* action(const QString& commandId);
-    QAction* action(const QString& commandId, const QString& customActionText);
-    QAction* actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData);
-    void refreshStates(const QStringList& commandIdList = QStringList());
-    void refreshEnabledState(const QStringList& commandIdList = QStringList());
-    void refreshCheckedState(const QStringList& commandIdList = QStringList());
+    CmdFeatureMenuBuilder&  operator<<(const QString& commandIdOrSeparator);
+    CmdFeatureMenuBuilder&  addCmdFeature(const QString commandId, const QString& customUiText = "");
+    CmdFeatureMenuBuilder&  addCmdFeatureWithUserData(const QString commandId, const QString& customUiText, const QVariant& userData);
 
-    CmdFeature* getCommandFeature(const std::string& commandId);
+    CmdFeatureMenuBuilder&  addSeparator();
 
-    std::vector<CmdFeature*> commandFeaturesMatchingSubString(const std::string& subString) const;
+    CmdFeatureMenuBuilder&  subMenuStart(const QString& menuName);
+    CmdFeatureMenuBuilder&  subMenuEnd();
 
-private:
-    CmdFeatureManager();
+    void                    appendToMenu(QMenu* menu);
 
-    std::pair<CmdFeature*, size_t>  createFeature(const std::string& commandId);
-    std::pair<CmdFeature*, size_t>  findExistingCmdFeature(const std::string& commandId);
-
-    CmdFeature*                     commandFeature(const std::string& commandId) const;
+//    const std::vector<MenuItem>     items() const;
 
 private:
-    std::vector<CmdFeature*>        m_commandFeatures;
-    std::map<std::string , size_t > m_commandIdToFeatureIdxMap;
-    std::map<QAction*, size_t >     m_actionToFeatureIdxMap;
+    struct MenuItem
+    {
+    public:
+        enum ItemType { COMMAND, SEPARATOR, SUBMENU_START, SUBMENU_END };
 
+        ItemType    itemType;
+        QString     itemName;
+        QString     uiText;
+        QVariant    userData;
+    };
+
+    std::vector<MenuItem>       m_items;
 };
 
-
-
 } // end namespace caf
+
+
+
+//static MenuItem command(QString commandName)
+//{
+//    MenuItem i;
+//    i.itemType = COMMAND;
+//    i.itemName = commandName;
+//    return i;
+//}
+//
+//static MenuItem separator()
+//{
+//    MenuItem i;
+//    i.itemType = SEPARATOR;
+//    return i;
+//}

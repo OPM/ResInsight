@@ -19,9 +19,14 @@
 
 #pragma once
 
-#include <QStringList>
+#include <vector>
 
+namespace caf {
+    class CmdFeatureMenuBuilder;
+}
 class QMenu;
+class RimWellPath;
+class RimScriptCollection;
 
 //==================================================================================================
 ///  
@@ -30,6 +35,10 @@ class QMenu;
 class RimContextCommandBuilder
 {
 public:
-    static QStringList  commandsFromSelection();
-    static void         appendCommandsToMenu(const QStringList& commandIds, QMenu* menu);
+    static caf::CmdFeatureMenuBuilder   commandsFromSelection();
+
+private:
+    static std::vector<RimWellPath*>    allWellPaths();
+    static void createExecuteScriptForCasesFeatureMenu(caf::CmdFeatureMenuBuilder& menuBuilder);
+    static void appendScriptItems(caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection);
 };

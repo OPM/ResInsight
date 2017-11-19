@@ -141,9 +141,6 @@ protected:
     virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
-    void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
-
-private:
     caf::PdmField<QString>  m_projectFileVersionString;
 
     caf::PdmChildField<RimDialogData*>  m_dialogData;

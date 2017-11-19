@@ -61,6 +61,8 @@ set( PROJECT_FILES
     cafCmdFeature.h
     cafCmdFeatureManager.cpp
     cafCmdFeatureManager.h
+	cafCmdFeatureMenuBuilder.cpp
+	cafCmdFeatureMenuBuilder.h
 )
 
 

@@ -53,27 +53,7 @@ bool RicExecuteScriptForCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 {
-    // Dummy - handled by slotExecuteScriptForSelectedCases()
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicExecuteScriptForCasesFeature::setupActionLook(QAction* actionToSetup)
-{
-    actionToSetup->setText("Execute script");
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicExecuteScriptForCasesFeature::slotExecuteScriptForSelectedCases()
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-    if (!action) return;
-
-    QString scriptAbsolutePath = action->data().toString();
+    QString scriptAbsolutePath = userData().toString();
 
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     mainWindow->showProcessMonitorDockPanel();
@@ -109,4 +89,12 @@ void RicExecuteScriptForCasesFeature::slotExecuteScriptForSelectedCases()
             RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExecuteScriptForCasesFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Execute script");
 }

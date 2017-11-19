@@ -25,6 +25,8 @@
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 #include "cvfBase.h"
 #include "cvfAssert.h"
 #include "cvfColor3.h"
@@ -130,11 +132,11 @@ QSize RiuResultQwtPlot::minimumSizeHint() const
 void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
-    commandIds << "RicNewGridTimeHistoryCurveFeature";
+    menuBuilder << "RicNewGridTimeHistoryCurveFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {
