@@ -38,7 +38,13 @@ CAF_CMD_SOURCE_INIT(RicMoveWellLogFilesFeature, "RicMoveWellLogFilesFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicMoveWellLogFilesFeature::isCommandEnabled()
 {
-    return true;
+    RimWellLogFile* selectedWellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile*>();
+
+    if (!selectedWellLogFile) return false;
+
+    // If only one well path exists, the move command is not applicable
+    RimProject* proj = RiaApplication::instance()->project();
+    return proj->allWellPaths().size() > 1;
 }
 
 //--------------------------------------------------------------------------------------------------
