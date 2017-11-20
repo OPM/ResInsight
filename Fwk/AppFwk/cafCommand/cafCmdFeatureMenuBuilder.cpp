@@ -42,8 +42,6 @@
 #include "cafCmdSelectionHelper.h"
 #include "cafFactory.h" 
 
-#include "cvfAssert.h"
-
 #include "defaultfeatures/cafCmdDeleteItemFeature.h"
 #include "defaultfeatures/cafCmdAddItemFeature.h"
 
@@ -151,7 +149,7 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuEnd()
 //--------------------------------------------------------------------------------------------------
 void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
 {
-    CVF_ASSERT(menu);
+    CAF_ASSERT(menu);
 
     std::vector<QMenu*> menus = { menu };
     for (size_t i = 0; i < m_items.size(); i++)
@@ -177,7 +175,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
             CmdFeatureManager* commandManager = CmdFeatureManager::instance();
             QMenu* currentMenu = menus.back();
             caf::CmdFeature* feature = commandManager->getCommandFeature(m_items[i].itemName.toStdString());
-            CVF_ASSERT(feature);
+            CAF_ASSERT(feature);
 
             if (feature->canFeatureBeExecuted())
             {
@@ -191,7 +189,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
                     act = commandManager->action(m_items[i].itemName);
                 }
                 
-                CVF_ASSERT(act);
+                CAF_ASSERT(act);
 
                 for (QAction* existingAct : currentMenu->actions())
                 {
