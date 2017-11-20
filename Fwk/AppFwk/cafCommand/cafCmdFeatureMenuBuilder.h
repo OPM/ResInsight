@@ -59,7 +59,6 @@ class CmdFeatureMenuBuilder
 {
 public:
     CmdFeatureMenuBuilder();
-    //CmdFeatureMenuBuilder(const CmdFeatureMenuBuilder& other);
     virtual ~CmdFeatureMenuBuilder();
 
     CmdFeatureMenuBuilder&  operator<<(const QString& commandIdOrSeparator);
@@ -72,8 +71,6 @@ public:
     CmdFeatureMenuBuilder&  subMenuEnd();
 
     void                    appendToMenu(QMenu* menu);
-
-//    const std::vector<MenuItem>     items() const;
 
 private:
     struct MenuItem

@@ -667,8 +667,6 @@ std::vector<RimWellPath*> RimContextCommandBuilder::allWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu(caf::CmdFeatureMenuBuilder& menuBuilder)
 {
-    //menuBuilder << "RicExecuteScriptForCasesFeature";
-
     // Execute script on selection of cases
     RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
     if (ruiMainWindow)

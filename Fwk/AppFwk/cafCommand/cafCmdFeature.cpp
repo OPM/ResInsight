@@ -184,12 +184,13 @@ void CmdFeature::disableModelChangeContribution()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns action user data.
+/// May be called from onActionTriggered only
 //--------------------------------------------------------------------------------------------------
 const QVariant CmdFeature::userData() const
 {
     QAction* action = qobject_cast<QAction*>(sender());
-    if (!action) return QVariant();
+    CAF_ASSERT(action);
 
     return action->data();
 }
