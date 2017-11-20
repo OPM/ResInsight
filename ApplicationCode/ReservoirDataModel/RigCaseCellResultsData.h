@@ -69,6 +69,7 @@ public:
     const std::vector<int>&                            uniqueCellScalarValues(size_t scalarResultIndex);
     void                                               sumCellScalarValues(size_t scalarResultIndex, double& sumValue);
     void                                               sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue);
+    void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, double& meanValue);
     void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
     // Access meta-information about the results
     size_t                                             resultCount() const;

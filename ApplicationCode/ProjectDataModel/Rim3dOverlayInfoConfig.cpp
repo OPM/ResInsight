@@ -224,6 +224,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
                         eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, histData.p10, histData.p90);
                         eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, histData.mean);
                         eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, histData.sum);
+                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(scalarIndex, histData.weightedMean);
                         histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
                     }
                     else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
@@ -648,6 +649,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (geoMechView)
     {
+        showVolumeWeightedMean = false;
+
         updateGeoMech3DInfo(geoMechView);
 
         // Update statistics dialog
@@ -675,7 +678,12 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     visGroup->add(&showAnimProgress);
     visGroup->add(&showCaseInfo);
     visGroup->add(&showResultInfo);
-    visGroup->add(&showVolumeWeightedMean);
+    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    if (!geoMechView)
+    {
+        visGroup->add(&showVolumeWeightedMean);
+    }
+
     visGroup->add(&showHistogram);
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");

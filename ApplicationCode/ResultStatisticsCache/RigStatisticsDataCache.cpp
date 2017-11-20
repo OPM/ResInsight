@@ -296,6 +296,21 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean(size_t timeStepIndex, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::mobileVolumeWeightedMean(double& mean)
+{
+    if (!m_statsAllTimesteps.m_isVolumeWeightedMeanCalculated)
+    {
+        m_statisticsCalculator->mobileVolumeWeightedMean(m_statsAllTimesteps.m_volumeWeightedMean);
+
+        m_statsAllTimesteps.m_isVolumeWeightedMeanCalculated = true;
+    }
+
+    mean = m_statsAllTimesteps.m_volumeWeightedMean;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 {
     computeHistogramStatisticsIfNeeded();

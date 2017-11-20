@@ -96,6 +96,25 @@ void RigStatisticsCalculator::mobileVolumeWeightedMean(size_t timeStepIndex, dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::mobileVolumeWeightedMean(double& mean)
+{
+    double sum = 0.0;
+    size_t tsCount = this->timeStepCount();
+    for (size_t tIdx = 0; tIdx < tsCount; tIdx++)
+    {
+        double meanForTimeStep;
+        this->mobileVolumeWeightedMean(tIdx, meanForTimeStep);
+        sum += meanForTimeStep;
+    }
+    if (tsCount != 0)
+    {
+        mean = sum / tsCount;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigStatisticsCalculator::posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg)
 {
     size_t i;

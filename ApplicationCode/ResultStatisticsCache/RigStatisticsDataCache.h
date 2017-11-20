@@ -58,6 +58,7 @@ public:
     const std::vector<int>&                 uniqueCellScalarValues();
     const std::vector<int>&                 uniqueCellScalarValues(size_t timeStepIndex);
     
+    void                                    mobileVolumeWeightedMean(double& mean);
     void                                    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
 
 private:
