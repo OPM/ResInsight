@@ -38,6 +38,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
 #include <vector>
+#include "qwt_scale_draw.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -147,8 +148,14 @@ void RicGridStatisticsDialog::setHistogramData(RimView* view)
             }
 
             // Axis
-            m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
-            m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min, histogramData.max);
+            double xAxisSize = histogramData.max - histogramData.min;
+            double xAxisExtension = xAxisSize * 0.02;
+            m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
+            m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
+
+            // Set y axis label area width
+            m_historgramPlot->axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(60);
+            m_aggregatedPlot->axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(60);
 
             // Samples
             hist->setSamples(histSamples);
