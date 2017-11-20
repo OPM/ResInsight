@@ -154,7 +154,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
     CVF_ASSERT(menu);
 
     std::vector<QMenu*> menus = { menu };
-    for (int i = 0; i < m_items.size(); i++)
+    for (size_t i = 0; i < m_items.size(); i++)
     {
         if (m_items[i].itemType == MenuItem::SEPARATOR)
         {

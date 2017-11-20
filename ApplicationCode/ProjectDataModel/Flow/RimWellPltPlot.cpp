@@ -583,7 +583,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         channelData[chIdx] = wellLogFileData->values(channelName);
                         if (channelData[chIdx].size())
                         {
-                            sortedChannels.insert( {-fabs(channelData[chIdx].front()), channelName, chIdx} );
+                            sortedChannels.insert(std::tuple<double, QString, size_t>(-fabs(channelData[chIdx].front()), channelName, chIdx) );
                         }
                     }
 
