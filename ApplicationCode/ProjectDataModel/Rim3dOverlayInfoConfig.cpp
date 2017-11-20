@@ -258,6 +258,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
                         m_visibleCellStatistics->minMaxCellScalarValues(histData.min, histData.max);
                         m_visibleCellStatistics->p10p90CellScalarValues(histData.p10, histData.p90);
                         m_visibleCellStatistics->sumCellScalarValues(histData.sum);
+                        m_visibleCellStatistics->mobileVolumeWeightedMean(histData.weightedMean);
 
                         histData.histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
                     }
