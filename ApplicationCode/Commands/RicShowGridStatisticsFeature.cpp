@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicShowGridStatisticsFeature, "RicShowGridStatisticsFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicShowGridStatisticsFeature::isCommandEnabled()
 {
-    return true;
+    return RiaApplication::instance()->activeReservoirView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,16 +47,11 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 {
-    auto eclipseView = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseView*>();
-    auto geoMechView = caf::firstAncestorOfTypeFromSelectedObject<RimGeoMechView*>();
+    RimView * activeView = RiaApplication::instance()->activeReservoirView();
 
-    if (eclipseView && eclipseView->overlayInfoConfig())
+    if (activeView)
     {
-        eclipseView->overlayInfoConfig()->showStatisticsInfoDialog();
-    }
-    else if (geoMechView && geoMechView->overlayInfoConfig())
-    {
-        geoMechView->overlayInfoConfig()->showStatisticsInfoDialog();
+        activeView->overlayInfoConfig()->showStatisticsInfoDialog();
     }
 }
 
