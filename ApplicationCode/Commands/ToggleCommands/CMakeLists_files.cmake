@@ -9,6 +9,7 @@ ${CEE_CURRENT_LIST_DIR}RicToggleItemsFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsOnFeature.h
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsOffFeature.h
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsFeature.h
+${CEE_CURRENT_LIST_DIR}RicToggleItemsOnOthersOffFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RicToggleItemsFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsOnFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsOffFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicToggleItemsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicToggleItemsOnOthersOffFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

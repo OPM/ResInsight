@@ -607,13 +607,23 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
     }
 
-
-    if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
     {
-        menuBuilder << "Separator";
-        menuBuilder << "RicToggleItemsOnFeature";
-        menuBuilder << "RicToggleItemsOffFeature";
-        menuBuilder << "RicToggleItemsFeature";
+        bool addSeparator = true;
+
+        if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
+        {
+            menuBuilder << "Separator";
+            menuBuilder << "RicToggleItemsOnFeature";
+            menuBuilder << "RicToggleItemsOffFeature";
+            menuBuilder << "RicToggleItemsFeature";
+            addSeparator = false;
+        }
+
+        if (addSeparator)
+        {
+            menuBuilder.addSeparator();
+        }
+        menuBuilder << "RicToggleItemsOnOthersOffFeature";
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature")->canFeatureBeExecuted() )
