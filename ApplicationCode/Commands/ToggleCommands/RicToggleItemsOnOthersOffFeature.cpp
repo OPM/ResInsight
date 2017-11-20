@@ -55,18 +55,16 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered(bool isChecked)
     std::vector<caf::PdmObject*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType(&selectedObjects);
 
+    // First toggle off all siblings
     caf::PdmFieldHandle* commonParent = commonParentForAllSelections(selectedObjects);
 
-    if (commonParent)
+    for (caf::PdmObjectHandle* child : childObjects(commonParent))
     {
-        for (caf::PdmObjectHandle* child : childObjects(commonParent))
-        {
-            caf::PdmField<bool>* field = objectToggleField(child);
+        caf::PdmField<bool>* field = objectToggleField(child);
 
-            if (field)
-            {
-                field->setValueWithFieldChanged(false);
-            }
+        if (field)
+        {
+            field->setValueWithFieldChanged(false);
         }
     }
 
