@@ -23,6 +23,8 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
+#include "RigTimeHistoryCurveMerger.h"
+
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -238,14 +240,7 @@ bool RimSummaryCalculation::calculate()
 {
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide(m_expression);
 
-    ExpressionParser parser;
-
-    std::vector<std::vector<double>> variableValues;
-    variableValues.resize(m_variables.size());
-
-    std::vector<time_t> sourceTimeSteps;
-
-    size_t itemCount = 0;
+    RigTimeHistoryCurveMerger timeHistoryCurveMerger;
 
     for (size_t i = 0; i < m_variables.size(); i++)
     {
@@ -268,48 +263,50 @@ bool RimSummaryCalculation::calculate()
         RimSummaryAddress* sumAdr = v->summaryAddress();
         RiaSummaryCurveDefinition curveDef(v->summaryCase(), v->summaryAddress()->address());
 
-        std::vector<double>& curveValues = variableValues[i];
+        std::vector<double> curveValues;
         RiaSummaryCurveDefinition::resultValues(curveDef, &curveValues);
 
-        if (sourceTimeSteps.size() == 0)
-        {
-            sourceTimeSteps = RiaSummaryCurveDefinition::timeSteps(curveDef);
-        }
+        std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps(curveDef);
 
-        if (itemCount == 0)
-        {
-            itemCount = curveValues.size();
-        }
-        else
-        {
-            if (itemCount != curveValues.size())
-            {
-                QMessageBox::warning(nullptr, "Expression Parser", QString("Detected varying number of time steps in input vectors. Only vectors with identical number of time steps is supported."));
-
-                return false;
-            }
-        }
-
-        parser.assignVector(v->name(), curveValues);
+        timeHistoryCurveMerger.addCurveData(curveValues, curveTimeSteps);
     }
 
-    if (itemCount == 0)
+    timeHistoryCurveMerger.computeInterpolatedValues();
+
+    ExpressionParser parser;
+    for (size_t i = 0; i < m_variables.size(); i++)
     {
-        QMessageBox::warning(nullptr, "Expression Parser", QString("Detected zero time steps in input vectors, which is not supported."));
+        RimSummaryCalculationVariable* v = m_variables[i];
 
-        return false;
+        parser.assignVector(v->name(), timeHistoryCurveMerger.interpolatedCurveValuesForAllTimeSteps(i));
     }
 
-    m_calculatedValues.v().resize(itemCount);
-    parser.assignVector(leftHandSideVariableName, m_calculatedValues.v());
+    std::vector<double> resultValues;
+    resultValues.resize(timeHistoryCurveMerger.allTimeSteps().size());
+
+    parser.assignVector(leftHandSideVariableName, resultValues);
 
     QString errorText;
     bool evaluatedOk = parser.evaluate(m_expression, &errorText);
 
     if (evaluatedOk)
     {
-        // Copy time vector from source
-        m_timesteps = sourceTimeSteps;
+        size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().front().first;
+        size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().back().second + 1;
+
+        if (lastValidTimeStep > firstValidTimeStep &&
+            lastValidTimeStep <= timeHistoryCurveMerger.allTimeSteps().size())
+        {
+            std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allTimeSteps().begin() + firstValidTimeStep, 
+                                               timeHistoryCurveMerger.allTimeSteps().begin() + lastValidTimeStep);
+
+
+            std::vector<double> validValues(resultValues.begin() + firstValidTimeStep,
+                                            resultValues.begin() + lastValidTimeStep);
+
+            m_timesteps = validTimeSteps;
+            m_calculatedValues = validValues;
+        }
 
         m_isDirty = false;
     }
