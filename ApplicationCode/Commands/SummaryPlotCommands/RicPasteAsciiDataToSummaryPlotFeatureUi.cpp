@@ -18,6 +18,8 @@
 
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
+#include "cafPdmUiTextEditor.h"
+
 namespace caf {
 
     template<>
@@ -48,8 +50,9 @@ namespace caf {
     template<>
     void RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparatorEnum::setUp()
     {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB,   "TAB",    "Tab");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA, "COMMA",  "Comma");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB,       "TAB",         "Tab");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA,     "COMMA",       "Comma");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON, "SEMICOLON",   "Semicolon");
         setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB);
     }
 }
@@ -79,6 +82,11 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f,                                                                      "Symbol Skip Distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_previewText, "PreviewText", "Preview Text", "", "", "");
+    m_previewText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_previewText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_previewText.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +190,14 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::setPreviewText(const QString& previewText)
+{
+    m_previewText = previewText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     {
@@ -226,5 +242,26 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
         appearanceGroup->add(&m_curveSymbolSkipDistance);
     }
 
+    {
+        caf::PdmUiGroup* previewGroup = uiOrdering.addNewGroup("Preview");
+
+        previewGroup->add(&m_previewText);
+    }
+
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_previewText)
+    {
+        caf::PdmUiTextEditorAttribute* attrib = dynamic_cast<caf::PdmUiTextEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+        }
+    }
 }

@@ -81,8 +81,11 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
 
+    QString text = getPastedData();
+
     RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
     if (!summaryPlot) pasteOptions.createNewPlot();
+    pasteOptions.setPreviewText(text);
     caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
@@ -100,8 +103,6 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
     }
 
     caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
-
-    QString text = getPastedData();
 
     std::vector<RimAsciiDataCurve*> curves = parseCurves(text, pasteOptions);
     

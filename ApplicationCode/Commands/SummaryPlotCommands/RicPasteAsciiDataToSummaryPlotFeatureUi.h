@@ -64,6 +64,7 @@ public:
     {
         CELL_COMMA,
         CELL_TAB,
+        CELL_SEMICOLON
     };
 
     typedef caf::AppEnum<CellSeparator> CellSeparatorEnum;
@@ -81,9 +82,11 @@ public:
     float                         symbolSkipDinstance() const;
 
     void    createNewPlot();
+    void    setPreviewText(const QString& text);
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     caf::PdmField<QString>              m_plotTitle;
@@ -100,4 +103,6 @@ private:
     caf::PdmField<float>                                       m_curveSymbolSkipDistance;
 
     bool                                m_createNewPlot;
+
+    caf::PdmField<QString>              m_previewText;
 };
