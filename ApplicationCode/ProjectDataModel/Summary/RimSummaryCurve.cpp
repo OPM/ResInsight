@@ -486,6 +486,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
 
         curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
+        curveDataGroup->add(&m_plotAxis);
     }
 
     if (isCrossPlotCurve())
@@ -502,7 +503,6 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
     }
 
-    uiOrdering.add(&m_plotAxis);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
