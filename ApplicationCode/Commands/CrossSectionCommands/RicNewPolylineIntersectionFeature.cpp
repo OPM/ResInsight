@@ -31,7 +31,6 @@
 #include "RiuViewer.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -74,7 +73,7 @@ void RicNewPolylineIntersectionFeature::onActionTriggered(bool isChecked)
 void RicNewPolylineIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Polyline Intersection");
+    actionToSetup->setText("Polyline Intersection");
 }
 
 //--------------------------------------------------------------------------------------------------
