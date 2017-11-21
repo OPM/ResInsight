@@ -49,7 +49,7 @@ public:
 
     virtual size_t  timeStepCount() = 0;
 
-    virtual void    mobileVolumeWeightedMean(double& mean);
+    void            mobileVolumeWeightedMean(double& mean);
     virtual void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
 
     static void     posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg);
