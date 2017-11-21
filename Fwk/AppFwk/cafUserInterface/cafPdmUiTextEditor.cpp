@@ -123,6 +123,7 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     m_textEdit->blockSignals(false);
 
+    m_textEdit->setWordWrapMode(toQTextOptionWrapMode(leab.wrapMode));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,5 +184,21 @@ void PdmUiTextEditor::slotSetValueToField()
     this->setValueToField(v);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextOption::WrapMode PdmUiTextEditor::toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode)
+{
+    switch (wrapMode)
+    {
+    case PdmUiTextEditorAttribute::NoWrap:                      return QTextOption::WrapMode::NoWrap;
+    case PdmUiTextEditorAttribute::WordWrap:                    return QTextOption::WrapMode::WordWrap;
+    case PdmUiTextEditorAttribute::ManualWrap:                  return QTextOption::WrapMode::ManualWrap;
+    case PdmUiTextEditorAttribute::WrapAnywhere:                return QTextOption::WrapMode::WrapAnywhere;
+    case PdmUiTextEditorAttribute::WrapAtWordBoundaryOrAnywhere:
+    default:                                                    return QTextOption::WrapMode::WrapAtWordBoundaryOrAnywhere;
+    }
+}
 
 } // end namespace caf

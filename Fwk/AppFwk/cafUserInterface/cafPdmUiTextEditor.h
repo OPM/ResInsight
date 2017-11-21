@@ -55,10 +55,19 @@ namespace caf
 class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
 {
 public:
+    enum WrapMode {
+        NoWrap,
+        WordWrap,
+        ManualWrap,
+        WrapAnywhere,
+        WrapAtWordBoundaryOrAnywhere
+    };
+
     PdmUiTextEditorAttribute()
     {
         textMode = PLAIN;
         showSaveButton = false;
+        wrapMode = WrapAtWordBoundaryOrAnywhere;
     }
 
     enum TextMode 
@@ -70,6 +79,7 @@ public:
 public:
     TextMode    textMode;
     bool        showSaveButton;
+    WrapMode    wrapMode;
 };
 
 //==================================================================================================
@@ -108,6 +118,9 @@ protected:
 
 protected slots:
     void                slotSetValueToField();
+
+private:
+    QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);
 
 private:
     QPointer<TextEdit>      m_textEdit;
