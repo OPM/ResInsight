@@ -141,6 +141,7 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_textEdit);
+    layout->setMargin(0);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     buttonLayout->insertStretch(0, 10);
