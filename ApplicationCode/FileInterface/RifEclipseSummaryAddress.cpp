@@ -226,6 +226,9 @@ bool RifEclipseSummaryAddress::isValid() const
 {
     switch (category())
     {
+    case SUMMARY_INVALID:
+        return false;
+
     case SUMMARY_REGION:
         if (m_regionNumber == -1) return false;
         return true;

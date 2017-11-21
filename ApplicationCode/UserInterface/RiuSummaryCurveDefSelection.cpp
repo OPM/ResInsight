@@ -529,6 +529,11 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
 
     RifEclipseSummaryAddress::SummaryVarCategory sumCategory = m_currentSummaryCategory();
+    if (sumCategory == RifEclipseSummaryAddress::SUMMARY_INVALID)
+    {
+        sumCategory == RifEclipseSummaryAddress::SUMMARY_FIELD;
+    }
+
     if (sumCategory == RifEclipseSummaryAddress::SUMMARY_FIELD)
     {
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField();
@@ -646,9 +651,11 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
     }
 
-    CAF_ASSERT(summaryiesField);
     caf::PdmUiGroup* summariesGroup = uiOrdering.addNewGroupWithKeyword("Summaries", RiuSummaryCurveDefinitionKeywords::summaries());
-    summariesGroup->add(summaryiesField);
+    if (summaryiesField)
+    {
+        summariesGroup->add(summaryiesField);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }

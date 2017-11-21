@@ -74,10 +74,13 @@ RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address)
 {
-    std::vector<RiaSummaryCurveDefinition> sumCasePairs;
-    sumCasePairs.push_back(RiaSummaryCurveDefinition(summaryCase, address));
+    if (summaryCase && address.isValid())
+    {
+        std::vector<RiaSummaryCurveDefinition> sumCasePairs;
+        sumCasePairs.push_back(RiaSummaryCurveDefinition(summaryCase, address));
+        summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
+    }
 
-    summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
     summaryAddressSelection()->updateConnectedEditors();
     updateLabel();
 }
