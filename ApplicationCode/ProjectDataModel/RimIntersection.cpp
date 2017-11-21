@@ -56,7 +56,7 @@ void caf::AppEnum< RimIntersection::CrossSectionEnum >::setUp()
     addItem(RimIntersection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
     addItem(RimIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
     addItem(RimIntersection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
-    addItem(RimIntersection::CS_AZIMUTHLINE,     "CS_AZIMUTHLINE",     "Azimuth and Dip Plane");
+    addItem(RimIntersection::CS_AZIMUTHLINE,     "CS_AZIMUTHLINE",     "Azimuth and Dip");
     setDefault(RimIntersection::CS_WELL_PATH);
 }
 
@@ -91,10 +91,10 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
-    CAF_PDM_InitField(&m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "");
+    CAF_PDM_InitField(&m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "");
     m_azimuthAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_dipAngle, "DipAngle", 90.0, "Dip Angle", "", "", "");
+    CAF_PDM_InitField(&m_dipAngle, "DipAngle", 90.0, "Dip", "", "", "");
     m_dipAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
