@@ -531,7 +531,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
     RifEclipseSummaryAddress::SummaryVarCategory sumCategory = m_currentSummaryCategory();
     if (sumCategory == RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
-        sumCategory == RifEclipseSummaryAddress::SUMMARY_FIELD;
+        sumCategory = RifEclipseSummaryAddress::SUMMARY_FIELD;
     }
 
     if (sumCategory == RifEclipseSummaryAddress::SUMMARY_FIELD)
