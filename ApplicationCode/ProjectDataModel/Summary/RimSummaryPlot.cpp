@@ -228,9 +228,9 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
         ++i;
     }
 
-    if (firstCurve && firstCurve->timeSteps().size() > 0)
+    if (firstCurve && firstCurve->timeStepsY().size() > 0)
     {
-        return firstCurve->timeSteps()[0];
+        return firstCurve->timeStepsY()[0];
     }
     else return time_t(0);
 }
@@ -278,7 +278,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
             {
                 caseNames.push_back(curveCaseName);
             
-                std::vector<time_t> curveTimeSteps = curve->timeSteps();
+                std::vector<time_t> curveTimeSteps = curve->timeStepsY();
                 timeSteps.push_back(curveTimeSteps);
 
                 std::vector<std::vector<double> > curveDataForCase;

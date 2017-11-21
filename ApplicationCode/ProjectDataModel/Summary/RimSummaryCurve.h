@@ -60,6 +60,7 @@ public:
     std::vector<double>                     valuesY() const;
     void                                    setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis);
     RiaDefines::PlotAxis                    axisY() const;
+    const std::vector<time_t>&              timeStepsY() const;
 
     // X Axis functions
     RifEclipseSummaryAddress                summaryAddressX() const;
@@ -67,7 +68,6 @@ public:
     std::vector<double>                     valuesX() const;
 
     // Other
-    const std::vector<time_t>&              timeSteps() const;
     void                                    updateQwtPlotAxis();
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 

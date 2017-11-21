@@ -35,6 +35,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "RimTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
@@ -46,6 +47,8 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
+
+#include <QMessageBox>
 
 
 // See also corresponding fake implementations in RimSummaryCurveFilter
@@ -268,7 +271,7 @@ std::vector<double> RimSummaryCurve::valuesX() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimSummaryCurve::timeSteps() const
+const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 {
     static std::vector<time_t> emptyVector;
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
@@ -394,7 +397,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             auto curveValuesX = this->valuesX();
             auto curveTimeStepsX = timeStepsX();
 
-            auto curveTimeStepsY = timeSteps();
+            auto curveTimeStepsY = timeStepsY();
 
             if (curveValuesY.empty() || curveValuesX.empty())
             {
@@ -421,7 +424,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         else
         {
-            std::vector<time_t> curveTimeStepsY = this->timeSteps();
+            std::vector<time_t> curveTimeStepsY = this->timeStepsY();
             if (curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size())
             {
                 if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
@@ -616,6 +619,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     CVF_ASSERT(plot);
 
     bool loadAndUpdate = false;
+    bool crossPlotTestForMatchingTimeSteps = false;
 
     if(changedField == &m_yValuesUiFilterResultSelection)
     {
@@ -661,6 +665,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 m_yValuesSummaryCase = curveSelection[0].summaryCase();
                 m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
 
+                crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate = true;
             }
         }
@@ -680,11 +685,67 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 m_xValuesSummaryCase = curveSelection[0].summaryCase();
                 m_xValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
 
+                crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate = true;
             }
         }
 
         m_xPushButtonSelectSummaryAddress = false;
+    }
+
+    if (crossPlotTestForMatchingTimeSteps)
+    {
+        auto curveValuesX = this->valuesX();
+        auto curveTimeStepsX = timeStepsX();
+
+        auto curveValuesY = this->valuesY();
+        auto curveTimeStepsY = timeStepsY();
+
+        if (!curveValuesX.empty() && !curveValuesY.empty())
+        {
+            RigTimeHistoryCurveMerger curveMerger;
+            curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
+            curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
+            curveMerger.computeInterpolatedValues();
+
+            if (curveMerger.validIntervalsForAllTimeSteps().size() == 0)
+            {
+                QString description;
+
+                {
+                    QDateTime first = QDateTime::fromTime_t(curveTimeStepsX.front());
+                    QDateTime last = QDateTime::fromTime_t(curveTimeStepsX.back());
+
+                    std::vector<QDateTime> timeSteps;
+                    timeSteps.push_back(first);
+                    timeSteps.push_back(last);
+
+                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+
+                    description += QString("Time step range for X : '%1' - '%2'")
+                        .arg(first.toString(formatString))
+                        .arg(last.toString(formatString));
+                }
+
+                {
+                    QDateTime first = QDateTime::fromTime_t(curveTimeStepsY.front());
+                    QDateTime last = QDateTime::fromTime_t(curveTimeStepsY.back());
+
+                    std::vector<QDateTime> timeSteps;
+                    timeSteps.push_back(first);
+                    timeSteps.push_back(last);
+
+                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+
+                    description += "\n";
+                    description += QString("Time step range for Y : '%1' - '%2'")
+                        .arg(first.toString(formatString))
+                        .arg(last.toString(formatString));
+                }
+
+                QMessageBox::warning(NULL, "Detected no overlapping time steps", description);
+            }
+        }
     }
 
     if (loadAndUpdate)
