@@ -108,8 +108,14 @@ bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
             }
             else if (intersection->inputExtrusionPointsFromViewerEnabled())
             {
-
                 intersection->appendPointToExtrusionDirection(domainCoord);
+
+                // Further Ui processing is stopped when true is returned
+                return true;
+            }
+            else if (intersection->inputTwoAzimuthPointsFromViewerEnabled())
+            {
+                intersection->appendPointToAzimuthLine(domainCoord);
 
                 // Further Ui processing is stopped when true is returned
                 return true;

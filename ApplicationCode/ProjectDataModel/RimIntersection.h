@@ -34,6 +34,12 @@ class RivIntersectionPartMgr;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
 
+namespace caf 
+{
+    class PdmUiListEditorAttribute;
+    class PdmUiPushButtonEditorAttribute;
+}
+
 //==================================================================================================
 //
 // 
@@ -48,7 +54,8 @@ public:
     {
         CS_WELL_PATH,
         CS_SIMULATION_WELL,
-        CS_POLYLINE
+        CS_POLYLINE,
+        CS_AZIMUTHLINE
     };
 
     enum CrossSectionDirEnum
@@ -56,7 +63,6 @@ public:
         CS_VERTICAL,
         CS_HORIZONTAL,
         CS_TWO_POINTS,
-        CS_AZIMUTHDIP,
     };
 
 public:
@@ -75,6 +81,7 @@ public:
 
     caf::PdmField< bool >                                inputPolyLineFromViewerEnabled;
     caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;
+    caf::PdmField< bool >                                inputTwoAzimuthPointsFromViewerEnabled;
 
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
@@ -84,7 +91,10 @@ public:
     std::vector< std::vector <cvf::Vec3d> >              polyLinesForExtrusionDirection() const;
     void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);
 
+    void                                                 appendPointToAzimuthLine(const cvf::Vec3d& point);
+
     cvf::Vec3d                                           extrusionDirection() const;
+    
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
@@ -106,14 +116,20 @@ private:
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
     caf::PdmField< std::vector< cvf::Vec3d> >  m_customExtrusionPoints;
+    caf::PdmField< std::vector< cvf::Vec3d> >  m_twoAzimuthPoints;
+
+    static void                             setPushButtonText(bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute);
+    static void                             setBaseColor(bool enable, caf::PdmUiListEditorAttribute* attribute);
 
     RimSimWellInViewCollection*             simulationWellCollection();
+    void                                    updateAzimuthLine();
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    updateName();
     void                                    rebuildGeometryAndScheduleCreateDisplayModel();
+    static double                           azimuthInRadians(cvf::Vec3d vec);
 private:                                    
     cvf::ref<RivIntersectionPartMgr>        m_crossSectionPartMgr;
     

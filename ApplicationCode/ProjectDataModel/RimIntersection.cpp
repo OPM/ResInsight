@@ -39,10 +39,12 @@
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfGeometryTools.h"
 #include "cvfPlane.h"
 
 
@@ -54,16 +56,16 @@ void caf::AppEnum< RimIntersection::CrossSectionEnum >::setUp()
     addItem(RimIntersection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
     addItem(RimIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
     addItem(RimIntersection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
+    addItem(RimIntersection::CS_AZIMUTHLINE,     "CS_AZIMUTHLINE",     "Azimuth and Dip Plane");
     setDefault(RimIntersection::CS_WELL_PATH);
 }
 
 template<>
 void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
 {
-    addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
-    addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
+    addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",   "Vertical");
+    addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal");
     addItem(RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points");
-    addItem(RimIntersection::CS_AZIMUTHDIP, "CS_AZIMUTHDIP", "Azimuth, Dip");
     setDefault(RimIntersection::CS_VERTICAL);
 }
 
@@ -90,9 +92,13 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
     CAF_PDM_InitField(&m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "");
-    CAF_PDM_InitField(&m_dipAngle,     "DipAngle",     0.0, "Dip Angle", "", "", "");
+    m_azimuthAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_dipAngle, "DipAngle", 90.0, "Dip Angle", "", "", "");
+    m_dipAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints, "TwoAzimuthPoints", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
     CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,    "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0, "Extent length", "", "", "");
@@ -105,6 +111,10 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&inputExtrusionPointsFromViewerEnabled);
     inputExtrusionPointsFromViewerEnabled = false;
+
+    CAF_PDM_InitFieldNoDefault(&inputTwoAzimuthPointsFromViewerEnabled, "inputTwoAzimuthPointsFromViewerEnabled", "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&inputTwoAzimuthPointsFromViewerEnabled);
+    inputTwoAzimuthPointsFromViewerEnabled = false;
 
     uiCapability()->setUiTreeChildrenHidden(true);
 }
@@ -156,6 +166,7 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (inputPolyLineFromViewerEnabled)
         {
             inputExtrusionPointsFromViewerEnabled = false;
+            inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
@@ -167,12 +178,31 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (inputExtrusionPointsFromViewerEnabled)
         {
             inputPolyLineFromViewerEnabled = false;
+            inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if (changedField == &m_azimuthAngle || changedField == &m_dipAngle)
+    if (changedField == &inputTwoAzimuthPointsFromViewerEnabled
+        || changedField == &m_twoAzimuthPoints)
+    {
+        if (inputTwoAzimuthPointsFromViewerEnabled)
+        {
+            inputPolyLineFromViewerEnabled = false;
+            inputExtrusionPointsFromViewerEnabled = false;
+        }
+
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
+
+    if (changedField == &m_azimuthAngle)
+    {
+        updateAzimuthLine();
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
+
+    if(changedField == &m_dipAngle)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -205,23 +235,28 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         geometryGroup->add(&m_userPolyline);
         geometryGroup->add(&inputPolyLineFromViewerEnabled);
     }
+    else if (type == CS_AZIMUTHLINE)
+    {
+        geometryGroup->add(&m_twoAzimuthPoints);
+        geometryGroup->add(&inputTwoAzimuthPointsFromViewerEnabled);
+        geometryGroup->add(&m_azimuthAngle);
+        geometryGroup->add(&m_dipAngle);
+    }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
 
-    optionsGroup->add(&direction);
+    if (!(type == CS_AZIMUTHLINE))
+    {
+        optionsGroup->add(&direction);
+        optionsGroup->add(&m_extentLength);
+    }
 
     if (direction == CS_TWO_POINTS)
     {
         optionsGroup->add(&m_customExtrusionPoints);
         optionsGroup->add(&inputExtrusionPointsFromViewerEnabled);
     }
-    else if (direction == CS_AZIMUTHDIP)
-    {
-        optionsGroup->add(&m_azimuthAngle);
-        optionsGroup->add(&m_dipAngle);
-    }
 
-    optionsGroup->add(&m_extentLength);
     optionsGroup->add(&showInactiveCells);
 
     if (type == CS_POLYLINE)
@@ -324,6 +359,27 @@ RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersection::updateAzimuthLine()
+{
+    if (m_twoAzimuthPoints().size() == 2)
+    {
+        double currentAzimuth = azimuthInRadians(m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0]);
+        double newAzimuth = cvf::Math::toRadians(m_azimuthAngle);
+        double rotAngle = newAzimuth - currentAzimuth;
+
+        cvf::Mat4d rotMat = cvf::Mat4d::fromRotation(-cvf::Vec3d::Z_AXIS, rotAngle);
+        cvf::Mat4d transFromOriginMat = cvf::Mat4d::fromTranslation(m_twoAzimuthPoints()[0]);
+        cvf::Mat4d transToOriginMat = cvf::Mat4d::fromTranslation(-m_twoAzimuthPoints()[0]);
+
+        m_twoAzimuthPoints.v()[1] = m_twoAzimuthPoints()[1].getTransformedPoint(transFromOriginMat*rotMat*transToOriginMat);
+
+        m_twoAzimuthPoints.uiCapability()->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
 {
     std::vector< std::vector <cvf::Vec3d> > lines;
@@ -355,6 +411,10 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
     else if (type == CS_POLYLINE)
     {
         lines.push_back(m_userPolyline);
+    }
+    else if (type == CS_AZIMUTHLINE)
+    {
+        lines.push_back(m_twoAzimuthPoints);
     }
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
@@ -424,7 +484,7 @@ void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
     {
         size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount;
         cvf::Vec3d endDirection = (polyLine[lineVxCount-1] - polyLine[lineVxCount-endIdxOffset]);
-        endDirection[2] = 0; // Remove z. make extent lenght be horizontally
+        endDirection[2] = 0; // Remove z. make extent length be horizontally
         if (endDirection.length() < 1e-2)
         {
             endDirection = polyLine.back() - polyLine.front();
@@ -554,55 +614,71 @@ void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersection::setPushButtonText(bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute)
+{
+    if (attribute)
+    {
+        if (buttonEnable)
+        {
+            attribute->m_buttonText = "Stop picking points";
+        }
+        else
+        {
+            attribute->m_buttonText = "Start picking points";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::setBaseColor(bool enable, caf::PdmUiListEditorAttribute* attribute)
+{
+    if (attribute && enable)
+    {
+        attribute->m_baseColor.setRgb(255, 220, 255);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &inputPolyLineFromViewerEnabled)
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (attrib)
+    caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+    if (doubleSliderAttrib)
+    {
+        if (field == &m_azimuthAngle || field == &m_dipAngle)
         {
-            if (inputPolyLineFromViewerEnabled)
-            {
-                attrib->m_buttonText = "Stop picking points";
-            }
-            else
-            {
-                attrib->m_buttonText = "Start picking points";
-            }
+            doubleSliderAttrib->m_minimum = 0;
+            doubleSliderAttrib->m_maximum = 360;
+            doubleSliderAttrib->m_sliderTickCount = 360;
         }
+    }
+    else if (field == &inputPolyLineFromViewerEnabled)
+    {
+        setPushButtonText(inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
     }
     else if (field == &m_userPolyline)
     {
-        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
-        if (myAttr && inputPolyLineFromViewerEnabled)
-        {
-            myAttr->m_baseColor.setRgb(255, 220, 255);
-        }
+        setBaseColor(inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute));
+    }
+    else if (field == &inputTwoAzimuthPointsFromViewerEnabled)
+    {
+        setPushButtonText(inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
+    }
+    else if (field == &m_twoAzimuthPoints)
+    {
+        setBaseColor(inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute));
     }
     else if (field == &inputExtrusionPointsFromViewerEnabled)
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-
-        if (attrib)
-        {
-            if (inputExtrusionPointsFromViewerEnabled)
-            {
-                attrib->m_buttonText = "Stop picking points";
-            }
-            else
-            {
-                attrib->m_buttonText = "Start picking points";
-            }
-        }
+        setPushButtonText(inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
     }
     else if (field == &m_customExtrusionPoints)
     {
-        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
-        if (myAttr && inputExtrusionPointsFromViewerEnabled)
-        {
-            myAttr->m_baseColor.setRgb(255, 220, 255);
-        }
+        setBaseColor(inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute));
     }
 }
 
@@ -635,6 +711,33 @@ void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersection::appendPointToAzimuthLine(const cvf::Vec3d& point)
+{
+    if (m_twoAzimuthPoints().empty())
+    {
+        m_twoAzimuthPoints.v().push_back(point);
+    }
+    else if (m_twoAzimuthPoints().size() == 1)
+    {
+        cvf::Vec3d projectedPoint = cvf::Vec3d(point[0], point[1], m_twoAzimuthPoints.v()[0][2]);
+        m_twoAzimuthPoints.v().push_back(projectedPoint);
+
+        m_azimuthAngle = cvf::Math::toDegrees(azimuthInRadians(m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0]));
+    }
+    else if (m_twoAzimuthPoints().size() > 1)
+    {
+        m_twoAzimuthPoints.v().clear();
+        m_twoAzimuthPoints.v().push_back(point);
+    }
+
+    m_twoAzimuthPoints.uiCapability()->updateConnectedEditors();
+
+    rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimIntersection::extrusionDirection() const
 {
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
@@ -658,12 +761,16 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
     {
         dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }
-    else if (direction() == RimIntersection::CS_AZIMUTHDIP)
+    else if (m_twoAzimuthPoints().size() == 2)
     {
-        double azimuthInRad = cvf::Math::toRadians(m_azimuthAngle);
         double dipInRad = cvf::Math::toRadians(m_dipAngle);
+        
+        cvf::Vec3d azimutDirection = m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0];
+        
+        cvf::Mat3d rotMat = cvf::Mat3d::fromRotation(azimutDirection, dipInRad);
+        cvf::Vec3d vecPerpToRotVecInHorizontalPlane = azimutDirection ^ cvf::Vec3d::Z_AXIS;
 
-        dir = cvf::Vec3d(cvf::Math::sin(azimuthInRad), cvf::Math::cos(azimuthInRad), -cvf::Math::sin(dipInRad));
+        dir = vecPerpToRotVecInHorizontalPlane.getTransformedVector(rotMat);
     }
 
     return dir;
@@ -682,5 +789,13 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimIntersection::azimuthInRadians(cvf::Vec3d vec)
+{
+    return cvf::GeometryTools::getAngle(-cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec);
 }
 
