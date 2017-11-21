@@ -291,21 +291,27 @@ bool RimSummaryCalculation::calculate()
 
     if (evaluatedOk)
     {
-        size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().front().first;
-        size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().back().second + 1;
+        m_timesteps.v().clear();
+        m_calculatedValues.v().clear();
 
-        if (lastValidTimeStep > firstValidTimeStep &&
-            lastValidTimeStep <= timeHistoryCurveMerger.allTimeSteps().size())
+        if (timeHistoryCurveMerger.validIntervalsForAllTimeSteps().size() > 0)
         {
-            std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allTimeSteps().begin() + firstValidTimeStep, 
-                                               timeHistoryCurveMerger.allTimeSteps().begin() + lastValidTimeStep);
+            size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().front().first;
+            size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().back().second + 1;
+
+            if (lastValidTimeStep > firstValidTimeStep &&
+                lastValidTimeStep <= timeHistoryCurveMerger.allTimeSteps().size())
+            {
+                std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allTimeSteps().begin() + firstValidTimeStep, 
+                                                   timeHistoryCurveMerger.allTimeSteps().begin() + lastValidTimeStep);
 
 
-            std::vector<double> validValues(resultValues.begin() + firstValidTimeStep,
-                                            resultValues.begin() + lastValidTimeStep);
+                std::vector<double> validValues(resultValues.begin() + firstValidTimeStep,
+                                                resultValues.begin() + lastValidTimeStep);
 
-            m_timesteps = validTimeSteps;
-            m_calculatedValues = validValues;
+                m_timesteps = validTimeSteps;
+                m_calculatedValues = validValues;
+            }
         }
 
         m_isDirty = false;

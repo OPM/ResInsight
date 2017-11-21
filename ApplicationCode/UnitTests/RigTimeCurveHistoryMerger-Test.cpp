@@ -185,3 +185,26 @@ TEST(RigTimeHistoryCurveMergerTest, RobustUse)
     }
 }
 
+//-------------------------------------------------------------------------------------------------- 
+///  
+//-------------------------------------------------------------------------------------------------- 
+TEST(RigTimeHistoryCurveMergerTest, NoTimeStepOverlap)
+{
+    std::vector<double> valuesA{ 1,  2,  3,  4,  5 };
+    std::vector<double> valuesB{ 10, 20, 30 };
+
+    std::vector<time_t> timeStepsA{ 0, 10, 11, 15, 20 };
+    std::vector<time_t> timeStepsB{ 100, 200, 300 };
+
+    {
+        RigTimeHistoryCurveMerger curveMerger;
+        curveMerger.addCurveData(valuesA, timeStepsA);
+        curveMerger.addCurveData(valuesB, timeStepsB);
+
+        // Execute interpolation twice is allowed
+        curveMerger.computeInterpolatedValues();
+        EXPECT_EQ(8, static_cast<int>(curveMerger.allTimeSteps().size()));
+        EXPECT_EQ(0, static_cast<int>(curveMerger.validIntervalsForAllTimeSteps().size()));
+    }
+}
+
