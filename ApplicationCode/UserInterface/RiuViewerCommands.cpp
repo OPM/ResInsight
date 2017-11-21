@@ -22,10 +22,11 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 
-#include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
+#include "RicViewerEventInterface.h"
+#include "WellPathCommands/RicIntersectionViewerEventHandler.h"
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
 #include "RigEclipseCaseData.h"
@@ -106,10 +107,7 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
       m_currentPickPositionInDomainCoords(cvf::Vec3d::UNDEFINED)
 {
     {
-        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineIntersectionFeature");
-        CVF_ASSERT(cmdFeature);
-
-        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(cmdFeature));
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicIntersectionViewerEventHandler::instance()));
     }
 
     {
