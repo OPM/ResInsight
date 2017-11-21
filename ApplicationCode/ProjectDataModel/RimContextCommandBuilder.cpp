@@ -386,6 +386,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryCurveCollection*>(uiItem))
         {
             menuBuilder << "RicEditSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {
