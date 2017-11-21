@@ -223,6 +223,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             if (menu.actions().size() > 0) menu.addSeparator();
             menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewPolylineIntersectionFeature"));
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewAzimuthDipIntersectionFeature"));
             menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxAtPosFeature"));
             menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
             menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
