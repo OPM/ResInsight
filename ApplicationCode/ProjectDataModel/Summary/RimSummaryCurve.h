@@ -81,6 +81,7 @@ protected:
 private:
     RifSummaryReaderInterface*              valuesSummaryReaderX() const;
     RifSummaryReaderInterface*              valuesSummaryReaderY() const;
+    const std::vector<time_t>&              timeStepsX() const;
 
     void                                    calculateCurveInterpolationFromAddress();
 

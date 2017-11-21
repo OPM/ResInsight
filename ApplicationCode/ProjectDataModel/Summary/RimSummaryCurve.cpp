@@ -23,6 +23,8 @@
 
 #include "RifReaderEclipseSummary.h"
 
+#include "RigTimeHistoryCurveMerger.h"
+
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -379,53 +381,69 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
     if (isCurveVisible())
     {
-        std::vector<double> yValues = this->valuesY();
+        std::vector<double> curveValuesY = this->valuesY();
 
         RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
+        firstAncestorOrThisOfTypeAsserted(plot);
         bool isLogCurve = plot->isLogarithmicScaleEnabled(this->axisY());
 
         bool shouldPopulateViewWithEmptyData = false;
 
         if (isCrossPlotCurve())
         {
-            std::vector<double> xValues = this->valuesX();
+            auto curveValuesX = this->valuesX();
+            auto curveTimeStepsX = timeStepsX();
 
-            if (!yValues.empty() && yValues.size() == xValues.size())
+            auto curveTimeStepsY = timeSteps();
+
+            if (curveValuesY.empty() || curveValuesX.empty())
             {
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues(xValues, yValues, isLogCurve);
+                shouldPopulateViewWithEmptyData = true;
             }
             else
             {
-                shouldPopulateViewWithEmptyData = true;
+                RigTimeHistoryCurveMerger curveMerger;
+                curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
+                curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
+                curveMerger.computeInterpolatedValues();
+
+                if (curveMerger.allTimeSteps().size() > 0)
+                {
+                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues(curveMerger.interpolatedCurveValuesForAllTimeSteps(0), 
+                                                                    curveMerger.interpolatedCurveValuesForAllTimeSteps(1), 
+                                                                    isLogCurve);
+                }
+                else
+                {
+                    shouldPopulateViewWithEmptyData = true;
+                }
             }
         }
         else
         {
-            std::vector<time_t> dateTimes = this->timeSteps();
-            if (dateTimes.size() > 0 && dateTimes.size() == yValues.size())
+            std::vector<time_t> curveTimeStepsY = this->timeSteps();
+            if (curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size())
             {
                 if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
                 {
-                    m_qwtPlotCurve->setSamplesFromTimeTAndYValues(dateTimes, yValues, isLogCurve);
+                    m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
                 }
                 else
                 {
-                    double timeScale  = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                    double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
-                    std::vector<double> times;
-                    if ( dateTimes.size() )
+                    std::vector<double> timeFromSimulationStart;
+                    if (curveTimeStepsY.size())
                     {
-                        time_t startDate = dateTimes[0];
-                        for ( time_t& date: dateTimes )
+                        time_t startDate = curveTimeStepsY[0];
+                        for (const auto& date : curveTimeStepsY)
                         {
-                            times.push_back(timeScale*(date - startDate));
+                            timeFromSimulationStart.push_back(timeScale*(date - startDate));
                         }
                     }
 
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues(times, yValues, isLogCurve);
+                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues(timeFromSimulationStart, curveValuesY, isLogCurve);
                 }
-           
             }
             else
             {
@@ -695,6 +713,21 @@ RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderY() const
     if (!m_yValuesSummaryCase()) return nullptr;
 
     return m_yValuesSummaryCase()->summaryReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<time_t>& RimSummaryCurve::timeStepsX() const
+{
+    static std::vector<time_t> emptyVector;
+    RifSummaryReaderInterface* reader = valuesSummaryReaderX();
+
+    if (!reader) return emptyVector;
+
+    RifEclipseSummaryAddress addr = m_xValuesCurveVariable()->address();
+
+    return reader->timeSteps(addr);
 }
 
 //--------------------------------------------------------------------------------------------------
