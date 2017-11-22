@@ -46,8 +46,8 @@ namespace caf
     template<>
     void caf::AppEnum< RimWellLogFile::WellFlowCondition>::setUp()
     {
-        addItem(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir");
-        addItem(RimWellLogFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard");
+        addItem(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir Volumes");
+        addItem(RimWellLogFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard Volumes");
     }
 }
 
@@ -83,7 +83,7 @@ RimWellLogFile::RimWellLogFile()
     m_wellLogChannelNames.uiCapability()->setUiHidden(true);
     m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&m_wellFlowCondition, "WellFlowCondition", caf::AppEnum<RimWellLogFile::WellFlowCondition>(RimWellLogFile::WELL_FLOW_COND_STANDARD), "Well Flow Condition", "", "", "");
+    CAF_PDM_InitField(&m_wellFlowCondition, "WellFlowCondition", caf::AppEnum<RimWellLogFile::WellFlowCondition>(RimWellLogFile::WELL_FLOW_COND_STANDARD), "Well Flow Rates", "", "", "");
 
     CAF_PDM_InitField(&m_invalidDateMessage, "InvalidDateMessage", QString("Invalid or no date"), "", "", "", "");
     m_invalidDateMessage.uiCapability()->setUiReadOnly(true);
