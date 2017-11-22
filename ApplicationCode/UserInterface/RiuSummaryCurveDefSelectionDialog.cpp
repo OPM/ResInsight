@@ -74,7 +74,7 @@ RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address)
 {
-    if (summaryCase && address.isValid())
+    if (summaryCase)
     {
         std::vector<RiaSummaryCurveDefinition> sumCasePairs;
         sumCasePairs.push_back(RiaSummaryCurveDefinition(summaryCase, address));

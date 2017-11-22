@@ -298,10 +298,16 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         RimSummaryCase* summaryCase = caseAddressPair.summaryCase();
         if (!summaryCase) continue;
 
-        const RifEclipseSummaryAddress& summaryAddress = caseAddressPair.summaryAddress();
+        RifEclipseSummaryAddress summaryAddress = caseAddressPair.summaryAddress();
+        if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
+        {
+            // If we have an invalid address, set the default adress to Field
+            summaryAddress = RifEclipseSummaryAddress::fieldVarAddress(summaryAddress.quantityName());
+        }
 
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
+
         if (std::find(selectedCategories.begin(), selectedCategories.end(),
                       summaryAddress.category()) == selectedCategories.end())
         {
@@ -310,7 +316,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 
         if (curveDefinitions.size() == 1)
         {
-            m_currentSummaryCategory = curveDefinitions[0].summaryAddress().category();
+            m_currentSummaryCategory = summaryAddress.category();
         }
 
         // Select case if not already selected
