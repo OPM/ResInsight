@@ -608,10 +608,12 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
     CVF_ASSERT(m_opmFlowDiagStaticData->m_eclSaturationFunc);
 
-    const Opm::ECLSaturationFunc::RawCurve krw  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua };    // water rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krg  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Vapour };  // gas rel-perm in oil-gas system
-    const Opm::ECLSaturationFunc::RawCurve krow { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krog { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve krw  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua };    // water rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krg  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Vapour };  // gas rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve krow { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krog { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve pcgo { Opm::ECLSaturationFunc::RawCurve::Function::CapPress, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Vapour };  // gas/oil capillary pressure (Pg-Po) in G/O system
+    const Opm::ECLSaturationFunc::RawCurve pcow { Opm::ECLSaturationFunc::RawCurve::Function::CapPress, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua };    // oil/water capillary pressure (Po-Pw) in O/W system
 
     std::vector<std::pair<RelPermCurve::Ident, std::string>> curveIdentNameArr;
     std::vector<Opm::ECLSaturationFunc::RawCurve> satFuncRequests;
@@ -619,6 +621,8 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KRG,  "KRG"));    satFuncRequests.push_back(krg);
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KROW, "KROW"));   satFuncRequests.push_back(krow);
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KROG, "KROG"));   satFuncRequests.push_back(krog);
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOG, "PCOG"));   satFuncRequests.push_back(pcgo);
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOW, "PCOW"));   satFuncRequests.push_back(pcow);
 
     const bool useEPS = true;
     std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEPS);
@@ -627,33 +631,14 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     {
         const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
         const std::string curveName = curveIdentNameArr[i].second;
-
         const Opm::FlowDiagnostics::Graph& srcGraph = graphArr[i];
         if (srcGraph.first.size() > 0)
         {
-            std::vector<double> xVals = srcGraph.first;
+            const std::vector<double>& xVals = srcGraph.first;
             const std::vector<double>& yVals = srcGraph.second;
-            
-            // According to Issue https://github.com/OPM/ResInsight/issues/2014, we need to modify the x values to be 1 - x
-            if (curveIdent == RelPermCurve::KROW || curveIdent == RelPermCurve::KROG)
-            {
-                for (size_t i = 0; i < xVals.size(); i++)
-                {
-                    xVals[i] = 1.0 - xVals[i];
-                }
-            }
-
             retCurveArr.push_back({ curveIdent, curveName, xVals, yVals});
         }
     }
-
-    //{
-    //    // Dummy test data until we can get real data
-    //    std::vector<double> dummyX { 0.1, 0.3, 0.5, 0.7, 0.9 };
-    //    std::vector<double> dummyY { 0.1, 0.3, 0.3, 1.7, 1.9 };
-    //    retCurveArr.push_back({ RelPermCurve::PCOG, "PCOG", dummyX, dummyX });
-    //    retCurveArr.push_back({ RelPermCurve::PCOW, "PCOW", dummyX, dummyY });
-    //}
 
     return retCurveArr;
 }

@@ -100,12 +100,6 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
         groupBoxLayout->addWidget(checkButtonList[i]);
     }
 
-    // Uncheck and disable PCOW and PCOG until we have data for these
-    checkButtonList[4]->setDisabled(true);
-    checkButtonList[4]->setChecked(false);
-    checkButtonList[5]->setDisabled(true);
-    checkButtonList[5]->setChecked(false);
-
     QVBoxLayout* leftLayout = new QVBoxLayout;
     leftLayout->addWidget(groupBox);
     leftLayout->addStretch(1);
@@ -241,9 +235,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
         {
             case RigFlowDiagSolverInterface::RelPermCurve::KRW:   curveClr = Qt::blue; break;
             case RigFlowDiagSolverInterface::RelPermCurve::KRG:   curveClr = Qt::red; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  curveClr = QColor(0, 150, 200); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  curveClr = QColor(0, 130, 175); break;
             case RigFlowDiagSolverInterface::RelPermCurve::KROG:  curveClr = QColor(225, 110, 0); break;
-            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  curveClr = QColor(0, 150, 200);   plotCurveOnRightAxis = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  curveClr = QColor(0, 130, 175);   plotCurveOnRightAxis = true; break;
             case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  curveClr = QColor(225, 110, 0);   plotCurveOnRightAxis = true; break;
         }
 
