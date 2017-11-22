@@ -869,13 +869,27 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(co
 {
     QString upperCaseText = faceString.toUpper().trimmed();
 
-    if (upperCaseText == "X" || upperCaseText == "X+" || upperCaseText == "I" || upperCaseText == "I+") return cvf::StructGridInterface::POS_I;
-    if (upperCaseText == "Y" || upperCaseText == "Y+" || upperCaseText == "J" || upperCaseText == "J+") return cvf::StructGridInterface::POS_J;
-    if (upperCaseText == "Z" || upperCaseText == "Z+" || upperCaseText == "K" || upperCaseText == "K+") return cvf::StructGridInterface::POS_K;
+    if (upperCaseText.size() > 1)
+    {
+        QString firstTwoChars = upperCaseText.mid(0, 2);
+
+        if (firstTwoChars == "X+" || firstTwoChars == "I+") return cvf::StructGridInterface::POS_I;
+        if (firstTwoChars == "Y+" || firstTwoChars == "J+") return cvf::StructGridInterface::POS_J;
+        if (firstTwoChars == "Z+" || firstTwoChars == "K+") return cvf::StructGridInterface::POS_K;
     
-    if (upperCaseText == "X-" || upperCaseText == "I-") return cvf::StructGridInterface::NEG_I;
-    if (upperCaseText == "Y-" || upperCaseText == "J-") return cvf::StructGridInterface::NEG_J;
-    if (upperCaseText == "Z-" || upperCaseText == "K-") return cvf::StructGridInterface::NEG_K;
+        if (firstTwoChars == "X-" || firstTwoChars == "I-") return cvf::StructGridInterface::NEG_I;
+        if (firstTwoChars == "Y-" || firstTwoChars == "J-") return cvf::StructGridInterface::NEG_J;
+        if (firstTwoChars == "Z-" || firstTwoChars == "K-") return cvf::StructGridInterface::NEG_K;
+    }
+
+    if (upperCaseText.size() > 0)
+    {
+        QString firstChar = upperCaseText.mid(0, 1);
+
+        if (firstChar == "X" || firstChar == "I") return cvf::StructGridInterface::POS_I;
+        if (firstChar == "Y" || firstChar == "J") return cvf::StructGridInterface::POS_J;
+        if (firstChar == "Z" || firstChar == "K") return cvf::StructGridInterface::POS_K;
+    }
 
     return cvf::StructGridInterface::NO_FACE;
 }
