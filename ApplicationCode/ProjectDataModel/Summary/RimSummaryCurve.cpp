@@ -480,7 +480,7 @@ void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "Select Address";
+            attrib->m_buttonText = "Select Vector...";
         }
     }
 }
