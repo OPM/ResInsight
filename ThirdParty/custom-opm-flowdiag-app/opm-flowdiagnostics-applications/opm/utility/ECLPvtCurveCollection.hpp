@@ -25,6 +25,7 @@
 #include <opm/utility/ECLPvtCommon.hpp>
 #include <opm/utility/ECLPvtGas.hpp>
 #include <opm/utility/ECLPvtOil.hpp>
+#include <opm/utility/ECLUnitHandling.hpp>
 
 #include <memory>
 #include <vector>
@@ -45,10 +46,47 @@ namespace Opm { namespace ECLPVT {
     class ECLPvtCurveCollection
     {
     public:
+        /// Constructor
+        ///
+        /// \param[in] G Connected topology of current model's active cells.
+        ///    Needed to linearise region mapping (e.g., SATNUM) that is
+        ///    distributed on local grids to all of the model's active cells
+        ///    (\code member function G.rawLinearisedCellData() \endcode).
+        ///
+        /// \param[in] init Container of tabulated PVT functions for all PVT
+        ///    regions in the model \p G.
         ECLPvtCurveCollection(const ECLGraph&        G,
                               const ECLInitFileData& init);
 
-        FlowDiagnostics::Graph
+        /// Retrieve 2D graph representation of Phase PVT property function
+        /// in a specific active cell.
+        ///
+        /// \param[in] curve PVT property curve descriptor
+        ///
+        /// \param[in] phase Phase for which to compute extract graph
+        ///    representation of PVT property function.
+        ///
+        /// \param[in] activeCell Index of particular active cell in model..
+        ///
+        /// \return Collection of 2D graphs for PVT property curve
+        ///    identified by requests represented by \p curve, \p phase and
+        ///    \p activeCell.  One curve (vector element) for each tabulated
+        ///    node of the primary look-up key.  Single curve (i.e., a
+        ///    single element vector) in the case of dry gas (no vaporised
+        ///    oil) or dead oil (no dissolved gas).
+        ///
+        ///    No curves for water or dead oil with constant compressibility
+        ///    (i.e., keyword 'PVCDO' in the input deck).
+        ///
+        /// Example: Retrieve collection of gas viscosity curves pertaining
+        ///    to model's active cell 31415.
+        ///
+        ///    \code
+        ///       const auto curves =
+        ///           pvtCC.getPvtCurve(ECLPVT::RawCurve::Viscosity,
+        ///                             ECLPhaseIndex::Vapour, 31415);
+        ///    \endcode
+        std::vector<FlowDiagnostics::Graph>
         getPvtCurve(const RawCurve      curve,
                     const ECLPhaseIndex phase,
                     const int           activeCell) const;
@@ -62,6 +100,9 @@ namespace Opm { namespace ECLPVT {
 
         /// Oil PVT property evaluator.
         std::shared_ptr<Oil> oil_;
+
+        /// Unit handling (SI -> result-set convention)
+        std::shared_ptr<const ECLUnits::UnitSystem> usys_;
     };
 
 }} // Opm::ECLPVT

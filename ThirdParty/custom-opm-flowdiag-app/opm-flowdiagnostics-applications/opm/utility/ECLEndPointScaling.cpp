@@ -989,7 +989,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
                 const ::Opm::ECLInitFileData&                init,
                 const ::Opm::SatFunc::CreateEPS::EPSOptions& opt)
 {
+#if !defined(NDEBUG)
     using FCat  = ::Opm::SatFunc::CreateEPS::FunctionCategory;
+#endif  // !defined(NDEBUG)
+
     using SSys  = ::Opm::SatFunc::CreateEPS::SubSystem;
     using PhIdx = ::Opm::ECLPhaseIndex;
 
@@ -1035,7 +1038,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
 std::vector<Create::TEP>
 Create::ThreePoint::unscaledEndPoints(const RTEP& ep, const EPSOpt& opt)
 {
+#if !defined(NDEBUG)
     using FCat  = ::Opm::SatFunc::CreateEPS::FunctionCategory;
+#endif  // !defined(NDEBUG)
+
     using SSys  = ::Opm::SatFunc::CreateEPS::SubSystem;
     using PhIdx = ::Opm::ECLPhaseIndex;
 

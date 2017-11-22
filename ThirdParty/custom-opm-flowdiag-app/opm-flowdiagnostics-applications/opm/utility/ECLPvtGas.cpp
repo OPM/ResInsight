@@ -25,10 +25,13 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
+#include <opm/parser/eclipse/Units/Units.hpp>
+
 #include <cassert>
 #include <cmath>
 #include <exception>
 #include <functional>
+#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -95,8 +98,9 @@ public:
     viscosity(const std::vector<double>& rv,
               const std::vector<double>& pg) const = 0;
 
-    virtual Opm::FlowDiagnostics::Graph
-    getPvtCurve(const Opm::ECLPVT::RawCurve curve) const = 0;
+    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
+                const Opm::ECLUnits::UnitSystem& usys) const = 0;
 
     virtual std::unique_ptr<PVxGBase> clone() const = 0;
 };
@@ -130,10 +134,31 @@ public:
         return this->interpolant_.viscosity(pg);
     }
 
-    virtual Opm::FlowDiagnostics::Graph
-    getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
+    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
+                const Opm::ECLUnits::UnitSystem& usys) const override
     {
-        return this->interpolant_.getPvtCurve(curve);
+        if (curve == Opm::ECLPVT::RawCurve::SaturatedState) {
+            // Not applicable to dry gas.  Return empty.
+            return { Opm::FlowDiagnostics::Graph{} };
+        }
+
+        auto pvtcurve = this->interpolant_.getPvtCurve(curve);
+
+        const auto x_unit = usys.pressure();
+        const auto y_unit = (curve == ::Opm::ECLPVT::RawCurve::FVF)
+            ? (usys.reservoirVolume() / usys.surfaceVolumeGas())
+            : usys.viscosity();
+
+        auto& x = pvtcurve.first;
+        auto& y = pvtcurve.second;
+
+        for (auto n = x.size(), i = 0*n; i < n; ++i) {
+            x[i] = ::Opm::unit::convert::to(x[i], x_unit);
+            y[i] = ::Opm::unit::convert::to(y[i], y_unit);
+        }
+
+        return { std::move(pvtcurve) };
     }
 
     virtual std::unique_ptr<PVxGBase> clone() const override
@@ -158,7 +183,8 @@ public:
 
     WetGas(std::vector<double>              key,
            std::vector<SubtableInterpolant> propInterp)
-        : interp_(std::move(key), std::move(propInterp))
+        : key_   (key)          // Copy
+        , interp_(std::move(key), std::move(propInterp))
     {}
 
     virtual std::vector<double>
@@ -187,13 +213,15 @@ public:
         return this->interp_.viscosity(key, x);
     }
 
-    virtual Opm::FlowDiagnostics::Graph
-    getPvtCurve(const Opm::ECLPVT::RawCurve /* curve */) const override
+    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
+                const Opm::ECLUnits::UnitSystem& usys) const override
     {
-        throw std::runtime_error {
-            "Property Evaluator for Wet Gas Does not "
-            "Support Retrieving Raw Curves (Blame BSKA)"
-        };
+        if (curve == ::Opm::ECLPVT::RawCurve::SaturatedState) {
+            return this->saturatedStateCurve(usys);
+        }
+
+        return this->mainPvtCurve(curve, usys);
     }
 
     virtual std::unique_ptr<PVxGBase> clone() const override
@@ -204,8 +232,67 @@ public:
 private:
     using TableInterpolant = ::Opm::ECLPVT::PVTx<SubtableInterpolant>;
 
-    TableInterpolant interp_;
+    std::vector<double> key_;
+    TableInterpolant    interp_;
+
+    std::vector<Opm::FlowDiagnostics::Graph>
+    mainPvtCurve(const Opm::ECLPVT::RawCurve      curve,
+                 const Opm::ECLUnits::UnitSystem& usys) const;
+
+    std::vector<Opm::FlowDiagnostics::Graph>
+    saturatedStateCurve(const Opm::ECLUnits::UnitSystem& usys) const;
 };
+
+std::vector<Opm::FlowDiagnostics::Graph>
+WetGas::mainPvtCurve(const Opm::ECLPVT::RawCurve      curve,
+                     const Opm::ECLUnits::UnitSystem& usys) const
+{
+    auto curves = this->interp_.getPvtCurve(curve);
+
+    const auto x_unit = usys.vaporisedOilGasRat();
+    const auto y_unit = (curve == ::Opm::ECLPVT::RawCurve::FVF)
+        ? (usys.reservoirVolume() / usys.surfaceVolumeGas())
+        : usys.viscosity();
+
+    for (auto& crv : curves) {
+        auto& x = crv.first;
+        auto& y = crv.second;
+
+        for (auto n = x.size(), i = 0*n; i < n; ++i) {
+            x[i] = ::Opm::unit::convert::to(x[i], x_unit);
+            y[i] = ::Opm::unit::convert::to(y[i], y_unit);
+        }
+    }
+
+    return curves;
+}
+
+std::vector<Opm::FlowDiagnostics::Graph>
+WetGas::saturatedStateCurve(const Opm::ECLUnits::UnitSystem& usys) const
+{
+    const auto key_unit = usys.pressure();
+    const auto rv_unit  = usys.vaporisedOilGasRat();
+
+    auto rv = this->interp_.getSaturatedPoints();
+    auto p  = this->key_;
+
+    if (rv.size() != p.size()) {
+        throw std::invalid_argument {
+            "Inconsistent table sizes of saturated gas function (RvSat(p))"
+        };
+    }
+
+    for (auto n = rv.size(), i = 0*n; i < n; ++i) {
+        p [i] = ::Opm::unit::convert::to(p [i], key_unit);
+        rv[i] = ::Opm::unit::convert::to(rv[i], rv_unit);
+    }
+
+    auto graph = Opm::FlowDiagnostics::Graph {
+        std::move(p), std::move(rv)
+    };
+
+    return { std::move(graph) };
+}
 
 // #####################################################################
 
@@ -391,9 +478,10 @@ public:
         return this->rhoS_[region];
     }
 
-    FlowDiagnostics::Graph
-    getPvtCurve(const RegIdx   region,
-                const RawCurve curve) const;
+    std::vector<FlowDiagnostics::Graph>
+    getPvtCurve(const RegIdx                region,
+                const RawCurve              curve,
+                const ECLUnits::UnitSystem& usys) const;
 
 private:
     std::vector<EvalPtr> eval_;
@@ -460,14 +548,15 @@ viscosity(const RegIdx               region,
     return this->eval_[region]->viscosity(rv, pg);
 }
 
-Opm::FlowDiagnostics::Graph
+std::vector<Opm::FlowDiagnostics::Graph>
 Opm::ECLPVT::Gas::Impl::
-getPvtCurve(const RegIdx   region,
-            const RawCurve curve) const
+getPvtCurve(const RegIdx                region,
+            const RawCurve              curve,
+            const ECLUnits::UnitSystem& usys) const
 {
     this->validateRegIdx(region);
 
-    return this->eval_[region]->getPvtCurve(curve);
+    return this->eval_[region]->getPvtCurve(curve, usys);
 }
 
 void
@@ -543,11 +632,13 @@ double Opm::ECLPVT::Gas::surfaceMassDensity(const int region) const
     return this->pImpl_->surfaceMassDensity(region);
 }
 
-Opm::FlowDiagnostics::Graph
+std::vector<Opm::FlowDiagnostics::Graph>
 Opm::ECLPVT::Gas::
-getPvtCurve(const RawCurve curve, const int region) const
+getPvtCurve(const RawCurve              curve,
+            const int                   region,
+            const ECLUnits::UnitSystem& usys) const
 {
-    return this->pImpl_->getPvtCurve(region, curve);
+    return this->pImpl_->getPvtCurve(region, curve, usys);
 }
 
 // =====================================================================

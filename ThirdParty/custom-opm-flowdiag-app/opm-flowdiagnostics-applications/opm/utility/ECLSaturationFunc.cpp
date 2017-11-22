@@ -94,11 +94,34 @@ namespace {
 
         return satnum;
     }
+
+    Opm::FlowDiagnostics::Graph
+    transformOilCurve(const Opm::FlowDiagnostics::Graph& curve,
+                      const double                       So_offset)
+    {
+        auto Sx = std::vector<double>{};  Sx.reserve(curve.first.size());
+        {
+            const auto& So = curve.first;
+
+            std::transform(So.rbegin(), So.rend(), std::back_inserter(Sx),
+                           [So_offset](const double so)
+                           {
+                               return So_offset - so;
+                           });
+        }
+
+        auto y = std::vector<double>{
+            curve.second.rbegin(),
+            curve.second.rend()
+        };
+
+        return { std::move(Sx), std::move(y) };
+    }
 } // Anonymous
 
 // =====================================================================
 
-namespace Relperm {
+namespace {
     namespace Gas {
         namespace Details {
             Opm::ECLPropTableRawData
@@ -109,12 +132,12 @@ namespace Relperm {
             unitConverter(const int usys);
         }
 
-        class KrFunction
+        class SatFunction
         {
         public:
-            KrFunction(const std::vector<int>&    tabdims,
-                       const std::vector<double>& tab,
-                       const int                  usys)
+            SatFunction(const std::vector<int>&    tabdims,
+                        const std::vector<double>& tab,
+                        const int                  usys)
                 : func_(Details::tableData(tabdims, tab),
                         Details::unitConverter(usys))
             {}
@@ -144,6 +167,16 @@ namespace Relperm {
                 return this->func_.interpolate(t, c, sg);
             }
 
+            std::vector<double>
+            pcgo(const std::size_t          regID,
+                 const std::vector<double>& sg) const
+            {
+                const auto t = this->table(regID);
+                const auto c = this->pccol();
+
+                return this->func_.interpolate(t, c, sg);
+            }
+
             const std::vector<double>&
             saturationPoints(const std::size_t regID) const
             {
@@ -162,6 +195,11 @@ namespace Relperm {
             Opm::SatFuncInterpolant::ResultColumn krcol() const
             {
                 return ::Opm::SatFuncInterpolant::ResultColumn{0};
+            }
+
+            Opm::SatFuncInterpolant::ResultColumn pccol() const
+            {
+                return ::Opm::SatFuncInterpolant::ResultColumn{1};
             }
         };
     } // namespace Gas
@@ -425,12 +463,12 @@ namespace Relperm {
             unitConverter(const int usys);
         } // namespace Details
 
-        class KrFunction
+        class SatFunction
         {
         public:
-            KrFunction(const std::vector<int>&    tabdims,
-                       const std::vector<double>& tab,
-                       const int                  usys)
+            SatFunction(const std::vector<int>&    tabdims,
+                        const std::vector<double>& tab,
+                        const int                  usys)
                 : func_(Details::tableData(tabdims, tab),
                         Details::unitConverter(usys))
             {}
@@ -460,6 +498,16 @@ namespace Relperm {
                 return this->func_.interpolate(t, c, sw);
             }
 
+            std::vector<double>
+            pcow(const std::size_t          regID,
+                 const std::vector<double>& sw) const
+            {
+                const auto t = this->table(regID);
+                const auto c = this->pccol();
+
+                return this->func_.interpolate(t, c, sw);
+            }
+
             const std::vector<double>&
             saturationPoints(const std::size_t regID) const
             {
@@ -479,13 +527,18 @@ namespace Relperm {
             {
                 return ::Opm::SatFuncInterpolant::ResultColumn{0};
             }
+
+            Opm::SatFuncInterpolant::ResultColumn pccol() const
+            {
+                return ::Opm::SatFuncInterpolant::ResultColumn{1};
+            }
         };
     } // namespace Water
-} // namespace Relperm
+} // Anonymous
 
 Opm::ECLPropTableRawData
-Relperm::Gas::Details::tableData(const std::vector<int>&    tabdims,
-                                 const std::vector<double>& tab)
+Gas::Details::tableData(const std::vector<int>&    tabdims,
+                        const std::vector<double>& tab)
 {
     auto t = Opm::ECLPropTableRawData{};
 
@@ -505,7 +558,7 @@ Relperm::Gas::Details::tableData(const std::vector<int>&    tabdims,
 }
 
 Opm::SatFuncInterpolant::ConvertUnits
-Relperm::Gas::Details::unitConverter(const int usys)
+Gas::Details::unitConverter(const int usys)
 {
     using CU = Opm::SatFuncInterpolant::ConvertUnits;
     using Cvrt = CU::Converter;
@@ -530,9 +583,9 @@ Relperm::Gas::Details::unitConverter(const int usys)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Opm::ECLPropTableRawData
-Relperm::Oil::Details::tableData(const std::vector<int>&    tabdims,
-                                 const bool                 isTwoP,
-                                 const std::vector<double>& tab)
+Oil::Details::tableData(const std::vector<int>&    tabdims,
+                        const bool                 isTwoP,
+                        const std::vector<double>& tab)
 {
     auto t = Opm::ECLPropTableRawData{};
 
@@ -556,7 +609,7 @@ Relperm::Oil::Details::tableData(const std::vector<int>&    tabdims,
 }
 
 Opm::SatFuncInterpolant::ConvertUnits
-Relperm::Oil::Details::unitConverter(const bool isTwoP)
+Oil::Details::unitConverter(const bool isTwoP)
 {
     using CU = Opm::SatFuncInterpolant::ConvertUnits;
     using Cvrt = CU::Converter;
@@ -575,8 +628,8 @@ Relperm::Oil::Details::unitConverter(const bool isTwoP)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Opm::ECLPropTableRawData
-Relperm::Water::Details::tableData(const std::vector<int>&    tabdims,
-                                   const std::vector<double>& tab)
+Water::Details::tableData(const std::vector<int>&    tabdims,
+                          const std::vector<double>& tab)
 {
     auto t = Opm::ECLPropTableRawData{};
 
@@ -596,7 +649,7 @@ Relperm::Water::Details::tableData(const std::vector<int>&    tabdims,
 }
 
 Opm::SatFuncInterpolant::ConvertUnits
-Relperm::Water::Details::unitConverter(const int usys)
+Water::Details::unitConverter(const int usys)
 {
     using CU = Opm::SatFuncInterpolant::ConvertUnits;
     using Cvrt = CU::Converter;
@@ -667,12 +720,10 @@ private:
                     const ECLInitFileData& init,
                     const RawTEP&          ep,
                     const bool             use3PtScaling,
-                    const FuncCat          curve,
                     const ActPh&           active)
         {
             auto opt = Create::EPSOptions{};
             opt.use3PtScaling = use3PtScaling;
-            opt.curve         = curve;
 
             if (active.oil) {
                 this->create_oil_eps(G, init, ep, active, opt);
@@ -687,56 +738,81 @@ private:
             }
         }
 
-        void scaleOG(const ECLRegionMapping& rmap,
-                     std::vector<double>&    so) const
+        void scaleKrOG(const ECLRegionMapping& rmap,
+                       std::vector<double>&    so) const
         {
             this->scale(this->oil_in_og_, rmap, so);
         }
 
-        void scaleOW(const ECLRegionMapping& rmap,
-                     std::vector<double>&    so) const
+        void scaleKrOW(const ECLRegionMapping& rmap,
+                       std::vector<double>&    so) const
         {
             this->scale(this->oil_in_ow_, rmap, so);
         }
 
-        void scaleGas(const ECLRegionMapping& rmap,
-                      std::vector<double>&    sg) const
+        void scaleKrGas(const ECLRegionMapping& rmap,
+                        std::vector<double>&    sg) const
         {
-            this->scale(this->gas_, rmap, sg);
+            this->scale(this->gas_.kr, rmap, sg);
         }
 
-        void scaleWat(const ECLRegionMapping& rmap,
-                      std::vector<double>&    sw) const
+        void scaleKrWat(const ECLRegionMapping& rmap,
+                        std::vector<double>&    sw) const
         {
-            this->scale(this->wat_, rmap, sw);
+            this->scale(this->wat_.kr, rmap, sw);
         }
 
-        void reverseScaleOG(const ECLRegionMapping& rmap,
-                            std::vector<double>&    so) const
+        void scalePcGO(const ECLRegionMapping& rmap,
+                       std::vector<double>&    sg) const
+        {
+            this->scale(this->gas_.pc, rmap, sg);
+        }
+
+        void scalePcOW(const ECLRegionMapping& rmap,
+                       std::vector<double>&    sw) const
+        {
+            this->scale(this->wat_.pc, rmap, sw);
+        }
+
+        void reverseScaleKrOG(const ECLRegionMapping& rmap,
+                              std::vector<double>&    so) const
         {
             this->reverseScale(this->oil_in_og_, rmap, so);
         }
 
-        void reverseScaleOW(const ECLRegionMapping& rmap,
-                            std::vector<double>&    so) const
+        void reverseScaleKrOW(const ECLRegionMapping& rmap,
+                              std::vector<double>&    so) const
         {
             this->reverseScale(this->oil_in_ow_, rmap, so);
         }
 
-        void reverseScaleGas(const ECLRegionMapping& rmap,
-                             std::vector<double>&    sg) const
+        void reverseScaleKrGas(const ECLRegionMapping& rmap,
+                               std::vector<double>&    sg) const
         {
-            this->reverseScale(this->gas_, rmap, sg);
+            this->reverseScale(this->gas_.kr, rmap, sg);
         }
 
-        void reverseScaleWat(const ECLRegionMapping& rmap,
-                             std::vector<double>&    sw) const
+        void reverseScaleKrWat(const ECLRegionMapping& rmap,
+                               std::vector<double>&    sw) const
         {
-            this->reverseScale(this->wat_, rmap, sw);
+            this->reverseScale(this->wat_.kr, rmap, sw);
+        }
+
+        void reverseScalePcGO(const ECLRegionMapping& rmap,
+                              std::vector<double>&    sg) const
+        {
+            this->reverseScale(this->gas_.pc, rmap, sg);
+        }
+
+        void reverseScalePcOW(const ECLRegionMapping& rmap,
+                              std::vector<double>&    sw) const
+        {
+            this->reverseScale(this->wat_.pc, rmap, sw);
         }
 
     private:
         using Create = ::Opm::SatFunc::CreateEPS;
+        using FCat   = ::Opm::SatFunc::CreateEPS::FunctionCategory;
         using SSys   = ::Opm::SatFunc::CreateEPS::SubSystem;
         using PhIdx  = ::Opm::ECLPhaseIndex;
 
@@ -791,10 +867,15 @@ private:
             EndPtsPtr tep;
         };
 
-        EPS oil_in_og_;
-        EPS oil_in_ow_;
-        EPS gas_;
-        EPS wat_;
+        struct FullEPS {
+            EPS kr;
+            EPS pc;
+        };
+
+        EPS     oil_in_og_;
+        EPS     oil_in_ow_;
+        FullEPS gas_;
+        FullEPS wat_;
 
         void scale(const EPS&              eps,
                    const ECLRegionMapping& rmap,
@@ -903,6 +984,7 @@ private:
                             Create::EPSOptions&    opt)
         {
             opt.thisPh = PhIdx::Liquid;
+            opt.curve  = FCat::Relperm; // Oil EPS only applies to Kr
 
             if (active.gas) {
                 opt.subSys = SSys::OilGas;
@@ -931,10 +1013,33 @@ private:
             opt.thisPh = PhIdx::Vapour;
             opt.subSys = SSys::OilGas;
 
-            this->gas_.scaling =
-                Create::fromECLOutput(G, init, opt);
+            // Scaling for Gas relative permeabilty
+            {
+                opt.curve = FCat::Relperm;
 
-            this->gas_.tep = this->endPoints(ep, opt);
+                this->gas_.kr.scaling =
+                    Create::fromECLOutput(G, init, opt);
+
+                this->gas_.kr.tep = this->endPoints(ep, opt);
+            }
+
+            // Scaling for Gas/Oil capillary pressure
+            {
+                // Save setting for Alternative/3-pt scaling.
+                // Capillary pressure uses two-point scaling exclusively.
+                const auto use3Pt = opt.use3PtScaling;
+                opt.use3PtScaling = false;
+
+                opt.curve = FCat::CapPress;
+
+                this->gas_.pc.scaling =
+                    Create::fromECLOutput(G, init, opt);
+
+                this->gas_.pc.tep = this->endPoints(ep, opt);
+
+                // Restore original setting for Alternative scaling option.
+                opt.use3PtScaling = use3Pt;
+            }
         }
 
         void create_wat_eps(const ECLGraph&        G,
@@ -945,10 +1050,34 @@ private:
             opt.thisPh = PhIdx::Aqua;
             opt.subSys = SSys::OilWater;
 
-            this->wat_.scaling =
-                Create::fromECLOutput(G, init, opt);
+            // Scaling for Water relative permeabilty
+            {
+                opt.curve = FCat::Relperm;
 
-            this->wat_.tep = this->endPoints(ep, opt);
+                this->wat_.kr.scaling =
+                    Create::fromECLOutput(G, init, opt);
+
+                this->wat_.kr.tep = this->endPoints(ep, opt);
+            }
+
+            // Scaling for Oil/Water capillary pressure
+            {
+                // Save setting for Alternative/3-pt scaling.
+                // Capillary pressure uses two-point scaling exclusively.
+                const auto use3Pt = opt.use3PtScaling;
+                opt.use3PtScaling = false;
+
+                opt.curve = FCat::CapPress;
+
+                this->wat_.pc.scaling =
+                    Create::fromECLOutput(G, init, opt);
+
+                this->wat_.pc.tep = this->endPoints(ep, opt);
+
+                // Restore original setting for Alternative scaling option.
+                opt.use3PtScaling = use3Pt;
+            }
+
         }
 
         EndPtsPtr
@@ -964,9 +1093,9 @@ private:
 
     ECLRegionMapping rmap_;
 
-    std::unique_ptr<Relperm::Oil::KrFunction>   oil_;
-    std::unique_ptr<Relperm::Gas::KrFunction>   gas_;
-    std::unique_ptr<Relperm::Water::KrFunction> wat_;
+    std::unique_ptr<Oil::KrFunction>    oil_;
+    std::unique_ptr<Gas::SatFunction>   gas_;
+    std::unique_ptr<Water::SatFunction> wat_;
 
     std::unique_ptr<EPSEvaluator> eps_;
 
@@ -1002,6 +1131,12 @@ private:
              const std::vector<double>& sg,
              const bool                 useEPS) const;
 
+    FlowDiagnostics::Graph
+    pcgoCurve(const ECLRegionMapping&    rmap,
+              const std::size_t          regID,
+              const std::vector<double>& sg,
+              const bool                 useEPS) const;
+
     std::vector<double>
     krw(const ECLGraph&       G,
         const ECLRestartData& rstrt,
@@ -1013,18 +1148,32 @@ private:
              const std::vector<double>& sw,
              const bool                 useEPS) const;
 
-    void scaleGasSat(const ECLRegionMapping& rmap,
-                     const bool              useEPS,
-                     std::vector<double>&    sg) const;
+    FlowDiagnostics::Graph
+    pcowCurve(const ECLRegionMapping&    rmap,
+              const std::size_t          regID,
+              const std::vector<double>& sw,
+              const bool                 useEPS) const;
 
-    void scaleOilSat(const ECLRegionMapping& rmap,
-                     const bool              useEPS,
-                     std::vector<double>&    so_g,
-                     std::vector<double>&    so_w) const;
-
-    void scaleWaterSat(const ECLRegionMapping& rmap,
+    void scaleKrGasSat(const ECLRegionMapping& rmap,
                        const bool              useEPS,
-                       std::vector<double>&    sw) const;
+                       std::vector<double>&    sg) const;
+
+    void scalePcGasSat(const ECLRegionMapping& rmap,
+                       const bool              useEPS,
+                       std::vector<double>&    sg) const;
+
+    void scaleKrOilSat(const ECLRegionMapping& rmap,
+                       const bool              useEPS,
+                       std::vector<double>&    so_g,
+                       std::vector<double>&    so_w) const;
+
+    void scaleKrWaterSat(const ECLRegionMapping& rmap,
+                         const bool              useEPS,
+                         std::vector<double>&    sw) const;
+
+    void scalePcWaterSat(const ECLRegionMapping& rmap,
+                         const bool              useEPS,
+                         std::vector<double>&    sw) const;
 
     void uniqueReverseScaleSat(std::vector<double>& s) const;
 
@@ -1133,16 +1282,16 @@ Impl::initRelPermInterp(const EPSEvaluator::ActPh& active,
     const auto& tab     = init.keywordData<double>("TAB");
 
     if (active.gas) {
-        this->gas_.reset(new Relperm::Gas::KrFunction(tabdims, tab, usys));
+        this->gas_.reset(new Gas::SatFunction(tabdims, tab, usys));
     }
 
     if (active.wat) {
-        this->wat_.reset(new Relperm::Water::KrFunction(tabdims, tab, usys));
+        this->wat_.reset(new Water::SatFunction(tabdims, tab, usys));
     }
 
     if (active.oil) {
         if (! isThreePh) {
-            using KrModel = Relperm::Oil::TwoPhase;
+            using KrModel = Oil::TwoPhase;
 
             if (active.gas) {
                 const auto subsys = KrModel::SubSys::OilGas;
@@ -1162,7 +1311,7 @@ Impl::initRelPermInterp(const EPSEvaluator::ActPh& active,
         }
 
         if (isThreePh) {
-            using KrModel = Relperm::Oil::ECLStdThreePhase;
+            using KrModel = Oil::ECLStdThreePhase;
 
             this->oil_.reset(new KrModel(tabdims, tab, this->wat_->swco()));
         }
@@ -1177,12 +1326,9 @@ Impl::initEPS(const EPSEvaluator::ActPh& active,
 {
     const auto ep = this->extractRawTableEndPoints(active);
 
-    const auto curve = ::Opm::SatFunc::CreateEPS::
-        FunctionCategory::Relperm;
-
     this->eps_.reset(new EPSEvaluator());
 
-    this->eps_->define(G, init, ep, use3PtScaling, curve, active);
+    this->eps_->define(G, init, ep, use3PtScaling, active);
 }
 
 // #####################################################################
@@ -1196,11 +1342,11 @@ Opm::ECLSaturationFunc::Impl::Impl(const Impl& rhs)
     }
 
     if (rhs.gas_) {
-        this->gas_.reset(new Relperm::Gas::KrFunction(*rhs.gas_));
+        this->gas_.reset(new Gas::SatFunction(*rhs.gas_));
     }
 
     if (rhs.wat_) {
-        this->wat_.reset(new Relperm::Water::KrFunction(*rhs.wat_));
+        this->wat_.reset(new Water::SatFunction(*rhs.wat_));
     }
 }
 
@@ -1253,8 +1399,8 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
             if (! (this->wat_ && (fi.subsys == RawCurve::SubSystem::OilWater)))
             {
                 // Water is not an active phase, or we're being asked to
-                // extract the relative permeability curve for water in the
-                // O/G subsystem.  No such curve.
+                // extract a saturation function curve for water in the O/G
+                // subsystem.  No such curve.
                 graph.emplace_back();
                 continue;
             }
@@ -1272,10 +1418,13 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
                     .reset(new ECLRegionMapping(this->satnum_, subset));
             }
 
-            auto krw = this->krwCurve(*wat_assoc.second, regID,
-                                      wat_assoc.first, useEPS);
+            auto crv = (fi.curve == RawCurve::Function::RelPerm)
+                ? this->krwCurve (*wat_assoc.second, regID,
+                                  wat_assoc.first, useEPS)
+                : this->pcowCurve(*wat_assoc.second, regID,
+                                  wat_assoc.first, useEPS);
 
-            graph.push_back(std::move(krw));
+            graph.push_back(std::move(crv));
         }
         break;
 
@@ -1300,10 +1449,15 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
                     .reset(new ECLRegionMapping(this->satnum_, subset));
             }
 
-            auto kro = this->kroCurve(*oil_assoc.second, regID,
-                                      fi.subsys, oil_assoc.first, useEPS);
+            const auto kro =
+                this->kroCurve(*oil_assoc.second, regID,
+                               fi.subsys, oil_assoc.first, useEPS);
 
-            graph.push_back(std::move(kro));
+            const auto So_off = (fi.subsys == RawCurve::SubSystem::OilGas)
+                ? oil_assoc.first.back() // Sg = Max{So} - So in G/O system
+                : 1.0;                   // Sw = 1.0 - So     in O/W system
+
+            graph.push_back(transformOilCurve(kro, So_off));
         }
         break;
 
@@ -1312,8 +1466,8 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
             if (! (this->gas_ && (fi.subsys == RawCurve::SubSystem::OilGas)))
             {
                 // Gas is not an active phase, or we're being asked to
-                // extract the relative permeability curve for gas in the
-                // O/W subsystem.  No such curve.
+                // extract a saturation function curve for gas in the O/W
+                // subsystem.  No such curve.
                 graph.emplace_back();
                 continue;
             }
@@ -1331,10 +1485,13 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
                     .reset(new ECLRegionMapping(this->satnum_, subset));
             }
 
-            auto krg = this->krgCurve(*gas_assoc.second, regID,
-                                      gas_assoc.first, useEPS);
+            auto crv = (fi.curve == RawCurve::Function::RelPerm)
+                ? this->krgCurve (*gas_assoc.second, regID,
+                                  gas_assoc.first, useEPS)
+                : this->pcgoCurve(*gas_assoc.second, regID,
+                                  gas_assoc.first, useEPS);
 
-            graph.push_back(std::move(krg));
+            graph.push_back(std::move(crv));
         }
         break;
 
@@ -1364,7 +1521,7 @@ kro(const ECLGraph&       G,
     auto so_g = oil_saturation(sg, sw, G, rstrt);
     auto so_w = so_g;
 
-    this->scaleOilSat(this->rmap_, useEPS, so_g, so_w);
+    this->scaleKrOilSat(this->rmap_, useEPS, so_g, so_w);
 
     // Allocate result.  Member function scatterRegionResult() depends on
     // having an allocated result vector into which to write the values from
@@ -1377,20 +1534,20 @@ kro(const ECLGraph&       G,
         (const int               reg,
          const ECLRegionMapping& rmap)
     {
-        const auto So_g = Relperm::Oil::KrFunction::SOil {
+        const auto So_g = Oil::KrFunction::SOil {
             this->gatherRegionSubset(reg, rmap, so_g)
         };
 
-        const auto So_w = Relperm::Oil::KrFunction::SOil {
+        const auto So_w = Oil::KrFunction::SOil {
             this->gatherRegionSubset(reg, rmap, so_w)
         };
 
-        const auto Sg = Relperm::Oil::KrFunction::SGas {
+        const auto Sg = Oil::KrFunction::SGas {
             // Empty in case of Oil/Water system
             this->gatherRegionSubset(reg, rmap, sg)
         };
 
-        const auto Sw = Relperm::Oil::KrFunction::SWat {
+        const auto Sw = Oil::KrFunction::SWat {
             // Empty in case of Oil/Gas system
             this->gatherRegionSubset(reg, rmap, sw)
         };
@@ -1421,8 +1578,8 @@ kroCurve(const ECLRegionMapping&    rmap,
     auto so_g = so;
     auto so_w = so_g;
     if (useEPS && this->eps_) {
-        this->eps_->reverseScaleOG(rmap, so_g);
-        this->eps_->reverseScaleOW(rmap, so_w);
+        this->eps_->reverseScaleKrOG(rmap, so_g);
+        this->eps_->reverseScaleKrOW(rmap, so_w);
 
         this->uniqueReverseScaleSat(so_g);
         this->uniqueReverseScaleSat(so_w);
@@ -1438,9 +1595,9 @@ kroCurve(const ECLRegionMapping&    rmap,
     so_g.resize(so.size(), 1.0);
     so_w.resize(so.size(), 1.0);
 
-    this->scaleOilSat(rmap, useEPS, so_g, so_w);
+    this->scaleKrOilSat(rmap, useEPS, so_g, so_w);
 
-    const auto so_inp = Relperm::Oil::KrFunction::SOil {
+    const auto so_inp = Oil::KrFunction::SOil {
         (subsys == RawCurve::SubSystem::OilGas) ? so_g : so_w
     };
 
@@ -1470,7 +1627,7 @@ krg(const ECLGraph&       G,
     auto sg = G.rawLinearisedCellData<double>(rstrt, "SGAS");
 
     if (useEPS && this->eps_) {
-        this->eps_->scaleGas(this->rmap_, sg);
+        this->eps_->scaleKrGas(this->rmap_, sg);
     }
 
     // Allocate result.  Member function scatterRegionResult() depends on
@@ -1510,7 +1667,7 @@ krgCurve(const ECLRegionMapping&    rmap,
 
     auto sg_inp = sg;
     if (useEPS && this->eps_) {
-        this->eps_->reverseScaleGas(rmap, sg_inp);
+        this->eps_->reverseScaleKrGas(rmap, sg_inp);
         this->uniqueReverseScaleSat(sg_inp);
     }
 
@@ -1520,7 +1677,7 @@ krgCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sg_inp.resize(sg.size(), 1.0);
 
-    this->scaleGasSat(rmap, useEPS, sg_inp);
+    this->scaleKrGasSat(rmap, useEPS, sg_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
@@ -1530,6 +1687,42 @@ krgCurve(const ECLRegionMapping&    rmap,
     return FlowDiagnostics::Graph {
         std::move(abscissas),
         { std::begin(kr), std::begin(kr) + nPoints }
+    };
+}
+
+Opm::FlowDiagnostics::Graph
+Opm::ECLSaturationFunc::Impl::
+pcgoCurve(const ECLRegionMapping&    rmap,
+          const std::size_t          regID,
+          const std::vector<double>& sg,
+          const bool                 useEPS) const
+{
+    if (! this->gas_) {
+        return FlowDiagnostics::Graph{};
+    }
+
+    auto sg_inp = sg;
+    if (useEPS && this->eps_) {
+        this->eps_->reverseScalePcGO(rmap, sg_inp);
+        this->uniqueReverseScaleSat(sg_inp);
+    }
+
+    auto abscissas = sg_inp;
+    const auto nPoints = abscissas.size();
+
+    // Re-expand input arrays to match size requirements of EPS evaluator.
+    sg_inp.resize(sg.size(), 1.0);
+
+    this->scalePcGasSat(rmap, useEPS, sg_inp);
+
+    // Region ID 'reg' is traditional, ECL-style one-based region ID
+    // (SATNUM).  Subtract one to create valid table index.
+    const auto pc = this->gas_->pcgo(regID - 1, sg_inp);
+
+    // FD::Graph == pair<vector<double>, vector<double>>
+    return FlowDiagnostics::Graph {
+        std::move(abscissas),
+        { std::begin(pc), std::begin(pc) + nPoints }
     };
 }
 
@@ -1548,7 +1741,7 @@ krw(const ECLGraph&       G,
     auto sw = G.rawLinearisedCellData<double>(rstrt, "SWAT");
 
     if (useEPS && this->eps_) {
-        this->eps_->scaleWat(this->rmap_, sw);
+        this->eps_->scaleKrWat(this->rmap_, sw);
     }
 
     // Allocate result.  Member function scatterRegionResult() depends on
@@ -1588,7 +1781,7 @@ krwCurve(const ECLRegionMapping&    rmap,
 
     auto sw_inp = sw;
     if (useEPS && this->eps_) {
-        this->eps_->reverseScaleWat(rmap, sw_inp);
+        this->eps_->reverseScaleKrWat(rmap, sw_inp);
         this->uniqueReverseScaleSat(sw_inp);
     }
 
@@ -1598,7 +1791,7 @@ krwCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sw_inp.resize(sw.size(), 1.0);
 
-    this->scaleWaterSat(rmap, useEPS, sw_inp);
+    this->scaleKrWaterSat(rmap, useEPS, sw_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
@@ -1611,41 +1804,99 @@ krwCurve(const ECLRegionMapping&    rmap,
     };
 }
 
+Opm::FlowDiagnostics::Graph
+Opm::ECLSaturationFunc::Impl::
+pcowCurve(const ECLRegionMapping&    rmap,
+          const std::size_t          regID,
+          const std::vector<double>& sw,
+          const bool                 useEPS) const
+{
+    if (! this->wat_) {
+        return FlowDiagnostics::Graph{};
+    }
+
+    auto sw_inp = sw;
+    if (useEPS && this->eps_) {
+        this->eps_->reverseScalePcOW(rmap, sw_inp);
+        this->uniqueReverseScaleSat(sw_inp);
+    }
+
+    auto abscissas = sw_inp;
+    const auto nPoints = abscissas.size();
+
+    // Re-expand input arrays to match size requirements of EPS evaluator.
+    sw_inp.resize(sw.size(), 1.0);
+
+    this->scalePcWaterSat(rmap, useEPS, sw_inp);
+
+    // Region ID 'reg' is traditional, ECL-style one-based region ID
+    // (SATNUM).  Subtract one to create valid table index.
+    const auto pc = this->wat_->pcow(regID - 1, sw_inp);
+
+    // FD::Graph == pair<vector<double>, vector<double>>
+    return FlowDiagnostics::Graph {
+        std::move(abscissas),
+        { std::begin(pc), std::begin(pc) + nPoints }
+    };
+}
+
 void
 Opm::ECLSaturationFunc::Impl::
-scaleGasSat(const ECLRegionMapping& rmap,
-            const bool              useEPS,
-            std::vector<double>&    sg) const
+scaleKrGasSat(const ECLRegionMapping& rmap,
+              const bool              useEPS,
+              std::vector<double>&    sg) const
 {
     if (useEPS && this->eps_) {
-        this->eps_->scaleGas(rmap, sg);
+        this->eps_->scaleKrGas(rmap, sg);
     }
 }
 
 void
 Opm::ECLSaturationFunc::Impl::
-scaleOilSat(const ECLRegionMapping& rmap,
-            const bool              useEPS,
-            std::vector<double>&    so_g,
-            std::vector<double>&    so_w) const
+scalePcGasSat(const ECLRegionMapping& rmap,
+              const bool              useEPS,
+              std::vector<double>&    sg) const
+{
+    if (useEPS && this->eps_) {
+        this->eps_->scalePcGO(rmap, sg);
+    }
+}
+
+void
+Opm::ECLSaturationFunc::Impl::
+scaleKrOilSat(const ECLRegionMapping& rmap,
+              const bool              useEPS,
+              std::vector<double>&    so_g,
+              std::vector<double>&    so_w) const
 {
     if (useEPS && this->eps_) {
         // Independent scaling of So in O/G and O/W sub-systems of an O/G/W
         // run.  Performs duplicate work in a two-phase case.  Need to take
         // action if this becomes a bottleneck.
-        this->eps_->scaleOG(rmap, so_g);
-        this->eps_->scaleOW(rmap, so_w);
+        this->eps_->scaleKrOG(rmap, so_g);
+        this->eps_->scaleKrOW(rmap, so_w);
     }
 }
 
 void
 Opm::ECLSaturationFunc::Impl::
-scaleWaterSat(const ECLRegionMapping& rmap,
-              const bool              useEPS,
-              std::vector<double>&    sg) const
+scaleKrWaterSat(const ECLRegionMapping& rmap,
+                const bool              useEPS,
+                std::vector<double>&    sg) const
 {
     if (useEPS && this->eps_) {
-        this->eps_->scaleWat(rmap, sg);
+        this->eps_->scaleKrWat(rmap, sg);
+    }
+}
+
+void
+Opm::ECLSaturationFunc::Impl::
+scalePcWaterSat(const ECLRegionMapping& rmap,
+                const bool              useEPS,
+                std::vector<double>&    sg) const
+{
+    if (useEPS && this->eps_) {
+        this->eps_->scalePcOW(rmap, sg);
     }
 }
 

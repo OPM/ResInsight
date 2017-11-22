@@ -247,7 +247,7 @@ namespace example {
             }
 
             {
-                auto wsol = Opm::ECLWellSolution{};
+                auto wsol = Opm::ECLWellSolution{-1.0, false};
                 well_fluxes = wsol.solution(*restart, graph.activeGrids());
             }
 

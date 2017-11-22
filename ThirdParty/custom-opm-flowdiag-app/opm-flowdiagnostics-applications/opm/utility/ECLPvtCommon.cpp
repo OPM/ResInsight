@@ -265,40 +265,7 @@ Opm::ECLPVT::PVDx::viscosity(const std::vector<double>& p) const
 Opm::FlowDiagnostics::Graph
 Opm::ECLPVT::PVDx::getPvtCurve(const RawCurve curve) const
 {
-    assert ((curve == RawCurve::FVF) ||
-            (curve == RawCurve::Viscosity));
-
-    const auto colID = (curve == RawCurve::FVF)
-        ? std::size_t{0} : std::size_t{1};
-
-    auto x = this->interp_.independentVariable();
-    auto y = this->interp_.resultVariable(colID);
-
-    assert ((x.size() == y.size()) && "Setup Error");
-
-    // Post-process ordinates according to which curve is requested.
-    if (curve == RawCurve::FVF) {
-        // y == 1/B.  Convert to proper FVF.
-        for (auto& yi : y) {
-            yi = 1.0 / yi;
-        }
-    }
-    else {
-        // y == 1/(B*mu).  Extract viscosity term through the usual
-        // conversion formula:
-        //
-        //    (1 / B) / (1 / (B*mu)).
-        const auto b = this->interp_.resultVariable(0); // 1/B
-
-        assert ((b.size() == y.size()) && "Setup Error");
-
-        for (auto n = y.size(), i = 0*n; i < n; ++i) {
-            y[i] = b[i] / y[i];
-        }
-    }
-
-    // Graph == pair<vector<double>, vector<double>>
-    return FlowDiagnostics::Graph { std::move(x), std::move(y) };
+    return extractRawPVTCurve(this->interp_, curve);
 }
 
 // =====================================================================

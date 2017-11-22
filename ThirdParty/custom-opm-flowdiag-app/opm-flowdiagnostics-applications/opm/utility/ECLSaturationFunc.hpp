@@ -52,6 +52,9 @@ namespace Opm {
             enum class Function {
                 /// Relative permeability functions
                 RelPerm,
+
+                /// Capillary pressure
+                CapPress,
             };
 
             /// Which one-dimensional sub-system does this request reference.
