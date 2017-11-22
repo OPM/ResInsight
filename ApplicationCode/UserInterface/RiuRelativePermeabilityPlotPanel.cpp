@@ -31,6 +31,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_legend.h"
 #include "qwt_symbol.h"
+#include "qwt_plot_marker.h"
 
 #include <QDockWidget>
 #include <QHBoxLayout>
@@ -71,7 +72,9 @@ public:
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* parent)
-:   QWidget(parent)
+:   QWidget(parent),
+    m_swat(HUGE_VAL),
+    m_sgas(HUGE_VAL)
 {
     m_qwtPlot = new RelPermQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
@@ -159,11 +162,13 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, QString cellReferenceText)
+void RiuRelativePermeabilityPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString cellReferenceText)
 {
     //cvf::Trace::show("Set RelPerm plot data");
 
     m_allCurvesArr = relPermCurves;
+    m_swat = swat;
+    m_sgas = sgas;
     m_cellReferenceText = cellReferenceText;
 
     plotUiSelectedCurves();
@@ -182,9 +187,11 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     }
 
     m_allCurvesArr.clear();
+    m_swat = HUGE_VAL;
+    m_sgas = HUGE_VAL;
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt(m_allCurvesArr, m_cellReferenceText, m_qwtPlot);
+    plotCurvesInQwt(m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,8 +199,8 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 {
+    // Determine which curves to actually plot based on selection in GUI
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves;
-
     for (size_t i = 0; i < m_allCurvesArr.size(); i++)
     {
         const RigFlowDiagSolverInterface::RelPermCurve::Ident curveIdent = m_allCurvesArr[i].ident;
@@ -203,15 +210,16 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
         }
     }
 
-    plotCurvesInQwt(selectedCurves, m_cellReferenceText, m_qwtPlot);
+    plotCurvesInQwt(selectedCurves, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, QString cellReferenceText, QwtPlot* plot)
+void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
+    plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
 
     bool enableRightYAxis = false;
 
@@ -227,17 +235,16 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setStyle(QwtPlotCurve::Lines);
 
-        QwtPlot::Axis yAxis = QwtPlot::yLeft;
-        bool plotOnRightAxis = false;
-        Qt::GlobalColor curveClr = Qt::magenta;
+        bool plotCurveOnRightAxis = false;
+        QColor curveClr = Qt::magenta;
         switch (curve.ident)
         {
             case RigFlowDiagSolverInterface::RelPermCurve::KRW:   curveClr = Qt::blue; break;
             case RigFlowDiagSolverInterface::RelPermCurve::KRG:   curveClr = Qt::red; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  curveClr = Qt::darkGreen; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KROG:  curveClr = Qt::green; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  curveClr = Qt::darkGreen;   plotOnRightAxis = true; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  curveClr = Qt::green;       plotOnRightAxis = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  curveClr = QColor(0, 150, 200); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROG:  curveClr = QColor(225, 110, 0); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  curveClr = QColor(0, 150, 200);   plotCurveOnRightAxis = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  curveClr = QColor(225, 110, 0);   plotCurveOnRightAxis = true; break;
         }
 
         QPen curvePen;
@@ -250,7 +257,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
-        if (plotOnRightAxis)
+        if (plotCurveOnRightAxis)
         {
             QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
             curveSymbol->setSize(10, 10);
@@ -264,6 +271,26 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->attach(plot);
     }
+
+
+    if (swat != HUGE_VAL)
+    {
+        QwtPlotMarker* marker = new QwtPlotMarker("SWAT");
+        marker->setXValue(swat);
+        marker->setLineStyle(QwtPlotMarker::VLine);
+        marker->setLinePen(QPen(Qt::blue, 1, Qt::DashLine));
+        marker->attach(plot);
+    }
+
+    if (sgas != HUGE_VAL)
+    {
+        QwtPlotMarker* marker = new QwtPlotMarker("SGAS");
+        marker->setXValue(sgas);
+        marker->setLineStyle(QwtPlotMarker::VLine);
+        marker->setLinePen(QPen(Qt::red, 1, Qt::DashLine));
+        marker->attach(plot);
+    }
+
 
     QString title = "Relative Permeability";
     if (!cellReferenceText.isEmpty())

@@ -40,19 +40,21 @@ public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
     virtual ~RiuRelativePermeabilityPlotPanel();
 
-    void setPlotData(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, QString cellReferenceText);
+    void setPlotData(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString cellReferenceText);
     void clearPlot();
 
 private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, QString cellReferenceText, QwtPlot* plot);
+    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot);
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);
 
 private:
     std::vector<RigFlowDiagSolverInterface::RelPermCurve>   m_allCurvesArr;
+    double                                                  m_swat;
+    double                                                  m_sgas;
     QString                                                 m_cellReferenceText;
     QwtPlot*                                                m_qwtPlot;
     QButtonGroup*                                           m_selectedCurvesButtonGroup;

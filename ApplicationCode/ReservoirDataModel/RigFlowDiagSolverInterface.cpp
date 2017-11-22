@@ -625,16 +625,16 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 
     for (size_t i = 0; i < graphArr.size(); i++)
     {
+        const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
+        const std::string curveName = curveIdentNameArr[i].second;
+
         const Opm::FlowDiagnostics::Graph& srcGraph = graphArr[i];
         if (srcGraph.first.size() > 0)
         {
-            const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
-            const std::string curveName = curveIdentNameArr[i].second;
             std::vector<double> xVals = srcGraph.first;
             const std::vector<double>& yVals = srcGraph.second;
             
-            // According to Issue https://github.com/OPM/ResInsight/issues/2014,
-            // we need to modify the x values to be 1 - x
+            // According to Issue https://github.com/OPM/ResInsight/issues/2014, we need to modify the x values to be 1 - x
             if (curveIdent == RelPermCurve::KROW || curveIdent == RelPermCurve::KROG)
             {
                 for (size_t i = 0; i < xVals.size(); i++)
