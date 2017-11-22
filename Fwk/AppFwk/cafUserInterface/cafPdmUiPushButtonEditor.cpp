@@ -45,6 +45,7 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
+#include "QBoxLayout"
 
 
 
@@ -97,6 +98,10 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
              m_pushButton->setText(variantFieldValue.toString());
         }
     }
+    
+    QSize defaultSize  = m_pushButton->sizeHint();
+    m_pushButton->setMinimumWidth(10*std::round(0.1*(defaultSize.width() + 10)));
+    m_buttonLayout->setAlignment(m_pushButton, Qt::AlignRight);
 
     if (variantFieldValue.type() == QVariant::Bool)
     {
@@ -129,9 +134,19 @@ void PdmUiPushButtonEditor::configureEditorForField(PdmFieldHandle* fieldHandle)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiPushButtonEditor::createEditorWidget(QWidget * parent)
 {
-    m_pushButton = new QPushButton("", parent);
+    QWidget* containerWidget = new QWidget(parent);
+
+    m_pushButton = new QPushButton("", containerWidget);
     connect(m_pushButton, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
-    return m_pushButton;
+
+    m_buttonLayout = new QHBoxLayout(containerWidget);
+    m_buttonLayout->addWidget(m_pushButton);
+    m_buttonLayout->setMargin(0);
+    m_buttonLayout->setSpacing(0);
+
+    containerWidget->setLayout(m_buttonLayout);
+
+    return containerWidget;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QLabel>
+class QHBoxLayout;
 
 namespace caf 
 {
@@ -81,6 +82,7 @@ protected slots:
 private:
     QPointer<QPushButton>   m_pushButton;
     QPointer<QLabel>        m_label;
+    QPointer<QHBoxLayout>   m_buttonLayout;
 };
 
 
