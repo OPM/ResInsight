@@ -494,8 +494,24 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 bool groupItems = isVectorField && hasObservedData;
                 if (groupItems)
                 {
-                    auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
-                    options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
+                    QString headerText;
+                    if (i == SUM_CASES)
+                    {
+                        headerText = QString("Simulated Data");
+                    }
+                    else if (i == OBS_DATA)
+                    {
+                        headerText = QString("Observed Data");
+                    }
+                    else if (i == CALCULATED_CURVES)
+                    {
+                        headerText = QString("Calculated");
+                    }
+
+                    if (!headerText.isEmpty())
+                    {
+                        options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
+                    }
                 }
 
                 auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
