@@ -494,13 +494,13 @@ TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& st
 
             RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, columnHeader);
 
-            ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
+            ColumnInfo ci = ColumnInfo::createColumnInfoFromRsmData(quantity, unit, adr);
 
             columnInfos.push_back(ci);
         }
     }
 
-    return TableData(origin, dateFormat, startDate, columnInfos);
+    return TableData(origin, startDate, columnInfos);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -774,7 +774,7 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
 
         RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
 
-        ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
+        ColumnInfo ci = ColumnInfo::createColumnInfoFromRsmData(quantity, unit, adr);
 
         table.push_back(ci);
     }
@@ -818,9 +818,9 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const 
     {
         if (c.summaryAddress.quantityName() == "DATE")
         {
-            if (c.stringValues.size() > 0)
+            if (c.itemCount() > 0)
             {
-                firstTableStartTime = RiaDateStringParser::parseDateString(c.stringValues[0]);
+                firstTableStartTime = RiaDateStringParser::parseDateString(c.textValues[0]);
             }
         }
     }
@@ -848,9 +848,9 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const 
             {
                 if (c.summaryAddress.quantityName() == "DATE")
                 {
-                    if (c.stringValues.size() > 0)
+                    if (c.itemCount() > 0)
                     {
-                        tableFirstTime = RiaDateStringParser::parseDateString(c.stringValues[0]);
+                        tableFirstTime = RiaDateStringParser::parseDateString(c.textValues[0]);
                     }
                 }
             }
@@ -918,36 +918,65 @@ bool RifEclipseUserDataParserTools::isScalingText(const std::string& word)
     return word.find_first_of('*') != std::string::npos;
 }
 
+////--------------------------------------------------------------------------------------------------
+///// 
+////--------------------------------------------------------------------------------------------------
+//ColumnInfo::~ColumnInfo()
+//{
+//    if (values)
+//    {
+//        delete values;
+//    }
+//    if (textValues)
+//    {
+//        delete textValues;
+//    }
+//    if (dateTimeValues)
+//    {
+//        delete dateTimeValues;
+//    }
+//}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 size_t ColumnInfo::itemCount() const
 {
-    if (isStringData)
+    switch (dataType)
     {
-        return stringValues.size();
+    case NUMERIC:   return values.size();
+    case TEXT:      return textValues.size();
+    case DATETIME:  return dateTimeValues.size();
+    default:        return 0;
     }
-    else
-        return values.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
+ColumnInfo ColumnInfo::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
 {
     ColumnInfo ci(adr, unit);
 
     if (RifEclipseUserDataKeywordTools::isDate(quantity))
     {
-        ci.isStringData = true;
+        ci.dataType = TEXT;
     }
     else if (RifEclipseUserDataKeywordTools::isStepType(quantity))
     {
-        ci.isStringData = true;
+        ci.dataType = TEXT;
     }
 
     return ci;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ColumnInfo ColumnInfo::createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit)
+{
+    ColumnInfo col(addr, unit);
+    return col;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -961,9 +990,9 @@ QDateTime TableData::findFirstDate() const
     {
         if (RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
         {
-            if (ci.stringValues.size() > 0)
+            if (ci.itemCount() > 0)
             {
-                std::string firstDateString = ci.stringValues[0];
+                std::string firstDateString = ci.textValues[0];
 
                 QDateTime candidate = RiaDateStringParser::parseDateString(firstDateString);
                 if (candidate.isValid())

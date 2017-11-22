@@ -22,15 +22,20 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
 #include "RifKeywordVectorParser.h"
 
 #include "RimObservedData.h"
+#include "RimCsvUserData.h"
 #include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
 
 #include "RiuMainPlotWindow.h"
 
 #include "cafUtils.h"
+#include "cafPdmSettings.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
 #include <QFile>
 
@@ -92,59 +97,24 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
             return nullptr;
         }
 
-        QTextStream in(&file);
-        QString fileContents = in.readAll();
-
-        bool eclipseUserData = false;
         if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
         {
-            eclipseUserData = true;
+            return createAndAddRsmObservedDataFromFile(file, errorText);
         }
-
-        if (RifKeywordVectorParser::canBeParsed(fileContents))
+        else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
         {
-            eclipseUserData = true;
-        }
-
-        if (eclipseUserData)
-        {
-            RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
-
-            observedData = columnBasedUserData;
-        }
-
-        if (observedData)
-        {
-            this->m_observedDataArray.push_back(observedData);
-            observedData->setSummaryHeaderFileName(fileName);
-            observedData->createSummaryReaderInterface();
-            observedData->updateMetaData();
-            observedData->updateOptionSensitivity();
-
-            if (errorText && !observedData->errorMessagesFromReader().isEmpty())
-            {
-                errorText->append(observedData->errorMessagesFromReader());
-            }
-
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-            if (mainPlotWindow)
-            {
-                mainPlotWindow->selectAsCurrentItem(observedData);
-                mainPlotWindow->setExpanded(observedData);
-            }
-
-            this->updateConnectedEditors();
+            return createAndAddCvsObservedDataFromFile(file, errorText);
         }
         else
         {
             if (errorText)
             {
-                errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format.");
+                errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.");
             }
         }
     }
-
-    return observedData;
+    
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,4 +127,89 @@ std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
     allObservedData.insert(allObservedData.begin(), m_observedDataArray.begin(), m_observedDataArray.end());
 
     return allObservedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(QFile& file, QString* errorText /*= nullptr*/)
+{
+    RimObservedData* observedData = nullptr;
+
+    if (!file.isOpen()) return nullptr;
+
+    QTextStream in(&file);
+    QString fileContents = in.readAll();
+
+    RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
+    observedData = columnBasedUserData;
+
+    this->m_observedDataArray.push_back(observedData);
+    observedData->setSummaryHeaderFileName(file.fileName());
+    observedData->createSummaryReaderInterface();
+    observedData->updateMetaData();
+    observedData->updateOptionSensitivity();
+
+    if (errorText && !observedData->errorMessagesFromReader().isEmpty())
+    {
+        errorText->append(observedData->errorMessagesFromReader());
+    }
+
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow)
+    {
+        mainPlotWindow->selectAsCurrentItem(observedData);
+        mainPlotWindow->setExpanded(observedData);
+    }
+
+    this->updateConnectedEditors();
+    return observedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(QFile& file, QString* errorText /*= nullptr*/)
+{
+    RimObservedData* observedData = nullptr;
+
+    if (!file.isOpen()) return nullptr;
+
+    QTextStream in(&file);
+    QString fileContents = in.readAll();
+
+    RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
+    parseOptionsUi.setPreviewText(fileContents);
+    caf::PdmSettings::readFieldsFromApplicationStore(&parseOptionsUi);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &parseOptionsUi, "CSV Import Options", "");
+    if (propertyDialog.exec() != QDialog::Accepted)
+    {
+        return nullptr;
+    }
+
+    RimCsvUserData* columnBasedUserData = new RimCsvUserData();
+    columnBasedUserData->setParseOptions(parseOptionsUi.parseOptions());
+    observedData = columnBasedUserData;
+
+    this->m_observedDataArray.push_back(observedData);
+    observedData->setSummaryHeaderFileName(file.fileName());
+    observedData->createSummaryReaderInterface();
+    observedData->updateMetaData();
+    observedData->updateOptionSensitivity();
+
+    if (errorText && !observedData->errorMessagesFromReader().isEmpty())
+    {
+        errorText->append(observedData->errorMessagesFromReader());
+    }
+
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow)
+    {
+        mainPlotWindow->selectAsCurrentItem(observedData);
+        mainPlotWindow->setExpanded(observedData);
+    }
+
+    this->updateConnectedEditors();
+    return observedData;
 }

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,86 +16,90 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdStringTools.h"
+#include "RimCsvUserData.h"
+
+#include "RiaLogging.h"
+
+#include "RifCsvUserData.h"
+#include "RifColumnBasedUserDataParser.h"
+#include "RifKeywordVectorUserData.h"
+#include "RifSummaryReaderInterface.h"
+
+#include "cafUtils.h"
+
+#include <QFile>
+
+CAF_PDM_SOURCE_INIT(RimCsvUserData, "RimCsvUserData");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::trimString(const std::string& s)
+RimCsvUserData::RimCsvUserData()
 {
-    auto sCopy = s.substr(0, s.find_last_not_of(' ') + 1);
-    sCopy = sCopy.substr(sCopy.find_first_not_of(' '));
-
-    return sCopy;
+    CAF_PDM_InitObject("Observed CSV Data File", ":/Default.png", "", "");
+    m_summaryHeaderFilename.uiCapability()->setUiName("File");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::isNumber(const std::string& s)
+RimCsvUserData::~RimCsvUserData()
 {
-    if (s.size() == 0) return false;
-    if (findCharMatchCount(s, '.') > 1) return false;
-    if (findCharMatchCount(s, '-') > 1) return false;
-    if (findCharMatchCount(s, 'e') > 1) return false;
-    if (findCharMatchCount(s, 'E') > 1) return false;
 
-    return (s.find_first_not_of("0123456789.eE-") == std::string::npos);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RiaStdStringTools::toInt(const std::string& s)
+void RimCsvUserData::createSummaryReaderInterface()
 {
-    int intValue = -1;
+    m_summaryReader = nullptr;
 
-    try
+    if (caf::Utils::fileExists(this->summaryHeaderFilename()))
     {
-        intValue = std::stoi(s);
+        QFile file(this->summaryHeaderFilename());
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            RiaLogging::error(QString("Failed to open %1").arg(this->summaryHeaderFilename()));
+
+            return;
+        }
+
+        QTextStream in(&file);
+        QString fileContents = in.readAll();
+
+        RifCsvUserData* csvUserData = new RifCsvUserData();
+        if (csvUserData->parse(fileContents, m_parseOptions, &m_errorText))
+        {
+            m_summaryReader = csvUserData;
+        }
     }
-    catch (...)
+    else
     {
+        m_summaryReader = nullptr;
     }
-
-    return intValue;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RiaStdStringTools::toDouble(const std::string& s)
+RifSummaryReaderInterface* RimCsvUserData::summaryReader()
 {
-    double doubleValue = -1.0;
-
-    char* end;
-    doubleValue = std::strtod(s.data(), &end);
-
-    return doubleValue;
+    return m_summaryReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaStdStringTools::splitStringBySpace(const std::string& s)
+QString RimCsvUserData::errorMessagesFromReader()
 {
-    std::vector<std::string> words;
-
-    splitByDelimiter(s, words);
-
-    return words;
+    return m_errorText;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RiaStdStringTools::findCharMatchCount(const std::string& s, char c)
+void RimCsvUserData::setParseOptions(const AsciiDataParseOptions &parseOptions)
 {
-    size_t count = 0;
-    size_t pos = 0;
-    while ((pos = s.find_first_of(c, pos + 1)) != std::string::npos)
-    {
-        count++;
-    }
-    return count;
+    m_parseOptions = parseOptions;
 }

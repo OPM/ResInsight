@@ -39,6 +39,7 @@ namespace caf
         addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK, "SUMMARY_BLOCK", "Block");
         addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", "Lgr-Block");
         addItem(RifEclipseSummaryAddress::SUMMARY_CALCULATED, "SUMMARY_CALCULATED", "Calculated");
+        addItem(RifEclipseSummaryAddress::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported");
         setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
     }
 

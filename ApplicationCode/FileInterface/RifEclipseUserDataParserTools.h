@@ -34,9 +34,17 @@
 class ColumnInfo
 {
 public:
+    enum DataType
+    {
+        NONE,
+        NUMERIC,
+        TEXT,
+        DATETIME
+    };
+
     ColumnInfo()
         : scaleFactor(1.0),
-        isStringData(false)
+        dataType(NONE)
     {
     }
 
@@ -44,22 +52,27 @@ public:
         : summaryAddress(adr),
         scaleFactor(1.0),
         unitName(unit),
-        isStringData(false)
+        dataType(NONE)
     {
     }
 
-    size_t itemCount() const;
+    size_t                          itemCount() const;
 
 public:
-    static ColumnInfo createColumnInfo(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+    static ColumnInfo createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+    static ColumnInfo createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit);
 
     RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
     double                                          scaleFactor;
+    DataType                                        dataType;
+
+    // Data containers
     std::vector<double>                             values;
-    bool                                            isStringData;
-    std::vector<std::string>                        stringValues;
+    std::vector<std::string >                       textValues;
+    std::vector<QDateTime>                          dateTimeValues;
 };
+
 
 //==================================================================================================
 /// 
@@ -71,11 +84,9 @@ public:
     {}
 
     TableData(const std::string& origin,
-              const std::string& dateFormat,
               const std::string& startDate,
               const std::vector<ColumnInfo>& columnInfos)
         : m_origin(origin),
-        m_dateFormat(dateFormat),
         m_startDate(startDate),
         m_columnInfos(columnInfos)
     {
@@ -89,11 +100,6 @@ public:
     std::string startDate() const
     {
         return m_startDate;
-    }
-
-    std::string dateFormat() const
-    {
-        return m_dateFormat;
     }
 
     std::vector<ColumnInfo>& columnInfos()
@@ -110,7 +116,6 @@ public:
 
 private:
     std::string             m_origin;
-    std::string             m_dateFormat;
     std::string             m_startDate;
 
     std::vector<ColumnInfo> m_columnInfos;

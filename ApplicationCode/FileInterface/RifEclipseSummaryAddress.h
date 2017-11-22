@@ -46,7 +46,8 @@ public:
         SUMMARY_WELL_SEGMENT,       
         SUMMARY_BLOCK,              
         SUMMARY_BLOCK_LGR,
-        SUMMARY_CALCULATED
+        SUMMARY_CALCULATED,
+        SUMMARY_IMPORTED
     };
 
     enum SummaryIdentifierType
@@ -106,7 +107,7 @@ public:
 
     static RifEclipseSummaryAddress fieldVarAddress(const std::string& fieldVarName);
     static RifEclipseSummaryAddress calculatedCurveAddress(const std::string& curveName);
-    static RifEclipseSummaryAddress miscAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
 
     // Access methods
 

@@ -135,6 +135,7 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
         m_visibleTimeRangeMin = value;
         m_visibleDateRangeMin = fromDisplayTimeToDate(value);
     }
+    auto s = m_visibleDateRangeMin().toString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +154,7 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
         m_visibleTimeRangeMax = value;
         m_visibleDateRangeMax = fromDisplayTimeToDate(value);
     }
+    auto s = m_visibleDateRangeMax().toString();
 }
 
 //--------------------------------------------------------------------------------------------------

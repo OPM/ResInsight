@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,41 +18,36 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "RimObservedData.h"
+
+#include "../../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cvfObject.h"
+
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 //
 //==================================================================================================
-class RiaStdStringTools
+class RimCsvUserData : public RimObservedData
 {
+    CAF_PDM_HEADER_INIT;
 public:
-    static std::string  trimString(const std::string& s);
-    static bool         isNumber(const std::string& s);
+    RimCsvUserData();
+    virtual ~RimCsvUserData();
 
-    static int          toInt(const std::string& s);
-    static double       toDouble(const std::string& s);
+    virtual void createSummaryReaderInterface() override;
 
-    static std::vector<std::string> splitStringBySpace(const std::string& s);
+    virtual RifSummaryReaderInterface* summaryReader() override;
+
+    virtual QString errorMessagesFromReader() override;
+
+    void setParseOptions(const AsciiDataParseOptions &parseOptions);
 
 private:
-    template <class Container>
-    static void splitByDelimiter(const std::string& str, Container& cont, char delimiter = ' ')
-    {
-        std::stringstream ss(str);
-        std::string token;
-        while (std::getline(ss, token, delimiter))
-        {
-            if (token.find_first_not_of(delimiter) != std::string::npos)
-            {
-                cont.push_back(token);
-            }
-        }
-    }
-
-    static size_t findCharMatchCount(const std::string& s, char c);
+    cvf::ref<RifSummaryReaderInterface> m_summaryReader;
+    QString                             m_errorText;
+    AsciiDataParseOptions               m_parseOptions;
 };
-

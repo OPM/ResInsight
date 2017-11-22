@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017-  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,41 +18,40 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <string>
+#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseUserDataParserTools.h"
+
+#include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
+#include <QString>
+#include <QPointer>
+#include <QStringList>
+#include <QDateTime>
+
 #include <vector>
 
+class ColumnInfo;
+
 //==================================================================================================
-//
+/// 
 //==================================================================================================
-class RiaStdStringTools
+class RifCsvUserDataParser
 {
 public:
-    static std::string  trimString(const std::string& s);
-    static bool         isNumber(const std::string& s);
+    RifCsvUserDataParser(QString* errorText = nullptr);
 
-    static int          toInt(const std::string& s);
-    static double       toDouble(const std::string& s);
 
-    static std::vector<std::string> splitStringBySpace(const std::string& s);
+    bool                parse(const QString& data, const AsciiDataParseOptions& parseOptions);
+    const TableData&    tableData() const;
+
+    const ColumnInfo*   columnInfo(size_t columnIndex) const;
 
 private:
-    template <class Container>
-    static void splitByDelimiter(const std::string& str, Container& cont, char delimiter = ' ')
-    {
-        std::stringstream ss(str);
-        std::string token;
-        while (std::getline(ss, token, delimiter))
-        {
-            if (token.find_first_not_of(delimiter) != std::string::npos)
-            {
-                cont.push_back(token);
-            }
-        }
-    }
+    bool        parseData(const QString& data, const AsciiDataParseOptions& parseOptions);
+    QStringList splitLineAndTrim(const QString& list, const QString& separator);
+    QDateTime   tryParseDateTime(const std::string& colData, const QString& format);
 
-    static size_t findCharMatchCount(const std::string& s, char c);
+private:
+    TableData               m_tableData;
+    QString*                m_errorText;
 };
-

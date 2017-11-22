@@ -155,7 +155,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     
     if (category == RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
-        return RifEclipseSummaryAddress::miscAddress(quantityName);
+        return RifEclipseSummaryAddress::importedAddress(quantityName);
     }
 
     int         regionNumber = -1;

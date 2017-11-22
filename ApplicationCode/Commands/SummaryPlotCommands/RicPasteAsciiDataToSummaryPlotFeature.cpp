@@ -161,8 +161,8 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings)
 {
     std::vector<RimAsciiDataCurve*> curves;
-
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, settings.dateFormat(), settings.decimalLocale(), settings.cellSeparator());
+    const AsciiDataParseOptions& parseOptions = settings.parseOptions();
+    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, parseOptions.dateTimeFormat(), parseOptions.decimalSeparator, parseOptions.cellSeparator);
     
     if (parser.headers().empty())
     {
@@ -171,7 +171,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 
     std::map< CurveType, std::vector<RimAsciiDataCurve*> > curveToTypeMap;
 
-    QString curvePrefix = settings.curvePrefix();
+    QString curvePrefix = parseOptions.curvePrefix;
 
     for (size_t i = 0; i < parser.headers().size(); i++)
     {
@@ -187,9 +187,9 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
             curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(parser.headers()[i]));
         }
         // Appearance
-        curve->setSymbol(settings.pointSymbol());
-        curve->setLineStyle(settings.lineStyle());
-        curve->setSymbolSkipDinstance(settings.symbolSkipDinstance());
+        curve->setSymbol(parseOptions.curveSymbol);
+        curve->setLineStyle(parseOptions.curveLineStyle);
+        curve->setSymbolSkipDinstance(parseOptions.curveSymbolSkipDistance);
         curveToTypeMap[guessCurveType(parser.headers()[i])].push_back(curve);
         curves.push_back(curve);
     }

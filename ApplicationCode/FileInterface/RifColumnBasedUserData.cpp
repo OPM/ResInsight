@@ -159,7 +159,7 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
         for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
         {
             const ColumnInfo& ci = tableData.columnInfos()[columIndex];
-            if (!ci.isStringData)
+            if (ci.dataType == ColumnInfo::NUMERIC)
             {
                 RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
@@ -264,7 +264,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
         const ColumnInfo& ci = tableData.columnInfos()[dateColumnIndex];
 
         QString dateFormat;
-        for (auto s : ci.stringValues)
+        for (auto s : ci.textValues)
         {
             QDateTime dt = RiaDateStringParser::parseDateString(s);
 

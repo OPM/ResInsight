@@ -121,10 +121,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::calculatedCurveAddress(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::miscAddress(const std::string& quantityName)
+RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress(const std::string& quantityName)
 {
     RifEclipseSummaryAddress fieldAddr;
-    fieldAddr.m_variableCategory = SUMMARY_MISC;
+    fieldAddr.m_variableCategory = SUMMARY_IMPORTED;
     fieldAddr.m_quantityName = quantityName;
 
     return fieldAddr;

@@ -30,6 +30,27 @@
 //==================================================================================================
 /// 
 //==================================================================================================
+class AsciiDataParseOptions
+{
+public:
+    QString                 plotTitle;
+    QString                 curvePrefix;
+    QString                 decimalSeparator;
+    QString                 dateFormat_;
+    QString                 timeFormat;
+    QString                 cellSeparator;
+
+    RimPlotCurve::LineStyleEnum   curveLineStyle;
+    RimPlotCurve::PointSymbolEnum curveSymbol;
+    float                         curveSymbolSkipDistance;
+
+    QString                 dateTimeFormat() const { return dateFormat_ + " " + timeFormat; }
+};
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
 class RicPasteAsciiDataToSummaryPlotFeatureUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -72,15 +93,7 @@ public:
 public:
     RicPasteAsciiDataToSummaryPlotFeatureUi();
 
-    QString                       dateFormat()          const;
-    QLocale                       decimalLocale()       const;
-    QString                       cellSeparator()       const;
-    QString                       plotTitle()           const;
-    QString                       curvePrefix()         const;
-    RimPlotCurve::LineStyleEnum   lineStyle()           const;
-    RimPlotCurve::PointSymbolEnum pointSymbol()         const;
-    float                         symbolSkipDinstance() const;
-
+    const AsciiDataParseOptions    parseOptions() const;
     void    createNewPlot();
     void    setPreviewText(const QString& text);
 
@@ -89,20 +102,19 @@ protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    caf::PdmField<QString>              m_plotTitle;
-    caf::PdmField<QString>              m_curvePrefix;
-    caf::PdmField<DecimalSeparatorEnum> m_decimalSeparator;
-    caf::PdmField<DateFormatEnum>       m_dateFormat;
-    caf::PdmField<TimeFormatEnum>       m_timeFormat;
-    caf::PdmField<bool>                 m_useCustomDateFormat;
-    caf::PdmField<QString>              m_customDateFormat;
-    caf::PdmField<CellSeparatorEnum>    m_cellSeparator;
+    caf::PdmField<QString>                                      m_plotTitle;
+    caf::PdmField<QString>                                      m_curvePrefix;
+    caf::PdmField<DecimalSeparatorEnum>                         m_decimalSeparator;
+    caf::PdmField<DateFormatEnum>                               m_dateFormat;
+    caf::PdmField<TimeFormatEnum>                               m_timeFormat;
+    caf::PdmField<bool>                                         m_useCustomDateFormat;
+    caf::PdmField<QString>                                      m_customDateFormat;
+    caf::PdmField<CellSeparatorEnum>                            m_cellSeparator;
 
-    caf::PdmField<caf::AppEnum<RimPlotCurve::LineStyleEnum>>   m_curveLineStyle;
-    caf::PdmField<caf::AppEnum<RimPlotCurve::PointSymbolEnum>> m_curveSymbol;
-    caf::PdmField<float>                                       m_curveSymbolSkipDistance;
+    caf::PdmField<caf::AppEnum<RimPlotCurve::LineStyleEnum>>    m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RimPlotCurve::PointSymbolEnum>>  m_curveSymbol;
+    caf::PdmField<float>                                        m_curveSymbolSkipDistance;
 
-    bool                                m_createNewPlot;
-
-    caf::PdmField<QString>              m_previewText;
+    bool                                                        m_createNewPlot;
+    caf::PdmField<QString>                                      m_previewText;
 };

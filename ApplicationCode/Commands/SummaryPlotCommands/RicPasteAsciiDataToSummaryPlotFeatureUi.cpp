@@ -60,6 +60,7 @@ namespace caf {
 
 CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataToSummaryPlotFeatureUi");
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -92,91 +93,71 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormat() const
+const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOptions() const
 {
-    if (m_useCustomDateFormat())
+    AsciiDataParseOptions parseOptions;
+
+    parseOptions.plotTitle = m_plotTitle();
+    parseOptions.curvePrefix = m_curvePrefix();
+
     {
-        return m_customDateFormat();
-    }
-    else
-    {
-        QString format = m_dateFormat().text();
-        if (m_timeFormat() != TIME_NONE)
+        QString separator;
+        switch (m_decimalSeparator())
         {
-            format += " " + m_timeFormat().text();
+        case DECIMAL_COMMA:
+            separator = ",";
+            break;
+        case DECIMAL_DOT:
+        default:
+            separator = ".";
+            break;
         }
-        return format;
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QLocale RicPasteAsciiDataToSummaryPlotFeatureUi::decimalLocale() const
-{
-    switch (m_decimalSeparator())
+        parseOptions.decimalSeparator = separator;
+    }
+
     {
-    case DECIMAL_COMMA:
-        return QLocale::Norwegian;
-    case DECIMAL_DOT:
-    default:
-        return QLocale::c();
-    }
-}
+        QString dateFormat;
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RicPasteAsciiDataToSummaryPlotFeatureUi::cellSeparator() const
-{
-    switch (m_cellSeparator())
+        if (m_useCustomDateFormat())
+        {
+            dateFormat = m_customDateFormat;
+        }
+        else
+        {
+            dateFormat = m_dateFormat().text();
+        }
+
+        parseOptions.dateFormat_ = dateFormat;
+    }
+
+    parseOptions.timeFormat = m_timeFormat() != TIME_NONE ? m_timeFormat().text() : QString("");
+
     {
-    case CELL_COMMA:
-        return ",";
-    case CELL_TAB:
-    default:
-        return "\t";
+        QString separator;
+
+        switch (m_cellSeparator())
+        {
+        case CELL_COMMA:
+            separator = ",";
+            break;
+        case CELL_SEMICOLON:
+            separator = ";";
+            break;
+        case CELL_TAB:
+        default:
+            separator = "\t";
+            break;
+        }
+
+        parseOptions.cellSeparator = separator;
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RicPasteAsciiDataToSummaryPlotFeatureUi::plotTitle() const
-{
-    return m_plotTitle();
-}
+    parseOptions.curveLineStyle = m_curveLineStyle();
+    parseOptions.curveSymbol = m_curveSymbol();
+    parseOptions.curveSymbolSkipDistance = m_curveSymbolSkipDistance();
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RicPasteAsciiDataToSummaryPlotFeatureUi::curvePrefix() const
-{
-    return m_curvePrefix();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimPlotCurve::LineStyleEnum RicPasteAsciiDataToSummaryPlotFeatureUi::lineStyle() const
-{
-    return m_curveLineStyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum RicPasteAsciiDataToSummaryPlotFeatureUi::pointSymbol() const
-{
-    return m_curveSymbol();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-float RicPasteAsciiDataToSummaryPlotFeatureUi::symbolSkipDinstance() const
-{
-    return m_curveSymbolSkipDistance();
+    return parseOptions;
 }
 
 //--------------------------------------------------------------------------------------------------

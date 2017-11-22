@@ -84,7 +84,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
         if (isFixedWidth)
         {
             auto columnInfos = RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(streamData);
-            table = TableData("", "", "", columnInfos);
+            table = TableData("", "", columnInfos);
         }
         else
         {
@@ -131,9 +131,9 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 
             for (int i = 0; i < columnCount; i++)
             {
-                if (columnInfos[i].isStringData)
+                if (columnInfos[i].dataType == ColumnInfo::TEXT)
                 {
-                    columnInfos[i].stringValues.push_back(entries[i].toStdString());
+                    columnInfos[i].textValues.push_back(entries[i].toStdString());
                 }
                 else
                 {

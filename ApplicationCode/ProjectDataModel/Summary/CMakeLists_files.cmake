@@ -31,6 +31,7 @@ ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.h
+${CEE_CURRENT_LIST_DIR}RimCsvUserData.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -60,6 +61,7 @@ ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.cpp
+${CEE_CURRENT_LIST_DIR}RimCsvUserData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
