@@ -109,10 +109,23 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
     }
 
 
-    // Invalid faces
+    // Improved parsing handling some special cases
     {
         QStringList faceTexts;
-        faceTexts << "Z--" << "z--" << "-k-" << " -k " << "   +k-  ";
+        faceTexts << "Z--" << "z--" << "z/" << " y /";
+
+        cvf::StructGridInterface::FaceEnum faceType;
+        foreach(QString text, faceTexts)
+        {
+            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
+            EXPECT_NE(cvf::StructGridInterface::NO_FACE, faceType);
+        }
+    }
+
+    //Invalid faces
+    {
+        QStringList faceTexts;
+        faceTexts << "-k-" << " -k " << "   +k-  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
         foreach(QString text, faceTexts)
