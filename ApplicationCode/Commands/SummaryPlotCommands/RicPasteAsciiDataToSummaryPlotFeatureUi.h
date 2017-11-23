@@ -36,7 +36,7 @@ public:
     QString                 plotTitle;
     QString                 curvePrefix;
     QString                 decimalSeparator;
-    QString                 dateFormat_;
+    QString                 dateFormat;
     QString                 timeFormat;
     QString                 cellSeparator;
 
@@ -44,7 +44,7 @@ public:
     RimPlotCurve::PointSymbolEnum curveSymbol;
     float                         curveSymbolSkipDistance;
 
-    QString                 dateTimeFormat() const { return dateFormat_ + " " + timeFormat; }
+    QString                 dateTimeFormat() const { return dateFormat + " " + timeFormat; }
 };
 
 

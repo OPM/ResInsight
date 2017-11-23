@@ -128,7 +128,7 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
             dateFormat = m_dateFormat().text();
         }
 
-        parseOptions.dateFormat_ = dateFormat;
+        parseOptions.dateFormat = dateFormat;
     }
 
     parseOptions.timeFormat = m_timeFormat() != TIME_NONE ? m_timeFormat().text() : QString("");

@@ -117,7 +117,7 @@ bool RifCsvUserDataParser::parseData(const QString& data, const AsciiDataParseOp
                     col.dataType = ColumnInfo::NUMERIC;
                 }
                 else if (tryParseDateTime(colData, parseOptions.dateTimeFormat()).isValid() ||
-                         tryParseDateTime(colData, parseOptions.dateFormat_).isValid())
+                         tryParseDateTime(colData, parseOptions.dateFormat).isValid())
                 {
                     col.dataType = ColumnInfo::DATETIME;
                 }
@@ -152,7 +152,7 @@ bool RifCsvUserDataParser::parseData(const QString& data, const AsciiDataParseOp
                         QDateTime dt = tryParseDateTime(colData, parseOptions.dateTimeFormat());
                         if (!dt.isValid())
                         {
-                            dt = tryParseDateTime(colData, parseOptions.dateFormat_);
+                            dt = tryParseDateTime(colData, parseOptions.dateFormat);
                         }
                         if (!dt.isValid()) throw 0;
                         col.dateTimeValues.push_back(dt);
