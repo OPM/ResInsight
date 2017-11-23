@@ -199,6 +199,14 @@ bool RimWellPlotTools::isWaterFlowChannel(const QString& channelName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellPlotTools::isTotalFlowChannel(const QString& channelName)
+{
+    return tryMatchChannelName(TOTAL_CHANNEL_NAMES, channelName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasFlowData(RimEclipseResultCase* gridCase)
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();

@@ -48,31 +48,12 @@ enum FlowPhase { FLOW_PHASE_NONE, FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WAT
 //==================================================================================================
 class RimWellPlotTools
 {
-    static const std::set<QString> PRESSURE_DATA_NAMES;
-
-    static const std::set<QString> OIL_CHANNEL_NAMES;
-    static const std::set<QString> GAS_CHANNEL_NAMES;
-    static const std::set<QString> WATER_CHANNEL_NAMES;
-    static const std::set<QString> TOTAL_CHANNEL_NAMES;
-
-    static std::set<QString> FLOW_DATA_NAMES;
-
-    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
-    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
-    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
-    static bool                                     hasPressureData(RimWellPath* wellPath);
-    static bool                                     hasFlowData(RimEclipseResultCase* gridCase);
-    static bool                                     hasFlowData(RimWellPath* wellPath);
-    static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
-    static bool                                     tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch);
-    static std::set<QDateTime>                      findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, const std::set<QDateTime>& availableTimeSteps);
-    static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName );
-
 public:
 // PLT Only
     static bool                                     isOilFlowChannel(const QString& channelName);
     static bool                                     isGasFlowChannel(const QString& channelName);
     static bool                                     isWaterFlowChannel(const QString& channelName);
+    static bool                                     isTotalFlowChannel(const QString& channelName);
     static FlowPhase                                flowPhaseFromChannelName(const QString& channelName);
 
     static std::vector<RimWellLogFile*>             wellLogFilesContainingFlow(const QString& wellName);
@@ -112,8 +93,28 @@ public:
                                                                            const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
                                                                            const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
 
-
+private:
     friend class StaticFieldsInitializer;
+    static const std::set<QString> PRESSURE_DATA_NAMES;
+
+    static const std::set<QString> OIL_CHANNEL_NAMES;
+    static const std::set<QString> GAS_CHANNEL_NAMES;
+    static const std::set<QString> WATER_CHANNEL_NAMES;
+    static const std::set<QString> TOTAL_CHANNEL_NAMES;
+
+    static std::set<QString> FLOW_DATA_NAMES;
+
+    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
+    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
+    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
+    static bool                                     hasPressureData(RimWellPath* wellPath);
+    static bool                                     hasFlowData(RimEclipseResultCase* gridCase);
+    static bool                                     hasFlowData(RimWellPath* wellPath);
+    static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
+    static bool                                     tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch);
+    static std::set<QDateTime>                      findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, const std::set<QDateTime>& availableTimeSteps);
+    static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName);
+
 };
 
 //--------------------------------------------------------------------------------------------------
