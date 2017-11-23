@@ -20,92 +20,99 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
+
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefTools::RiaSummaryCurveDefTools(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions)
-    : m_curveDefinitions(curveDefinitions), m_isEvaluated(false)
-{
-}
+RiaSummaryCurveDefTools::RiaSummaryCurveDefTools() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaSummaryCurveDefTools::uniqueWellNames() const
+void RiaSummaryCurveDefTools::findIdentifiers(RimSummaryCurveCollection* sumCurveCollection)
 {
-    computeUniqueValues();
+    if (!sumCurveCollection) return;
 
-    return std::vector<std::string>(m_wellNames.begin(), m_wellNames.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaSummaryCurveDefTools::uniqueGroupNames() const
-{
-    computeUniqueValues();
-
-    return std::vector<std::string>(m_groupName.begin(), m_groupName.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<int> RiaSummaryCurveDefTools::uniqueRegions() const
-{
-    computeUniqueValues();
-
-    return std::vector<int>(m_regionNumbers.begin(), m_regionNumbers.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RiaSummaryCurveDefTools::uniqueSummaryCases() const
-{
-    computeUniqueValues();
-
-    return std::vector<RimSummaryCase*>(m_summaryCases.begin(), m_summaryCases.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefTools::computeUniqueValues() const
-{
-    if (m_isEvaluated)
+    for (auto curve : sumCurveCollection->curves())
     {
-        return;
-    }
+        m_summaryCases.insert(curve->summaryCaseY());
 
-    // 	m_wellNames.clear();
-    // 	m_groupName.clear();
-    // 	m_summaryCases.clear();
+        auto adr = curve->summaryAddressY();
 
-    for (const auto& curveDef : m_curveDefinitions)
-    {
-        if (curveDef.summaryCase() != nullptr)
+        if (!adr.wellName().empty())
         {
-            m_summaryCases.insert(curveDef.summaryCase());
+            m_wellNames.insert(adr.wellName());
         }
 
-        if (!curveDef.summaryAddress().wellName().empty())
+        if (!adr.quantityName().empty())
         {
-            m_wellNames.insert(curveDef.summaryAddress().wellName());
+            m_quantities.insert(adr.quantityName());
         }
 
-        if (!curveDef.summaryAddress().wellGroupName().empty())
+        if (!adr.wellGroupName().empty())
         {
-            m_groupName.insert(curveDef.summaryAddress().wellGroupName());
+            m_wellGroupNames.insert(adr.wellGroupName());
         }
 
-        if (curveDef.summaryAddress().regionNumber() != -1)
+        if (adr.regionNumber() != -1)
         {
-            m_regionNumbers.insert(curveDef.summaryAddress().regionNumber());
+            m_regionNumbers.insert(adr.regionNumber());
         }
     }
+}
 
-    m_isEvaluated = true;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveDefTools::quantities() const
+{
+    return m_quantities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveDefTools::wellNames() const
+{
+    return m_wellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveDefTools::wellGroupNames() const
+{
+    return m_wellGroupNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryCurveDefTools::regionNumbers() const
+{
+    return m_regionNumbers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RiaSummaryCurveDefTools::summaryCases() const
+{
+    return m_summaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefTools::clearAllSets()
+{
+    m_quantities.clear();
+    m_wellNames.clear();
+    m_wellGroupNames.clear();
+    m_regionNumbers.clear();
+    m_summaryCases.clear();
 }

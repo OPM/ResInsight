@@ -649,10 +649,7 @@ void RicSummaryCurveCreator::createNewPlot()
         summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
         if (ok)
         {
-            RimSummaryPlot* plot = new RimSummaryPlot();
-            summaryPlotColl->summaryPlots().push_back(plot);
-
-            plot->setDescription(summaryPlotName);
+            RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(summaryPlotName);
             plot->loadDataAndUpdate();
 
             summaryPlotColl->updateConnectedEditors();

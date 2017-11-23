@@ -36,6 +36,9 @@ public:
 
     caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
 
+    RimSummaryPlot* createSummaryPlotAutoName();
+    RimSummaryPlot* createNamedSummaryPlot(const QString& name);
+
     void updateSummaryNameHasChanged();
     void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;
 };

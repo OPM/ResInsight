@@ -119,10 +119,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     RimSummaryPlot* summaryPlot = nullptr;
     if (featureUi.isCreateNewPlotChecked())
     {
-        RimSummaryPlot* plot = new RimSummaryPlot();
-        summaryPlotColl->summaryPlots().push_back(plot);
-
-        plot->setDescription(featureUi.newPlotName());
+        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(featureUi.newPlotName());
 
         summaryPlotColl->updateConnectedEditors();
 

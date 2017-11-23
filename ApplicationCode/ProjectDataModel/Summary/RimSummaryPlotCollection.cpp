@@ -45,6 +45,30 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotAutoName()
+{
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoName(true);
+    summaryPlots.push_back(plot);
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot(const QString& name)
+{
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    summaryPlots.push_back(plot);
+    plot->setDescription(name);
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::updateSummaryNameHasChanged()
 {
     for (RimSummaryPlot* plot : summaryPlots)

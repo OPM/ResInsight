@@ -19,6 +19,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryCurveDefTools.h"
 
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
@@ -40,16 +41,16 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiCheckBoxEditor.h"
 
-#include <QDateTime>
-#include <QString>
-#include <QRectF>
-
 #include "qwt_abstract_legend.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
 
-#include "vector"
+#include <QDateTime>
+#include <QString>
+#include <QRectF>
+
+#include <set>
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -61,11 +62,14 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitObject("Summary Plot", ":/SummaryPlotLight16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_userDefinedPlotTitle, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "");
     m_showPlotTitle.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
     m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&m_isUsingAutoName, "IsUsingAutoName", false, "Auto Name", "", "", "");
+    m_isUsingAutoName.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden(true);
@@ -495,6 +499,19 @@ RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
 RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
 {
     return m_qwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updatePlotTitle()
+{
+    if (m_isUsingAutoName)
+    {
+        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+    }
+
+    updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1048,15 +1065,24 @@ void RimSummaryPlot::addAsciiDataCruve(RimAsciiDataCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
+{
+    return &m_userDefinedPlotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &m_userName || 
+    if (changedField == &m_userDefinedPlotTitle || 
         changedField == &m_showPlotTitle ||
-        changedField == &m_showLegend)
+        changedField == &m_showLegend ||
+        changedField == &m_isUsingAutoName)
     {
-        updateMdiWindowTitle();
+        updatePlotTitle();
     }
 }
 
@@ -1115,7 +1141,12 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onLoadDataAndUpdate()
 {
-   updateMdiWindowVisibility();    
+    if (m_isUsingAutoName)
+    {
+        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+    }
+
+    updateMdiWindowVisibility();    
 
     for (RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
     {
@@ -1193,6 +1224,42 @@ void RimSummaryPlot::setZoomIntervalsInQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::extractPlotTitleFromCurves() const
+{
+    RiaSummaryCurveDefTools nameHelper;
+
+    nameHelper.findIdentifiers(m_summaryCurveCollection());
+
+    auto quantities = nameHelper.quantities();
+    auto wellNames = nameHelper.wellNames();
+    auto wellGroupNames = nameHelper.wellGroupNames();
+    auto regions = nameHelper.regionNumbers();
+
+    QString title;
+
+    if (wellNames.size() == 1)
+    {
+        title = "Well : " + QString::fromStdString(*(wellNames.begin()));
+    }
+    else if (wellGroupNames.size() == 1)
+    {
+        title = "Well Group : " + QString::fromStdString(*(wellGroupNames.begin()));
+    }
+    else if (regions.size() == 1)
+    {
+        title = "Region : " + QString::number(*(regions.begin()));
+    }
+    else if (quantities.size() == 1)
+    {
+        title = "Quantity : " + QString::fromStdString(*(quantities.begin()));
+    }
+
+    return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomWindowFromQwt()
 {
     if (!m_qwtPlot) return;
@@ -1216,7 +1283,7 @@ void RimSummaryPlot::disableAutoZoom()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setDescription(const QString& description)
 {
-    m_userName = description;
+    m_userDefinedPlotTitle = description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1224,7 +1291,7 @@ void RimSummaryPlot::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::description() const
 {
-    return m_userName();
+    return m_userDefinedPlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1238,9 +1305,35 @@ void RimSummaryPlot::setShowDescription(bool showDescription)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::enableAutoName(bool enable)
+{
+    m_isUsingAutoName = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setAsCrossPlot()
 {
     m_isCrossPlot = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_isUsingAutoName);
+    uiOrdering.add(&m_userDefinedPlotTitle);
+    uiOrdering.add(&m_showPlotTitle);
+    uiOrdering.add(&m_showLegend);
+
+    m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_isUsingAutoName);
+
+    if (m_isUsingAutoName)
+    {
+        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1327,17 +1420,18 @@ void RimSummaryPlot::updateMdiWindowTitle()
 {
     if (m_qwtPlot)
     {
-        m_qwtPlot->setWindowTitle(m_userName);
+        QString plotTitle = description();
+
+        m_qwtPlot->setWindowTitle(plotTitle);
 
         if (m_showPlotTitle)
         {
-            m_qwtPlot->setTitle(m_userName);
+            m_qwtPlot->setTitle(plotTitle);
         }
         else
         {
             m_qwtPlot->setTitle("");
         }
-
 
         if (m_showLegend)
         {
@@ -1446,7 +1540,9 @@ size_t RimSummaryPlot::curveCount() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    if (field == &m_showLegend || field == &m_showPlotTitle)
+    if (field == &m_showLegend || 
+        field == &m_showPlotTitle ||
+        field == &m_isUsingAutoName)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)

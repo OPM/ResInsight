@@ -246,10 +246,7 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotF
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection(RimSummaryPlotCollection *plotCollection)
 {
-    auto summaryPlot = new RimSummaryPlot();
-    summaryPlot->setDescription(QString("Summary Plot %1").arg(plotCollection->summaryPlots.size() + 1));
-    plotCollection->summaryPlots().push_back(summaryPlot);
-    plotCollection->updateConnectedEditors();
-    summaryPlot->loadDataAndUpdate();
-    return summaryPlot;
+    QString name = QString("Summary Plot %1").arg(plotCollection->summaryPlots.size() + 1);
+
+    return plotCollection->createNamedSummaryPlot(name);
 }

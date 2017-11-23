@@ -99,11 +99,8 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             description = "Well Injection Rates : ";
         }
 
-        RimSummaryPlot* plot = new RimSummaryPlot();
-        summaryPlotColl->summaryPlots().push_back(plot);
-
         description += well->name();
-        plot->setDescription(description);
+        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(description);
 
         if (isInjector(well))
         {

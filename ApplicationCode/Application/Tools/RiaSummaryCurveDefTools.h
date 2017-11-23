@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-class RiaSummaryCurveDefinition;
+class RimSummaryCurveCollection;
 class RimSummaryCase;
 
 //==================================================================================================
@@ -31,22 +31,24 @@ class RimSummaryCase;
 class RiaSummaryCurveDefTools
 {
 public:
-    RiaSummaryCurveDefTools(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
+    RiaSummaryCurveDefTools();
 
-    std::vector<std::string> uniqueWellNames() const;
-    std::vector<std::string> uniqueGroupNames() const;
-    std::vector<int> uniqueRegions() const;
-    std::vector<RimSummaryCase*> uniqueSummaryCases() const;
+    void findIdentifiers(RimSummaryCurveCollection* sumCurveCollection);
+
+    std::set<std::string> quantities() const;
+    std::set<std::string> wellNames() const;
+    std::set<std::string> wellGroupNames() const;
+
+    std::set<int>             regionNumbers() const;
+    std::set<RimSummaryCase*> summaryCases() const;
 
 private:
-    void computeUniqueValues() const;
+    void clearAllSets();
 
 private:
-    const std::vector<RiaSummaryCurveDefinition>& m_curveDefinitions;
-
-    mutable bool m_isEvaluated;
-    mutable std::set<std::string> m_wellNames;
-    mutable std::set<std::string> m_groupName;
-    mutable std::set<int> m_regionNumbers;
-    mutable std::set<RimSummaryCase*> m_summaryCases;
+    std::set<std::string>     m_quantities;
+    std::set<std::string>     m_wellNames;
+    std::set<std::string>     m_wellGroupNames;
+    std::set<int>             m_regionNumbers;
+    std::set<RimSummaryCase*> m_summaryCases;
 };
