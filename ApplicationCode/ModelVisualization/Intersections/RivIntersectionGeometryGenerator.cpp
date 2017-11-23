@@ -91,23 +91,36 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             cvf::BoundingBox sectionBBox;
             sectionBBox.add(p1);
             sectionBBox.add(p2);
-            double maxSectionHeight = gridBBox.radius();
-            sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p2 + m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
+
+            double maxSectionHeight;
+            if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
+            {
+                maxSectionHeight = m_crossSection->height();
+            }
+            else
+            {
+                maxSectionHeight = sectionBBox.radius();
+            }
+
+            if (maxSectionHeight == 0) return;
+
+            cvf::Vec3d maxHeightVec = m_extrusionDirection*maxSectionHeight;
+
+            sectionBBox.add(p1 + maxHeightVec);
+            sectionBBox.add(p1 - maxHeightVec);
+            sectionBBox.add(p2 + maxHeightVec);
+            sectionBBox.add(p2 - maxHeightVec);
 
             std::vector<size_t> columnCellCandidates;
             m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
 
             cvf::Plane plane;
-            plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
+            plane.setFromPoints(p1, p2, p2 + maxHeightVec);
 
             cvf::Plane p1Plane;
-            p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
+            p1Plane.setFromPoints(p1, p1 + maxHeightVec, p1 + plane.normal());
             cvf::Plane p2Plane;
-            p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal());
-
+            p2Plane.setFromPoints(p2, p2 + maxHeightVec, p2 - plane.normal());
 
             std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
             hexPlaneCutTriangleVxes.reserve(5*3);

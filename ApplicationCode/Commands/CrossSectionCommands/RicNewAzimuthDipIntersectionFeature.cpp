@@ -34,6 +34,7 @@
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
+#include "cvfBoundingBox.h"
 
 #include <QAction>
 
@@ -111,11 +112,18 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     intersection->name = "Azimuth and Dip";
     intersection->type = RimIntersection::CS_AZIMUTHLINE;
     intersection->inputTwoAzimuthPointsFromViewerEnabled = true;
-
+    
+    RimCase* rimCase;
+    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(rimCase);
+    cvf::BoundingBox bBox = rimCase->allCellsBoundingBox();
+    if (bBox.isValid())
+    {
+        intersection->setHeight(cvf::Math::floor(bBox.extent()[2]));
+    }
+    
     m_intersectionCollection->appendIntersection(intersection);
 
     RiuSelectionManager::instance()->deleteAllItems();
-
     RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 }
 

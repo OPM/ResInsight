@@ -100,8 +100,10 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints, "TwoAzimuthPoints", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
-    CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,    "Branch", "", "", "");
-    CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0, "Extent length", "", "", "");
+    CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,     "Branch", "", "", "");
+    CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0,  "Extent Length", "", "", "");
+    CAF_PDM_InitField         (&m_height,          "Height",            2000.0, "Height", "", "", "");
+    
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
@@ -139,6 +141,7 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &simulationWell ||
         changedField == &m_branchIndex ||
         changedField == &m_extentLength ||
+        changedField == &m_height ||
         changedField == &showInactiveCells)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
@@ -245,7 +248,11 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
 
-    if (!(type == CS_AZIMUTHLINE))
+    if (type == CS_AZIMUTHLINE)
+    {
+        optionsGroup->add(&m_height);
+    }
+    else
     {
         optionsGroup->add(&direction);
         optionsGroup->add(&m_extentLength);
@@ -781,6 +788,22 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
     }
 
     return dir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimIntersection::height() const
+{
+    return m_height;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::setHeight(double height)
+{
+    m_height = height;
 }
 
 //--------------------------------------------------------------------------------------------------
