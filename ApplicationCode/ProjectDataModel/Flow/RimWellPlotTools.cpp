@@ -326,25 +326,6 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RimWellPlotTools::getFlowChannelsFromWellFile(const RimWellLogFile* wellLogFile)
-{
-    std::vector<RimWellLogFileChannel*> channels;
-    if (wellLogFile != nullptr)
-    {
-        for (RimWellLogFileChannel* const channel : wellLogFile->wellLogChannels())
-        {
-            if (isFlowChannel(channel))
-            {
-                channels.push_back(channel);
-            }
-        }
-    }
-    return channels;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPlotTools::wellPathFromWellLogFile(const RimWellLogFile* wellLogFile)
 {
     RimProject* const project = RiaApplication::instance()->project();
@@ -677,6 +658,58 @@ std::set < RiaRftPltCurveDefinition > RimWellPlotTools::curveDefsFromTimesteps(c
     return curveDefs;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPlotTools::flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
+                                            RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    QString axisTitle;
+
+    if (condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR)
+    {
+        QString unitText;
+        switch ( unitSystem )
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:
+            unitText = "[m<sup>3</sup>/day]";
+            break;
+            case RiaEclipseUnitTools::UNITS_FIELD:
+            unitText = "[Brl/day]";
+            break;
+            case RiaEclipseUnitTools::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
+        }
+
+        axisTitle = "Reservoir Flow Rate " + unitText;
+    }
+    else
+    {
+        QString unitText;
+        switch ( unitSystem )
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:
+            unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
+            break;
+            case RiaEclipseUnitTools::UNITS_FIELD:
+            unitText = "[Liquid BBL/day], [Gas BOE/day]";
+            break;
+            case RiaEclipseUnitTools::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
+
+        }
+        axisTitle = "Surface Flow Rate " + unitText;
+    }
+
+    return axisTitle;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

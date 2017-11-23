@@ -27,6 +27,8 @@
 #include <map>
 #include <set>
 #include "RifEclipseRftAddress.h"
+#include "RimWellLogFile.h"
+#include "RiaEclipseUnitTools.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -57,7 +59,6 @@ public:
     static FlowPhase                                flowPhaseFromChannelName(const QString& channelName);
 
     static std::vector<RimWellLogFile*>             wellLogFilesContainingFlow(const QString& wellName);
-    static std::vector<RimWellLogFileChannel*>      getFlowChannelsFromWellFile(const RimWellLogFile* wellLogFile);
     static RimWellPath*                             wellPathByWellPathNameOrSimWellName(const QString& wellPathNameOrSimwellName);
 
 // RFT Only
@@ -93,6 +94,8 @@ public:
                                                                            const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
                                                                            const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
 
+    static QString                                  flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
+                                                                      RiaEclipseUnitTools::UnitSystem unitSystem);
 private:
     friend class StaticFieldsInitializer;
     static const std::set<QString> PRESSURE_DATA_NAMES;

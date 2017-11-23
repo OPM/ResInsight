@@ -191,6 +191,17 @@ void RimWellPltPlot::setPlotXAxisTitles(RimWellLogTrack* plotTrack)
 
     if (presentUnitSystems.size() > 1) { QMessageBox::warning(nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot");}
 
+    if (presentUnitSystems.size() <= 0 ) return;
+
+    RiaEclipseUnitTools::UnitSystem unitSet = *presentUnitSystems.begin();
+
+    QString axisTitle;
+    if (m_useReservoirConditionCurves) axisTitle += RimWellPlotTools::flowPlotAxisTitle(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet);
+    if (m_useReservoirConditionCurves && m_useStandardConditionCurves) axisTitle += " | ";
+    if (m_useStandardConditionCurves)  axisTitle += RimWellPlotTools::flowPlotAxisTitle(RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet);
+
+    plotTrack->setXAxisTitle(axisTitle);
+#if 0
     QString unitText;
     for ( auto unitSet: presentUnitSystems )
     {
@@ -212,6 +223,7 @@ void RimWellPltPlot::setPlotXAxisTitles(RimWellLogTrack* plotTrack)
     }
 
     plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
+    #endif
 }
 
 //--------------------------------------------------------------------------------------------------

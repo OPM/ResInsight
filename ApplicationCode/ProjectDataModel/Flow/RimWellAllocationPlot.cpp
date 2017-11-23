@@ -46,6 +46,8 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
 #include "RiuWellLogTrack.h"
+#include "RimWellLogFile.h"
+#include "RimWellPlotTools.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -368,8 +370,13 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
     RiaEclipseUnitTools::UnitSystem unitSet = m_case->eclipseCaseData()->unitsType();
+    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR :  
+                                                                       RimWellLogFile::WELL_FLOW_COND_STANDARD;
 
+    QString axisTitle = RimWellPlotTools::flowPlotAxisTitle(condition, unitSet);
+    plotTrack->setXAxisTitle(axisTitle);
 
+ #if 0
     if (m_flowDiagSolution) 
     {
         QString unitText;
@@ -410,6 +417,9 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         }
         plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
     }
+#endif
+    
+
 }
 
 //--------------------------------------------------------------------------------------------------
