@@ -48,6 +48,8 @@ private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
     static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot);
+    static QColor   curveColorFromIdent(RigFlowDiagSolverInterface::RelPermCurve::Ident ident);
+    static QString  determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);

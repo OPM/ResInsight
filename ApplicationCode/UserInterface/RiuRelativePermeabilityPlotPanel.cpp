@@ -240,20 +240,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setStyle(QwtPlotCurve::Lines);
 
-        bool plotCurveOnRightAxis = false;
-        QColor curveClr = Qt::magenta;
-        switch (curve.ident)
-        {
-            case RigFlowDiagSolverInterface::RelPermCurve::KRW:   curveClr = Qt::blue; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KRG:   curveClr = Qt::red; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  curveClr = QColor(0, 130, 175); break;
-            case RigFlowDiagSolverInterface::RelPermCurve::KROG:  curveClr = QColor(225, 110, 0); break;
-            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  curveClr = QColor(0, 130, 175);   plotCurveOnRightAxis = true; break;
-            case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  curveClr = QColor(225, 110, 0);   plotCurveOnRightAxis = true; break;
-        }
-
-        QPen curvePen;
-        curvePen.setColor(curveClr);
+        const QColor curveClr = curveColorFromIdent(curve.ident);
+        const QPen curvePen(curveClr);
         qwtCurve->setPen(curvePen);
 
         qwtCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
@@ -262,6 +250,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
+        const bool plotCurveOnRightAxis = (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOW) || (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOG);
         if (plotCurveOnRightAxis)
         {
             QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
@@ -304,7 +293,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     }
     plot->setTitle(titleStr);
 
-    plot->setAxisTitle(QwtPlot::xBottom, "Saturation");
+    plot->setAxisTitle(QwtPlot::xBottom, determineXAxisTitleFromCurveCollection(curveArr));
     plot->setAxisTitle(QwtPlot::yLeft, "Kr");
     plot->setAxisTitle(QwtPlot::yRight, "Pc");
 
@@ -314,6 +303,57 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
     //plot->setAxisScale(QwtPlot::xBottom, 0, 1);
     //plot->setAxisScale(QwtPlot::yLeft, 0, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr)
+{
+    bool sawWater = false;
+    bool sawGas = false;
+
+    for (RigFlowDiagSolverInterface::RelPermCurve curve : curveArr)
+    {
+        switch (curve.ident)
+        {
+            case RigFlowDiagSolverInterface::RelPermCurve::KRW:   sawWater = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  sawWater = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  sawWater = true; break;
+
+            case RigFlowDiagSolverInterface::RelPermCurve::KRG:   sawGas = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROG:  sawGas = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  sawGas = true; break;
+        }
+    }
+
+    QString title = "";
+    if      (sawWater && sawGas) title = "Water/Gas ";
+    else if (sawWater)           title = "Water ";
+    else if (sawGas)             title = "Gas ";
+
+    title += "Saturation";
+
+    return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QColor RiuRelativePermeabilityPlotPanel::curveColorFromIdent(RigFlowDiagSolverInterface::RelPermCurve::Ident ident)
+{
+    QColor clr = Qt::magenta;
+    switch (ident)
+    {
+        case RigFlowDiagSolverInterface::RelPermCurve::KRW:   clr = Qt::blue; break;
+        case RigFlowDiagSolverInterface::RelPermCurve::KRG:   clr = Qt::red; break;
+        case RigFlowDiagSolverInterface::RelPermCurve::KROW:  clr = QColor(0, 130, 175); break;
+        case RigFlowDiagSolverInterface::RelPermCurve::KROG:  clr = QColor(225, 110, 0); break;
+        case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  clr = QColor(0, 130, 175); break;
+        case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  clr = QColor(225, 110, 0); break;
+    }
+
+    return clr;
 }
 
 //--------------------------------------------------------------------------------------------------
