@@ -57,19 +57,8 @@ void RimCsvUserData::createSummaryReaderInterface()
 
     if (caf::Utils::fileExists(this->summaryHeaderFilename()))
     {
-        QFile file(this->summaryHeaderFilename());
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            RiaLogging::error(QString("Failed to open %1").arg(this->summaryHeaderFilename()));
-
-            return;
-        }
-
-        QTextStream in(&file);
-        QString fileContents = in.readAll();
-
         RifCsvUserData* csvUserData = new RifCsvUserData();
-        if (csvUserData->parse(fileContents, m_parseOptions, &m_errorText))
+        if (csvUserData->parse(this->summaryHeaderFilename(), m_parseOptions, &m_errorText))
         {
             m_summaryReader = csvUserData;
         }

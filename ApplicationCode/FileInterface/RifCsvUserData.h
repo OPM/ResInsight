@@ -43,7 +43,7 @@ public:
     RifCsvUserData();
     ~RifCsvUserData();
 
-    bool                                parse(const QString& data, const AsciiDataParseOptions& parseOptions, QString* errorText = nullptr);
+    bool                                parse(const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText = nullptr);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 

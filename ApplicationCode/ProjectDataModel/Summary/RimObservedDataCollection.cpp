@@ -84,33 +84,31 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 {
     RimObservedData* observedData = nullptr;
 
-    if (caf::Utils::fileExists(fileName))
     {
         QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        if (!file.exists())
         {
-            QString s = QString("Failed to open %1").arg(fileName);
+            QString s = QString("File does not exist, %1").arg(fileName);
             RiaLogging::error(s);
 
             if (errorText) errorText->append(s);
-
             return nullptr;
         }
+    }
 
-        if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+    if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+    {
+        return createAndAddRsmObservedDataFromFile(fileName, errorText);
+    }
+    else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
+    {
+        return createAndAddCvsObservedDataFromFile(fileName, errorText);
+    }
+    else
+    {
+        if (errorText)
         {
-            return createAndAddRsmObservedDataFromFile(file, errorText);
-        }
-        else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
-        {
-            return createAndAddCvsObservedDataFromFile(file, errorText);
-        }
-        else
-        {
-            if (errorText)
-            {
-                errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.");
-            }
+            errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.");
         }
     }
     
@@ -132,20 +130,14 @@ std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(QFile& file, QString* errorText /*= nullptr*/)
+RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
     RimObservedData* observedData = nullptr;
-
-    if (!file.isOpen()) return nullptr;
-
-    QTextStream in(&file);
-    QString fileContents = in.readAll();
-
     RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
     observedData = columnBasedUserData;
 
     this->m_observedDataArray.push_back(observedData);
-    observedData->setSummaryHeaderFileName(file.fileName());
+    observedData->setSummaryHeaderFileName(fileName);
     observedData->createSummaryReaderInterface();
     observedData->updateMetaData();
     observedData->updateOptionSensitivity();
@@ -163,20 +155,29 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
     }
 
     this->updateConnectedEditors();
+
     return observedData;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(QFile& file, QString* errorText /*= nullptr*/)
+RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
     RimObservedData* observedData = nullptr;
+    QString fileContents;
 
-    if (!file.isOpen()) return nullptr;
+    {
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            RiaLogging::error(QString("Failed to open %1").arg(fileName));
+            return nullptr;
+        }
 
-    QTextStream in(&file);
-    QString fileContents = in.readAll();
+        fileContents = file.readAll();
+        file.close();
+    }
 
     RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
     parseOptionsUi.setPreviewText(fileContents);
@@ -193,7 +194,7 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     observedData = columnBasedUserData;
 
     this->m_observedDataArray.push_back(observedData);
-    observedData->setSummaryHeaderFileName(file.fileName());
+    observedData->setSummaryHeaderFileName(fileName);
     observedData->createSummaryReaderInterface();
     observedData->updateMetaData();
     observedData->updateOptionSensitivity();

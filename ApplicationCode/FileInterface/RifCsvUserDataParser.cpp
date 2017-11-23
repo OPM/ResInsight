@@ -30,7 +30,7 @@
 
 #include <QString>
 #include <QTextStream>
-
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,9 +44,9 @@ RifCsvUserDataParser::RifCsvUserDataParser(QString* errorText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse(const QString& data, const AsciiDataParseOptions& parseOptions)
+bool RifCsvUserDataParser::parse(const QString& fileName, const AsciiDataParseOptions& parseOptions)
 {
-    return parseData(data, parseOptions);
+    return parseData(fileName, parseOptions);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,13 +71,21 @@ const ColumnInfo* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseData(const QString& data, const AsciiDataParseOptions& parseOptions)
+bool RifCsvUserDataParser::parseData(const QString& fileName, const AsciiDataParseOptions& parseOptions)
 {
+    bool errors = false;
     enum { HEADER_ROW, FIRST_DATA_ROW, DATA_ROW } parseState = HEADER_ROW;
     int colCount = -1;
     std::vector<ColumnInfo> cols;
 
-    QTextStream dataStream(const_cast<QString*>(&data));
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        RiaLogging::error(QString("Failed to open %1").arg(fileName));
+        return false;
+    }
+
+    QTextStream dataStream(&file);
     while (!dataStream.atEnd())
     {
         QString line = dataStream.readLine();
@@ -102,7 +110,8 @@ bool RifCsvUserDataParser::parseData(const QString& data, const AsciiDataParseOp
         else if(lineColumns.size() != colCount)
         {
             m_errorText->append("CSV file has invalid content (Column count mismatch)");
-            return false;
+            errors = true;
+            break;
         }
         else if(parseState == FIRST_DATA_ROW)
         {
@@ -161,15 +170,21 @@ bool RifCsvUserDataParser::parseData(const QString& data, const AsciiDataParseOp
                 catch (...)
                 {
                     m_errorText->append("CSV file has invalid content (Column type mismatch)");
-                    return false;
+                    errors = true;
+                    break;
                 }
             }
         }
     }
 
-    TableData td("", "", cols);
-    m_tableData = td;
-    return true;
+    file.close();
+
+    if (!errors)
+    {
+        TableData td("", "", cols);
+        m_tableData = td;
+    }
+    return !errors;
 }
 
 //--------------------------------------------------------------------------------------------------

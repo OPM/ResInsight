@@ -42,8 +42,8 @@ public:
     std::vector<RimSummaryCase*>    allObservedData();
 
 private:
-    RimObservedData*                createAndAddRsmObservedDataFromFile(QFile& file, QString* errorText = nullptr);
-    RimObservedData*                createAndAddCvsObservedDataFromFile(QFile& file, QString* errorText = nullptr);
+    RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
+    RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;

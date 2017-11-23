@@ -41,13 +41,13 @@ public:
     RifCsvUserDataParser(QString* errorText = nullptr);
 
 
-    bool                parse(const QString& data, const AsciiDataParseOptions& parseOptions);
+    bool                parse(const QString& fileName, const AsciiDataParseOptions& parseOptions);
     const TableData&    tableData() const;
 
     const ColumnInfo*   columnInfo(size_t columnIndex) const;
 
 private:
-    bool        parseData(const QString& data, const AsciiDataParseOptions& parseOptions);
+    bool        parseData(const QString& fileName, const AsciiDataParseOptions& parseOptions);
     QStringList splitLineAndTrim(const QString& list, const QString& separator);
     QDateTime   tryParseDateTime(const std::string& colData, const QString& format);
 
