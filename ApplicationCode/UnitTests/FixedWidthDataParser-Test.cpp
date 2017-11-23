@@ -174,7 +174,7 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
     EXPECT_EQ(size_t(1), tables.size());
 
     EXPECT_EQ(size_t(37), tables[0].columnInfos().size());
-    EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].stringValues.size());
+    EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].textValues.size());
 }
 
 //--------------------------------------------------------------------------------------------------
