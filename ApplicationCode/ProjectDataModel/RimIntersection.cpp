@@ -729,6 +729,7 @@ void RimIntersection::appendPointToAzimuthLine(const cvf::Vec3d& point)
         m_twoAzimuthPoints.v().push_back(projectedPoint);
 
         m_azimuthAngle = cvf::Math::toDegrees(azimuthInRadians(m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0]));
+        m_azimuthAngle.uiCapability()->updateConnectedEditors();
     }
     else if (m_twoAzimuthPoints().size() > 1)
     {
