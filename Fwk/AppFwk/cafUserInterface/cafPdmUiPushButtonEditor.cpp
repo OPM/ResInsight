@@ -45,7 +45,10 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
-#include "QBoxLayout"
+
+#include <QBoxLayout>
+
+#include <cmath>
 
 
 
