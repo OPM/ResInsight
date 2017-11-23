@@ -31,9 +31,6 @@ class RicNewSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static RimSummaryPlot* createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
-
 protected:
     // Overrides
     virtual bool isCommandEnabled();

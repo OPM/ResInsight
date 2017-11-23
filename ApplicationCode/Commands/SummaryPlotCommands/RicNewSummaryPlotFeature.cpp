@@ -89,18 +89,3 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
-//--------------------------------------------------------------------------------------------------
-/// This method is not called from within this class, only by other classes
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
-{
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->summaryPlots().push_back(plot);
-
-    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots.size()));
-
-    summaryPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-
-    return plot;
-}
