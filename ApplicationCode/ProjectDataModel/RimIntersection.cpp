@@ -649,11 +649,17 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
     if (doubleSliderAttrib)
     {
-        if (field == &m_azimuthAngle || field == &m_dipAngle)
+        if (field == &m_azimuthAngle)
         {
             doubleSliderAttrib->m_minimum = 0;
             doubleSliderAttrib->m_maximum = 360;
             doubleSliderAttrib->m_sliderTickCount = 360;
+        }
+        else if (field == &m_dipAngle)
+        {
+            doubleSliderAttrib->m_minimum = 0;
+            doubleSliderAttrib->m_maximum = 180;
+            doubleSliderAttrib->m_sliderTickCount = 180;
         }
     }
     else if (field == &inputPolyLineFromViewerEnabled)
