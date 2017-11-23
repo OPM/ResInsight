@@ -458,7 +458,7 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
     m_highlightLineAlongPolyline = NULL;
     m_highlightPointsForPolyline = NULL;
 
-    if (m_rimCrossSection->type == RimIntersection::CS_POLYLINE)
+    if (m_rimCrossSection->type == RimIntersection::CS_POLYLINE || m_rimCrossSection->type == RimIntersection::CS_AZIMUTHLINE)
     {
         {
             cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
@@ -709,6 +709,21 @@ void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* mod
         {
             m_highlightPointsForExtrusionDir->setTransform(scaleTransform);
             model->addPart(m_highlightPointsForExtrusionDir.p());
+        }
+    }
+
+    if (m_rimCrossSection->inputTwoAzimuthPointsFromViewerEnabled)
+    {
+        if (m_highlightLineAlongPolyline.notNull())
+        {
+            m_highlightLineAlongPolyline->setTransform(scaleTransform);
+            model->addPart(m_highlightLineAlongPolyline.p());
+        }
+
+        if (m_highlightPointsForPolyline.notNull())
+        {
+            m_highlightPointsForPolyline->setTransform(scaleTransform);
+            model->addPart(m_highlightPointsForPolyline.p());
         }
     }
 }
