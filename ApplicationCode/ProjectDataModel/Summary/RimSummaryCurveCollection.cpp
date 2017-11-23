@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurvesModifier.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
@@ -39,13 +40,19 @@ CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 RimSummaryCurveCollection::RimSummaryCurveCollection()
 {
     CAF_PDM_InitObject("Summary Curves", ":/SummaryCurveFilter16x16.png", "", "");
-    
+
     CAF_PDM_InitFieldNoDefault(&m_curves, "CollectionCurves", "Collection Curves", "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
     m_curves.uiCapability()->setUiTreeChildrenHidden(false);
 
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_curvesModifier, "CurvesModifier", "Curves Modifier", "", "", "");
+    m_curvesModifier = new RimSummaryCurvesModifier;
+    m_curvesModifier.uiCapability()->setUiHidden(true);
+    m_curvesModifier.uiCapability()->setUiTreeChildrenHidden(true);
+    m_curvesModifier.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,6 +240,16 @@ void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         loadDataAndUpdate(true);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    auto group = uiOrdering.addNewGroup("Curve Modifier");
+
+    m_curvesModifier()->uiOrdering(uiConfigName, *group);
 }
 
 //--------------------------------------------------------------------------------------------------

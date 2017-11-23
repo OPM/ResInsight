@@ -31,6 +31,7 @@ ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCurvesModifier.h
 ${CEE_CURRENT_LIST_DIR}RimCsvUserData.h
 )
 
@@ -61,6 +62,7 @@ ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalculatedSummaryCurveReader.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCurvesModifier.cpp
 ${CEE_CURRENT_LIST_DIR}RimCsvUserData.cpp
 )
 

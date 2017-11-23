@@ -20,15 +20,16 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
-
 
 class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
+class RimSummaryCurvesModifier;
 
 //==================================================================================================
 ///  
@@ -64,13 +65,18 @@ private:
     virtual void                            defineObjectEditorAttribute(QString uiConfigName, 
                                                                         caf::PdmUiEditorAttribute* attribute) override;
     
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<bool>                         m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+    caf::PdmField<bool>                             m_showCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
+    caf::PdmChildField<RimSummaryCurvesModifier*>   m_curvesModifier;
 
-    caf::PdmPointer<RimSummaryCurve>            m_currentSummaryCurve;
+    caf::PdmPointer<RimSummaryCurve>                m_currentSummaryCurve;
+protected:
+
 };
 

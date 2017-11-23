@@ -133,6 +133,7 @@ public:
     bool            isValid() const;
     void            setWellName(const std::string& wellName)            { m_wellName = wellName; }
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
+    void            setRegion(int region)                               { m_regionNumber = region; }
 
 private:
 
