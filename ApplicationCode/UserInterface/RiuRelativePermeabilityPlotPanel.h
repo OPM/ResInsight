@@ -50,6 +50,9 @@ private:
     static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot);
     static QColor   curveColorFromIdent(RigFlowDiagSolverInterface::RelPermCurve::Ident ident);
     static QString  determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
+    static void     addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot);
+    static void     addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot);
+    static double   interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);

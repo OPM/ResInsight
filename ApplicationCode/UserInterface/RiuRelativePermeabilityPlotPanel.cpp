@@ -226,7 +226,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
     plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
 
-    bool enableRightYAxis = false;
+    bool shouldEableRightYAxis = false;
 
     for (size_t i = 0; i < curveArr.size(); i++)
     {
@@ -250,39 +250,53 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
+        // Curves containing capillary pressure are plotted on the right y axis and are marked with small circles
         const bool plotCurveOnRightAxis = (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOW) || (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOG);
         if (plotCurveOnRightAxis)
         {
             QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
-            curveSymbol->setSize(10, 10);
+            curveSymbol->setSize(6, 6);
             curveSymbol->setPen(curvePen);
             curveSymbol->setBrush(Qt::NoBrush);
             qwtCurve->setSymbol(curveSymbol);
 
             qwtCurve->setYAxis(QwtPlot::yRight);
-            enableRightYAxis = true;
+            shouldEableRightYAxis = true;
         }
 
         qwtCurve->attach(plot);
+
+
+        // Add markers to indicate where SWAT and/or SGAS saturation intersects the respective curves
+        if (swat != HUGE_VAL)
+        {
+            if (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KRW ||
+                curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KROW ||
+                curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOW)
+            {
+                addCurveConstSaturationIntersectionMarker(curve, swat, Qt::blue, plotCurveOnRightAxis, plot);
+            }
+        }
+        if (sgas != HUGE_VAL)
+        {
+            if (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KRG ||
+                curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KROG ||
+                curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOG)
+            {
+                addCurveConstSaturationIntersectionMarker(curve, sgas, Qt::red, plotCurveOnRightAxis, plot);
+            }
+        }
     }
 
 
+    // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if (swat != HUGE_VAL)
     {
-        QwtPlotMarker* marker = new QwtPlotMarker("SWAT");
-        marker->setXValue(swat);
-        marker->setLineStyle(QwtPlotMarker::VLine);
-        marker->setLinePen(QPen(Qt::blue, 1, Qt::DashLine));
-        marker->attach(plot);
+        addVerticalSaturationMarkerLine(swat, "SWAT", Qt::blue, plot);
     }
-
     if (sgas != HUGE_VAL)
     {
-        QwtPlotMarker* marker = new QwtPlotMarker("SGAS");
-        marker->setXValue(sgas);
-        marker->setLineStyle(QwtPlotMarker::VLine);
-        marker->setLinePen(QPen(Qt::red, 1, Qt::DashLine));
-        marker->attach(plot);
+        addVerticalSaturationMarkerLine(sgas, "SGAS", Qt::red, plot);
     }
 
 
@@ -297,13 +311,14 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     plot->setAxisTitle(QwtPlot::yLeft, "Kr");
     plot->setAxisTitle(QwtPlot::yRight, "Pc");
 
-    plot->enableAxis(QwtPlot::yRight, enableRightYAxis);
+    plot->enableAxis(QwtPlot::yRight, shouldEableRightYAxis);
 
     plot->replot();
 
     //plot->setAxisScale(QwtPlot::xBottom, 0, 1);
     //plot->setAxisScale(QwtPlot::yLeft, 0, 1);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -335,6 +350,87 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
     title += "Saturation";
 
     return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Add a vertical labeled marker line at the specified saturation value
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot)
+{
+    QwtPlotMarker* lineMarker = new QwtPlotMarker;
+    lineMarker->setXValue(saturationValue);
+    lineMarker->setLineStyle(QwtPlotMarker::VLine);
+    lineMarker->setLinePen(QPen(color, 1, Qt::DashLine));
+    lineMarker->setLabel(label);
+    lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
+    lineMarker->setLabelOrientation(Qt::Vertical);
+
+    lineMarker->attach(plot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Add a marker at the intersection of the passed curve and the constant saturation value
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot)
+{
+    const double yVal = interpolatedCurveYValue(curve.xVals, curve.yVals, saturationValue);
+    if (yVal != HUGE_VAL)
+    {
+        QwtPlotMarker* pointMarker = new QwtPlotMarker;
+        pointMarker->setValue(saturationValue, yVal);
+
+        QwtSymbol* symbol = new QwtSymbol(QwtSymbol::Ellipse);
+        symbol->setSize(13, 13);
+        symbol->setPen(QPen(markerColor, 2));
+        symbol->setBrush(Qt::NoBrush);
+        pointMarker->setSymbol(symbol);
+        pointMarker->attach(plot);
+
+        if (plotCurveOnRightAxis)
+        {
+            pointMarker->setYAxis(QwtPlot::yRight);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assumes that all the x-values are ordered in increasing order
+//--------------------------------------------------------------------------------------------------
+double RiuRelativePermeabilityPlotPanel::interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x)
+{
+    if (xVals.size() == 0) return HUGE_VAL;
+    if (x < xVals.front()) return HUGE_VAL;
+    if (x > xVals.back()) return HUGE_VAL;
+
+    // Find first element greater or equal to the passed x-value
+    std::vector<double>::const_iterator it = std::upper_bound(xVals.begin(), xVals.end(), x);
+
+    // Due to checks above, we should never come up empty, but to safeguard against NaNs etc
+    if (it == xVals.end())
+    {
+        return HUGE_VAL;
+    }
+
+    // Corner case - exact match on first element
+    if (it == xVals.begin())
+    {
+        return yVals.front();
+    }
+
+    const size_t idx1 = it - xVals.begin();
+    CVF_ASSERT(idx1 > 0);
+    const size_t idx0 = idx1 - 1;
+
+    const double x0 = xVals[idx0];
+    const double y0 = yVals[idx0];
+    const double x1 = xVals[idx1];
+    const double y1 = yVals[idx1];
+    CVF_ASSERT(x1 > x0);
+
+    const double t = (x1 - x0) > 0 ? (x - x0)/(x1 - x0) : 0;
+    const double y = y0 + t*(y1 - y0);
+
+    return y;
 }
 
 //--------------------------------------------------------------------------------------------------

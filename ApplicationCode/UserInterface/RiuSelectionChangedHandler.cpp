@@ -336,7 +336,7 @@ void RiuSelectionChangedHandler::updateRelativePermeabilityPlot(const RiuSelecti
             size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
             if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
             {
-                cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
+                //cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
                 std::vector<RigFlowDiagSolverInterface::RelPermCurve> relPermCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurvesForActiveCell(activeCellIndex);
                 QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
@@ -347,7 +347,7 @@ void RiuSelectionChangedHandler::updateRelativePermeabilityPlot(const RiuSelecti
                 cvf::ref<RigResultAccessor> sgasAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SGAS", RiaDefines::DYNAMIC_NATIVE);
                 const double cellSWAT = swatAccessor.notNull() ? swatAccessor->cellScalar(eclipseSelectionItem->m_gridLocalCellIndex) : HUGE_VAL;
                 const double cellSGAS = sgasAccessor.notNull() ? sgasAccessor->cellScalar(eclipseSelectionItem->m_gridLocalCellIndex) : HUGE_VAL;
-                cvf::Trace::show("cellSWAT = %f  cellSGAS = %f", cellSWAT, cellSGAS);
+                //cvf::Trace::show("cellSWAT = %f  cellSGAS = %f", cellSWAT, cellSGAS);
             
                 relPermPlotPanel->setPlotData(relPermCurveArr, cellSWAT, cellSGAS, cellRefText);
                 mustClearPlot = false;
