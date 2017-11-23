@@ -40,19 +40,23 @@ public:
 
 private:
     template <class Container>
-    static void splitByDelimiter(const std::string& str, Container& cont, char delimiter = ' ')
-    {
-        std::stringstream ss(str);
-        std::string token;
-        while (std::getline(ss, token, delimiter))
-        {
-            if (token.find_first_not_of(delimiter) != std::string::npos)
-            {
-                cont.push_back(token);
-            }
-        }
-    }
-
+    static void splitByDelimiter(const std::string& str, Container& cont, char delimiter = ' ');
     static size_t findCharMatchCount(const std::string& s, char c);
 };
 
+//==================================================================================================
+//
+//==================================================================================================
+template <class Container>
+void RiaStdStringTools::splitByDelimiter(const std::string& str, Container& cont, char delimiter)
+{
+    std::stringstream ss(str);
+    std::string token;
+    while (std::getline(ss, token, delimiter))
+    {
+        if (token.find_first_not_of(delimiter) != std::string::npos)
+        {
+            cont.push_back(token);
+        }
+    }
+}
