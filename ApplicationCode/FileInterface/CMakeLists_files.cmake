@@ -81,12 +81,9 @@ ${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPlt.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUserDataKeywordTools.cpp
-<<<<<<<
 ${CEE_CURRENT_LIST_DIR}RifCsvUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.cpp
-=======
 ${CEE_CURRENT_LIST_DIR}RifWellFormationReader.cpp
->>>>>>>
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp
