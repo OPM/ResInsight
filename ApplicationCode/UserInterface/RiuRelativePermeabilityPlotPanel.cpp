@@ -100,8 +100,11 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
         groupBoxLayout->addWidget(checkButtonList[i]);
     }
 
+    m_showUnscaledCheckBox = new QCheckBox("Show Unscaled");
+
     QVBoxLayout* leftLayout = new QVBoxLayout;
     leftLayout->addWidget(groupBox);
+    leftLayout->addWidget(m_showUnscaledCheckBox);
     leftLayout->addStretch(1);
 
     QHBoxLayout* mainLayout = new QHBoxLayout();
@@ -111,6 +114,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
     setLayout(mainLayout);
 
     connect(m_selectedCurvesButtonGroup, SIGNAL(buttonClicked(int)), SLOT(slotButtonInButtonGroupClicked(int)));
+    connect(m_showUnscaledCheckBox, SIGNAL(stateChanged(int)), SLOT(slotUnscaledCheckBoxStateChanged(int)));
 
     plotUiSelectedCurves();
 }
@@ -193,14 +197,21 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 {
-    // Determine which curves to actually plot based on selection in GUI
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves;
+
+    // Determine which curves to actually plot based on selection in GUI
+    const RigFlowDiagSolverInterface::RelPermCurve::EpsMode epsModeToShow = m_showUnscaledCheckBox->isChecked() ? RigFlowDiagSolverInterface::RelPermCurve::EPS_OFF : RigFlowDiagSolverInterface::RelPermCurve::EPS_ON;
+
     for (size_t i = 0; i < m_allCurvesArr.size(); i++)
     {
         const RigFlowDiagSolverInterface::RelPermCurve::Ident curveIdent = m_allCurvesArr[i].ident;
-        if (m_selectedCurvesButtonGroup->button(curveIdent) && m_selectedCurvesButtonGroup->button(curveIdent)->isChecked())
-        {
-            selectedCurves.push_back(m_allCurvesArr[i]);
+        const RigFlowDiagSolverInterface::RelPermCurve::EpsMode curveEpsMode = m_allCurvesArr[i].epsMode;
+
+        if (curveEpsMode == epsModeToShow) {
+            if (m_selectedCurvesButtonGroup->button(curveIdent) && m_selectedCurvesButtonGroup->button(curveIdent)->isChecked())
+            {
+                selectedCurves.push_back(m_allCurvesArr[i]);
+            }
         }
     }
 
@@ -286,12 +297,12 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     }
 
 
-    QString title = "Relative Permeability";
+    QString titleStr = "Relative Permeability";
     if (!cellReferenceText.isEmpty())
     {
-        title += ", " + cellReferenceText;
+        titleStr += ", " + cellReferenceText;
     }
-    plot->setTitle(title);
+    plot->setTitle(titleStr);
 
     plot->setAxisTitle(QwtPlot::xBottom, "Saturation");
     plot->setAxisTitle(QwtPlot::yLeft, "Kr");
@@ -309,6 +320,15 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::slotButtonInButtonGroupClicked(int)
+{
+    plotUiSelectedCurves();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::slotUnscaledCheckBoxStateChanged(int)
 {
     plotUiSelectedCurves();
 }

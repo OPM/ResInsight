@@ -24,6 +24,7 @@
 
 class QDockWidget;
 class QButtonGroup;
+class QCheckBox;
 class QwtPlot;
 
 
@@ -50,6 +51,7 @@ private:
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);
+    void            slotUnscaledCheckBoxStateChanged(int);
 
 private:
     std::vector<RigFlowDiagSolverInterface::RelPermCurve>   m_allCurvesArr;
@@ -58,5 +60,6 @@ private:
     QString                                                 m_cellReferenceText;
     QwtPlot*                                                m_qwtPlot;
     QButtonGroup*                                           m_selectedCurvesButtonGroup;
+    QCheckBox*                                              m_showUnscaledCheckBox;
 };
 

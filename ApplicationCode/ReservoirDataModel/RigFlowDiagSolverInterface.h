@@ -78,9 +78,11 @@ public:
     struct RelPermCurve
     {
         enum Ident { KRW, KRG, KROW, KROG, PCOW, PCOG };
+        enum EpsMode { EPS_ON, EPS_OFF };
 
         Ident               ident;
         std::string         name;
+        EpsMode             epsMode;
         std::vector<double> xVals;
         std::vector<double> yVals;
     };

@@ -624,19 +624,24 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOG, "PCOG"));   satFuncRequests.push_back(pcgo);
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOW, "PCOW"));   satFuncRequests.push_back(pcow);
 
-    const bool useEPS = true;
-    std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEPS);
-
-    for (size_t i = 0; i < graphArr.size(); i++)
+    // Calculate and return curves both with and without endpoint scaling and tag them accordingly
+    // Must use two calls to achieve this
+    const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF };
+    for (RelPermCurve::EpsMode epsMode : epsModeArr)
     {
-        const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
-        const std::string curveName = curveIdentNameArr[i].second;
-        const Opm::FlowDiagnostics::Graph& srcGraph = graphArr[i];
-        if (srcGraph.first.size() > 0)
+        const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
+        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEps);
+        for (size_t i = 0; i < graphArr.size(); i++)
         {
-            const std::vector<double>& xVals = srcGraph.first;
-            const std::vector<double>& yVals = srcGraph.second;
-            retCurveArr.push_back({ curveIdent, curveName, xVals, yVals});
+            const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
+            const std::string curveName = curveIdentNameArr[i].second;
+            const Opm::FlowDiagnostics::Graph& srcGraph = graphArr[i];
+            if (srcGraph.first.size() > 0)
+            {
+                const std::vector<double>& xVals = srcGraph.first;
+                const std::vector<double>& yVals = srcGraph.second;
+                retCurveArr.push_back({ curveIdent, curveName, epsMode, xVals, yVals });
+            }
         }
     }
 
