@@ -966,7 +966,10 @@ ColumnInfo ColumnInfo::createColumnInfoFromRsmData(const std::string& quantity, 
     {
         ci.dataType = TEXT;
     }
-
+    else
+    {
+        ci.dataType = NUMERIC;
+    }
     return ci;
 }
 
