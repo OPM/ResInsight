@@ -144,7 +144,8 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
-    caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
+    caf::PdmField<bool>                  m_useStandardConditionCurves;
+    caf::PdmField<bool>                  m_useReservoirConditionCurves;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
 
     bool                                            m_doInitAfterLoad;

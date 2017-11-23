@@ -810,14 +810,15 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(const QString& simWellN
     }
 
     // Create formatted options of all the timesteps
-
-    std::vector<QDateTime> allTimeSteps;
-    for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)
+    QString dateFormatString;
     {
-        allTimeSteps.push_back(timeStepPair.first);
+        std::vector<QDateTime> allTimeSteps;
+        for ( const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
+        {
+            allTimeSteps.push_back(timeStepPair.first);
+        }
+        dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
     }
-    const QString dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
-
 
     for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)
     {
@@ -836,11 +837,11 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(const QString& simWellN
         }
 
         optionText += " \t[ ";
-
         if (hasObs) optionText += "O ";
         if (hasRft) optionText += "R ";
         if (hasGrid) optionText += "G";
         optionText += " ]";
+
         options.push_back(caf::PdmOptionItemInfo(optionText, timeStepPair.first));
     }
 }

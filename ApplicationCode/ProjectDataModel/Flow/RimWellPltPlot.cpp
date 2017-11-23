@@ -87,6 +87,7 @@ void caf::AppEnum< FlowPhase>::setUp()
     addItem(FLOW_PHASE_OIL, "PHASE_OIL", "Oil");
     addItem(FLOW_PHASE_GAS, "PHASE_GAS", "Gas");
     addItem(FLOW_PHASE_WATER, "PHASE_WATER", "Water");
+    addItem(FLOW_PHASE_TOTAL, "PHASE_TOTAL", "Total");
 }
 }
 
@@ -128,11 +129,13 @@ RimWellPltPlot::RimWellPltPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_phaseSelectionMode, "PhaseSelectionMode", "Mode", "", "", "");
+    CAF_PDM_InitField(&m_useStandardConditionCurves, "showStandardConditionCurves", true, "Standard Volume", "", "", "");
+    CAF_PDM_InitField(&m_useReservoirConditionCurves, "showReservoirConditionCurves", true, "Reservoir Volume", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_phases, "Phases", "Phases", "", "", "");
     m_phases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_phases = std::vector<caf::AppEnum<FlowPhase>>({ FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER });
+    m_phases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;
@@ -492,13 +495,21 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     RimProject* proj = RiaApplication::instance()->project();
     RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
 
+    QString dateFormatString;
+    {
+        std::vector<QDateTime> allTimeSteps;
+        for ( const RiaRftPltCurveDefinition& curveDefToAdd : curveDefs )
+        {
+            allTimeSteps.push_back(curveDefToAdd.timeStep());
+        }
+        dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
+    }
+
     // Add curves
     for (const RiaRftPltCurveDefinition& curveDefToAdd : curveDefs)
     {
-        std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
-            std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
-            std::set<FlowPhase>({ FLOW_PHASE_TOTAL });
-        
+        std::set<FlowPhase> selectedPhases = std::set<FlowPhase>(m_phases().begin(), m_phases().end()) ;
+
         RifDataSourceForRftPlt sourceDef = curveDefToAdd.address();
         QDateTime timeStep = curveDefToAdd.timeStep();
 
@@ -506,10 +517,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
         QString curveName;
         {
-            curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
+            curveName += sourceDef.eclCase()     ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
             if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
-            curveName += ", " + timeStep.toString();
+            curveName += ", " + timeStep.toString(dateFormatString);
         }
 
         if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT )
@@ -523,41 +534,64 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             resultPointCalc.reset(new RigSimWellResultPointCalculator(m_wellPathName,
                                                                       dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
                                                                       timeStep));
-
         }
 
         if (resultPointCalc != nullptr)
         {
              if ( resultPointCalc->pipeBranchCLCoords().size() )
              {
-                
-                 RigAccWellFlowCalculator wfAccumulator(resultPointCalc->pipeBranchCLCoords(),
-                                                        resultPointCalc->pipeBranchWellResultPoints(),
-                                                        resultPointCalc->pipeBranchMeasuredDepths(),
-                                                        false); // m_phaseSelectionMode() != FLOW_TYPE_PHASE_SPLIT); The total flow is reservoir conditions must be careful
-
-                 const std::vector<double>& depthValues = wfAccumulator.pseudoLengthFromTop(0);
-                 std::vector<QString> tracerNames = wfAccumulator.tracerNames();
-                 for ( const QString& tracerName: tracerNames )
+                 if (   selectedPhases.count(FLOW_PHASE_TOTAL)
+                     && m_useReservoirConditionCurves()
+                     && sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
                  {
-                     auto color = tracerName == RIG_FLOW_OIL_NAME   ? cvf::Color3f::DARK_GREEN :
-                                  tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED :
-                                  tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE :
-                                  cvf::Color3f::DARK_GRAY;
+                     RigAccWellFlowCalculator wfTotalAccumulator(resultPointCalc->pipeBranchCLCoords(),
+                                                                 resultPointCalc->pipeBranchWellResultPoints(),
+                                                                 resultPointCalc->pipeBranchMeasuredDepths(),
+                                                                 true);
 
-                     if (    tracerName == RIG_FLOW_OIL_NAME  && selectedPhases.count(FLOW_PHASE_OIL) 
-                          || tracerName == RIG_FLOW_GAS_NAME  && selectedPhases.count(FLOW_PHASE_GAS)
-                          || tracerName == RIG_FLOW_WATER_NAME  && selectedPhases.count(FLOW_PHASE_WATER)
-                          || tracerName == RIG_FLOW_TOTAL_NAME &&  selectedPhases.count(FLOW_PHASE_TOTAL) )
+                     const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop(0);
+
+                     const std::vector<double> accFlow = wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, 0);
+                     addStackedCurve(curveName + ", " + RIG_FLOW_TOTAL_NAME + " [R]",
+                                     depthValues,
+                                     accFlow,
+                                     plotTrack,
+                                     cvf::Color3f::DARK_GRAY,
+                                     curveGroupId,
+                                     false);
+                     curveGroupId++;
+                 }
+
+                 if ( m_useStandardConditionCurves() )
+                 {
+                     RigAccWellFlowCalculator wfPhaseAccumulator(resultPointCalc->pipeBranchCLCoords(),
+                                                                 resultPointCalc->pipeBranchWellResultPoints(),
+                                                                 resultPointCalc->pipeBranchMeasuredDepths(),
+                                                                 false);
+
+
+                     const std::vector<double>& depthValues = wfPhaseAccumulator.pseudoLengthFromTop(0);
+                     std::vector<QString> tracerNames = wfPhaseAccumulator.tracerNames();
+                     for ( const QString& tracerName: tracerNames )
                      {
-                         const std::vector<double> accFlow = wfAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
-                         addStackedCurve(curveName + ", " + tracerName, 
-                                         depthValues, 
-                                         accFlow, 
-                                         plotTrack, 
-                                         color, 
-                                         curveGroupId, 
-                                         false);
+                         auto color = tracerName == RIG_FLOW_OIL_NAME   ? cvf::Color3f::DARK_GREEN :
+                             tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED :
+                             tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE :
+                             cvf::Color3f::DARK_GRAY;
+
+                         if ( tracerName == RIG_FLOW_OIL_NAME   && selectedPhases.count(FLOW_PHASE_OIL)
+                             || tracerName == RIG_FLOW_GAS_NAME   && selectedPhases.count(FLOW_PHASE_GAS)
+                             || tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count(FLOW_PHASE_WATER) )
+                         {
+                             const std::vector<double> accFlow = wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
+                             addStackedCurve(curveName + ", " + tracerName + " [S]",
+                                             depthValues,
+                                             accFlow,
+                                             plotTrack,
+                                             color,
+                                             curveGroupId,
+                                             false);
+                         }
                      }
                  }
              }
@@ -565,47 +599,58 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
         {
             RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
-            if ( wellLogFile )
+            if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
-                RigWellLogFile* wellLogFileData = wellLogFile->wellLogFileData();
+                RimWellLogFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
 
-                if ( wellLogFileData )
+                if (   (m_useStandardConditionCurves()  && flowCondition == RimWellLogFile::WELL_FLOW_COND_STANDARD)
+                    || (m_useReservoirConditionCurves() && flowCondition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR) )
                 {
-                    std::vector<RimWellLogFileChannel*> channels = RimWellPlotTools::getFlowChannelsFromWellFile(wellLogFile);
-                    
-                    std::multiset<std::tuple<double, QString, size_t> > sortedChannels;
+                    using ChannelValNameIdxTuple = std::tuple<double, QString, int> ;
+
+                    RigWellLogFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
+
+                    QStringList channelNames = wellLogFileData->wellLogChannelNames();
+
+                    std::multiset< ChannelValNameIdxTuple > sortedChannels;
                     std::vector<std::vector<double> > channelData;
-                    channelData.resize(channels.size());
-                    
-                    for (size_t chIdx = 0; chIdx <  channels.size(); ++chIdx)
+                    channelData.resize(channelNames.size());
+
+                    for ( int chIdx = 0; chIdx < channelNames.size(); ++chIdx )
                     {
-                        QString channelName = channels[chIdx]->name();
+                        QString channelName = channelNames[chIdx];
                         channelData[chIdx] = wellLogFileData->values(channelName);
-                        if (channelData[chIdx].size())
+                        if ( channelData[chIdx].size() )
                         {
-                            sortedChannels.insert(std::tuple<double, QString, size_t>(-fabs(channelData[chIdx].front()), channelName, chIdx) );
+                            sortedChannels.insert(ChannelValNameIdxTuple(-fabs(channelData[chIdx].front()), channelName, chIdx));
                         }
                     }
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
+                    QString conditionName = (flowCondition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR) ? " [R]" : " [S]";
 
-                    for ( const std::tuple<double, QString, size_t>& channelInfo: sortedChannels )
+                    for ( const ChannelValNameIdxTuple& channelInfo: sortedChannels )
                     {
                         const auto& channelName = std::get<1>(channelInfo);
-                        if (selectedPhases.count(RimWellPlotTools::flowPhaseFromChannelName(channelName)) > 0)
+                        if ( selectedPhases.count(RimWellPlotTools::flowPhaseFromChannelName(channelName)) > 0 )
                         {
-                            auto color = RimWellPlotTools::isOilFlowChannel(channelName) ? cvf::Color3f::DARK_GREEN :
-                                RimWellPlotTools::isGasFlowChannel(channelName) ? cvf::Color3f::DARK_RED :
+                            auto color = RimWellPlotTools::isOilFlowChannel(channelName)   ? cvf::Color3f::DARK_GREEN :
+                                RimWellPlotTools::isGasFlowChannel(channelName)   ? cvf::Color3f::DARK_RED :
                                 RimWellPlotTools::isWaterFlowChannel(channelName) ? cvf::Color3f::BLUE :
                                 cvf::Color3f::DARK_GRAY;
 
-                            addStackedCurve(curveName + ", " + channelName, 
-                                            depthValues, 
+
+                            addStackedCurve(curveName + ", " + channelName + conditionName,
+                                            depthValues,
                                             channelData[std::get<2>(channelInfo)],
-                                            plotTrack, 
+                                            plotTrack,
                                             color,
-                                            curveGroupId, 
+                                            curveGroupId,
                                             true);
+
+                            // Total flow channel will end up first, so just increment the group 
+                            // idx to make the rest of the phases group together
+                            if ( RimWellPlotTools::isTotalFlowChannel(channelName) ) curveGroupId++; 
                         }
                     }
                 }
@@ -797,14 +842,12 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
                                                             options);
     }
 
-    if (fieldNeedingOptions == &m_phaseSelectionMode)
-    {
-    }
-    else if (fieldNeedingOptions == &m_phases)
+    if (fieldNeedingOptions == &m_phases)
     {
         options.push_back(caf::PdmOptionItemInfo("Oil", FLOW_PHASE_OIL));
         options.push_back(caf::PdmOptionItemInfo("Gas", FLOW_PHASE_GAS));
         options.push_back(caf::PdmOptionItemInfo("Water", FLOW_PHASE_WATER));
+        options.push_back(caf::PdmOptionItemInfo("Total", FLOW_PHASE_TOTAL));
     }
 
     return options;
@@ -847,8 +890,9 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         //m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
 
-    if (changedField == &m_phaseSelectionMode ||
-        changedField == &m_phases)
+    if (   changedField == &m_useStandardConditionCurves 
+        || changedField == &m_useReservoirConditionCurves
+        || changedField == &m_phases)
     {
         syncCurvesFromUiSelection();
     }
@@ -894,15 +938,11 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword("Time Steps", "TimeSteps");
     timeStepsGroup->add(&m_selectedTimeSteps);
 
-    caf::PdmUiGroup* flowGroup = uiOrdering.addNewGroupWithKeyword("Phase Selection", "PhaseSelection");
-    flowGroup->add(&m_phaseSelectionMode);
+    caf::PdmUiGroup* flowGroup = uiOrdering.addNewGroupWithKeyword("Curve Selection", "PhaseSelection");
+    flowGroup->add(&m_useStandardConditionCurves);
+    flowGroup->add(&m_useReservoirConditionCurves);
 
-    if (m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT)
-    {
-        flowGroup->add(&m_phases);
-    }
-
-    //uiOrdering.add(&m_showPlotTitle);
+    flowGroup->add(&m_phases);
 
     if (m_wellLogPlot && m_wellLogPlot->trackCount() > 0)
     {

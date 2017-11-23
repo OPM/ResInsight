@@ -42,12 +42,6 @@ class RimWellLogFile : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    enum WellFlowCondition
-    {
-        WELL_FLOW_COND_RESERVOIR,
-        WELL_FLOW_COND_STANDARD
-    };
-
     const static QDateTime DEFAULT_DATE_TIME;
 
 public:
@@ -70,6 +64,14 @@ public:
 
     bool                                 hasFlowData() const;
 
+    enum WellFlowCondition
+    {
+        WELL_FLOW_COND_RESERVOIR,
+        WELL_FLOW_COND_STANDARD
+    };
+
+    RimWellLogFile::WellFlowCondition    wellFlowRateCondition() const { return m_wellFlowCondition(); }
+
 private:
     virtual void                         setupBeforeSave() override;
     virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -90,7 +92,8 @@ private:
     caf::PdmField<QString>               m_name;
     caf::PdmField<QDateTime>             m_date;
     bool                                 m_lasFileHasValidDate;
-    caf::PdmField<caf::AppEnum<WellFlowCondition>>  m_wellFlowCondition;
+    caf::PdmField<caf::AppEnum<WellFlowCondition>>  
+                                         m_wellFlowCondition;
 
     caf::PdmField<QString>               m_invalidDateMessage;
 };
