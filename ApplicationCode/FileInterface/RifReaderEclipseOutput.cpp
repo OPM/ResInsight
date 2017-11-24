@@ -1371,19 +1371,19 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
             // Production type
             well_type_enum ert_well_type = well_state_get_type(ert_well_state);
-            if (ert_well_type == ERT_PRODUCER)
+            if (ert_well_type == ECL_WELL_PRODUCER)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::PRODUCER;
             }
-            else if (ert_well_type == ERT_WATER_INJECTOR)
+            else if (ert_well_type == ECL_WELL_WATER_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::WATER_INJECTOR;
             }
-            else if (ert_well_type == ERT_GAS_INJECTOR)
+            else if (ert_well_type == ECL_WELL_GAS_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::GAS_INJECTOR;
             }
-            else if (ert_well_type == ERT_OIL_INJECTOR)
+            else if (ert_well_type == ECL_WELL_OIL_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::OIL_INJECTOR;
             }
