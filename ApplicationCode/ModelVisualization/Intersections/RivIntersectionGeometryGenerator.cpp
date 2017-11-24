@@ -127,7 +127,6 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                 sectionBBox.add(p1 - maxHeightVec);
                 sectionBBox.add(p2 + maxHeightVec);
                 sectionBBox.add(p2 - maxHeightVec);
-
             }
 
 
@@ -164,6 +163,38 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                                        cornerIndices,
                                        &hexPlaneCutTriangleVxes,
                                        &isTriangleEdgeCellContour);
+
+                if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
+                {
+                    bool hasAnyPointsOnSurface = false;
+                    for (caf::HexGridIntersectionTools::ClipVx vertex : hexPlaneCutTriangleVxes)
+                    {
+                        cvf::Vec3d temp = vertex.vx - p1;
+                        double dot = temp.dot(m_extrusionDirection);
+                        double lengthCheck;
+                        //if (vertex.vx.z() > p1.z())
+                        
+                        if (dot < 0)
+                        {
+                            lengthCheck = maxSectionHeightUp;
+                        }
+                        else
+                        {
+                            lengthCheck = maxSectionHeightDown;
+                        }
+
+                        double distance = cvf::Math::sqrt(cvf::GeometryTools::linePointSquareDist(p1, p2, vertex.vx));
+                        if (distance < lengthCheck)
+                        {
+                            hasAnyPointsOnSurface = true;
+                            break;
+                        }
+                    }
+                    if (!hasAnyPointsOnSurface)
+                    {
+                        continue;
+                    }
+                }
 
                 std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
                 std::vector<bool> isClippedTriEdgeCellContour;
