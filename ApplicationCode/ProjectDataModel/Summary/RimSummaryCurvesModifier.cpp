@@ -66,13 +66,7 @@ void RimSummaryCurvesModifier::applyNextIdentifier()
 {
     updateUiFromCurves();
 
-    caf::PdmValueField* valueField = nullptr;
-    {
-        auto identifierField = fieldToModify();
-
-        valueField = dynamic_cast<caf::PdmValueField*>(identifierField);
-    }
-
+    caf::PdmValueField* valueField = valueFieldToModify();
     if (valueField)
     {
         bool                          useOptionsOnly = true;
@@ -93,22 +87,24 @@ void RimSummaryCurvesModifier::applyNextIdentifier()
             }
         }
 
-        if (currentIndex != -1)
+        if (currentIndex == -1)
         {
-            int nextIndex = currentIndex + 1;
-            if (nextIndex >= options.size() - 1)
-            {
-                nextIndex = 0;
-            }
-
-            auto optionValue = options[nextIndex].value();
-
-            QVariant currentValue = valueField->toQVariant();
-
-            valueField->setFromQVariant(optionValue);
-
-            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
+            currentIndex = 0;
         }
+
+        int nextIndex = currentIndex + 1;
+        if (nextIndex >= options.size() - 1)
+        {
+            nextIndex = 0;
+        }
+
+        auto optionValue = options[nextIndex].value();
+
+        QVariant currentValue = valueField->toQVariant();
+
+        valueField->setFromQVariant(optionValue);
+
+        valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
     }
 }
 
@@ -119,13 +115,7 @@ void RimSummaryCurvesModifier::applyPreviousIdentifier()
 {
     updateUiFromCurves();
 
-    caf::PdmValueField* valueField = nullptr;
-    {
-        auto identifierField = fieldToModify();
-
-        valueField = dynamic_cast<caf::PdmValueField*>(identifierField);
-    }
-
+    caf::PdmValueField* valueField = valueFieldToModify();
     if (valueField)
     {
         bool                          useOptionsOnly = true;
@@ -146,22 +136,24 @@ void RimSummaryCurvesModifier::applyPreviousIdentifier()
             }
         }
 
-        if (currentIndex != -1)
+        if (currentIndex == -1)
         {
-            int nextIndex = currentIndex - 1;
-            if (nextIndex < 0)
-            {
-                nextIndex = options.size() - 1;
-            }
-
-            auto optionValue = options[nextIndex].value();
-
-            QVariant currentValue = valueField->toQVariant();
-
-            valueField->setFromQVariant(optionValue);
-
-            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
+            currentIndex = 0;
         }
+
+        int nextIndex = currentIndex - 1;
+        if (nextIndex < 0)
+        {
+            nextIndex = options.size() - 1;
+        }
+
+        auto optionValue = options[nextIndex].value();
+
+        QVariant currentValue = valueField->toQVariant();
+
+        valueField->setFromQVariant(optionValue);
+
+        valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
     }
 }
 
@@ -496,10 +488,22 @@ caf::PdmFieldHandle* RimSummaryCurvesModifier::fieldToModify()
         return &m_quantity;
     }
 
+    // A pointer field is no a value field, so this must be improved
+    // to be able to step between summary cases
     if (analyzer.summaryCases().size() == 1)
     {
         return &m_summaryCase;
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmValueField* RimSummaryCurvesModifier::valueFieldToModify()
+{
+    // This will return a null pointer for summary case modifier
+
+    return dynamic_cast<caf::PdmValueField*>(fieldToModify());
 }

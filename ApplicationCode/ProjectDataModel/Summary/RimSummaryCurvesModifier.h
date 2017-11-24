@@ -57,6 +57,7 @@ private:
     void                       setWellName(const QString& wellName);
     void                       updateUiFromCurves();
     caf::PdmFieldHandle*       fieldToModify();
+    caf::PdmValueField*        valueFieldToModify();
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
