@@ -232,12 +232,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
+            menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "Separator";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
             menuBuilder << "RicWellPathsImportFileFeature";
+            menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewRftPlotFeature";
