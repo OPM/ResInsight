@@ -20,6 +20,8 @@
 
 #include "RimPlotCurve.h"
 
+#include "RifCsvUserDataParser.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
@@ -27,26 +29,32 @@
 #include <QString>
 #include <QLocale>
 
+#include <memory>
+
+
 //==================================================================================================
 /// 
 //==================================================================================================
 class AsciiDataParseOptions
 {
 public:
+    AsciiDataParseOptions() : useCustomDateTimeFormat(false) { }
+
     QString                 plotTitle;
     QString                 curvePrefix;
     QString                 decimalSeparator;
     QLocale                 locale;
+
+    bool                    useCustomDateTimeFormat;
     QString                 dateFormat;
     QString                 timeFormat;
+    QString                 dateTimeFormat;
     QString                 cellSeparator;
     QString                 timeSeriesColumnName;
 
     RimPlotCurve::LineStyleEnum   curveLineStyle;
     RimPlotCurve::PointSymbolEnum curveSymbol;
     float                         curveSymbolSkipDistance;
-
-    QString                 dateTimeFormat() const { return dateFormat + " " + timeFormat; }
 };
 
 
@@ -60,6 +68,7 @@ class RicPasteAsciiDataToSummaryPlotFeatureUi : public caf::PdmObject
 public:
     enum UiMode
     {
+        UI_MODE_NONE,
         UI_MODE_IMPORT,
         UI_MODE_PASTE
     };
@@ -75,13 +84,19 @@ public:
     enum DateFormat
     {
         DATE_DDMMYYYY_DOT_SEPARATED,
+        DATE_DDMMYYYY_DASH_SEPARATED,
+        DATE_DDMMYYYY_SLASH_SEPARATED,
+        DATE_YYYYMMDD_DOT_SEPARATED,
+        DATE_YYYYMMDD_DASH_SEPARATED,
+        DATE_YYYYMMDD_SLASH_SEPARATED,
+        DATE_MMDDYYYY_SLASH_SEPARATED,
+        DATE_MMDDYY_SLASH_SEPARATED
     };
 
     typedef caf::AppEnum<DateFormat> DateFormatEnum;
 
     enum TimeFormat
     {
-        TIME_NONE,
         TIME_HHMM,
         TIME_HHMMSS,
         TIME_HHMMSSZZZ,
@@ -113,6 +128,9 @@ protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
+    void    initialize(RifCsvUserDataParser* parser);
+
+private:
     UiMode                                                      m_uiMode;
 
     caf::PdmField<QString>                                      m_plotTitle;
@@ -121,7 +139,7 @@ private:
     caf::PdmField<DateFormatEnum>                               m_dateFormat;
     caf::PdmField<TimeFormatEnum>                               m_timeFormat;
     caf::PdmField<bool>                                         m_useCustomDateFormat;
-    caf::PdmField<QString>                                      m_customDateFormat;
+    caf::PdmField<QString>                                      m_customDateTimeFormat;
     caf::PdmField<CellSeparatorEnum>                            m_cellSeparator;
     caf::PdmField<QString>                                      m_timeSeriesColumnName;
 
@@ -132,7 +150,5 @@ private:
     bool                                                        m_createNewPlot;
     caf::PdmField<QString>                                      m_previewText;
 
-    // Data source
-    QString                                                     m_fileName;
-    QString                                                     m_pastedText;
+    std::unique_ptr<RifCsvUserDataParser>                       m_parser;
 };

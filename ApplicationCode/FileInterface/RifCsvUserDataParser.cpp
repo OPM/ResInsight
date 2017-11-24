@@ -26,6 +26,8 @@
 #include "RiaStdStringTools.h"
 #include "RiaQDateTimeTools.h"
 
+#include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
 #include "cvfAssert.h"
 
 #include <QString>
@@ -241,11 +243,15 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                     }
                     else if (col.dataType == ColumnInfo::DATETIME)
                     {
-                        QDateTime dt = tryParseDateTime(colData.toStdString(), parseOptions.dateTimeFormat());
-                        if (!dt.isValid())
+                        QDateTime dt;
+                        dt = tryParseDateTime(colData.toStdString(), parseOptions.dateTimeFormat);
+
+                        if (!dt.isValid() && !parseOptions.useCustomDateTimeFormat)
                         {
+                            // Try to match date format only
                             dt = tryParseDateTime(colData.toStdString(), parseOptions.dateFormat);
                         }
+
                         if (!dt.isValid()) throw 0;
                         col.dateTimeValues.push_back(dt);
                     }

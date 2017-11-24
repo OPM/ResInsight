@@ -168,7 +168,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
 
     RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
     parseOptionsUi.setUiModeImport(fileName);
-    caf::PdmSettings::readFieldsFromApplicationStore(&parseOptionsUi);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &parseOptionsUi, "CSV Import Options", "");
     if (propertyDialog.exec() != QDialog::Accepted)

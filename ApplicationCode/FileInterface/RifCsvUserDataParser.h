@@ -21,8 +21,6 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseUserDataParserTools.h"
 
-#include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
-
 #include <QString>
 #include <QPointer>
 #include <QStringList>
@@ -33,6 +31,7 @@
 #include <vector>
 
 class ColumnInfo;
+class AsciiDataParseOptions;
 
 //==================================================================================================
 /// 

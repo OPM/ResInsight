@@ -162,7 +162,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 {
     std::vector<RimAsciiDataCurve*> curves;
     const AsciiDataParseOptions& parseOptions = settings.parseOptions();
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, parseOptions.dateTimeFormat(), parseOptions.locale, parseOptions.cellSeparator);
+    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, parseOptions.dateTimeFormat, parseOptions.locale, parseOptions.cellSeparator);
     
     if (parser.headers().empty())
     {
