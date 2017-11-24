@@ -40,6 +40,7 @@
 #include <QGroupBox>
 #include <QButtonGroup>
 
+#include <algorithm>
 
 
 
