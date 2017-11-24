@@ -36,6 +36,7 @@ public:
     QString                 plotTitle;
     QString                 curvePrefix;
     QString                 decimalSeparator;
+    QLocale                 locale;
     QString                 dateFormat;
     QString                 timeFormat;
     QString                 cellSeparator;

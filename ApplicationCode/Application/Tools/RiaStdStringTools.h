@@ -31,7 +31,7 @@ class RiaStdStringTools
 {
 public:
     static std::string  trimString(const std::string& s);
-    static bool         isNumber(const std::string& s);
+    static bool         isNumber(const std::string& s, char decimalPoint);
 
     static int          toInt(const std::string& s);
     static double       toDouble(const std::string& s);

@@ -148,18 +148,22 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 
     {
         QString separator;
+        QLocale locale;
         switch (m_decimalSeparator())
         {
         case DECIMAL_COMMA:
             separator = ",";
+            locale = QLocale::Norwegian;
             break;
         case DECIMAL_DOT:
         default:
             separator = ".";
+            locale = QLocale::c();
             break;
         }
 
         parseOptions.decimalSeparator = separator;
+        parseOptions.locale = locale;
     }
 
     {

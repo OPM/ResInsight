@@ -32,15 +32,17 @@ std::string RiaStdStringTools::trimString(const std::string& s)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::isNumber(const std::string& s)
+bool RiaStdStringTools::isNumber(const std::string& s, char decimalPoint)
 {
     if (s.size() == 0) return false;
-    if (findCharMatchCount(s, '.') > 1) return false;
+    if (findCharMatchCount(s, decimalPoint) > 1) return false;
     if (findCharMatchCount(s, '-') > 1) return false;
     if (findCharMatchCount(s, 'e') > 1) return false;
     if (findCharMatchCount(s, 'E') > 1) return false;
 
-    return (s.find_first_not_of("0123456789.eE-") == std::string::npos);
+    std::string matchChars("0123456789eE-");
+    matchChars.append(1, decimalPoint);
+    return (s.find_first_not_of(matchChars) == std::string::npos);
 }
 
 //--------------------------------------------------------------------------------------------------

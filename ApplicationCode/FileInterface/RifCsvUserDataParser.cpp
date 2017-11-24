@@ -168,9 +168,14 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 
         for (int iCol = 0; iCol < colCount; iCol++)
         {
-            std::string colName = columnNames[iCol].toStdString();
-            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName);
+            QString colName = columnNames[iCol];
+            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName.toStdString());
             ColumnInfo col = ColumnInfo::createColumnInfoFromCsvData(addr, "");
+
+            if (colName == parseOptions.timeSeriesColumnName)
+            {
+                col.dataType = ColumnInfo::DATETIME;
+            }
             cols.push_back(col);
         }
     }
@@ -180,7 +185,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
         return false;
     }
 
-    while (!dataStream->atEnd())
+    while (!dataStream->atEnd() && !errors)
     {
         QString line = dataStream->readLine();
         if(line.trimmed().isEmpty()) continue;
@@ -200,19 +205,17 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                 std::string colData = lineColumns[iCol].toStdString();
                 ColumnInfo& col = cols[iCol];
 
-                // Check if text column
-                if (RiaStdStringTools::isNumber(colData))
+                // Determine column data type
+                if (col.dataType == ColumnInfo::NONE)
                 {
-                    col.dataType = ColumnInfo::NUMERIC;
-                }
-                else if (tryParseDateTime(colData, parseOptions.dateTimeFormat()).isValid() ||
-                         tryParseDateTime(colData, parseOptions.dateFormat).isValid())
-                {
-                    col.dataType = ColumnInfo::DATETIME;
-                }
-                else
-                {
-                    col.dataType = ColumnInfo::TEXT;
+                    if (RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toAscii()))
+                    {
+                        col.dataType = ColumnInfo::NUMERIC;
+                    }
+                    else
+                    {
+                        col.dataType = ColumnInfo::TEXT;
+                    }
                 }
             }
             
@@ -223,25 +226,25 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
         {
             for (int iCol = 0; iCol < colCount; iCol++)
             {
-                std::string colData = lineColumns[iCol].toStdString();
+                QString& colData = lineColumns[iCol];
                 ColumnInfo& col = cols[iCol];
 
                 try
                 {
                     if (col.dataType == ColumnInfo::NUMERIC)
                     {
-                        col.values.push_back(RiaStdStringTools::toDouble(colData));
+                        col.values.push_back(parseOptions.locale.toDouble(colData));
                     }
                     else if (col.dataType == ColumnInfo::TEXT)
                     {
-                        col.textValues.push_back(colData);
+                        col.textValues.push_back(colData.toStdString());
                     }
                     else if (col.dataType == ColumnInfo::DATETIME)
                     {
-                        QDateTime dt = tryParseDateTime(colData, parseOptions.dateTimeFormat());
+                        QDateTime dt = tryParseDateTime(colData.toStdString(), parseOptions.dateTimeFormat());
                         if (!dt.isValid())
                         {
-                            dt = tryParseDateTime(colData, parseOptions.dateFormat);
+                            dt = tryParseDateTime(colData.toStdString(), parseOptions.dateFormat);
                         }
                         if (!dt.isValid()) throw 0;
                         col.dateTimeValues.push_back(dt);
