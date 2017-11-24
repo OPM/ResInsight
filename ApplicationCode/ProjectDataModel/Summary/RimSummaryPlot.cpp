@@ -19,7 +19,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiaApplication.h"
-#include "RiaSummaryCurveDefTools.h"
+#include "RiaSummaryCurveAnalyzer.h"
 
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
@@ -1226,24 +1226,24 @@ void RimSummaryPlot::setZoomIntervalsInQwtPlot()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::extractPlotTitleFromCurves() const
 {
-    RiaSummaryCurveDefTools nameHelper;
+    RiaSummaryCurveAnalyzer analyzer;
 
-    nameHelper.findIdentifiers(m_summaryCurveCollection());
+    analyzer.analyzeCurves(m_summaryCurveCollection());
 
-    auto quantities = nameHelper.quantities();
-    auto wellNames = nameHelper.wellNames();
-    auto wellGroupNames = nameHelper.wellGroupNames();
-    auto regions = nameHelper.regionNumbers();
+    auto quantities = analyzer.quantities();
+    auto wellNames = analyzer.wellNames();
+    auto wellGroupNames = analyzer.wellGroupNames();
+    auto regions = analyzer.regionNumbers();
 
     QString title;
 
     if (wellNames.size() == 1)
     {
-        title = "Well : " + QString::fromStdString(*(wellNames.begin()));
+        title = QString::fromStdString(*(wellNames.begin()));
     }
     else if (wellGroupNames.size() == 1)
     {
-        title = "Well Group : " + QString::fromStdString(*(wellGroupNames.begin()));
+        title = QString::fromStdString(*(wellGroupNames.begin()));
     }
     else if (regions.size() == 1)
     {
@@ -1251,7 +1251,7 @@ QString RimSummaryPlot::extractPlotTitleFromCurves() const
     }
     else if (quantities.size() == 1)
     {
-        title = "Quantity : " + QString::fromStdString(*(quantities.begin()));
+        title = QString::fromStdString(*(quantities.begin()));
     }
 
     return title;

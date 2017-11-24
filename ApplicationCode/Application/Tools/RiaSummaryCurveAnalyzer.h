@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <set>
 #include <string>
 #include <vector>
@@ -25,25 +27,35 @@
 class RimSummaryCurveCollection;
 class RimSummaryCase;
 
+class QString;
+
 //==================================================================================================
 //
 //==================================================================================================
-class RiaSummaryCurveDefTools
+class RiaSummaryCurveAnalyzer
 {
 public:
-    RiaSummaryCurveDefTools();
+    RiaSummaryCurveAnalyzer();
 
-    void findIdentifiers(RimSummaryCurveCollection* sumCurveCollection);
+    void analyzeCurves(RimSummaryCurveCollection* sumCurveCollection);
+    void analyzeAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
 
     std::set<std::string> quantities() const;
     std::set<std::string> wellNames() const;
     std::set<std::string> wellGroupNames() const;
 
-    std::set<int>             regionNumbers() const;
-    std::set<RimSummaryCase*> summaryCases() const;
+    std::set<int>                                          regionNumbers() const;
+    std::set<RimSummaryCase*>                              summaryCases() const;
+    std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
+
+    std::set<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const;
+
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses,
+                                                                      RifEclipseSummaryAddress::SummaryVarCategory category);
 
 private:
     void clearAllSets();
+    void analyzeAddress(const RifEclipseSummaryAddress& address);
 
 private:
     std::set<std::string>     m_quantities;
@@ -51,4 +63,6 @@ private:
     std::set<std::string>     m_wellGroupNames;
     std::set<int>             m_regionNumbers;
     std::set<RimSummaryCase*> m_summaryCases;
+
+    std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
 };

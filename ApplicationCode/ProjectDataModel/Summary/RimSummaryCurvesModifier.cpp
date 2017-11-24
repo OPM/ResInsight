@@ -18,14 +18,18 @@
 
 #include "RimSummaryCurvesModifier.h"
 
-#include "RiaSummaryCurveDefTools.h"
+#include "RiaApplication.h"
+#include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RifSummaryReaderInterface.h"
+
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-
-#include "RifSummaryReaderInterface.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiItem.h"
@@ -41,47 +45,80 @@ RimSummaryCurvesModifier::RimSummaryCurvesModifier()
     // clang-format off
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase,  "CurveCase",    "Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellName,     "WellName",     "Well Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_groupName,    "GroupName",    "Group Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_region,       "Region",       "Region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryCase,      "CurveCase",    "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellName,         "WellName",     "Well Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellGroupName,    "GroupName",    "Group Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellNameProxy, "WellNameProxy", "WellNameProxy", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellNameProxy,    "WellNameProxy", "WellNameProxy", "", "", "");
     m_wellNameProxy.registerGetMethod(this, &RimSummaryCurvesModifier::wellName);
     m_wellNameProxy.registerSetMethod(this, &RimSummaryCurvesModifier::setWellName);
     m_wellNameProxy.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_wellNameProxy.uiCapability()->setUiHidden(false);
+    m_wellNameProxy.uiCapability()->setUiHidden(true);
     // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> findAvailableIdentifierTexts(const std::vector<RifEclipseSummaryAddress>& allAddresses,
-                                               RifEclipseSummaryAddress::SummaryVarCategory category)
+void RimSummaryCurvesModifier::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    std::set<QString> mySet;
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
-    for (const auto& adr : allAddresses)
+    RiaSummaryCurveAnalyzer analyzer;
+    analyzer.analyzeCurves(curveCollection);
+
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
     {
-        if (adr.category() == category)
+        if (analyzer.categories().size() == 1)
         {
-            if (category == RifEclipseSummaryAddress::SUMMARY_REGION)
-            {
-                mySet.insert(QString::number(adr.regionNumber()));
-            }
-            else if (category == RifEclipseSummaryAddress::SUMMARY_WELL)
-            {
-                mySet.insert(QString::fromStdString(adr.wellName()));
-            }
-            else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-            {
-                mySet.insert(QString::fromStdString(adr.wellGroupName()));
-            }
+            category = *(analyzer.categories().begin());
         }
     }
 
-    return mySet;
+    m_summaryCase.uiCapability()->setUiHidden(true);
+    m_wellName.uiCapability()->setUiHidden(true);
+    m_wellGroupName.uiCapability()->setUiHidden(true);
+    m_region.uiCapability()->setUiHidden(true);
+    m_quantity.uiCapability()->setUiHidden(true);
+
+    if (category != RifEclipseSummaryAddress::SUMMARY_INVALID)
+    {
+        if (analyzer.summaryCases().size() == 1)
+        {
+            m_summaryCase = *(analyzer.summaryCases().begin());
+            m_summaryCase.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.wellNames().size() == 1)
+        {
+            QString txt = QString::fromStdString(*(analyzer.wellNames().begin()));
+            m_wellName = txt;
+            m_wellName.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.wellGroupNames().size() == 1)
+        {
+            QString txt = QString::fromStdString(*(analyzer.wellGroupNames().begin()));
+            m_wellGroupName = txt;
+            m_wellGroupName.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.regionNumbers().size() == 1)
+        {
+            m_region = *(analyzer.regionNumbers().begin());
+            m_region.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.quantities().size() == 1)
+        {
+            QString txt = QString::fromStdString(*(analyzer.quantities().begin()));
+            m_quantity = txt;
+            m_quantity.uiCapability()->setUiHidden(false);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +127,25 @@ std::set<QString> findAvailableIdentifierTexts(const std::vector<RifEclipseSumma
 QList<caf::PdmOptionItemInfo> RimSummaryCurvesModifier::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                               bool*                      useOptionsOnly)
 {
+    if (fieldNeedingOptions == &m_summaryCase)
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        RimProject* proj = RiaApplication::instance()->project();
+
+        RimSummaryCaseMainCollection* sumCaseColl =
+            proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+        if (sumCaseColl)
+        {
+            for (auto sumCase : sumCaseColl->allSummaryCases())
+            {
+                options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+            }
+        }
+
+        return options;
+    }
+
     std::set<QString> identifierTexts;
 
     RifSummaryReaderInterface* reader = summaryReader();
@@ -97,17 +153,42 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurvesModifier::calculateValueOptions(co
     {
         const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
 
+        RiaSummaryCurveAnalyzer analyzer;
+        analyzer.analyzeAdresses(allAddresses);
+
         if (fieldNeedingOptions == &m_wellName || fieldNeedingOptions == &m_wellNameProxy)
         {
-            identifierTexts = findAvailableIdentifierTexts(allAddresses, RifEclipseSummaryAddress::SUMMARY_WELL);
+            identifierTexts = analyzer.identifierTexts(RifEclipseSummaryAddress::SUMMARY_WELL);
         }
         else if (fieldNeedingOptions == &m_region)
         {
-            identifierTexts = findAvailableIdentifierTexts(allAddresses, RifEclipseSummaryAddress::SUMMARY_REGION);
+            identifierTexts = analyzer.identifierTexts(RifEclipseSummaryAddress::SUMMARY_REGION);
         }
-        else if (fieldNeedingOptions == &m_groupName)
+        else if (fieldNeedingOptions == &m_wellGroupName)
         {
-            identifierTexts = findAvailableIdentifierTexts(allAddresses, RifEclipseSummaryAddress::SUMMARY_WELL_GROUP);
+            identifierTexts = analyzer.identifierTexts(RifEclipseSummaryAddress::SUMMARY_WELL_GROUP);
+        }
+        else if (fieldNeedingOptions == &m_quantity)
+        {
+            RimSummaryCurveCollection* curveCollection = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+            RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
+
+            if (curveCollection->curves().size() > 0)
+            {
+                category = curveCollection->curves()[0]->summaryAddressY().category();
+            }
+
+            RiaSummaryCurveAnalyzer quantityAnalyzer;
+
+            auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(allAddresses, category);
+            quantityAnalyzer.analyzeAdresses(subset);
+
+            for (const auto& quantity : quantityAnalyzer.quantities())
+            {
+                identifierTexts.insert(QString::fromStdString(quantity));
+            }
         }
     }
 
@@ -125,6 +206,97 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurvesModifier::calculateValueOptions(co
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurvesModifier::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+                                                const QVariant& newValue)
+{
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    bool triggerLoadDataAndUpdate = false;
+
+    if (changedField == &m_summaryCase)
+    {
+        if (m_summaryCase())
+        {
+            for (auto curve : curveCollection->curves())
+            {
+                curve->setSummaryCaseY(m_summaryCase);
+            }
+
+            triggerLoadDataAndUpdate = true;
+        }
+    }
+    else if (changedField == &m_wellName || changedField == &m_wellNameProxy)
+    {
+        for (auto curve : curveCollection->curves())
+        {
+            RifEclipseSummaryAddress adr = curve->summaryAddressY();
+            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+            {
+                adr.setWellName(m_wellName().toStdString());
+
+                curve->setSummaryAddressY(adr);
+            }
+        }
+
+        triggerLoadDataAndUpdate = true;
+    }
+    else if (changedField == &m_region)
+    {
+        for (auto curve : curveCollection->curves())
+        {
+            RifEclipseSummaryAddress adr = curve->summaryAddressY();
+            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
+            {
+                adr.setRegion(m_region());
+
+                curve->setSummaryAddressY(adr);
+            }
+        }
+
+        triggerLoadDataAndUpdate = true;
+    }
+    else if (changedField == &m_quantity)
+    {
+        for (auto curve : curveCollection->curves())
+        {
+            RifEclipseSummaryAddress adr = curve->summaryAddressY();
+            adr.setQuantityName(m_quantity().toStdString());
+            curve->setSummaryAddressY(adr);
+        }
+
+        triggerLoadDataAndUpdate = true;
+    }
+    else if (changedField == &m_wellGroupName)
+    {
+        for (auto curve : curveCollection->curves())
+        {
+            RifEclipseSummaryAddress adr = curve->summaryAddressY();
+            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+            {
+                adr.setWellGroupName(m_wellGroupName().toStdString());
+
+                curve->setSummaryAddressY(adr);
+            }
+        }
+
+        triggerLoadDataAndUpdate = true;
+    }
+
+    if (triggerLoadDataAndUpdate)
+    {
+        RimSummaryPlot* summaryPlot = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+
+        summaryPlot->updatePlotTitle();
+
+        summaryPlot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,129 +349,4 @@ QString RimSummaryCurvesModifier::wellName() const
 void RimSummaryCurvesModifier::setWellName(const QString& wellName)
 {
     m_wellName.setValueWithFieldChanged(wellName);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                const QVariant& newValue)
-{
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    bool triggerLoadDataAndUpdate = false;
-    if (changedField == &m_wellName || changedField == &m_wellNameProxy)
-    {
-        for (auto curve : curveCollection->curves())
-        {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
-            {
-                adr.setWellName(m_wellName().toStdString());
-
-                curve->setSummaryAddressY(adr);
-            }
-        }
-
-        triggerLoadDataAndUpdate = true;
-    }
-    else if (changedField == &m_region)
-    {
-        for (auto curve : curveCollection->curves())
-        {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
-            {
-                adr.setRegion(m_region());
-
-                curve->setSummaryAddressY(adr);
-            }
-        }
-
-        triggerLoadDataAndUpdate = true;
-    }
-    else if (changedField == &m_groupName)
-    {
-        for (auto curve : curveCollection->curves())
-        {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-            {
-                adr.setWellGroupName(m_groupName().toStdString());
-
-                curve->setSummaryAddressY(adr);
-            }
-        }
-
-        triggerLoadDataAndUpdate = true;
-    }
-
-    if (triggerLoadDataAndUpdate)
-    {
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
-
-        summaryPlot->updatePlotTitle();
-
-        summaryPlot->loadDataAndUpdate();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    std::vector<RiaSummaryCurveDefinition> curveDefinitions;
-    for (auto curve : curveCollection->curves())
-    {
-        curveDefinitions.push_back(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
-    }
-
-    //     m_summaryCase.uiCapability()->setUiReadOnly(true);
-    //     m_wellName.uiCapability()->setUiReadOnly(true);
-    //     m_groupName.uiCapability()->setUiReadOnly(true);
-    //     m_region.uiCapability()->setUiReadOnly(true);
-
-    /*
-        if (tools.uniqueSummaryCases().size() > 1)
-        {
-            m_summaryCase.uiCapability()->setUiReadOnly(true);
-        }
-        else
-        {
-            m_summaryCase.uiCapability()->setUiReadOnly(false);
-        }
-
-        if (tools.uniqueWellNames().size() < 2)
-        {
-            m_wellName.uiCapability()->setUiReadOnly(true);
-        }
-        else
-        {
-            m_wellName.uiCapability()->setUiReadOnly(false);
-        }
-
-        if (tools.uniqueGroupNames().size() < 2)
-        {
-            m_groupName.uiCapability()->setUiReadOnly(true);
-        }
-        else
-        {
-            m_groupName.uiCapability()->setUiReadOnly(false);
-        }
-
-        if (tools.uniqueRegions().size() < 2)
-        {
-            m_region.uiCapability()->setUiReadOnly(true);
-        }
-        else
-        {
-            m_region.uiCapability()->setUiReadOnly(false);
-        }
-    */
 }

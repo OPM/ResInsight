@@ -131,6 +131,7 @@ public:
     std::string     uiText(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput) const;
 
     bool            isValid() const;
+    void            setQuantityName(const std::string& quantity)        { m_quantityName = quantity; }
     void            setWellName(const std::string& wellName)            { m_wellName = wellName; }
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
     void            setRegion(int region)                               { m_regionNumber = region; }

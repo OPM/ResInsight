@@ -39,12 +39,13 @@ public:
     RimSummaryCurvesModifier();
 
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                  const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
+
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+                                  const QVariant& newValue) override;
 
 private:
     RifSummaryReaderInterface* summaryReader() const;
@@ -55,8 +56,9 @@ private:
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmField<QString>            m_wellName;
-    caf::PdmField<QString>            m_groupName;
+    caf::PdmField<QString>            m_wellGroupName;
     caf::PdmField<int>                m_region;
+    caf::PdmField<QString>            m_quantity;
 
-    caf::PdmProxyValueField<QString> m_wellNameProxy;
+    caf::PdmProxyValueField<QString> m_wellNameProxy; // TODO: This is a test field for a list editor
 };
