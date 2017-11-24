@@ -58,8 +58,8 @@ bool RifCsvUserData::parse(const QString& fileName, const AsciiDataParseOptions&
     m_mapFromAddressToTimeStepIndex.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    m_parser = std::unique_ptr<RifCsvUserDataParser>(new RifCsvUserDataParser(errorText));
-    m_parser->parse(fileName, parseOptions);
+    m_parser = std::unique_ptr<RifCsvUserDataFileParser>(new RifCsvUserDataFileParser(fileName, errorText));
+    m_parser->parse(parseOptions);
     if (!m_parser)
     {
         RiaLogging::error(QString("Failed to parse file"));

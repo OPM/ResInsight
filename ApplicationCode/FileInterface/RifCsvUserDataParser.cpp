@@ -35,8 +35,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifCsvUserDataParser::RifCsvUserDataParser(QString* errorText)
-    : m_errorText(errorText)
+RifCsvUserDataParser::RifCsvUserDataParser(QString* errorText) :
+    m_errorText(errorText)
 {
 }
 
@@ -44,9 +44,16 @@ RifCsvUserDataParser::RifCsvUserDataParser(QString* errorText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse(const QString& fileName, const AsciiDataParseOptions& parseOptions)
+RifCsvUserDataParser::~RifCsvUserDataParser()
 {
-    return parseData(fileName, parseOptions);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifCsvUserDataParser::parse(const AsciiDataParseOptions& parseOptions)
+{
+    return parseData(parseOptions);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,43 +78,116 @@ const ColumnInfo* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseData(const QString& fileName, const AsciiDataParseOptions& parseOptions)
+bool RifCsvUserDataParser::parseColumnNames(const QString& cellSeparator, 
+                                            std::vector<QString>* columnNames)
+{
+    if (!columnNames) return false;
+
+    columnNames->clear();
+
+    QTextStream* dataStream = openDataStream();
+    bool result = parseColumnHeader(dataStream, cellSeparator, columnNames);
+
+    closeDataStream();
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RifCsvUserDataParser::previewText()
+{
+    QTextStream *stream = openDataStream();
+
+    if (!stream) return "";
+
+    QString preview;
+    QTextStream outStream(&preview);
+    int iLine = 0;
+
+    while (iLine < 30 + 1 && !stream->atEnd())
+    {
+        QString line = stream->readLine();
+
+        if (line.isEmpty()) continue;
+
+        outStream << line;
+        outStream << "\n";
+        iLine++;
+    }
+    closeDataStream();
+    return columnifyText(preview);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifCsvUserDataParser::parseColumnHeader(QTextStream* dataStream, const QString& cellSeparator, std::vector<QString>* columnNames)
+{
+    if (!columnNames) return false;
+
+    columnNames->clear();
+
+    bool headerFound = false;
+    while (!headerFound)
+    {
+        QString line = dataStream->readLine();
+        if (line.trimmed().isEmpty()) continue;
+
+        QStringList lineColumns = splitLineAndTrim(line, cellSeparator);
+
+        int colCount = lineColumns.size();
+
+        for (int iCol = 0; iCol < colCount; iCol++)
+        {
+            columnNames->push_back(lineColumns[iCol]);
+        }
+        headerFound = true;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 {
     bool errors = false;
-    enum { HEADER_ROW, FIRST_DATA_ROW, DATA_ROW } parseState = HEADER_ROW;
-    int colCount = -1;
+    enum { FIRST_DATA_ROW, DATA_ROW } parseState = FIRST_DATA_ROW;
+    int colCount;
     std::vector<ColumnInfo> cols;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    QTextStream* dataStream = openDataStream();
+
+    // Parse header
+    std::vector<QString> columnNames;
+    if (parseColumnHeader(dataStream, parseOptions.cellSeparator, &columnNames))
     {
-        RiaLogging::error(QString("Failed to open %1").arg(fileName));
+        colCount = (int)columnNames.size();
+
+        for (int iCol = 0; iCol < colCount; iCol++)
+        {
+            std::string colName = columnNames[iCol].toStdString();
+            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName);
+            ColumnInfo col = ColumnInfo::createColumnInfoFromCsvData(addr, "");
+            cols.push_back(col);
+        }
+    }
+    else
+    {
+        m_errorText->append("Failed to parse column headers");
         return false;
     }
 
-    QTextStream dataStream(&file);
-    while (!dataStream.atEnd())
+    while (!dataStream->atEnd())
     {
-        QString line = dataStream.readLine();
+        QString line = dataStream->readLine();
         if(line.trimmed().isEmpty()) continue;
 
         QStringList lineColumns = splitLineAndTrim(line, parseOptions.cellSeparator);
 
-        if (parseState == HEADER_ROW)
-        {
-            colCount = lineColumns.size();
-
-            for (int iCol = 0; iCol < colCount; iCol++)
-            {
-                std::string colName = lineColumns[iCol].toStdString();
-                RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName);
-                ColumnInfo col = ColumnInfo::createColumnInfoFromCsvData(addr, "");
-                cols.push_back(col);
-            }
-
-            parseState = FIRST_DATA_ROW;
-        }
-        else if(lineColumns.size() != colCount)
+        if(lineColumns.size() != colCount)
         {
             m_errorText->append("CSV file has invalid content (Column count mismatch)");
             errors = true;
@@ -177,7 +257,7 @@ bool RifCsvUserDataParser::parseData(const QString& fileName, const AsciiDataPar
         }
     }
 
-    file.close();
+    closeDataStream();
 
     if (!errors)
     {
@@ -185,6 +265,25 @@ bool RifCsvUserDataParser::parseData(const QString& fileName, const AsciiDataPar
         m_tableData = td;
     }
     return !errors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RifCsvUserDataParser::columnifyText(const QString& text)
+{
+    QString pretty = text;
+
+    QString cellSep = tryDetermineCellSeparator();
+    if (!cellSep.isEmpty())
+    {
+        if (cellSep == ";" || cellSep == ",")
+        {
+            pretty = pretty.replace(cellSep, QString("\t") + cellSep);
+        }
+    }
+
+    return pretty;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,4 +305,173 @@ QStringList RifCsvUserDataParser::splitLineAndTrim(const QString& line, const QS
 QDateTime RifCsvUserDataParser::tryParseDateTime(const std::string& colData, const QString& format)
 {
     return RiaQDateTimeTools::fromString(QString::fromStdString(colData), format);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RifCsvUserDataParser::tryDetermineCellSeparator()
+{
+    QTextStream* dataStream = openDataStream();
+    std::vector<QString> lines;
+    int iLine = 0;
+
+    while(iLine < 10 && !dataStream->atEnd())
+    {
+        QString line = dataStream->readLine();
+        if(line.isEmpty()) continue;
+
+        lines.push_back(line);
+        iLine++;
+    }
+    closeDataStream();
+
+    // Try different cell separators
+    int totColumnCountTab = 0;
+    int totColumnCountSemicolon = 0;
+    int totColumnCountComma = 0;
+
+    for (const QString& line : lines)
+    {
+        totColumnCountTab       += splitLineAndTrim(line, "\t").size();
+        totColumnCountSemicolon += splitLineAndTrim(line, ";").size();
+        totColumnCountComma     += splitLineAndTrim(line, ",").size();
+    }
+
+    double avgColumnCountTab        = (double)totColumnCountTab / lines.size();
+    double avgColumnCountSemicolon  = (double)totColumnCountSemicolon / lines.size();
+    double avgColumnCountComma      = (double)totColumnCountComma / lines.size();
+
+    // Select the one having highest average
+    double maxAvg = std::max(std::max(avgColumnCountTab, avgColumnCountSemicolon), avgColumnCountComma);
+
+    if (maxAvg == avgColumnCountTab)         return "\t";
+    if (maxAvg == avgColumnCountSemicolon)   return ";";
+    if (maxAvg == avgColumnCountComma)       return ",";
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCsvUserDataFileParser::RifCsvUserDataFileParser(const QString& fileName, QString* errorText) :
+    RifCsvUserDataParser(errorText)
+{
+    m_fileName = fileName;
+    m_file = nullptr;
+    m_textStream = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCsvUserDataFileParser::~RifCsvUserDataFileParser()
+{
+    if (m_textStream)
+    {
+        delete m_textStream;
+    }
+    closeFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextStream* RifCsvUserDataFileParser::openDataStream()
+{
+    if (!openFile()) return nullptr;
+
+    m_textStream = new QTextStream(m_file);
+    return m_textStream;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCsvUserDataFileParser::closeDataStream()
+{
+    if (m_textStream)
+    {
+        delete m_textStream;
+        m_textStream = nullptr;
+    }
+    closeFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifCsvUserDataFileParser::openFile()
+{
+    if (!m_file)
+    {
+        m_file = new QFile(m_fileName);
+        if (!m_file->open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            RiaLogging::error(QString("Failed to open %1").arg(m_fileName));
+
+            delete m_file;
+            return false;
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCsvUserDataFileParser::closeFile()
+{
+    if (m_file)
+    {
+        m_file->close();
+        delete m_file;
+        m_file = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCsvUserDataPastedTextParser::RifCsvUserDataPastedTextParser(const QString& text, QString* errorText):
+    RifCsvUserDataParser(errorText)
+{
+    m_text = text;
+    m_textStream = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCsvUserDataPastedTextParser::~RifCsvUserDataPastedTextParser()
+{
+    if (m_textStream)
+    {
+        delete m_textStream;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextStream* RifCsvUserDataPastedTextParser::openDataStream()
+{
+    if (m_textStream)
+    {
+        delete m_textStream;
+    }
+    m_textStream = new QTextStream(&m_text);
+    return m_textStream;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCsvUserDataPastedTextParser::closeDataStream()
+{
+    if (m_textStream)
+    {
+        delete m_textStream;
+        m_textStream = nullptr;
+    }
 }

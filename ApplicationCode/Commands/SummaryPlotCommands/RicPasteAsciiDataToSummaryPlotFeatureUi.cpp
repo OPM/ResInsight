@@ -18,7 +18,10 @@
 
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
+#include "RifCsvUserDataParser.h"
+
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiItem.h"
 
 namespace caf {
 
@@ -60,6 +63,23 @@ namespace caf {
 
 CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataToSummaryPlotFeatureUi");
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator mapCellSeparator(const QString& sep)
+{
+    if (sep == "\t")     return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB;
+    if (sep == ";")      return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON;
+    if (sep == ",")      return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA;
+    
+    return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -84,10 +104,36 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_timeSeriesColumnName, "TimeSeriesColumn", "Time Series Column", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_previewText, "PreviewText", "Preview Text", "", "", "");
     m_previewText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_previewText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_previewText.uiCapability()->setUiReadOnly(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport(const QString& fileName)
+{
+    m_uiMode = UI_MODE_IMPORT;
+    m_fileName = fileName;
+
+    RifCsvUserDataFileParser parser(fileName);
+    m_previewText = parser.previewText();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModePasteText(const QString& text)
+{
+    m_uiMode = UI_MODE_PASTE;
+    m_pastedText = text;
+
+    RifCsvUserDataPastedTextParser parser(text);
+    m_previewText = parser.previewText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,6 +177,8 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
         parseOptions.dateFormat = dateFormat;
     }
 
+    parseOptions.timeSeriesColumnName = m_timeSeriesColumnName();
+
     parseOptions.timeFormat = m_timeFormat() != TIME_NONE ? m_timeFormat().text() : QString("");
 
     {
@@ -171,16 +219,9 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::setPreviewText(const QString& previewText)
-{
-    m_previewText = previewText;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if(m_uiMode == UI_MODE_PASTE)
     {
         caf::PdmUiGroup* namingGroup = uiOrdering.addNewGroup("Naming");
         if (m_createNewPlot)
@@ -197,6 +238,8 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
 
     {
         caf::PdmUiGroup* dateGroup = uiOrdering.addNewGroup("Dates");
+        dateGroup->add(&m_timeSeriesColumnName);
+
         dateGroup->add(&m_useCustomDateFormat);
         if (m_useCustomDateFormat())
         {
@@ -215,6 +258,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
         cellGroup->add(&m_cellSeparator);
     }
 
+    if(m_uiMode == UI_MODE_PASTE)
     {
         caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
 
@@ -230,6 +274,53 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
     }
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                                             bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_timeSeriesColumnName)
+    {
+        QString cellSep;
+        RifCsvUserDataParser* parser;
+
+        if (m_uiMode == UI_MODE_IMPORT)
+        {
+            parser = new RifCsvUserDataFileParser(m_fileName);
+        }
+        else
+        {
+            parser = new RifCsvUserDataPastedTextParser(m_pastedText);
+        }
+
+        cellSep = parser->tryDetermineCellSeparator();
+        if (!cellSep.isEmpty())
+        {
+            m_cellSeparator = mapCellSeparator(cellSep);
+        }
+
+        std::vector<QString> columnNames;
+        if (parser->parseColumnNames(parseOptions().cellSeparator, &columnNames))
+        {
+            for (const QString& columnName : columnNames)
+            {
+                options.push_back(caf::PdmOptionItemInfo(columnName, columnName));
+            }
+
+            if (columnNames.size() > 0)
+            {
+                m_timeSeriesColumnName = columnNames.front();
+            }
+        }
+        
+        delete parser;
+    }
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -165,22 +165,9 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
 RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
     RimObservedData* observedData = nullptr;
-    QString fileContents;
-
-    {
-        QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            RiaLogging::error(QString("Failed to open %1").arg(fileName));
-            return nullptr;
-        }
-
-        fileContents = file.readAll();
-        file.close();
-    }
 
     RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
-    parseOptionsUi.setPreviewText(fileContents);
+    parseOptionsUi.setUiModeImport(fileName);
     caf::PdmSettings::readFieldsFromApplicationStore(&parseOptionsUi);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &parseOptionsUi, "CSV Import Options", "");

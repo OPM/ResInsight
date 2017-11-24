@@ -85,7 +85,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
 
     RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
     if (!summaryPlot) pasteOptions.createNewPlot();
-    pasteOptions.setPreviewText(text);
+    pasteOptions.setUiModePasteText(text);
     caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
