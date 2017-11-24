@@ -129,7 +129,9 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
     const RigCell& whCell = eclipseCaseData->cellFromWellResultCell(wellFrame.wellHeadOrStartCell());
     cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
-    const RigWellResultPoint* whResCell = &(wellFrame.wellHeadOrStartCell());
+
+    RigWellResultPoint wellHead = wellFrame.wellHeadOrStartCell();
+    const RigWellResultPoint* whResCell = &wellHead;
    
     // Add extra coordinate between cell face and cell center 
     // to make sure the well pipe terminated in a segment parallel to z-axis
