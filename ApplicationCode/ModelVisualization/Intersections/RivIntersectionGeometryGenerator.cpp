@@ -172,7 +172,6 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                         cvf::Vec3d temp = vertex.vx - p1;
                         double dot = temp.dot(m_extrusionDirection);
                         double lengthCheck;
-                        //if (vertex.vx.z() > p1.z())
                         
                         if (dot < 0)
                         {
