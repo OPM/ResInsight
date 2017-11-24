@@ -111,6 +111,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
     QHBoxLayout* mainLayout = new QHBoxLayout();
     mainLayout->addLayout(leftLayout);
     mainLayout->addWidget(m_qwtPlot);
+    mainLayout->setContentsMargins(5, 0, 0, 0);
 
     setLayout(mainLayout);
 
