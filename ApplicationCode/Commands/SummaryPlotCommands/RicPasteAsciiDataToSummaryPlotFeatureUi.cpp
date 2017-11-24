@@ -288,12 +288,11 @@ QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculate
 
     if (fieldNeedingOptions == &m_timeSeriesColumnName)
     {
-        std::vector<QString> columnNames;
+        const std::vector<ColumnInfo>& columnInfoList = m_parser->tableData().columnInfos();
 
-        m_parser->parseColumnNames(parseOptions().cellSeparator, &columnNames);
-
-        for (const QString& columnName : columnNames)
+        for (const ColumnInfo& columnInfo : columnInfoList)
         {
+            QString columnName = QString::fromStdString(columnInfo.summaryAddress.quantityName());
             options.push_back(caf::PdmOptionItemInfo(columnName, columnName));
         }
     }
@@ -320,17 +319,18 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::P
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* parser)
 {
+    CVF_ASSERT(parser);
+
     QString cellSep = parser->tryDetermineCellSeparator();
     if (!cellSep.isEmpty())
     {
         m_cellSeparator = mapCellSeparator(cellSep);
     }
 
-    std::vector<QString> columnNames;
-    parser->parseColumnNames(parseOptions().cellSeparator, &columnNames);
-    if (columnNames.size() > 0)
+    parser->parseColumnInfo(parseOptions().cellSeparator);
+    if (parser->tableData().columnInfos().size() > 0)
     {
-        m_timeSeriesColumnName = columnNames[0];
+        m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].summaryAddress.quantityName());
     }
 
     m_previewText = parser->previewText();

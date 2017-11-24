@@ -47,8 +47,7 @@ public:
 
     const ColumnInfo*   columnInfo(size_t columnIndex) const;
 
-    bool                parseColumnNames(const QString& cellSeparator, 
-                                         std::vector<QString>* columnNames);
+    bool                parseColumnInfo(const QString& cellSeparator);
     QString             previewText();
 
     QString             tryDetermineCellSeparator();
@@ -58,9 +57,9 @@ protected:
     virtual void         closeDataStream() = 0;
 
 private:
-    bool                parseColumnHeader(QTextStream* dataStream,
-                                          const QString& cellSeparator,
-                                          std::vector<QString>* columnNames);
+    bool                parseColumnInfo(QTextStream* dataStream,
+                                        const QString& cellSeparator,
+                                        std::vector<ColumnInfo>* columnInfoList);
     bool                parseData(const AsciiDataParseOptions& parseOptions);
     QString             columnifyText(const QString& text);
     static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
