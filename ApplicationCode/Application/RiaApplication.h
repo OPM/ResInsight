@@ -138,6 +138,7 @@ public:
     void                closeProject();
     
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+    void                addWellPathFormationsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);

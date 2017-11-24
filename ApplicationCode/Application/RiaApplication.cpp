@@ -479,7 +479,11 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
             oilField->wellPathCollection = new RimWellPathCollection();
         }
 
-        if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
+        if (oilField->wellPathCollection)
+        {
+            oilField->wellPathCollection->readWellPathFiles();
+            oilField->wellPathCollection->readWellPathFormationFiles();
+        }
     }
 
     for (RimOilField* oilField:  m_project->oilFields)
@@ -775,6 +779,28 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
 
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
+    oilField->wellPathCollection->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addWellPathFormationsToModel(QList<QString> wellPathFormationsFilePaths)
+{
+    if (m_project == nullptr || m_project->oilFields.size() < 1) return;
+
+    RimOilField* oilField = m_project->activeOilField();
+    if (oilField == nullptr) return;
+
+    if (oilField->wellPathCollection == nullptr)
+    {
+        oilField->wellPathCollection = new RimWellPathCollection();
+
+        m_project->updateConnectedEditors();
+    }
+
+    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellFormations(wellPathFormationsFilePaths);
+
     oilField->wellPathCollection->updateConnectedEditors();
 }
 

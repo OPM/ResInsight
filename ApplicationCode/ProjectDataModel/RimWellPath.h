@@ -37,6 +37,7 @@
 #include <functional>
 
 class RifWellPathImporter;
+class RifWellPathFormationsImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
@@ -46,6 +47,7 @@ class RivWellPathPartMgr;
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathCompletions;
+class RigWellPathFormations;
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimWellPathFractureCollection;
@@ -70,10 +72,14 @@ public:
     void                                deleteWellLogFile(RimWellLogFile* logFileInfo);
     void                                detachWellLogFile(RimWellLogFile* logFileInfo);
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    void                                setWellFormationFile(const QString& formationFilePath);
+    QString                             wellFormationFile() const;
+    bool                                readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual caf::PdmFieldHandle*        userDescriptionField() override;
+    virtual caf::PdmFieldHandle*        objectToggleField() override;
+
+    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                        initAfterRead() override;
 
@@ -134,14 +140,14 @@ private:
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     bool                                isStoredInCache();
     QString                             getCacheFileName();
     QString                             getCacheDirectoryPath();
 
-    virtual void                        setupBeforeSave();
+    virtual void                        setupBeforeSave() override;
 
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
@@ -157,10 +163,13 @@ private:
     caf::PdmChildField<RimWellPathCompletions*> m_completions;
 
     cvf::ref<RigWellPath>               m_wellPath;
+    cvf::ref<RigWellPathFormations>     m_wellPathFormations;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
+    
+    caf::PdmField<QString>               m_wellPathFormationFilePath;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 

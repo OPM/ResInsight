@@ -20,21 +20,21 @@
 
 #include "RimWellPath.h"
 
+#include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
 #include "RigWellPath.h"
 
+#include "RimFishbonesMultipleSubs.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-
-#include "RimFishbonesMultipleSubs.h"
-#include "RimWellPathCompletions.h"
 
 #include "RiuMainWindow.h"
 
@@ -50,6 +50,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QString>
 
 #include <regex>
 
@@ -674,6 +675,39 @@ void RimWellPath::detachWellLogFile(RimWellLogFile* logFileInfo)
             m_wellLogFiles.removeChildObject(pdmObject);
             break;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setWellFormationFile(const QString& formationFilePath)
+{
+    m_wellPathFormationFilePath = formationFilePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::wellFormationFile() const
+{
+    return m_wellPathFormationFilePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter)
+{
+    if (caf::Utils::fileExists(m_wellPathFormationFilePath()))
+    {
+        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations(m_wellPathFormationFilePath(), m_name());
+        return true;
+    }
+    else
+    {
+        if (errorMessage) (*errorMessage) = "Could not find the well path formation file: " + m_wellPathFormationFilePath();
+        return false;
     }
 }
 

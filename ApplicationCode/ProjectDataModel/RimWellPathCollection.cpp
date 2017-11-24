@@ -21,24 +21,28 @@
 #include "RimWellPathCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
 #include "RiaWellNameComparer.h"
 
-#include "RigWellPath.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigWellPath.h"
 
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
-#include "RimOilField.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 
 #include "RiuMainWindow.h"
 
+#include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
+
+#include "RivWellPathPartMgr.h"
 
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
@@ -46,11 +50,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QString>
 
-#include <fstream>
 #include <cmath>
-#include "RivWellPathPartMgr.h"
-#include "RimEclipseView.h"
+#include <fstream>
 
 namespace caf
 {
@@ -97,6 +100,7 @@ RimWellPathCollection::RimWellPathCollection()
 
     m_wellPathImporter = new RifWellPathImporter;
     m_newestAddedWellName = QString();
+    m_wellPathFormationsImporter = new RifWellPathFormationsImporter;
 }
 
 
@@ -107,6 +111,7 @@ RimWellPathCollection::~RimWellPathCollection()
 {
    wellPaths.deleteAllChildObjects();
    delete m_wellPathImporter;
+   delete m_wellPathFormationsImporter;
 }
 
 
@@ -325,6 +330,34 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPathFormations* RimWellPathCollection::addWellFormations(const QStringList& filePaths)
+{
+    RimWellPathFormations* wellFormationFile = nullptr;
+    /*
+    foreach(QString filePath, filePaths)
+    {
+        wellFormationFile = RimWellPathFormations::readWellLogFile(filePath);
+        if (wellFormationFile)
+        {
+            RimWellPath* wellPath = tryFindMatchingWellPath(wellFormationFile->wellName());
+            if (!wellPath)
+            {
+                wellPath = new RimWellPath();
+                wellPaths.push_back(wellPath);
+            }
+
+            wellPath->setWellFormationFile(wellFormationFile);
+        }
+    }
+
+    this->sortWellsByName();*/
+
+    return wellFormationFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well labels");
@@ -459,6 +492,31 @@ void RimWellPathCollection::deleteAllWellPaths()
     wellPaths.deleteAllChildObjects();
 
     m_wellPathImporter->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::readWellPathFormationFiles()
+{
+    caf::ProgressInfo progress(wellPaths.size(), "Reading well path formations from file");
+
+    for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
+    {
+        if (!wellPaths[wpIdx]->filepath().isEmpty())
+        {
+            QString errorMessage;
+            if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
+            {
+                QMessageBox::warning(RiuMainWindow::instance(),
+                                     "File open error",
+                                     errorMessage);
+            }
+        }
+
+        progress.setProgressDescription(QString("Reading formation file %1").arg(wpIdx));
+        progress.incrementProgress();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
