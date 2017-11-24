@@ -166,6 +166,7 @@ public:
 
     const RigWellResultPoint*         findResultCell(size_t gridIndex, size_t gridCellIndex) const;
 
+    RigWellResultPoint                wellHeadOrStartCell() const;
     WellProductionType                m_productionType;
     bool                              m_isOpen;
     RigWellResultPoint                m_wellHead;
@@ -187,6 +188,8 @@ public:
     bool                                   isMultiSegmentWell() const;
 
     bool                                   hasWellResult(size_t resultTimeStepIndex) const;
+    bool                                   hasAnyValidCells(size_t resultTimeStepIndex) const;
+
     const RigWellResultFrame&              wellResultFrame(size_t resultTimeStepIndex) const;
     bool                                   isOpen(size_t resultTimeStepIndex) const;
     RigWellResultFrame::WellProductionType wellProductionType(size_t resultTimeStepIndex) const;

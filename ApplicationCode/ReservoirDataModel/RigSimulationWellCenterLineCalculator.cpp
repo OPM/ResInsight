@@ -91,8 +91,12 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                                                                                      std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
                                                                                      std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds)
 {
+    // Initialize the return arrays
+    pipeBranchesCLCoords.clear();
+    pipeBranchesCellIds.clear();
+
     if ( !wellResults) return;
-    if ( timeStepIndex >= 0 && !wellResults->hasWellResult(timeStepIndex) ) return;
+    if ( timeStepIndex >= 0 && !wellResults->hasAnyValidCells(timeStepIndex) ) return;
 
     const RigWellResultFrame* wellFramePtr = nullptr;
     
@@ -118,24 +122,14 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     #endif
 
     const RigWellResultFrame& wellFrame = *wellFramePtr;
-
-    // Initialize the return arrays
-    pipeBranchesCLCoords.clear();
-    pipeBranchesCellIds.clear();
-
-    if ( wellFrame.m_wellResultBranches.size() == 0 ) return;
+    const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
 
     // Well head
     // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
 
-    const RigCell& whCell = eclipseCaseData->cellFromWellResultCell(wellFrame.m_wellHead);
+    const RigCell& whCell = eclipseCaseData->cellFromWellResultCell(wellFrame.wellHeadOrStartCell());
     cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
-    const RigWellResultPoint* whResCell = &(wellFrame.m_wellHead);
-
-
-    const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
-
-    if ( ! hasAnyResultCells(resBranches) ) return;
+    const RigWellResultPoint* whResCell = &(wellFrame.wellHeadOrStartCell());
    
     // Add extra coordinate between cell face and cell center 
     // to make sure the well pipe terminated in a segment parallel to z-axis
@@ -594,7 +588,7 @@ public:
 
         // Calculate wellhead to branch line ends distances
         {
-            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.m_wellHead);
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.wellHeadOrStartCell());
             cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
 
             buildResBranchToBranchLineEndsDistMap(whStartPos, -1);
@@ -693,7 +687,7 @@ private:
             m_branchedWell.m_wellResultBranches.push_back(RigWellResultBranch());
             branchIdx = static_cast<int>( m_branchedWell.m_wellResultBranches.size()) - 1;
             RigWellResultPoint wellHeadAsPoint;
-            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.m_wellHead);
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.wellHeadOrStartCell());
             cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
 
             wellHeadAsPoint.m_bottomPosition = whStartPos;

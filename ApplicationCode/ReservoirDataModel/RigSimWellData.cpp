@@ -97,6 +97,39 @@ bool RigSimWellData::hasWellResult(size_t resultTimeStepIndex) const
     return wellTimeStepIndex != cvf::UNDEFINED_SIZE_T;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigSimWellData::hasAnyValidCells(size_t resultTimeStepIndex) const
+{
+    if (resultTimeStepIndex >= m_resultTimeStepIndexToWellTimeStepIndex.size())
+    {
+        return false;
+    }
+
+    size_t wellTimeStepIndex = m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex];
+
+    if( wellTimeStepIndex == cvf::UNDEFINED_SIZE_T) return false;
+    
+    if (wellResultFrame(resultTimeStepIndex).m_wellHead.isCell()) return true;
+
+    const std::vector<RigWellResultBranch> &resBranches = wellResultFrame(resultTimeStepIndex).m_wellResultBranches;
+
+    for ( size_t i = 0 ; i < resBranches.size(); ++i )
+    {
+        for (size_t cIdx = 0; cIdx < resBranches[i].m_branchResultPoints.size(); ++cIdx )
+        {
+            if (resBranches[i].m_branchResultPoints[cIdx].isCell()) return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
 bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 {
     return 
@@ -339,4 +372,19 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigWellResultPoint RigWellResultFrame::wellHeadOrStartCell() const
+{
+    if (m_wellHead.isCell()) return m_wellHead;
+
+    if (m_wellResultBranches.size() && m_wellResultBranches.front().m_branchResultPoints.size() )
+    {
+        return m_wellResultBranches.front().m_branchResultPoints.front();
+    }
+
+    return m_wellHead; // Nothing else to do
 }

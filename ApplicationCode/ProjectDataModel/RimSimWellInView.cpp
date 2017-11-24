@@ -192,10 +192,10 @@ void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* 
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    if (!this->simWellData()->hasWellResult(frameIndex)) return;
+    if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
 
     const RigWellResultFrame& wellResultFrame = this->simWellData()->wellResultFrame(frameIndex);
-    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
+    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.wellHeadOrStartCell());
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
 
