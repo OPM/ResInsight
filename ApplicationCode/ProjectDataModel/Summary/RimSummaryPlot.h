@@ -104,6 +104,9 @@ public:
 
     void                                            updatePlotTitle();
 
+    void                                            applyNextIdentifier();
+    void                                            applyPreviousIdentifier();
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

@@ -60,6 +60,9 @@ public:
 
     void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
 
+    void                                    applyNextIdentifier();
+    void                                    applyPreviousIdentifier();
+
 private:
     caf::PdmFieldHandle*                    objectToggleField();
     virtual void                            defineObjectEditorAttribute(QString uiConfigName, 

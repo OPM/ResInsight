@@ -38,6 +38,9 @@ class RimSummaryCurvesModifier : public caf::PdmObject
 public:
     RimSummaryCurvesModifier();
 
+    void applyNextIdentifier();
+    void applyPreviousIdentifier();
+
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
@@ -52,6 +55,8 @@ private:
     RimSummaryCase*            singleSummaryCase() const;
     QString                    wellName() const;
     void                       setWellName(const QString& wellName);
+    void                       updateUiFromCurves();
+    caf::PdmFieldHandle*       fieldToModify();
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;

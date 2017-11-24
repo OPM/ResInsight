@@ -234,6 +234,22 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::applyNextIdentifier()
+{
+    m_curvesModifier->applyNextIdentifier();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::applyPreviousIdentifier()
+{
+    m_curvesModifier->applyPreviousIdentifier();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showCurves)

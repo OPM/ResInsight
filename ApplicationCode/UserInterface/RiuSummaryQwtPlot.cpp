@@ -184,6 +184,32 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::keyPressEvent(QKeyEvent* keyEvent)
+{
+    if (keyEvent->key() == Qt::Key_PageUp)
+    {
+        if (m_plotDefinition)
+        {
+            m_plotDefinition->applyPreviousIdentifier();
+        }
+
+        keyEvent->accept();
+    }
+
+    if (keyEvent->key() == Qt::Key_PageDown)
+    {
+        if (m_plotDefinition)
+        {
+            m_plotDefinition->applyNextIdentifier();
+        }
+
+        keyEvent->accept();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QSize RiuSummaryQwtPlot::sizeHint() const
 {
     return QSize(0, 0);

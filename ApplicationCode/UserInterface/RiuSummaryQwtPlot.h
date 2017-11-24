@@ -66,13 +66,13 @@ public:
 
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
+    virtual void                    keyPressEvent(QKeyEvent *) override;
 
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
-
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
 

@@ -62,63 +62,115 @@ RimSummaryCurvesModifier::RimSummaryCurvesModifier()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurvesModifier::applyNextIdentifier()
+{
+    updateUiFromCurves();
+
+    caf::PdmValueField* valueField = nullptr;
+    {
+        auto identifierField = fieldToModify();
+
+        valueField = dynamic_cast<caf::PdmValueField*>(identifierField);
+    }
+
+    if (valueField)
+    {
+        bool                          useOptionsOnly = true;
+        QList<caf::PdmOptionItemInfo> options        = calculateValueOptions(valueField, nullptr);
+        if (options.isEmpty())
+        {
+            return;
+        }
+
+        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
+
+        int currentIndex = -1;
+        for (int i = 0; i < options.size(); i++)
+        {
+            if (uiVariant == options[i].optionUiText())
+            {
+                currentIndex = i;
+            }
+        }
+
+        if (currentIndex != -1)
+        {
+            int nextIndex = currentIndex + 1;
+            if (nextIndex >= options.size() - 1)
+            {
+                nextIndex = 0;
+            }
+
+            auto optionValue = options[nextIndex].value();
+
+            QVariant currentValue = valueField->toQVariant();
+
+            valueField->setFromQVariant(optionValue);
+
+            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurvesModifier::applyPreviousIdentifier()
+{
+    updateUiFromCurves();
+
+    caf::PdmValueField* valueField = nullptr;
+    {
+        auto identifierField = fieldToModify();
+
+        valueField = dynamic_cast<caf::PdmValueField*>(identifierField);
+    }
+
+    if (valueField)
+    {
+        bool                          useOptionsOnly = true;
+        QList<caf::PdmOptionItemInfo> options        = calculateValueOptions(valueField, nullptr);
+        if (options.isEmpty())
+        {
+            return;
+        }
+
+        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
+
+        int currentIndex = -1;
+        for (int i = 0; i < options.size(); i++)
+        {
+            if (uiVariant == options[i].optionUiText())
+            {
+                currentIndex = i;
+            }
+        }
+
+        if (currentIndex != -1)
+        {
+            int nextIndex = currentIndex - 1;
+            if (nextIndex < 0)
+            {
+                nextIndex = options.size() - 1;
+            }
+
+            auto optionValue = options[nextIndex].value();
+
+            QVariant currentValue = valueField->toQVariant();
+
+            valueField->setFromQVariant(optionValue);
+
+            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesModifier::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeCurves(curveCollection);
-
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
-    {
-        if (analyzer.categories().size() == 1)
-        {
-            category = *(analyzer.categories().begin());
-        }
-    }
-
-    m_summaryCase.uiCapability()->setUiHidden(true);
-    m_wellName.uiCapability()->setUiHidden(true);
-    m_wellGroupName.uiCapability()->setUiHidden(true);
-    m_region.uiCapability()->setUiHidden(true);
-    m_quantity.uiCapability()->setUiHidden(true);
-
-    if (category != RifEclipseSummaryAddress::SUMMARY_INVALID)
-    {
-        if (analyzer.summaryCases().size() == 1)
-        {
-            m_summaryCase = *(analyzer.summaryCases().begin());
-            m_summaryCase.uiCapability()->setUiHidden(false);
-        }
-
-        if (analyzer.wellNames().size() == 1)
-        {
-            QString txt = QString::fromStdString(*(analyzer.wellNames().begin()));
-            m_wellName = txt;
-            m_wellName.uiCapability()->setUiHidden(false);
-        }
-
-        if (analyzer.wellGroupNames().size() == 1)
-        {
-            QString txt = QString::fromStdString(*(analyzer.wellGroupNames().begin()));
-            m_wellGroupName = txt;
-            m_wellGroupName.uiCapability()->setUiHidden(false);
-        }
-
-        if (analyzer.regionNumbers().size() == 1)
-        {
-            m_region = *(analyzer.regionNumbers().begin());
-            m_region.uiCapability()->setUiHidden(false);
-        }
-
-        if (analyzer.quantities().size() == 1)
-        {
-            QString txt = QString::fromStdString(*(analyzer.quantities().begin()));
-            m_quantity = txt;
-            m_quantity.uiCapability()->setUiHidden(false);
-        }
-    }
+    updateUiFromCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,4 +401,105 @@ QString RimSummaryCurvesModifier::wellName() const
 void RimSummaryCurvesModifier::setWellName(const QString& wellName)
 {
     m_wellName.setValueWithFieldChanged(wellName);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurvesModifier::updateUiFromCurves()
+{
+    m_summaryCase.uiCapability()->setUiHidden(true);
+    m_wellName.uiCapability()->setUiHidden(true);
+    m_wellGroupName.uiCapability()->setUiHidden(true);
+    m_region.uiCapability()->setUiHidden(true);
+    m_quantity.uiCapability()->setUiHidden(true);
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    RiaSummaryCurveAnalyzer analyzer;
+    analyzer.analyzeCurves(curveCollection);
+
+    if (analyzer.summaryCases().size() == 1)
+    {
+        m_summaryCase = *(analyzer.summaryCases().begin());
+        m_summaryCase.uiCapability()->setUiHidden(false);
+    }
+
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
+    {
+        if (analyzer.categories().size() == 1)
+        {
+            category = *(analyzer.categories().begin());
+        }
+    }
+
+    if (category != RifEclipseSummaryAddress::SUMMARY_INVALID)
+    {
+        if (analyzer.wellNames().size() == 1)
+        {
+            QString txt = QString::fromStdString(*(analyzer.wellNames().begin()));
+            m_wellName  = txt;
+            m_wellName.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.wellGroupNames().size() == 1)
+        {
+            QString txt     = QString::fromStdString(*(analyzer.wellGroupNames().begin()));
+            m_wellGroupName = txt;
+            m_wellGroupName.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.regionNumbers().size() == 1)
+        {
+            m_region = *(analyzer.regionNumbers().begin());
+            m_region.uiCapability()->setUiHidden(false);
+        }
+
+        if (analyzer.quantities().size() == 1)
+        {
+            QString txt = QString::fromStdString(*(analyzer.quantities().begin()));
+            m_quantity  = txt;
+            m_quantity.uiCapability()->setUiHidden(false);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCurvesModifier::fieldToModify()
+{
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    RiaSummaryCurveAnalyzer analyzer;
+    analyzer.analyzeCurves(curveCollection);
+
+    if (analyzer.wellNames().size() == 1)
+    {
+        return &m_wellName;
+    }
+
+    if (analyzer.wellGroupNames().size() == 1)
+    {
+        return &m_wellName;
+    }
+
+    if (analyzer.regionNumbers().size() == 1)
+    {
+        return &m_region;
+    }
+
+    if (analyzer.quantities().size() == 1)
+    {
+        return &m_quantity;
+    }
+
+    if (analyzer.summaryCases().size() == 1)
+    {
+        return &m_summaryCase;
+    }
+
+    return nullptr;
 }
