@@ -39,7 +39,8 @@ ${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPltQMetaType.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseUserDataKeywordTools.h
 ${CEE_CURRENT_LIST_DIR}RifCsvUserData.h
 ${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.h
-${CEE_CURRENT_LIST_DIR}RifWellFormationReader.h
+${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.h
+${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.h
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
 )
@@ -83,7 +84,8 @@ ${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPlt.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUserDataKeywordTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifCsvUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.cpp
-${CEE_CURRENT_LIST_DIR}RifWellFormationReader.cpp
+${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.cpp
+${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp
