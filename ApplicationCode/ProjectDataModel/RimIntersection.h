@@ -94,8 +94,10 @@ public:
     void                                                 appendPointToAzimuthLine(const cvf::Vec3d& point);
 
     cvf::Vec3d                                           extrusionDirection() const;
-    double                                               height() const;
-    void                                                 setHeight(double height);
+    double                                               lengthUp() const;
+    double                                               lengthDown() const;
+    void                                                 setLengthUp(double heightUp);
+    void                                                 setLengthDown(double heightDown);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
@@ -114,7 +116,8 @@ private:
     caf::PdmField<double>                   m_extentLength;
     caf::PdmField<double>                   m_azimuthAngle;
     caf::PdmField<double>                   m_dipAngle;
-    caf::PdmField<double>                   m_height;
+    caf::PdmField<double>                   m_lengthUp;
+    caf::PdmField<double>                   m_lengthDown;
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
     caf::PdmField< std::vector< cvf::Vec3d> >  m_customExtrusionPoints;

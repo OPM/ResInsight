@@ -118,7 +118,8 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     cvf::BoundingBox bBox = rimCase->allCellsBoundingBox();
     if (bBox.isValid())
     {
-        intersection->setHeight(cvf::Math::floor(bBox.extent()[2]));
+        intersection->setLengthUp(cvf::Math::floor(bBox.extent()[2] / 2));
+        intersection->setLengthDown(cvf::Math::floor(bBox.extent()[2] / 2));
     }
     
     m_intersectionCollection->appendIntersection(intersection);

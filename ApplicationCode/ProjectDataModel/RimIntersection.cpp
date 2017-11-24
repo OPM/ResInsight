@@ -102,7 +102,8 @@ RimIntersection::RimIntersection()
 
     CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,     "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0,  "Extent Length", "", "", "");
-    CAF_PDM_InitField         (&m_height,          "Height",            2000.0, "Height", "", "", "");
+    CAF_PDM_InitField         (&m_lengthUp,        "lengthUp",          1000.0, "Length Up", "", "", "");
+    CAF_PDM_InitField         (&m_lengthDown,      "lengthDown",        1000.0, "Length Down", "", "", "");
     
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
@@ -141,7 +142,8 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &simulationWell ||
         changedField == &m_branchIndex ||
         changedField == &m_extentLength ||
-        changedField == &m_height ||
+        changedField == &m_lengthUp ||
+        changedField == &m_lengthDown ||
         changedField == &showInactiveCells)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
@@ -250,7 +252,8 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     if (type == CS_AZIMUTHLINE)
     {
-        optionsGroup->add(&m_height);
+        optionsGroup->add(&m_lengthUp);
+        optionsGroup->add(&m_lengthDown);
     }
     else
     {
@@ -793,17 +796,33 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimIntersection::height() const
+double RimIntersection::lengthUp() const
 {
-    return m_height;
+    return m_lengthUp;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::setHeight(double height)
+double RimIntersection::lengthDown() const
 {
-    m_height = height;
+    return m_lengthDown;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::setLengthDown(double lengthDown)
+{
+    m_lengthDown = lengthDown;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::setLengthUp(double lengthUp)
+{
+    m_lengthUp = lengthUp;
 }
 
 //--------------------------------------------------------------------------------------------------

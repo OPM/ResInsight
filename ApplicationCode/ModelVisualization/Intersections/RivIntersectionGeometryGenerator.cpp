@@ -92,24 +92,44 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             sectionBBox.add(p1);
             sectionBBox.add(p2);
 
-            double maxSectionHeight;
+
+            cvf::Vec3d maxHeightVec;
+
+            double maxSectionHeight = sectionBBox.radius();
+            double maxSectionHeightUp;
+            double maxSectionHeightDown;
+
             if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
             {
-                maxSectionHeight = m_crossSection->height();
+                maxSectionHeightUp = m_crossSection->lengthUp();
+                maxSectionHeightDown = m_crossSection->lengthDown();
+
+                if (maxSectionHeightUp + maxSectionHeightDown == 0)
+                {
+                    return;
+                }
+
+                cvf::Vec3d maxHeightVecDown = m_extrusionDirection*maxSectionHeightUp;
+                cvf::Vec3d maxHeightVecUp = m_extrusionDirection*maxSectionHeightDown;
+
+                sectionBBox.add(p1 + maxHeightVecUp);
+                sectionBBox.add(p1 - maxHeightVecDown);
+                sectionBBox.add(p2 + maxHeightVecUp);
+                sectionBBox.add(p2 - maxHeightVecDown);
+
+                maxHeightVec = maxHeightVecUp + maxHeightVecDown;
             }
             else
             {
-                maxSectionHeight = sectionBBox.radius();
+                maxHeightVec = m_extrusionDirection*maxSectionHeight;
+
+                sectionBBox.add(p1 + maxHeightVec);
+                sectionBBox.add(p1 - maxHeightVec);
+                sectionBBox.add(p2 + maxHeightVec);
+                sectionBBox.add(p2 - maxHeightVec);
+
             }
 
-            if (maxSectionHeight == 0) return;
-
-            cvf::Vec3d maxHeightVec = m_extrusionDirection*maxSectionHeight;
-
-            sectionBBox.add(p1 + maxHeightVec);
-            sectionBBox.add(p1 - maxHeightVec);
-            sectionBBox.add(p2 + maxHeightVec);
-            sectionBBox.add(p2 - maxHeightVec);
 
             std::vector<size_t> columnCellCandidates;
             m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
