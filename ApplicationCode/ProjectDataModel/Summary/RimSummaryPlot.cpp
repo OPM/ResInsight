@@ -325,7 +325,12 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 
                 for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
                 {
-                    out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
+                    QString valueText;
+                    if (j < allCurveData[i][k].size())
+                    {
+                        valueText = QString::number(allCurveData[i][k][j], 'g', 6);
+                    }
+                    out += "\t" + valueText;
                 }
             }
         }
