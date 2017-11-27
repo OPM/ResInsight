@@ -31,6 +31,47 @@ RigWellPathFormations::RigWellPathFormations(std::vector<std::pair<double, QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<double, QString>>& RigWellPathFormations::measuredDepthAndFormationNames() const
+{
+    return m_measuredDepthAndFormationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigWellPathFormations::measuredDepthAndFormationNames(std::vector<QString>& names, std::vector<double>& measuredDepths) const
+{
+    for (std::pair<double, QString> mdAndFormName : m_measuredDepthAndFormationNames)
+    {
+        measuredDepths.push_back(mdAndFormName.first);
+        names.push_back(mdAndFormName.second);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigWellPathFormations::measuredDepthAndFormationNamesWithoutDuplicates(std::vector<QString>& names, std::vector<double>& measuredDepths) const
+{
+    names.clear();
+    measuredDepths.clear();
+
+    std::map<double, QString> tempMakeVectorUniqueOnMeasuredDepth;
+
+    for (const std::pair<double, QString>& mdAndFormName : m_measuredDepthAndFormationNames)
+    {
+        if (tempMakeVectorUniqueOnMeasuredDepth.find(mdAndFormName.first) == tempMakeVectorUniqueOnMeasuredDepth.end())
+        {
+            measuredDepths.push_back(mdAndFormName.first);
+            names.push_back(mdAndFormName.second);
+            tempMakeVectorUniqueOnMeasuredDepth[mdAndFormName.first] = mdAndFormName.second;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RigWellPathFormations::filePath() const
 {
     return m_filePath;
