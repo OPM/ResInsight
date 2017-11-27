@@ -643,18 +643,38 @@ void RicSummaryCurveCreator::createNewPlot()
     RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
     if (summaryPlotColl)
     {
-        QString summaryPlotName = QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
-
-        bool ok = false;
-        summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
-        if (ok)
+        QString candidatePlotName;
+        if (m_previewPlot)
         {
-            RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(summaryPlotName);
-            plot->loadDataAndUpdate();
+            candidatePlotName = m_previewPlot->summaryCurveCollection()->compileAutoPlotTitle();
+        }
+
+        RimSummaryPlot* newSummaryPlot = nullptr;
+
+        if (candidatePlotName.isEmpty())
+        {
+            candidatePlotName = QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
+            bool ok = false;
+            candidatePlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, candidatePlotName, &ok);
+            if (!ok)
+            {
+                return;
+            }
+
+            newSummaryPlot = summaryPlotColl->createNamedSummaryPlot(candidatePlotName);
+        }
+        else
+        {
+            newSummaryPlot = summaryPlotColl->createSummaryPlotAutoName();
+        }
+
+        if (newSummaryPlot)
+        {
+            newSummaryPlot->loadDataAndUpdate();
 
             summaryPlotColl->updateConnectedEditors();
 
-            m_targetPlot = plot;
+            m_targetPlot = newSummaryPlot;
             updateTargetPlot();
         }
     }
