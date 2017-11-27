@@ -97,7 +97,7 @@ bool RifCsvUserDataParser::parseColumnInfo(const QString& cellSeparator)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::previewText(int lineCount)
+QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSeparator)
 {
     QTextStream *stream = openDataStream();
 
@@ -118,7 +118,7 @@ QString RifCsvUserDataParser::previewText(int lineCount)
         iLine++;
     }
     closeDataStream();
-    return columnifyText(preview);
+    return columnifyText(preview, cellSeparator);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,16 +291,15 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::columnifyText(const QString& text)
+QString RifCsvUserDataParser::columnifyText(const QString& text, const QString& cellSeparator)
 {
     QString pretty = text;
 
-    QString cellSep = tryDetermineCellSeparator();
-    if (!cellSep.isEmpty())
+    if (!cellSeparator.isEmpty())
     {
-        if (cellSep == ";" || cellSep == ",")
+        if (cellSeparator == ";" || cellSeparator == ",")
         {
-            pretty = pretty.replace(cellSep, QString("\t") + cellSep);
+            pretty = pretty.replace(cellSeparator, QString("\t") + cellSeparator);
         }
     }
 

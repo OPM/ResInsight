@@ -92,6 +92,20 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator mapCellSeparator(const QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString mapCellSeparator(RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator cellSep)
+{
+    switch (cellSep)
+    {
+    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA:        return ",";
+    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON:    return ";";
+    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB:          return "\t";
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi() : m_createNewPlot(false)
 {
     CAF_PDM_InitObject("RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "");
@@ -188,21 +202,7 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 
     parseOptions.timeSeriesColumnName = m_timeSeriesColumnName();
 
-    {
-        switch (m_cellSeparator())
-        {
-        case CELL_COMMA:
-            parseOptions.cellSeparator = ",";
-            break;
-        case CELL_SEMICOLON:
-            parseOptions.cellSeparator = ";";
-            break;
-        case CELL_TAB:
-        default:
-            parseOptions.cellSeparator = "\t";
-            break;
-        }
-    }
+    parseOptions.cellSeparator = mapCellSeparator(m_cellSeparator());
 
     parseOptions.curveLineStyle = m_curveLineStyle();
     parseOptions.curveSymbol = m_curveSymbol();
@@ -321,6 +321,17 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::P
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_cellSeparator)
+    {
+        m_previewText = m_parser->previewText(PREVIEW_TEXT_LINE_COUNT, mapCellSeparator(m_cellSeparator()));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* parser)
 {
     CVF_ASSERT(parser);
@@ -337,5 +348,5 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
         m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].summaryAddress.quantityName());
     }
 
-    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT);
+    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT, cellSep);
 }
