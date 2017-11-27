@@ -112,7 +112,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_timeSeriesColumnName, "TimeSeriesColumn", "Time Series Column", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timeSeriesColumnName, "TimeColumnName", "ColumnName", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_previewText, "PreviewText", "Preview Text", "", "", "");
     m_previewText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
@@ -237,12 +237,13 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
     }
 
     {
-        caf::PdmUiGroup* valuesGroup = uiOrdering.addNewGroup("Values");
-        valuesGroup->add(&m_decimalSeparator);
+        caf::PdmUiGroup* formatGroup = uiOrdering.addNewGroup("Format");
+        formatGroup->add(&m_cellSeparator);
+        formatGroup->add(&m_decimalSeparator);
     }
 
     {
-        caf::PdmUiGroup* dateGroup = uiOrdering.addNewGroup("Dates");
+        caf::PdmUiGroup* dateGroup = uiOrdering.addNewGroup("Time column");
         dateGroup->add(&m_timeSeriesColumnName);
 
         dateGroup->add(&m_useCustomDateFormat);
@@ -255,12 +256,6 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
             dateGroup->add(&m_dateFormat);
             dateGroup->add(&m_timeFormat);
         }
-    }
-
-    {
-        caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cells");
-
-        cellGroup->add(&m_cellSeparator);
     }
 
     if(m_uiMode == UI_MODE_PASTE)
