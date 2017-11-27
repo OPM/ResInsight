@@ -365,10 +365,10 @@ void RiuMainWindow::createMenus()
     #endif
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
     importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
