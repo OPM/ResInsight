@@ -50,7 +50,7 @@ RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog(QWidget* pa
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    QHBoxLayout* labelLayout = new QHBoxLayout(this);
+    QHBoxLayout* labelLayout = new QHBoxLayout;
     labelLayout->addStretch(1);
     labelLayout->addWidget(m_label);
     labelLayout->addWidget(buttonBox);
