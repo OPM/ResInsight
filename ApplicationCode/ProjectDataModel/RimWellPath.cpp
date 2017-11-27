@@ -106,7 +106,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
     m_unitSystem.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "Filepath", "", "", "");
+    CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
     filepath.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
     wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
@@ -129,11 +129,17 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "");
     m_wellLogFiles.uiCapability()->setUiTreeHidden(true);
 
+    CAF_PDM_InitField(&m_formationKeyInFile, "WellPathFormationKeyInFile", QString(""), "Key in File", "", "", "");
+    m_formationKeyInFile.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitField(&m_wellPathFormationFilePath, "WellPathFormationFilePath", QString(""), "File Path", "", "", "");
+    m_wellPathFormationFilePath.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
     m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
 
-    m_wellPath = NULL;
+    m_wellPath = nullptr;
 }
 
 
@@ -489,6 +495,10 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         m_datumElevation.uiCapability()->setUiHidden(true);
     }
 
+    caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup("Formation Names");
+    formationFileInfoGroup->add(&m_wellPathFormationFilePath);
+    formationFileInfoGroup->add(&m_formationKeyInFile);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -596,7 +606,7 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     }
     else
     {
-        filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, NULL, NULL);
+        filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, nullptr, nullptr);
     }
 }
 
@@ -681,17 +691,13 @@ void RimWellPath::detachWellLogFile(RimWellLogFile* logFileInfo)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setWellFormationFile(const QString& formationFilePath)
+void RimWellPath::setFormationsGeometry(cvf::ref<RigWellPathFormations> wellPathFormations)
 {
-    m_wellPathFormationFilePath = formationFilePath;
-}
+    m_wellPathFormations = wellPathFormations;
+    m_wellPathFormationFilePath = wellPathFormations->filePath();
+    m_formationKeyInFile = wellPathFormations->keyInFile();
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimWellPath::wellFormationFile() const
-{
-    return m_wellPathFormationFilePath;
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,9 +705,18 @@ QString RimWellPath::wellFormationFile() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter)
 {
+    if (m_wellPathFormationFilePath().isEmpty())
+    {
+        return true;
+    }
+
     if (caf::Utils::fileExists(m_wellPathFormationFilePath()))
     {
-        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations(m_wellPathFormationFilePath(), m_name());
+        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations(m_wellPathFormationFilePath(), m_formationKeyInFile());
+        if (m_name().isEmpty())
+        {
+            setName(m_formationKeyInFile());
+        }
         return true;
     }
     else

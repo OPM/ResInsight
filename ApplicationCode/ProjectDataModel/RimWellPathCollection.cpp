@@ -330,29 +330,27 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathFormations* RimWellPathCollection::addWellFormations(const QStringList& filePaths)
+void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 {
-    RimWellPathFormations* wellFormationFile = nullptr;
-    /*
-    foreach(QString filePath, filePaths)
+    for (QString filePath : filePaths)
     {
-        wellFormationFile = RimWellPathFormations::readWellLogFile(filePath);
-        if (wellFormationFile)
+        std::map<QString, cvf::ref<RigWellPathFormations>> newFormations = 
+            m_wellPathFormationsImporter->readWellPathFormationsFromPath(filePath);
+
+        for (auto it = newFormations.begin(); it != newFormations.end(); it++)
         {
-            RimWellPath* wellPath = tryFindMatchingWellPath(wellFormationFile->wellName());
+            RimWellPath* wellPath = tryFindMatchingWellPath(it->first);
             if (!wellPath)
             {
                 wellPath = new RimWellPath();
+                wellPath->setName(it->first);
                 wellPaths.push_back(wellPath);
             }
-
-            wellPath->setWellFormationFile(wellFormationFile);
+            wellPath->setFormationsGeometry(it->second);
         }
     }
 
-    this->sortWellsByName();*/
-
-    return wellFormationFile;
+    this->sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,15 +501,12 @@ void RimWellPathCollection::readWellPathFormationFiles()
 
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
-        if (!wellPaths[wpIdx]->filepath().isEmpty())
+        QString errorMessage;
+        if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QString errorMessage;
-            if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
-            {
-                QMessageBox::warning(RiuMainWindow::instance(),
-                                     "File open error",
-                                     errorMessage);
-            }
+            QMessageBox::warning(RiuMainWindow::instance(),
+                                 "File open error",
+                                 errorMessage);
         }
 
         progress.setProgressDescription(QString("Reading formation file %1").arg(wpIdx));

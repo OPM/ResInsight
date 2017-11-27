@@ -799,7 +799,10 @@ void RiaApplication::addWellPathFormationsToModel(QList<QString> wellPathFormati
         m_project->updateConnectedEditors();
     }
 
-    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellFormations(wellPathFormationsFilePaths);
+    if (oilField->wellPathCollection)
+    {
+        oilField->wellPathCollection->addWellPathFormations(wellPathFormationsFilePaths);
+    }
 
     oilField->wellPathCollection->updateConnectedEditors();
 }

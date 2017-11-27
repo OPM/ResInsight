@@ -36,7 +36,8 @@ std::map<QString, std::vector<std::pair<double, QString>>> RifWellPathFormationR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::readWellFormationsToGeometry(const QString& filePath)
+std::map<QString, cvf::ref<RigWellPathFormations>>
+    RifWellPathFormationReader::readWellFormationsToGeometry(const QString& filePath)
 {
     std::map<QString, cvf::ref<RigWellPathFormations>> result;
 
@@ -48,9 +49,10 @@ std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::r
 
     for (it = formations.begin(); it != formations.end(); it++)
     {
-        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations(it->second);
-        result[it->first] = wellPathFormations;
+        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations(it->second, filePath, it->first);
+        result[it->first]                                  = wellPathFormations;
     }
+
     return result;
 }
 

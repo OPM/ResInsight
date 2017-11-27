@@ -72,8 +72,7 @@ public:
     void                                deleteWellLogFile(RimWellLogFile* logFileInfo);
     void                                detachWellLogFile(RimWellLogFile* logFileInfo);
 
-    void                                setWellFormationFile(const QString& formationFilePath);
-    QString                             wellFormationFile() const;
+    void                                setFormationsGeometry(cvf::ref<RigWellPathFormations> wellPathFormations);
     bool                                readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);
 
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
@@ -167,6 +166,8 @@ private:
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
+    caf::PdmField<QString>              m_formationKeyInFile;
+
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
     
     caf::PdmField<QString>               m_wellPathFormationFilePath;

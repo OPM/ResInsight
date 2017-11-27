@@ -38,6 +38,8 @@ class RifWellPathFormationsImporter
 public:
     cvf::ref<RigWellPathFormations> readWellPathFormations(const QString& formationFilePath, const QString& wellName);
 
+    std::map<QString, cvf::ref<RigWellPathFormations>> readWellPathFormationsFromPath(const QString& filePath);
+
 private:
     void readAllWellPathFormations(const QString& filePath);
 

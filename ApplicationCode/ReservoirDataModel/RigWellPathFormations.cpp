@@ -18,20 +18,28 @@
 
 #include "RigWellPathFormations.h"
 
-#include "RifWellPathFormationReader.h"
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellPathFormations::RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames)
+RigWellPathFormations::RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames, const QString& filePath, const QString& key)
 {
     m_measuredDepthAndFormationNames = measuredDepthAndFormationNames;
+    m_filePath = filePath;
+    m_keyInFile = key;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellPathFormations::wellName() const
+QString RigWellPathFormations::filePath() const
 {
-    return m_wellName;
+    return m_filePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RigWellPathFormations::keyInFile() const
+{
+    return m_keyInFile;
 }

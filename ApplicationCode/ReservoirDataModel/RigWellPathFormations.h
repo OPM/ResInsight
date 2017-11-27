@@ -30,12 +30,14 @@
 class RigWellPathFormations : public cvf::Object
 {
 public:
-    RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames);
+    RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames, const QString& filePath, const QString& key);
 
-    QString wellName() const;
+    QString filePath() const;
+    QString keyInFile() const;
 
 private:
-    QString m_wellName;
+    QString m_filePath;
+    QString m_keyInFile;
     
     std::vector<std::pair<double, QString>> m_measuredDepthAndFormationNames;
 };

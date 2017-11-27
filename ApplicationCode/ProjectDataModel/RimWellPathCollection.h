@@ -40,7 +40,6 @@ class RimEclipseView;
 class RimProject;
 class RimWellLogFile;
 class RimWellPath;
-class RimWellPathFormations;
 class RifWellPathFormationsImporter;
 class QString;
 
@@ -102,7 +101,7 @@ public:
     RimWellPath*                        tryFindMatchingWellPath(const QString& wellName) const;
     void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
     RimWellLogFile*                     addWellLogs(const QStringList& filePaths);
-    RimWellPathFormations*              addWellFormations(const QStringList& filePaths);
+    void                                addWellPathFormations(const QStringList& filePaths);
 
     void                                scheduleRedrawAffectedViews();
 
