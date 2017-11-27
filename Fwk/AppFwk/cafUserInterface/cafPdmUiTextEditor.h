@@ -68,6 +68,7 @@ public:
         textMode = PLAIN;
         showSaveButton = false;
         wrapMode = WrapAtWordBoundaryOrAnywhere;
+        heightHint = 2000;
     }
 
     enum TextMode 
@@ -81,6 +82,7 @@ public:
     bool        showSaveButton;
     WrapMode    wrapMode;
     QFont       font;
+    int         heightHint;
 };
 
 //==================================================================================================
@@ -92,11 +94,17 @@ class TextEdit : public QTextEdit
 public:
     explicit TextEdit(QWidget *parent = 0);
 
+    virtual QSize sizeHint() const override;
+    void          setHeightHint(int heightHint);
+
 protected:
     virtual void focusOutEvent(QFocusEvent *e);
 
 signals: 
     void editingFinished(); 
+
+private:
+    int m_heightHint;
 };
 
 

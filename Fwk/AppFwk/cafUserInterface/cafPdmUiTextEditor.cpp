@@ -60,8 +60,31 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTextEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TextEdit::TextEdit(QWidget *parent /*= 0*/) : QTextEdit(parent)
+TextEdit::TextEdit(QWidget *parent /*= 0*/) : QTextEdit(parent), m_heightHint(-1)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize TextEdit::sizeHint() const
+{
+    QSize mySize = QTextEdit::sizeHint();
+
+    if (m_heightHint > 0)
+    {
+        mySize.setHeight(m_heightHint);
+    }
+
+    return mySize;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextEdit::setHeightHint(int heightHint)
+{
+    m_heightHint = heightHint;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +149,7 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_textEdit->setWordWrapMode(toQTextOptionWrapMode(leab.wrapMode));
 
     m_textEdit->setFont(leab.font);
+    m_textEdit->setHeightHint(leab.heightHint);
 }
 
 //--------------------------------------------------------------------------------------------------
