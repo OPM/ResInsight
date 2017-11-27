@@ -57,6 +57,7 @@
 #include "cvfAssert.h"
 
 #include "qwt_scale_engine.h"
+#include "RigWellPathFormations.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -73,7 +74,16 @@ namespace caf
         addItem(RimWellLogTrack::SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well");
         setDefault(RimWellLogTrack::WELL_PATH);
     }
+
+    template<>
+    void AppEnum< RimWellLogTrack::FormationSource >::setUp()
+    {
+        addItem(RimWellLogTrack::CASE, "CASE", "Case");
+        addItem(RimWellLogTrack::WELL, "WELL", "Well");
+        setDefault(RimWellLogTrack::CASE);
+    }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -100,12 +110,14 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show Formations", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_formationSource, "FormationSource", "Formation Source", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_formationTrajectoryType, "FormationTrajectoryType", "Trajectory", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_formationWellPath, "FormationWellPath", " ", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_formationWellPath, "FormationWellPath", "Well Path", "", "", "");
     m_formationWellPath.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_formationSimWellName, "FormationSimulationWellName", QString("None"), " ", "", "", "");
+    CAF_PDM_InitField(&m_formationSimWellName, "FormationSimulationWellName", QString("None"), "Simulation Well", "", "", "");
     CAF_PDM_InitField(&m_formationBranchIndex, "FormationBranchIndex", 0, " ", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_formationCase, "FormationCase", "Formation Case", "", "", "");
@@ -241,7 +253,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         m_wellLogTrackPlotWidget->replot();
     }
-    else if (changedField == &m_showFormations)
+    else if (changedField == &m_showFormations || changedField == &m_formationSource)
     {
         loadDataAndUpdate();
 
@@ -311,7 +323,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
 
     if (fieldNeedingOptions == &m_formationWellPath)
     {
-        RimTools::wellPathOptionItems(&options);
+        if (m_formationSource == CASE)
+        {
+            RimTools::wellPathOptionItems(&options);
+        }
+        else
+        {
+            RimTools::wellPathWithFormationsOptionItems(&options);
+        }
 
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
@@ -741,23 +760,33 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     
     formationGroup->add(&m_showFormations);
 
-    formationGroup->add(&m_formationCase);
+    formationGroup->add(&m_formationSource);
 
-    formationGroup->add(&m_formationTrajectoryType);
-    if (m_formationTrajectoryType() == WELL_PATH)
+    if (m_formationSource() == CASE)
     {
-        formationGroup->add(&m_formationWellPath);
+        formationGroup->add(&m_formationCase);
+
+        formationGroup->add(&m_formationTrajectoryType);
+        if (m_formationTrajectoryType() == WELL_PATH)
+        {
+            formationGroup->add(&m_formationWellPath);
+        }
+        else
+        {
+            updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_formationSimWellName(), m_formationCase);
+
+            formationGroup->add(&m_formationSimWellName);
+            if (m_generatedSimulationWellPathBranches.size() > 1)
+            {
+                formationGroup->add(&m_formationBranchIndex);
+            }
+        }
     }
     else
     {
-        updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_formationSimWellName(), m_formationCase);
-
-        formationGroup->add(&m_formationSimWellName);
-        if (m_generatedSimulationWellPathBranches.size() > 1)
-        {
-            formationGroup->add(&m_formationBranchIndex);
-        }
+        formationGroup->add(&m_formationWellPath);
     }
+
 
     uiOrderingForVisibleXRange(uiOrdering);
 
@@ -890,7 +919,11 @@ void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(caf::PdmUiOrdering&
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
     formationGroup->setCollapsedByDefault(true);
     formationGroup->add(&m_showFormations);
-    formationGroup->add(&m_formationCase);
+    formationGroup->add(&m_formationSource);
+    if (m_formationSource == CASE)
+    {
+        formationGroup->add(&m_formationCase);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1083,6 +1116,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector(RimCase* rimCase)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 {
+    m_formationSource.uiCapability()->setUiReadOnly(readOnly);
     m_formationTrajectoryType.uiCapability()->setUiReadOnly(readOnly);
     m_formationSimWellName.uiCapability()->setUiReadOnly(readOnly);
     m_formationCase.uiCapability()->setUiReadOnly(readOnly);
@@ -1093,12 +1127,8 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesOnPlot()
+void RimWellLogTrack::updateFormationNamesFromCase()
 {
-    removeFormationNames();
-
-    if (m_showFormations == false) return;
-
     if ((m_formationSimWellName == QString("None") && m_formationWellPath == nullptr) || m_formationCase == nullptr) return;
 
     if (m_annotationTool == nullptr)
@@ -1110,7 +1140,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
 
     RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-    
+
 
     CurveSamplingPointData curveData;
 
@@ -1159,6 +1189,61 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                               &yValues);
 
     m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateFormationNamesFromWellPath()
+{
+    if (m_formationWellPath == nullptr) return;
+
+    if (m_annotationTool == nullptr)
+    {
+        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
+    }
+
+    std::vector<QString> formationNamesToPlot;
+    std::vector<double> topYValues;
+
+    const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+    if (!formations) return;
+    
+    //formations->measuredDepthAndFormationNames(formationNamesToPlot, topYValues);
+    formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, topYValues);
+
+    if (topYValues.empty())
+    {
+        return;
+    }
+
+    std::vector<std::pair<double, double>> yValues;
+    for (size_t i = 0; i < topYValues.size() - 1; i++)
+    {
+        yValues.push_back(std::pair<double, double>(topYValues[i], topYValues[i + 1]));
+    }
+
+    yValues.push_back(std::pair<double, double>(topYValues.back(), topYValues.back()));
+
+    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateFormationNamesOnPlot()
+{
+    removeFormationNames();
+    if (m_showFormations == false) return;
+
+    if (m_formationSource == CASE)
+    {
+        updateFormationNamesFromCase();
+    }
+    else
+    {
+        updateFormationNamesFromWellPath();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -68,6 +68,7 @@ public:
     virtual ~RimWellLogTrack();
 
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
+    enum FormationSource { CASE, WELL };
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -142,6 +143,8 @@ private:
 
     void setFormationFieldsUiReadOnly(bool readOnly = true);
 
+    void updateFormationNamesFromCase();
+    void updateFormationNamesFromWellPath();
     void updateFormationNamesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
@@ -158,6 +161,7 @@ private:
     caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
 
     caf::PdmField<bool>                             m_showFormations;
+    caf::PdmField<caf::AppEnum<FormationSource> >   m_formationSource;
     caf::PdmPtrField<RimCase*>                      m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType> >    m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                  m_formationWellPath;
@@ -165,7 +169,6 @@ private:
     caf::PdmField<int>                              m_formationBranchIndex;
 
     cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
-
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
     
