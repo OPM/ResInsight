@@ -57,7 +57,7 @@ public:
     QDialogButtonBox* dialogButtonBox();
 
 private:
-    void initialize(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
+    void initialize(PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
     void setupUi();
 
 private:

@@ -51,10 +51,11 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    initialize(parent, object, windowTitle, uiConfigName);
+    initialize(object, windowTitle, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,10 +63,11 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* obj
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle,
                                                  const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_buttonBox = new QDialogButtonBox(standardButtons);
 
-    initialize(parent, object, windowTitle, uiConfigName);
+    initialize(object, windowTitle, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +89,7 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::initialize(QWidget* parent, PdmObject* object, const QString& windowTitle,
+void PdmUiPropertyViewDialog::initialize(PdmObject* object, const QString& windowTitle,
                                          const QString& uiConfigName)
 {
     m_pdmObject = object;
