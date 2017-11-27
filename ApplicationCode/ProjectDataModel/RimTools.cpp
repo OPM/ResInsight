@@ -243,6 +243,30 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    {
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+
+        QIcon wellIcon(":/Well.png");
+        for (RimWellPath* wellPath : wellPaths)
+        {
+            if (wellPath->hasFormations())
+            {
+                options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
     CVF_ASSERT(options);

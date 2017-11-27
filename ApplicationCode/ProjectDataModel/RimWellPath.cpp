@@ -729,6 +729,27 @@ bool RimWellPath::readWellPathFormationsFile(QString* errorMessage, RifWellPathF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellPath::hasFormations() const
+{
+    if (m_wellPathFormations.isNull())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellPathFormations* RimWellPath::formationsGeometry() const
+{
+    return m_wellPathFormations.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPath::fromFilePath(QString filePath)
 {
     RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);

@@ -74,6 +74,8 @@ public:
 
     void                                setFormationsGeometry(cvf::ref<RigWellPathFormations> wellPathFormations);
     bool                                readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);
+    bool                                hasFormations() const;
+    const RigWellPathFormations*        formationsGeometry() const;
 
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;

@@ -42,6 +42,7 @@ public:
     static QString relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, bool* foundFile, std::vector<QString>* searchedPaths);
 
     static void wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options);
+    static void wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options);
     static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
 
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
