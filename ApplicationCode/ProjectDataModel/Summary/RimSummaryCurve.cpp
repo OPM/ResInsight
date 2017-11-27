@@ -655,7 +655,20 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_yPushButtonSelectSummaryAddress)
     {
         RiuSummaryCurveDefSelectionDialog dlg(nullptr);
-        dlg.setCaseAndAddress(m_yValuesSummaryCase(), m_yValuesCurveVariable->address());
+        RimSummaryCase* candidateCase = m_yValuesSummaryCase();
+        RifEclipseSummaryAddress candicateAddress = m_yValuesCurveVariable->address();
+
+        if (candidateCase == nullptr)
+        {
+            candidateCase = m_xValuesSummaryCase();
+        }
+
+        if (!candicateAddress.isValid())
+        {
+            candicateAddress = m_xValuesCurveVariable->address();
+        }
+
+        dlg.setCaseAndAddress(candidateCase, candicateAddress);
         
         if (dlg.exec() == QDialog::Accepted)
         {
@@ -675,7 +688,20 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_xPushButtonSelectSummaryAddress)
     {
         RiuSummaryCurveDefSelectionDialog dlg(nullptr);
-        dlg.setCaseAndAddress(m_xValuesSummaryCase(), m_xValuesCurveVariable->address());
+        RimSummaryCase* candidateCase = m_xValuesSummaryCase();
+        RifEclipseSummaryAddress candicateAddress = m_xValuesCurveVariable->address();
+
+        if (candidateCase == nullptr)
+        {
+            candidateCase = m_yValuesSummaryCase();
+        }
+
+        if (!candicateAddress.isValid())
+        {
+            candicateAddress = m_yValuesCurveVariable->address();
+        }
+
+        dlg.setCaseAndAddress(candidateCase, candicateAddress);
 
         if (dlg.exec() == QDialog::Accepted)
         {
