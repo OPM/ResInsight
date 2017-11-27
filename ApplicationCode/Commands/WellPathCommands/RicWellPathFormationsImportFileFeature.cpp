@@ -90,6 +90,6 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathFormationsImportFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Import &Well Path Formations from File");
+    actionToSetup->setText("Import &Well Path Formation Names");
     actionToSetup->setIcon(QIcon(":/Formations16x16.png"));
 }
