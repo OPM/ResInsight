@@ -169,7 +169,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
     // Parse header
     if (!parseColumnInfo(dataStream, parseOptions.cellSeparator, &columnInfoList))
     {
-        m_errorText->append("Failed to parse column headers");
+        m_errorText->append("CSV import: Failed to parse header columns");
         return false;
     }
 
@@ -183,7 +183,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 
         if(lineColumns.size() != colCount)
         {
-            m_errorText->append("CSV file has invalid content (Column count mismatch)");
+            m_errorText->append("CSV import: Varying number of columns");
             errors = true;
             break;
         }
@@ -229,7 +229,22 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                 {
                     if (col.dataType == ColumnInfo::NUMERIC)
                     {
-                        col.values.push_back(parseOptions.locale.toDouble(colData));
+                        bool parseOk = true;
+                        double value = parseOptions.locale.toDouble(colData, &parseOk);
+
+                        if (!parseOk)
+                        {
+                            // Find the error reason, wrong decimal sign or something else
+                            if (RiaStdStringTools::isNumber(colData.toStdString(), '.') || RiaStdStringTools::isNumber(colData.toStdString(), ','))
+                            {
+                                m_errorText->append(QString("CSV import: Failed to parse numeric value in column %1\n").arg(QString::number(iCol + 1)));
+                                throw 0;
+                            }
+
+                            // Add NULL value
+                            value = HUGE_VAL;
+                        }
+                        col.values.push_back(value);
                     }
                     else if (col.dataType == ColumnInfo::TEXT)
                     {
@@ -246,13 +261,16 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                             dt = tryParseDateTime(colData.toStdString(), parseOptions.dateFormat);
                         }
 
-                        if (!dt.isValid()) throw 0;
+                        if (!dt.isValid())
+                        {
+                            m_errorText->append("CSV import: Failed to parse date time value");
+                            throw 0;
+                        }
                         col.dateTimeValues.push_back(dt);
                     }
                 }
                 catch (...)
                 {
-                    m_errorText->append("CSV file has invalid content (Column type mismatch)");
                     errors = true;
                     break;
                 }
