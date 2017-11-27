@@ -53,7 +53,7 @@ public:
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);
 
-    std::vector<RimSummaryCurve*>           curves();
+    std::vector<RimSummaryCurve*>           curves() const;
     void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurves();
     void                                    updateCaseNameHasChanged();
@@ -62,6 +62,8 @@ public:
 
     void                                    applyNextIdentifier();
     void                                    applyPreviousIdentifier();
+
+    QString                                 compileAutoPlotTitle() const;
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();

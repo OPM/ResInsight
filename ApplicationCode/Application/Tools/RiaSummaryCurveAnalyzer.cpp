@@ -35,7 +35,7 @@ RiaSummaryCurveAnalyzer::RiaSummaryCurveAnalyzer() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::analyzeCurves(RimSummaryCurveCollection* sumCurveCollection)
+void RiaSummaryCurveAnalyzer::analyzeCurves(const RimSummaryCurveCollection* sumCurveCollection)
 {
     clearAllSets();
 

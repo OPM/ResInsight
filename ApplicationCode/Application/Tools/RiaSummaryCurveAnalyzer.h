@@ -37,7 +37,7 @@ class RiaSummaryCurveAnalyzer
 public:
     RiaSummaryCurveAnalyzer();
 
-    void analyzeCurves(RimSummaryCurveCollection* sumCurveCollection);
+    void analyzeCurves(const RimSummaryCurveCollection* sumCurveCollection);
     void analyzeAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
 
     std::set<std::string> quantities() const;

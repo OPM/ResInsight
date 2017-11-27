@@ -18,9 +18,11 @@
 
 #include "RimSummaryCurveCollection.h"
 
+#include "RiaApplication.h"
+#include "RiaSummaryCurveAnalyzer.h"
+
 #include "RifReaderEclipseSummary.h"
 
-#include "RiaApplication.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -160,16 +162,9 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves()
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
-    std::vector<RimSummaryCurve*> myCurves;
-
-    for (RimSummaryCurve* curve : m_curves)
-    {
-        myCurves.push_back(curve);
-    }
-
-    return myCurves;
+    return m_curves.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,6 +240,42 @@ void RimSummaryCurveCollection::applyNextIdentifier()
 void RimSummaryCurveCollection::applyPreviousIdentifier()
 {
     m_curvesModifier->applyPreviousIdentifier();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCurveCollection::compileAutoPlotTitle() const
+{
+    RiaSummaryCurveAnalyzer analyzer;
+
+    analyzer.analyzeCurves(this);
+
+    auto quantities = analyzer.quantities();
+    auto wellNames = analyzer.wellNames();
+    auto wellGroupNames = analyzer.wellGroupNames();
+    auto regions = analyzer.regionNumbers();
+
+    QString title;
+
+    if (wellNames.size() == 1)
+    {
+        title = QString::fromStdString(*(wellNames.begin()));
+    }
+    else if (wellGroupNames.size() == 1)
+    {
+        title = QString::fromStdString(*(wellGroupNames.begin()));
+    }
+    else if (regions.size() == 1)
+    {
+        title = "Region : " + QString::number(*(regions.begin()));
+    }
+    else if (quantities.size() == 1)
+    {
+        title = QString::fromStdString(*(quantities.begin()));
+    }
+
+    return title;
 }
 
 //--------------------------------------------------------------------------------------------------

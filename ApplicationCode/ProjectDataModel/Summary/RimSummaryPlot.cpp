@@ -508,7 +508,7 @@ void RimSummaryPlot::updatePlotTitle()
 {
     if (m_isUsingAutoName)
     {
-        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
     }
 
     updateMdiWindowTitle();
@@ -1159,7 +1159,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 {
     if (m_isUsingAutoName)
     {
-        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
     }
 
     updateMdiWindowVisibility();    
@@ -1240,42 +1240,6 @@ void RimSummaryPlot::setZoomIntervalsInQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::extractPlotTitleFromCurves() const
-{
-    RiaSummaryCurveAnalyzer analyzer;
-
-    analyzer.analyzeCurves(m_summaryCurveCollection());
-
-    auto quantities = analyzer.quantities();
-    auto wellNames = analyzer.wellNames();
-    auto wellGroupNames = analyzer.wellGroupNames();
-    auto regions = analyzer.regionNumbers();
-
-    QString title;
-
-    if (wellNames.size() == 1)
-    {
-        title = QString::fromStdString(*(wellNames.begin()));
-    }
-    else if (wellGroupNames.size() == 1)
-    {
-        title = QString::fromStdString(*(wellGroupNames.begin()));
-    }
-    else if (regions.size() == 1)
-    {
-        title = "Region : " + QString::number(*(regions.begin()));
-    }
-    else if (quantities.size() == 1)
-    {
-        title = QString::fromStdString(*(quantities.begin()));
-    }
-
-    return title;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomWindowFromQwt()
 {
     if (!m_qwtPlot) return;
@@ -1348,7 +1312,7 @@ void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     if (m_isUsingAutoName)
     {
-        m_userDefinedPlotTitle = extractPlotTitleFromCurves();
+        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
     }
 }
 

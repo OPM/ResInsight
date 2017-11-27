@@ -145,8 +145,6 @@ private:
     void                                            updateBottomXAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
-    QString                                         extractPlotTitleFromCurves() const;
-
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
     caf::PdmField<bool>                                 m_showLegend;
