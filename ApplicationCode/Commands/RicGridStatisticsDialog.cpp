@@ -44,7 +44,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     // Create widgets
     m_label = new QLabel();

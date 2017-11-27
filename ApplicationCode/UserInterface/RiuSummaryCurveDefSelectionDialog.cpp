@@ -32,7 +32,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog(QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_addrSelWidget = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>(new RiuSummaryCurveDefSelectionEditor());
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget(this);

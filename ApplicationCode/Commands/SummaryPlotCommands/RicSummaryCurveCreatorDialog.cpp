@@ -31,7 +31,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
 

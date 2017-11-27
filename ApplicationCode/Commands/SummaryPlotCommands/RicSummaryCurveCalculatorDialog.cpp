@@ -32,7 +32,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog(QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     setWindowTitle("Summary Curve Calculator");
     resize(1200, 800);
