@@ -560,13 +560,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
                 for (const QString& resultName : dynamicResultNames)
                 {
-                    if (resultName == "SOIL" ||
-                        resultName == "SWAT" ||
-                        resultName == "SGAS" ||
-                        resultName == "PRESSURE" ||
-                        resultName.startsWith("FLRWAT") ||
-                        resultName.startsWith("FLROIL") ||
-                        resultName.startsWith("FLRGAS") ||
+                    if (!resultName.endsWith("F") ||
                         resultName == RiaDefines::completionTypeResultName())
                     {
                         continue;
