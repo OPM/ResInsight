@@ -48,7 +48,7 @@ public:
     const ColumnInfo*   columnInfo(size_t columnIndex) const;
 
     bool                parseColumnInfo(const QString& cellSeparator);
-    QString             previewText();
+    QString             previewText(int lineCount);
 
     QString             tryDetermineCellSeparator();
 

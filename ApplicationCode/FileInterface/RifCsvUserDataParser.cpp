@@ -97,7 +97,7 @@ bool RifCsvUserDataParser::parseColumnInfo(const QString& cellSeparator)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::previewText()
+QString RifCsvUserDataParser::previewText(int lineCount)
 {
     QTextStream *stream = openDataStream();
 
@@ -107,7 +107,7 @@ QString RifCsvUserDataParser::previewText()
     QTextStream outStream(&preview);
     int iLine = 0;
 
-    while (iLine < 30 + 1 && !stream->atEnd())
+    while (iLine < lineCount && !stream->atEnd())
     {
         QString line = stream->readLine();
 

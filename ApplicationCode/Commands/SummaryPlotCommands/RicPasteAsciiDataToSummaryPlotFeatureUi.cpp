@@ -28,8 +28,8 @@ namespace caf {
     template<>
     void RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparatorEnum::setUp()
     {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT,   "DOT",   "Dot: .");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA, "COMMA", "Comma: ,");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT,   "DOT",   "Dot (.)");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA, "COMMA", "Comma (,)");
         setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT);
     }
 
@@ -63,14 +63,19 @@ namespace caf {
     void RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparatorEnum::setUp()
     {
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB,       "TAB",         "Tab");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA,     "COMMA",       "Comma");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON, "SEMICOLON",   "Semicolon");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA,     "COMMA",       "Comma: (,)");
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON, "SEMICOLON",   "Semicolon (;)");
         setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB);
     }
 }
 
 
 CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataToSummaryPlotFeatureUi");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+#define PREVIEW_TEXT_LINE_COUNT     30
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -268,7 +273,8 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
     }
 
     {
-        caf::PdmUiGroup* previewGroup = uiOrdering.addNewGroup("Preview - First 30 lines, Pretty Print");
+        caf::PdmUiGroup* previewGroup = uiOrdering.addNewGroup(
+            QString("Preview - First %1 lines, Pretty Print").arg(QString::number(PREVIEW_TEXT_LINE_COUNT)));
 
         previewGroup->add(&m_previewText);
     }
@@ -333,5 +339,5 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
         m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].summaryAddress.quantityName());
     }
 
-    m_previewText = parser->previewText();
+    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT);
 }
