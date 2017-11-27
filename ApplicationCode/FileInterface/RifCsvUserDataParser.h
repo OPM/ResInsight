@@ -27,6 +27,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <QLocale>
 
 #include <vector>
 
@@ -51,6 +52,9 @@ public:
     QString             previewText(int lineCount, const QString& cellSeparator);
 
     QString             tryDetermineCellSeparator();
+    QString             tryDetermineDecimalSeparator(const QString& cellSeparator);
+
+    static QLocale      localeFromDecimalSeparator(const QString& decimalSeparator);
 
 protected:
     virtual QTextStream* openDataStream() = 0;

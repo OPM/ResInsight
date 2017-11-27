@@ -106,6 +106,17 @@ QString mapCellSeparator(RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparator mapDecimalSeparator(const QString& sep)
+{
+    if (sep == ".")      return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT;
+    if (sep == ",")      return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA;
+
+    return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi() : m_createNewPlot(false)
 {
     CAF_PDM_InitObject("RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "");
@@ -173,12 +184,12 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
         {
         case DECIMAL_COMMA:
             parseOptions.decimalSeparator = ",";
-            parseOptions.locale = QLocale::Norwegian;
+            parseOptions.locale = RifCsvUserDataParser::localeFromDecimalSeparator(",");
             break;
         case DECIMAL_DOT:
         default:
             parseOptions.decimalSeparator = ".";
-            parseOptions.locale = QLocale::c();
+            parseOptions.locale = RifCsvUserDataParser::localeFromDecimalSeparator(".");
             break;
         }
     }
@@ -340,6 +351,12 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
     if (!cellSep.isEmpty())
     {
         m_cellSeparator = mapCellSeparator(cellSep);
+
+        QString decimalSep = parser->tryDetermineDecimalSeparator(cellSep);
+        if (!decimalSep.isEmpty())
+        {
+            m_decimalSeparator = mapDecimalSeparator(decimalSep);
+        }
     }
 
     parser->parseColumnInfo(parseOptions().cellSeparator);

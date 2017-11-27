@@ -374,6 +374,55 @@ QString RifCsvUserDataParser::tryDetermineCellSeparator()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RifCsvUserDataParser::tryDetermineDecimalSeparator(const QString& cellSeparator)
+{
+    QTextStream* dataStream = openDataStream();
+    std::vector<QString> lines;
+    int iLine = 0;
+
+    int successfulParsesDot = 0;
+    int successfulParsesComma = 0;
+
+    while (iLine < 10 && !dataStream->atEnd())
+    {
+        QString line = dataStream->readLine();
+        if (line.isEmpty()) continue;
+
+        for (QString cellData : splitLineAndTrim(line, cellSeparator))
+        {
+            bool parseOk;
+            QLocale locale;
+
+            locale = localeFromDecimalSeparator(".");
+            locale.toDouble(cellData, &parseOk);
+            if (parseOk) successfulParsesDot++;
+
+            locale = localeFromDecimalSeparator(",");
+            locale.toDouble(cellData, &parseOk);
+            if (parseOk) successfulParsesComma++;
+        }
+    }
+    closeDataStream();
+
+    if (successfulParsesComma > successfulParsesDot)    return ",";
+    else                                                return ".";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QLocale RifCsvUserDataParser::localeFromDecimalSeparator(const QString& decimalSeparator)
+{
+    if (decimalSeparator == ",")
+    {
+        return QLocale::Norwegian;
+    }
+    return QLocale::c();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifCsvUserDataFileParser::RifCsvUserDataFileParser(const QString& fileName, QString* errorText) :
     RifCsvUserDataParser(errorText)
 {
