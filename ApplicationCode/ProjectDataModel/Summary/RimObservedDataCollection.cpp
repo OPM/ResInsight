@@ -179,9 +179,17 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     columnBasedUserData->setParseOptions(parseOptionsUi.parseOptions());
     observedData = columnBasedUserData;
 
-    this->m_observedDataArray.push_back(observedData);
     observedData->setSummaryHeaderFileName(fileName);
     observedData->createSummaryReaderInterface();
+    if (observedData->summaryReader())
+    {
+        this->m_observedDataArray.push_back(observedData);
+    }
+    else
+    {
+        delete columnBasedUserData;
+        return nullptr;
+    }
     observedData->updateMetaData();
     observedData->updateOptionSensitivity();
 
