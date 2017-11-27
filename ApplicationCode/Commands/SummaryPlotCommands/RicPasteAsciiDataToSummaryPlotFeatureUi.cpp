@@ -112,7 +112,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_timeSeriesColumnName, "TimeColumnName", "ColumnName", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_previewText, "PreviewText", "Preview Text", "", "", "");
     m_previewText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
@@ -311,6 +311,9 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::P
         if (attrib)
         {
             attrib->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            
+            QFont font("Monospace", 7);
+            attrib->font = font;
         }
     }
 }

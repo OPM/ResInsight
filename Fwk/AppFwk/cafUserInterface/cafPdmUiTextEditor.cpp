@@ -124,6 +124,8 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_textEdit->blockSignals(false);
 
     m_textEdit->setWordWrapMode(toQTextOptionWrapMode(leab.wrapMode));
+
+    m_textEdit->setFont(leab.font);
 }
 
 //--------------------------------------------------------------------------------------------------

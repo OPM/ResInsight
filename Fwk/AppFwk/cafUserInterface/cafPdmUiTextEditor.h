@@ -80,6 +80,7 @@ public:
     TextMode    textMode;
     bool        showSaveButton;
     WrapMode    wrapMode;
+    QFont       font;
 };
 
 //==================================================================================================
