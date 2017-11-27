@@ -136,6 +136,7 @@ list(APPEND QT_MOC_HEADERS
 ${CEE_CURRENT_LIST_DIR}RiuMainWindowBase.h
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
+${CEE_CURRENT_LIST_DIR}RiuPvtPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuViewer.h

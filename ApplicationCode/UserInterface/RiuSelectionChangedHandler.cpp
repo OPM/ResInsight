@@ -383,14 +383,14 @@ void RiuSelectionChangedHandler::updatePvtPlot(const RiuSelectionItem* selection
             size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
             if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
             {
-                //cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
+                cvf::Trace::show("Update PVT plots for active cell index: %d", static_cast<int>(activeCellIndex));
                 
-                //std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtFvfCurvesForActiveCell(activeCellIndex);
-                //cvf::Trace::show("Got %d fvf curves", static_cast<int>(fvfCurveArr.size()));
+                std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_FVF, activeCellIndex);
+                std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex);
                 
                 QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
 
-                pvtPlotPanel->setPlotData(cellRefText);
+                pvtPlotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellRefText);
                 mustClearPlot = false;
             }
         }

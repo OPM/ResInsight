@@ -87,12 +87,17 @@ public:
         std::vector<double> yVals;
     };
 
+    enum PvtCurveType
+    {
+        PVT_CT_FVF, 
+        PVT_CT_VISCOSITY
+    };
+
     struct PvtCurve
     {
-        enum Ident { FVT_OIL, FVT_GAS, FVT_WATER };
+        enum Phase { OIL, GAS, WATER };
 
-        Ident               ident;
-        std::string         name;
+        Phase               phase;
         std::vector<double> xVals;
         std::vector<double> yVals;
     };
@@ -112,7 +117,7 @@ public:
                                                                 double max_pv_fraction);
 
     std::vector<RelPermCurve>      calculateRelPermCurvesForActiveCell(size_t activeCellIndex);
-    std::vector<PvtCurve>          calculatePvtFvfCurvesForActiveCell(size_t activeCellIndex);
+    std::vector<PvtCurve>          calculatePvtCurvesForActiveCell(PvtCurveType pvtCurveType, size_t activeCellIndex);
 
 private:
     std::string getInitFileName() const;

@@ -28,6 +28,7 @@
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_legend.h"
+#include "qwt_symbol.h"
 
 #include <QDockWidget>
 #include <QHBoxLayout>
@@ -68,32 +69,37 @@ RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
 {
     m_phaseComboBox = new QComboBox(this);
     m_phaseComboBox->setEditable(false);
-    m_phaseComboBox->addItem("Oil", QVariant("oil"));
-    m_phaseComboBox->addItem("Gas", QVariant("gas"));
-    m_phaseComboBox->addItem("Water", QVariant("water"));
+    m_phaseComboBox->addItem("Oil", QVariant(RigFlowDiagSolverInterface::PvtCurve::OIL));
+    m_phaseComboBox->addItem("Gas", QVariant(RigFlowDiagSolverInterface::PvtCurve::GAS));
+    m_phaseComboBox->addItem("Water", QVariant(RigFlowDiagSolverInterface::PvtCurve::WATER));
 
     QHBoxLayout* comboLayout = new QHBoxLayout();
-    comboLayout->addWidget(new QLabel("Phase"));
+    comboLayout->addWidget(new QLabel("Phase:"));
     comboLayout->addWidget(m_phaseComboBox);
     comboLayout->addStretch(1);
+    comboLayout->setContentsMargins(5, 5, 0, 0);
 
     m_fvfPlot = new PvtQwtPlot(this);
     m_viscosityPlot = new PvtQwtPlot(this);
     setPlotDefaults(m_fvfPlot);
     setPlotDefaults(m_viscosityPlot);
 
-    m_fvfPlot->setTitle("Formation Volume Factor - N/A");
-    m_viscosityPlot->setTitle("Viscosity - N/A");
-
     QHBoxLayout* plotLayout = new QHBoxLayout();
     plotLayout->addWidget(m_fvfPlot);
     plotLayout->addWidget(m_viscosityPlot);
+    plotLayout->setSpacing(0);
+    plotLayout->setContentsMargins(0, 0, 0, 0);
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(comboLayout);
     mainLayout->addLayout(plotLayout);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(mainLayout);
+
+    connect(m_phaseComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotPhaseComboCurrentIndexChanged(int)));
+
+    plotUiSelectedCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,19 +124,21 @@ void RiuPvtPlotPanel::setPlotDefaults(QwtPlot* plot)
 
     plot->setAxisMaxMinor(QwtPlot::xBottom, 2);
     plot->setAxisMaxMinor(QwtPlot::yLeft, 3);
-
-    QwtLegend* legend = new QwtLegend(plot);
-    plot->insertLegend(legend, QwtPlot::BottomLegend);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(QString cellReferenceText)
+void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, QString cellReferenceText)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
+    m_allFvfCurvesArr = fvfCurveArr;
+    m_allViscosityCurvesArr = viscosityCurveArr;
+
     m_cellReferenceText = cellReferenceText;
+
+    plotUiSelectedCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,17 +148,110 @@ void RiuPvtPlotPanel::clearPlot()
 {
     //cvf::Trace::show("RiuPvtPlotPanel::clearPlot()");
 
-    if (m_cellReferenceText.isEmpty())
+    if (m_allFvfCurvesArr.empty() && m_allViscosityCurvesArr.empty() && m_cellReferenceText.isEmpty())
     {
         return;
     }
 
+    m_allFvfCurvesArr.clear();
+    m_allViscosityCurvesArr.clear();
+
     m_cellReferenceText.clear();
 
-    //m_fvfPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
-    //m_viscosityPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+    plotUiSelectedCurves();
+}
 
-    //m_fvfPlot->replot();
-    //m_viscosityPlot->replot();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotPanel::plotUiSelectedCurves()
+{
+    std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedFvfCurves;
+    std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedViscosityCurves;
+
+    // Determine which curves to actually plot based on selection in GUI
+    const int currComboIdx = m_phaseComboBox->currentIndex();
+    const RigFlowDiagSolverInterface::PvtCurve::Phase phaseToPlot = static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>(m_phaseComboBox->itemData(currComboIdx).toInt());
+
+    for (RigFlowDiagSolverInterface::PvtCurve curve : m_allFvfCurvesArr)
+    {
+        if (curve.phase == phaseToPlot) 
+        {
+            selectedFvfCurves.push_back(curve);
+        }
+    }
+
+    for (RigFlowDiagSolverInterface::PvtCurve curve : m_allViscosityCurvesArr)
+    {
+        if (curve.phase == phaseToPlot)
+        {
+            selectedViscosityCurves.push_back(curve);
+        }
+    }
+
+    QString phaseString = "";
+    if      (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)   phaseString = "Gas ";
+    else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)   phaseString = "Oil ";
+    else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::WATER) phaseString = "Water ";
+
+    {
+        const QString plotTitle = phaseString + "Formation Volume Factor";
+        const QString yAxisTitle = "";
+        plotCurvesInQwt(selectedFvfCurves, plotTitle, yAxisTitle, m_fvfPlot);
+    }
+    
+    {
+        const QString plotTitle = phaseString + "Viscosity";
+        const QString yAxisTitle = phaseString + "Viscosity";
+        plotCurvesInQwt(selectedViscosityCurves, plotTitle, yAxisTitle, m_viscosityPlot);
+    }
+
+    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, QString plotTitle, QString yAxisTitle, QwtPlot* plot)
+{
+    plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
+
+    for (size_t i = 0; i < curveArr.size(); i++)
+    {
+        const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
+        QwtPlotCurve* qwtCurve = new QwtPlotCurve();
+
+        CVF_ASSERT(curve.xVals.size() == curve.yVals.size());
+        qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));
+
+        qwtCurve->setStyle(QwtPlotCurve::Lines);
+
+        QColor curveClr = Qt::magenta;
+        if      (curve.phase == RigFlowDiagSolverInterface::PvtCurve::GAS)   curveClr = QColor(Qt::red);
+        else if (curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL)   curveClr = QColor(Qt::green);
+        else if (curve.phase == RigFlowDiagSolverInterface::PvtCurve::WATER) curveClr = QColor(Qt::blue);
+        const QPen curvePen(curveClr);
+        qwtCurve->setPen(curvePen);
+
+        qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+
+        qwtCurve->attach(plot);
+    }
+
+
+    plot->setTitle(plotTitle);
+
+    plot->setAxisTitle(QwtPlot::xBottom, "Pressure");
+    plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
+
+    plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotPanel::slotPhaseComboCurrentIndexChanged(int)
+{
+    plotUiSelectedCurves();
 }
 

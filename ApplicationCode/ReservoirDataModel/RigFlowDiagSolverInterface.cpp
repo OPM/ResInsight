@@ -38,6 +38,10 @@
 #include <QMessageBox>
 #include "cafProgressInfo.h"
 
+#include "cvfTrace.h"
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +128,15 @@ public:
         m_poreVolume = m_eclGraph->poreVolume();
 
         m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
-        //m_eclPvtCurveCollection.reset(new Opm::ECLPVT::ECLPvtCurveCollection(*m_eclGraph, initData));
+
+        try
+        {
+            m_eclPvtCurveCollection.reset(new Opm::ECLPVT::ECLPvtCurveCollection(*m_eclGraph, initData));
+        }
+        catch (...)
+        {
+            cvf::Trace::show("Exception trying to construct ECLPvtCurveCollection instance");
+        }
     }
 
     std::unique_ptr<Opm::ECLGraph>                  m_eclGraph;
@@ -135,7 +147,7 @@ public:
     std::unique_ptr<Opm::ECLRestartData>            m_unifiedRestartData;
 
     std::unique_ptr<Opm::ECLSaturationFunc>             m_eclSaturationFunc;
-//    std::unique_ptr<Opm::ECLPVT::ECLPvtCurveCollection> m_eclPvtCurveCollection;
+    std::unique_ptr<Opm::ECLPVT::ECLPvtCurveCollection> m_eclPvtCurveCollection;
 };
 
 
@@ -651,7 +663,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtFvfCurvesForActiveCell(size_t activeCellIndex)
+std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurvesForActiveCell(PvtCurveType pvtCurveType, size_t activeCellIndex)
 {
     std::vector<PvtCurve> retCurveArr;
 
@@ -660,21 +672,33 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
         return retCurveArr;
     }
 
-    //CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
-    //CVF_ASSERT(m_opmFlowDiagStaticData->m_eclPvtCurveCollection);
+    CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
+    if (!m_opmFlowDiagStaticData->m_eclPvtCurveCollection)
+    {
+        return retCurveArr;
+    }
 
-    //{
-    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex));
-    //    retCurveDataArr.push_back({ "FVF_Gas", graph.first, graph.second });
-    //}
-    //{
-    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex));
-    //    retCurveDataArr.push_back({ "FVF_Oil", graph.first, graph.second });
-    //}
-    //{
-    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Aqua, static_cast<int>(activeCellIndex));
-    //    retCurveDataArr.push_back({ "FVF_Water", graph.first, graph.second });
-    //}
+
+    // Requesting FVF or Viscosity
+    const Opm::ECLPVT::RawCurve rawCurveType = (pvtCurveType == PvtCurveType::PVT_CT_FVF) ? Opm::ECLPVT::RawCurve::FVF : Opm::ECLPVT::RawCurve::Viscosity;
+
+    const std::array<Opm::ECLPhaseIndex, 3> queryPhaseArr = { Opm::ECLPhaseIndex::Vapour, Opm::ECLPhaseIndex::Liquid, Opm::ECLPhaseIndex::Aqua };
+    const std::array<PvtCurve::Phase, 3>    mapToPhaseArr = { PvtCurve::GAS,              PvtCurve::OIL,              PvtCurve::WATER };
+
+    for (size_t i = 0; i < queryPhaseArr.size(); i++)
+    {
+        const Opm::ECLPhaseIndex queryPhaseIndex = queryPhaseArr[i];
+        const PvtCurve::Phase mapToPhase = mapToPhaseArr[i];
+
+        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(rawCurveType, queryPhaseIndex, static_cast<int>(activeCellIndex));
+        for (Opm::FlowDiagnostics::Graph srcGraph : graphArr)
+        {
+            if (srcGraph.first.size() > 0)
+            {
+                retCurveArr.push_back({ mapToPhase, srcGraph.first, srcGraph.second });
+            }
+        }
+    }
 
     return retCurveArr;
 }

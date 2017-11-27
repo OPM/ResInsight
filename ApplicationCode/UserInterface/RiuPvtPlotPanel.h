@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <QWidget>
+#include "RigFlowDiagSolverInterface.h"
 
-class RigFlowDiagSolverInterface;
+#include <QWidget>
 
 class QDockWidget;
 class QwtPlot;
@@ -34,22 +34,32 @@ class QComboBox;
 //==================================================================================================
 class RiuPvtPlotPanel : public QWidget
 {
+    Q_OBJECT
+
 public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void setPlotData(QString cellReferenceText);
+    void setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, QString cellReferenceText);
     void clearPlot();
 
 private:
-    static void setPlotDefaults(QwtPlot* plot);
+    void            plotUiSelectedCurves();
+    static void     setPlotDefaults(QwtPlot* plot);
+    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, QString plotTitle, QString yAxisTitle, QwtPlot* plot);
 
+private slots:
+    void            slotPhaseComboCurrentIndexChanged(int);
+    
 private:
-    QComboBox*  m_phaseComboBox;
-    QwtPlot*    m_fvfPlot;
-    QwtPlot*    m_viscosityPlot;
+    std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
+    std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
+    QString                                             m_cellReferenceText;
 
-    QString     m_cellReferenceText;
+    QComboBox*                                          m_phaseComboBox;
+    QwtPlot*                                            m_fvfPlot;
+    QwtPlot*                                            m_viscosityPlot;
+
 
 };
 
