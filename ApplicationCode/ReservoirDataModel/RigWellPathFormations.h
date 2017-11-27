@@ -32,9 +32,6 @@ class RigWellPathFormations : public cvf::Object
 public:
     RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames, const QString& filePath, const QString& key);
 
-    const std::vector<std::pair<double, QString>>& measuredDepthAndFormationNames() const;
-
-    void measuredDepthAndFormationNames(std::vector<QString>& names, std::vector<double>& measuredDepths) const;
     void measuredDepthAndFormationNamesWithoutDuplicates(std::vector<QString>& names, std::vector<double>& measuredDepths) const;
 
     QString filePath() const;

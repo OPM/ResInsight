@@ -31,26 +31,6 @@ RigWellPathFormations::RigWellPathFormations(std::vector<std::pair<double, QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::pair<double, QString>>& RigWellPathFormations::measuredDepthAndFormationNames() const
-{
-    return m_measuredDepthAndFormationNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::measuredDepthAndFormationNames(std::vector<QString>& names, std::vector<double>& measuredDepths) const
-{
-    for (std::pair<double, QString> mdAndFormName : m_measuredDepthAndFormationNames)
-    {
-        measuredDepths.push_back(mdAndFormName.first);
-        names.push_back(mdAndFormName.second);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::measuredDepthAndFormationNamesWithoutDuplicates(std::vector<QString>& names, std::vector<double>& measuredDepths) const
 {
     names.clear();

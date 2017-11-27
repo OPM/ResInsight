@@ -35,6 +35,7 @@
 #include "RigStatisticsCalculator.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
+#include "RigWellPathFormations.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -57,7 +58,6 @@
 #include "cvfAssert.h"
 
 #include "qwt_scale_engine.h"
-#include "RigWellPathFormations.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -1129,103 +1129,7 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateFormationNamesFromCase()
 {
-    if ((m_formationSimWellName == QString("None") && m_formationWellPath == nullptr) || m_formationCase == nullptr) return;
 
-    if (m_annotationTool == nullptr)
-    {
-        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
-    }
-
-    RimMainPlotCollection* mainPlotCollection;
-    this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-
-
-    CurveSamplingPointData curveData;
-
-    RigEclipseWellLogExtractor* eclWellLogExtractor;
-    RigGeoMechWellLogExtractor* geoMechWellLogExtractor;
-
-    if (m_formationTrajectoryType == SIMULATION_WELL)
-    {
-        eclWellLogExtractor = RimWellLogTrack::createSimWellExtractor(wellLogCollection, m_formationCase, m_formationSimWellName, m_formationBranchIndex);
-    }
-    else
-    {
-        eclWellLogExtractor = RimWellLogTrack::createWellPathExtractor(wellLogCollection, m_formationCase, m_formationWellPath);
-    }
-
-    if (eclWellLogExtractor)
-    {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_formationCase());
-        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCase->eclipseCaseData(),
-                                                                                                     0,
-                                                                                                     RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                     0,
-                                                                                                     RiaDefines::activeFormationNamesResultName(),
-                                                                                                     RiaDefines::FORMATION_NAMES);
-
-        curveData = RimWellLogTrack::curveSamplingPointData(eclWellLogExtractor, resultAccessor.p());
-    }
-    else
-    {
-        geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPath);
-        if (!geoMechWellLogExtractor) return;
-        curveData = RimWellLogTrack::curveSamplingPointData(geoMechWellLogExtractor, RigFemResultAddress(RIG_FORMATION_NAMES, RiaDefines::activeFormationNamesResultName().toStdString(), ""));
-    }
-
-    RimWellLogPlot* plot;
-    firstAncestorOrThisOfTypeAsserted(plot);
-
-    std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector(m_formationCase);
-    std::vector<QString> formationNamesToPlot;
-    std::vector<std::pair<double, double>> yValues;
-
-    RimWellLogTrack::findFormationNamesToPlot(curveData,
-                                              formationNamesVector,
-                                              plot->depthType(),
-                                              &formationNamesToPlot,
-                                              &yValues);
-
-    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesFromWellPath()
-{
-    if (m_formationWellPath == nullptr) return;
-
-    if (m_annotationTool == nullptr)
-    {
-        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
-    }
-
-    std::vector<QString> formationNamesToPlot;
-    std::vector<double> topYValues;
-
-    const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
-    if (!formations) return;
-    
-    //formations->measuredDepthAndFormationNames(formationNamesToPlot, topYValues);
-    formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, topYValues);
-
-    if (topYValues.empty())
-    {
-        return;
-    }
-
-    std::vector<std::pair<double, double>> yValues;
-    for (size_t i = 0; i < topYValues.size() - 1; i++)
-    {
-        yValues.push_back(std::pair<double, double>(topYValues[i], topYValues[i + 1]));
-    }
-
-    yValues.push_back(std::pair<double, double>(topYValues.back(), topYValues.back()));
-
-    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1234,16 +1138,100 @@ void RimWellLogTrack::updateFormationNamesFromWellPath()
 void RimWellLogTrack::updateFormationNamesOnPlot()
 {
     removeFormationNames();
+
     if (m_showFormations == false) return;
+
+    if (m_annotationTool == nullptr)
+    {
+        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
+    }
+
+    std::vector<QString> formationNamesToPlot;
+    std::vector<std::pair<double, double>> yValues;
 
     if (m_formationSource == CASE)
     {
-        updateFormationNamesFromCase();
+        if ((m_formationSimWellName == QString("None") && m_formationWellPath == nullptr) || m_formationCase == nullptr) return;
+
+        RimMainPlotCollection* mainPlotCollection;
+        this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
+
+        RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+
+
+        CurveSamplingPointData curveData;
+
+        RigEclipseWellLogExtractor* eclWellLogExtractor;
+        RigGeoMechWellLogExtractor* geoMechWellLogExtractor;
+
+        if (m_formationTrajectoryType == SIMULATION_WELL)
+        {
+            eclWellLogExtractor = RimWellLogTrack::createSimWellExtractor(wellLogCollection, 
+                                                                          m_formationCase, 
+                                                                          m_formationSimWellName, 
+                                                                          m_formationBranchIndex);
+        }
+        else
+        {
+            eclWellLogExtractor = RimWellLogTrack::createWellPathExtractor(wellLogCollection, 
+                                                                           m_formationCase, 
+                                                                           m_formationWellPath);
+        }
+
+        if (eclWellLogExtractor)
+        {
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_formationCase());
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCase->eclipseCaseData(),
+                                                                                                         0,
+                                                                                                         RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                         0,
+                                                                                                         RiaDefines::activeFormationNamesResultName(),
+                                                                                                         RiaDefines::FORMATION_NAMES);
+
+            curveData = RimWellLogTrack::curveSamplingPointData(eclWellLogExtractor, resultAccessor.p());
+        }
+        else
+        {
+            geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPath);
+            if (!geoMechWellLogExtractor) return;
+
+            std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
+            curveData = RimWellLogTrack::curveSamplingPointData(geoMechWellLogExtractor,
+                                                                RigFemResultAddress(RIG_FORMATION_NAMES, activeFormationNamesResultName, ""));
+        }
+
+        RimWellLogPlot* plot;
+        firstAncestorOrThisOfTypeAsserted(plot);
+
+        std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector(m_formationCase);
+
+        RimWellLogTrack::findFormationNamesToPlot(curveData,
+                                                  formationNamesVector,
+                                                  plot->depthType(),
+                                                  &formationNamesToPlot,
+                                                  &yValues);
     }
     else
     {
-        updateFormationNamesFromWellPath();
+        if (m_formationWellPath == nullptr) return;
+
+        std::vector<double> topYValues;
+
+        const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+        if (!formations) return;
+
+        formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, topYValues);
+
+        if (topYValues.empty()) return;
+
+        for (size_t i = 0; i < topYValues.size() - 1; i++)
+        {
+            yValues.push_back(std::pair<double, double>(topYValues[i], topYValues[i + 1]));
+        }
+        yValues.push_back(std::pair<double, double>(topYValues.back(), topYValues.back()));
     }
+    
+    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------
