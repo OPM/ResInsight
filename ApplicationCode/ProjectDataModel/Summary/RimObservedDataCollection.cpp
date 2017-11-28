@@ -181,6 +181,14 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
 
     observedData->setSummaryHeaderFileName(fileName);
     observedData->createSummaryReaderInterface();
+    observedData->updateMetaData();
+    observedData->updateOptionSensitivity();
+
+    if (errorText && !observedData->errorMessagesFromReader().isEmpty())
+    {
+        errorText->append(observedData->errorMessagesFromReader());
+    }
+
     if (observedData->summaryReader())
     {
         this->m_observedDataArray.push_back(observedData);
@@ -189,13 +197,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     {
         delete columnBasedUserData;
         return nullptr;
-    }
-    observedData->updateMetaData();
-    observedData->updateOptionSensitivity();
-
-    if (errorText && !observedData->errorMessagesFromReader().isEmpty())
-    {
-        errorText->append(observedData->errorMessagesFromReader());
     }
 
     RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
