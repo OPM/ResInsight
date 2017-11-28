@@ -123,17 +123,31 @@ QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSepa
     QString preview;
     QTextStream outStream(&preview);
     int iLine = 0;
+    bool header = true;
 
+    outStream << "<Table>";
+    outStream << "<Style> th, td {padding-right: 15px;} </Style>";
     while (iLine < lineCount && !stream->atEnd())
     {
         QString line = stream->readLine();
 
         if (line.isEmpty()) continue;
 
-        outStream << line;
-        outStream << "\n";
+        outStream << "<tr>";
+        for (const QString& cellData : splitLineAndTrim(line, cellSeparator))
+        {
+            outStream << (header ? "<th>" : "<td>");
+            outStream << cellData;
+            outStream << (header ? "</th>" : "</td>");
+        }
+        outStream << "</tr>";
+
+        header = false;
         iLine++;
     }
+
+    outStream << "</Table>";
+
     closeDataStream();
     return columnifyText(preview, cellSeparator);
 }
@@ -405,7 +419,7 @@ QString RifCsvUserDataParser::tryDetermineDecimalSeparator(const QString& cellSe
         QString line = dataStream->readLine();
         if (line.isEmpty()) continue;
 
-        for (QString cellData : splitLineAndTrim(line, cellSeparator))
+        for (const QString& cellData : splitLineAndTrim(line, cellSeparator))
         {
             bool parseOk;
             QLocale locale;

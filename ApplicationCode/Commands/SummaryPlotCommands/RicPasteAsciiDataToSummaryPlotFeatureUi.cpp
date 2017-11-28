@@ -325,6 +325,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::P
             
             QFont font("Monospace", 7);
             attrib->font = font;
+            attrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 }
