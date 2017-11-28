@@ -72,6 +72,7 @@ public:
     void setPosition(cvf::Vec2ui position);
 
     HistogramData                               histogramData();
+    QString                                     timeStepText();
     QString                                     caseInfoText();
     QString                                     resultInfoText(const HistogramData& histData);
 
@@ -99,6 +100,8 @@ private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
 
+    QString                                     timeStepText(RimEclipseView* eclipseView);
+    QString                                     timeStepText(RimGeoMechView* geoMechView);
     HistogramData                               histogramData(RimEclipseView* eclipseView);
     HistogramData                               histogramData(RimGeoMechView* geoMechView);
     QString                                     caseInfoText(RimEclipseView* eclipseView);

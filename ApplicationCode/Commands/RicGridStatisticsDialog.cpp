@@ -101,7 +101,8 @@ void RicGridStatisticsDialog::setInfoText(RimView* view)
     if (view && overlayInfo)
     {
         QString text;
-        text = overlayInfo->caseInfoText();
+        text = overlayInfo->timeStepText();
+        text += overlayInfo->caseInfoText();
         text += overlayInfo->resultInfoText(overlayInfo->histogramData());
         m_textEdit->setText(text);
         adjustTextEditHeightToContent();
