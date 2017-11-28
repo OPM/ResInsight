@@ -319,6 +319,7 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
             }
 
             wellPath->addWellLogFile(logFileInfo);
+            m_newestAddedWellName = wellPath->name();
         }
     }
 
@@ -347,6 +348,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
                 wellPaths.push_back(wellPath);
             }
             wellPath->setFormationsGeometry(it->second);
+            m_newestAddedWellName = wellPath->name();
         }
     }
 

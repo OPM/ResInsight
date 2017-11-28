@@ -58,7 +58,7 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
         QString name = names[i];
         if (names[i].toLower().indexOf("top") == -1)
         {
-            name += " top";
+            name += " Top";
         }
         
         line->setLabel(name);
