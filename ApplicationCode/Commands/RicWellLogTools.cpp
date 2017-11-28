@@ -24,6 +24,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
@@ -156,8 +157,24 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
     curve->setColor(curveColor);
-    if (wellPath) curve->setWellPath(wellPath);
-    if (simWell) curve->setFromSimulationWellName(simWell->name(), branchIndex);
+    if (wellPath)
+    {
+        curve->setWellPath(wellPath);
+        plotTrack->setFormationWellPath(wellPath);
+        plotTrack->setFormationTrajectoryType(RimWellLogTrack::WELL_PATH);
+    }
+    if (simWell)
+    {
+        curve->setFromSimulationWellName(simWell->name(), branchIndex);
+        plotTrack->setFormationSimWellName(simWell->name());
+        plotTrack->setFormationBranchIndex(branchIndex);
+        plotTrack->setFormationTrajectoryType(RimWellLogTrack::SIMULATION_WELL);
+    }
+
+    if (view)
+    {
+        plotTrack->setFormationCase(view->ownerCase());
+    }
 
     curve->setPropertiesFromView(view);
 
@@ -184,7 +201,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
 
     RimWellLogRftCurve* curve = new RimWellLogRftCurve();
 
-    RimEclipseResultCase* resultCase;
+    RimEclipseResultCase* resultCase = nullptr;
 
     std::vector<RimCase*> cases;
     RiaApplication::instance()->project()->allCases(cases);
@@ -201,12 +218,17 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
     {
         curve->setEclipseResultCase(resultCase);
         curve->setDefaultAddress(simWell->name());
+
+        plotTrack->setFormationCase(resultCase);
+        plotTrack->setFormationSimWellName(simWell->name());
     }
+
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
     curve->setColor(curveColor);
 
     plotTrack->addCurve(curve);
+    plotTrack->setFormationTrajectoryType(RimWellLogTrack::SIMULATION_WELL);
     plotTrack->updateConnectedEditors();
 
     RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();

@@ -80,7 +80,12 @@ public:
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
     void setXAxisTitle(const QString& text);
+
+    void setFormationWellPath(RimWellPath* wellPath);
+    void setFormationSimWellName(const QString& simWellName);
     void setFormationBranchIndex(int branchIndex);
+    void setFormationCase(RimCase* rimCase);
+    void setFormationTrajectoryType(TrajectoryType trajectoryType);
     int  formationBranchIndex() const;
     RimCase* formationNamesCase() const; 
 

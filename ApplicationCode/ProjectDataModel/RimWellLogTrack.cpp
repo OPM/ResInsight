@@ -474,7 +474,7 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::loadDataAndUpdate()
 {
-    RimWellLogPlot* wellLogPlot;
+    RimWellLogPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType(wellLogPlot);
 
     if (wellLogPlot && m_wellLogTrackPlotWidget)
@@ -555,9 +555,41 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
+{
+    m_formationWellPath = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationSimWellName(const QString& simWellName)
+{
+    m_formationSimWellName = simWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationBranchIndex(int branchIndex)
 {
     m_formationBranchIndex = branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationCase(RimCase* rimCase)
+{
+    m_formationCase = rimCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationTrajectoryType(TrajectoryType trajectoryType)
+{
+    m_formationTrajectoryType = trajectoryType;
 }
 
 //--------------------------------------------------------------------------------------------------
