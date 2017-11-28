@@ -40,13 +40,14 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, QString cellReferenceText);
+    void setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText);
     void clearPlot();
 
 private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, QString plotTitle, QString yAxisTitle, QwtPlot* plot);
+    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot);
+    static void     addVerticalPressureMarkerLine(double pressureValue, QColor color, QwtPlot* plot);
 
 private slots:
     void            slotPhaseComboCurrentIndexChanged(int);
@@ -54,6 +55,7 @@ private slots:
 private:
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
+    double                                              m_pressure;
     QString                                             m_cellReferenceText;
 
     QComboBox*                                          m_phaseComboBox;

@@ -95,7 +95,7 @@ public:
 
     struct PvtCurve
     {
-        enum Phase { OIL, GAS, WATER };
+        enum Phase { OIL, GAS };
 
         Phase               phase;
         std::vector<double> xVals;

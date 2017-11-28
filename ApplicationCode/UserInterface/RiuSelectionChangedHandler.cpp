@@ -377,20 +377,27 @@ void RiuSelectionChangedHandler::updatePvtPlot(const RiuSelectionItem* selection
     if (pvtPlotPanel->isVisible() && selectionItem && selectionItem->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
     {
         const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>(selectionItem);
-        RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseSelectionItem->m_view->eclipseCase());
+        const RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
+
+        RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseView->eclipseCase());
         if (eclipseResultCase && eclipseResultCase->flowDiagSolverInterface())
         {
             size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
             if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
             {
-                cvf::Trace::show("Update PVT plots for active cell index: %d", static_cast<int>(activeCellIndex));
+                //cvf::Trace::show("Update PVT plots for active cell index: %d", static_cast<int>(activeCellIndex));
                 
                 std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_FVF, activeCellIndex);
                 std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex);
                 
                 QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
 
-                pvtPlotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellRefText);
+                //const size_t timeStepIndex = static_cast<size_t>(eclipseView->currentTimeStep());
+                //cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PRESSURE", RiaDefines::DYNAMIC_NATIVE);
+                //const double cellPressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(eclipseSelectionItem->m_gridLocalCellIndex) : HUGE_VAL;
+                const double cellPressure = HUGE_VAL;
+
+                pvtPlotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellPressure, cellRefText);
                 mustClearPlot = false;
             }
         }

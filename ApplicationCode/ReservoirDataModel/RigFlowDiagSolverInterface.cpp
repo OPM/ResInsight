@@ -682,8 +682,8 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
     // Requesting FVF or Viscosity
     const Opm::ECLPVT::RawCurve rawCurveType = (pvtCurveType == PvtCurveType::PVT_CT_FVF) ? Opm::ECLPVT::RawCurve::FVF : Opm::ECLPVT::RawCurve::Viscosity;
 
-    const std::array<Opm::ECLPhaseIndex, 3> queryPhaseArr = { Opm::ECLPhaseIndex::Vapour, Opm::ECLPhaseIndex::Liquid, Opm::ECLPhaseIndex::Aqua };
-    const std::array<PvtCurve::Phase, 3>    mapToPhaseArr = { PvtCurve::GAS,              PvtCurve::OIL,              PvtCurve::WATER };
+    const std::array<Opm::ECLPhaseIndex, 2> queryPhaseArr = { Opm::ECLPhaseIndex::Vapour, Opm::ECLPhaseIndex::Liquid };
+    const std::array<PvtCurve::Phase, 2>    mapToPhaseArr = { PvtCurve::GAS,              PvtCurve::OIL };
 
     for (size_t i = 0; i < queryPhaseArr.size(); i++)
     {

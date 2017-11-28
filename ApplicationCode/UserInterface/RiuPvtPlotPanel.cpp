@@ -29,6 +29,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_legend.h"
 #include "qwt_symbol.h"
+#include "qwt_plot_marker.h"
 
 #include <QDockWidget>
 #include <QHBoxLayout>
@@ -65,13 +66,13 @@ public:
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
-:   QWidget(parent)
+:   QWidget(parent),
+    m_pressure(HUGE_VAL)
 {
     m_phaseComboBox = new QComboBox(this);
     m_phaseComboBox->setEditable(false);
     m_phaseComboBox->addItem("Oil", QVariant(RigFlowDiagSolverInterface::PvtCurve::OIL));
     m_phaseComboBox->addItem("Gas", QVariant(RigFlowDiagSolverInterface::PvtCurve::GAS));
-    m_phaseComboBox->addItem("Water", QVariant(RigFlowDiagSolverInterface::PvtCurve::WATER));
 
     QHBoxLayout* comboLayout = new QHBoxLayout();
     comboLayout->addWidget(new QLabel("Phase:"));
@@ -129,12 +130,13 @@ void RiuPvtPlotPanel::setPlotDefaults(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, QString cellReferenceText)
+void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
     m_allFvfCurvesArr = fvfCurveArr;
     m_allViscosityCurvesArr = viscosityCurveArr;
+    m_pressure = pressure;
 
     m_cellReferenceText = cellReferenceText;
 
@@ -155,6 +157,7 @@ void RiuPvtPlotPanel::clearPlot()
 
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
+    m_pressure = HUGE_VAL;
 
     m_cellReferenceText.clear();
 
@@ -192,18 +195,17 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
     QString phaseString = "";
     if      (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)   phaseString = "Gas ";
     else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)   phaseString = "Oil ";
-    else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::WATER) phaseString = "Water ";
 
     {
         const QString plotTitle = phaseString + "Formation Volume Factor";
-        const QString yAxisTitle = "";
-        plotCurvesInQwt(selectedFvfCurves, plotTitle, yAxisTitle, m_fvfPlot);
+        const QString yAxisTitle = phaseString + "Formation Volume Factor";
+        plotCurvesInQwt(selectedFvfCurves, m_pressure, plotTitle, yAxisTitle, m_fvfPlot);
     }
     
     {
         const QString plotTitle = phaseString + "Viscosity";
         const QString yAxisTitle = phaseString + "Viscosity";
-        plotCurvesInQwt(selectedViscosityCurves, plotTitle, yAxisTitle, m_viscosityPlot);
+        plotCurvesInQwt(selectedViscosityCurves, m_pressure, plotTitle, yAxisTitle, m_viscosityPlot);
     }
 
     
@@ -212,9 +214,10 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, QString plotTitle, QString yAxisTitle, QwtPlot* plot)
+void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
+    plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
 
     for (size_t i = 0; i < curveArr.size(); i++)
     {
@@ -229,15 +232,32 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
         QColor curveClr = Qt::magenta;
         if      (curve.phase == RigFlowDiagSolverInterface::PvtCurve::GAS)   curveClr = QColor(Qt::red);
         else if (curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL)   curveClr = QColor(Qt::green);
-        else if (curve.phase == RigFlowDiagSolverInterface::PvtCurve::WATER) curveClr = QColor(Qt::blue);
         const QPen curvePen(curveClr);
         qwtCurve->setPen(curvePen);
 
         qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
+        QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
+        curveSymbol->setSize(6, 6);
+        curveSymbol->setPen(curvePen);
+        curveSymbol->setBrush(Qt::NoBrush);
+        qwtCurve->setSymbol(curveSymbol);
+
         qwtCurve->attach(plot);
     }
 
+    // Add vertical marker lines to indicate cell pressure
+    if (pressure != HUGE_VAL)
+    {
+        QwtPlotMarker* lineMarker = new QwtPlotMarker;
+        lineMarker->setXValue(pressure);
+        lineMarker->setLineStyle(QwtPlotMarker::VLine);
+        lineMarker->setLinePen(QPen(Qt::black, 1, Qt::DashLine));
+        lineMarker->setLabel(QString("Pressure"));
+        lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
+        lineMarker->setLabelOrientation(Qt::Vertical);
+        lineMarker->attach(plot);
+    }
 
     plot->setTitle(plotTitle);
 
@@ -245,6 +265,22 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
     plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
 
     plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotPanel::addVerticalPressureMarkerLine(double pressureValue, QColor color, QwtPlot* plot)
+{
+    QwtPlotMarker* lineMarker = new QwtPlotMarker;
+    lineMarker->setXValue(pressureValue);
+    lineMarker->setLineStyle(QwtPlotMarker::VLine);
+    lineMarker->setLinePen(QPen(color, 1, Qt::DashLine));
+    lineMarker->setLabel(QString("PRESSURE"));
+    lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
+    lineMarker->setLabelOrientation(Qt::Vertical);
+
+    lineMarker->attach(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
