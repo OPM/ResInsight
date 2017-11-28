@@ -82,7 +82,7 @@ bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddres
     {
         std::pair<size_t, size_t> tableColIndices = search->second;
 
-        const ColumnInfo* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
+        const Column* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
         if (!ci) return false;
 
         if (!ci->values.empty())
@@ -125,7 +125,7 @@ std::string RifColumnBasedUserData::unitName(const RifEclipseSummaryAddress& res
     {
         std::pair<size_t, size_t> tableColIndices = search->second;
 
-        const ColumnInfo* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
+        const Column* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
         if (ci)
         {
             return ci->unitName;
@@ -158,8 +158,8 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
 
         for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
         {
-            const ColumnInfo& ci = tableData.columnInfos()[columIndex];
-            if (ci.dataType == ColumnInfo::NUMERIC)
+            const Column& ci = tableData.columnInfos()[columIndex];
+            if (ci.dataType == Column::NUMERIC)
             {
                 RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
@@ -188,7 +188,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
     
     for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
     {
-        const ColumnInfo& ci = tableData.columnInfos()[columIndex];
+        const Column& ci = tableData.columnInfos()[columIndex];
         
         if (dateColumnIndex == tableData.columnInfos().size() &&
             RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
@@ -221,7 +221,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
     // YEARX is interpreted as absolute decimal year (2014.32)
     if (tsVector.empty() && yearXColumnIndex != tableData.columnInfos().size())
     {
-        const ColumnInfo& ci = tableData.columnInfos()[yearXColumnIndex];
+        const Column& ci = tableData.columnInfos()[yearXColumnIndex];
 
         for (const auto& timeStepValue : ci.values)
         {
@@ -233,7 +233,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
     // DAYS is interpreted as decimal days since simulation start (23.32)
     if (tsVector.empty() && daysColumnIndex != tableData.columnInfos().size())
     {
-        const ColumnInfo& ci = tableData.columnInfos()[daysColumnIndex];
+        const Column& ci = tableData.columnInfos()[daysColumnIndex];
 
         QDateTime simulationStartDate = tableData.findFirstDate();
 
@@ -247,7 +247,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
     // YEARS is interpreted as decimal years since simulation start (23.32)
     if (tsVector.empty() && yearsColumnIndex != tableData.columnInfos().size())
     {
-        const ColumnInfo& ci = tableData.columnInfos()[yearsColumnIndex];
+        const Column& ci = tableData.columnInfos()[yearsColumnIndex];
 
         QDateTime simulationStartDate = tableData.findFirstDate();
 
@@ -261,7 +261,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
     // DATE is interpreted as date string (6-NOV-1997)
     if (tsVector.empty() && dateColumnIndex != tableData.columnInfos().size())
     {
-        const ColumnInfo& ci = tableData.columnInfos()[dateColumnIndex];
+        const Column& ci = tableData.columnInfos()[dateColumnIndex];
 
         QString dateFormat;
         for (auto s : ci.textValues)

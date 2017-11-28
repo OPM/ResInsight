@@ -105,8 +105,8 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 
     if (columnIndex != m_allResultAddresses.size())
     {
-        const ColumnInfo* col = m_asciiParser->columnInfo(columnIndex);
-        if (col && col->dataType == ColumnInfo::NUMERIC)
+        const Column* col = m_asciiParser->columnInfo(columnIndex);
+        if (col && col->dataType == Column::NUMERIC)
         {
             for (auto& v : col->values)
             {

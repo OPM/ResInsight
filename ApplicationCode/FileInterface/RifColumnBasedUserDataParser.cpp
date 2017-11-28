@@ -53,7 +53,7 @@ const std::vector<TableData>& RifColumnBasedUserDataParser::tableData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const ColumnInfo* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, size_t columnIndex) const
+const Column* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, size_t columnIndex) const
 {
     if (tableIndex >= m_tableDatas.size()) return nullptr;
 
@@ -100,7 +100,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
             }
         }
 
-        std::vector<ColumnInfo>& columnInfos = table.columnInfos();
+        std::vector<Column>& columnInfos = table.columnInfos();
         int columnCount = static_cast<int>(columnInfos.size());
         if (columnCount == 0) break;
 
@@ -131,7 +131,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 
             for (int i = 0; i < columnCount; i++)
             {
-                if (columnInfos[i].dataType == ColumnInfo::TEXT)
+                if (columnInfos[i].dataType == Column::TEXT)
                 {
                     columnInfos[i].textValues.push_back(entries[i].toStdString());
                 }

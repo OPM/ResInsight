@@ -461,7 +461,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& st
     }
 
 
-    std::vector<ColumnInfo> columnInfos;
+    std::vector<Column> columnInfos;
 
     // Create string vectors for each column
     {
@@ -494,7 +494,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& st
 
             RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, columnHeader);
 
-            ColumnInfo ci = ColumnInfo::createColumnInfoFromRsmData(quantity, unit, adr);
+            Column ci = Column::createColumnInfoFromRsmData(quantity, unit, adr);
 
             columnInfos.push_back(ci);
         }
@@ -563,7 +563,7 @@ bool RifEclipseUserDataParserTools::hasCompleteDataForAllHeaderColumns(const std
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(std::stringstream& streamData)
+std::vector<Column> RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(std::stringstream& streamData)
 {
     auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
 
@@ -722,9 +722,9 @@ std::vector<std::vector<std::string>> RifEclipseUserDataParserTools::splitIntoCo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData)
+std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData)
 {
-    std::vector<ColumnInfo> table;
+    std::vector<Column> table;
 
     bool isUnitsDetected = false;
     bool isScalingDetected = false;
@@ -774,7 +774,7 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
 
         RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
 
-        ColumnInfo ci = ColumnInfo::createColumnInfoFromRsmData(quantity, unit, adr);
+        Column ci = Column::createColumnInfoFromRsmData(quantity, unit, adr);
 
         table.push_back(ci);
     }
@@ -921,7 +921,7 @@ bool RifEclipseUserDataParserTools::isScalingText(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string ColumnInfo::columnName() const
+std::string Column::columnName() const
 {
     return summaryAddress.quantityName();
 }
@@ -929,7 +929,7 @@ std::string ColumnInfo::columnName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t ColumnInfo::itemCount() const
+size_t Column::itemCount() const
 {
     switch (dataType)
     {
@@ -943,9 +943,9 @@ size_t ColumnInfo::itemCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ColumnInfo ColumnInfo::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
+Column Column::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
 {
-    ColumnInfo ci(adr, unit);
+    Column ci(adr, unit);
 
     if (RifEclipseUserDataKeywordTools::isDate(quantity))
     {
@@ -965,9 +965,9 @@ ColumnInfo ColumnInfo::createColumnInfoFromRsmData(const std::string& quantity, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ColumnInfo ColumnInfo::createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit)
+Column Column::createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit)
 {
-    ColumnInfo col(addr, unit);
+    Column col(addr, unit);
     return col;
 }
 

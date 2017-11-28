@@ -31,7 +31,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class ColumnInfo
+class Column
 {
 public:
     enum DataType
@@ -42,13 +42,13 @@ public:
         DATETIME
     };
 
-    ColumnInfo()
+    Column()
         : scaleFactor(1.0),
         dataType(NONE)
     {
     }
 
-    ColumnInfo(const RifEclipseSummaryAddress& adr, const std::string& unit)
+    Column(const RifEclipseSummaryAddress& adr, const std::string& unit)
         : summaryAddress(adr),
         scaleFactor(1.0),
         unitName(unit),
@@ -60,8 +60,8 @@ public:
     size_t                          itemCount() const;
 
 public:
-    static ColumnInfo createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
-    static ColumnInfo createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit);
+    static Column createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+    static Column createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit);
 
     RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
@@ -86,7 +86,7 @@ public:
 
     TableData(const std::string& origin,
               const std::string& startDate,
-              const std::vector<ColumnInfo>& columnInfos)
+              const std::vector<Column>& columnInfos)
         : m_origin(origin),
         m_startDate(startDate),
         m_columnInfos(columnInfos)
@@ -103,12 +103,12 @@ public:
         return m_startDate;
     }
 
-    std::vector<ColumnInfo>& columnInfos()
+    std::vector<Column>& columnInfos()
     {
         return m_columnInfos;
     }
 
-    const std::vector<ColumnInfo>& columnInfos() const
+    const std::vector<Column>& columnInfos() const
     {
         return m_columnInfos;
     }
@@ -119,7 +119,7 @@ private:
     std::string             m_origin;
     std::string             m_startDate;
 
-    std::vector<ColumnInfo> m_columnInfos;
+    std::vector<Column> m_columnInfos;
 };
 
 //==================================================================================================
@@ -149,10 +149,10 @@ public:
 
     static bool                                         isFixedWidthHeader(const std::string& lines);
     static bool                                         hasCompleteDataForAllHeaderColumns(const std::string& lines);
-    static std::vector<ColumnInfo>                      columnInfoForFixedColumnWidth(std::stringstream& streamData);
+    static std::vector<Column>                      columnInfoForFixedColumnWidth(std::stringstream& streamData);
     static std::vector<std::string>                     findValidHeaderLines(std::stringstream& streamData);
     static std::vector<std::vector<std::string>>        splitIntoColumnHeaders(const std::vector<std::string>& headerLines);
-    static std::vector<ColumnInfo>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
+    static std::vector<Column>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
     static std::vector<size_t>                          columnIndexForWords(const std::string& line);
 
     static std::vector<TableData>                       mergeEqualTimeSteps(const std::vector<TableData>& tables);

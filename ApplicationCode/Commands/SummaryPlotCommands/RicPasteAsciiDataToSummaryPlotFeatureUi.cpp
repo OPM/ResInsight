@@ -300,9 +300,9 @@ QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculate
 
     if (fieldNeedingOptions == &m_timeSeriesColumnName)
     {
-        const std::vector<ColumnInfo>& columnInfoList = m_parser->tableData().columnInfos();
+        const std::vector<Column>& columnInfoList = m_parser->tableData().columnInfos();
 
-        for (const ColumnInfo& columnInfo : columnInfoList)
+        for (const Column& columnInfo : columnInfoList)
         {
             QString columnName = QString::fromStdString(columnInfo.columnName());
             options.push_back(caf::PdmOptionItemInfo(columnName, columnName));

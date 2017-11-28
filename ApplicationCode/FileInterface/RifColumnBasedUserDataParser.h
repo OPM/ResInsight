@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class ColumnInfo;
+class Column;
 class TableData;
 
 //==================================================================================================
@@ -37,7 +37,7 @@ public:
     RifColumnBasedUserDataParser(const QString& data, QString* errorText = nullptr);
     const std::vector<TableData>& tableData() const;
 
-    const ColumnInfo* columnInfo(size_t tableIndex, size_t columnIndex) const;
+    const Column* columnInfo(size_t tableIndex, size_t columnIndex) const;
 
 private:
     void parseTableData(const QString& data);

@@ -72,7 +72,7 @@ const TableData& RifCsvUserDataParser::tableData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const ColumnInfo* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
+const Column* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
 {
     if (columnIndex >= m_tableData.columnInfos().size()) return nullptr;
 
@@ -82,11 +82,11 @@ const ColumnInfo* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const ColumnInfo* RifCsvUserDataParser::dateTimeColumn() const
+const Column* RifCsvUserDataParser::dateTimeColumn() const
 {
-    for (const ColumnInfo& col : m_tableData.columnInfos())
+    for (const Column& col : m_tableData.columnInfos())
     {
-        if (col.dataType == ColumnInfo::DATETIME)
+        if (col.dataType == Column::DATETIME)
         {
             return &col;
         }
@@ -100,7 +100,7 @@ const ColumnInfo* RifCsvUserDataParser::dateTimeColumn() const
 bool RifCsvUserDataParser::parseColumnInfo(const AsciiDataParseOptions& parseOptions)
 {
     QTextStream* dataStream = openDataStream();
-    std::vector<ColumnInfo> columnInfoList;
+    std::vector<Column> columnInfoList;
     bool result = parseColumnInfo(dataStream, parseOptions, &columnInfoList);
 
     if (result)
@@ -170,7 +170,7 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<ColumnInfo>* columnInfoList)
+bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<Column>* columnInfoList)
 {
     bool headerFound = false;
 
@@ -190,7 +190,7 @@ bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiD
         {
             QString colName = lineColumns[iCol];
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName.toStdString());
-            ColumnInfo col = ColumnInfo::createColumnInfoFromCsvData(addr, "");
+            Column col = Column::createColumnInfoFromCsvData(addr, "");
 
             columnInfoList->push_back(col);
         }
@@ -208,7 +208,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
     bool errors = false;
     enum { FIRST_DATA_ROW, DATA_ROW } parseState = FIRST_DATA_ROW;
     int colCount;
-    std::vector<ColumnInfo> columnInfoList;
+    std::vector<Column> columnInfoList;
 
     QTextStream* dataStream = openDataStream();
 
@@ -238,24 +238,24 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
             for (int iCol = 0; iCol < colCount; iCol++)
             {
                 std::string colData = lineColumns[iCol].toStdString();
-                ColumnInfo& col = columnInfoList[iCol];
+                Column& col = columnInfoList[iCol];
 
                 // Determine column data type
-                if (col.dataType == ColumnInfo::NONE)
+                if (col.dataType == Column::NONE)
                 {
                     if (QString::fromStdString(col.summaryAddress.quantityName()) == parseOptions.timeSeriesColumnName)
                     {
-                        col.dataType = ColumnInfo::DATETIME;
+                        col.dataType = Column::DATETIME;
                     }
                     else
                     {
                         if (RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toAscii()))
                         {
-                            col.dataType = ColumnInfo::NUMERIC;
+                            col.dataType = Column::NUMERIC;
                         }
                         else
                         {
-                            col.dataType = ColumnInfo::TEXT;
+                            col.dataType = Column::TEXT;
                         }
                     }
                 }
@@ -269,11 +269,11 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
             for (int iCol = 0; iCol < colCount; iCol++)
             {
                 QString& colData = lineColumns[iCol];
-                ColumnInfo& col = columnInfoList[iCol];
+                Column& col = columnInfoList[iCol];
 
                 try
                 {
-                    if (col.dataType == ColumnInfo::NUMERIC)
+                    if (col.dataType == Column::NUMERIC)
                     {
                         bool parseOk = true;
                         double value = parseOptions.locale.toDouble(colData, &parseOk);
@@ -292,11 +292,11 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                         }
                         col.values.push_back(value);
                     }
-                    else if (col.dataType == ColumnInfo::TEXT)
+                    else if (col.dataType == Column::TEXT)
                     {
                         col.textValues.push_back(colData.toStdString());
                     }
-                    else if (col.dataType == ColumnInfo::DATETIME)
+                    else if (col.dataType == Column::DATETIME)
                     {
                         QDateTime dt;
                         dt = tryParseDateTime(colData.toStdString(), parseOptions.dateTimeFormat);

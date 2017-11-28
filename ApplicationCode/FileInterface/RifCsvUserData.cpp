@@ -81,7 +81,7 @@ bool RifCsvUserData::values(const RifEclipseSummaryAddress& resultAddress, std::
     {
         size_t columnIndex = search->second;
 
-        const ColumnInfo* ci = m_parser->columnInfo(columnIndex);
+        const Column* ci = m_parser->columnInfo(columnIndex);
         if (!ci) return false;
 
         values->clear();
@@ -121,7 +121,7 @@ std::string RifCsvUserData::unitName(const RifEclipseSummaryAddress& resultAddre
     {
         size_t columnIndex = search->second;
 
-        const ColumnInfo* ci = m_parser->columnInfo(columnIndex);
+        const Column* ci = m_parser->columnInfo(columnIndex);
         if (ci)
         {
             return ci->unitName;
@@ -153,8 +153,8 @@ void RifCsvUserData::buildTimeStepsAndMappings()
 
     for (size_t columnIndex = 0; columnIndex < tableData.columnInfos().size(); columnIndex++)
     {
-        const ColumnInfo& ci = tableData.columnInfos()[columnIndex];
-        if (ci.dataType == ColumnInfo::NUMERIC)
+        const Column& ci = tableData.columnInfos()[columnIndex];
+        if (ci.dataType == Column::NUMERIC)
         {
             RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
@@ -173,7 +173,7 @@ std::vector<time_t> RifCsvUserData::createTimeSteps(const TableData& tableData)
 {
     std::vector<time_t> tsVector;
 
-    const ColumnInfo& col = tableData.columnInfos()[0];
+    const Column& col = tableData.columnInfos()[0];
 
     tsVector.reserve(col.dateTimeValues.size());
     for (const QDateTime& qdt : col.dateTimeValues)

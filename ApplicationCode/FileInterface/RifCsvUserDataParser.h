@@ -31,7 +31,7 @@
 
 #include <vector>
 
-class ColumnInfo;
+class Column;
 class AsciiDataParseOptions;
 
 //==================================================================================================
@@ -46,8 +46,8 @@ public:
     bool                parse(const AsciiDataParseOptions& parseOptions);
     const TableData&    tableData() const;
 
-    const ColumnInfo*   columnInfo(size_t columnIndex) const;
-    const ColumnInfo*   dateTimeColumn() const;
+    const Column*   columnInfo(size_t columnIndex) const;
+    const Column*   dateTimeColumn() const;
 
     bool                parseColumnInfo(const AsciiDataParseOptions& parseOptions);
     QString             previewText(int lineCount, const AsciiDataParseOptions& parseOptions);
@@ -64,7 +64,7 @@ protected:
 private:
     bool                parseColumnInfo(QTextStream* dataStream,
                                         const AsciiDataParseOptions& parseOptions,
-                                        std::vector<ColumnInfo>* columnInfoList);
+                                        std::vector<Column>* columnInfoList);
     bool                parseData(const AsciiDataParseOptions& parseOptions);
     QString             columnifyText(const QString& text, const QString& cellSeparator);
     static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
