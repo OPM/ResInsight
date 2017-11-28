@@ -82,6 +82,21 @@ const ColumnInfo* RifCsvUserDataParser::columnInfo(size_t columnIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const ColumnInfo* RifCsvUserDataParser::dateTimeColumn() const
+{
+    for (const ColumnInfo& col : m_tableData.columnInfos())
+    {
+        if (col.dataType == ColumnInfo::DATETIME)
+        {
+            return &col;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseColumnInfo(const QString& cellSeparator)
 {
     QTextStream* dataStream = openDataStream();

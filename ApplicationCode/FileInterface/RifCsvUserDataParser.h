@@ -47,6 +47,7 @@ public:
     const TableData&    tableData() const;
 
     const ColumnInfo*   columnInfo(size_t columnIndex) const;
+    const ColumnInfo*   dateTimeColumn() const;
 
     bool                parseColumnInfo(const QString& cellSeparator);
     QString             previewText(int lineCount, const QString& cellSeparator);

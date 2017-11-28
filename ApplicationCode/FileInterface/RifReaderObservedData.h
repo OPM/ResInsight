@@ -30,6 +30,7 @@ class QString;
 
 class RifColumnBasedAsciiParser;
 class RifEclipseSummaryAddress;
+class RifCsvUserDataParser;
 
 //==================================================================================================
 //
@@ -58,7 +59,7 @@ private:
                                                 RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
 
 private:
-    std::unique_ptr<RifColumnBasedAsciiParser>  m_asciiParser;
+    std::unique_ptr<RifCsvUserDataParser>       m_asciiParser;
     std::vector<time_t>                         m_timeSteps;
 };
 

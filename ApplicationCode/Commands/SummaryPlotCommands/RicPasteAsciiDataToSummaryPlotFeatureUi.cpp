@@ -304,7 +304,7 @@ QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculate
 
         for (const ColumnInfo& columnInfo : columnInfoList)
         {
-            QString columnName = QString::fromStdString(columnInfo.summaryAddress.quantityName());
+            QString columnName = QString::fromStdString(columnInfo.columnName());
             options.push_back(caf::PdmOptionItemInfo(columnName, columnName));
         }
     }
@@ -362,7 +362,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
     parser->parseColumnInfo(parseOptions().cellSeparator);
     if (parser->tableData().columnInfos().size() > 0)
     {
-        m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].summaryAddress.quantityName());
+        m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].columnName());
     }
 
     m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT, cellSep);

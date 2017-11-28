@@ -56,6 +56,7 @@ public:
     {
     }
 
+    std::string                     columnName() const;
     size_t                          itemCount() const;
 
 public:

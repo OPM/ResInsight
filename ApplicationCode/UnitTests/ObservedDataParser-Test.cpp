@@ -1,10 +1,11 @@
 #include "gtest/gtest.h"
 
-#include "RifColumnBasedAsciiParser.h"
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
 #include "RifKeywordVectorParser.h"
 #include "RifEclipseUserDataParserTools.h"
+#include "RifCsvUserDataParser.h"
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include <vector>
 #include <QTextStream>
@@ -17,9 +18,11 @@
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
 {
-    QString dateFormat = "yyyy-MM-dd";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::Norwegian;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yyyy-MM-dd";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -29,15 +32,17 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
     out << "1994-02-26" << "\t" << "30"  << "\t" << "3"  << "\n";
     out << "1994-05-23" << "\t" << "40"  << "\t" << "4"  << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
-    
-    std::vector<QDateTime> timeSteps = parser.timeSteps();
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    ASSERT_EQ(size_t(4), parser.timeSteps().size());
-    EXPECT_EQ("1993-02-23", timeSteps[0].toString(dateFormat).toStdString());
-    EXPECT_EQ("1993-06-15", timeSteps[1].toString(dateFormat).toStdString());
-    EXPECT_EQ("1994-02-26", timeSteps[2].toString(dateFormat).toStdString());
-    EXPECT_EQ("1994-05-23", timeSteps[3].toString(dateFormat).toStdString());
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
+
+    ASSERT_EQ(size_t(4), timeSteps.size());
+    EXPECT_EQ("1993-02-23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
+    EXPECT_EQ("1993-06-15", timeSteps[1].toString(parseOptions.dateFormat).toStdString());
+    EXPECT_EQ("1994-02-26", timeSteps[2].toString(parseOptions.dateFormat).toStdString());
+    EXPECT_EQ("1994-05-23", timeSteps[3].toString(parseOptions.dateFormat).toStdString());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,9 +50,11 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
 {
-    QString dateFormat = "yy.MM.dd";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::Norwegian;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yy.MM.dd";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -57,12 +64,15 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
     out << "94.02.26" << "\t" << "30"  << "\t" << "3"  << "\n";
     out << "94.05.23" << "\t" << "40"  << "\t" << "4"  << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
 
-    std::vector<QDateTime> timeSteps = parser.timeSteps();
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    ASSERT_EQ(size_t(4), parser.timeSteps().size());
-    EXPECT_EQ("93.02.23", timeSteps[0].toString(dateFormat).toStdString());
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
+
+    ASSERT_EQ(size_t(4), timeSteps.size());
+    EXPECT_EQ("93.02.23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,9 +80,11 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
 {
-    QString dateFormat = "dd.MM.yy";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::Norwegian;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "dd.MM.yy";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -82,12 +94,14 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
     out << "26.02.94" << "\t" << "30"  << "\t" << "3"  << "\n";
     out << "23.05.94" << "\t" << "40"  << "\t" << "4"  << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    std::vector<QDateTime> timeSteps = parser.timeSteps();
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
 
-    ASSERT_EQ(size_t(4), parser.timeSteps().size());
-    EXPECT_EQ("23.02.93", timeSteps[0].toString(dateFormat).toStdString());
+    ASSERT_EQ(size_t(4), timeSteps.size());
+    EXPECT_EQ("23.02.93", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,9 +109,12 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian)
 {
-    QString dateFormat = "yy.MM.dd";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::Norwegian;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yy.MM.dd";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.decimalSeparator = ",";
+    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -107,10 +124,14 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian)
     out << "94.02.26" << "\t" << "30,2" << "\t" << "3,09" << "\n";
     out << "94.05.23" << "\t" << "40,8" << "\t" << "4,44" << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
 
-    std::vector<double> oilValues = parser.columnValues(0);
-    std::vector<double> pwValues = parser.columnValues(1);
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
+    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
+
+    std::vector<double> oilValues = parser.columnInfo(1)->values;
+    std::vector<double> pwValues = parser.columnInfo(2)->values;
 
     ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);
@@ -131,9 +152,11 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian)
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleC)
 {
-    QString dateFormat = "yy.MM.dd";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::c();
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yy.MM.dd";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.locale = QLocale::c();
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -143,11 +166,16 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleC)
     out << "94.02.26" << "\t" << "30.2"  << "\t" << "3.09" << "\t" << "2.1"  << "\n";
     out << "94.05.23" << "\t" << "40.8"  << "\t" << "4.44" << "\t" << "1.0"  << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
 
-    std::vector<double> oilValues = parser.columnValues(0);
-    std::vector<double> pwValues = parser.columnValues(1);
-    std::vector<double> h2sValues = parser.columnValues(2);
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
+    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
+    ASSERT_TRUE(parser.columnInfo(3) != nullptr);
+
+    std::vector<double> oilValues = parser.columnInfo(1)->values;
+    std::vector<double> pwValues = parser.columnInfo(2)->values;
+    std::vector<double> h2sValues = parser.columnInfo(3)->values;
 
     ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);
@@ -173,9 +201,11 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleC)
 //--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
 {
-    QString dateFormat = "yy.MM.dd";
-    QString cellSeparator = ",";
-    QLocale decimalLocale = QLocale::c();
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yy.MM.dd";
+    parseOptions.cellSeparator = ",";
+    parseOptions.locale = QLocale::c();
+    parseOptions.timeSeriesColumnName = "Date";
 
     QString data;
     QTextStream out(&data);
@@ -186,10 +216,14 @@ TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
     out << "94.02.26" << "," << "30.2"  << "," << "3.09" << "\n";
     out << "94.05.23" << "," << "40.8"  << "," << "4.44" << "\n";
 
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
 
-    std::vector<double> oilValues = parser.columnValues(0);
-    std::vector<double> pwValues = parser.columnValues(1);
+    ASSERT_TRUE(parser.parse(parseOptions));
+    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
+    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
+
+    std::vector<double> oilValues = parser.columnInfo(1)->values;
+    std::vector<double> pwValues = parser.columnInfo(2)->values;
 
     ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);

@@ -16,7 +16,6 @@ ${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.h
-${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseUserDataParserTools.h
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.h
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.h
@@ -63,7 +62,6 @@ ${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.cpp
-${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUserDataParserTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.cpp

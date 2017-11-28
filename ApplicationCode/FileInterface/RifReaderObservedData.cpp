@@ -18,8 +18,10 @@
 
 #include "RifReaderObservedData.h"
 
-#include "RifColumnBasedAsciiParser.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifCsvUserDataParser.h"
+
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include <QDateTime>
 #include <QTextStream>
@@ -47,9 +49,10 @@ bool RifReaderObservedData::open(const QString& headerFileName,
                                  const QString& identifierName,
                                  RifEclipseSummaryAddress::SummaryVarCategory summaryCategory)
 {
-    QString dateFormat = "yyyy-MM-dd";
-    QString cellSeparator = "\t";
-    QLocale decimalLocale = QLocale::Norwegian;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat = "yyyy-MM-dd";
+    parseOptions.cellSeparator = "\t";
+    parseOptions.locale = QLocale::Norwegian;
 
     QString data;
     QTextStream out(&data);
@@ -60,27 +63,29 @@ bool RifReaderObservedData::open(const QString& headerFileName,
     out << "1994-05-23" << "\t" << "40" << "\t" << "4" << "\n";
 
 
-    m_asciiParser = std::unique_ptr<RifColumnBasedAsciiParser>(new RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator));
+    m_asciiParser = std::unique_ptr<RifCsvUserDataParser>(new RifCsvUserDataPastedTextParser(data));
 
     m_timeSteps.clear();
-    if (m_asciiParser)
+    if (m_asciiParser->parse(parseOptions))
     {
-        for (QDateTime timeStep : m_asciiParser->timeSteps())
+        if (m_asciiParser && m_asciiParser->dateTimeColumn())
         {
-            time_t t = timeStep.toTime_t();
-            m_timeSteps.push_back(t);
+            for (QDateTime timeStep : m_asciiParser->dateTimeColumn()->dateTimeValues)
+            {
+                time_t t = timeStep.toTime_t();
+                m_timeSteps.push_back(t);
+            }
+
+            m_allResultAddresses.clear();
+            for (auto s : m_asciiParser->tableData().columnInfos())
+            {
+                m_allResultAddresses.push_back(s.summaryAddress);
+            }
         }
 
-        m_allResultAddresses.clear();
-        for (auto s : m_asciiParser->headers())
-        {
-            m_allResultAddresses.push_back(address(s, identifierName, summaryCategory));
-        }
+        return true;
     }
-
-    if (!m_asciiParser) return false;
-
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,9 +105,13 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 
     if (columnIndex != m_allResultAddresses.size())
     {
-        for (auto& v : m_asciiParser->columnValues(columnIndex))
+        const ColumnInfo* col = m_asciiParser->columnInfo(columnIndex);
+        if (col && col->dataType == ColumnInfo::NUMERIC)
         {
-            values->push_back(v);
+            for (auto& v : col->values)
+            {
+                values->push_back(v);
+            }
         }
     }
 

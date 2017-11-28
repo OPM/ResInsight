@@ -29,8 +29,6 @@
 #include "RimAsciiDataCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-#include "RifColumnBasedAsciiParser.h"
-
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -84,35 +82,39 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
     QString text = getPastedData();
 
     RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
+    caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
     if (!summaryPlot) pasteOptions.createNewPlot();
     pasteOptions.setUiModePasteText(text);
-    caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
     if (propertyDialog.exec() != QDialog::Accepted) return;
 
-    if (!summaryPlot)
-    {
-        RimSummaryPlotCollection* summaryPlotCollection = nullptr;
-        destinationObject->firstAncestorOrThisOfType(summaryPlotCollection);
-        if (!summaryPlotCollection)
-        {
-            return;
-        }
-        summaryPlot = createSummaryPlotAndAddToPlotCollection(summaryPlotCollection);
-    }
-
-    caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
-
     std::vector<RimAsciiDataCurve*> curves = parseCurves(text, pasteOptions);
-    
-    for (RimAsciiDataCurve* curve : curves)
-    {
-        summaryPlot->addAsciiDataCruve(curve);
-    }
 
-    summaryPlot->updateConnectedEditors();
-    summaryPlot->loadDataAndUpdate();
+    if (curves.size() > 0)
+    {
+        if (!summaryPlot)
+        {
+            RimSummaryPlotCollection* summaryPlotCollection = nullptr;
+            destinationObject->firstAncestorOrThisOfType(summaryPlotCollection);
+            if (!summaryPlotCollection)
+            {
+                return;
+            }
+            summaryPlot = createSummaryPlotAndAddToPlotCollection(summaryPlotCollection);
+            summaryPlotCollection->updateConnectedEditors();
+        }
+
+        caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
+
+        for (RimAsciiDataCurve* curve : curves)
+        {
+            summaryPlot->addAsciiDataCruve(curve);
+        }
+
+        summaryPlot->updateConnectedEditors();
+        summaryPlot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,9 +164,14 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 {
     std::vector<RimAsciiDataCurve*> curves;
     const AsciiDataParseOptions& parseOptions = settings.parseOptions();
-    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, parseOptions.dateTimeFormat, parseOptions.locale, parseOptions.cellSeparator);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
     
-    if (parser.headers().empty())
+    if (!parser.parse(parseOptions))
+    {
+        return curves;
+    }
+
+    if (parser.tableData().columnInfos().empty() || !parser.dateTimeColumn())
     {
         return curves;
     }
@@ -173,24 +180,27 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 
     QString curvePrefix = parseOptions.curvePrefix;
 
-    for (size_t i = 0; i < parser.headers().size(); i++)
+    for (size_t i = 0; i < parser.tableData().columnInfos().size(); i++)
     {
+        const ColumnInfo* col = parser.columnInfo(i);
+        if (col->dataType != ColumnInfo::NUMERIC) continue;
+
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
-        curve->setTimeSteps(parser.timeSteps());
-        curve->setValues(parser.columnValues(i));
+        curve->setTimeSteps(parser.dateTimeColumn()->dateTimeValues);
+        curve->setValues(parser.columnInfo(i)->values);
         if (curvePrefix.isEmpty())
         {
-            curve->setTitle(parser.headers()[i]);
+            curve->setTitle(QString::fromStdString(col->columnName()));
         }
         else
         {
-            curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(parser.headers()[i]));
+            curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(QString::fromStdString(col->columnName())));
         }
         // Appearance
         curve->setSymbol(parseOptions.curveSymbol);
         curve->setLineStyle(parseOptions.curveLineStyle);
         curve->setSymbolSkipDinstance(parseOptions.curveSymbolSkipDistance);
-        curveToTypeMap[guessCurveType(parser.headers()[i])].push_back(curve);
+        curveToTypeMap[guessCurveType(QString::fromStdString(col->columnName()))].push_back(curve);
         curves.push_back(curve);
     }
 
