@@ -54,9 +54,13 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
         line->setLineStyle(QwtPlotMarker::HLine);
         line->setLinePen(curvePen);
         line->setYValue(yPositions[i].first);
-        QString name = "Top ";
-        name += names[i];
 
+        QString name = names[i];
+        if (names[i].toLower().indexOf("top") == -1)
+        {
+            name += " top";
+        }
+        
         line->setLabel(name);
         line->setLabelAlignment(Qt::AlignRight | Qt::AlignBottom);
 
