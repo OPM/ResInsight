@@ -20,6 +20,7 @@
 
 #include "RimEclipseResultCase.h"
 
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseOutputFileTools.h"
@@ -219,9 +220,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
         QString rftFile = fileSplitOnDot[0] + ".RFT";
         std::string rftFileStdString = rftFile.toStdString();
         
-        if (std::ifstream(rftFileStdString.c_str()))
+        std::ifstream inputStream(rftFileStdString.c_str());
+        if (!inputStream.fail())
         {
+            RiaLogging::info(QString("File '%1' found, creating reader").arg(rftFileStdString.c_str()));
             m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
+        }
+        else
+        {
+            RiaLogging::warning(QString("Could not find file '%1'").arg(rftFileStdString.c_str()));
         }
     }
 

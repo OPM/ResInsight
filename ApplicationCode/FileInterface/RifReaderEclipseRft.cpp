@@ -18,6 +18,7 @@
 
 #include "RifReaderEclipseRft.h"
 
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
 #include "cafVecIjk.h"
@@ -46,9 +47,15 @@ void RifReaderEclipseRft::open()
 {
     if (m_fileName.empty()) return;
 
+    RiaLogging::info(QString("Opening file '%1'").arg(m_fileName.c_str()));
+
     m_ecl_rft_file = ecl_rft_file_alloc_case(m_fileName.data());
 
-    if (m_ecl_rft_file == NULL) return;
+    if (m_ecl_rft_file == NULL)
+    {
+        RiaLogging::warning(QString("Libecl could not find/open file '%'").arg(m_fileName.c_str()));
+        return;
+    }
 
     int fileSize = ecl_rft_file_get_size(m_ecl_rft_file);
 
