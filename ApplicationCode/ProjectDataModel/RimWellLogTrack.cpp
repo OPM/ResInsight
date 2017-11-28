@@ -1159,14 +1159,6 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesFromCase()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateFormationNamesOnPlot()
 {
     removeFormationNames();
@@ -1181,6 +1173,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     std::vector<QString> formationNamesToPlot;
     std::vector<std::pair<double, double>> yValues;
 
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+
     if (m_formationSource == CASE)
     {
         if ((m_formationSimWellName == QString("None") && m_formationWellPath == nullptr) || m_formationCase == nullptr) return;
@@ -1190,11 +1185,10 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
         RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
 
-
         CurveSamplingPointData curveData;
 
-        RigEclipseWellLogExtractor* eclWellLogExtractor;
-        RigGeoMechWellLogExtractor* geoMechWellLogExtractor;
+        RigEclipseWellLogExtractor* eclWellLogExtractor = nullptr;
+        RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
 
         if (m_formationTrajectoryType == SIMULATION_WELL)
         {
@@ -1232,9 +1226,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                 RigFemResultAddress(RIG_FORMATION_NAMES, activeFormationNamesResultName, ""));
         }
 
-        RimWellLogPlot* plot;
-        firstAncestorOrThisOfTypeAsserted(plot);
-
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector(m_formationCase);
 
         RimWellLogTrack::findFormationNamesToPlot(curveData,
@@ -1246,6 +1237,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     else
     {
         if (m_formationWellPath == nullptr) return;
+        if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
 
         std::vector<double> topYValues;
 

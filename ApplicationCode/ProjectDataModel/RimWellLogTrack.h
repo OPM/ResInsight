@@ -148,8 +148,6 @@ private:
 
     void setFormationFieldsUiReadOnly(bool readOnly = true);
 
-    void updateFormationNamesFromCase();
-    void updateFormationNamesFromWellPath();
     void updateFormationNamesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
