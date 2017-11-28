@@ -97,11 +97,11 @@ const ColumnInfo* RifCsvUserDataParser::dateTimeColumn() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo(const QString& cellSeparator)
+bool RifCsvUserDataParser::parseColumnInfo(const AsciiDataParseOptions& parseOptions)
 {
     QTextStream* dataStream = openDataStream();
     std::vector<ColumnInfo> columnInfoList;
-    bool result = parseColumnInfo(dataStream, cellSeparator, &columnInfoList);
+    bool result = parseColumnInfo(dataStream, parseOptions, &columnInfoList);
 
     if (result)
     {
@@ -114,7 +114,7 @@ bool RifCsvUserDataParser::parseColumnInfo(const QString& cellSeparator)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSeparator)
+QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOptions& parseOptions)
 {
     QTextStream *stream = openDataStream();
 
@@ -124,6 +124,7 @@ QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSepa
     QTextStream outStream(&preview);
     int iLine = 0;
     bool header = true;
+    int timeColumnIndex = -1;
 
     outStream << "<Table>";
     outStream << "<Style> th, td {padding-right: 15px;} </Style>";
@@ -134,11 +135,25 @@ QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSepa
         if (line.isEmpty()) continue;
 
         outStream << "<tr>";
-        for (const QString& cellData : splitLineAndTrim(line, cellSeparator))
+        int iCol = 0;
+        for (const QString& cellData : splitLineAndTrim(line, parseOptions.cellSeparator))
         {
-            outStream << (header ? "<th>" : "<td>");
+            if (cellData == parseOptions.timeSeriesColumnName && header)
+            {
+                timeColumnIndex = iCol;
+            }
+            
+            outStream << (header ? "<th" : "<td");
+
+            if (iCol == timeColumnIndex)
+            {
+                outStream << " style=\"background-color: #FFFFD0;\"";
+            }
+            outStream << ">";
             outStream << cellData;
             outStream << (header ? "</th>" : "</td>");
+
+            iCol++;
         }
         outStream << "</tr>";
 
@@ -149,13 +164,13 @@ QString RifCsvUserDataParser::previewText(int lineCount, const QString& cellSepa
     outStream << "</Table>";
 
     closeDataStream();
-    return columnifyText(preview, cellSeparator);
+    return columnifyText(preview, parseOptions.cellSeparator);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const QString& cellSeparator, std::vector<ColumnInfo>* columnInfoList)
+bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<ColumnInfo>* columnInfoList)
 {
     bool headerFound = false;
 
@@ -167,7 +182,7 @@ bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const QStrin
         QString line = dataStream->readLine();
         if (line.trimmed().isEmpty()) continue;
 
-        QStringList lineColumns = splitLineAndTrim(line, cellSeparator);
+        QStringList lineColumns = splitLineAndTrim(line, parseOptions.cellSeparator);
 
         int colCount = lineColumns.size();
 
@@ -198,7 +213,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
     QTextStream* dataStream = openDataStream();
 
     // Parse header
-    if (!parseColumnInfo(dataStream, parseOptions.cellSeparator, &columnInfoList))
+    if (!parseColumnInfo(dataStream, parseOptions, &columnInfoList))
     {
         m_errorText->append("CSV import: Failed to parse header columns");
         return false;

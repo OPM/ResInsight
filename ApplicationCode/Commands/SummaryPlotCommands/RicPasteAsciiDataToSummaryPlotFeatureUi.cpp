@@ -335,9 +335,9 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::P
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_cellSeparator)
+    if (changedField == &m_cellSeparator || changedField == &m_timeSeriesColumnName)
     {
-        m_previewText = m_parser->previewText(PREVIEW_TEXT_LINE_COUNT, mapCellSeparator(m_cellSeparator()));
+        m_previewText = m_parser->previewText(PREVIEW_TEXT_LINE_COUNT, parseOptions());
     }
 }
 
@@ -360,11 +360,11 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
         }
     }
 
-    parser->parseColumnInfo(parseOptions().cellSeparator);
+    parser->parseColumnInfo(parseOptions());
     if (parser->tableData().columnInfos().size() > 0)
     {
         m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].columnName());
     }
 
-    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT, cellSep);
+    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT, parseOptions());
 }

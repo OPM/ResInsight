@@ -49,8 +49,8 @@ public:
     const ColumnInfo*   columnInfo(size_t columnIndex) const;
     const ColumnInfo*   dateTimeColumn() const;
 
-    bool                parseColumnInfo(const QString& cellSeparator);
-    QString             previewText(int lineCount, const QString& cellSeparator);
+    bool                parseColumnInfo(const AsciiDataParseOptions& parseOptions);
+    QString             previewText(int lineCount, const AsciiDataParseOptions& parseOptions);
 
     QString             tryDetermineCellSeparator();
     QString             tryDetermineDecimalSeparator(const QString& cellSeparator);
@@ -63,7 +63,7 @@ protected:
 
 private:
     bool                parseColumnInfo(QTextStream* dataStream,
-                                        const QString& cellSeparator,
+                                        const AsciiDataParseOptions& parseOptions,
                                         std::vector<ColumnInfo>* columnInfoList);
     bool                parseData(const AsciiDataParseOptions& parseOptions);
     QString             columnifyText(const QString& text, const QString& cellSeparator);
