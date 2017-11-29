@@ -803,16 +803,6 @@ cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiuViewer::lastPickedObject() const
-{
-    CVF_ASSERT(m_viewerCommands);
-
-    return m_viewerCommands->currentPickedObject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
 {
     int translatedMousePosX = winPosX;
