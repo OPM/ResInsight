@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSnapshotViewToClipboardFeature.h"
+#include "RicGridStatisticsDialog.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -38,6 +39,34 @@
 
 
 CAF_CMD_SOURCE_INIT(RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToClipboardFeature::copyToClipboard(const QImage& image)
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
+    {
+        clipboard->setImage(image);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QIcon RicSnapshotViewToClipboardFeature::icon()
+{
+    return QIcon(":/SnapShot.png");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicSnapshotViewToClipboardFeature::text()
+{
+    return "Snapshot To Clipboard";
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -75,6 +104,6 @@ void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Snapshot To Clipboard");
-    actionToSetup->setIcon(QIcon(":/SnapShot.png"));
+    actionToSetup->setText(text());
+    actionToSetup->setIcon(icon());
 }

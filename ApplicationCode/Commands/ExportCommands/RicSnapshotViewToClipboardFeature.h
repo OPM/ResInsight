@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimViewWindow;
+class QImage;
 
 //==================================================================================================
 /// 
@@ -28,6 +29,11 @@ class RimViewWindow;
 class RicSnapshotViewToClipboardFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void copyToClipboard(const QImage& image);
+    static QIcon icon();
+    static QString text();
 
 protected:
     // Overrides

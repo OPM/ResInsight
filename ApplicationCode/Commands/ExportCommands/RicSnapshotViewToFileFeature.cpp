@@ -49,18 +49,74 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimVi
     if (viewWindow)
     {
         QImage image = viewWindow->snapshotWindowContent();
-        if (!image.isNull())
+        saveSnapshotAs(fileName, image);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, const QImage& image)
+{
+    if (!image.isNull())
+    {
+        if (image.save(fileName))
         {
-            if (image.save(fileName))
-            {
-                RiaLogging::info(QString("Exported snapshot image to %1").arg(fileName));
-            }
-            else
-            {
-                RiaLogging::error(QString("Error when trying to export snapshot image to %1").arg(fileName));
-            }
+            RiaLogging::info(QString("Exported snapshot image to %1").arg(fileName));
+        }
+        else
+        {
+            RiaLogging::error(QString("Error when trying to export snapshot image to %1").arg(fileName));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString& defaultFileBaseName)
+{
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* proj = app->project();
+
+    QString startPath;
+    if (!proj->fileName().isEmpty())
+    {
+        QFileInfo fi(proj->fileName());
+        startPath = fi.absolutePath();
+    }
+    else
+    {
+        startPath = app->lastUsedDialogDirectory("IMAGE_SNAPSHOT");
+    }
+
+    QString defaultAbsFileName = caf::Utils::constructFullFileName(startPath, defaultFileBaseName, ".png");
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), defaultAbsFileName);
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+
+    // Remember the directory to next time
+    app->setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
+
+    RicSnapshotViewToFileFeature::saveSnapshotAs(fileName, image);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QIcon RicSnapshotViewToFileFeature::icon()
+{
+    return QIcon(":/SnapShotSave.png");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicSnapshotViewToFileFeature::text()
+{
+    return "Snapshot To File";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +133,6 @@ bool RicSnapshotViewToFileFeature::isCommandEnabled()
 void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
 
     // Get active view window before displaying the file selection dialog
     // If this is done after the file save dialog is displayed (and closed)
@@ -90,29 +145,8 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    QString startPath;
-    if (!proj->fileName().isEmpty())
-    {
-        QFileInfo fi(proj->fileName());
-        startPath = fi.absolutePath();
-    }
-    else
-    {
-        startPath = app->lastUsedDialogDirectory("IMAGE_SNAPSHOT");
-    }
-
-    startPath = caf::Utils::constructFullFileName(startPath, RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow), ".png");
-
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath);
-    if (fileName.isEmpty())
-    {
-        return;
-    }
-
-    // Remember the directory to next time
-    app->setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
-
-    RicSnapshotViewToFileFeature::saveSnapshotAs(fileName, viewWindow);
+    QImage image = viewWindow->snapshotWindowContent();
+    saveToFile(image, RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +154,6 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Snapshot To File");
-    actionToSetup->setIcon(QIcon(":/SnapShotSave.png"));
+    actionToSetup->setText(text());
+    actionToSetup->setIcon(icon());
 }

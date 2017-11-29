@@ -20,6 +20,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "cafPdmPointer.h"
+
 #include <QDialog>
 
 class QLabel;
@@ -27,6 +29,8 @@ class QTextEdit;
 class QDialogButtonBox;
 class QwtPlot;
 class QwtPlotMarker;
+class QMainWindow;
+class QToolBar;
 class RimEclipseView;
 
 //==================================================================================================
@@ -42,10 +46,14 @@ public:
     ~RicGridStatisticsDialog();
 
     void                    setLabel(const QString& labelText);
+    void                    setCurrentRimView(RimView* rimView);
+
+private:
     void                    setInfoText(RimView* eclipseView);
     void                    setHistogramData(RimView* eclipseView);
 
 private:
+    void                    createAndConnectToolbarActions();
     void                    deletePlotItems(QwtPlot* plot);
     static void             setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot);
     static QwtPlotMarker*   createVerticalPlotMarker(const QColor& color, double xValue);
@@ -53,11 +61,17 @@ private:
 
 private slots:
     void slotDialogFinished();
+    void screenShotToClipboard();
+    void screenShotToFile();
 
 private:
+    QToolBar*                           m_toolBar;
+    QWidget*                            m_mainViewWidget;
     QLabel*                             m_label;
     QTextEdit*                          m_textEdit;
     QwtPlot*                            m_historgramPlot;
     QwtPlot*                            m_aggregatedPlot;
     QDialogButtonBox*                   m_buttons;
+
+    caf::PdmPointer<RimView>            m_currentRimView;
 };

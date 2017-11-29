@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimViewWindow;
+class QImage;
 
 //==================================================================================================
 /// 
@@ -31,6 +32,10 @@ class RicSnapshotViewToFileFeature : public caf::CmdFeature
 
 public:
     static void saveSnapshotAs(const QString& fileName, RimViewWindow* viewWindow);
+    static void saveSnapshotAs(const QString& fileName, const QImage& image);
+    static void saveToFile(const QImage& image, const QString& defaultFileBaseName = "image");
+    static QIcon icon();
+    static QString text();
 
 protected:
     // Overrides
