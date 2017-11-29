@@ -96,7 +96,7 @@ public:
 
     void            hideAllDockWindows();
 
-    void            selectAsCurrentItem(caf::PdmObject* object);
+    void            selectAsCurrentItem(const caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 

@@ -166,7 +166,7 @@ void PdmUiTreeView::enableSelectionManagerUpdating(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectAsCurrentItem(PdmUiItem* uiItem)
+void PdmUiTreeView::selectAsCurrentItem(const PdmUiItem* uiItem)
 {
     m_treeViewEditor->selectAsCurrentItem(uiItem);
 }

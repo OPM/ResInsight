@@ -1545,7 +1545,7 @@ void RiuMainWindow::showProcessMonitorDockPanel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
+void RiuMainWindow::selectAsCurrentItem(const caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
 }

@@ -309,7 +309,7 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::selectAsCurrentItem(PdmUiItem* uiItem)
+void PdmUiTreeViewEditor::selectAsCurrentItem(const PdmUiItem* uiItem)
 {
     QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
     m_treeView->setCurrentIndex(index);
