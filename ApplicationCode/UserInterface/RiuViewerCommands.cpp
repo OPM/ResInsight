@@ -239,14 +239,13 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                  menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "K-slice Range Filter", kSliceList);
             }
 
-            if (menu.actions().size() > 0) menu.addSeparator();
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewPolylineIntersectionFeature"));
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewAzimuthDipIntersectionFeature"));
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxAtPosFeature"));
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
-            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxZSliceFeature"));
-            menu.addSeparator();
+            menuBuilder << "RicNewPolylineIntersectionFeature";
+            menuBuilder << "RicNewAzimuthDipIntersectionFeature";
+            menuBuilder << "RicIntersectionBoxAtPosFeature";
+            menuBuilder << "RicIntersectionBoxXSliceFeature";
+            menuBuilder << "RicIntersectionBoxYSliceFeature";
+            menuBuilder << "RicIntersectionBoxZSliceFeature";
+            menuBuilder.addSeparator();
 
 
             menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
@@ -259,7 +258,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
                 if (fault)
                 {
-                    menu.addSeparator();
+                    menuBuilder.addSeparator();
 
                     QString faultName = fault->name();
 
