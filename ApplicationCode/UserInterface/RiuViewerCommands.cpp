@@ -24,7 +24,6 @@
 
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
-#include "RicRangeFilterNewExec.h"
 #include "RicViewerEventInterface.h"
 #include "WellPathCommands/RicIntersectionViewerEventHandler.h"
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
@@ -144,13 +143,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     int winPosY = event->y();
 
     QMenu menu;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
     cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
 
-    cvf::Part* firstHitPart = NULL;
-    cvf::Part* nncFirstHitPart = NULL;
+    cvf::Part* firstHitPart = nullptr;
+    cvf::Part* nncFirstHitPart = nullptr;
 
     m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
@@ -210,15 +210,29 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             // IJK -slice commands
 
-            RimViewController* viewController = NULL;
+            RimViewController* viewController = nullptr;
             if (m_reservoirView) viewController = m_reservoirView->viewController();    
 
             if (!viewController || !viewController->isRangeFiltersControlled())
             {
-                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+                size_t i, j, k;
+                ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
+                QVariantList iSliceList;
+                iSliceList.push_back(0);
+                iSliceList.push_back(CVF_MAX(static_cast<int>(i + 1), 1));
+                    
+                QVariantList jSliceList;
+                jSliceList.push_back(1); 
+                jSliceList.push_back(CVF_MAX(static_cast<int>(j + 1), 1));
+
+                QVariantList kSliceList;
+                kSliceList.push_back(2); 
+                kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
+
+                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "I-slice Range Filter", iSliceList);
+                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "J-slice Range Filter", jSliceList);
+                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "K-slice Range Filter", kSliceList);
             }
 
             if (menu.actions().size() > 0) menu.addSeparator();
@@ -238,7 +252,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
                 if (cellColors)
                 {
-                    QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this);
+                    QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add Property Filter"), this);
                     connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
 
                     bool isPerCellFaceResult = RiaDefines::isPerCellFaceResult(cellColors->resultVariable());
@@ -272,14 +286,13 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 {
                      if (!viewController || !viewController->isPropertyFilterOveridden())
                     {
-                        menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                        menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
                     }
                 }
             }
         }
     }
 
-    caf::CmdFeatureMenuBuilder menuBuilder;
 
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
@@ -372,64 +385,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Todo: Move this to a command instead
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotRangeFilterI()
-{
-    createSliceRangeFilter(0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotRangeFilterJ()
-{
-    createSliceRangeFilter(1);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotRangeFilterK()
-{
-    createSliceRangeFilter(2);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
-{
-    RimView* eclipseView = m_reservoirView.p();
-    if (!eclipseView) return;
-
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
-
-    RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
-
-    if (ijOrk == 0){
-        filterExec->m_iSlice = true;
-        filterExec->m_iSliceStart = CVF_MAX(static_cast<int>(i + 1), 1);
-    }
-    else if (ijOrk == 1){
-        filterExec->m_jSlice = true;
-        filterExec->m_jSliceStart = CVF_MAX(static_cast<int>(j + 1), 1);
-
-    }
-    else if (ijOrk == 2){
-        filterExec->m_kSlice = true;
-        filterExec->m_kSliceStart = CVF_MAX(static_cast<int>(k + 1), 1);
-    }
-
-    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
-
-    eclipseView->setSurfaceDrawstyle();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::slotHideFault()
@@ -519,10 +474,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
     // Extract all the above information from the pick
     {
-        cvf::Part* firstHitPart = NULL;
+        cvf::Part* firstHitPart = nullptr;
         uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
 
-        cvf::Part* firstNncHitPart = NULL;
+        cvf::Part* firstNncHitPart = nullptr;
         uint nncPartTriangleIndex = cvf::UNDEFINED_UINT;
 
         cvf::HitItemCollection hitItems;
@@ -633,7 +588,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             curveColor = colorTable.cycledColor3f(0);
         }
 
-        RiuSelectionItem* selItem = NULL;
+        RiuSelectionItem* selItem = nullptr;
         {
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
@@ -750,7 +705,7 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
         }
     }
 
-    const cvf::HitItem* firstNonNncHitItem = NULL;
+    const cvf::HitItem* firstNonNncHitItem = nullptr;
     cvf::Vec3d firstItemIntersectionPoint = hitItems.item(0)->intersectionPoint();
 
     // Check if we have a close hit item with NNC data
@@ -888,7 +843,7 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 
     if (pickedOverlayItem)
     {
-        caf::PdmObject* objToSelect = NULL;
+        caf::PdmObject* objToSelect = nullptr;
 
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
         if (eclipseView)

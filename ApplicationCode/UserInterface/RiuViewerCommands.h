@@ -62,9 +62,6 @@ public:
     caf::PdmObject* currentPickedObject() const;
 
 private slots:
-    void            slotRangeFilterI();
-    void            slotRangeFilterJ();
-    void            slotRangeFilterK();
     void            slotHideFault();
     void            slotAddEclipsePropertyFilter();
     void            slotAddGeoMechPropertyFilter();
@@ -75,7 +72,6 @@ private:
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Vec3d* globalIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);

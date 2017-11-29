@@ -29,6 +29,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
@@ -102,6 +103,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
