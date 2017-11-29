@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator(const RimIntersection* crossSection,
+RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimIntersection* crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                     const cvf::Vec3d& extrusionDirection, 
                                                                     const RivIntersectionHexGridInterface* grid)
@@ -280,7 +280,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_triangleVxes.notNull());
 
-    if (m_triangleVxes->size() == 0) return NULL;
+    if (m_triangleVxes->size() == 0) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setFromTriangleVertexArray(m_triangleVxes.p());
@@ -294,7 +294,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::generateSurface()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createMeshDrawable()
 {
-    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return NULL;
+    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray(m_cellBorderLineVxes.p());
@@ -342,7 +342,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPoly
         }
     }
 
-    if (vertices.size() == 0) return NULL;
+    if (vertices.size() == 0) return nullptr;
 
     cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray;
     vx->assign(vertices);
@@ -386,7 +386,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPol
         }
     }
 
-    if (vertices.size() == 0) return NULL;
+    if (vertices.size() == 0) return nullptr;
 
     cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_POINTS);
     primSet->setStartIndex(0);
@@ -458,7 +458,7 @@ const cvf::Vec3fArray* RivIntersectionGeometryGenerator::triangleVxes() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
+RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
 {
     return m_crossSection;
 }

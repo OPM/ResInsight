@@ -34,7 +34,7 @@ public:
 
     const std::vector<size_t>& triangleToCellIndex() const;
     std::array<cvf::Vec3f, 3> triangle(int triangleIdx) const;
-    const RimIntersection* crossSection() const;
+    RimIntersection* crossSection() const;
 
 private:
     cvf::cref<RivIntersectionGeometryGenerator> m_crossSectionGeometryGenerator;

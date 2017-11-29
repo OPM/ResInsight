@@ -63,7 +63,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr::RivIntersectionPartMgr(const RimIntersection* rimCrossSection)
+RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection)
     : m_rimCrossSection(rimCrossSection),
     m_defaultColor(cvf::Color3::WHITE)
 {
@@ -94,7 +94,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 
     if (!m_crossSectionGenerator->isAnyGeometryPresent()) return;
 
-    RimEclipseView* eclipseView;
+    RimEclipseView* eclipseView = nullptr;
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
@@ -455,8 +455,8 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
 {
     // Highlight line
 
-    m_highlightLineAlongPolyline = NULL;
-    m_highlightPointsForPolyline = NULL;
+    m_highlightLineAlongPolyline = nullptr;
+    m_highlightPointsForPolyline = nullptr;
 
     if (m_rimCrossSection->type == RimIntersection::CS_POLYLINE || m_rimCrossSection->type == RimIntersection::CS_AZIMUTHLINE)
     {
@@ -763,6 +763,6 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
         return new RivFemIntersectionGrid(femPart);
     }
 
-    return NULL;
+    return nullptr;
 }
 
