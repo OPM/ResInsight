@@ -51,6 +51,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiFieldEditorHelper.h"
 
 
 namespace caf
@@ -101,59 +102,22 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         if (it == m_fieldViews.end())
         {
-            /*
-
-            //Code used to support other editor types than bool
-            //Not tested
-
-            // If editor type is specified, find in factory
-            if (!field->uiEditorTypeName(uiConfigName).isEmpty())
-            {
-                fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-            }
-            else
-            {
-                // Find the default field editor
-
-                QString editorTypeName = qStringTypeName(*field);
-
-                // Handle a single value field with valueOptions: Make a combobox
-
-                QVariant::Type qtType = field->uiValue().type();
-
-                if (field->uiValue().type() != QVariant::List)
-                {
-                    bool useOptionsOnly = true;
-                    QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
-
-                    if (!options.empty())
-                    {
-                        editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-                    }
-                }
-                
-                if (field->uiValue().type() == QVariant::Bool)
-                {
-                    // Special handling of bool values into tool button editors
-                    
-                    editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
-                }
-
-                fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-            }
-            */
-
             caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
 
-            QString editorTypeName;
-            if (uiFieldHandle && uiFieldHandle->uiValue().type() == QVariant::Bool)
+            if (uiFieldHandle)
             {
-                // Special handling of bool values into tool button editors
+                if (uiFieldHandle->uiValue().type() == QVariant::Bool)
+                {
+                    // Special handling of bool values into tool button editors
 
-                editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
+                    QString editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
+                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
+                }
+                else
+                {
+                    fieldEditor = caf::PdmUiFieldEditorHelper::fieldEditorForField(field->uiCapability(), uiConfigName);
+                }
             }
-
-            fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
 
             if (fieldEditor)
             {
@@ -164,7 +128,6 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                 fieldEditor->setField(uiFieldHandle);
                 fieldEditor->updateUi(uiConfigName);
             }
-
         }
     }
 
@@ -197,14 +160,6 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
 void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
 {
     clear();
-
-    for (size_t i = 0; i < fields.size(); i++)
-    {
-        caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
-
-        // Supports only bool fields
-        CAF_ASSERT(uiFieldHandle->uiValue().type() == QVariant::Bool);
-    }
 
     m_fields = fields;
 }
