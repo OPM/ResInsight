@@ -136,7 +136,8 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
 
         outStream << "<tr>";
         int iCol = 0;
-        for (const QString& cellData : splitLineAndTrim(line, parseOptions.cellSeparator))
+        QStringList cols = splitLineAndTrim(line, parseOptions.cellSeparator);
+        for (const QString& cellData : cols)
         {
             if (cellData == parseOptions.timeSeriesColumnName && header)
             {
@@ -151,6 +152,10 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
             }
             outStream << ">";
             outStream << cellData;
+            if (iCol < cols.size() - 1 && (parseOptions.cellSeparator == ";" || parseOptions.cellSeparator == ","))
+            {
+                outStream << parseOptions.cellSeparator;
+            }
             outStream << (header ? "</th>" : "</td>");
 
             iCol++;
@@ -164,7 +169,7 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
     outStream << "</Table>";
 
     closeDataStream();
-    return columnifyText(preview, parseOptions.cellSeparator);
+    return preview;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,24 +337,6 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
         m_tableData = td;
     }
     return !errors;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::columnifyText(const QString& text, const QString& cellSeparator)
-{
-    QString pretty = text;
-
-    if (!cellSeparator.isEmpty())
-    {
-        if (cellSeparator == ";" || cellSeparator == ",")
-        {
-            pretty = pretty.replace(cellSeparator, QString("\t") + cellSeparator);
-        }
-    }
-
-    return pretty;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -66,7 +66,6 @@ private:
                                         const AsciiDataParseOptions& parseOptions,
                                         std::vector<Column>* columnInfoList);
     bool                parseData(const AsciiDataParseOptions& parseOptions);
-    QString             columnifyText(const QString& text, const QString& cellSeparator);
     static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
     static QDateTime    tryParseDateTime(const std::string& colData, const QString& format);
 
