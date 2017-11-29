@@ -473,7 +473,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 intersectionHit = true;
                 intersectionTriangleHit = crossSectionSourceInfo->triangle(firstPartTriangleIndex);
 
-                RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection()));
+                RiuMainWindow::instance()->selectAsCurrentItem(crossSectionSourceInfo->crossSection());
 
             }
             else if (intersectionBoxSourceInfo)
@@ -482,7 +482,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 intersectionHit = true;
                 intersectionTriangleHit = intersectionBoxSourceInfo->triangle(firstPartTriangleIndex);
 
-                RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox()));
+                RiuMainWindow::instance()->selectAsCurrentItem(intersectionBoxSourceInfo->intersectionBox());
 
             }
             else if (eclipseWellSourceInfo)
