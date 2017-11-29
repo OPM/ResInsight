@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafPdmPointer.h"
+#include "cafPdmObject.h"
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
@@ -107,7 +108,8 @@ public:
         ECLIPSE_SELECTION_OBJECT,
         GEOMECH_SELECTION_OBJECT,
         WELLPATH_SELECTION_OBJECT,
-        SIMWELL_SELECTION_OBJECT
+        SIMWELL_SELECTION_OBJECT,
+        GENERAL_SELECTION_OBJECT
     };
 
 public:
@@ -237,4 +239,26 @@ public:
     RimSimWellInView* m_simWell;
     cvf::Vec3d        m_domainCoord;
     size_t            m_branchIndex;
+};
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuGeneralSelectionItem : public RiuSelectionItem
+{
+public:
+    RiuGeneralSelectionItem(caf::PdmObject* object);
+
+    virtual ~RiuGeneralSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return GENERAL_SELECTION_OBJECT;
+    }
+
+public:
+    caf::PdmObject* m_object;
 };

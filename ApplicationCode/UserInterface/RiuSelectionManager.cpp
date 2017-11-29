@@ -230,3 +230,11 @@ RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimSimWellInView* simwell,
     m_branchIndex(m_branchIndex)
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuGeneralSelectionItem::RiuGeneralSelectionItem(caf::PdmObject* object)
+    : m_object(object)
+{
+}
