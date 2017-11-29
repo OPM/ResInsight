@@ -97,12 +97,13 @@ QAction* CmdFeature::actionWithUserData(const QString& customText, const QVarian
     {
         action = new QAction(this);
 
-        if (!userData.isNull())
-        {
-            action->setData(userData);
-        }
         connect(action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
         m_customTextToActionMap[customText]= action;
+    }
+
+    if (!userData.isNull())
+    {
+        action->setData(userData);
     }
 
     this->setupActionLook(action);
