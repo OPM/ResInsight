@@ -263,7 +263,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     QString faultName = fault->name();
 
                     QVariantList hideFaultList;
-                    hideFaultList.push_back(m_currentCellIndex);
+                    qulonglong currentCellIndex = m_currentCellIndex;
+                    hideFaultList.push_back(currentCellIndex);
                     hideFaultList.push_back(m_currentFaceIndex);
 
                     menuBuilder.addCmdFeatureWithUserData("RicEclipseHideFaultFeature", QString("Hide ") + faultName, hideFaultList);

@@ -71,7 +71,7 @@ void RicEclipseHideFaultFeature::onActionTriggered(bool isChecked)
         QVariantList list = userData.toList();
         CAF_ASSERT(list.size() == 2);
 
-        size_t currentCellIndex = list[0].toUInt();
+        size_t currentCellIndex = static_cast<size_t>(list[0].toULongLong());
         int currentFaceIndex = list[1].toInt();
 
         const RigFault* fault = eclView->mainGrid()->findFaultFromCellIndexAndCellFace(currentCellIndex, cvf::StructGridInterface::FaceType(currentFaceIndex));
