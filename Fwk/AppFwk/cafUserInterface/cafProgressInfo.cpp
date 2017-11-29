@@ -188,7 +188,7 @@ namespace caf {
         static QPointer<QProgressDialog> progDialog;
         if (progDialog.isNull())
         {
-            progDialog = new QProgressDialog();
+            progDialog = new QProgressDialog(nullptr, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
 
             progDialog->hide();
             progDialog->setAutoClose(false);
