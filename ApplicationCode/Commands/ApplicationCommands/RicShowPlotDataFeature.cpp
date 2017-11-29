@@ -25,6 +25,7 @@
 #include "RimWellLogPlot.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuTools.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -105,7 +106,7 @@ void RiuQPlainTextEdit::slotSelectAll()
 /// 
 //--------------------------------------------------------------------------------------------------
 RicTextWidget::RicTextWidget(QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     m_textEdit = new RiuQPlainTextEdit(this);
     m_textEdit->setReadOnly(true);

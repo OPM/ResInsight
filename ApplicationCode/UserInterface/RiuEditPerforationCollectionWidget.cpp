@@ -20,6 +20,8 @@
 
 #include "RimPerforationCollection.h"
 
+#include "RiuTools.h"
+
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
@@ -37,7 +39,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget* parent, RimPerforationCollection* perforationCollection)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
+    : QDialog(parent, RiuTools::defaultDialogFlags()),
     m_perforationCollection(perforationCollection)
 {
     setWindowTitle("Edit Perforation Intervals");

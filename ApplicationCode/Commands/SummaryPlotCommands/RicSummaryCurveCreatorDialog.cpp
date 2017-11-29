@@ -24,6 +24,7 @@
 #include "RicSummaryCurveCreatorSplitterUi.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuTools.h"
 
 #include <QVBoxLayout>
 
@@ -31,7 +32,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
 

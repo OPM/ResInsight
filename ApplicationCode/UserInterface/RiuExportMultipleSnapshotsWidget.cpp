@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimView.h"
 
+#include "RiuTools.h"
+
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
@@ -51,7 +53,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
+    : QDialog(parent, RiuTools::defaultDialogFlags()),
     m_rimProject(project)
 {
     setWindowTitle("Export Multiple Snapshots");

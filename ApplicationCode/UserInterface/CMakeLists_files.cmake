@@ -63,6 +63,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.h
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.h
+${CEE_CURRENT_LIST_DIR}RiuTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -122,6 +123,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.cpp
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.cpp
+${CEE_CURRENT_LIST_DIR}RiuTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

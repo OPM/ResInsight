@@ -42,8 +42,9 @@
 #include "RimSummaryCalculationCollection.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryCurveDefSelection.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -655,7 +656,12 @@ void RicSummaryCurveCreator::createNewPlot()
         {
             candidatePlotName = QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
             bool ok = false;
-            candidatePlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, candidatePlotName, &ok);
+            candidatePlotName = QInputDialog::getText(NULL,
+                                                      "New Summary Plot Name", "New Summary Plot Name",
+                                                      QLineEdit::Normal,
+                                                      candidatePlotName, 
+                                                      &ok, 
+                                                      RiuTools::defaultDialogFlags());
             if (!ok)
             {
                 return;

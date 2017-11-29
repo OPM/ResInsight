@@ -24,6 +24,8 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculation.h"
 
+#include "RiuTools.h"
+
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QMessageBox>
@@ -32,7 +34,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog(QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     setWindowTitle("Summary Curve Calculator");
     resize(1200, 800);

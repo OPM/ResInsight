@@ -25,26 +25,29 @@
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuTools.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QTextEdit>
-#include <QDialogButtonBox>
-#include <QPushButton>
+#include "qwt_scale_draw.h"
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_histogram.h>
-#include <qwt_series_data.h>
 #include <qwt_plot_marker.h>
+#include <qwt_series_data.h>
 #include <qwt_symbol.h>
+
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QVBoxLayout>
+
 #include <vector>
-#include "qwt_scale_draw.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
     m_label = new QLabel();
