@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiEditorHandle.h"
@@ -47,13 +46,15 @@
 class QToolBar;
 class QMainWindow;
 
-namespace caf 
+namespace caf
 {
-    class PdmUiFieldEditorHandle;
-    class PdmUiItem;
-    class PdmFieldHandle;
+class PdmUiFieldEditorHandle;
+class PdmUiItem;
+class PdmFieldHandle;
 
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class PdmUiToolBarEditor : public PdmUiEditorHandle
 {
 public:
@@ -63,17 +64,16 @@ public:
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
     void clear();
 
-protected:
-    virtual void configureAndUpdateUi(const QString& uiConfigName);
+private:
+    virtual void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
-    QToolBar*   m_toolbar;
+    QPointer<QToolBar> m_toolbar;
 
-    std::vector<caf::PdmFieldHandle*>           m_fields;
-    std::map<QString, PdmUiFieldEditorHandle*>  m_fieldViews;
+    std::vector<caf::PdmFieldHandle*>          m_fields;
+    std::map<QString, PdmUiFieldEditorHandle*> m_fieldViews;
 
-    QList<QAction*>                             m_actions;
+    QList<QAction*> m_actions;
 };
-
 
 } // end namespace caf
