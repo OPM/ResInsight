@@ -257,7 +257,12 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     menu.addSeparator();
 
                     QString faultName = fault->name();
-                    menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
+
+                    QVariantList hideFaultList;
+                    hideFaultList.push_back(m_currentCellIndex);
+                    hideFaultList.push_back(m_currentFaceIndex);
+
+                    menuBuilder.addCmdFeatureWithUserData("RicEclipseHideFaultFeature", QString("Hide ") + faultName, hideFaultList);
                 }
             }
 
@@ -365,27 +370,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     // Delete items in temporary selection
     RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotHideFault()
-{
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if(!eclipseView) return;
-
-    const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-    if (fault)
-    {
-        QString faultName = fault->name();
-
-        RimFaultInView* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
-        if (rimFault)
-        {
-            rimFault->showFault.setValueWithFieldChanged(!rimFault->showFault);
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,7 +62,6 @@ public:
     caf::PdmObject* currentPickedObject() const;
 
 private slots:
-    void            slotHideFault();
     void            slotAddGeoMechPropertyFilter();
     void            slotHideIntersection();
 

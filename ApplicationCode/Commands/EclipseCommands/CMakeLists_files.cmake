@@ -21,7 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseTimeStepFilterFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewInViewFeature.h
-
+${CEE_CURRENT_LIST_DIR}RicEclipseHideFaultFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseTimeStepFilterFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewInViewFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicEclipseHideFaultFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
