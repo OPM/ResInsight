@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -59,18 +59,14 @@
 ///
 //==================================================================================================
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow::RiuMainPlotWindow()
-    : m_activePlotViewWindow(nullptr),
-    m_windowMenu(NULL),
-    m_blockSlotSubWindowActivated(false)
+RiuMainPlotWindow::RiuMainPlotWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(NULL), m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
-    connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
+    connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
     createMenus();
@@ -84,12 +80,11 @@ RiuMainPlotWindow::RiuMainPlotWindow()
 
     // Enabling the line below will activate the undo stack
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
-    //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
-
+    // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiuMainPlotWindow::mainWindowName()
 {
@@ -97,7 +92,7 @@ QString RiuMainPlotWindow::mainWindowName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 {
@@ -113,12 +108,12 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 {
     setPdmRoot(NULL);
-    
+
     if (m_pdmUiPropertyView)
     {
         m_pdmUiPropertyView->showProperties(NULL);
@@ -130,7 +125,7 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::cleanUpTemporaryWidgets()
 {
@@ -144,7 +139,7 @@ void RiuMainPlotWindow::cleanUpTemporaryWidgets()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
@@ -163,13 +158,14 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 
     saveWinGeoAndDockToolBarLayout();
 
-    if (!app->tryCloseMainWindow()) return;
+    if (!app->tryCloseMainWindow())
+        return;
 
     app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createMenus()
 {
@@ -246,7 +242,7 @@ void RiuMainPlotWindow::createMenus()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
 {
@@ -284,7 +280,7 @@ QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createToolBars()
 {
@@ -292,7 +288,10 @@ void RiuMainPlotWindow::createToolBars()
     CVF_ASSERT(cmdFeatureMgr);
 
     QStringList toolbarNames;
-    toolbarNames << "Standard" << "Window Management" << "View Snapshots" << "View";
+    toolbarNames << "Standard"
+                 << "Window Management"
+                 << "View Snapshots"
+                 << "View";
 
     for (QString toolbarName : toolbarNames)
     {
@@ -310,7 +309,7 @@ void RiuMainPlotWindow::createToolBars()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::refreshToolbars()
 {
@@ -320,7 +319,7 @@ void RiuMainPlotWindow::refreshToolbars()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createDockPanels()
 {
@@ -354,11 +353,12 @@ void RiuMainPlotWindow::createDockPanels()
 
         connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
+        connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)),
+                SLOT(customMenuRequested(const QPoint&)));
 
         m_projectTreeView->setUiConfigurationName("PlotWindow");
     }
-    
+
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
         dockWidget->setObjectName("dockWidget");
@@ -367,23 +367,23 @@ void RiuMainPlotWindow::createDockPanels()
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
         dockWidget->setWidget(m_pdmUiPropertyView);
 
-        m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
+        m_pdmUiPropertyView->layout()->setContentsMargins(5, 0, 0, 0);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
 
-    setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 
 QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
-    int i; 
+    int                   i;
     for (i = 0; i < subws.size(); ++i)
     {
         if (subws[i]->widget() == viewer)
@@ -396,15 +396,15 @@ QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QList<QMdiSubWindow*> RiuMainPlotWindow::subWindowList(QMdiArea::WindowOrder order)
 {
-	return m_mdiArea->subWindowList(order);
+    return m_mdiArea->subWindowList(order);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
 {
@@ -414,7 +414,7 @@ void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::removeViewer(QWidget* viewer)
 {
@@ -426,7 +426,7 @@ void RiuMainPlotWindow::removeViewer(QWidget* viewer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
@@ -434,13 +434,13 @@ void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 
-    QSize subWindowSize;
+    QSize  subWindowSize;
     QPoint subWindowPos(-1, -1);
-    bool initialStateMaximized = false;
+    bool   initialStateMaximized = false;
 
     if (windowsGeometry.isValid())
     {
-        subWindowPos = QPoint(windowsGeometry.x, windowsGeometry.y);
+        subWindowPos  = QPoint(windowsGeometry.x, windowsGeometry.y);
         subWindowSize = QSize(windowsGeometry.width, windowsGeometry.height);
 
         initialStateMaximized = windowsGeometry.isMaximized;
@@ -468,7 +468,7 @@ void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     {
         initialStateMaximized = true;
     }
-        
+
     subWin->show();
 
     // Move and resize must be done after window is visible
@@ -499,14 +499,16 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
-    if (!subWindow) return;
+    if (!subWindow)
+        return;
 
-    RimProject * proj = RiaApplication::instance()->project();
-    if (!proj) return;
+    RimProject* proj = RiaApplication::instance()->project();
+    if (!proj)
+        return;
 
     // Select in Project Tree
 
@@ -524,20 +526,21 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
 {
-   m_blockSlotSubWindowActivated = true;
-   
-   QMdiSubWindow * swin = findMdiSubWindow(viewer);
-   if (swin) m_mdiArea->setActiveSubWindow(swin);
-   
-   m_blockSlotSubWindowActivated = false;
+    m_blockSlotSubWindowActivated = true;
+
+    QMdiSubWindow* swin = findMdiSubWindow(viewer);
+    if (swin)
+        m_mdiArea->setActiveSubWindow(swin);
+
+    m_blockSlotSubWindowActivated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeView* RiuMainPlotWindow::projectTreeView()
 {
@@ -545,7 +548,7 @@ caf::PdmUiTreeView* RiuMainPlotWindow::projectTreeView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::slotBuildWindowActions()
 {
@@ -558,7 +561,8 @@ void RiuMainPlotWindow::slotBuildWindowActions()
     {
         if (dock)
         {
-            if (i == 4) m_windowMenu->addSeparator();
+            if (i == 4)
+                m_windowMenu->addSeparator();
             m_windowMenu->addAction(dock->toggleViewAction());
             ++i;
         }
@@ -577,7 +581,7 @@ void RiuMainPlotWindow::slotBuildWindowActions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::selectedObjectsChanged()
 {
@@ -601,22 +605,23 @@ void RiuMainPlotWindow::selectedObjectsChanged()
         {
             toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
         }
-
     }
     m_summaryPlotToolBar->setFields(toolBarFields);
     m_summaryPlotToolBar->updateUi();
 
     if (uiItems.size() == 1)
     {
-        // Find the reservoir view or the Plot that the selected item is within 
+        // Find the reservoir view or the Plot that the selected item is within
 
         if (!firstSelectedObject)
         {
             caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
-            if (selectedField) firstSelectedObject = selectedField->ownerObject();
+            if (selectedField)
+                firstSelectedObject = selectedField->ownerObject();
         }
 
-        if (!firstSelectedObject) return;
+        if (!firstSelectedObject)
+            return;
 
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>(firstSelectedObject);
         if (!selectedWindow)
@@ -624,9 +629,9 @@ void RiuMainPlotWindow::selectedObjectsChanged()
             firstSelectedObject->firstAncestorOrThisOfType(selectedWindow);
         }
 
-        // If we cant find the view window as an MDI sub window, we search higher in the 
+        // If we cant find the view window as an MDI sub window, we search higher in the
         // project tree to find a possible parent view window that has.
-        if (selectedWindow && !findMdiSubWindow(selectedWindow->viewWidget())) 
+        if (selectedWindow && !findMdiSubWindow(selectedWindow->viewWidget()))
         {
             if (selectedWindow->parentField() && selectedWindow->parentField()->ownerObject())
             {
@@ -649,7 +654,7 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::hideAllDockWindows()
 {
@@ -662,7 +667,7 @@ void RiuMainPlotWindow::hideAllDockWindows()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::restoreTreeViewState()
 {
@@ -678,14 +683,15 @@ void RiuMainPlotWindow::restoreTreeViewState()
         QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(),
+                                                                                    currentIndexString);
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
@@ -693,7 +699,7 @@ void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::setDefaultWindowSize()
 {
@@ -701,7 +707,7 @@ void RiuMainPlotWindow::setDefaultWindowSize()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
@@ -709,7 +715,7 @@ void RiuMainPlotWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
 {
@@ -719,9 +725,9 @@ void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
     app->project()->actionsBasedOnSelection(menu);
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-    // Since we might get this signal from different treeViews, we need to map the position accordingly.  
-    QObject* senderObj = this->sender();
-    QTreeView* treeView = dynamic_cast<QTreeView*>(senderObj); 
+    // Since we might get this signal from different treeViews, we need to map the position accordingly.
+    QObject*   senderObj = this->sender();
+    QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
     if (treeView)
     {
         QPoint globalPos = treeView->viewport()->mapToGlobal(pos);
@@ -730,7 +736,7 @@ void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
 {
@@ -744,15 +750,16 @@ RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
     return geo;
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::tileWindows()
 {
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
-    QMdiSubWindow *a = m_mdiArea->activeSubWindow();
-    QList<QMdiSubWindow *> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
+    QMdiSubWindow* a = m_mdiArea->activeSubWindow();
+
+    QList<QMdiSubWindow*> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
     for (int i = 0; i < list.count(); i++)
     {
         m_mdiArea->setActiveSubWindow(list[i]);
@@ -763,10 +770,9 @@ void RiuMainPlotWindow::tileWindows()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiuMainPlotWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
 }
-
