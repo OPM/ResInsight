@@ -819,11 +819,14 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
     int currTimeStepIndex = eclipseView->currentTimeStep();
     std::vector<QDateTime> timeSteps = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
 
-    QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
-
-    QString dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex), 
-                                                                 QString::number(timeSteps.size() - 1),
-                                                                 timeSteps[currTimeStepIndex].toString(dateFormat));
+    QString dateTimeString;
+    if (currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size())
+    {
+        QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+        dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex), 
+                                                             QString::number(timeSteps.size() - 1),
+                                                             timeSteps[currTimeStepIndex].toString(dateFormat));
+    }
 
     return QString("<p><b><center>-- %1 --</center></b>").arg(dateTimeString) +
         QString("<center>------------------------------------------------</center>");
@@ -837,9 +840,13 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimGeoMechView* geoMechView)
     int currTimeStepIndex = geoMechView->currentTimeStep();
     QStringList timeSteps = geoMechView->geoMechCase()->timeStepStrings();
 
-    QString dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex),
-                                                                 QString::number(timeSteps.size() - 1),
-                                                                 timeSteps[currTimeStepIndex]);
+    QString dateTimeString;
+    if (currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size())
+    {
+        dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex),
+                                                             QString::number(timeSteps.size() - 1),
+                                                             timeSteps[currTimeStepIndex]);
+    }
 
     return QString("<p><b><center>-- %1 --</center></b>").arg(dateTimeString) +
         QString("<center>------------------------------------------------</center>");
