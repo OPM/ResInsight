@@ -42,6 +42,14 @@ namespace Opm { namespace ECLUnits {
         class USys<ECL_METRIC_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_METRIC_UNITS>(*this)
+                };
+            }
+
             virtual double density() const override
             {
                 return Metric::Density;
@@ -97,6 +105,14 @@ namespace Opm { namespace ECLUnits {
         class USys<ECL_FIELD_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_FIELD_UNITS>(*this)
+                };
+            }
+
             virtual double density() const override
             {
                 return Field::Density;
@@ -152,6 +168,14 @@ namespace Opm { namespace ECLUnits {
         class USys<ECL_LAB_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_LAB_UNITS>(*this)
+                };
+            }
+
             virtual double density() const override
             {
                 return Lab::Density;
@@ -207,6 +231,14 @@ namespace Opm { namespace ECLUnits {
         class USys<ECL_PVT_M_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_PVT_M_UNITS>(*this)
+                };
+            }
+
             virtual double density() const override
             {
                 using namespace prefix;

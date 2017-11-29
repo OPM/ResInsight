@@ -265,6 +265,11 @@ Opm::ECLPVT::PVDx::viscosity(const std::vector<double>& p) const
 Opm::FlowDiagnostics::Graph
 Opm::ECLPVT::PVDx::getPvtCurve(const RawCurve curve) const
 {
+    if (curve == RawCurve::SaturatedState) {
+        // Not applicable to dry gas or dead oil.  Return empty.
+        return FlowDiagnostics::Graph{};
+    }
+
     return extractRawPVTCurve(this->interp_, curve);
 }
 

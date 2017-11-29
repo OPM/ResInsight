@@ -669,28 +669,11 @@ namespace Opm { namespace ECLPVT {
         std::vector<FlowDiagnostics::Graph>
         getPvtCurve(const RawCurve curve) const
         {
-            auto ret = std::vector<FlowDiagnostics::Graph>{};
-            ret.reserve(this->propInterp_.size());
-
-            for (const auto& interp : this->propInterp_) {
-                ret.push_back(extractRawPVTCurve(interp, curve));
+            if (curve == RawCurve::SaturatedState) {
+                return this->saturatedStateCurve();
             }
 
-            return ret;
-        }
-
-        std::vector<double> getSaturatedPoints() const
-        {
-            auto y = std::vector<double>{};
-            y.reserve(this->propInterp_.size());
-
-            for (const auto& interp : this->propInterp_) {
-                const auto& yi = interp.independentVariable();
-
-                y.push_back(yi[0]);
-            }
-
-            return y;
+            return this->mainPvtCurve(curve);
         }
 
     private:
@@ -843,6 +826,37 @@ namespace Opm { namespace ECLPVT {
             }
 
             return result;
+        }
+
+        std::vector<FlowDiagnostics::Graph>
+        mainPvtCurve(const RawCurve curve) const
+        {
+            auto ret = std::vector<FlowDiagnostics::Graph>{};
+            ret.reserve(this->propInterp_.size());
+
+            for (const auto& interp : this->propInterp_) {
+                ret.push_back(extractRawPVTCurve(interp, curve));
+            }
+
+            return ret;
+        }
+
+        std::vector<FlowDiagnostics::Graph> saturatedStateCurve() const
+        {
+            auto y = std::vector<double>{};
+            y.reserve(this->propInterp_.size());
+
+            for (const auto& interp : this->propInterp_) {
+                const auto& yi = interp.independentVariable();
+
+                y.push_back(yi[0]);
+            }
+
+            return {
+                FlowDiagnostics::Graph {
+                    this->key_, std::move(y)
+                }
+            };
         }
     };
 

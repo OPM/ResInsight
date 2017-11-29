@@ -99,8 +99,7 @@ public:
               const std::vector<double>& pg) const = 0;
 
     virtual std::vector<Opm::FlowDiagnostics::Graph>
-    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
-                const Opm::ECLUnits::UnitSystem& usys) const = 0;
+    getPvtCurve(const Opm::ECLPVT::RawCurve curve) const = 0;
 
     virtual std::unique_ptr<PVxGBase> clone() const = 0;
 };
@@ -135,30 +134,9 @@ public:
     }
 
     virtual std::vector<Opm::FlowDiagnostics::Graph>
-    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
-                const Opm::ECLUnits::UnitSystem& usys) const override
+    getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
-        if (curve == Opm::ECLPVT::RawCurve::SaturatedState) {
-            // Not applicable to dry gas.  Return empty.
-            return { Opm::FlowDiagnostics::Graph{} };
-        }
-
-        auto pvtcurve = this->interpolant_.getPvtCurve(curve);
-
-        const auto x_unit = usys.pressure();
-        const auto y_unit = (curve == ::Opm::ECLPVT::RawCurve::FVF)
-            ? (usys.reservoirVolume() / usys.surfaceVolumeGas())
-            : usys.viscosity();
-
-        auto& x = pvtcurve.first;
-        auto& y = pvtcurve.second;
-
-        for (auto n = x.size(), i = 0*n; i < n; ++i) {
-            x[i] = ::Opm::unit::convert::to(x[i], x_unit);
-            y[i] = ::Opm::unit::convert::to(y[i], y_unit);
-        }
-
-        return { std::move(pvtcurve) };
+        return { this->interpolant_.getPvtCurve(curve) };
     }
 
     virtual std::unique_ptr<PVxGBase> clone() const override
@@ -183,8 +161,7 @@ public:
 
     WetGas(std::vector<double>              key,
            std::vector<SubtableInterpolant> propInterp)
-        : key_   (key)          // Copy
-        , interp_(std::move(key), std::move(propInterp))
+        : interp_(std::move(key), std::move(propInterp))
     {}
 
     virtual std::vector<double>
@@ -214,14 +191,9 @@ public:
     }
 
     virtual std::vector<Opm::FlowDiagnostics::Graph>
-    getPvtCurve(const Opm::ECLPVT::RawCurve      curve,
-                const Opm::ECLUnits::UnitSystem& usys) const override
+    getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
-        if (curve == ::Opm::ECLPVT::RawCurve::SaturatedState) {
-            return this->saturatedStateCurve(usys);
-        }
-
-        return this->mainPvtCurve(curve, usys);
+        return this->interp_.getPvtCurve(curve);
     }
 
     virtual std::unique_ptr<PVxGBase> clone() const override
@@ -232,67 +204,8 @@ public:
 private:
     using TableInterpolant = ::Opm::ECLPVT::PVTx<SubtableInterpolant>;
 
-    std::vector<double> key_;
-    TableInterpolant    interp_;
-
-    std::vector<Opm::FlowDiagnostics::Graph>
-    mainPvtCurve(const Opm::ECLPVT::RawCurve      curve,
-                 const Opm::ECLUnits::UnitSystem& usys) const;
-
-    std::vector<Opm::FlowDiagnostics::Graph>
-    saturatedStateCurve(const Opm::ECLUnits::UnitSystem& usys) const;
+    TableInterpolant interp_;
 };
-
-std::vector<Opm::FlowDiagnostics::Graph>
-WetGas::mainPvtCurve(const Opm::ECLPVT::RawCurve      curve,
-                     const Opm::ECLUnits::UnitSystem& usys) const
-{
-    auto curves = this->interp_.getPvtCurve(curve);
-
-    const auto x_unit = usys.vaporisedOilGasRat();
-    const auto y_unit = (curve == ::Opm::ECLPVT::RawCurve::FVF)
-        ? (usys.reservoirVolume() / usys.surfaceVolumeGas())
-        : usys.viscosity();
-
-    for (auto& crv : curves) {
-        auto& x = crv.first;
-        auto& y = crv.second;
-
-        for (auto n = x.size(), i = 0*n; i < n; ++i) {
-            x[i] = ::Opm::unit::convert::to(x[i], x_unit);
-            y[i] = ::Opm::unit::convert::to(y[i], y_unit);
-        }
-    }
-
-    return curves;
-}
-
-std::vector<Opm::FlowDiagnostics::Graph>
-WetGas::saturatedStateCurve(const Opm::ECLUnits::UnitSystem& usys) const
-{
-    const auto key_unit = usys.pressure();
-    const auto rv_unit  = usys.vaporisedOilGasRat();
-
-    auto rv = this->interp_.getSaturatedPoints();
-    auto p  = this->key_;
-
-    if (rv.size() != p.size()) {
-        throw std::invalid_argument {
-            "Inconsistent table sizes of saturated gas function (RvSat(p))"
-        };
-    }
-
-    for (auto n = rv.size(), i = 0*n; i < n; ++i) {
-        p [i] = ::Opm::unit::convert::to(p [i], key_unit);
-        rv[i] = ::Opm::unit::convert::to(rv[i], rv_unit);
-    }
-
-    auto graph = Opm::FlowDiagnostics::Graph {
-        std::move(p), std::move(rv)
-    };
-
-    return { std::move(graph) };
-}
 
 // #####################################################################
 
@@ -479,9 +392,8 @@ public:
     }
 
     std::vector<FlowDiagnostics::Graph>
-    getPvtCurve(const RegIdx                region,
-                const RawCurve              curve,
-                const ECLUnits::UnitSystem& usys) const;
+    getPvtCurve(const RegIdx   region,
+                const RawCurve curve) const;
 
 private:
     std::vector<EvalPtr> eval_;
@@ -550,13 +462,12 @@ viscosity(const RegIdx               region,
 
 std::vector<Opm::FlowDiagnostics::Graph>
 Opm::ECLPVT::Gas::Impl::
-getPvtCurve(const RegIdx                region,
-            const RawCurve              curve,
-            const ECLUnits::UnitSystem& usys) const
+getPvtCurve(const RegIdx   region,
+            const RawCurve curve) const
 {
     this->validateRegIdx(region);
 
-    return this->eval_[region]->getPvtCurve(curve, usys);
+    return this->eval_[region]->getPvtCurve(curve);
 }
 
 void
@@ -634,11 +545,10 @@ double Opm::ECLPVT::Gas::surfaceMassDensity(const int region) const
 
 std::vector<Opm::FlowDiagnostics::Graph>
 Opm::ECLPVT::Gas::
-getPvtCurve(const RawCurve              curve,
-            const int                   region,
-            const ECLUnits::UnitSystem& usys) const
+getPvtCurve(const RawCurve curve,
+            const int      region) const
 {
-    return this->pImpl_->getPvtCurve(region, curve, usys);
+    return this->pImpl_->getPvtCurve(region, curve);
 }
 
 // =====================================================================

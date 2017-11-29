@@ -25,6 +25,7 @@ list (APPEND MAIN_SOURCE_FILES
         opm/utility/ECLEndPointScaling.cpp
         opm/utility/ECLFluxCalc.cpp
         opm/utility/ECLGraph.cpp
+        opm/utility/ECLPropertyUnitConversion.cpp
         opm/utility/ECLPropTable.cpp
         opm/utility/ECLPvtCommon.cpp
         opm/utility/ECLPvtCurveCollection.cpp
@@ -41,6 +42,7 @@ list (APPEND MAIN_SOURCE_FILES
 
 list (APPEND TEST_SOURCE_FILES
         tests/test_eclendpointscaling.cpp
+        tests/test_eclpropertyunitconversion.cpp
         tests/test_eclproptable.cpp
         tests/test_eclpvtcommon.cpp
         tests/test_eclregionmapping.cpp
@@ -54,6 +56,7 @@ list (APPEND EXAMPLE_SOURCE_FILES
         examples/computePhaseFluxes.cpp
         examples/computeToFandTracers.cpp
         examples/computeTracers.cpp
+        examples/dynamicCellProperty.cpp
         examples/extractFromRestart.cpp
         examples/extractPropCurves.cpp
         tests/runAcceptanceTest.cpp
@@ -68,6 +71,7 @@ list (APPEND PUBLIC_HEADER_FILES
         opm/utility/ECLGraph.hpp
         opm/utility/ECLPhaseIndex.hpp
         opm/utility/ECLPiecewiseLinearInterpolant.hpp
+        opm/utility/ECLPropertyUnitConversion.hpp
         opm/utility/ECLPropTable.hpp
         opm/utility/ECLPvtCommon.hpp
         opm/utility/ECLPvtCurveCollection.hpp

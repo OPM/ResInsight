@@ -179,6 +179,19 @@ namespace example {
 
 
 
+    inline double simulationTime(const Opm::ECLRestartData& rstrt)
+    {
+        if (! rstrt.haveKeywordData("DOUBHEAD")) {
+            return -1.0;
+        }
+
+        const auto& doubhead = rstrt.keywordData<double>("DOUBHEAD");
+
+        // First item (.front()) is simulation time in days
+        return doubhead.front();
+    }
+
+
 
     inline Opm::FlowDiagnostics::Toolbox
     initToolbox(const Opm::ECLGraph& G)
