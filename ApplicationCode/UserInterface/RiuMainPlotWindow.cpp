@@ -64,9 +64,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainPlotWindow::RiuMainPlotWindow()
-    : m_pdmRoot(NULL),
-    m_mainViewer(NULL),
-    m_activePlotViewWindow(nullptr),
+    : m_activePlotViewWindow(nullptr),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -75,9 +73,6 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
-    //m_mainViewer = createViewer();
-
-    createActions();
     createMenus();
     createToolBars();
     createDockPanels();
@@ -91,6 +86,14 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuMainPlotWindow::mainWindowName()
+{
+    return "RiuMainPlotWindow";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,14 +166,6 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
     if (!app->tryCloseMainWindow()) return;
 
     app->closeProject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::createActions()
-{
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,8 +493,6 @@ void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
-    m_pdmRoot = pdmRoot;
-
     m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropInterface(m_dragDropInterface.get());
@@ -541,6 +534,14 @@ void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
    if (swin) m_mdiArea->setActiveSubWindow(swin);
    
    m_blockSlotSubWindowActivated = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiTreeView* RiuMainPlotWindow::projectTreeView()
+{
+    return m_projectTreeView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -689,20 +690,6 @@ void RiuMainPlotWindow::restoreTreeViewState()
 void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
-
-    std::vector<caf::PdmFieldHandle*> toolBarFields;
-
-/*
-    RimSummaryPlot* summaryPlot = nullptr;
-    object->firstAncestorOrThisOfType(summaryPlot);
-    if (summaryPlot)
-    {
-        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-    }
-        
-    m_summaryPlotToolBar->setFields(toolBarFields);
-    m_summaryPlotToolBar->updateUi();
-*/
 }
 
 //--------------------------------------------------------------------------------------------------

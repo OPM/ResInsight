@@ -54,7 +54,7 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 public:
     RiuMainPlotWindow();
     
-    virtual QString     mainWindowName()            { return "RiuMainPlotWindow";  }
+    virtual QString     mainWindowName();
     
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
@@ -64,7 +64,7 @@ public:
     void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
     void                setActiveViewer(QWidget* subWindow) override;
 
-    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
+    caf::PdmUiTreeView* projectTreeView();
 
     void                hideAllDockWindows();
 
@@ -89,7 +89,6 @@ protected:
 private:
     void                setPdmRoot(caf::PdmObject* pdmRoot);
 
-    void                createActions();
     void                createMenus();
     void                createToolBars();
     void                createDockPanels();
@@ -99,7 +98,6 @@ private:
     void                refreshToolbars();
     
     static QStringList  toolbarCommandIds(const QString& toolbarName = "");
-
 
 private slots:
 
@@ -116,7 +114,6 @@ private:
     QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
     QMdiArea*           m_mdiArea;
-    RiuViewer*          m_mainViewer;
     RimViewWindow*      m_activePlotViewWindow;
 
     QMenu*              m_windowMenu;
@@ -125,7 +122,6 @@ private:
     caf::PdmUiToolBarEditor*    m_summaryPlotToolBar;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
-    caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
     bool                        m_blockSlotSubWindowActivated;
