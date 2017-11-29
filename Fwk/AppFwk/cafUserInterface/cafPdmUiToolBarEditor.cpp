@@ -104,6 +104,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
 
+            bool addSpace = false;
             if (uiFieldHandle)
             {
                 if (uiFieldHandle->uiValue().type() == QVariant::Bool)
@@ -116,6 +117,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                 else
                 {
                     fieldEditor = caf::PdmUiFieldEditorHelper::fieldEditorForField(field->uiCapability(), uiConfigName);
+                    addSpace = true;
                 }
             }
 
@@ -124,6 +126,13 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                 m_fieldViews[field->keyword()] = fieldEditor;
                 fieldEditor->createWidgets(NULL);
                 m_actions.push_back(m_toolbar->addWidget(fieldEditor->editorWidget()));
+                
+                if (addSpace)
+                {
+                    QWidget* widget = new QWidget;
+                    widget->setMinimumWidth(5);
+                    m_toolbar->addWidget(widget);
+                }
 
                 fieldEditor->setField(uiFieldHandle);
                 fieldEditor->updateUi(uiConfigName);
