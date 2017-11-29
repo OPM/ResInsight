@@ -31,6 +31,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.h
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicHideIntersectionBoxFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
@@ -106,6 +107,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicHideIntersectionBoxFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
