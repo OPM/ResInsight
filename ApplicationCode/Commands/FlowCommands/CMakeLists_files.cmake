@@ -15,7 +15,6 @@ ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicPlotProductionRateFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSelectViewUI.h
 ${CEE_CURRENT_LIST_DIR}RicShowTotalAllocationDataFeature.h
-${CEE_CURRENT_LIST_DIR}RicCalculateNumberOfFloodedPoreVolumes.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -29,7 +28,6 @@ ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicPlotProductionRateFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSelectViewUI.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowTotalAllocationDataFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicCalculateNumberOfFloodedPoreVolumes.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

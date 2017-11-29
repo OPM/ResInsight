@@ -126,7 +126,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportInputEclipseCaseFeature";
             menuBuilder << "RicCreateGridCaseGroupFeature";
             menuBuilder << "RicEclipseCaseNewGroupFeature";
-            menuBuilder << "RicCalculateNumberOfFloodedPoreVolumes";
         }
         else if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
