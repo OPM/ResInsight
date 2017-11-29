@@ -431,6 +431,21 @@ QString RimSummaryCalculation::buildCalculationName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_expression)
+    {
+        caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->heightHint = -1;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentCurvesAndPlots()
 {
     RimSummaryCalculationCollection* calcColl = nullptr;
