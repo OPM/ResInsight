@@ -66,8 +66,6 @@ public:
 
     void                                setProject(RimProject* project);
 
-    QString                             newestAddedWellName() { return m_newestAddedWellName; }
-
     enum WellVisibilityType
     {
         FORCE_ALL_OFF,
@@ -94,6 +92,8 @@ public:
     
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
+
+    RimWellPath*                        newestAddedWellPath();
 
     void                                readWellPathFormationFiles();
 
@@ -135,5 +135,5 @@ private:
 
     RifWellPathImporter*                m_wellPathImporter;
     RifWellPathFormationsImporter*      m_wellPathFormationsImporter;
-    QString                             m_newestAddedWellName;
+    caf::PdmPointer<RimWellPath>        m_newestAddedWellPath;
 };

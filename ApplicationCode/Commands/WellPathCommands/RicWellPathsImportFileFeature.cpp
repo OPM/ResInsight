@@ -70,12 +70,7 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
 
         if (oilField->wellPathCollection->wellPaths().size() > 0)
         {
-
-            RimWellPath* wellPath = nullptr;
-            QString wellPathName = oilField->wellPathCollection->newestAddedWellName();
-
-            wellPath = oilField->wellPathCollection->wellPathByName(wellPathName);
-            
+            RimWellPath* wellPath = oilField->wellPathCollection->newestAddedWellPath();
             if (wellPath)
             {
                 RiuMainWindow::instance()->selectAsCurrentItem(wellPath);

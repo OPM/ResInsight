@@ -99,8 +99,8 @@ RimWellPathCollection::RimWellPathCollection()
     wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathImporter = new RifWellPathImporter;
-    m_newestAddedWellName = QString();
     m_wellPathFormationsImporter = new RifWellPathFormationsImporter;
+    m_newestAddedWellPath = nullptr;
 }
 
 
@@ -249,11 +249,6 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellPathArray.size());
     }
 
-    if (!wellPathArray.empty())
-    {
-        m_newestAddedWellName = wellPathArray.back()->name();
-    }
-
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
@@ -282,6 +277,11 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         }
 
         progress.incrementProgress();
+    }
+
+    if (!wellPaths.empty())
+    {
+        m_newestAddedWellPath = wellPaths[wellPaths.size() - 1];
     }
 
     this->sortWellsByName();
@@ -319,7 +319,6 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
             }
 
             wellPath->addWellLogFile(logFileInfo);
-            m_newestAddedWellName = wellPath->name();
         }
     }
 
@@ -348,7 +347,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
                 wellPaths.push_back(wellPath);
             }
             wellPath->setFormationsGeometry(it->second);
-            m_newestAddedWellName = wellPath->name();
+            m_newestAddedWellPath = wellPath;
         }
     }
 
@@ -492,6 +491,14 @@ void RimWellPathCollection::deleteAllWellPaths()
     wellPaths.deleteAllChildObjects();
 
     m_wellPathImporter->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellPathCollection::newestAddedWellPath()
+{
+    return m_newestAddedWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
