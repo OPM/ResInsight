@@ -149,7 +149,10 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_textEdit->setWordWrapMode(toQTextOptionWrapMode(leab.wrapMode));
 
     m_textEdit->setFont(leab.font);
-    m_textEdit->setHeightHint(leab.heightHint);
+    if (leab.heightHint > 0)
+    {
+        m_textEdit->setHeightHint(leab.heightHint);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
