@@ -31,12 +31,12 @@ class RifSummaryReaderInterface;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryCurvesModifier : public caf::PdmObject
+class RimSummaryPlotSourceStepping : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCurvesModifier();
+    RimSummaryPlotSourceStepping();
 
     void applyNextIdentifier();
     void applyPreviousIdentifier();

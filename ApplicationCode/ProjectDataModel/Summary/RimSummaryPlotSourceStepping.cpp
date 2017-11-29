@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCurvesModifier.h"
+#include "RimSummaryPlotSourceStepping.h"
 
 #include "RiaApplication.h"
 #include "RiaSummaryCurveAnalyzer.h"
@@ -35,12 +35,12 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimSummaryCurvesModifier, "RimSummaryCurveCollectionModifier");
+CAF_PDM_SOURCE_INIT(RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurvesModifier::RimSummaryCurvesModifier()
+RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 {
     // clang-format off
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
@@ -52,8 +52,8 @@ RimSummaryCurvesModifier::RimSummaryCurvesModifier()
     CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellNameProxy,    "WellNameProxy", "WellNameProxy", "", "", "");
-    m_wellNameProxy.registerGetMethod(this, &RimSummaryCurvesModifier::wellName);
-    m_wellNameProxy.registerSetMethod(this, &RimSummaryCurvesModifier::setWellName);
+    m_wellNameProxy.registerGetMethod(this, &RimSummaryPlotSourceStepping::wellName);
+    m_wellNameProxy.registerSetMethod(this, &RimSummaryPlotSourceStepping::setWellName);
     m_wellNameProxy.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_wellNameProxy.uiCapability()->setUiHidden(true);
     // clang-format on
@@ -62,7 +62,7 @@ RimSummaryCurvesModifier::RimSummaryCurvesModifier()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::applyNextIdentifier()
+void RimSummaryPlotSourceStepping::applyNextIdentifier()
 {
     updateUiFromCurves();
 
@@ -111,7 +111,7 @@ void RimSummaryCurvesModifier::applyNextIdentifier()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::applyPreviousIdentifier()
+void RimSummaryPlotSourceStepping::applyPreviousIdentifier()
 {
     updateUiFromCurves();
 
@@ -160,7 +160,7 @@ void RimSummaryCurvesModifier::applyPreviousIdentifier()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSummaryPlotSourceStepping::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     updateUiFromCurves();
 }
@@ -168,7 +168,7 @@ void RimSummaryCurvesModifier::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryCurvesModifier::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                               bool*                      useOptionsOnly)
 {
     if (fieldNeedingOptions == &m_summaryCase)
@@ -255,7 +255,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurvesModifier::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                                 const QVariant& newValue)
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
@@ -346,7 +346,7 @@ void RimSummaryCurvesModifier::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryCurvesModifier::summaryReader() const
+RifSummaryReaderInterface* RimSummaryPlotSourceStepping::summaryReader() const
 {
     RimSummaryCase* sumCase = singleSummaryCase();
     if (sumCase)
@@ -360,7 +360,7 @@ RifSummaryReaderInterface* RimSummaryCurvesModifier::summaryReader() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCurvesModifier::singleSummaryCase() const
+RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
@@ -382,7 +382,7 @@ RimSummaryCase* RimSummaryCurvesModifier::singleSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurvesModifier::wellName() const
+QString RimSummaryPlotSourceStepping::wellName() const
 {
     return m_wellName();
 }
@@ -390,7 +390,7 @@ QString RimSummaryCurvesModifier::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::setWellName(const QString& wellName)
+void RimSummaryPlotSourceStepping::setWellName(const QString& wellName)
 {
     m_wellName.setValueWithFieldChanged(wellName);
 }
@@ -398,7 +398,7 @@ void RimSummaryCurvesModifier::setWellName(const QString& wellName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesModifier::updateUiFromCurves()
+void RimSummaryPlotSourceStepping::updateUiFromCurves()
 {
     m_summaryCase.uiCapability()->setUiHidden(true);
     m_wellName.uiCapability()->setUiHidden(true);
@@ -460,7 +460,7 @@ void RimSummaryCurvesModifier::updateUiFromCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryCurvesModifier::fieldToModify()
+caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
@@ -501,7 +501,7 @@ caf::PdmFieldHandle* RimSummaryCurvesModifier::fieldToModify()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmValueField* RimSummaryCurvesModifier::valueFieldToModify()
+caf::PdmValueField* RimSummaryPlotSourceStepping::valueFieldToModify()
 {
     // This will return a null pointer for summary case modifier
 

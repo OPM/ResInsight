@@ -29,7 +29,7 @@ class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
-class RimSummaryCurvesModifier;
+class RimSummaryPlotSourceStepping;
 
 //==================================================================================================
 ///  
@@ -76,12 +76,10 @@ private:
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<bool>                             m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
-    caf::PdmChildField<RimSummaryCurvesModifier*>   m_curvesModifier;
+    caf::PdmField<bool>                         m_showCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
-    caf::PdmPointer<RimSummaryCurve>                m_currentSummaryCurve;
-protected:
-
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_sourceStepping;
+    caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
 };
 

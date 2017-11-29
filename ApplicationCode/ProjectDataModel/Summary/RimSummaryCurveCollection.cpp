@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurvesModifier.h"
+#include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
@@ -50,11 +50,11 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_curvesModifier, "CurvesModifier", "Curves Modifier", "", "", "");
-    m_curvesModifier = new RimSummaryCurvesModifier;
-    m_curvesModifier.uiCapability()->setUiHidden(true);
-    m_curvesModifier.uiCapability()->setUiTreeChildrenHidden(true);
-    m_curvesModifier.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_sourceStepping, "SourceStepping", "Plot Source Stepping", "", "", "");
+    m_sourceStepping = new RimSummaryPlotSourceStepping;
+    m_sourceStepping.uiCapability()->setUiHidden(true);
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_sourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::applyNextIdentifier()
 {
-    m_curvesModifier->applyNextIdentifier();
+    m_sourceStepping->applyNextIdentifier();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ void RimSummaryCurveCollection::applyNextIdentifier()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::applyPreviousIdentifier()
 {
-    m_curvesModifier->applyPreviousIdentifier();
+    m_sourceStepping->applyPreviousIdentifier();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,9 +294,9 @@ void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    auto group = uiOrdering.addNewGroup("Curve Modifier");
+    auto group = uiOrdering.addNewGroup("Plot Source Stepping");
 
-    m_curvesModifier()->uiOrdering(uiConfigName, *group);
+    m_sourceStepping()->uiOrdering(uiConfigName, *group);
 }
 
 //--------------------------------------------------------------------------------------------------
