@@ -57,7 +57,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr(const RimIntersectionBox* intersectionBox)
+RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr(RimIntersectionBox* intersectionBox)
     : m_rimIntersectionBox(intersectionBox),
     m_defaultColor(cvf::Color3::WHITE)
 {
@@ -361,6 +361,6 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGr
         return new RivFemIntersectionGrid(femPart);
     }
 
-    return NULL;
+    return nullptr;
 }
 
