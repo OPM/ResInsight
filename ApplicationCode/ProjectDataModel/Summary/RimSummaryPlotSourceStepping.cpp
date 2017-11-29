@@ -32,6 +32,7 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
 
@@ -160,7 +161,7 @@ void RimSummaryPlotSourceStepping::applyPreviousIdentifier()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInToolbar()
 {
@@ -549,4 +550,17 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::valueFieldToModify()
     // This will return a null pointer for summary case modifier
 
     return dynamic_cast<caf::PdmValueField*>(fieldToModify());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+    if (myAttr)
+    {
+        myAttr->showPreviousAndNextButtons = true;
+    }
 }
