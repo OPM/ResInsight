@@ -23,6 +23,7 @@
 #include "RiaPreferences.h"
 
 #include "RimProject.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
@@ -38,6 +39,7 @@
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyView.h"
+#include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
 
@@ -308,6 +310,8 @@ void RiuMainPlotWindow::createToolBars()
             toolbar->addAction(cmdFeatureMgr->action(s));
         }
     }
+
+    m_summaryPlotToolBar = new caf::PdmUiToolBarEditor("Summary Plot", this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,6 +591,20 @@ void RiuMainPlotWindow::selectedObjectsChanged()
     }
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+    if (firstSelectedObject)
+    {
+        RimSummaryPlot* summaryPlot = nullptr;
+        firstSelectedObject->firstAncestorOrThisOfType(summaryPlot);
+        if (summaryPlot)
+        {
+            toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+        }
+
+    }
+    m_summaryPlotToolBar->setFields(toolBarFields);
+    m_summaryPlotToolBar->updateUi();
+
     if (uiItems.size() == 1)
     {
         // Find the reservoir view or the Plot that the selected item is within 
@@ -671,6 +689,20 @@ void RiuMainPlotWindow::restoreTreeViewState()
 void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
+
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+
+/*
+    RimSummaryPlot* summaryPlot = nullptr;
+    object->firstAncestorOrThisOfType(summaryPlot);
+    if (summaryPlot)
+    {
+        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+    }
+        
+    m_summaryPlotToolBar->setFields(toolBarFields);
+    m_summaryPlotToolBar->updateUi();
+*/
 }
 
 //--------------------------------------------------------------------------------------------------

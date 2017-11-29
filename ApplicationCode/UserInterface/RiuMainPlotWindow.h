@@ -39,6 +39,7 @@ namespace caf
      class PdmObject;
      class PdmUiPropertyView;
      class PdmUiItem;
+     class PdmUiToolBarEditor;
 }
 
 //==================================================================================================
@@ -120,8 +121,8 @@ private:
 
     QMenu*              m_windowMenu;
 
-    caf::PdmUiTreeView* m_projectTreeView;
-    
+    caf::PdmUiTreeView*         m_projectTreeView;
+    caf::PdmUiToolBarEditor*    m_summaryPlotToolBar;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     caf::PdmObject*             m_pdmRoot;

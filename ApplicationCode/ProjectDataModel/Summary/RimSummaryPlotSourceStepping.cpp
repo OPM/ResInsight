@@ -160,6 +160,47 @@ void RimSummaryPlotSourceStepping::applyPreviousIdentifier()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    RiaSummaryCurveAnalyzer analyzer;
+    analyzer.analyzeCurves(curveCollection);
+
+    if (analyzer.summaryCases().size() == 1)
+    {
+        fields.push_back(&m_summaryCase);
+    }
+
+    if (analyzer.wellNames().size() == 1)
+    {
+        fields.push_back(&m_wellName);
+    }
+
+    if (analyzer.wellGroupNames().size() == 1)
+    {
+        fields.push_back(&m_wellGroupName);
+    }
+
+    if (analyzer.regionNumbers().size() == 1)
+    {
+        fields.push_back(&m_region);
+    }
+
+    if (analyzer.quantities().size() == 1)
+    {
+        fields.push_back(&m_quantity);
+    }
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)

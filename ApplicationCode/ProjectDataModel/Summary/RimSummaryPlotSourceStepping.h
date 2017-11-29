@@ -41,6 +41,8 @@ public:
     void applyNextIdentifier();
     void applyPreviousIdentifier();
 
+    std::vector<caf::PdmFieldHandle*>   fieldsToShowInToolbar();
+
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

@@ -245,6 +245,14 @@ void RimSummaryCurveCollection::applyPreviousIdentifier()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
+{
+    return m_sourceStepping()->fieldsToShowInToolbar();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveCollection::compileAutoPlotTitle() const
 {
     RiaSummaryCurveAnalyzer analyzer;
