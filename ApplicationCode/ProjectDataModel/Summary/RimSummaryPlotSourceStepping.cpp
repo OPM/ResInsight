@@ -46,10 +46,10 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase,      "CurveCase",    "Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellName,         "WellName",     "Well Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellGroupName,    "GroupName",    "Group Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellNameProxy,    "WellNameProxy", "WellNameProxy", "", "", "");
     m_wellNameProxy.registerGetMethod(this, &RimSummaryPlotSourceStepping::wellName);
@@ -69,8 +69,9 @@ void RimSummaryPlotSourceStepping::applyNextIdentifier()
     caf::PdmValueField* valueField = valueFieldToModify();
     if (valueField)
     {
-        bool                          useOptionsOnly = true;
-        QList<caf::PdmOptionItemInfo> options        = calculateValueOptions(valueField, nullptr);
+        bool useOptionsOnly = true;
+
+        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
         if (options.isEmpty())
         {
             return;
@@ -118,8 +119,9 @@ void RimSummaryPlotSourceStepping::applyPreviousIdentifier()
     caf::PdmValueField* valueField = valueFieldToModify();
     if (valueField)
     {
-        bool                          useOptionsOnly = true;
-        QList<caf::PdmOptionItemInfo> options        = calculateValueOptions(valueField, nullptr);
+        bool useOptionsOnly = true;
+
+        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
         if (options.isEmpty())
         {
             return;
@@ -169,7 +171,7 @@ void RimSummaryPlotSourceStepping::defineUiOrdering(QString uiConfigName, caf::P
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                              bool*                      useOptionsOnly)
+                                                                                  bool*                      useOptionsOnly)
 {
     if (fieldNeedingOptions == &m_summaryCase)
     {
@@ -256,7 +258,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                const QVariant& newValue)
+                                                    const QVariant& newValue)
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
