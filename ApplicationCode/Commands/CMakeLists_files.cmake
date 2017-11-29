@@ -15,6 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewFeature.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewInViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.h
@@ -92,6 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewInViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.cpp

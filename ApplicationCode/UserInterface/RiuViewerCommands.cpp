@@ -250,6 +250,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
 
             menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
+            menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
@@ -271,18 +272,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 }
             }
 
-            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-            if (geoMechView)
-            {
-                RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
-                if (cellColors)
-                {
-                     if (!viewController || !viewController->isPropertyFilterOveridden())
-                    {
-                        menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
-                    }
-                }
-            }
         }
     }
 
@@ -375,20 +364,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     // Delete items in temporary selection
     RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotAddGeoMechPropertyFilter()
-{
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-    if (geoMechView)
-    {
-        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->geoMechPropertyFilterCollection();
-        RicGeoMechPropertyFilterNewExec* propCmdExe = new RicGeoMechPropertyFilterNewExec(filterCollection);
-        caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

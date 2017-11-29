@@ -53,14 +53,11 @@ public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
     ~RiuViewerCommands();
 
-    void setOwnerView(RimView * owner);
+    void            setOwnerView(RimView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
-
-private slots:
-    void            slotAddGeoMechPropertyFilter();
 
 private:
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
