@@ -39,6 +39,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
+#include "RiuTimeStepChangedHandler.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
@@ -354,8 +355,15 @@ void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RimView::setCurrentTimeStep(int frameIndex)
 {
+    const int oldTimeStep = m_currentTimeStep;
+
     m_currentTimeStep = frameIndex;
     clampCurrentTimestep();
+
+    if (m_currentTimeStep != oldTimeStep)
+    {
+        RiuTimeStepChangedHandler::instance()->handleTimeStepChanged(this);
+    }
 
     this->hasUserRequestedAnimation = true;
     if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())

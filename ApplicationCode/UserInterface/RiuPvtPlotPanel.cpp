@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuPvtPlotPanel.h"
+#include "RiuPvtPlotUpdater.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "RigFlowDiagSolverInterface.h"
@@ -67,7 +68,8 @@ public:
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
 :   QWidget(parent),
-    m_pressure(HUGE_VAL)
+    m_pressure(HUGE_VAL),
+    m_plotUpdater(new RiuPvtPlotUpdater(this))
 {
     m_phaseComboBox = new QComboBox(this);
     m_phaseComboBox->setEditable(false);
@@ -167,12 +169,20 @@ void RiuPvtPlotPanel::clearPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuPvtPlotUpdater* RiuPvtPlotPanel::plotUpdater()
+{
+    return m_plotUpdater.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuPvtPlotPanel::plotUiSelectedCurves()
 {
     std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedFvfCurves;
     std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedViscosityCurves;
 
-    // Determine which curves to actually plot based on selection in GUI
+    // Determine which curves (phase) to actually plot based on selection in GUI
     const int currComboIdx = m_phaseComboBox->currentIndex();
     const RigFlowDiagSolverInterface::PvtCurve::Phase phaseToPlot = static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>(m_phaseComboBox->itemData(currComboIdx).toInt());
 
@@ -199,13 +209,13 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
     {
         const QString plotTitle = phaseString + "Formation Volume Factor";
         const QString yAxisTitle = phaseString + "Formation Volume Factor";
-        plotCurvesInQwt(selectedFvfCurves, m_pressure, plotTitle, yAxisTitle, m_fvfPlot);
+        plotCurvesInQwt(selectedFvfCurves, m_pressure, plotTitle, yAxisTitle, m_fvfPlot, &m_fvfPlotMarkers);
     }
     
     {
         const QString plotTitle = phaseString + "Viscosity";
         const QString yAxisTitle = phaseString + "Viscosity";
-        plotCurvesInQwt(selectedViscosityCurves, m_pressure, plotTitle, yAxisTitle, m_viscosityPlot);
+        plotCurvesInQwt(selectedViscosityCurves, m_pressure, plotTitle, yAxisTitle, m_viscosityPlot, &m_viscosityPlotMarkers);
     }
 
     
@@ -214,10 +224,20 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot)
+void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
-    plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
+
+    // Workaround for detaching only plot markers that we have added
+    // Needed as long as the curve point tracker is also using plot markers for its marking
+    //plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
+    for (QwtPlotMarker* marker : *myPlotMarkers)
+    {
+        marker->detach();
+        delete marker;
+    }
+    myPlotMarkers->clear();
+
 
     for (size_t i = 0; i < curveArr.size(); i++)
     {
@@ -253,10 +273,11 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
         lineMarker->setXValue(pressure);
         lineMarker->setLineStyle(QwtPlotMarker::VLine);
         lineMarker->setLinePen(QPen(Qt::black, 1, Qt::DashLine));
-        lineMarker->setLabel(QString("Pressure"));
+        lineMarker->setLabel(QString("PRESSURE"));
         lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
         lineMarker->setLabelOrientation(Qt::Vertical);
         lineMarker->attach(plot);
+        myPlotMarkers->push_back(lineMarker);
     }
 
     plot->setTitle(plotTitle);
@@ -265,22 +286,6 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
     plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
 
     plot->replot();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::addVerticalPressureMarkerLine(double pressureValue, QColor color, QwtPlot* plot)
-{
-    QwtPlotMarker* lineMarker = new QwtPlotMarker;
-    lineMarker->setXValue(pressureValue);
-    lineMarker->setLineStyle(QwtPlotMarker::VLine);
-    lineMarker->setLinePen(QPen(color, 1, Qt::DashLine));
-    lineMarker->setLabel(QString("PRESSURE"));
-    lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
-    lineMarker->setLabelOrientation(Qt::Vertical);
-
-    lineMarker->attach(plot);
 }
 
 //--------------------------------------------------------------------------------------------------

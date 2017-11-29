@@ -22,9 +22,13 @@
 
 #include <QWidget>
 
+#include <memory>
+
+class RiuPvtPlotUpdater;
 class QDockWidget;
 class QwtPlot;
 class QComboBox;
+class QwtPlotMarker;
 
 
 //==================================================================================================
@@ -40,14 +44,14 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText);
-    void clearPlot();
+    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText);
+    void                clearPlot();
+    RiuPvtPlotUpdater*  plotUpdater();
 
 private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot);
-    static void     addVerticalPressureMarkerLine(double pressureValue, QColor color, QwtPlot* plot);
+    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
 
 private slots:
     void            slotPhaseComboCurrentIndexChanged(int);
@@ -59,9 +63,12 @@ private:
     QString                                             m_cellReferenceText;
 
     QComboBox*                                          m_phaseComboBox;
+
     QwtPlot*                                            m_fvfPlot;
     QwtPlot*                                            m_viscosityPlot;
+    std::vector<QwtPlotMarker*>                         m_fvfPlotMarkers;
+    std::vector<QwtPlotMarker*>                         m_viscosityPlotMarkers;
 
-
+    std::unique_ptr<RiuPvtPlotUpdater>                  m_plotUpdater;
 };
 

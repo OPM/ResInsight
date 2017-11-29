@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
@@ -75,7 +76,8 @@ public:
 RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* parent)
 :   QWidget(parent),
     m_swat(HUGE_VAL),
-    m_sgas(HUGE_VAL)
+    m_sgas(HUGE_VAL),
+    m_plotUpdater(new RiuRelativePermeabilityPlotUpdater(this))
 {
     m_qwtPlot = new RelPermQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
@@ -146,17 +148,6 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
 
     QwtLegend* legend = new QwtLegend(plot);
     plot->insertLegend(legend, QwtPlot::BottomLegend);
-
-    //new RiuQwtPlotWheelZoomer(plot);
-
-    //{
-    //    // Rubber-band zoom
-    //    RiuQwtPlotZoomer* plotZoomer = new RiuQwtPlotZoomer(plot->canvas());
-    //    plotZoomer->setRubberBandPen(QColor(Qt::black));
-    //    plotZoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    //    plotZoomer->setTrackerPen(QColor(Qt::black));
-    //    plotZoomer->initMousePattern(1);
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +182,15 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     m_sgas = HUGE_VAL;
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt(m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot);
+    plotCurvesInQwt(m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot, &m_myPlotMarkers);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuRelativePermeabilityPlotUpdater* RiuRelativePermeabilityPlotPanel::plotUpdater()
+{
+    return m_plotUpdater.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,16 +216,26 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
         }
     }
 
-    plotCurvesInQwt(selectedCurves, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot);
+    plotCurvesInQwt(selectedCurves, m_swat, m_sgas, m_cellReferenceText, m_qwtPlot, &m_myPlotMarkers);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot)
+void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
-    plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
+    
+    // Workaround for detaching only plot markers that we have added
+    // Needed as long as the curve point tracker is also using plot markers for its marking
+    //plot->detachItems(QwtPlotItem::Rtti_PlotMarker);
+    for (QwtPlotMarker* marker : *myPlotMarkers)
+    {
+        marker->detach();
+        delete marker;
+    }
+    myPlotMarkers->clear();
+
 
     bool shouldEableRightYAxis = false;
 
@@ -276,7 +285,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
                 curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KROW ||
                 curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOW)
             {
-                addCurveConstSaturationIntersectionMarker(curve, swat, Qt::blue, plotCurveOnRightAxis, plot);
+                addCurveConstSaturationIntersectionMarker(curve, swat, Qt::blue, plotCurveOnRightAxis, plot, myPlotMarkers);
             }
         }
         if (sgas != HUGE_VAL)
@@ -285,7 +294,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
                 curve.ident == RigFlowDiagSolverInterface::RelPermCurve::KROG ||
                 curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOG)
             {
-                addCurveConstSaturationIntersectionMarker(curve, sgas, Qt::red, plotCurveOnRightAxis, plot);
+                addCurveConstSaturationIntersectionMarker(curve, sgas, Qt::red, plotCurveOnRightAxis, plot, myPlotMarkers);
             }
         }
     }
@@ -294,11 +303,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if (swat != HUGE_VAL)
     {
-        addVerticalSaturationMarkerLine(swat, "SWAT", Qt::blue, plot);
+        addVerticalSaturationMarkerLine(swat, "SWAT", Qt::blue, plot, myPlotMarkers);
     }
     if (sgas != HUGE_VAL)
     {
-        addVerticalSaturationMarkerLine(sgas, "SGAS", Qt::red, plot);
+        addVerticalSaturationMarkerLine(sgas, "SGAS", Qt::red, plot, myPlotMarkers);
     }
 
 
@@ -316,9 +325,6 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
     plot->enableAxis(QwtPlot::yRight, shouldEableRightYAxis);
 
     plot->replot();
-
-    //plot->setAxisScale(QwtPlot::xBottom, 0, 1);
-    //plot->setAxisScale(QwtPlot::yLeft, 0, 1);
 }
 
 
@@ -357,7 +363,7 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
 //--------------------------------------------------------------------------------------------------
 /// Add a vertical labeled marker line at the specified saturation value
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot)
+void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     QwtPlotMarker* lineMarker = new QwtPlotMarker;
     lineMarker->setXValue(saturationValue);
@@ -368,12 +374,13 @@ void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(double sa
     lineMarker->setLabelOrientation(Qt::Vertical);
 
     lineMarker->attach(plot);
+    myPlotMarkers->push_back(lineMarker);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Add a marker at the intersection of the passed curve and the constant saturation value
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot)
+void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     const double yVal = interpolatedCurveYValue(curve.xVals, curve.yVals, saturationValue);
     if (yVal != HUGE_VAL)
@@ -392,6 +399,8 @@ void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker
         {
             pointMarker->setYAxis(QwtPlot::yRight);
         }
+
+        myPlotMarkers->push_back(pointMarker);
     }
 }
 
