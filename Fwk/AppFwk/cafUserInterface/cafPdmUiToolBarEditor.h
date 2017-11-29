@@ -61,12 +61,10 @@ public:
     ~PdmUiToolBarEditor();
 
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
+    void clear();
 
 protected:
     virtual void configureAndUpdateUi(const QString& uiConfigName);
-
-private:
-    void    clear();
 
 private:
     QToolBar*   m_toolbar;
