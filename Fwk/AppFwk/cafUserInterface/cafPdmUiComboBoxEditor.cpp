@@ -43,6 +43,7 @@
 
 #include "cafFactory.h"
 
+#include <QApplication>
 #include <QComboBox>
 #include <QLabel>
 #include <QWheelEvent>
@@ -61,6 +62,14 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (!m_label.isNull())
     {
         PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    }
+
+    // Handle attributes
+    PdmUiComboBoxEditorAttribute attributes;
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
     }
 
     if (!m_comboBox.isNull())
@@ -87,20 +96,49 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_comboBox->setCurrentIndex(0);
         }
 
-        // Handle attributes
-        PdmUiComboBoxEditorAttribute attributes;
-        caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
-        if (uiObject)
-        {
-            uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
-        }
-
         if (attributes.adjustWidthToContents)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         }
 
         m_comboBox->blockSignals(false);
+    }
+
+    if (attributes.showPreviousAndNextButtons)
+    {
+        if (m_previousItemButton.isNull())
+        {
+            m_previousItemButton = new QToolButton(m_placeholder);
+            connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
+
+            m_previousItemButton->setToolTip("Previous");
+            m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+        }
+        if (m_nextItemButton.isNull())
+        {
+            m_nextItemButton = new QToolButton(m_placeholder);
+            connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
+
+            m_nextItemButton->setToolTip("Next");
+            m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+        }
+
+        m_layout->insertWidget(1, m_previousItemButton);
+        m_layout->insertWidget(2, m_nextItemButton);
+    }
+    else
+    {
+        if (m_previousItemButton)
+        {
+            m_layout->removeWidget(m_previousItemButton);
+            m_previousItemButton->deleteLater();
+        }
+
+        if (m_nextItemButton)
+        {
+            m_layout->removeWidget(m_nextItemButton);
+            m_nextItemButton->deleteLater();
+        }
     }
 }
 
@@ -162,9 +200,16 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
     m_comboBox = new CustomQComboBox(parent);
     m_comboBox->setFocusPolicy(Qt::StrongFocus);
 
+    m_placeholder = new QWidget(parent);
+
+    m_layout = new QHBoxLayout(m_placeholder);
+    m_layout->setContentsMargins(0,0,0,0);
+    m_layout->setSpacing(0);
+    m_layout->addWidget(m_comboBox);
+
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(slotIndexActivated(int)));
 
-    return m_comboBox;
+    return m_placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,5 +234,31 @@ void PdmUiComboBoxEditor::slotIndexActivated(int index)
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotNextButtonPressed()
+{
+    int indexCandidate = m_comboBox->currentIndex() + 1;
+
+    if (indexCandidate < m_comboBox->count())
+    {
+        slotIndexActivated(indexCandidate);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotPreviousButtonPressed()
+{
+    int indexCandidate = m_comboBox->currentIndex() - 1;
+
+    if (indexCandidate > -1 && indexCandidate < m_comboBox->count())
+    {
+        slotIndexActivated(indexCandidate);
+    }
+}
 
 } // end namespace caf

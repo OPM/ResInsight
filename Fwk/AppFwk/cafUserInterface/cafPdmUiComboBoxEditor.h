@@ -39,12 +39,14 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QWidget>
-#include <QPointer>
-#include <QComboBox>
-#include <QLabel>
 
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPointer>
+#include <QString>
+#include <QToolButton>
+#include <QWidget>
 
 namespace caf 
 {
@@ -56,12 +58,15 @@ namespace caf
 class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    bool    adjustWidthToContents;
-
     PdmUiComboBoxEditorAttribute()
     {
         adjustWidthToContents = false;
+        showPreviousAndNextButtons = false;
     }
+
+public:
+    bool adjustWidthToContents;
+    bool showPreviousAndNextButtons;
 };
 
 
@@ -82,9 +87,17 @@ protected:
 protected slots:
     void                slotIndexActivated(int index);
 
+    void                slotNextButtonPressed();
+    void                slotPreviousButtonPressed();
+
 private:
     QPointer<QComboBox> m_comboBox;
     QPointer<QLabel>    m_label;
+
+    QPointer<QToolButton> m_previousItemButton;
+    QPointer<QToolButton> m_nextItemButton;
+    QPointer<QHBoxLayout> m_layout;
+    QPointer<QWidget>     m_placeholder;
 };
 
 
