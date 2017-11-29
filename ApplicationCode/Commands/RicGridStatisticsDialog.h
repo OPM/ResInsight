@@ -46,7 +46,8 @@ public:
     ~RicGridStatisticsDialog();
 
     void                    setLabel(const QString& labelText);
-    void                    setCurrentRimView(RimView* rimView);
+    void                    updateFromRimView(RimView* rimView);
+    QImage                  screenShotImage();
 
 private:
     void                    setInfoText(RimView* eclipseView);
@@ -61,8 +62,8 @@ private:
 
 private slots:
     void slotDialogFinished();
-    void screenShotToClipboard();
-    void screenShotToFile();
+    void slotScreenShotToClipboard();
+    void slotScreenShotToFile();
 
 private:
     QToolBar*                           m_toolBar;

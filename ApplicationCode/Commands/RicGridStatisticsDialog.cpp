@@ -116,11 +116,20 @@ void RicGridStatisticsDialog::setLabel(const QString& labelText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setCurrentRimView(RimView* rimView)
+void RicGridStatisticsDialog::updateFromRimView(RimView* rimView)
 {
     m_currentRimView = rimView;
     setInfoText(m_currentRimView);
     setHistogramData(m_currentRimView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RicGridStatisticsDialog::screenShotImage()
+{
+    QPixmap shot = QPixmap::grabWidget(m_mainViewWidget, m_mainViewWidget->rect());
+    return shot.toImage();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,10 +221,10 @@ void RicGridStatisticsDialog::setHistogramData(RimView* view)
 void RicGridStatisticsDialog::createAndConnectToolbarActions()
 {
     QAction* scrShotToClipboardAction = m_toolBar->addAction(RicSnapshotViewToClipboardFeature::icon(), RicSnapshotViewToClipboardFeature::text());
-    connect(scrShotToClipboardAction, SIGNAL(triggered()), this, SLOT(screenShotToClipboard()));
+    connect(scrShotToClipboardAction, SIGNAL(triggered()), this, SLOT(slotScreenShotToClipboard()));
 
     QAction* scrShotToFileAction = m_toolBar->addAction(RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text());
-    connect(scrShotToFileAction, SIGNAL(triggered()), this, SLOT(screenShotToFile()));
+    connect(scrShotToFileAction, SIGNAL(triggered()), this, SLOT(slotScreenShotToFile()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,18 +305,18 @@ void RicGridStatisticsDialog::slotDialogFinished()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::screenShotToClipboard()
+void RicGridStatisticsDialog::slotScreenShotToClipboard()
 {
-    QPixmap shot = QPixmap::grabWidget(m_mainViewWidget, m_mainViewWidget->rect());
-    RicSnapshotViewToClipboardFeature::copyToClipboard(shot.toImage());
+    QImage snapshotImage = screenShotImage();
+    RicSnapshotViewToClipboardFeature::copyToClipboard(snapshotImage);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::screenShotToFile()
+void RicGridStatisticsDialog::slotScreenShotToFile()
 {
-    QPixmap shot = QPixmap::grabWidget(m_mainViewWidget, m_mainViewWidget->rect());
+    QImage snapshotImage = screenShotImage();
     QString defaultFileBaseName;
     if (m_currentRimView)
     {
@@ -318,5 +327,5 @@ void RicGridStatisticsDialog::screenShotToFile()
     {
         defaultFileBaseName = "Snapshot_Statistics";
     }
-    RicSnapshotViewToFileFeature::saveToFile(shot.toImage(), defaultFileBaseName);
+    RicSnapshotViewToFileFeature::saveToFile(snapshotImage, defaultFileBaseName);
 }

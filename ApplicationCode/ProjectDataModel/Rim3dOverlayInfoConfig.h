@@ -76,7 +76,8 @@ public:
     QString                                     caseInfoText();
     QString                                     resultInfoText(const HistogramData& histData);
 
-    void                                        showStatisticsInfoDialog();
+    void                                        showStatisticsInfoDialog(bool raise = true);
+    QImage                                      statisticsDialogScreenShotImage();
 
     enum StatisticsTimeRangeType
     {

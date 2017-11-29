@@ -26,6 +26,7 @@
 #include "RimViewWindow.h"
 #include "RimView.h"
 #include "RimCase.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
@@ -120,6 +121,11 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
+
+                // Statistics dialog
+                QImage img = riv->overlayInfoConfig()->statisticsDialogScreenShotImage();
+                absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName + "_Statistics", ".png");
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, img);
             }
         }
     }

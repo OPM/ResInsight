@@ -53,6 +53,7 @@
 #include "RiuViewer.h"
 
 #include <QMessageBox>
+#include <QApplication>
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +212,27 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
     if (eclipseView) return resultInfoText(histData, eclipseView);
     if (geoMechView) return resultInfoText(histData, geoMechView);
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
+{
+    bool isDialogOpen = m_gridStatisticsDialog->isVisible();
+    if (!isDialogOpen)
+    {
+        showStatisticsInfoDialog(false);
+        QApplication::processEvents();
+    }
+    
+    QImage img = m_gridStatisticsDialog->screenShotImage();
+    
+    if (!isDialogOpen)
+    {
+        m_gridStatisticsDialog->close();
+    }
+    return img;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,7 +626,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::showStatisticsInfoDialog()
+void Rim3dOverlayInfoConfig::showStatisticsInfoDialog(bool raise)
 {
     if (m_viewDef)
     {
@@ -613,11 +635,12 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog()
         m_gridStatisticsDialog->show();
 
         m_gridStatisticsDialog->setLabel("Grid statistics");
-        m_gridStatisticsDialog->setCurrentRimView(m_viewDef);
-        //m_gridStatisticsDialog->setInfoText(m_viewDef);
-        //m_gridStatisticsDialog->setHistogramData(m_viewDef);
+        m_gridStatisticsDialog->updateFromRimView(m_viewDef);
 
-        m_gridStatisticsDialog->raise();
+        if (raise)
+        {
+            m_gridStatisticsDialog->raise();
+        }
     }
 }
 
@@ -658,9 +681,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         updateEclipse3DInfo(reservoirView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->setCurrentRimView(reservoirView);
-        //m_gridStatisticsDialog->setInfoText(reservoirView);
-        //m_gridStatisticsDialog->setHistogramData(reservoirView);
+        m_gridStatisticsDialog->updateFromRimView(reservoirView);
     }
 
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
@@ -671,9 +692,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         updateGeoMech3DInfo(geoMechView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->setCurrentRimView(geoMechView);
-        //m_gridStatisticsDialog->setInfoText(geoMechView);
-        //m_gridStatisticsDialog->setHistogramData(geoMechView);
+        m_gridStatisticsDialog->updateFromRimView(geoMechView);
     }
 }
 
