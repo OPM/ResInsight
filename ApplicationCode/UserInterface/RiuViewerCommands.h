@@ -59,11 +59,8 @@ public:
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
 
-    caf::PdmObject* currentPickedObject() const;
-
 private slots:
     void            slotAddGeoMechPropertyFilter();
-    void            slotHideIntersection();
 
 private:
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
@@ -80,7 +77,6 @@ private:
     cvf::Vec3d  m_currentPickPositionInDomainCoords;
 
     caf::PdmPointer<RimView> m_reservoirView;
-    caf::PdmPointer<caf::PdmObject> m_currentPickedObject;
 
     QPointer<RiuViewer> m_viewer;
 

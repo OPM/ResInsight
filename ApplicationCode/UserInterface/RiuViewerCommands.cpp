@@ -137,7 +137,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 {
     m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
     m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
-    m_currentPickedObject = nullptr;
 
     int winPosX = event->x();
     int winPosY = event->y();
@@ -196,16 +195,21 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
-                m_currentPickedObject = const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection());
 
-                menu.addAction(QString("Hide intersection"), this, SLOT(slotHideIntersection()));
+                RiuSelectionItem* selItem = new RiuGeneralSelectionItem(crossSectionSourceInfo->crossSection());
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                
+                menuBuilder << "RicHideIntersectionFeature";
             }
             else if (intersectionBoxSourceInfo)
             {
                 findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
-                m_currentPickedObject = const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox());
+                RiuSelectionItem* selItem = new RiuGeneralSelectionItem(intersectionBoxSourceInfo->intersectionBox());
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+
+                menuBuilder << "RicHideIntersectionBoxFeature";
             }
 
             // IJK -slice commands
@@ -389,24 +393,6 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotHideIntersection()
-{
-    RimIntersection* rimIntersection = dynamic_cast<RimIntersection*>(currentPickedObject());
-    if (rimIntersection)
-    {
-        rimIntersection->isActive = false;
-        rimIntersection->updateConnectedEditors();
-
-        if (m_reservoirView)
-        {
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers)
 {
     if (handleOverlayItemPicking(winPosX, winPosY))
@@ -577,14 +563,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
 {
     return m_currentPickPositionInDomainCoords;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiuViewerCommands::currentPickedObject() const
-{
-    return m_currentPickedObject;
 }
 
 //--------------------------------------------------------------------------------------------------
