@@ -63,7 +63,6 @@ public:
 
 private slots:
     void            slotHideFault();
-    void            slotAddEclipsePropertyFilter();
     void            slotAddGeoMechPropertyFilter();
     void            slotHideIntersection();
 

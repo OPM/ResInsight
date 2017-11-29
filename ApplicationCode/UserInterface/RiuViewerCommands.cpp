@@ -245,28 +245,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             menu.addSeparator();
 
 
+            menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
             {
-                RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
-                if (cellColors)
-                {
-                    QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add Property Filter"), this);
-                    connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
-
-                    bool isPerCellFaceResult = RiaDefines::isPerCellFaceResult(cellColors->resultVariable());
-                    if (isPerCellFaceResult)
-                    {
-                        propertyAction->setEnabled(false);
-                    }
-
-                    if (!viewController || !viewController->isPropertyFilterOveridden())
-                    {
-                        menu.addAction(propertyAction);
-                    }
-                }
-
                 // Hide faults command
                 const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
                 if (fault)
@@ -402,20 +385,6 @@ void RiuViewerCommands::slotHideFault()
         {
             rimFault->showFault.setValueWithFieldChanged(!rimFault->showFault);
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::slotAddEclipsePropertyFilter()
-{
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if (eclipseView)
-    {
-        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->eclipsePropertyFilterCollection();
-        RicEclipsePropertyFilterNewExec* propCmdExe = new RicEclipsePropertyFilterNewExec(filterCollection);
-        caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
     }
 }
 
