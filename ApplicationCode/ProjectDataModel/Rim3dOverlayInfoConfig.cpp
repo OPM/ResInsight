@@ -823,7 +823,7 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
     std::vector<QDateTime> timeSteps = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
 
     QString dateTimeString;
-    if (currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size())
+    if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
     {
         QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
         dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex), 
