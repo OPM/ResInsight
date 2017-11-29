@@ -121,6 +121,8 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 
     cleanUpTemporaryWidgets();
 
+    m_summaryPlotToolBar->clear();
+
     setWindowTitle("Plots - ResInsight");
 }
 
