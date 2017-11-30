@@ -219,20 +219,11 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
 //--------------------------------------------------------------------------------------------------
 QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
 {
-    bool isDialogOpen = m_gridStatisticsDialog->isVisible();
-    if (!isDialogOpen)
+    if (m_gridStatisticsDialog->isVisible())
     {
-        showStatisticsInfoDialog(false);
-        QApplication::processEvents();
+        return m_gridStatisticsDialog->screenShotImage();
     }
-    
-    QImage img = m_gridStatisticsDialog->screenShotImage();
-    
-    if (!isDialogOpen)
-    {
-        m_gridStatisticsDialog->close();
-    }
-    return img;
+    return QImage();
 }
 
 //--------------------------------------------------------------------------------------------------
