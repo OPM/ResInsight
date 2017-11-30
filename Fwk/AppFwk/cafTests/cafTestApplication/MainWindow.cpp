@@ -38,6 +38,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 
 
@@ -341,6 +342,14 @@ protected:
             if (attr)
             {
                 attr->fieldToReceiveCurrentItemValue = &m_highlightedEnum;
+            }
+        }
+        else if (field == &m_proxyEnumField)
+        {
+            caf::PdmUiComboBoxEditorAttribute* attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->showPreviousAndNextButtons = true;
             }
         }
     }

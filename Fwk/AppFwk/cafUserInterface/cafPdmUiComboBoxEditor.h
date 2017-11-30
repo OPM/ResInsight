@@ -39,7 +39,6 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -52,9 +51,8 @@ namespace caf
 {
 
 //==================================================================================================
-/// The default editor for several PdmFields.
+/// 
 //==================================================================================================
-
 class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -70,6 +68,9 @@ public:
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT

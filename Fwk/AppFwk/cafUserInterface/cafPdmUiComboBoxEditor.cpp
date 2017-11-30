@@ -112,19 +112,38 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
 
             m_previousItemButton->setToolTip("Previous");
-            m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
         }
+
         if (m_nextItemButton.isNull())
         {
             m_nextItemButton = new QToolButton(m_placeholder);
             connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
 
             m_nextItemButton->setToolTip("Next");
-            m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
         }
 
         m_layout->insertWidget(1, m_previousItemButton);
         m_layout->insertWidget(2, m_nextItemButton);
+
+        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0)
+        {
+            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp).pixmap(16, 16, QIcon::Disabled));
+            m_previousItemButton->setIcon(disabledIcon);
+        }
+        else
+        {
+            m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+        }
+
+        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1)
+        {
+            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown).pixmap(16, 16, QIcon::Disabled));
+            m_nextItemButton->setIcon(disabledIcon);
+        }
+        else
+        {
+            m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+        }
     }
     else
     {
@@ -232,8 +251,6 @@ void PdmUiComboBoxEditor::slotIndexActivated(int index)
     QVariant uintValue(v.toUInt());
     this->setValueToField(uintValue);
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
