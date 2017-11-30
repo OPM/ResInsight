@@ -132,15 +132,13 @@ void RiuPvtPlotPanel::setPlotDefaults(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText)
+void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
     m_allFvfCurvesArr = fvfCurveArr;
     m_allViscosityCurvesArr = viscosityCurveArr;
     m_pressure = pressure;
-
-    m_cellReferenceText = cellReferenceText;
 
     plotUiSelectedCurves();
 }
@@ -152,7 +150,7 @@ void RiuPvtPlotPanel::clearPlot()
 {
     //cvf::Trace::show("RiuPvtPlotPanel::clearPlot()");
 
-    if (m_allFvfCurvesArr.empty() && m_allViscosityCurvesArr.empty() && m_cellReferenceText.isEmpty())
+    if (m_allFvfCurvesArr.empty() && m_allViscosityCurvesArr.empty())
     {
         return;
     }
@@ -160,8 +158,6 @@ void RiuPvtPlotPanel::clearPlot()
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
     m_pressure = HUGE_VAL;
-
-    m_cellReferenceText.clear();
 
     plotUiSelectedCurves();
 }

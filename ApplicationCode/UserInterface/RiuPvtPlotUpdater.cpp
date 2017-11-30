@@ -137,8 +137,6 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_FVF, activeCellIndex);
             std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex);
 
-            QString cellRefText = CellLookupHelper::cellReferenceText(eclipseCaseData, gridIndex, gridLocalCellIndex);
-
             const size_t timeStepIndex = static_cast<size_t>(eclipseView.currentTimeStep());
 
             // The following calls will read results from file in preparation for the queries below
@@ -155,7 +153,7 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             const double cellPressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             //cvf::Trace::show("cellRS = %f  cellRV = %f  cellPressure = %f", cellRS, cellRV, cellPressure);
 
-            plotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellPressure, cellRefText);
+            plotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellPressure);
 
             return true;
         }

@@ -44,7 +44,7 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure, QString cellReferenceText);
+    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
 
@@ -60,7 +60,6 @@ private:
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
     double                                              m_pressure;
-    QString                                             m_cellReferenceText;
 
     QComboBox*                                          m_phaseComboBox;
 

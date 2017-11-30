@@ -42,7 +42,8 @@ public:
     void updateOnTimeStepChanged(RimView* changedView);
 
 private:
-    static bool queryDataAndUpdatePlot(const RimEclipseView& eclipseView, size_t gridIndex, size_t gridLocalCellIndex, RiuRelativePermeabilityPlotPanel* plotPanel);
+    static bool     queryDataAndUpdatePlot(const RimEclipseView& eclipseView, size_t gridIndex, size_t gridLocalCellIndex, RiuRelativePermeabilityPlotPanel* plotPanel);
+    static QString  constructCellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex, double satnum);
 
 private:
     QPointer<RiuRelativePermeabilityPlotPanel>  m_targetPlotPanel;
@@ -60,7 +61,6 @@ class CellLookupHelper
 {
 public:
     static size_t   mapToActiveCellIndex(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex);
-    static QString  cellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex);
 };
 
 

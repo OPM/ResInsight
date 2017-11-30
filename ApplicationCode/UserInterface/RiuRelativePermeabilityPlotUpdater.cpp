@@ -25,6 +25,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RimView.h"
 #include "RimEclipseView.h"
@@ -125,23 +126,33 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
     CVF_ASSERT(plotPanel);
 
     RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseView.eclipseCase());
-    if (eclipseResultCase && eclipseResultCase->flowDiagSolverInterface())
+    RigEclipseCaseData* eclipseCaseData = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : NULL;
+    if (eclipseResultCase && eclipseCaseData && eclipseResultCase->flowDiagSolverInterface())
     {
-        size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), gridIndex, gridLocalCellIndex);
+        size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseCaseData, gridIndex, gridLocalCellIndex);
         if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
         {
             //cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
             std::vector<RigFlowDiagSolverInterface::RelPermCurve> relPermCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurvesForActiveCell(activeCellIndex);
-            QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), gridIndex, gridLocalCellIndex);
+
+            // Make sure we load the results that we'll query below
+            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
+            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+            cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "SATNUM");
 
             // Fetch SWAT and SGAS cell values for the selected cell
             const size_t timeStepIndex = static_cast<size_t>(eclipseView.currentTimeStep());
-            cvf::ref<RigResultAccessor> swatAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseResultCase->eclipseCaseData(), gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SWAT", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> sgasAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseResultCase->eclipseCaseData(), gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SGAS", RiaDefines::DYNAMIC_NATIVE);
+            cvf::ref<RigResultAccessor> swatAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SWAT", RiaDefines::DYNAMIC_NATIVE);
+            cvf::ref<RigResultAccessor> sgasAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SGAS", RiaDefines::DYNAMIC_NATIVE);
+            cvf::ref<RigResultAccessor> satnumAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SATNUM", RiaDefines::STATIC_NATIVE);
             const double cellSWAT = swatAccessor.notNull() ? swatAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             const double cellSGAS = sgasAccessor.notNull() ? sgasAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
-            //cvf::Trace::show("cellSWAT = %f  cellSGAS = %f", cellSWAT, cellSGAS);
+            const double cellSATNUM = satnumAccessor.notNull() ? satnumAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
+            //cvf::Trace::show("cellSWAT = %f  cellSGAS = %f  cellSATNUM = %f", cellSWAT, cellSGAS, cellSATNUM);
+
+            QString cellRefText = constructCellReferenceText(eclipseCaseData, gridIndex, gridLocalCellIndex, cellSATNUM);
 
             plotPanel->setPlotData(relPermCurveArr, cellSWAT, cellSGAS, cellRefText);
 
@@ -150,6 +161,39 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex, double satnum)
+{
+    const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
+    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+    if (grid && gridLocalCellIndex < grid->cellCount())
+    {
+        size_t i = 0;
+        size_t j = 0;
+        size_t k = 0;
+        if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+        {
+            // Adjust to 1-based Eclipse indexing
+            i++;
+            j++;
+            k++;
+
+            QString retText = QString("Grid index %1, Cell: [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
+
+            if (satnum != HUGE_VAL)
+            {
+                retText += QString(" (SATNUM=%1)").arg(satnum);
+            }
+
+            return retText;
+        }
+    }
+
+    return QString();
 }
 
 
@@ -180,33 +224,4 @@ size_t CellLookupHelper::mapToActiveCellIndex(const RigEclipseCaseData* eclipseC
 
     return cvf::UNDEFINED_SIZE_T;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString CellLookupHelper::cellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex)
-{
-    const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
-    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
-    if (grid && gridLocalCellIndex < grid->cellCount())
-    {
-        size_t i = 0;
-        size_t j = 0;
-        size_t k = 0;
-        if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
-        {
-            // Adjust to 1-based Eclipse indexing
-            i++;
-            j++;
-            k++;
-
-            QString retText = QString("Grid index %1, Cell : [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
-            return retText;
-        }
-    }
-
-    return QString();
-}
-
-
 
