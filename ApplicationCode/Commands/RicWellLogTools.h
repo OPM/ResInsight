@@ -39,6 +39,8 @@ public:
     static RimWellPath*                 selectedWellPath();
     static bool                         wellHasRftData(const QString& wellName);
 
+    static bool                         isWellPathOrSimWellSelectedInView();
+
     static void                         addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
     static RimWellPath*                 selectedWellPathWithLogFile();
 

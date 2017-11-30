@@ -110,6 +110,23 @@ bool RicWellLogTools::wellHasRftData(const QString& wellName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
+{
+    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+
+    RiuSimWellSelectionItem* simWellSelectionItem = static_cast<RiuSimWellSelectionItem*>(selItem);
+    if (simWellSelectionItem) return true;
+
+    RiuWellPathSelectionItem* wellPathSelectionItem = static_cast<RiuWellPathSelectionItem*>(selItem);
+    if (wellPathSelectionItem) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicWellLogTools::addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels)
 {
     for (size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++)
