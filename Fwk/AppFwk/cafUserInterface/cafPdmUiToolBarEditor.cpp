@@ -170,7 +170,7 @@ void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::clear()
 {
-    for (auto it : m_fieldViews)
+    for (const auto& it : m_fieldViews)
     {
         delete it.second;
     }
