@@ -19,9 +19,11 @@
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
+#include "RicWellLogTools.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimEclipseCellColors.h"
@@ -44,7 +46,6 @@
 #include "cvfColor3.h"
 
 #include <QAction>
-#include "RiaSummaryTools.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewGridTimeHistoryCurveFeature, "RicNewGridTimeHistoryCurveFeature");
@@ -200,6 +201,8 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 //--------------------------------------------------------------------------------------------------
 bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
 {
+    if (RicWellLogTools::isWellPathOrSimWellSelectedInView()) return false;
+
     std::vector<RiuSelectionItem*> items;
     RiuSelectionManager::instance()->selectedItems(items);
 

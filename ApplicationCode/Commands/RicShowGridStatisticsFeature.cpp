@@ -20,11 +20,12 @@
 
 #include "RiaApplication.h"
 #include "RicGridStatisticsDialog.h"
+#include "RicWellLogTools.h"
 
-#include "RimProject.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimProject.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -39,6 +40,8 @@ CAF_CMD_SOURCE_INIT(RicShowGridStatisticsFeature, "RicShowGridStatisticsFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicShowGridStatisticsFeature::isCommandEnabled()
 {
+    if (RicWellLogTools::isWellPathOrSimWellSelectedInView()) return false;
+    
     return RiaApplication::instance()->activeReservoirView() != nullptr;
 }
 
@@ -60,6 +63,6 @@ void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Grid statistics");
+    actionToSetup->setText("Grid Statistics");
     actionToSetup->setIcon(QIcon(":/statistics.png"));  // Todo: Change icon
 }
