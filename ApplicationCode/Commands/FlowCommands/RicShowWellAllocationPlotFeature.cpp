@@ -33,6 +33,9 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "RimWellPath.h"
+#include "RimEclipseView.h"
+#include "RimSimWellInViewCollection.h"
 
 CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlotFeature");
 
@@ -41,10 +44,27 @@ CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlot
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
+    std::vector<RimSimWellInView*> simWellCollection;
+    caf::SelectionManager::instance()->objectsByType(&simWellCollection);
 
-    if (collection.size() > 0)
+    if (simWellCollection.size() > 0)
+    {
+        return true;
+    }
+
+    std::vector<RimWellPath*> wellPathCollection;
+    caf::SelectionManager::instance()->objectsByType(&wellPathCollection);
+
+    if (wellPathCollection.empty()) return false;
+    
+    RimView* view = RiaApplication::instance()->activeReservoirView();
+    if (!view) return false;
+    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+    if (!eclView) return false;
+
+    RimSimWellInView* simWellFromWellPath = eclView->wellCollection->findWell(wellPathCollection[0]->associatedSimulationWellName());
+
+    if (simWellFromWellPath)
     {
         return true;
     }
@@ -60,22 +80,38 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
     std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
+    std::vector<RimWellPath*> wellPathCollection;
+    caf::SelectionManager::instance()->objectsByType(&wellPathCollection);
+
+    RimSimWellInView* simWell = nullptr;
+
     if (collection.size() > 0)
     {
-        RimSimWellInView* simWell = collection[0];
+        simWell = collection[0];
+    }
+    else if (wellPathCollection.size() > 0)
+    {
+        RimView* view = RiaApplication::instance()->activeReservoirView();
+        if (!view) return;
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+        if (!eclView) return;
 
-        if (RiaApplication::instance()->project())
+        simWell = eclView->wellCollection->findWell(wellPathCollection[0]->associatedSimulationWellName());
+        if (!simWell) return;
+    }
+    else return;
+
+    if (RiaApplication::instance()->project())
+    {
+        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        if (flowPlotColl)
         {
-            RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
-            if (flowPlotColl)
-            {
-                flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell(simWell);
-                flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
+            flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell(simWell);
+            flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
-                // Make sure the summary plot window is created and visible
-                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
-            }
+            // Make sure the summary plot window is created and visible
+            RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+            plotwindow->selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
         }
     }
 }
