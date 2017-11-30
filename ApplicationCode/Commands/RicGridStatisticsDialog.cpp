@@ -88,7 +88,6 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
     plotLayout->addWidget(m_aggregatedPlot);
     mainViewLayout->addLayout(plotLayout);
 
-    dialogLayout->addLayout(mainViewLayout);
     dialogLayout->addWidget(m_buttons);
 
     setLayout(dialogLayout);
