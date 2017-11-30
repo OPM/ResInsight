@@ -36,10 +36,10 @@ RimFaultInView::RimFaultInView()
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show fault", "", "", "");
+    CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show Fault", "", "", "");
     showFault.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault color", "", "", "");
+    CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault Color", "", "", "");
 
     m_rigFault = NULL;
 }

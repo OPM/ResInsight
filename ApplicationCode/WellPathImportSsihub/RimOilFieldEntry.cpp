@@ -41,11 +41,11 @@ RimOilFieldEntry::RimOilFieldEntry()
 {
     CAF_PDM_InitObject("OilFieldEntry", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,       "OilFieldName",      "OilFieldName", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&edmId,      "EdmId",             "EdmId", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&name,       "OilFieldName",      "Oil Field Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&edmId,      "EdmId",             "Edm ID", "", "", "");
     CAF_PDM_InitField(&selected,            "Selected", false,    "Selected", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "wellsFilePath", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "Wells File Path", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "",  "", "", "");
     wells.uiCapability()->setUiHidden(true);

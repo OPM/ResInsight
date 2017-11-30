@@ -100,7 +100,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_yValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
     
-    CAF_PDM_InitFieldNoDefault(&m_yValuesCurveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_yValuesCurveVariable, "SummaryAddress", "Summary Address", "", "", "");
     m_yValuesCurveVariable.uiCapability()->setUiHidden(true);
     m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
@@ -135,7 +135,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_xValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "x_SummaryAddress", "SummaryAddress", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "x_SummaryAddress", "Summary Address", "", "", "");
     m_xValuesCurveVariable.uiCapability()->setUiHidden(true);
     m_xValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 

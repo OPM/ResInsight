@@ -54,14 +54,14 @@ RimCellEdgeColors::RimCellEdgeColors()
 {
     CAF_PDM_InitObject("Cell Edge Result", ":/EdgeResult_1.png", "", "");
 
-    CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
+    CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable Cell Edge Results", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_propertyType, "propertyType", "Property Type", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultVariable, "CellEdgeVariable", "Result property", "", "", "");
-    CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
-    CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
-    CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");
+    CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X Values", "", "", "");
+    CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y Values", "", "", "");
+    CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z Values", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 

@@ -108,19 +108,19 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
     filepath.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
+    CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in File", "", "", "");
     wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_simWellName, "SimWellName", QString(""), "Well", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "SimBranchIndex", 0, "Branch", "", "", "");
 
-    CAF_PDM_InitField(&showWellPathLabel,           "ShowWellPathLabel",    true,           "Show well path label", "", "", "");
+    CAF_PDM_InitField(&showWellPathLabel,           "ShowWellPathLabel",    true,           "Show Well Path Label", "", "", "");
 
-    CAF_PDM_InitField(&showWellPath,                "ShowWellPath",         true,           "Show well path", "", "", "");
+    CAF_PDM_InitField(&showWellPath,                "ShowWellPath",         true,           "Show Well Path", "", "", "");
     showWellPath.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
-    CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
+    CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well Path Radius Scale", "", "", "");
+    CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well Path Color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_completions, "Completions", "Completions", "", "", "");
     m_completions = new RimWellPathCompletions;

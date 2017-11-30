@@ -118,10 +118,10 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "");
     calculationCollection = new RimSummaryCalculationCollection;
 
-    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "Command Objects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "MultiSnapshotDefinitions", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
     mainWindowTreeViewState.uiCapability()->setUiHidden(true);

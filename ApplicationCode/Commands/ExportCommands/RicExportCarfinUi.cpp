@@ -37,7 +37,7 @@ RicExportCarfinUi::RicExportCarfinUi()
 {
     CAF_PDM_InitObject("Export CARFIN", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_cellRange, "CellRange", "CellRange", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellRange, "CellRange", "Cell Range", "", "", "");
     m_cellRange = new RicCellRangeUi;
 
     CAF_PDM_InitFieldNoDefault(&m_exportFileName, "ExportFileName", "Export Filename", "", "", "");

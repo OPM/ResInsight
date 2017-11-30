@@ -109,7 +109,7 @@ RimView::RimView(void)
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
     CAF_PDM_InitField(&backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
-    CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate", "", "", "");
+    CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "");
     maximumFrameRate.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "");
     hasUserRequestedAnimation.uiCapability()->setUiHidden(true);
@@ -124,8 +124,8 @@ RimView::RimView(void)
 
     caf::AppEnum<RimView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
-    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
-    CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
+    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid Lines",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid Surface",  "", "", "");
 
     CAF_PDM_InitField(&showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
 

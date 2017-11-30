@@ -113,9 +113,9 @@ RimWellPltPlot::RimWellPltPlot()
     m_wellLogPlot = new RimWellLogPlot();
     m_wellLogPlot->setDepthType(RimWellLogPlot::MEASURED_DEPTH);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPathName, "WellName", "WellName", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPathName, "WellName", "Well Name", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SourcesInternal", "SourcesInternal", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SourcesInternal", "Sources Internal", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
@@ -124,7 +124,7 @@ RimWellPltPlot::RimWellPltPlot()
     CAF_PDM_InitFieldNoDefault(&m_selectedSourcesForIo, "Sources", "Sources", "", "", "");
     m_selectedSourcesForIo.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "TimeSteps", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "");
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);

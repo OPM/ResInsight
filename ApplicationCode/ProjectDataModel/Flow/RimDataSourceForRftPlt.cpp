@@ -85,9 +85,9 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 //--------------------------------------------------------------------------------------------------
 void RimDataSourceForRftPlt::InitPdmObject()
 {
-    CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "SourceType", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "EclipseCase", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "WellLogFile", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "Source Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "Eclipse Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

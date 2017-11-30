@@ -48,12 +48,12 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    CAF_PDM_InitFieldNoDefault(&fractureDefinitionCollection, "FractureDefinitionCollection", "Defenition of fractures", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureDefinitionCollection, "FractureDefinitionCollection", "Defenition of Fractures", "", "", "");
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitFieldNoDefault(&summaryCaseMainCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
-    CAF_PDM_InitFieldNoDefault(&observedDataCollection, "ObservedDataCollection", "Observed data", ":/Cases16x16.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "");
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     fractureDefinitionCollection = new RimFractureTemplateCollection();

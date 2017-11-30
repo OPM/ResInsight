@@ -48,9 +48,9 @@ RicCellRangeUi::RicCellRangeUi()
 
     CAF_PDM_InitField(&m_gridIndex, "GridIndex", 0, "Grid", "", "", "");
 
-    CAF_PDM_InitField(&m_startIndexI, "StartIndexI", 1, "Start index I", "", "", "");
-    CAF_PDM_InitField(&m_startIndexJ, "StartIndexJ", 1, "Start index J", "", "", "");
-    CAF_PDM_InitField(&m_startIndexK, "StartIndexK", 1, "Start index K", "", "", "");
+    CAF_PDM_InitField(&m_startIndexI, "StartIndexI", 1, "Start Index I", "", "", "");
+    CAF_PDM_InitField(&m_startIndexJ, "StartIndexJ", 1, "Start Index J", "", "", "");
+    CAF_PDM_InitField(&m_startIndexK, "StartIndexK", 1, "Start Index K", "", "", "");
     
     CAF_PDM_InitField(&m_cellCountI, "CellCountI", 1, "Cell Count I", "", "", "");
     CAF_PDM_InitField(&m_cellCountJ, "CellCountJ", 1, "Cell Count J", "", "", "");

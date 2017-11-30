@@ -45,7 +45,7 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 {
     CAF_PDM_InitObject("Property Filter", ":/CellFilter_Values.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimGeoMechResultDefinition();
 
     // Set to hidden to avoid this item to been displayed as a child item

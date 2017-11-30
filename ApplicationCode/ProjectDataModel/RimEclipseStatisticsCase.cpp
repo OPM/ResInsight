@@ -66,7 +66,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_calculateEditCommand);
     m_calculateEditCommand = false;
 
-    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
+    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of Calculation Setup", "", "", "");
     m_selectionSummary.xmlCapability()->setIOWritable(false);
     m_selectionSummary.xmlCapability()->setIOReadable(false);
     m_selectionSummary.uiCapability()->setUiReadOnly(true);

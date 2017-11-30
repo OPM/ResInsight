@@ -76,13 +76,13 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogPlot, "WellLog", "WellLog", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellLogPlot, "WellLog", "Well Log", "", "", "");
     m_wellLogPlot.uiCapability()->setUiHidden(true);
     m_wellLogPlot = new RimWellLogPlot();
     m_wellLogPlot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPathNameOrSimWellName, "WellName", "WellName", "", "", "");
-    CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "BranchIndex", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "");
+    CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -90,7 +90,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "TimeSteps", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "");
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);

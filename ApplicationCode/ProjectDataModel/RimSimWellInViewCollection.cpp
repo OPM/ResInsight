@@ -164,7 +164,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "Unique Pipe Colors", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyIndividualColorsToWells);
 
-    CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
+    CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe Vertex Count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Type", "", "", "");
 

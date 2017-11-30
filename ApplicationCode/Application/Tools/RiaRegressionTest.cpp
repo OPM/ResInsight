@@ -33,7 +33,7 @@ RiaRegressionTest::RiaRegressionTest(void)
     applicationWorkingFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "");
-    CAF_PDM_InitField(&showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive diff images", "", "", "");
+    CAF_PDM_InitField(&showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive Diff Images", "", "", "");
     
     CAF_PDM_InitFieldNoDefault(&testFilter,   "testFilter", "Test Filter", "", "If empty, all tests are executed.\nTo execute a subset of tests, specify folder names separated by ;", "");
     testFilter.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());

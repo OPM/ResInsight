@@ -98,7 +98,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_porosityModelUiField.xmlCapability()->setIOReadable(false);
     m_porosityModelUiField.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RiaDefines::undefinedResultName(), "Result property", "", "", "" );
+    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RiaDefines::undefinedResultName(), "Result Property", "", "", "" );
     m_resultVariableUiField.xmlCapability()->setIOReadable(false);
     m_resultVariableUiField.xmlCapability()->setIOWritable(false);
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());

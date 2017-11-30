@@ -59,12 +59,12 @@ RimEclipseInputCase::RimEclipseInputCase()
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_additionalFiles, "AdditionalFileNamesProxy", "Additional files", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files", "", "", "");
     m_additionalFiles.registerGetMethod(this, &RimEclipseInputCase::additionalFiles);
     m_additionalFiles.uiCapability()->setUiReadOnly(true);
     m_additionalFiles.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional files", "", "" ,"");
+    CAF_PDM_InitFieldNoDefault(&m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional Files", "", "" ,"");
     m_additionalFilenames_OBSOLETE.uiCapability()->setUiReadOnly(true);
     m_additionalFilenames_OBSOLETE.uiCapability()->setUiHidden(true);
     m_additionalFilenames_OBSOLETE.xmlCapability()->setIOWritable(false);

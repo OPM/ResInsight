@@ -95,7 +95,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_userName, "TrackDescription", "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_show, "Show", true, "Show track", "", "", "");
+    CAF_PDM_InitField(&m_show, "Show", true, "Show Track", "", "", "");
     m_show.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");

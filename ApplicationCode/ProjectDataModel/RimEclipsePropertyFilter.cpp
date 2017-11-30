@@ -64,11 +64,11 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "");
     obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
     obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
 
     // Set to hidden to avoid this item to been displayed as a child item

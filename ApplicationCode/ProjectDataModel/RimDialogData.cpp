@@ -29,7 +29,7 @@ RimDialogData::RimDialogData()
 {
     CAF_PDM_InitObject("Dialog Data", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_exportCarfin, "ExportCarfin", "ExportCarfin", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_exportCarfin, "ExportCarfin", "Export Carfin", "", "", "");
     m_exportCarfin = new RicExportCarfinUi;
 }
 

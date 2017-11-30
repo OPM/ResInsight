@@ -65,7 +65,7 @@ RimSummaryFilter::RimSummaryFilter()
     CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Group name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellNameFilter, "SummaryWellNameFilter", "Well name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment number", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter, "SummaryLgrNameFilter", "Lgr name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter, "SummaryLgrNameFilter", "LGR Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter, "SummaryCellIJKFilter", "I, J, K", "", "", "");
 
 }

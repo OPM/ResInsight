@@ -54,10 +54,10 @@ RimEclipseInputProperty::RimEclipseInputProperty()
 {
     CAF_PDM_InitObject("Input Property", ":/EclipseInput48x48.png", "", "");
     
-    CAF_PDM_InitField(&resultName, "ResultName",  QString(), "Result name", "", "" ,"");
+    CAF_PDM_InitField(&resultName, "ResultName",  QString(), "Result Name", "", "" ,"");
     CAF_PDM_InitField(&eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword", "", "" ,"");
     CAF_PDM_InitField(&fileName, "FileName", QString(), "Filename", "", "" ,"");
-    CAF_PDM_InitField(&resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data state", "", "", "");
+    CAF_PDM_InitField(&resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data State", "", "", "");
 
     resolvedState.uiCapability()->setUiReadOnly(true);
     resolvedState.xmlCapability()->setIOReadable(false); 

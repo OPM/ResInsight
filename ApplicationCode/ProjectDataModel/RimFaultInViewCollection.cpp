@@ -64,18 +64,18 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField(&showFaultCollection, "Active", true, "Active", "", "", "");
     showFaultCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showFaultFaces, "ShowFaultFaces", true, "Show defined faces", "", "", "");
-    CAF_PDM_InitField(&showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show faults outside filters", "", "", "");
+    CAF_PDM_InitField(&showFaultFaces, "ShowFaultFaces", true, "Show Defined faces", "", "", "");
+    CAF_PDM_InitField(&showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces", "", "", "");
+    CAF_PDM_InitField(&m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult, "FaultFaceCulling", caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
-    CAF_PDM_InitField(&showFaultLabel, "ShowFaultLabel", false, "Show labels", "", "", "");
+    CAF_PDM_InitField(&showFaultLabel, "ShowFaultLabel", false, "Show Labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
-    CAF_PDM_InitField(&faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label color", "", "", "");
+    CAF_PDM_InitField(&faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "");
 
     CAF_PDM_InitField(&showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
+    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC Geometry if No NNC Result is Available", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
     noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
