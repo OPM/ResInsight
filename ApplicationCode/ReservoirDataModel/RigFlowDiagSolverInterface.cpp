@@ -18,6 +18,8 @@
 
 #include "RigFlowDiagSolverInterface.h"
 
+#include "RiaLogging.h"
+
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderInterface.h"
 
@@ -135,7 +137,7 @@ public:
         }
         catch (...)
         {
-            cvf::Trace::show("Exception trying to construct ECLPvtCurveCollection instance");
+            RiaLogging::warning("Unsupported PVT table format. Could not initialize PVT plotting functionality.");
         }
     }
 
