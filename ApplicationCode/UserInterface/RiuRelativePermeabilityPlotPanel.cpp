@@ -42,6 +42,7 @@
 #include <QButtonGroup>
 
 #include <algorithm>
+#include <cmath>
 
 
 
@@ -251,9 +252,27 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setStyle(QwtPlotCurve::Lines);
 
-        const QColor curveClr = curveColorFromIdent(curve.ident);
-        const QPen curvePen(curveClr);
+        bool plotCurveOnRightAxis = false;
+        Qt::PenStyle penStyle = Qt::SolidLine;
+        QColor clr = Qt::magenta;
+        switch (curve.ident)
+        {
+            case RigFlowDiagSolverInterface::RelPermCurve::KRW:   clr = QColor(0, 0, 200); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROW:  clr = QColor(0, 0, 200); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  clr = QColor(0, 130, 175); penStyle = Qt::DashLine; plotCurveOnRightAxis = true; break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KRG:   clr = QColor(200, 0, 0); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::KROG:  clr = QColor(200, 0, 0); break;
+            case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  clr = QColor(225, 110, 0); penStyle = Qt::DashLine; plotCurveOnRightAxis = true; break;
+        }
+
+        const QPen curvePen(clr, 1, penStyle);
         qwtCurve->setPen(curvePen);
+
+        QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
+        curveSymbol->setSize(6, 6);
+        curveSymbol->setPen(clr);
+        curveSymbol->setBrush(Qt::NoBrush);
+        qwtCurve->setSymbol(curveSymbol);
 
         qwtCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
         qwtCurve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol, true);
@@ -261,16 +280,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(const std::vector<RigFlow
 
         qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
-        // Curves containing capillary pressure are plotted on the right y axis and are marked with small circles
-        const bool plotCurveOnRightAxis = (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOW) || (curve.ident == RigFlowDiagSolverInterface::RelPermCurve::PCOG);
         if (plotCurveOnRightAxis)
         {
-            QwtSymbol* curveSymbol = new QwtSymbol(QwtSymbol::Ellipse);
-            curveSymbol->setSize(6, 6);
-            curveSymbol->setPen(curvePen);
-            curveSymbol->setBrush(Qt::NoBrush);
-            qwtCurve->setSymbol(curveSymbol);
-
             qwtCurve->setYAxis(QwtPlot::yRight);
             shouldEableRightYAxis = true;
         }
@@ -368,7 +379,7 @@ void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(double sa
     QwtPlotMarker* lineMarker = new QwtPlotMarker;
     lineMarker->setXValue(saturationValue);
     lineMarker->setLineStyle(QwtPlotMarker::VLine);
-    lineMarker->setLinePen(QPen(color, 1, Qt::DashLine));
+    lineMarker->setLinePen(QPen(color, 1, Qt::DotLine));
     lineMarker->setLabel(label);
     lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
     lineMarker->setLabelOrientation(Qt::Vertical);
@@ -442,25 +453,6 @@ double RiuRelativePermeabilityPlotPanel::interpolatedCurveYValue(const std::vect
     const double y = y0 + t*(y1 - y0);
 
     return y;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QColor RiuRelativePermeabilityPlotPanel::curveColorFromIdent(RigFlowDiagSolverInterface::RelPermCurve::Ident ident)
-{
-    QColor clr = Qt::magenta;
-    switch (ident)
-    {
-        case RigFlowDiagSolverInterface::RelPermCurve::KRW:   clr = Qt::blue; break;
-        case RigFlowDiagSolverInterface::RelPermCurve::KRG:   clr = Qt::red; break;
-        case RigFlowDiagSolverInterface::RelPermCurve::KROW:  clr = QColor(0, 130, 175); break;
-        case RigFlowDiagSolverInterface::RelPermCurve::KROG:  clr = QColor(225, 110, 0); break;
-        case RigFlowDiagSolverInterface::RelPermCurve::PCOW:  clr = QColor(0, 130, 175); break;
-        case RigFlowDiagSolverInterface::RelPermCurve::PCOG:  clr = QColor(225, 110, 0); break;
-    }
-
-    return clr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,7 +54,6 @@ private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
     static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static QColor   curveColorFromIdent(RigFlowDiagSolverInterface::RelPermCurve::Ident ident);
     static QString  determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
     static void     addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
     static void     addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
