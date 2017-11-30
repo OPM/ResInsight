@@ -148,36 +148,9 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                         std::vector<caf::PdmObjectHandle*> referringObjects;
                         existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
 
-                        std::set<RimSummaryCurveFilter*> curveFilters;
-
-                        for (caf::PdmObjectHandle* objHandle : referringObjects)
-                        {
-                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
-                            if (summaryCurve)
-                            {
-                                //TODO: When removing curve filter functionality, move this to summaryCurveCollection
-                                //loop and update "if (parentCollection)"-block
-                                summaryCurve->setSummaryCaseY(newSumCase);
-                                summaryCurve->updateConnectedEditors();
-
-                                RimSummaryCurveFilter* parentFilter = nullptr;
-                                summaryCurve->firstAncestorOrThisOfType(parentFilter);
-                                if (parentFilter)
-                                {
-                                    curveFilters.insert(parentFilter);
-                                }
-                            }
-                        }
-
                         // UI settings of a curve filter is updated based
                         // on the new case association for the curves in the curve filter
                         // UI is updated by loadDataAndUpdate()
-
-                        for (RimSummaryCurveFilter* curveFilter : curveFilters)
-                        {
-                            curveFilter->loadDataAndUpdate();
-                            curveFilter->updateConnectedEditors();
-                        }
 
                         for (caf::PdmObjectHandle* objHandle : referringObjects)
                         {

@@ -57,7 +57,6 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
@@ -356,7 +355,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCurveFilterFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "Separator";
@@ -389,14 +387,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
-        }
-        else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
-        {
-            menuBuilder << "RicPasteSummaryCurveFilterFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewSummaryCurveFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicCopyReferencesToClipboardFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {

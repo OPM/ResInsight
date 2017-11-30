@@ -183,11 +183,6 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 void RimPlotCurve::updateCurveVisibility()
 {
     bool isVisibleInPossibleParent = true;
-    {
-        RimSummaryCurveFilter* cFilter = nullptr;
-        this->firstAncestorOrThisOfType(cFilter);
-        if(cFilter) isVisibleInPossibleParent = cFilter->isCurvesVisible();
-    }
     
     {
         RimSummaryCurveCollection* summaryCurveCollection = nullptr;

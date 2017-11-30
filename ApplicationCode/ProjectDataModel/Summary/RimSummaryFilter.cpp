@@ -461,16 +461,6 @@ void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     {
         parent->updateConnectedEditors();
     }
-
-    if (changedField == &m_completeVarStringFilter)
-    {
-        RimSummaryCurveFilter* curveFilter = nullptr;
-        this->firstAncestorOrThisOfType(curveFilter);
-        if (curveFilter)
-        {
-            curveFilter->updateCompleteVariableStringFilterChanged();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

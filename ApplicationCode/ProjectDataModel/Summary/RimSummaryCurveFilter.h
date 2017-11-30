@@ -33,78 +33,26 @@
 #include "RiaDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-class QwtPlot;
-class QwtPlotCurve;
-class RifReaderEclipseSummary;
-class RimSummaryCase;
-class RimSummaryCurve;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
-class RiaSummaryCurveDefinition;
-
-
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimSummaryCurveFilter : public caf::PdmObject
+class RimSummaryCurveFilter_OBSOLETE : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCurveFilter();
-    virtual ~RimSummaryCurveFilter();
+    RimSummaryCurveFilter_OBSOLETE();
+    virtual ~RimSummaryCurveFilter_OBSOLETE();
 
-    void                                    createDefaultCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
-    bool                                    isCurvesVisible();
-
-    void                                    loadDataAndUpdate();
-    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
-    void                                    detachQwtCurves();
-
-    RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
-    std::set<std::string>                   unitNames();
     std::vector<RimSummaryCurve*>           curves();
-    void                                    removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
-
-    void                                    updateCaseNameHasChanged();
-
-    RiaDefines::PlotAxis                    associatedPlotAxis() const;
-    void                                    setPlotAxis(RiaDefines::PlotAxis plotAxis);
-
-    void                                    updateCompleteVariableStringFilterChanged();
-    
-    void                                    updateCurveNames();
     void                                    clearCurvesWithoutDelete();
 
 private:
-    void                                    syncCurvesFromUiSelection();
-    void                                    createCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& curveDefinitions);
-    void                                    syncUiSelectionFromCurves();
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses();
-    
-    void                                    createSetOfCasesAndResultAdresses(
-                                                   const std::vector<RimSummaryCase*>& cases,
-                                                   const RimSummaryFilter& filter,
-                                                   std::set<RiaSummaryCurveDefinition>* curveDefinitions) const;
-
-    // Overridden PDM methods
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
-    void                                    updatePlotAxisForCurves();
-    void                                    loadDataAndUpdatePlot();
-
-    std::set<std::string>                   getAllSummaryCaseNames();
-    std::set<std::string>                   getAllSummaryWellNames();
-
-private:
-    QPointer<QwtPlot>                       m_parentQwtPlot;
+    //QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
     caf::PdmField<bool>                       m_showCurves;

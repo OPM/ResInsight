@@ -144,10 +144,6 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     {
         if(!rftPlot) return true;
     }
-    else if (dynamic_cast<RimSummaryCurveFilter*>(pdmObject))
-    {
-        return true;
-    }
     else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
     {
         if (!wellAllocPlot && !rftPlot) return true;

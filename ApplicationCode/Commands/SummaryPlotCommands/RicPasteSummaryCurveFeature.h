@@ -42,21 +42,3 @@ protected:
 private:
     static std::vector<caf::PdmPointer<RimSummaryCurve> > summaryCurves();
 };
-
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicPasteSummaryCurveFilterFeature : public caf::CmdFeature
-{
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-
-private:
-    static std::vector<caf::PdmPointer<RimSummaryCurveFilter> > summaryCurveFilters();
-};

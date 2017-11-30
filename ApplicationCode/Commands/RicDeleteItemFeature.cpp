@@ -105,7 +105,6 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimSummaryPlot*>(uiItem))               return true;
     if (dynamic_cast<RimSummaryCurve*>(uiItem))              return true;
     if (dynamic_cast<RimGridTimeHistoryCurve*>(uiItem))      return true;
-    if (dynamic_cast<RimSummaryCurveFilter*>(uiItem))        return true;
     if (dynamic_cast<RimIntersection*>(uiItem))              return true;
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;

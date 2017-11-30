@@ -32,7 +32,7 @@ class RimGridTimeHistoryCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
-class RimSummaryCurveFilter;
+class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
 class RimSummaryAxisProperties;
 class RiuSummaryQwtPlot;
@@ -61,10 +61,9 @@ public:
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
 
     void                                            deleteCurve(RimSummaryCurve* curve);
-    void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
-    void                                            deleteAllTopLevelCurves();
+    //void                                            deleteAllTopLevelCurves();
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
@@ -166,7 +165,7 @@ private:
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
 
     caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves_OBSOLETE;
-    caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters_OBSOLETE;
+    caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
 
     bool                                                m_isCrossPlot;
 };

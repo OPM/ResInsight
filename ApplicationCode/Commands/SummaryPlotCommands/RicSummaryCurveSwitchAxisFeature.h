@@ -40,7 +40,5 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void extractSelectedCurveFiltersAndSoloCurves(std::set<RimSummaryCurveFilter*>* selectedCurveFilters, 
-                                                         std::set<RimSummaryCurve*>* selectedSoloCurves,
-                                                         std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves);
+    static void extractSelectedCurveFiltersAndSoloCurves(std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves);
 };
