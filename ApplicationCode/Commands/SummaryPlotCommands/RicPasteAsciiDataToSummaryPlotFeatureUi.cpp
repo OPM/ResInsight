@@ -75,6 +75,41 @@ CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const QString DATETIME_FORMAT_TOOLTIP = R"(
+<table>
+<style>td {white-space:nowrap;}</style>
+<tr> <th>Expression</th> <th>Description</th> </tr>
+<tr> <td>d</td>     <td>the day as number without a leading zero (1 to 31)</td> </tr>
+<tr> <td>dd</td>    <td>the day as number with a leading zero (01 to 31)</td> </tr>
+<tr> <td>ddd</td>   <td>the abbreviated localized day name (e.g. 'Mon' to 'Sun'). Uses QDate::shortDayName().</td> </tr>
+<tr> <td>dddd</td>  <td>the long localized day name (e.g. 'Monday' to 'Sunday'). Uses QDate::longDayName().</td> </tr>
+<tr> <td>M</td>     <td>the month as number without a leading zero (1-12)</td> </tr>
+<tr> <td>MM</td>    <td>the month as number with a leading zero (01-12)</td> </tr>
+<tr> <td>MMM</td>   <td>the abbreviated localized month name (e.g. 'Jan' to 'Dec'). Uses QDate::shortMonthName().</td> </tr>
+<tr> <td>MMMM</td>  <td>the long localized month name (e.g. 'January' to 'December'). Uses QDate::longMonthName().</td> </tr>
+<tr> <td>yy</td>    <td>the year as two digit number (00-99)</td> </tr>
+<tr> <td>yyyy</td>  <td>the year as four digit number</td> </tr>
+
+<tr> <td>h</td>     <td>the hour without a leading zero(0 to 23 or 1 to 12 if AM / PM display)</td> </tr>
+<tr> <td>hh</td>    <td>the hour with a leading zero(00 to 23 or 01 to 12 if AM / PM display)</td> </tr>
+<tr> <td>H</td>     <td>the hour without a leading zero(0 to 23, even with AM / PM display)</td> </tr>
+<tr> <td>HH</td>    <td>the hour with a leading zero(00 to 23, even with AM / PM display)</td> </tr>
+<tr> <td>m</td>     <td>the minute without a leading zero(0 to 59)</td> </tr>
+<tr> <td>mm</td>    <td>the minute with a leading zero(00 to 59)</td> </tr>
+<tr> <td>s</td>     <td>the second without a leading zero(0 to 59)</td> </tr>
+<tr> <td>ss</td>    <td>the second with a leading zero(00 to 59)</td> </tr>
+<tr> <td>z</td>     <td>the milliseconds without leading zeroes(0 to 999)</td> </tr>
+<tr> <td>zzz</td>   <td>the milliseconds with leading zeroes(000 to 999)</td> </tr>
+<tr> <td>AP or A</td>   <td>interpret as an AM / PM time.AP must be either "AM" or "PM".</td> </tr>
+<tr> <td>ap or a</td>   <td>Interpret as an AM / PM time.ap must be either "am" or "pm".</td> </tr>
+</table>
+<hr>
+Example: 'yyyy.MM.dd hh:mm:ss'
+)";
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 #define PREVIEW_TEXT_LINE_COUNT     30
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +164,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitFieldNoDefault(&m_dateFormat, "DateFormat",          "Date Format", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeFormat, "TimeFormat",          "Time Format", "", "", "");
     CAF_PDM_InitField(&m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "");
-    CAF_PDM_InitField(&m_customDateTimeFormat,"CustomDateTimeFormat", QString(), "Custom Date Time Format", "", "", "");
+    CAF_PDM_InitField(&m_customDateTimeFormat,"CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "");
 
     CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RimPlotCurve::LineStyleEnum>(RimPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
     CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RimPlotCurve::PointSymbolEnum>(RimPlotCurve::SYMBOL_ELLIPSE), "Symbol", "", "", "");
