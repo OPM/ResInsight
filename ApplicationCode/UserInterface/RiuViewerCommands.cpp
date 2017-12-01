@@ -249,7 +249,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             menuBuilder.addSeparator();
 
-            menuBuilder.subMenuStart("Intersection");
+            menuBuilder.subMenuStart("Intersection", QIcon(":/IntersectionXPlane16x16.png"));
 
             menuBuilder << "RicNewPolylineIntersectionFeature";
             menuBuilder << "RicNewAzimuthDipIntersectionFeature";
@@ -306,7 +306,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder << "RicNewWellLogCurveExtractionFeature";
                 menuBuilder << "RicNewWellLogFileCurveFeature";
 
-                menuBuilder.subMenuStart("Well Plot");
+                menuBuilder.subMenuStart("Well Plot", QIcon(":/SummaryPlot16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";
@@ -316,7 +316,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menuBuilder.addSeparator();
 
-                menuBuilder.subMenuStart("Perforation");
+                menuBuilder.subMenuStart("Perforation", QIcon(":/FishBoneGroup16x16.png"));
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder << "RicNewWellPathFractureAtPosFeature";
@@ -346,7 +346,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder << "RicNewWellLogCurveExtractionFeature";
                 menuBuilder << "RicNewWellLogRftCurveFeature";
 
-                menuBuilder.subMenuStart("Well Plot");
+                menuBuilder.subMenuStart("Well Plot", QIcon(":/SummaryPlot16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";
