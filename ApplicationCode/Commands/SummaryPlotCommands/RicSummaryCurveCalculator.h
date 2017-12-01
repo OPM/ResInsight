@@ -56,6 +56,8 @@ private:
     virtual void onEditorWidgetsCreated();
 
 private:
+    void        createNewCalculation();
+
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor(caf::PdmFieldHandle* fieldHandle);
     static void assignPushButtonEditorText(caf::PdmUiEditorAttribute* attribute, const QString& text);
