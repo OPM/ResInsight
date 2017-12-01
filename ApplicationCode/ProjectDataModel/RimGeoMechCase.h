@@ -67,6 +67,8 @@ public:
 
     virtual double                          characteristicCellSize() const override;
 
+    virtual void                            setFormationNames(RimFormationNames* formationNames) override;
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 

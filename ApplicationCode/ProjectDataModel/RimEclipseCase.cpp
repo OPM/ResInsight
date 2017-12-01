@@ -778,6 +778,18 @@ double RimEclipseCase::characteristicCellSize() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setFormationNames(RimFormationNames* formationNames)
+{
+    activeFormationNames = formationNames;
+    if (m_rigEclipseCase.notNull() && formationNames != nullptr)
+    {
+        m_rigEclipseCase->setActiveFormationNames(formationNames->formationNamesData());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
     return results(RiaDefines::MATRIX_MODEL)->timeStepDates();

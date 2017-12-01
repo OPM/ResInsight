@@ -63,6 +63,7 @@ public:
     virtual cvf::Vec3d                          displayModelOffset() const;
 
     virtual void                                updateFormationNamesData() = 0;
+    virtual void                                setFormationNames(RimFormationNames* formationNames);
 
     virtual double                              characteristicCellSize() const = 0;
 
