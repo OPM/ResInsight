@@ -63,6 +63,9 @@ public:
 
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
     void clear();
+    
+    void show();
+    void hide();
 
 private:
     virtual void configureAndUpdateUi(const QString& uiConfigName) override;

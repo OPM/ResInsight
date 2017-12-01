@@ -119,7 +119,7 @@ private:
     QMenu*              m_windowMenu;
 
     caf::PdmUiTreeView*         m_projectTreeView;
-    caf::PdmUiToolBarEditor*    m_summaryPlotToolBar;
+    caf::PdmUiToolBarEditor*    m_summaryPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;

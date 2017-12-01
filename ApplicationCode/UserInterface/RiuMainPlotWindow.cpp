@@ -121,7 +121,7 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 
     cleanUpTemporaryWidgets();
 
-    m_summaryPlotToolBar->clear();
+    m_summaryPlotToolBarEditor->clear();
 
     setWindowTitle("Plots - ResInsight");
 }
@@ -307,7 +307,8 @@ void RiuMainPlotWindow::createToolBars()
         }
     }
 
-    m_summaryPlotToolBar = new caf::PdmUiToolBarEditor("Summary Plot", this);
+    m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor("Summary Plot", this);
+    m_summaryPlotToolBarEditor->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -525,6 +526,24 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
         m_activePlotViewWindow = viewWindow;
     }
+
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(viewWindow);
+    if (summaryPlot)
+    {
+        std::vector<caf::PdmFieldHandle*> toolBarFields;
+        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+    
+        m_summaryPlotToolBarEditor->setFields(toolBarFields);
+        m_summaryPlotToolBarEditor->updateUi();
+
+        m_summaryPlotToolBarEditor->show();
+    }
+    else
+    {
+        m_summaryPlotToolBarEditor->clear();
+
+        m_summaryPlotToolBarEditor->hide();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,19 +616,6 @@ void RiuMainPlotWindow::selectedObjectsChanged()
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
     }
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
-
-    std::vector<caf::PdmFieldHandle*> toolBarFields;
-    if (firstSelectedObject)
-    {
-        RimSummaryPlot* summaryPlot = nullptr;
-        firstSelectedObject->firstAncestorOrThisOfType(summaryPlot);
-        if (summaryPlot)
-        {
-            toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-        }
-    }
-    m_summaryPlotToolBar->setFields(toolBarFields);
-    m_summaryPlotToolBar->updateUi();
 
     if (uiItems.size() == 1)
     {
