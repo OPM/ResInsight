@@ -204,7 +204,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
     m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
 
     QFileInfo eclipseCaseFileInfo(caseFileName());
-    QString rftFileName = eclipseCaseFileInfo.filePath().remove(eclipseCaseFileInfo.completeSuffix()) + "RFT";
+    QString rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
     QFileInfo rftFileInfo(rftFileName);
 
     if (rftFileInfo.exists())
