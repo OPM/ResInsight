@@ -74,15 +74,14 @@ PdmUiToolBarEditor::~PdmUiToolBarEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiToolBarEditor::isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const
 {
-    if (m_fields.size() == fields.size() &&
-        m_fieldViews.size() == fields.size())
+    if (m_fields.size() == fields.size() && m_fieldViews.size() == fields.size())
     {
         bool equalContent = true;
-        
+
         for (size_t i = 0; i < m_fields.size(); i++)
         {
             if (m_fields[i] != fields[i])
@@ -105,16 +104,30 @@ bool PdmUiToolBarEditor::isEditorDataValid(const std::vector<caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    {
+        // Find set of owner objects. Can be several objects, make a set to avoid calling uiOrdering more than once for an object
+
+        std::set<caf::PdmUiObjectHandle*> ownerUiObjects;
+
+        for (PdmFieldHandle* field : m_fields)
+        {
+            caf::PdmUiObjectHandle* ownerUiObject = field->ownerObject()->uiCapability();
+            if (ownerUiObject)
+            {
+                ownerUiObjects.insert(ownerUiObject);
+            }
+        }
+
+        PdmUiOrdering config;
+        for (caf::PdmUiObjectHandle* ownerUiObject : ownerUiObjects)
+        {
+            ownerUiObject->uiOrdering(uiConfigName, config);
+        }
+    }
+
     for (PdmFieldHandle* field : m_fields)
     {
         PdmUiFieldEditorHandle* fieldEditor = nullptr;
-
-        caf::PdmUiObjectHandle* ownerUiObject = uiObj(field->ownerObject());
-        if (ownerUiObject)
-        {
-            PdmUiOrdering config;
-            ownerUiObject->uiOrdering(uiConfigName, config);
-        }
 
         // Find or create FieldEditor
         std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
@@ -213,7 +226,7 @@ void PdmUiToolBarEditor::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::show()
 {
@@ -224,7 +237,7 @@ void PdmUiToolBarEditor::show()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::hide()
 {
