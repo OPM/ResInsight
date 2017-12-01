@@ -312,19 +312,23 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
-        if ( m_trajectoryType == WELL_PATH )
+
+        if (eclipseCase)
         {
-            eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
-        }
-        else
-        {
-            if (m_branchIndex >= 0 && m_branchIndex < static_cast<int>(m_generatedSimulationWellPathBranches.size()) )
+            if (m_trajectoryType == WELL_PATH)
             {
-                eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_simWellName,
-                                                                               eclipseCase->caseUserDescription(),
-                                                                               m_generatedSimulationWellPathBranches[m_branchIndex].p(),
-                                                                               eclipseCase->eclipseCaseData());
-                isUsingPseudoLength = true;
+                eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
+            }
+            else
+            {
+                if (m_branchIndex >= 0 && m_branchIndex < static_cast<int>(m_generatedSimulationWellPathBranches.size()))
+                {
+                    eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_simWellName,
+                                                                                   eclipseCase->caseUserDescription(),
+                                                                                   m_generatedSimulationWellPathBranches[m_branchIndex].p(),
+                                                                                   eclipseCase->eclipseCaseData());
+                    isUsingPseudoLength = true;
+                }
             }
         }
         cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
@@ -335,7 +339,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
 
-        if (eclExtractor.notNull())
+        if (eclExtractor.notNull() && eclipseCase)
         {
             measuredDepthValues = eclExtractor->measuredDepth();
             tvDepthValues = eclExtractor->trueVerticalDepth();

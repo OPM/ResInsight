@@ -978,7 +978,8 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPl
     if (!wellLogCollection) return nullptr;
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-
+    if (!eclipseCase) return nullptr;
+    
     RimProject* proj = RiaApplication::instance()->project();
     std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(simWellName);
     
