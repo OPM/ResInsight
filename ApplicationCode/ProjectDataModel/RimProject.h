@@ -100,8 +100,9 @@ public:
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
     void            allCases(std::vector<RimCase*>& cases);
-    void            allSummaryCases(std::vector<RimSummaryCase*>& sumCases);
-    void            allObservedData(std::vector<RimSummaryCase*>& observedData);
+
+    std::vector<RimSummaryCase*>    allSummaryCases() const;
+    
     void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 

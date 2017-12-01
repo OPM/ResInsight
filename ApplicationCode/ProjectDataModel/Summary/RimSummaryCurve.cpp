@@ -311,9 +311,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
         fieldNeedingOptions == &m_xValuesSummaryCase)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimSummaryCase*> cases;
 
-        proj->allSummaryCases(cases);
+        std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
         cases.push_back(proj->calculationCollection->calculationSummaryCase());
 

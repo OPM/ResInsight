@@ -368,10 +368,8 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryCaseNames()
 {
     std::set<std::string> summaryCaseHashes;
     RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimSummaryCase*> cases;
-
-    proj->allSummaryCases(cases);
-
+    
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for (RimSummaryCase* rimCase : cases)
     {
         summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
@@ -387,9 +385,8 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
 {
     std::set<std::string> summaryWellNames;
     RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimSummaryCase*> cases;
 
-    proj->allSummaryCases(cases);
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for (RimSummaryCase* rimCase : cases)
     {
         RifSummaryReaderInterface* reader = nullptr;
