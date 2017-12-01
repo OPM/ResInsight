@@ -170,7 +170,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
     std::vector<caf::PdmFieldHandle*> fields;
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeAdresses(allAddressesUsedInCurves());
+    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
 
     if (analyzer.summaryCases().size() == 1)
     {
@@ -506,7 +506,7 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeCurves(curveCollection);
+    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
 
     if (analyzer.summaryCases().size() == 1)
     {
@@ -569,7 +569,7 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
 caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeAdresses(allAddressesUsedInCurves());
+    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
 
     if (analyzer.wellNames().size() == 1)
     {
@@ -618,7 +618,7 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::valueFieldToModify()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::allAddressesUsedInCurves() const
+std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::allAddressesUsedInCurveCollection() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
 

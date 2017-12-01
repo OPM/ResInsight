@@ -76,7 +76,7 @@ private:
     caf::PdmFieldHandle*       fieldToModify();
     caf::PdmValueField*        valueFieldToModify();
 
-    std::set<RifEclipseSummaryAddress> allAddressesUsedInCurves() const;
+    std::set<RifEclipseSummaryAddress> allAddressesUsedInCurveCollection() const;
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;

@@ -25,9 +25,10 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotSourceStepping.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -50,11 +51,26 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_sourceStepping, "SourceStepping", "Plot Source Stepping", "", "", "");
-    m_sourceStepping = new RimSummaryPlotSourceStepping;
-    m_sourceStepping.uiCapability()->setUiHidden(true);
-    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
-    m_sourceStepping.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_ySourceStepping, "YSourceStepping", "", "", "", "");
+    m_ySourceStepping = new RimSummaryPlotSourceStepping;
+    m_ySourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::Y_AXIS);
+    m_ySourceStepping.uiCapability()->setUiHidden(true);
+    m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_ySourceStepping.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_xSourceStepping, "XSourceStepping", "", "", "", "");
+    m_xSourceStepping = new RimSummaryPlotSourceStepping;
+    m_xSourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::X_AXIS);
+    m_xSourceStepping.uiCapability()->setUiHidden(true);
+    m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_xSourceStepping.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_unionSourceStepping, "UnionSourceStepping", "", "", "", "");
+    m_unionSourceStepping = new RimSummaryPlotSourceStepping;
+    m_unionSourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::UNION_X_Y_AXIS);
+    m_unionSourceStepping.uiCapability()->setUiHidden(true);
+    m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_unionSourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +247,7 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::applyNextIdentifier()
 {
-    m_sourceStepping->applyNextIdentifier();
+    m_ySourceStepping->applyNextIdentifier();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,7 +255,7 @@ void RimSummaryCurveCollection::applyNextIdentifier()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::applyPreviousIdentifier()
 {
-    m_sourceStepping->applyPreviousIdentifier();
+    m_ySourceStepping->applyPreviousIdentifier();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,7 +263,15 @@ void RimSummaryCurveCollection::applyPreviousIdentifier()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
-    return m_sourceStepping()->fieldsToShowInToolbar();
+    RimSummaryCrossPlot* parentCrossPlot;
+    firstAncestorOrThisOfType(parentCrossPlot);
+
+    if (parentCrossPlot)
+    {
+        return m_unionSourceStepping->fieldsToShowInToolbar();
+    }
+
+    return m_ySourceStepping()->fieldsToShowInToolbar();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,9 +326,35 @@ void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+    RimSummaryCrossPlot* parentCrossPlot;
+    firstAncestorOrThisOfType(parentCrossPlot);
 
-    m_sourceStepping()->uiOrdering(uiConfigName, *group);
+    if (parentCrossPlot)
+    {
+        {
+            auto group = uiOrdering.addNewGroup("Y Source Stepping");
+
+            m_ySourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+
+        {
+            auto group = uiOrdering.addNewGroup("X Source Stepping");
+
+            m_xSourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+
+        {
+            auto group = uiOrdering.addNewGroup("Union Source Stepping");
+
+            m_unionSourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+    }
+    else
+    {
+        auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+
+        m_ySourceStepping()->uiOrdering(uiConfigName, *group);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -80,7 +80,10 @@ private:
     caf::PdmField<bool>                         m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_sourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
+
     caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
 };
 
