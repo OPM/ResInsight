@@ -39,6 +39,4 @@ private:
     virtual bool    isCommandEnabled() override;
     virtual void    onActionTriggered(bool isChecked) override;
     virtual void    setupActionLook(QAction* actionToSetup) override;
-
-    static bool     createAndAddObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
 };

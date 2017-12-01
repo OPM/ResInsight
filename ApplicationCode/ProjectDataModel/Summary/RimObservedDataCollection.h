@@ -38,12 +38,12 @@ public:
 
     void                            removeObservedData(RimObservedData* observedData);
     void                            addObservedData(RimObservedData* observedData);
-    RimObservedData*                createAndAddObservedDataFromFileName(const QString& fileName, QString* errorText = nullptr);
+    RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
+    RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr);
     std::vector<RimSummaryCase*>    allObservedData();
 
 private:
-    RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
-    RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
+    bool                            fileExists(const QString& fileName, QString* errorText = nullptr);
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;

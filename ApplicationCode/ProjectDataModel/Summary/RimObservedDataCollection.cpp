@@ -80,44 +80,6 @@ void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName, QString* errorText)
-{
-    RimObservedData* observedData = nullptr;
-
-    {
-        QFile file(fileName);
-        if (!file.exists())
-        {
-            QString s = QString("File does not exist, %1").arg(fileName);
-            RiaLogging::error(s);
-
-            if (errorText) errorText->append(s);
-            return nullptr;
-        }
-    }
-
-    if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
-    {
-        return createAndAddRsmObservedDataFromFile(fileName, errorText);
-    }
-    else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
-    {
-        return createAndAddCvsObservedDataFromFile(fileName, errorText);
-    }
-    else
-    {
-        if (errorText)
-        {
-            errorText->append("Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.");
-        }
-    }
-    
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 {
     std::vector<RimSummaryCase*> allObservedData;
@@ -130,8 +92,27 @@ std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimObservedDataCollection::fileExists(const QString& fileName, QString* errorText /*= nullptr*/)
+{
+    QFile file(fileName);
+    if (!file.exists())
+    {
+        QString s = QString("File does not exist, %1").arg(fileName);
+        RiaLogging::error(s);
+
+        if (errorText) errorText->append(s);
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
+    if (!fileExists(fileName, errorText)) return nullptr;
+
     RimObservedData* observedData = nullptr;
     RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
     observedData = columnBasedUserData;
@@ -162,11 +143,18 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
+RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText /*= nullptr*/)
 {
+    if (!fileExists(fileName, errorText)) return nullptr;
+
     RimObservedData* observedData = nullptr;
+    bool parseOk = false;
 
     RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
+    if (useSavedFieldsValuesInDialog)
+    {
+        caf::PdmSettings::readFieldsFromApplicationStore(&parseOptionsUi);
+    }
     parseOptionsUi.setUiModeImport(fileName);
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &parseOptionsUi, "CSV Import Options", "");
@@ -175,35 +163,37 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
         return nullptr;
     }
 
-    RimCsvUserData* columnBasedUserData = new RimCsvUserData();
-    columnBasedUserData->setParseOptions(parseOptionsUi.parseOptions());
-    observedData = columnBasedUserData;
+    caf::PdmSettings::writeFieldsToApplicationStore(&parseOptionsUi);
 
-    observedData->setSummaryHeaderFileName(fileName);
-    observedData->createSummaryReaderInterface();
-    observedData->updateMetaData();
-    observedData->updateOptionSensitivity();
+    RimCsvUserData* userData = new RimCsvUserData();
+    userData->setParseOptions(parseOptionsUi.parseOptions());
+    userData->setSummaryHeaderFileName(fileName);
+    userData->createSummaryReaderInterface();
+    userData->updateMetaData();
+    userData->updateOptionSensitivity();
 
-    if (errorText && !observedData->errorMessagesFromReader().isEmpty())
+    if (errorText && !userData->errorMessagesFromReader().isEmpty())
     {
-        errorText->append(observedData->errorMessagesFromReader());
+        errorText->append(userData->errorMessagesFromReader());
     }
 
-    if (observedData->summaryReader())
+    if (userData->summaryReader())
     {
-        this->m_observedDataArray.push_back(observedData);
+        this->m_observedDataArray.push_back(userData);
+        observedData = userData;
+        parseOk = true;
     }
     else
     {
-        delete columnBasedUserData;
+        delete userData;
         return nullptr;
     }
 
     RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
     if (mainPlotWindow)
     {
-        mainPlotWindow->selectAsCurrentItem(observedData);
-        mainPlotWindow->setExpanded(observedData);
+        mainPlotWindow->selectAsCurrentItem(userData);
+        mainPlotWindow->setExpanded(userData);
     }
 
     this->updateConnectedEditors();
