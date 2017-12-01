@@ -91,6 +91,7 @@ private:
     caf::PdmField<QString>            m_wellGroupName;
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
+    caf::PdmField<QString>            m_placeholderForLabel;
     SourceSteppingType                m_sourceSteppingType;
 
     std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;

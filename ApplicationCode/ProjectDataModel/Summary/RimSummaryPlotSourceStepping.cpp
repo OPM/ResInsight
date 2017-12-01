@@ -50,6 +50,11 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping() : m_sourceSteppingT
     CAF_PDM_InitFieldNoDefault(&m_wellGroupName,    "GroupName",    "Group Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&m_placeholderForLabel, "Placeholder",   "", "", "", "");
+    m_placeholderForLabel = "No common identifiers detected";
+    m_placeholderForLabel.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_placeholderForLabel.uiCapability()->setUiReadOnly(true);
 
     // clang-format on
 }
@@ -219,12 +224,16 @@ void RimSummaryPlotSourceStepping::defineUiOrdering(QString uiConfigName, caf::P
 QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                                   bool*                      useOptionsOnly)
 {
+    if (fieldNeedingOptions == &m_placeholderForLabel)
+    {
+        return QList<caf::PdmOptionItemInfo>();
+    }
+
     if (fieldNeedingOptions == &m_summaryCase)
     {
         QList<caf::PdmOptionItemInfo> options;
 
         RimProject* proj = RiaApplication::instance()->project();
-
         for (auto sumCase : proj->allSummaryCases())
         {
             options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
@@ -499,6 +508,9 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
     m_wellGroupName.uiCapability()->setUiHidden(true);
     m_region.uiCapability()->setUiHidden(true);
     m_quantity.uiCapability()->setUiHidden(true);
+    m_placeholderForLabel.uiCapability()->setUiHidden(true);
+
+    bool commonIdentifierFound = false;
 
     auto sumCases = allSummaryCasesUsedInCurveCollection();
     if (sumCases.size() == 1)
@@ -512,6 +524,8 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
         if (proj->allSummaryCases().size() > 1)
         {
             m_summaryCase.uiCapability()->setUiHidden(false);
+
+            commonIdentifierFound = true;
         }
     }
 
@@ -533,6 +547,8 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
             QString txt = QString::fromStdString(*(analyzer.wellNames().begin()));
             m_wellName  = txt;
             m_wellName.uiCapability()->setUiHidden(false);
+
+            commonIdentifierFound = true;
         }
 
         if (analyzer.wellGroupNames().size() == 1)
@@ -540,12 +556,16 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
             QString txt     = QString::fromStdString(*(analyzer.wellGroupNames().begin()));
             m_wellGroupName = txt;
             m_wellGroupName.uiCapability()->setUiHidden(false);
+
+            commonIdentifierFound = true;
         }
 
         if (analyzer.regionNumbers().size() == 1)
         {
             m_region = *(analyzer.regionNumbers().begin());
             m_region.uiCapability()->setUiHidden(false);
+
+            commonIdentifierFound = true;
         }
 
         if (analyzer.quantities().size() == 1)
@@ -553,7 +573,14 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
             QString txt = QString::fromStdString(*(analyzer.quantities().begin()));
             m_quantity  = txt;
             m_quantity.uiCapability()->setUiHidden(false);
+
+            commonIdentifierFound = true;
         }
+    }
+
+    if (!commonIdentifierFound)
+    {
+        m_placeholderForLabel.uiCapability()->setUiHidden(false);
     }
 }
 
