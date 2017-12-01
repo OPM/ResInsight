@@ -235,7 +235,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 kSliceList.push_back(2); 
                 kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
 
-                menuBuilder.subMenuStart("Range Filter Slice");
+                menuBuilder.subMenuStart("Range Filter Slice", QIcon(":/CellFilter_Range.png"));
 
                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "I-slice Range Filter", iSliceList);
                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "J-slice Range Filter", jSliceList);

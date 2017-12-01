@@ -124,11 +124,12 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addSeparator()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName)
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName, const QIcon& menuIcon)
 {
     MenuItem i;
     i.itemType = MenuItem::SUBMENU_START;
     i.itemName = menuName;
+    i.icon = menuIcon;
     m_items.push_back(i);
     return *this;
 }
@@ -160,7 +161,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
         }
         else if (m_items[i].itemType == MenuItem::SUBMENU_START)
         {
-            QMenu* subMenu = menus.back()->addMenu(m_items[i].itemName);
+            QMenu* subMenu = menus.back()->addMenu(m_items[i].icon, m_items[i].itemName);
             menus.push_back(subMenu);
         }
         else if (m_items[i].itemType == MenuItem::SUBMENU_END)

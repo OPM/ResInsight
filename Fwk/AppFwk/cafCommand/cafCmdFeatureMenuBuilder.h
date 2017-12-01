@@ -43,6 +43,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QIcon>
 
 class QAction;
 class QMenu;
@@ -67,7 +68,7 @@ public:
 
     CmdFeatureMenuBuilder&  addSeparator();
 
-    CmdFeatureMenuBuilder&  subMenuStart(const QString& menuName);
+    CmdFeatureMenuBuilder&  subMenuStart(const QString& menuName, const QIcon& menuIcon = QIcon());
     CmdFeatureMenuBuilder&  subMenuEnd();
 
     void                    appendToMenu(QMenu* menu);
@@ -82,6 +83,7 @@ private:
         QString     itemName;
         QString     uiText;
         QVariant    userData;
+        QIcon       icon;
     };
 
     std::vector<MenuItem>       m_items;
