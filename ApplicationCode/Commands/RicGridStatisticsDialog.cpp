@@ -162,7 +162,7 @@ void RicGridStatisticsDialog::setHistogramData(RimView* view)
         auto hist = new QwtPlotHistogram("Histogram");
         auto aggr = new QwtPlotCurve("Aggregated");
 
-        hist->setBrush(QBrush(QColor(Qt::darkYellow)));
+        hist->setBrush(QBrush(QColor(Qt::darkCyan)));
         hist->setZ(-1);
         aggr->setStyle(QwtPlotCurve::Steps);
         aggr->setCurveAttribute(QwtPlotCurve::Inverted);
