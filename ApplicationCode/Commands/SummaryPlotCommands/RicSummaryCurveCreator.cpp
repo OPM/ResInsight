@@ -357,18 +357,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
-
-        if (curveDef.summaryAddress().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
-        {
-            // Use short version of calculated curves name
-            std::string fullName = curveDef.summaryAddress().quantityName();
-            size_t firstSpace = fullName.find_first_of(' ');
-            QString shortName = firstSpace != std::string::npos ?
-                QString::fromStdString(fullName.substr(0, firstSpace)) :
-                QString::fromStdString(fullName);
-
-            curve->setCustomCurveName(shortName);
-        }
     }
 
     m_previewPlot->loadDataAndUpdate();

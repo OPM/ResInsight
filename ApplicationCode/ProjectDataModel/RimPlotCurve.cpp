@@ -555,15 +555,6 @@ void RimPlotCurve::setZOrder(double z)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setCustomCurveName(const QString& customName)
-{
-    m_isUsingAutoName = false;
-    m_customCurveName = customName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
     if (m_showLegend()) {

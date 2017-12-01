@@ -206,7 +206,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     {
         for (RimSummaryCurve* rimCurve : m_summaryCurves)
         {
-            unitToQuantityNameMap[rimCurve->unitNameX()].insert(rimCurve->curveName().toStdString());
+            unitToQuantityNameMap[rimCurve->unitNameX()].insert(rimCurve->summaryAddressX().quantityName());
         }
     }
     else
@@ -215,7 +215,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         {
             if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
             {
-                unitToQuantityNameMap[rimCurve->unitNameY()].insert(rimCurve->curveName().toStdString());
+                unitToQuantityNameMap[rimCurve->unitNameY()].insert(rimCurve->summaryAddressY().quantityName());
             }
         }
     }
