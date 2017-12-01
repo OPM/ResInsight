@@ -24,7 +24,6 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -175,7 +174,11 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 
     if (analyzer.summaryCases().size() == 1)
     {
-        fields.push_back(&m_summaryCase);
+        RimProject* proj = RiaApplication::instance()->project();
+        if (proj->allSummaryCases().size() > 1)
+        {
+            fields.push_back(&m_summaryCase);
+        }
     }
 
     if (analyzer.wellNames().size() == 1)
@@ -221,14 +224,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
         RimProject* proj = RiaApplication::instance()->project();
 
-        RimSummaryCaseMainCollection* sumCaseColl =
-            proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
-        if (sumCaseColl)
+        for (auto sumCase : proj->allSummaryCases())
         {
-            for (auto sumCase : sumCaseColl->allSummaryCases())
-            {
-                options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
-            }
+            options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
         }
 
         return options;
@@ -458,8 +456,18 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
 
     if (analyzer.summaryCases().size() == 1)
     {
-        m_summaryCase = *(analyzer.summaryCases().begin());
-        m_summaryCase.uiCapability()->setUiHidden(false);
+        std::set<RimSummaryCase*> sumCases = analyzer.summaryCases();
+
+        if (sumCases.find(m_summaryCase) == sumCases.end())
+        {
+            m_summaryCase = *(sumCases.begin());
+        }
+
+        RimProject* proj = RiaApplication::instance()->project();
+        if (proj->allSummaryCases().size() > 1)
+        {
+            m_summaryCase.uiCapability()->setUiHidden(false);
+        }
     }
 
     RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
@@ -536,7 +544,11 @@ caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
     // to be able to step between summary cases
     if (analyzer.summaryCases().size() == 1)
     {
-        return &m_summaryCase;
+        RimProject* proj = RiaApplication::instance()->project();
+        if (proj->allSummaryCases().size() > 1)
+        {
+            return &m_summaryCase;
+        }
     }
 
     return nullptr;
