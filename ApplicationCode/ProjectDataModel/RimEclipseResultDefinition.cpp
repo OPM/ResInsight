@@ -603,8 +603,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         QStringList cellCenterResultNames;
         QStringList cellFaceResultNames;
 
+        RigCaseCellResultsData* results = this->currentGridCellResults();
         foreach(QString s, getResultNamesForCurrentUiResultType())
         {
+            if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
+
             if (RiaDefines::isPerCellFaceResult(s))
             {
                 cellFaceResultNames.push_back(s);
