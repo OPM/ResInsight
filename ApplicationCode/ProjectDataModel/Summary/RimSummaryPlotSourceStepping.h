@@ -18,12 +18,16 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
+
+#include <set>
 
 class RimSummaryCase;
 class RifSummaryReaderInterface;
@@ -36,12 +40,22 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum SourceSteppingType
+    {
+        Y_AXIS,
+        X_AXIS,
+        UNION_X_Y_AXIS
+    };
+
+public:
     RimSummaryPlotSourceStepping();
+
+    void setSourceSteppingType(SourceSteppingType sourceSteppingType);
 
     void applyNextIdentifier();
     void applyPreviousIdentifier();
 
-    std::vector<caf::PdmFieldHandle*>   fieldsToShowInToolbar();
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -52,16 +66,20 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                   const QVariant& newValue) override;
 
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                       caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     RifSummaryReaderInterface* summaryReader() const;
     RimSummaryCase*            singleSummaryCase() const;
-    QString                    wellName() const;
-    void                       setWellName(const QString& wellName);
     void                       updateUiFromCurves();
     caf::PdmFieldHandle*       fieldToModify();
     caf::PdmValueField*        valueFieldToModify();
+
+    std::set<RifEclipseSummaryAddress> allAddressesUsedInCurves() const;
+
+    bool isXAxisStepping() const;
+    bool isYAxisStepping() const;
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
@@ -69,6 +87,5 @@ private:
     caf::PdmField<QString>            m_wellGroupName;
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
-
-    caf::PdmProxyValueField<QString> m_wellNameProxy; // TODO: This is a test field for a list editor
+    SourceSteppingType                m_sourceSteppingType;
 };

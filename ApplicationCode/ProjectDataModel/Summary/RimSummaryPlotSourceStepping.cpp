@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
+RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping() : m_sourceSteppingType(Y_AXIS)
 {
     // clang-format off
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
@@ -51,12 +51,15 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellNameProxy,    "WellNameProxy", "WellNameProxy", "", "", "");
-    m_wellNameProxy.registerGetMethod(this, &RimSummaryPlotSourceStepping::wellName);
-    m_wellNameProxy.registerSetMethod(this, &RimSummaryPlotSourceStepping::setWellName);
-    m_wellNameProxy.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_wellNameProxy.uiCapability()->setUiHidden(true);
     // clang-format on
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::setSourceSteppingType(SourceSteppingType sourceSteppingType)
+{
+    m_sourceSteppingType = sourceSteppingType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,11 +169,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 {
     std::vector<caf::PdmFieldHandle*> fields;
 
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeCurves(curveCollection);
+    analyzer.analyzeAdresses(allAddressesUsedInCurves());
 
     if (analyzer.summaryCases().size() == 1)
     {
@@ -242,7 +242,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         RiaSummaryCurveAnalyzer analyzer;
         analyzer.analyzeAdresses(allAddresses);
 
-        if (fieldNeedingOptions == &m_wellName || fieldNeedingOptions == &m_wellNameProxy)
+        if (fieldNeedingOptions == &m_wellName)
         {
             identifierTexts = analyzer.identifierTexts(RifEclipseSummaryAddress::SUMMARY_WELL);
         }
@@ -311,22 +311,44 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
         {
             for (auto curve : curveCollection->curves())
             {
-                curve->setSummaryCaseY(m_summaryCase);
+                if (isYAxisStepping())
+                {
+                    curve->setSummaryCaseY(m_summaryCase);
+                }
+
+                if (isXAxisStepping())
+                {
+                    curve->setSummaryCaseX(m_summaryCase);
+                }
             }
 
             triggerLoadDataAndUpdate = true;
         }
     }
-    else if (changedField == &m_wellName || changedField == &m_wellNameProxy)
+    else if (changedField == &m_wellName)
     {
         for (auto curve : curveCollection->curves())
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+            if (isYAxisStepping())
             {
-                adr.setWellName(m_wellName().toStdString());
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                {
+                    adr.setWellName(m_wellName().toStdString());
 
-                curve->setSummaryAddressY(adr);
+                    curve->setSummaryAddressY(adr);
+                }
+            }
+
+            if (isXAxisStepping())
+            {
+                RifEclipseSummaryAddress adr = curve->summaryAddressX();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                {
+                    adr.setWellName(m_wellName().toStdString());
+
+                    curve->setSummaryAddressX(adr);
+                }
             }
         }
 
@@ -336,12 +358,26 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         for (auto curve : curveCollection->curves())
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
+            if (isYAxisStepping())
             {
-                adr.setRegion(m_region());
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
+                {
+                    adr.setRegion(m_region());
 
-                curve->setSummaryAddressY(adr);
+                    curve->setSummaryAddressY(adr);
+                }
+            }
+
+            if (isXAxisStepping())
+            {
+                RifEclipseSummaryAddress adr = curve->summaryAddressX();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
+                {
+                    adr.setRegion(m_region());
+
+                    curve->setSummaryAddressX(adr);
+                }
             }
         }
 
@@ -351,9 +387,21 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         for (auto curve : curveCollection->curves())
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            adr.setQuantityName(m_quantity().toStdString());
-            curve->setSummaryAddressY(adr);
+            if (isYAxisStepping())
+            {
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                adr.setQuantityName(m_quantity().toStdString());
+
+                curve->setSummaryAddressY(adr);
+            }
+
+            if (isXAxisStepping())
+            {
+                RifEclipseSummaryAddress adr = curve->summaryAddressX();
+                adr.setQuantityName(m_quantity().toStdString());
+
+                curve->setSummaryAddressX(adr);
+            }
         }
 
         triggerLoadDataAndUpdate = true;
@@ -362,12 +410,26 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         for (auto curve : curveCollection->curves())
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+            if (isYAxisStepping())
             {
-                adr.setWellGroupName(m_wellGroupName().toStdString());
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+                {
+                    adr.setWellGroupName(m_wellGroupName().toStdString());
 
-                curve->setSummaryAddressY(adr);
+                    curve->setSummaryAddressY(adr);
+                }
+            }
+
+            if (isXAxisStepping())
+            {
+                RifEclipseSummaryAddress adr = curve->summaryAddressX();
+                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+                {
+                    adr.setWellGroupName(m_wellGroupName().toStdString());
+
+                    curve->setSummaryAddressX(adr);
+                }
             }
         }
 
@@ -410,7 +472,15 @@ RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
     std::set<RimSummaryCase*> cases;
     for (auto curve : curveCollection->curves())
     {
-        cases.insert(curve->summaryCaseY());
+        if (isYAxisStepping())
+        {
+            cases.insert(curve->summaryCaseY());
+        }
+
+        if (isXAxisStepping())
+        {
+            cases.insert(curve->summaryCaseX());
+        }
     }
 
     if (cases.size() == 1)
@@ -419,22 +489,6 @@ RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotSourceStepping::wellName() const
-{
-    return m_wellName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::setWellName(const QString& wellName)
-{
-    m_wellName.setValueWithFieldChanged(wellName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,11 +568,8 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
 {
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeCurves(curveCollection);
+    analyzer.analyzeAdresses(allAddressesUsedInCurves());
 
     if (analyzer.wellNames().size() == 1)
     {
@@ -562,6 +613,61 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::valueFieldToModify()
     // This will return a null pointer for summary case modifier
 
     return dynamic_cast<caf::PdmValueField*>(fieldToModify());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::allAddressesUsedInCurves() const
+{
+    std::set<RifEclipseSummaryAddress> addresses;
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    auto curves = curveCollection->curves();
+    for (auto c : curves)
+    {
+        if (isYAxisStepping())
+        {
+            addresses.insert(c->summaryAddressY());
+        }
+
+        if (isXAxisStepping())
+        {
+            addresses.insert(c->summaryAddressX());
+        }
+    }
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotSourceStepping::isXAxisStepping() const
+{
+    if (m_sourceSteppingType == UNION_X_Y_AXIS)
+        return true;
+
+    if (m_sourceSteppingType == X_AXIS)
+        return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotSourceStepping::isYAxisStepping() const
+{
+    if (m_sourceSteppingType == UNION_X_Y_AXIS)
+        return true;
+
+    if (m_sourceSteppingType == Y_AXIS)
+        return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

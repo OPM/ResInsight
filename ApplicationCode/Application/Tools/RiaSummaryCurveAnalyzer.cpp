@@ -65,6 +65,19 @@ void RiaSummaryCurveAnalyzer::analyzeAdresses(const std::vector<RifEclipseSummar
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveAnalyzer::analyzeAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses)
+{
+    clearAllSets();
+
+    for (const auto& adr : allAddresses)
+    {
+        analyzeAddress(adr);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryCurveAnalyzer::quantities() const

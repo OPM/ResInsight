@@ -39,6 +39,7 @@ public:
 
     void analyzeCurves(const RimSummaryCurveCollection* sumCurveCollection);
     void analyzeAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
+    void analyzeAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses);
 
     std::set<std::string> quantities() const;
     std::set<std::string> wellNames() const;

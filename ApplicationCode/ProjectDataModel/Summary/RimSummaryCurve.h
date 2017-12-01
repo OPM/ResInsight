@@ -63,7 +63,10 @@ public:
     const std::vector<time_t>&              timeStepsY() const;
 
     // X Axis functions
+    void                                    setSummaryCaseX(RimSummaryCase* sumCase);
+    RimSummaryCase*                         summaryCaseX() const; 
     RifEclipseSummaryAddress                summaryAddressX() const;
+    void                                    setSummaryAddressX(const RifEclipseSummaryAddress& address);
     std::string                             unitNameX() const;
     std::vector<double>                     valuesX() const;
 

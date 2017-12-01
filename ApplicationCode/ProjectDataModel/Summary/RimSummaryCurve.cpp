@@ -194,6 +194,16 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryAddressX(const RifEclipseSummaryAddress& address)
+{
+    m_xValuesCurveVariable->setAddress(address);
+
+    // TODO: Should interpolation be computed similar to RimSummaryCurve::setSummaryAddressY
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 {
     return m_yValuesCurveVariable->address();
@@ -281,6 +291,22 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
     RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
     
     return reader->timeSteps(addr);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryCaseX(RimSummaryCase* sumCase)
+{
+    m_xValuesSummaryCase = sumCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCurve::summaryCaseX() const
+{
+    return m_xValuesSummaryCase();
 }
 
 //--------------------------------------------------------------------------------------------------
