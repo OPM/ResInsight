@@ -99,6 +99,7 @@ public:
     void                            showLegend(bool show);
 
     void                            setZOrder(double z);
+    void                            setCustomCurveName(const QString& customName);
 
 protected:
 
