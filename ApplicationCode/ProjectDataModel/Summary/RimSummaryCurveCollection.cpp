@@ -353,7 +353,7 @@ void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmU
         }
 
         {
-            auto group = uiOrdering.addNewGroup("Union Source Stepping");
+            auto group = uiOrdering.addNewGroup("XY Union Source Stepping");
 
             m_unionSourceStepping()->uiOrdering(uiConfigName, *group);
         }

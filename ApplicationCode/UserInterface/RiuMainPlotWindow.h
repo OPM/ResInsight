@@ -83,6 +83,8 @@ public:
 
     void                addToTemporaryWidgets(QWidget* widget);
 
+    void                updateSummaryPlotToolBar();
+
 protected:
     virtual void        closeEvent(QCloseEvent* event);
 

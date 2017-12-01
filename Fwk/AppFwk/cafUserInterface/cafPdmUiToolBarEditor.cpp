@@ -74,6 +74,33 @@ PdmUiToolBarEditor::~PdmUiToolBarEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiToolBarEditor::isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const
+{
+    if (m_fields.size() == fields.size() &&
+        m_fieldViews.size() == fields.size())
+    {
+        bool equalContent = true;
+        
+        for (size_t i = 0; i < m_fields.size(); i++)
+        {
+            if (m_fields[i] != fields[i])
+            {
+                equalContent = false;
+            }
+        }
+
+        if (equalContent)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)

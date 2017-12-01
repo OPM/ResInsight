@@ -417,6 +417,34 @@ void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainPlotWindow::updateSummaryPlotToolBar()
+{
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow);
+    if (summaryPlot)
+    {
+        std::vector<caf::PdmFieldHandle*> toolBarFields;
+        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+    
+        if (!m_summaryPlotToolBarEditor->isEditorDataValid(toolBarFields))
+        {
+            m_summaryPlotToolBarEditor->setFields(toolBarFields);
+            m_summaryPlotToolBarEditor->updateUi();
+        }
+
+        m_summaryPlotToolBarEditor->show();
+    }
+    else
+    {
+        m_summaryPlotToolBarEditor->clear();
+
+        m_summaryPlotToolBarEditor->hide();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::removeViewer(QWidget* viewer)
@@ -527,23 +555,7 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
         m_activePlotViewWindow = viewWindow;
     }
 
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(viewWindow);
-    if (summaryPlot)
-    {
-        std::vector<caf::PdmFieldHandle*> toolBarFields;
-        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-    
-        m_summaryPlotToolBarEditor->setFields(toolBarFields);
-        m_summaryPlotToolBarEditor->updateUi();
-
-        m_summaryPlotToolBarEditor->show();
-    }
-    else
-    {
-        m_summaryPlotToolBarEditor->clear();
-
-        m_summaryPlotToolBarEditor->hide();
-    }
+    updateSummaryPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

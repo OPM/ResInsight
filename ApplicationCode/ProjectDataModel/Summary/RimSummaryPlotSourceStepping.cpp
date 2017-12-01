@@ -27,10 +27,12 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuMainPlotWindow.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
@@ -449,8 +451,18 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
         this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
 
         summaryPlot->updatePlotTitle();
-
         summaryPlot->loadDataAndUpdate();
+
+        RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>(summaryPlot);
+        if (summaryCrossPlot)
+        {
+            // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo boxes might
+            // have been changed due to the updates in this function
+            curveCollection->updateConnectedEditors();
+
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
     }
 }
 
