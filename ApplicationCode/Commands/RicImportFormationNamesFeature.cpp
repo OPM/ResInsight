@@ -74,8 +74,9 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     }
 
     // For each file, find existing Formation names item, or create new
-
     RimFormationNames* formationName = fomNameColl->importFiles(fileNames);
+
+    if (fileNames.size() > 1) return;
 
     std::vector<RimCase*> cases;
     proj->allCases(cases);
