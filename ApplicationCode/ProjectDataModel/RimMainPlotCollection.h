@@ -58,6 +58,7 @@ public:
 
     void                            deleteAllContainedObjects();
     void                            updateCurrentTimeStepInPlots();
+    void                            updatePlotsWithFormations();
 
 private:
 

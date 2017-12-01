@@ -19,17 +19,21 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
-#include "RimProject.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
-#include "RimRftPlotCollection.h"
 #include "RimPltPlotCollection.h"
+#include "RimProject.h"
+#include "RimRftPlotCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimViewWindow.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
-#include "RimFlowCharacteristicsPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
 
@@ -169,5 +173,40 @@ void RimMainPlotCollection::deleteAllContainedObjects()
 void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 {
     m_flowPlotCollection()->defaultFlowCharacteristicsPlot()->updateCurrentTimeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::updatePlotsWithFormations()
+{
+    if (m_wellLogPlotCollection)
+    {
+        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        {
+            wellLogPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_pltPlotCollection)
+    {
+        for (RimWellPltPlot* pltPlot : m_pltPlotCollection->pltPlots())
+        {
+            pltPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_rftPlotCollection)
+    {
+        for (RimWellRftPlot* rftPlot : m_rftPlotCollection->rftPlots())
+        {
+            rftPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_flowPlotCollection)
+    {
+        m_flowPlotCollection->loadDataAndUpdate();
+    }
 }
 

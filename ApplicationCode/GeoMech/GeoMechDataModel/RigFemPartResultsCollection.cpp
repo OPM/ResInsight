@@ -24,24 +24,34 @@
 #ifdef USE_ODB_API 
 #include "RifOdbReader.h"
 #endif
-#include "RigFemScalarResultFrames.h"
-#include "RigStatisticsDataCache.h"
-#include "RigFemPartResults.h"
+
+#include "RiaApplication.h"
+
+#include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
+#include "RigFemPartResults.h"
+#include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
+#include "RigStatisticsDataCache.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "cafProgressInfo.h"
 #include "cvfBoundingBox.h"
-#include <QString>
 
-#include <cmath>
-#include <stdlib.h>
-#include "RigFemNativeStatCalc.h"
-#include "cafTensor3.h"
 #include "cafProgressInfo.h"
-#include "RigFemPartGrid.h"
+#include "cafTensor3.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
+
+#include <QString>
+
+#include <stdlib.h>
+#include <cmath>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +90,23 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 void RigFemPartResultsCollection::setActiveFormationNames(RigFormationNames* activeFormationNames)
 {
     m_activeFormationNamesData  = activeFormationNames;
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                for (RimWellLogPlot* wellLogPlot : plotCollection->wellLogPlots)
+                {
+                    wellLogPlot->loadDataAndUpdate();
+                }
+            }
+        }
+    }
+
     this->deleteResult(RigFemResultAddress(RIG_FORMATION_NAMES, "Active Formation Names", ""));
 }
 
