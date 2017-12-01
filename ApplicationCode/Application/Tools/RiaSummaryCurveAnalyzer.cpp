@@ -35,25 +35,6 @@ RiaSummaryCurveAnalyzer::RiaSummaryCurveAnalyzer() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::analyzeCurves(const RimSummaryCurveCollection* sumCurveCollection)
-{
-    clearAllSets();
-
-    if (!sumCurveCollection)
-        return;
-
-    for (auto curve : sumCurveCollection->curves())
-    {
-        m_summaryCases.insert(curve->summaryCaseY());
-
-        auto adr = curve->summaryAddressY();
-        analyzeAddress(adr);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveAnalyzer::analyzeAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses)
 {
     clearAllSets();
@@ -65,7 +46,7 @@ void RiaSummaryCurveAnalyzer::analyzeAdresses(const std::vector<RifEclipseSummar
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveAnalyzer::analyzeAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses)
 {
@@ -112,14 +93,6 @@ std::set<int> RiaSummaryCurveAnalyzer::regionNumbers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCase*> RiaSummaryCurveAnalyzer::summaryCases() const
-{
-    return m_summaryCases;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::categories() const
 {
     return m_categories;
@@ -158,9 +131,11 @@ std::set<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress> RiaSummaryCurveAnalyzer::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses, RifEclipseSummaryAddress::SummaryVarCategory category)
+std::vector<RifEclipseSummaryAddress>
+    RiaSummaryCurveAnalyzer::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses,
+                                                  RifEclipseSummaryAddress::SummaryVarCategory category)
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
 
@@ -184,7 +159,6 @@ void RiaSummaryCurveAnalyzer::clearAllSets()
     m_wellNames.clear();
     m_wellGroupNames.clear();
     m_regionNumbers.clear();
-    m_summaryCases.clear();
     m_categories.clear();
 }
 

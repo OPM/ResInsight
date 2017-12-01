@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaSummaryCurveAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cafPdmField.h"
@@ -77,9 +78,12 @@ private:
     caf::PdmValueField*        valueFieldToModify();
 
     std::set<RifEclipseSummaryAddress> allAddressesUsedInCurveCollection() const;
+    std::set<RimSummaryCase*>          allSummaryCasesUsedInCurveCollection() const;
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
+
+    RiaSummaryCurveAnalyzer* analyzerForReader(RifSummaryReaderInterface* reader);
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
@@ -88,4 +92,6 @@ private:
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
     SourceSteppingType                m_sourceSteppingType;
+
+    std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;
 };

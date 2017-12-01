@@ -281,7 +281,16 @@ QString RimSummaryCurveCollection::compileAutoPlotTitle() const
 {
     RiaSummaryCurveAnalyzer analyzer;
 
-    analyzer.analyzeCurves(this);
+    std::set<RifEclipseSummaryAddress> addresses;
+    for (auto c : m_curves)
+    {
+        addresses.insert(c->summaryAddressY());
+
+        // TODO : Improve how cross plot curves contribute to title
+        // Suggestion : Delegate to RimSummaryPlotSourceStepping to find title
+    }
+
+    analyzer.analyzeAdresses(addresses);
 
     auto quantities = analyzer.quantities();
     auto wellNames = analyzer.wellNames();
