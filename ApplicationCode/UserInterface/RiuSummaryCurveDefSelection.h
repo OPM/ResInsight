@@ -55,6 +55,8 @@ public:
     void                                    setMultiSelectionMode(bool multiSelectionMode);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
+    void                                    setDefaultSelection();
+
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                              const QVariant& oldValue, 
@@ -86,7 +88,7 @@ private:
     void                                    resetAllFields();
     bool                                    isObservedData(RimSummaryCase *sumCase) const;
 
-    std::vector<RimSummaryCase*>            summaryCases() const;
+    std::vector<RimSummaryCase*>            selectedSummaryCases() const;
     static RimSummaryCase*                  calculatedSummaryCase();
 
 private:

@@ -20,17 +20,23 @@
 
 #include "RigEclipseCaseData.h"
 
+#include "RiaApplication.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
-
-#include <QDebug>
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellPath.h"
+
+#include "RimFlowPlotCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -670,6 +676,14 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
         }
     }
 
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            project->mainPlotCollection->updatePlotsWithFormations();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

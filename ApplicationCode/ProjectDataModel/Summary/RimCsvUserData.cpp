@@ -38,6 +38,11 @@ RimCsvUserData::RimCsvUserData()
 {
     CAF_PDM_InitObject("Observed CSV Data File", ":/Default.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
+
+    CAF_PDM_InitFieldNoDefault(&m_parseOptions, "ParseOptions", "", "", "", "");
+    m_parseOptions = new RicPasteAsciiDataToSummaryPlotFeatureUi();
+    m_parseOptions->uiCapability()->setUiHidden(true);
+    m_parseOptions->uiCapability()->setUiTreeHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +63,7 @@ void RimCsvUserData::createSummaryReaderInterface()
     if (caf::Utils::fileExists(this->summaryHeaderFilename()))
     {
         RifCsvUserData* csvUserData = new RifCsvUserData();
-        if (csvUserData->parse(this->summaryHeaderFilename(), m_parseOptions, &m_errorText))
+        if (csvUserData->parse(this->summaryHeaderFilename(), m_parseOptions->parseOptions() , &m_errorText))
         {
             m_summaryReader = csvUserData;
         }
@@ -88,7 +93,7 @@ QString RimCsvUserData::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCsvUserData::setParseOptions(const AsciiDataParseOptions &parseOptions)
+RicPasteAsciiDataToSummaryPlotFeatureUi* RimCsvUserData::parseOptions() const
 {
-    m_parseOptions = parseOptions;
+    return m_parseOptions();
 }

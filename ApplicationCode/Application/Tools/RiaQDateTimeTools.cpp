@@ -75,6 +75,14 @@ QDateTime RiaQDateTimeTools::fromYears(double years)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::addMSecs(const QDateTime& dt, double msecs)
+{
+    return dt.addMSecs(msecs);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addDays(const QDateTime& dt, double days)
 {
     double integerPart = 0.0;

@@ -18,12 +18,17 @@
 
 #pragma once
 
+#include "RiaSummaryCurveAnalyzer.h"
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
+
+#include <set>
 
 class RimSummaryCase;
 class RifSummaryReaderInterface;
@@ -36,12 +41,28 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum SourceSteppingType
+    {
+        Y_AXIS,
+        X_AXIS,
+        UNION_X_Y_AXIS
+    };
+
+public:
     RimSummaryPlotSourceStepping();
 
-    void applyNextIdentifier();
-    void applyPreviousIdentifier();
+    void setSourceSteppingType(SourceSteppingType sourceSteppingType);
 
-    std::vector<caf::PdmFieldHandle*>   fieldsToShowInToolbar();
+    void applyNextCase();
+    void applyPrevCase();
+
+    void applyNextQuantity();
+    void applyPrevQuantity();
+
+    void applyNextOtherIdentifier();
+    void applyPrevOtherIdentifier();
+
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -52,16 +73,24 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                   const QVariant& newValue) override;
 
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                       caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     RifSummaryReaderInterface* summaryReader() const;
     RimSummaryCase*            singleSummaryCase() const;
-    QString                    wellName() const;
-    void                       setWellName(const QString& wellName);
     void                       updateUiFromCurves();
-    caf::PdmFieldHandle*       fieldToModify();
-    caf::PdmValueField*        valueFieldToModify();
+    caf::PdmValueField*        fieldToModify();
+
+    std::set<RifEclipseSummaryAddress> allAddressesUsedInCurveCollection() const;
+    std::set<RimSummaryCase*>          allSummaryCasesUsedInCurveCollection() const;
+
+    bool isXAxisStepping() const;
+    bool isYAxisStepping() const;
+
+    RiaSummaryCurveAnalyzer* analyzerForReader(RifSummaryReaderInterface* reader);
+
+    void modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset);
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
@@ -69,6 +98,8 @@ private:
     caf::PdmField<QString>            m_wellGroupName;
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
+    caf::PdmField<QString>            m_placeholderForLabel;
+    SourceSteppingType                m_sourceSteppingType;
 
-    caf::PdmProxyValueField<QString> m_wellNameProxy; // TODO: This is a test field for a list editor
+    std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;
 };

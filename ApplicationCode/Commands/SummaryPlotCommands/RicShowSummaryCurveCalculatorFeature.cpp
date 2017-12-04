@@ -20,6 +20,10 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
+#include "RiaApplication.h"
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
+
 #include <QAction>
 
 
@@ -60,7 +64,14 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered(bool isChecked)
 {
     RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
 
-    dialog->setCalculationAndUpdateUi(nullptr);
+    RimProject* proj = RiaApplication::instance()->project();
+    RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
+    if (calcColl->calculations().size() == 0)
+    {
+        calcColl->addCalculation();
+    }
+
+    dialog->setCalculationAndUpdateUi(calcColl->calculations()[0]);
 
     dialog->show();
     dialog->raise();

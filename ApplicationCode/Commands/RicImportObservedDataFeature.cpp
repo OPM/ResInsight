@@ -62,30 +62,45 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
-    QString aggregatedErrorStrings;
+    RimObservedData* observedData = nullptr;
 
     for (const QString& fileName : fileNames)
     {
-        QString s;
-        RicImportObservedDataFeature::createAndAddObservedDataFromFile(fileName, &s);
-        if (!s.isEmpty())
+        bool retryImport = false;
+
+        do
         {
-            aggregatedErrorStrings += fileName;
-            aggregatedErrorStrings += "\n";
-            aggregatedErrorStrings += s;
-            aggregatedErrorStrings += "\n";
-            aggregatedErrorStrings += "\n";
-        }
+            QString errorText;
+
+            if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+            {
+                observedData = observedDataCollection->createAndAddRsmObservedDataFromFile(fileName, &errorText);
+                retryImport = false;
+            }
+            else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
+            {
+                bool useSavedFieldValuesInDialog = retryImport;
+                observedData = observedDataCollection->createAndAddCvsObservedDataFromFile(fileName, useSavedFieldValuesInDialog, &errorText);
+                retryImport = !errorText.isEmpty();
+            }
+            else
+            {
+                errorText = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.";
+                retryImport = false;
+            }
+
+            if (!errorText.isEmpty())
+            {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText("Errors detected during import                                                 ");
+                msgBox.setDetailedText(errorText);
+                msgBox.exec();
+            }
+        } while (retryImport);
     }
 
-    if (!aggregatedErrorStrings.isEmpty())
-    {
-        QMessageBox msgBox;
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("Errors detected during import                                                 ");
-        msgBox.setDetailedText(aggregatedErrorStrings);
-        msgBox.exec();
-    }
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(observedData);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,22 +133,3 @@ void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/Default.png"));
     actionToSetup->setText("Import Observed Time History Data");
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QString& fileName, QString* errorText)
-{
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
-
-    RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
-    if (!observedDataCollection) return false;
-
-    RimObservedData* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName, errorText);
-
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newObservedData);
-
-    return true;
-}
-

@@ -788,7 +788,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 {
     uiOrdering.add(&m_userName);
 
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names Properties");
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
     
     formationGroup->add(&m_showFormations);
 
@@ -978,7 +978,8 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPl
     if (!wellLogCollection) return nullptr;
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-
+    if (!eclipseCase) return nullptr;
+    
     RimProject* proj = RiaApplication::instance()->project();
     std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(simWellName);
     

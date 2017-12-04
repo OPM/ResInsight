@@ -194,6 +194,16 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryAddressX(const RifEclipseSummaryAddress& address)
+{
+    m_xValuesCurveVariable->setAddress(address);
+
+    // TODO: Should interpolation be computed similar to RimSummaryCurve::setSummaryAddressY
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 {
     return m_yValuesCurveVariable->address();
@@ -286,6 +296,22 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryCaseX(RimSummaryCase* sumCase)
+{
+    m_xValuesSummaryCase = sumCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCurve::summaryCaseX() const
+{
+    return m_xValuesSummaryCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
@@ -311,9 +337,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
         fieldNeedingOptions == &m_xValuesSummaryCase)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimSummaryCase*> cases;
 
-        proj->allSummaryCases(cases);
+        std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
         cases.push_back(proj->calculationCollection->calculationSummaryCase());
 
@@ -480,7 +505,7 @@ void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "Select Vector...";
+            attrib->m_buttonText = "Vector Selection Dialog";
         }
     }
 }
@@ -505,8 +530,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
+        curveVarSelectionGroup->add(&m_yPushButtonSelectSummaryAddress);
 
-        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
         curveDataGroup->add(&m_plotAxis);
     }
 
@@ -521,7 +546,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         m_xValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_xValuesUiFilterResultSelection);
 
-        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
+        curveVarSelectionGroup->add(&m_xPushButtonSelectSummaryAddress);
     }
 
 

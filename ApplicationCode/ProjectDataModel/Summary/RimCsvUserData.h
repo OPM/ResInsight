@@ -24,6 +24,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildField.h"
 #include "cvfObject.h"
 
 class RifSummaryReaderInterface;
@@ -44,10 +45,10 @@ public:
 
     virtual QString errorMessagesFromReader() override;
 
-    void setParseOptions(const AsciiDataParseOptions &parseOptions);
+    RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions() const;
 
 private:
+    caf::PdmChildField<RicPasteAsciiDataToSummaryPlotFeatureUi*>  m_parseOptions;
     cvf::ref<RifSummaryReaderInterface> m_summaryReader;
     QString                             m_errorText;
-    AsciiDataParseOptions               m_parseOptions;
 };

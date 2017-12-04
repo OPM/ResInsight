@@ -547,9 +547,10 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
+std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 {
-    sumCases.clear();
+    std::vector<RimSummaryCase*> sumCases;
+
     for (RimOilField* oilField: oilFields)
     {
         if(!oilField) continue;
@@ -567,24 +568,8 @@ void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
             sumCases.insert(sumCases.end(), observedData.begin(), observedData.end());
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimProject::allObservedData(std::vector<RimSummaryCase*>& observedData)
-{
-    for (RimOilField* oilField : oilFields)
-    {
-        if (!oilField) continue;
-        RimObservedDataCollection* observedDataCollection = oilField->observedDataCollection();
-        if (observedDataCollection)
-        {
-            observedData.clear();
-            std::vector<RimSummaryCase*> allObservedData = observedDataCollection->allObservedData();
-            observedData.insert(observedData.end(), allObservedData.begin(), allObservedData.end());
-        }
-    }
+    return sumCases;
 }
 
 //--------------------------------------------------------------------------------------------------

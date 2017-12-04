@@ -25,14 +25,17 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotSourceStepping.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeViewEditor.h"
+
+#include <QKeyEvent>
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 
@@ -50,11 +53,26 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_sourceStepping, "SourceStepping", "Plot Source Stepping", "", "", "");
-    m_sourceStepping = new RimSummaryPlotSourceStepping;
-    m_sourceStepping.uiCapability()->setUiHidden(true);
-    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
-    m_sourceStepping.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_ySourceStepping, "YSourceStepping", "", "", "", "");
+    m_ySourceStepping = new RimSummaryPlotSourceStepping;
+    m_ySourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::Y_AXIS);
+    m_ySourceStepping.uiCapability()->setUiHidden(true);
+    m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_ySourceStepping.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_xSourceStepping, "XSourceStepping", "", "", "", "");
+    m_xSourceStepping = new RimSummaryPlotSourceStepping;
+    m_xSourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::X_AXIS);
+    m_xSourceStepping.uiCapability()->setUiHidden(true);
+    m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_xSourceStepping.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_unionSourceStepping, "UnionSourceStepping", "", "", "", "");
+    m_unionSourceStepping = new RimSummaryPlotSourceStepping;
+    m_unionSourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::UNION_X_Y_AXIS);
+    m_unionSourceStepping.uiCapability()->setUiHidden(true);
+    m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_unionSourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,25 +247,17 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::applyNextIdentifier()
-{
-    m_sourceStepping->applyNextIdentifier();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::applyPreviousIdentifier()
-{
-    m_sourceStepping->applyPreviousIdentifier();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
-    return m_sourceStepping()->fieldsToShowInToolbar();
+    RimSummaryCrossPlot* parentCrossPlot;
+    firstAncestorOrThisOfType(parentCrossPlot);
+
+    if (parentCrossPlot)
+    {
+        return m_unionSourceStepping->fieldsToShowInToolbar();
+    }
+
+    return m_ySourceStepping()->fieldsToShowInToolbar();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,7 +267,16 @@ QString RimSummaryCurveCollection::compileAutoPlotTitle() const
 {
     RiaSummaryCurveAnalyzer analyzer;
 
-    analyzer.analyzeCurves(this);
+    std::set<RifEclipseSummaryAddress> addresses;
+    for (auto c : m_curves)
+    {
+        addresses.insert(c->summaryAddressY());
+
+        // TODO : Improve how cross plot curves contribute to title
+        // Suggestion : Delegate to RimSummaryPlotSourceStepping to find title
+    }
+
+    analyzer.analyzeAdresses(addresses);
 
     auto quantities = analyzer.quantities();
     auto wellNames = analyzer.wellNames();
@@ -289,6 +308,72 @@ QString RimSummaryCurveCollection::compileAutoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
+{
+    if (!keyEvent) return;
+
+    RimSummaryPlotSourceStepping* sourceStepping = nullptr;
+    {
+        RimSummaryCrossPlot* summaryCrossPlot = nullptr;
+        this->firstAncestorOrThisOfType(summaryCrossPlot);
+        
+        if (summaryCrossPlot)
+        {
+            sourceStepping = m_unionSourceStepping();
+        }
+        else
+        {
+            sourceStepping = m_ySourceStepping();
+        }
+    }
+
+    if (keyEvent->key() == Qt::Key_PageUp)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            sourceStepping->applyPrevCase();
+
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            sourceStepping->applyPrevOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyPrevQuantity();
+
+            keyEvent->accept();
+        }
+    }
+    else if (keyEvent->key() == Qt::Key_PageDown)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            sourceStepping->applyNextCase();
+
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            sourceStepping->applyNextOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyNextQuantity();
+
+            keyEvent->accept();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showCurves)
@@ -302,9 +387,35 @@ void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+    RimSummaryCrossPlot* parentCrossPlot;
+    firstAncestorOrThisOfType(parentCrossPlot);
 
-    m_sourceStepping()->uiOrdering(uiConfigName, *group);
+    if (parentCrossPlot)
+    {
+        {
+            auto group = uiOrdering.addNewGroup("Y Source Stepping");
+
+            m_ySourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+
+        {
+            auto group = uiOrdering.addNewGroup("X Source Stepping");
+
+            m_xSourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+
+        {
+            auto group = uiOrdering.addNewGroup("XY Union Source Stepping");
+
+            m_unionSourceStepping()->uiOrdering(uiConfigName, *group);
+        }
+    }
+    else
+    {
+        auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+
+        m_ySourceStepping()->uiOrdering(uiConfigName, *group);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

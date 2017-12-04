@@ -34,26 +34,22 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <vector>
-#include <map>
-#include <set>
 
-#include <QObject>
+#include <QIcon>
 #include <QVariant>
 
 class QAction;
 class QMenu;
 
-namespace caf 
+namespace caf
 {
-
 class CmdFeature;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdFeatureMenuBuilder
 {
@@ -61,47 +57,38 @@ public:
     CmdFeatureMenuBuilder();
     virtual ~CmdFeatureMenuBuilder();
 
-    CmdFeatureMenuBuilder&  operator<<(const QString& commandIdOrSeparator);
-    CmdFeatureMenuBuilder&  addCmdFeature(const QString commandId, const QString& customUiText = "");
-    CmdFeatureMenuBuilder&  addCmdFeatureWithUserData(const QString commandId, const QString& customUiText, const QVariant& userData);
+    CmdFeatureMenuBuilder& operator<<(const QString& commandIdOrSeparator);
+    CmdFeatureMenuBuilder& addCmdFeature(const QString commandId, const QString& customUiText = "");
+    CmdFeatureMenuBuilder& addCmdFeatureWithUserData(const QString commandId, const QString& customUiText,
+                                                     const QVariant& userData);
 
-    CmdFeatureMenuBuilder&  addSeparator();
+    CmdFeatureMenuBuilder& addSeparator();
 
-    CmdFeatureMenuBuilder&  subMenuStart(const QString& menuName);
-    CmdFeatureMenuBuilder&  subMenuEnd();
+    CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const QIcon& menuIcon = QIcon());
+    CmdFeatureMenuBuilder& subMenuEnd();
 
-    void                    appendToMenu(QMenu* menu);
+    void appendToMenu(QMenu* menu);
 
 private:
     struct MenuItem
     {
     public:
-        enum ItemType { COMMAND, SEPARATOR, SUBMENU_START, SUBMENU_END };
+        enum ItemType
+        {
+            COMMAND,
+            SEPARATOR,
+            SUBMENU_START,
+            SUBMENU_END
+        };
 
-        ItemType    itemType;
-        QString     itemName;
-        QString     uiText;
-        QVariant    userData;
+        ItemType itemType;
+        QString  itemName;
+        QString  uiText;
+        QVariant userData;
+        QIcon    icon;
     };
 
-    std::vector<MenuItem>       m_items;
+    std::vector<MenuItem> m_items;
 };
 
 } // end namespace caf
-
-
-
-//static MenuItem command(QString commandName)
-//{
-//    MenuItem i;
-//    i.itemType = COMMAND;
-//    i.itemName = commandName;
-//    return i;
-//}
-//
-//static MenuItem separator()
-//{
-//    MenuItem i;
-//    i.itemType = SEPARATOR;
-//    return i;
-//}

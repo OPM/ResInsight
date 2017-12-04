@@ -30,6 +30,7 @@ class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryPlotSourceStepping;
+class QKeyEvent;
 
 //==================================================================================================
 ///  
@@ -60,11 +61,11 @@ public:
 
     void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
 
-    void                                    applyNextIdentifier();
-    void                                    applyPreviousIdentifier();
     std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
     QString                                 compileAutoPlotTitle() const;
+
+    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();
@@ -80,7 +81,10 @@ private:
     caf::PdmField<bool>                         m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_sourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
+
     caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
 };
 

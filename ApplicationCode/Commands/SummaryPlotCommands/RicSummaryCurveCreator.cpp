@@ -138,6 +138,10 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
     }
+    else
+    {
+        setDefaultCurveSelection();
+    }
 
     syncPreviewCurvesFromUiSelection();
 
@@ -353,6 +357,18 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
+
+        if (curveDef.summaryAddress().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+        {
+            // Use short version of calculated curves name
+            std::string fullName = curveDef.summaryAddress().quantityName();
+            size_t firstSpace = fullName.find_first_of(' ');
+            QString shortName = firstSpace != std::string::npos ?
+                QString::fromStdString(fullName.substr(0, firstSpace)) :
+                QString::fromStdString(fullName);
+
+            curve->setCustomCurveName(shortName);
+        }
     }
 
     m_previewPlot->loadDataAndUpdate();
@@ -368,10 +384,8 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryCaseNames()
 {
     std::set<std::string> summaryCaseHashes;
     RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimSummaryCase*> cases;
-
-    proj->allSummaryCases(cases);
-
+    
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for (RimSummaryCase* rimCase : cases)
     {
         summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
@@ -387,9 +401,8 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
 {
     std::set<std::string> summaryWellNames;
     RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimSummaryCase*> cases;
 
-    proj->allSummaryCases(cases);
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for (RimSummaryCase* rimCase : cases)
     {
         RifSummaryReaderInterface* reader = nullptr;
@@ -543,6 +556,14 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     curveCopy->setSummaryCaseY(curve->summaryCaseY());
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::setDefaultCurveSelection()
+{
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection();
 }
 
 //--------------------------------------------------------------------------------------------------

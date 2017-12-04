@@ -203,33 +203,14 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
     m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
 
-    QStringList fileSplitOnDot = caseFileName().split(".");
-    if (fileSplitOnDot.size() == 2)
-    {
-        QStringList fileSplitOnBackSlash = fileSplitOnDot[0].split("\\");
-        if (fileSplitOnDot[0] != fileSplitOnBackSlash[0])
-        {
-            m_caseName = fileSplitOnBackSlash.back();
-        }
-        else
-        {
-            QStringList fileSplitOnSlash = fileSplitOnDot[0].split("/");
-            m_caseName = fileSplitOnSlash.back();
-        }
+    QFileInfo eclipseCaseFileInfo(caseFileName());
+    QString rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
+    QFileInfo rftFileInfo(rftFileName);
 
-        QString rftFile = fileSplitOnDot[0] + ".RFT";
-        std::string rftFileStdString = rftFile.toStdString();
-        
-        std::ifstream inputStream(rftFileStdString.c_str());
-        if (!inputStream.fail())
-        {
-            RiaLogging::info(QString("File '%1' found, creating reader").arg(rftFileStdString.c_str()));
-            m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
-        }
-        else
-        {
-            RiaLogging::warning(QString("Could not find file '%1'").arg(rftFileStdString.c_str()));
-        }
+    if (rftFileInfo.exists())
+    {
+        RiaLogging::info(QString("RFT file found"));
+        m_readerEclipseRft = new RifReaderEclipseRft(rftFileInfo.filePath().toStdString());
     }
 
 

@@ -92,12 +92,10 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             sectionBBox.add(p1);
             sectionBBox.add(p2);
 
-
             cvf::Vec3d maxHeightVec;
 
-            double maxSectionHeight = sectionBBox.radius();
-            double maxSectionHeightUp;
-            double maxSectionHeightDown;
+            double maxSectionHeightUp = 0;
+            double maxSectionHeightDown = 0;
 
             if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
             {
@@ -121,7 +119,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             }
             else
             {
-                maxHeightVec = m_extrusionDirection*maxSectionHeight;
+                maxHeightVec = m_extrusionDirection*gridBBox.radius();
 
                 sectionBBox.add(p1 + maxHeightVec);
                 sectionBBox.add(p1 - maxHeightVec);
@@ -171,7 +169,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     {
                         cvf::Vec3d temp = vertex.vx - p1;
                         double dot = temp.dot(m_extrusionDirection);
-                        double lengthCheck;
+                        double lengthCheck = 0;
                         
                         if (dot < 0)
                         {

@@ -84,6 +84,7 @@ private:
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
+    void                                    setDefaultCurveSelection();
 
     void                                    resetAllFields();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);

@@ -107,6 +107,8 @@ public:
 
     virtual double                              characteristicCellSize() const override;
 
+    virtual void                                setFormationNames(RimFormationNames* formationNames) override;
+
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );

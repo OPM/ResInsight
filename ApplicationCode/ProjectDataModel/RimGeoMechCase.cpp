@@ -307,6 +307,18 @@ double RimGeoMechCase::characteristicCellSize() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
+{
+    activeFormationNames = formationNames;
+    if (m_geoMechCaseData.notNull() && formationNames != nullptr)
+    {
+        m_geoMechCaseData->femPartResults()->setActiveFormationNames(formationNames->formationNamesData());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;

@@ -34,40 +34,30 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafCmdSelectionHelper.h"
-#include "cafFactory.h" 
-
-#include "defaultfeatures/cafCmdDeleteItemFeature.h"
-#include "defaultfeatures/cafCmdAddItemFeature.h"
+#include "cafFactory.h"
 
 #include <QAction>
 #include <QMenu>
 
 namespace caf
 {
-
-//    typedef Factory<CmdFeature, std::string> CommandFeatureFactory;
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder::CmdFeatureMenuBuilder()
-{
-}
+CmdFeatureMenuBuilder::CmdFeatureMenuBuilder() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder::~CmdFeatureMenuBuilder()
-{
-}
+CmdFeatureMenuBuilder::~CmdFeatureMenuBuilder() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<(const QString& commandId)
 {
@@ -79,79 +69,86 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<(const QString& commandI
     {
         addCmdFeature(commandId);
     }
+
     return *this;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeature(const QString commandId, const QString& uiText)
 {
     MenuItem i;
     i.itemType = MenuItem::COMMAND;
     i.itemName = commandId;
-    i.uiText = uiText;
+    i.uiText   = uiText;
     m_items.push_back(i);
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeatureWithUserData(const QString commandId, const QString& uiText, const QVariant& userData)
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeatureWithUserData(const QString commandId, const QString& uiText,
+                                                                        const QVariant& userData)
 {
     MenuItem i;
     i.itemType = MenuItem::COMMAND;
     i.itemName = commandId;
-    i.uiText = uiText;
+    i.uiText   = uiText;
     i.userData = userData;
     m_items.push_back(i);
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addSeparator()
 {
     MenuItem i;
     i.itemType = MenuItem::SEPARATOR;
     m_items.push_back(i);
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName)
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuStart(const QString& menuName, const QIcon& menuIcon)
 {
     MenuItem i;
     i.itemType = MenuItem::SUBMENU_START;
     i.itemName = menuName;
+    i.icon     = menuIcon;
     m_items.push_back(i);
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::subMenuEnd()
 {
     MenuItem i;
     i.itemType = MenuItem::SUBMENU_END;
     m_items.push_back(i);
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
 {
     CAF_ASSERT(menu);
 
-    std::vector<QMenu*> menus = { menu };
+    std::vector<QMenu*> menus = {menu};
     for (size_t i = 0; i < m_items.size(); i++)
     {
         if (m_items[i].itemType == MenuItem::SEPARATOR)
@@ -160,7 +157,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
         }
         else if (m_items[i].itemType == MenuItem::SUBMENU_START)
         {
-            QMenu* subMenu = menus.back()->addMenu(m_items[i].itemName);
+            QMenu* subMenu = menus.back()->addMenu(m_items[i].icon, m_items[i].itemName);
             menus.push_back(subMenu);
         }
         else if (m_items[i].itemType == MenuItem::SUBMENU_END)
@@ -173,8 +170,8 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
         else
         {
             CmdFeatureManager* commandManager = CmdFeatureManager::instance();
-            QMenu* currentMenu = menus.back();
-            caf::CmdFeature* feature = commandManager->getCommandFeature(m_items[i].itemName.toStdString());
+            QMenu*             currentMenu    = menus.back();
+            caf::CmdFeature*   feature        = commandManager->getCommandFeature(m_items[i].itemName.toStdString());
             CAF_ASSERT(feature);
 
             if (feature->canFeatureBeExecuted())
@@ -188,14 +185,15 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
                 {
                     act = commandManager->action(m_items[i].itemName);
                 }
-                
+
                 CAF_ASSERT(act);
 
                 for (QAction* existingAct : currentMenu->actions())
                 {
                     // If action exist, continue to make sure the action is positioned at the first
                     // location of a command ID
-                    if (existingAct == act) continue;
+                    if (existingAct == act)
+                        continue;
                 }
 
                 currentMenu->addAction(const_cast<QAction*>(act));

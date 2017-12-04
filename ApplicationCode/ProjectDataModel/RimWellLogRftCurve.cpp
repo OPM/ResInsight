@@ -465,8 +465,10 @@ RifReaderEclipseRft* RimWellLogRftCurve::rftReader() const
 //--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 {
+    if (!m_eclipseResultCase()) return nullptr;
     RifReaderEclipseRft* reader = rftReader();
     if (!reader) return nullptr;
+    
 
     RimMainPlotCollection* mainPlotCollection;
     this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);

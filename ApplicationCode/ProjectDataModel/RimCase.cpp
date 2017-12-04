@@ -69,6 +69,14 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCase::setFormationNames(RimFormationNames* formationNames)
+{
+    activeFormationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
 {
     std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredNativeTimeStepIndices();

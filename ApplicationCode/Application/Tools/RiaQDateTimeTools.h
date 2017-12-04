@@ -38,6 +38,7 @@ public:
     static QDateTime fromString(const QString& dateString, const QString& format);
     static QDateTime fromYears(double years);
     
+    static QDateTime addMSecs(const QDateTime& dt, double msecs);
     static QDateTime addDays(const QDateTime& dt, double days);
     static QDateTime addYears(const QDateTime& dt, double years);
 

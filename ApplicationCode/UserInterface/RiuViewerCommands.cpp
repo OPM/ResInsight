@@ -235,7 +235,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 kSliceList.push_back(2); 
                 kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
 
-                menuBuilder.subMenuStart("Range Filter Slice");
+                menuBuilder.subMenuStart("Range Filter Slice", QIcon(":/CellFilter_Range.png"));
 
                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "I-slice Range Filter", iSliceList);
                 menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "J-slice Range Filter", jSliceList);
@@ -249,7 +249,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             menuBuilder.addSeparator();
 
-            menuBuilder.subMenuStart("Intersection");
+            menuBuilder.subMenuStart("Intersections", QIcon(":/IntersectionXPlane16x16.png"));
 
             menuBuilder << "RicNewPolylineIntersectionFeature";
             menuBuilder << "RicNewAzimuthDipIntersectionFeature";
@@ -305,18 +305,23 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menuBuilder << "RicNewWellLogCurveExtractionFeature";
                 menuBuilder << "RicNewWellLogFileCurveFeature";
+                
+                menuBuilder.addSeparator();
 
-                menuBuilder.subMenuStart("Well Plot");
+                menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";
+
+                menuBuilder.addSeparator();
+
                 menuBuilder << "RicShowWellAllocationPlotFeature";
 
                 menuBuilder.subMenuEnd();
 
                 menuBuilder.addSeparator();
 
-                menuBuilder.subMenuStart("Perforation");
+                menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder << "RicNewWellPathFractureAtPosFeature";
@@ -346,10 +351,15 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder << "RicNewWellLogCurveExtractionFeature";
                 menuBuilder << "RicNewWellLogRftCurveFeature";
 
-                menuBuilder.subMenuStart("Well Plot");
+                menuBuilder.addSeparator();
+
+                menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";
+
+                menuBuilder.addSeparator();
+                
                 menuBuilder << "RicPlotProductionRateFeature";
                 menuBuilder << "RicShowWellAllocationPlotFeature";
 

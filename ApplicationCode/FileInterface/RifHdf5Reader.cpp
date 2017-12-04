@@ -121,8 +121,6 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 
 		QDateTime dtInitial = sourSimDateTimeToQDateTime(dateString);
 
-        int secondsPerDay = 60 * 60 * 24;
-
 		for (size_t i = 0; i < m_timeStepFileNames.size(); i++)
 		{
 			std::string fileName      = m_timeStepFileNames[i];
@@ -137,8 +135,8 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
             double milliseconds = fractionOfDay * 24.0 * 60.0 * 60.0 * 1000.0;
 
 			QDateTime dt = dtInitial;
-            dt = dt.addDays(timeStepDays);
-            dt = dt.addMSecs(milliseconds);
+            dt = RiaQDateTimeTools::addDays(dt, timeStepDays);
+            dt = RiaQDateTimeTools::addMSecs(dt, milliseconds);
 
 			times.push_back(dt);
 		}

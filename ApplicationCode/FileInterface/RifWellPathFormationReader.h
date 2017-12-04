@@ -35,7 +35,6 @@
 class RifWellPathFormationReader
 {
 public:
-    static std::map<QString, std::vector<std::pair<double, QString>> > readWellFormations(const QString& filePath);
     static std::map<QString, cvf::ref<RigWellPathFormations> > readWellFormationsToGeometry(const QString& filePath);
 
 private:
