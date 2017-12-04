@@ -51,11 +51,6 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_deleteCalculation);
 
     m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>(new RiuCalculationsContextMenuManager());
-
-    if (!m_currentCalculation)
-    {
-        createNewCalculation();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +119,8 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         m_newCalculation = false;
 
-        createNewCalculation();
+        RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
+        m_currentCalculation = rimCalc;
 
         this->updateConnectedEditors();
     }
@@ -291,13 +287,4 @@ void RicSummaryCurveCalculator::onEditorWidgetsCreated()
 
         m_calcContextMenuMgr->attachWidget(widget, this);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::createNewCalculation()
-{
-    RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
-    m_currentCalculation = rimCalc;
 }
