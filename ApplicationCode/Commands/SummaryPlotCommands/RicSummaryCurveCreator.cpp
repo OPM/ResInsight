@@ -138,6 +138,10 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
     }
+    else
+    {
+        setDefaultCurveSelection();
+    }
 
     syncPreviewCurvesFromUiSelection();
 
@@ -552,6 +556,14 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     curveCopy->setSummaryCaseY(curve->summaryCaseY());
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::setDefaultCurveSelection()
+{
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection();
 }
 
 //--------------------------------------------------------------------------------------------------

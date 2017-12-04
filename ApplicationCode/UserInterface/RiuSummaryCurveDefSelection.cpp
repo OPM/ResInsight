@@ -252,7 +252,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurv
 
         std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
-        for (RimSummaryCase* currCase : summaryCases())
+        for (RimSummaryCase* currCase : selectedSummaryCases())
         {
             if (currCase && currCase->summaryReader())
             {
@@ -289,6 +289,25 @@ void RiuSummaryCurveDefSelection::setMultiSelectionMode(bool multiSelectionMode)
 void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<void()>& handlerFunc)
 {
     m_toggleChangedHandler = handlerFunc;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelection::setDefaultSelection()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    auto allSumCases = proj->allSummaryCases();
+    if (allSumCases.size() > 0)
+    {
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldVarAddress("FOPT");
+
+        RiaSummaryCurveDefinition curveDef(allSumCases[0], defaultAddress);
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        curveDefs.push_back(curveDef);
+        
+        setSelectedCurveDefinitions(curveDefs);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,7 +969,7 @@ bool RiuSummaryCurveDefSelection::isObservedData(RimSummaryCase *sumCase) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RiuSummaryCurveDefSelection::summaryCases() const
+std::vector<RimSummaryCase*> RiuSummaryCurveDefSelection::selectedSummaryCases() const
 {
     std::vector<RimSummaryCase*> cases;
 
