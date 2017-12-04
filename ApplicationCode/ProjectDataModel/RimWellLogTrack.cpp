@@ -788,7 +788,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 {
     uiOrdering.add(&m_userName);
 
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names Properties");
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
     
     formationGroup->add(&m_showFormations);
 
