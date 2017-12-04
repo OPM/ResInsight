@@ -1076,10 +1076,7 @@ struct SegmentPositionContribution
     bool        m_isFromAbove;
 };
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName)
+size_t localGridCellIndexFromErtConnection(const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellNameForErrorMsgs )
 {
     CVF_ASSERT(ert_connection);
     CVF_ASSERT(grid);
@@ -1087,11 +1084,6 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     int cellI = well_conn_get_i( ert_connection );
     int cellJ = well_conn_get_j( ert_connection );
     int cellK = well_conn_get_k( ert_connection );
-    bool isCellOpen = well_conn_open( ert_connection );
-    double volumeRate = well_conn_get_volume_rate( ert_connection);
-    double oilRate   = well_conn_get_oil_rate(ert_connection) ;
-    double gasRate   = well_conn_get_gas_rate(ert_connection);
-    double waterRate = well_conn_get_water_rate(ert_connection);
 
     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
     // Adjust K so index is always in valid grid region
@@ -1102,18 +1094,18 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
     // See description for keyword ICON at page 54/55 of Rile Formats Reference Manual 2010.2
     /*
-        Integer completion data array
-        ICON(NICONZ,NCWMAX,NWELLS) with dimensions
-        defined by INTEHEAD. The following items are required for each completion in each well:
-        Item 1 - Well connection index ICON(1,IC,IWELL) = IC (set to -IC if connection is not in current LGR)
-        Item 2 - I-coordinate (<= 0 if not in this LGR)
-        Item 3 - J-coordinate (<= 0 if not in this LGR)
-        Item 4 - K-coordinate (<= 0 if not in this LGR)
-        Item 6 - Connection status > 0 open, <= 0 shut
-        Item 14 - Penetration direction (1=x, 2=y, 3=z, 4=fractured in x-direction, 5=fractured in y-direction)
-        If undefined or zero, assume Z
-        Item 15 - Segment number containing connection (for multi-segment wells, =0 for ordinary wells)
-        Undefined items in this array may be set to zero.
+    Integer completion data array
+    ICON(NICONZ,NCWMAX,NWELLS) with dimensions
+    defined by INTEHEAD. The following items are required for each completion in each well:
+    Item 1 - Well connection index ICON(1,IC,IWELL) = IC (set to -IC if connection is not in current LGR)
+    Item 2 - I-coordinate (<= 0 if not in this LGR)
+    Item 3 - J-coordinate (<= 0 if not in this LGR)
+    Item 4 - K-coordinate (<= 0 if not in this LGR)
+    Item 6 - Connection status > 0 open, <= 0 shut
+    Item 14 - Penetration direction (1=x, 2=y, 3=z, 4=fractured in x-direction, 5=fractured in y-direction)
+    If undefined or zero, assume Z
+    Item 15 - Segment number containing connection (for multi-segment wells, =0 for ordinary wells)
+    Undefined items in this array may be set to zero.
     */
 
     // The K value might also be -1. It is not yet known why, or what it is supposed to mean, 
@@ -1125,19 +1117,45 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
         cellK = 0;
     }
-    
-    RigWellResultPoint resultPoint;
 
     // Introduced based on discussion with Håkon Høgstøl 08.09.2016
     if (cellK >= static_cast<int>(grid->cellCountK()))
     {
         int maxCellK = static_cast<int>(grid->cellCountK());
-        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ", max K = " + cvf::String(maxCellK) + ") for well : " + cvf::String(wellName));
+        if (wellNameForErrorMsgs)
+        {
+            cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ", max K = " + cvf::String(maxCellK) + ") for well : " + cvf::String(wellNameForErrorMsgs));
+        }
+        return cvf::UNDEFINED_SIZE_T;
     }
-    else
+
+    return grid->cellIndexFromIJK(cellI, cellJ, cellK);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName)
+{
+    CVF_ASSERT(ert_connection);
+    CVF_ASSERT(grid);
+
+    size_t gridCellIndex = localGridCellIndexFromErtConnection(grid, ert_connection, wellName);
+
+    bool isCellOpen = well_conn_open( ert_connection );
+    double volumeRate = well_conn_get_volume_rate( ert_connection);
+    double oilRate   = well_conn_get_oil_rate(ert_connection) ;
+    double gasRate   = well_conn_get_gas_rate(ert_connection);
+    double waterRate = well_conn_get_water_rate(ert_connection);
+
+ 
+    RigWellResultPoint resultPoint;
+
+    if (gridCellIndex != cvf::UNDEFINED_SIZE_T)
     {
         resultPoint.m_gridIndex = grid->gridIndex();
-        resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
+        resultPoint.m_gridCellIndex = gridCellIndex;
 
         resultPoint.m_isOpen = isCellOpen;
 
@@ -1300,7 +1318,38 @@ void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContr
 class WellResultPointHasSubCellConnectionCalculator
 {
 public:
-    explicit WellResultPointHasSubCellConnectionCalculator(const RigMainGrid* mainGrid): m_mainGrid(mainGrid) {}
+    explicit WellResultPointHasSubCellConnectionCalculator(const RigMainGrid* mainGrid, well_state_type* ert_well_state): m_mainGrid(mainGrid) 
+    {
+        int lastGridNr = static_cast<int>(m_mainGrid->gridCount()) - 1;
+
+        for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
+        {
+            const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
+            if ( ert_wellhead )
+            {
+                size_t localGridCellidx = localGridCellIndexFromErtConnection( m_mainGrid->gridByIndex(gridNr), ert_wellhead, nullptr);
+                this->insertTheParentCells(gridNr, localGridCellidx);
+            }
+
+            std::string gridname = gridNr == 0 ? ECL_GRID_GLOBAL_GRID: m_mainGrid->gridByIndex(gridNr)->gridName();
+            const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, gridname.data());
+
+            if ( connections )
+            {
+                int connectionCount = well_conn_collection_get_size(connections);
+                if ( connectionCount )
+                {
+                    for ( int connIdx = 0; connIdx < connectionCount; connIdx++ )
+                    {
+                        well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                        
+                        size_t localGridCellidx = localGridCellIndexFromErtConnection( m_mainGrid->gridByIndex(gridNr), ert_connection, nullptr);
+                        this->insertTheParentCells(gridNr, localGridCellidx);
+                    }
+                }
+            }
+        }
+    }
 
     bool hasSubCellConnection(const RigWellResultPoint& wellResultPoint)
     {
@@ -1311,7 +1360,23 @@ public:
 
         size_t reservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
 
-        if ( m_gridCellsWithSubCellWellConnections.count(reservoirCellIdx) ) return true;
+        if ( m_gridCellsWithSubCellWellConnections.count(reservoirCellIdx) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+private:
+
+    void insertTheParentCells( size_t gridIndex, size_t gridCellIndex )
+    {
+        if (gridCellIndex == cvf::UNDEFINED_SIZE_T) return;
+
+        size_t reservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
 
         // Traverse parent gridcells, and add them to the map
 
@@ -1327,11 +1392,8 @@ public:
             size_t parentReservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
             m_gridCellsWithSubCellWellConnections.insert(parentReservoirCellIdx);
         }
-
-        return false;
     }
 
-private:
     std::set<size_t> m_gridCellsWithSubCellWellConnections;
     const RigMainGrid* m_mainGrid;
 };
@@ -1858,9 +1920,9 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
             {
                 // Code handling None-MSW Wells ... Normal wells that is.
 
-                WellResultPointHasSubCellConnectionCalculator subCellConnCalc(m_eclipseCase->mainGrid());
+                WellResultPointHasSubCellConnectionCalculator subCellConnCalc(m_eclipseCase->mainGrid(), ert_well_state);
                 int lastGridNr = static_cast<int>(grids.size()) - 1;
-                for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
+                for ( int gridNr = 0; gridNr <= lastGridNr; ++gridNr )
                 {
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                     if ( ert_wellhead )

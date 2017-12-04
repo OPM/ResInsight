@@ -381,9 +381,12 @@ RigWellResultPoint RigWellResultFrame::wellHeadOrStartCell() const
 {
     if (m_wellHead.isCell()) return m_wellHead;
 
-    if (m_wellResultBranches.size() && m_wellResultBranches.front().m_branchResultPoints.size() )
+    for ( const RigWellResultBranch& resBranch : m_wellResultBranches )
     {
-        return m_wellResultBranches.front().m_branchResultPoints.front();
+        for ( const RigWellResultPoint& wrp: resBranch.m_branchResultPoints )
+        {
+            if ( wrp.isCell() ) return wrp;
+        }
     }
 
     return m_wellHead; // Nothing else to do
