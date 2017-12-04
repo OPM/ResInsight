@@ -33,6 +33,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
@@ -67,6 +68,107 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping() : m_sourceSteppingT
 void RimSummaryPlotSourceStepping::setSourceSteppingType(SourceSteppingType sourceSteppingType)
 {
     m_sourceSteppingType = sourceSteppingType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyNextCase()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    auto summaryCases = proj->allSummaryCases();
+    if (summaryCases.size() < 1)
+        return;
+
+    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
+
+    if (currentCase != summaryCases.end())
+    {
+        currentCase++;
+        if (currentCase != summaryCases.end())
+        {
+            m_summaryCase = *currentCase;
+        }
+    }
+    else
+    {
+        m_summaryCase = summaryCases[0];
+    }
+
+    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
+    m_summaryCase.uiCapability()->updateConnectedEditors();
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    curveCollection->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyPrevCase()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    auto summaryCases = proj->allSummaryCases();
+    if (summaryCases.size() < 1)
+        return;
+
+    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
+
+    if (currentCase != summaryCases.end() && currentCase != summaryCases.begin())
+    {
+        currentCase--;
+        m_summaryCase = *currentCase;
+    }
+    else
+    {
+        m_summaryCase = summaryCases[0];
+    }
+
+    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
+    m_summaryCase.uiCapability()->updateConnectedEditors();
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+
+    curveCollection->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyNextQuantity()
+{
+    modifyCurrentIndex(&m_quantity, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyPrevQuantity()
+{
+    modifyCurrentIndex(&m_quantity, -1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyNextOtherIdentifier()
+{
+    caf::PdmValueField* valueField = valueFieldToModify();
+    modifyCurrentIndex(valueField, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
+{
+    caf::PdmValueField* valueField = valueFieldToModify();
+    modifyCurrentIndex(valueField, -1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,7 +713,7 @@ caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
 
     if (analyzer.wellGroupNames().size() == 1)
     {
-        return &m_wellName;
+        return &m_wellGroupName;
     }
 
     if (analyzer.regionNumbers().size() == 1)
@@ -753,6 +855,51 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader(RifSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset)
+{
+    if (valueField)
+    {
+        bool useOptionsOnly = true;
+
+        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
+        if (options.isEmpty())
+        {
+            return;
+        }
+
+        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
+
+        int currentIndex = -1;
+        for (int i = 0; i < options.size(); i++)
+        {
+            if (uiVariant == options[i].optionUiText())
+            {
+                currentIndex = i;
+            }
+        }
+
+        if (currentIndex == -1)
+        {
+            currentIndex = 0;
+        }
+
+        int nextIndex = currentIndex + indexOffset;
+        if (nextIndex < options.size() && nextIndex > -1)
+        {
+            auto optionValue = options[nextIndex].value();
+
+            QVariant currentValue = valueField->toQVariant();
+
+            valueField->setFromQVariant(optionValue);
+
+            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute)
 {
@@ -760,5 +907,26 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHand
     if (myAttr)
     {
         myAttr->showPreviousAndNextButtons = true;
+
+        QString modifierText;
+
+        if (field == &m_summaryCase)
+        {
+            modifierText = ("(Shift+");
+        }
+        else if (field == &m_wellName || field == &m_wellGroupName || field == &m_region)
+        {
+            modifierText = ("(Ctrl+");
+        }
+        else if (field == &m_quantity)
+        {
+            modifierText = ("(");
+        }
+
+        if (!modifierText.isEmpty())
+        {
+            myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
+            myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
+        }
     }
 }

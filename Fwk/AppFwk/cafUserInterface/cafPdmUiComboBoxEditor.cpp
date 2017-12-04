@@ -144,6 +144,17 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
         }
+
+        // Update button texts
+        if (!attributes.nextButtonText.isEmpty())
+        {
+            m_nextItemButton->setToolTip(attributes.nextButtonText);
+        }
+
+        if (!attributes.prevButtonText.isEmpty())
+        {
+            m_previousItemButton->setToolTip(attributes.prevButtonText);
+        }
     }
     else
     {

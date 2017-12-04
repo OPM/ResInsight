@@ -35,6 +35,8 @@
 
 #include "cafPdmUiTreeViewEditor.h"
 
+#include <QKeyEvent>
+
 CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -317,6 +319,72 @@ QString RimSummaryCurveCollection::compileAutoPlotTitle() const
     }
 
     return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
+{
+    if (!keyEvent) return;
+
+    RimSummaryPlotSourceStepping* sourceStepping = nullptr;
+    {
+        RimSummaryCrossPlot* summaryCrossPlot = nullptr;
+        this->firstAncestorOrThisOfType(summaryCrossPlot);
+        
+        if (summaryCrossPlot)
+        {
+            sourceStepping = m_unionSourceStepping();
+        }
+        else
+        {
+            sourceStepping = m_ySourceStepping();
+        }
+    }
+
+    if (keyEvent->key() == Qt::Key_PageUp)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            sourceStepping->applyPrevCase();
+
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            sourceStepping->applyPrevOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyPrevQuantity();
+
+            keyEvent->accept();
+        }
+    }
+    else if (keyEvent->key() == Qt::Key_PageDown)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            sourceStepping->applyNextCase();
+
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            sourceStepping->applyNextOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyNextQuantity();
+
+            keyEvent->accept();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

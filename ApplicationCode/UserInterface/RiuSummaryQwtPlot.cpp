@@ -23,6 +23,7 @@
 #include "RimContextCommandBuilder.h"
 #include "RimProject.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
@@ -186,24 +187,10 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::keyPressEvent(QKeyEvent* keyEvent)
 {
-    if (keyEvent->key() == Qt::Key_PageUp)
+    if (m_plotDefinition && m_plotDefinition->summaryCurveCollection())
     {
-        if (m_plotDefinition)
-        {
-            m_plotDefinition->applyPreviousIdentifier();
-        }
-
-        keyEvent->accept();
-    }
-
-    if (keyEvent->key() == Qt::Key_PageDown)
-    {
-        if (m_plotDefinition)
-        {
-            m_plotDefinition->applyNextIdentifier();
-        }
-
-        keyEvent->accept();
+        RimSummaryCurveCollection* curveColl = m_plotDefinition->summaryCurveCollection();
+        curveColl->handleKeyPressEvent(keyEvent);
     }
 }
 

@@ -30,6 +30,7 @@ class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryPlotSourceStepping;
+class QKeyEvent;
 
 //==================================================================================================
 ///  
@@ -65,6 +66,8 @@ public:
     std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
     QString                                 compileAutoPlotTitle() const;
+
+    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();

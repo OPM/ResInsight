@@ -53,6 +53,15 @@ public:
 
     void setSourceSteppingType(SourceSteppingType sourceSteppingType);
 
+    void applyNextCase();
+    void applyPrevCase();
+
+    void applyNextQuantity();
+    void applyPrevQuantity();
+
+    void applyNextOtherIdentifier();
+    void applyPrevOtherIdentifier();
+
     void applyNextIdentifier();
     void applyPreviousIdentifier();
 
@@ -84,6 +93,8 @@ private:
     bool isYAxisStepping() const;
 
     RiaSummaryCurveAnalyzer* analyzerForReader(RifSummaryReaderInterface* reader);
+
+    void modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset);
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;

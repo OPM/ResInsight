@@ -65,6 +65,9 @@ public:
 public:
     bool adjustWidthToContents;
     bool showPreviousAndNextButtons;
+    
+    QString nextButtonText;
+    QString prevButtonText;
 };
 
 
