@@ -51,17 +51,35 @@ public:
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
 
 private:
-    void            plotUiSelectedCurves();
-    static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static QString  determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
-    static void     addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static void     addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, bool plotCurveOnRightAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static double   interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
+    enum WhichYAxis
+    {
+        LEFT_YAXIS,
+        RIGHT_YAXIS
+    };
+
+    class ValueRange
+    {
+    public:
+        ValueRange();
+        void add(const ValueRange& range);
+
+    public:
+        double min;
+        double max;
+    };
+
+    void                plotUiSelectedCurves();
+    static void         setPlotDefaults(QwtPlot* plot);
+    static void         plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, bool logScaleLeftAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static QString      determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
+    static void         addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static void         addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, WhichYAxis whichYAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static ValueRange   calcValueRange(const std::vector<double>& valueArr, bool includePositiveValuesOnly);
+    static double       interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);
-    void            slotUnscaledCheckBoxStateChanged(int);
+    void            slotSomeCheckBoxStateChanged(int);
 
 private:
     std::vector<RigFlowDiagSolverInterface::RelPermCurve>   m_allCurvesArr;
@@ -73,6 +91,7 @@ private:
 
     QButtonGroup*                                           m_selectedCurvesButtonGroup;
     QCheckBox*                                              m_showUnscaledCheckBox;
+    QCheckBox*                                              m_logarithmicScaleKrAxisCheckBox;
 
     std::unique_ptr<RiuRelativePermeabilityPlotUpdater>     m_plotUpdater;
 };
