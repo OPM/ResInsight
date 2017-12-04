@@ -453,7 +453,14 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
     QString searchString = m_textFilterLineEdit->text();
     searchString += "*";
 
-    m_proxyModel->setFilterWildcard(searchString);
+    // Escape the characters '[' and ']' as these have special meaning for a search string
+    // To be able to search for vector names in brackets, these must be escaped
+    // See "Wildcard Matching" in Qt documentation
+    searchString.replace("[", "\\[");
+    searchString.replace("]", "\\]");
+
+    QRegExp searcher(searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    m_proxyModel->setFilterRegExp(searcher);
 
     updateUi();
 }
