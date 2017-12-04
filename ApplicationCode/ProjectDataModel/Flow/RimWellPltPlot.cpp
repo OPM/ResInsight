@@ -371,7 +371,7 @@ public:
             auto it = globCellIdxToIdxInRftFile.find(globCellIdx);
             if (it == globCellIdxToIdxInRftFile.end())
             {
-                if (wpExIdx == (intersections.size() - 1))
+                if (!m_pipeBranchWellResultPoints.empty() && wpExIdx == (intersections.size() - 1))
                 {
                     m_pipeBranchWellResultPoints.pop_back();
                 }
@@ -463,7 +463,7 @@ public:
             auto it = globCellIdxToIdxInSimWellBranch.find(globCellIdx);
             if (it == globCellIdxToIdxInSimWellBranch.end())
             {
-                if (wpExIdx == (intersections.size() - 1))
+                if (!m_pipeBranchWellResultPoints.empty() && wpExIdx == (intersections.size() - 1))
                 {
                     m_pipeBranchWellResultPoints.pop_back();
                 }
