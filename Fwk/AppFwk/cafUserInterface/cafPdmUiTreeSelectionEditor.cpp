@@ -207,13 +207,13 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_treeView->setContextMenuPolicy(Qt::NoContextMenu);
         
             m_model->enableSingleSelectionMode(m_attributes.singleSelectionMode);
-
-            connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)));
         }
         else
         {
             m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         }
+
+        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)));
 
         if (!m_attributes.showTextFilter)
         {
