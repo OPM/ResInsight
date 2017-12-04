@@ -39,7 +39,7 @@ public:
 
 public:
     static CurveIntervals calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                          bool removeNegativeValues);
+                                                          bool includePositiveValuesOnly);
 
     template <typename T>
     static void getValuesByIntervals(const std::vector<T>& values,
@@ -62,6 +62,6 @@ public:
 public:
     // Helper methods, available as public to be able to access from unit tests
 
-    static bool isValidValue(double value, bool removeNegativeValues);
+    static bool isValidValue(double value, bool allowPositiveValuesOnly);
 };
 

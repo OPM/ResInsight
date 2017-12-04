@@ -27,7 +27,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigCurveDataTools::CurveIntervals RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                                                     bool removeNegativeValues)
+                                                                                     bool includePositiveValuesOnly)
 {
     CurveIntervals intervals;
 
@@ -37,7 +37,7 @@ RigCurveDataTools::CurveIntervals RigCurveDataTools::calculateIntervalsOfValidVa
     size_t valueCount = values.size();
     while (vIdx < valueCount)
     {
-        bool isValid = RigCurveDataTools::isValidValue(values[vIdx], removeNegativeValues);
+        bool isValid = RigCurveDataTools::isValidValue(values[vIdx], includePositiveValuesOnly);
 
         if (!isValid)
         {
@@ -90,14 +90,14 @@ std::vector<std::pair<size_t, size_t>> RigCurveDataTools::computePolyLineStartSt
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-bool RigCurveDataTools::isValidValue(double value, bool removeNegativeValues)
+bool RigCurveDataTools::isValidValue(double value, bool allowPositiveValuesOnly)
 {
     if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
     {
         return false;
     }
 
-    if (removeNegativeValues && std::signbit(value))
+    if (allowPositiveValuesOnly && value <= 0)
     {
         return false;
     }

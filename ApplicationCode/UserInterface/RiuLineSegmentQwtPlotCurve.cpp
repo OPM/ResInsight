@@ -51,7 +51,7 @@ RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
     CVF_ASSERT(xValues.size() == yValues.size());
 
@@ -62,7 +62,7 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
         std::vector<double> filteredXValues;
 
         {
-            auto intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(yValues, removeNegativeValues);
+            auto intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(yValues, keepOnlyPositiveValues);
 
             RigCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
             RigCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
@@ -84,17 +84,17 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, removeNegativeValues);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool removeNegativeValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, removeNegativeValues);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -49,15 +49,15 @@ public:
 
     void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
                                                  const std::vector<double>& yValues,
-                                                 bool removeNegativeValues);
+                                                 bool keepOnlyPositiveValues);
     
     void         setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes,
                                                const std::vector<double>& yValues,
-                                               bool removeNegativeValues);
+                                               bool keepOnlyPositiveValues);
 
     void         setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes,
                                                const std::vector<double>& yValues,
-                                               bool removeNegativeValues);
+                                               bool keepOnlyPositiveValues);
 
     void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 
