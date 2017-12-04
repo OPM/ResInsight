@@ -150,23 +150,24 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     RimObservedData* observedData = nullptr;
     bool parseOk = false;
 
-    RicPasteAsciiDataToSummaryPlotFeatureUi parseOptionsUi;
+    RimCsvUserData* userData = new RimCsvUserData();
+    RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions = userData->parseOptions();
+
     if (useSavedFieldsValuesInDialog)
     {
-        caf::PdmSettings::readFieldsFromApplicationStore(&parseOptionsUi);
+        caf::PdmSettings::readFieldsFromApplicationStore(parseOptions);
     }
-    parseOptionsUi.setUiModeImport(fileName);
+    parseOptions->setUiModeImport(fileName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &parseOptionsUi, "CSV Import Options", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, parseOptions, "CSV Import Options", "");
     if (propertyDialog.exec() != QDialog::Accepted)
     {
         return nullptr;
     }
 
-    caf::PdmSettings::writeFieldsToApplicationStore(&parseOptionsUi);
+    caf::PdmSettings::writeFieldsToApplicationStore(parseOptions);
 
-    RimCsvUserData* userData = new RimCsvUserData();
-    userData->setParseOptions(parseOptionsUi.parseOptions());
+    //userData->setParseOptions(parseOptionsUi.parseOptions());
     userData->setSummaryHeaderFileName(fileName);
     userData->createSummaryReaderInterface();
     userData->updateMetaData();
