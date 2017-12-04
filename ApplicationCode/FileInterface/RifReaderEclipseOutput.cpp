@@ -343,6 +343,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         progInfo.setProgress(3 + lgrIdx);
     }
 
+    mainGrid->initAllSubGridsParentGridPointer();
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
 
@@ -1292,6 +1293,49 @@ void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContr
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Helper class to determine whether a well connection is present in a sub cell
+//  for a specific well. Connections must be tested from innermost lgr to outermost since
+//  it accumulates the outer cells having subcell connections as it goes.
+//--------------------------------------------------------------------------------------------------
+class WellResultPointHasSubCellConnectionCalculator
+{
+public:
+    explicit WellResultPointHasSubCellConnectionCalculator(const RigMainGrid* mainGrid): m_mainGrid(mainGrid) {}
+
+    bool hasSubCellConnection(const RigWellResultPoint& wellResultPoint)
+    {
+        if (!wellResultPoint.isCell()) return false;
+
+        size_t gridIndex = wellResultPoint.m_gridIndex;
+        size_t gridCellIndex = wellResultPoint.m_gridCellIndex;
+
+        size_t reservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
+
+        if ( m_gridCellsWithSubCellWellConnections.count(reservoirCellIdx) ) return true;
+
+        // Traverse parent gridcells, and add them to the map
+
+        while ( gridIndex > 0 ) // is lgr
+        {
+            const RigCell& connectionCell = m_mainGrid->cellByGridAndGridLocalCellIdx(gridIndex, gridCellIndex);
+            RigGridBase* hostGrid = connectionCell.hostGrid();
+
+            RigLocalGrid* lgrHost = static_cast<RigLocalGrid*> (hostGrid);
+            gridIndex = lgrHost->parentGrid()->gridIndex();
+            gridCellIndex = connectionCell.parentCellIndex();
+
+            size_t parentReservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
+            m_gridCellsWithSubCellWellConnections.insert(parentReservoirCellIdx);
+        }
+
+        return false;
+    }
+
+private:
+    std::set<size_t> m_gridCellsWithSubCellWellConnections;
+    const RigMainGrid* m_mainGrid;
+};
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, bool importCompleteMswData)
@@ -1742,7 +1786,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                 }
 
             } // End of the MSW section
-            else 
+            else if ( false )
             {
                 // Code handling None-MSW Wells ... Normal wells that is.
 
@@ -1805,6 +1849,54 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
                                 wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
                                     createWellResultPoint(grids[gridNr], ert_connection, -1, -1, wellName);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Code handling None-MSW Wells ... Normal wells that is.
+
+                WellResultPointHasSubCellConnectionCalculator subCellConnCalc(m_eclipseCase->mainGrid());
+                int lastGridNr = static_cast<int>(grids.size()) - 1;
+                for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
+                {
+                    const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
+                    if ( ert_wellhead )
+                    {
+                        RigWellResultPoint wellHeadRp = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
+                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
+                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
+                        wellHeadRp.m_isOpen = false;
+
+                        if (!subCellConnCalc.hasSubCellConnection(wellHeadRp))  wellResFrame.m_wellHead = wellHeadRp;
+                    }
+
+                    const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, this->ertGridName(gridNr).data());
+
+                    // Import all well result cells for all connections
+                    if ( connections )
+                    {
+                        int connectionCount = well_conn_collection_get_size(connections);
+                        if ( connectionCount )
+                        {
+                            wellResFrame.m_wellResultBranches.push_back(RigWellResultBranch());
+                            RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches.back();
+
+                            wellResultBranch.m_ertBranchId = 0; // Normal wells have only one branch
+
+                            size_t existingCellCount = wellResultBranch.m_branchResultPoints.size();
+                            wellResultBranch.m_branchResultPoints.resize(existingCellCount + connectionCount);
+
+                            for ( int connIdx = 0; connIdx < connectionCount; connIdx++ )
+                            {
+                                well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                                RigWellResultPoint wellRp = createWellResultPoint(grids[gridNr], ert_connection, -1, -1, wellName);
+
+                                if (!subCellConnCalc.hasSubCellConnection(wellRp)){
+                                wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = wellRp;
+                                }
                             }
                         }
                     }

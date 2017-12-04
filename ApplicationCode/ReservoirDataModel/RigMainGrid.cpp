@@ -50,6 +50,22 @@ RigMainGrid::~RigMainGrid(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const
+{
+     return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const
+{
+    return gridByIndex(gridIdx)->reservoirCellIndex(gridLocalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 {
     CVF_ASSERT(localGrid && localGrid->gridId() != cvf::UNDEFINED_INT); // The grid ID must be set.
@@ -72,11 +88,14 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::initAllSubGridsParentGridPointer()
 {
-    initSubGridParentPointer();
-    size_t i;
-    for (i = 0; i < m_localGrids.size(); ++i)
+    if ( m_localGrids.size() && m_localGrids[0]->parentGrid() == nullptr )
     {
-       m_localGrids[i]->initSubGridParentPointer(); 
+        initSubGridParentPointer();
+        size_t i;
+        for ( i = 0; i < m_localGrids.size(); ++i )
+        {
+            m_localGrids[i]->initSubGridParentPointer();
+        }
     }
 }
 
