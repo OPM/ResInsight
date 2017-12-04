@@ -96,6 +96,9 @@ public:
 
     static QString                                  flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
                                                                       RiaEclipseUnitTools::UnitSystem unitSystem);
+
+    static QString                                  flowUnitText(RimWellLogFile::WellFlowCondition condition, 
+                                                                 RiaEclipseUnitTools::UnitSystem unitSystem);
 private:
     friend class StaticFieldsInitializer;
     static const std::set<QString> PRESSURE_DATA_NAMES;
