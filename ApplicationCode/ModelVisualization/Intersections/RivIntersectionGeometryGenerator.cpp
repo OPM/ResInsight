@@ -94,8 +94,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
             cvf::Vec3d maxHeightVec;
 
-            double maxSectionHeightUp;
-            double maxSectionHeightDown;
+            double maxSectionHeightUp = 0;
+            double maxSectionHeightDown = 0;
 
             if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
             {
@@ -169,7 +169,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     {
                         cvf::Vec3d temp = vertex.vx - p1;
                         double dot = temp.dot(m_extrusionDirection);
-                        double lengthCheck;
+                        double lengthCheck = 0;
                         
                         if (dot < 0)
                         {
