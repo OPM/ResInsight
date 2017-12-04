@@ -92,10 +92,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             sectionBBox.add(p1);
             sectionBBox.add(p2);
 
-
             cvf::Vec3d maxHeightVec;
 
-            double maxSectionHeight = sectionBBox.radius();
             double maxSectionHeightUp;
             double maxSectionHeightDown;
 
@@ -121,7 +119,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             }
             else
             {
-                maxHeightVec = m_extrusionDirection*maxSectionHeight;
+                maxHeightVec = m_extrusionDirection*gridBBox.radius();
 
                 sectionBBox.add(p1 + maxHeightVec);
                 sectionBBox.add(p1 - maxHeightVec);
