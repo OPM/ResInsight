@@ -142,7 +142,10 @@ void RimSummaryPlotSourceStepping::applyPrevCase()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyNextQuantity()
 {
-    modifyCurrentIndex(&m_quantity, 1);
+    if (!m_quantity.uiCapability()->isUiHidden())
+    {
+        modifyCurrentIndex(&m_quantity, 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +153,10 @@ void RimSummaryPlotSourceStepping::applyNextQuantity()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyPrevQuantity()
 {
-    modifyCurrentIndex(&m_quantity, -1);
+    if (!m_quantity.uiCapability()->isUiHidden())
+    {
+        modifyCurrentIndex(&m_quantity, -1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +164,10 @@ void RimSummaryPlotSourceStepping::applyPrevQuantity()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyNextOtherIdentifier()
 {
-    caf::PdmValueField* valueField = valueFieldToModify();
+    caf::PdmValueField* valueField = fieldToModify();
+    if (!valueField)
+        return;
+
     modifyCurrentIndex(valueField, 1);
 }
 
@@ -167,108 +176,11 @@ void RimSummaryPlotSourceStepping::applyNextOtherIdentifier()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
 {
-    caf::PdmValueField* valueField = valueFieldToModify();
+    caf::PdmValueField* valueField = fieldToModify();
+    if (!valueField)
+        return;
+
     modifyCurrentIndex(valueField, -1);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyNextIdentifier()
-{
-    updateUiFromCurves();
-
-    caf::PdmValueField* valueField = valueFieldToModify();
-    if (valueField)
-    {
-        bool useOptionsOnly = true;
-
-        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
-        if (options.isEmpty())
-        {
-            return;
-        }
-
-        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
-
-        int currentIndex = -1;
-        for (int i = 0; i < options.size(); i++)
-        {
-            if (uiVariant == options[i].optionUiText())
-            {
-                currentIndex = i;
-            }
-        }
-
-        if (currentIndex == -1)
-        {
-            currentIndex = 0;
-        }
-
-        int nextIndex = currentIndex + 1;
-        if (nextIndex >= options.size() - 1)
-        {
-            nextIndex = 0;
-        }
-
-        auto optionValue = options[nextIndex].value();
-
-        QVariant currentValue = valueField->toQVariant();
-
-        valueField->setFromQVariant(optionValue);
-
-        valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyPreviousIdentifier()
-{
-    updateUiFromCurves();
-
-    caf::PdmValueField* valueField = valueFieldToModify();
-    if (valueField)
-    {
-        bool useOptionsOnly = true;
-
-        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
-        if (options.isEmpty())
-        {
-            return;
-        }
-
-        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
-
-        int currentIndex = -1;
-        for (int i = 0; i < options.size(); i++)
-        {
-            if (uiVariant == options[i].optionUiText())
-            {
-                currentIndex = i;
-            }
-        }
-
-        if (currentIndex == -1)
-        {
-            currentIndex = 0;
-        }
-
-        int nextIndex = currentIndex - 1;
-        if (nextIndex < 0)
-        {
-            nextIndex = options.size() - 1;
-        }
-
-        auto optionValue = options[nextIndex].value();
-
-        QVariant currentValue = valueField->toQVariant();
-
-        valueField->setFromQVariant(optionValue);
-
-        valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -701,7 +613,7 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
+caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RiaSummaryCurveAnalyzer analyzer;
     analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
@@ -721,34 +633,7 @@ caf::PdmFieldHandle* RimSummaryPlotSourceStepping::fieldToModify()
         return &m_region;
     }
 
-    if (analyzer.quantities().size() == 1)
-    {
-        return &m_quantity;
-    }
-
-    // A pointer field is no a value field, so this must be improved
-    // to be able to step between summary cases
-    auto sumCases = allSummaryCasesUsedInCurveCollection();
-    if (sumCases.size() == 1)
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->allSummaryCases().size() > 1)
-        {
-            return &m_summaryCase;
-        }
-    }
-
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmValueField* RimSummaryPlotSourceStepping::valueFieldToModify()
-{
-    // This will return a null pointer for summary case modifier
-
-    return dynamic_cast<caf::PdmValueField*>(fieldToModify());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -61,8 +61,6 @@ public:
 
     void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
 
-    void                                    applyNextIdentifier();
-    void                                    applyPreviousIdentifier();
     std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
     QString                                 compileAutoPlotTitle() const;

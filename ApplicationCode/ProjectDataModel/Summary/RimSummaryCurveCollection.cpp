@@ -247,22 +247,6 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::applyNextIdentifier()
-{
-    m_ySourceStepping->applyNextIdentifier();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::applyPreviousIdentifier()
-{
-    m_ySourceStepping->applyPreviousIdentifier();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
     RimSummaryCrossPlot* parentCrossPlot;

@@ -62,9 +62,6 @@ public:
     void applyNextOtherIdentifier();
     void applyPrevOtherIdentifier();
 
-    void applyNextIdentifier();
-    void applyPreviousIdentifier();
-
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 private:
@@ -83,8 +80,7 @@ private:
     RifSummaryReaderInterface* summaryReader() const;
     RimSummaryCase*            singleSummaryCase() const;
     void                       updateUiFromCurves();
-    caf::PdmFieldHandle*       fieldToModify();
-    caf::PdmValueField*        valueFieldToModify();
+    caf::PdmValueField*        fieldToModify();
 
     std::set<RifEclipseSummaryAddress> allAddressesUsedInCurveCollection() const;
     std::set<RimSummaryCase*>          allSummaryCasesUsedInCurveCollection() const;
