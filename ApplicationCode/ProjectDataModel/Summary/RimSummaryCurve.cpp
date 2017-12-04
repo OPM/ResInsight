@@ -505,7 +505,7 @@ void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "Select Vector...";
+            attrib->m_buttonText = "Vector Selection Dialog";
         }
     }
 }
@@ -530,8 +530,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
+        curveVarSelectionGroup->add(&m_yPushButtonSelectSummaryAddress);
 
-        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
         curveDataGroup->add(&m_plotAxis);
     }
 
@@ -546,7 +546,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         m_xValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_xValuesUiFilterResultSelection);
 
-        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
+        curveVarSelectionGroup->add(&m_xPushButtonSelectSummaryAddress);
     }
 
 
