@@ -30,6 +30,7 @@
 #include "RigFlowDiagInterfaceTools.h"
 #include "opm/flowdiagnostics/DerivedQuantities.hpp"
 
+#include "opm/utility/ECLPropertyUnitConversion.hpp"
 #include "opm/utility/ECLSaturationFunc.hpp"
 #include "opm/utility/ECLPvtCurveCollection.hpp"
 
@@ -134,6 +135,10 @@ public:
         try
         {
             m_eclPvtCurveCollection.reset(new Opm::ECLPVT::ECLPvtCurveCollection(*m_eclGraph, initData));
+            
+            // Tried to set output units, but currently causes crashes when getting PVT curve data
+            //m_eclPvtCurveCollection->setOutputUnits(Opm::ECLUnits::metricUnitConventions());
+            //m_eclPvtCurveCollection->setOutputUnits(Opm::ECLUnits::fieldUnitConventions());
         }
         catch (...)
         {
