@@ -168,11 +168,11 @@ private:
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
+    caf::PdmField<QString>              m_wellPathFormationFilePath;
     caf::PdmField<QString>              m_formationKeyInFile;
 
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
     
-    caf::PdmField<QString>               m_wellPathFormationFilePath;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 

@@ -24,18 +24,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, std::vector<std::pair<double, QString>>> RifWellPathFormationReader::readWellFormations(const QString& filePath)
-{
-    std::map<QString, std::vector<std::pair<double, QString>>> formations;
-
-    readFileIntoMap(filePath, &formations);
-
-    return formations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::map<QString, cvf::ref<RigWellPathFormations>>
     RifWellPathFormationReader::readWellFormationsToGeometry(const QString& filePath)
 {
