@@ -132,12 +132,14 @@ void RiuPvtPlotPanel::setPlotDefaults(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure)
+void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
     m_allFvfCurvesArr = fvfCurveArr;
     m_allViscosityCurvesArr = viscosityCurveArr;
+    m_fvfDynProps = fvfDynProps;
+    m_viscosityDynProps = viscosityDynProps;
     m_pressure = pressure;
 
     plotUiSelectedCurves();
@@ -157,6 +159,8 @@ void RiuPvtPlotPanel::clearPlot()
 
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
+    m_fvfDynProps = FvfDynProps();
+    m_viscosityDynProps = ViscosityDynProps();
     m_pressure = HUGE_VAL;
 
     plotUiSelectedCurves();
@@ -199,19 +203,31 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
     }
 
     QString phaseString = "";
-    if      (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)   phaseString = "Gas ";
-    else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)   phaseString = "Oil ";
+    double fvfPointMarkerYValue = HUGE_VAL;
+    double viscosityPointMarkerYValue = HUGE_VAL;
+    if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)
+    {
+        phaseString = "Gas ";
+        fvfPointMarkerYValue = m_fvfDynProps.bg;
+        viscosityPointMarkerYValue = m_viscosityDynProps.mu_g;
+    }
+    else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)
+    {
+        phaseString = "Oil ";
+        fvfPointMarkerYValue = m_fvfDynProps.bo;
+        viscosityPointMarkerYValue = m_viscosityDynProps.mu_o;
+    }
 
     {
         const QString plotTitle = phaseString + "Formation Volume Factor";
         const QString yAxisTitle = phaseString + "Formation Volume Factor";
-        plotCurvesInQwt(selectedFvfCurves, m_pressure, plotTitle, yAxisTitle, m_fvfPlot, &m_fvfPlotMarkers);
+        plotCurvesInQwt(selectedFvfCurves, m_pressure, fvfPointMarkerYValue, plotTitle, yAxisTitle, m_fvfPlot, &m_fvfPlotMarkers);
     }
     
     {
         const QString plotTitle = phaseString + "Viscosity";
         const QString yAxisTitle = phaseString + "Viscosity";
-        plotCurvesInQwt(selectedViscosityCurves, m_pressure, plotTitle, yAxisTitle, m_viscosityPlot, &m_viscosityPlotMarkers);
+        plotCurvesInQwt(selectedViscosityCurves, m_pressure, viscosityPointMarkerYValue, plotTitle, yAxisTitle, m_viscosityPlot, &m_viscosityPlotMarkers);
     }
 
     
@@ -220,7 +236,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
+void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
 
@@ -268,12 +284,26 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
         QwtPlotMarker* lineMarker = new QwtPlotMarker;
         lineMarker->setXValue(pressure);
         lineMarker->setLineStyle(QwtPlotMarker::VLine);
-        lineMarker->setLinePen(QPen(Qt::black, 1, Qt::DashLine));
+        lineMarker->setLinePen(QPen(QColor(128,0,255), 1, Qt::DashLine));
         lineMarker->setLabel(QString("PRESSURE"));
         lineMarker->setLabelAlignment(Qt::AlignTop | Qt::AlignRight);
         lineMarker->setLabelOrientation(Qt::Vertical);
         lineMarker->attach(plot);
         myPlotMarkers->push_back(lineMarker);
+    }
+
+    if (pressure != HUGE_VAL && pointMarkerYValue != HUGE_VAL)
+    {
+        QwtPlotMarker* pointMarker = new QwtPlotMarker;
+        pointMarker->setValue(pressure, pointMarkerYValue);
+
+        QwtSymbol* symbol = new QwtSymbol(QwtSymbol::Ellipse);
+        symbol->setSize(13, 13);
+        symbol->setPen(QPen(QColor(128, 128, 255), 2));
+        symbol->setBrush(Qt::NoBrush);
+        pointMarker->setSymbol(symbol);
+        pointMarker->attach(plot);
+        myPlotMarkers->push_back(pointMarker);
     }
 
     plot->setTitle(plotTitle);

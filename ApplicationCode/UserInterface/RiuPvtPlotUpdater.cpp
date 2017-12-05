@@ -134,8 +134,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
         {
             //cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
-            std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_FVF, activeCellIndex);
-            std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurvesForActiveCell(RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex);
+            std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves(RigFlowDiagSolverInterface::PVT_CT_FVF, activeCellIndex);
+            std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves(RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex);
 
             const size_t timeStepIndex = static_cast<size_t>(eclipseView.currentTimeStep());
 
@@ -153,7 +153,13 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             const double cellPressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             //cvf::Trace::show("cellRS = %f  cellRV = %f  cellPressure = %f", cellRS, cellRV, cellPressure);
 
-            plotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, cellPressure);
+            RiuPvtPlotPanel::FvfDynProps fvfDynProps;
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf(activeCellIndex, cellPressure, cellRS, cellRV, &fvfDynProps.bo, &fvfDynProps.bg);
+
+            RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity(activeCellIndex, cellPressure, cellRS, cellRV, &viscosityDynProps.mu_o, &viscosityDynProps.mu_g);
+
+            plotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellPressure);
 
             return true;
         }

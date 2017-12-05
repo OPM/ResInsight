@@ -116,8 +116,10 @@ public:
                                                                 const std::vector<size_t>& selected_cell_indices,
                                                                 double max_pv_fraction);
 
-    std::vector<RelPermCurve>      calculateRelPermCurvesForActiveCell(size_t activeCellIndex);
-    std::vector<PvtCurve>          calculatePvtCurvesForActiveCell(PvtCurveType pvtCurveType, size_t activeCellIndex);
+    std::vector<RelPermCurve>      calculateRelPermCurves(size_t activeCellIndex);
+    std::vector<PvtCurve>          calculatePvtCurves(PvtCurveType pvtCurveType, size_t activeCellIndex);
+    bool                           calculatePvtDynamicPropertiesFvf(size_t activeCellIndex, double pressure, double rs, double rv, double* bo, double* bg);
+    bool                           calculatePvtDynamicPropertiesViscosity(size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g);
 
 private:
     std::string getInitFileName() const;

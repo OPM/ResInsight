@@ -121,7 +121,7 @@ void RigFlowDiagTimeStepResult::addResult(const RigFlowDiagResultAddress& resAdd
 class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
-    RigOpmFlowDiagStaticData(const std::string& grid, const std::string& init)
+    RigOpmFlowDiagStaticData(const std::string& grid, const std::string& init, RiaEclipseUnitTools::UnitSystem caseUnitSystem)
     {
         Opm::ECLInitFileData initData(init);
 
@@ -135,10 +135,16 @@ public:
         try
         {
             m_eclPvtCurveCollection.reset(new Opm::ECLPVT::ECLPvtCurveCollection(*m_eclGraph, initData));
-            
-            // Tried to set output units, but currently causes crashes when getting PVT curve data
-            //m_eclPvtCurveCollection->setOutputUnits(Opm::ECLUnits::metricUnitConventions());
-            //m_eclPvtCurveCollection->setOutputUnits(Opm::ECLUnits::fieldUnitConventions());
+
+            // Try and set output unit system to the same system as the eclipse case system
+            std::unique_ptr<const Opm::ECLUnits::UnitSystem> eclUnitSystem;
+            if      (caseUnitSystem == RiaEclipseUnitTools::UNITS_METRIC) eclUnitSystem = Opm::ECLUnits::metricUnitConventions();
+            else if (caseUnitSystem == RiaEclipseUnitTools::UNITS_FIELD)  eclUnitSystem = Opm::ECLUnits::fieldUnitConventions();
+            else if (caseUnitSystem == RiaEclipseUnitTools::UNITS_LAB)    eclUnitSystem = Opm::ECLUnits::labUnitConventions();
+            if (eclUnitSystem)
+            {
+                m_eclPvtCurveCollection->setOutputUnits(eclUnitSystem->clone());
+            }
         }
         catch (...)
         {
@@ -146,6 +152,7 @@ public:
         }
     }
 
+public:
     std::unique_ptr<Opm::ECLGraph>                  m_eclGraph;
     std::vector<double>                             m_poreVolume;
     std::unique_ptr<Opm::FlowDiagnostics::Toolbox>  m_fldToolbox;
@@ -565,7 +572,10 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         std::string initFileName = getInitFileName();
         if (initFileName.empty()) return false;
 
-        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName);
+        const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
+        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
+
+        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
     }
 
     return m_opmFlowDiagStaticData.notNull() ? true : false;
@@ -615,7 +625,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurvesForActiveCell(size_t activeCellIndex)
+std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurves(size_t activeCellIndex)
 {
     std::vector<RelPermCurve> retCurveArr;
 
@@ -670,7 +680,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurvesForActiveCell(PvtCurveType pvtCurveType, size_t activeCellIndex)
+std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurves(PvtCurveType pvtCurveType, size_t activeCellIndex)
 {
     std::vector<PvtCurve> retCurveArr;
 
@@ -708,6 +718,82 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
     }
 
     return retCurveArr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeCellIndex, double pressure, double rs, double rv, double* bo, double* bg)
+{
+    if (bo) *bo = HUGE_VAL;
+    if (bg) *bg = HUGE_VAL;
+
+    if (!ensureStaticDataObjectInstanceCreated())
+    {
+        return false;
+    }
+
+    // Bo
+    {
+        std::vector<double> phasePress = { pressure };
+        std::vector<double> mixRatio = { rs };
+        std::vector<double> valArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex), phasePress, mixRatio);
+        if (valArr.size() > 0)
+        {
+            *bo = valArr[0];
+        }
+    }
+
+    // Bg
+    {
+        std::vector<double> phasePress = { pressure };
+        std::vector<double> mixRatio = { rv };
+        std::vector<double> valArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex), phasePress, mixRatio);
+        if (valArr.size() > 0)
+        {
+            *bg = valArr[0];
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g)
+{
+    if (mu_o) *mu_o = HUGE_VAL;
+    if (mu_g) *mu_g = HUGE_VAL;
+
+    if (!ensureStaticDataObjectInstanceCreated())
+    {
+        return false;
+    }
+
+    // mu_o
+    {
+        std::vector<double> phasePress = { pressure };
+        std::vector<double> mixRatio = { rs };
+        std::vector<double> valArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative(Opm::ECLPVT::RawCurve::Viscosity, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex), phasePress, mixRatio);
+        if (valArr.size() > 0)
+        {
+            *mu_o = valArr[0];
+        }
+    }
+
+    // mu_o
+    {
+        std::vector<double> phasePress = { pressure };
+        std::vector<double> mixRatio = { rv };
+        std::vector<double> valArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative(Opm::ECLPVT::RawCurve::Viscosity, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex), phasePress, mixRatio);
+        if (valArr.size() > 0)
+        {
+            *mu_g = valArr[0];
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

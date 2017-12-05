@@ -22,6 +22,7 @@
 
 #include <QWidget>
 
+#include <cmath>
 #include <memory>
 
 class RiuPvtPlotUpdater;
@@ -41,17 +42,30 @@ class RiuPvtPlotPanel : public QWidget
     Q_OBJECT
 
 public:
+    struct FvfDynProps
+    {
+        double bo = HUGE_VAL;
+        double bg = HUGE_VAL;
+    };
+
+    struct ViscosityDynProps
+    {
+        double mu_o = HUGE_VAL;
+        double mu_g = HUGE_VAL;
+    };
+
+public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, double pressure);
+    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
 
 private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
 
 private slots:
     void            slotPhaseComboCurrentIndexChanged(int);
@@ -59,6 +73,8 @@ private slots:
 private:
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
+    FvfDynProps                                         m_fvfDynProps;
+    ViscosityDynProps                                   m_viscosityDynProps;
     double                                              m_pressure;
 
     QComboBox*                                          m_phaseComboBox;
