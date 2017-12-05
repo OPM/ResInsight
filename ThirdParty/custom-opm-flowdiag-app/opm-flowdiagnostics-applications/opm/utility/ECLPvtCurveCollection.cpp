@@ -168,11 +168,11 @@ namespace {
 
         if (phase == Opm::ECLPhaseIndex::Liquid) {
              // Oil FVF.  First column is pressure, second column is Bo.
-            const auto& cvrt_x = Opm::ECLUnits::Convert::Pressure()
-                .from(usysFrom).to(usysTo);
+            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
+            cvrt_x.from(usysFrom).to(usysTo);
 
-            const auto& cvrt_y = Opm::ECLUnits::Convert::OilFVF()
-                .from(usysFrom).to(usysTo);
+            auto cvrt_y = Opm::ECLUnits::Convert::OilFVF();
+            cvrt_y.from(usysFrom).to(usysTo);
 
             return convertCurve(std::move(curve), cvrt_x, cvrt_y);
         }
@@ -183,20 +183,20 @@ namespace {
         //
         // Immiscible case identified by curve.size() <= 1.
 
-        const auto& cvrt_y = Opm::ECLUnits::Convert::GasFVF()
-            .from(usysFrom).to(usysTo);
+        auto cvrt_y = Opm::ECLUnits::Convert::GasFVF();
+        cvrt_y.from(usysFrom).to(usysTo);
 
         if (curve.size() <= 1) {
             // Immiscible Gas FVF.  First column is Pg.
-            const auto& cvrt_x = Opm::ECLUnits::Convert::Pressure()
-                .from(usysFrom).to(usysTo);
+            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
+            cvrt_x.from(usysFrom).to(usysTo);
 
             return convertCurve(std::move(curve), cvrt_x, cvrt_y);
         }
 
         // Miscible Gas FVF.  First column is Rv.
-        const auto& cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio()
-            .from(usysFrom).to(usysTo);
+        auto cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_x.from(usysFrom).to(usysTo);
 
         return convertCurve(std::move(curve), cvrt_x, cvrt_y);
     }
@@ -212,22 +212,22 @@ namespace {
 
         // This is the viscosity curve.  Second column is always viscosity
         // irrespective of phase or miscible/immiscible fluids.
-        const auto& cvrt_y = Opm::ECLUnits::Convert::Viscosity()
-            .from(usysFrom).to(usysTo);
+        auto cvrt_y = Opm::ECLUnits::Convert::Viscosity();
+        cvrt_y.from(usysFrom).to(usysTo);
 
         if ((phase == Opm::ECLPhaseIndex::Liquid) || (curve.size() <= 1)) {
              // Graph is oil viscosity or immiscible gas viscosity.  First
              // column is pressure.
-            const auto& cvrt_x = Opm::ECLUnits::Convert::Pressure()
-                .from(usysFrom).to(usysTo);
+            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
+            cvrt_x.from(usysFrom).to(usysTo);
 
             return convertCurve(std::move(curve), cvrt_x, cvrt_y);
         }
 
         // Miscible Gas viscosity.  First column is Rv (vapourised oil/gas
         // ratio).
-        const auto& cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio()
-            .from(usysFrom).to(usysTo);
+        auto cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_x.from(usysFrom).to(usysTo);
 
         return convertCurve(std::move(curve), cvrt_x, cvrt_y);
     }
@@ -242,23 +242,23 @@ namespace {
                 (phase == Opm::ECLPhaseIndex::Vapour));
 
         // First column is pressure (Po or Pg).
-        const auto& cvrt_x = Opm::ECLUnits::Convert::Pressure()
-            .from(usysFrom).to(usysTo);
+        auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
+        cvrt_x.from(usysFrom).to(usysTo);
 
         // Second column is Rs or Rv depending on 'phase'.
         if (phase == Opm::ECLPhaseIndex::Liquid) {
             // Saturated state curve for miscible oil.  Second column is Rs
             // (dissolved gas/oil ratio).
-            const auto& cvrt_y = Opm::ECLUnits::Convert::
-                DissolvedGasOilRatio().from(usysFrom).to(usysTo);
+            auto cvrt_y = Opm::ECLUnits::Convert::DissolvedGasOilRatio();
+            cvrt_y.from(usysFrom).to(usysTo);
 
             return convertCurve(std::move(curve), cvrt_x, cvrt_y);
         }
 
         // Saturated state curve for miscible gas.  Second column is Rv
         // (vapourised oil/gas ratio).
-        const auto& cvrt_y = Opm::ECLUnits::Convert::
-            VaporisedOilGasRatio().from(usysFrom).to(usysTo);
+        auto cvrt_y = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_y.from(usysFrom).to(usysTo);
 
         return convertCurve(std::move(curve), cvrt_x, cvrt_y);
     }
