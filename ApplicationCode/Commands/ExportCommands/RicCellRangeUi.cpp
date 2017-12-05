@@ -82,7 +82,7 @@ void RicCellRangeUi::setCase(RimCase* rimCase)
 //--------------------------------------------------------------------------------------------------
 caf::VecIjk RicCellRangeUi::start() const
 {
-    return caf::VecIjk{m_startIndexI, m_startIndexJ, m_startIndexK};
+    return caf::VecIjk(m_startIndexI, m_startIndexJ, m_startIndexK);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ caf::VecIjk RicCellRangeUi::start() const
 //--------------------------------------------------------------------------------------------------
 caf::VecIjk RicCellRangeUi::count() const
 {
-    return caf::VecIjk{ m_cellCountI, m_cellCountJ, m_cellCountK };
+    return caf::VecIjk(m_cellCountI, m_cellCountJ, m_cellCountK);
 }
 
 //--------------------------------------------------------------------------------------------------

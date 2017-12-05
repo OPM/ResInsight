@@ -79,7 +79,7 @@ int RicExportCarfinUi::maxWellCount() const
 //--------------------------------------------------------------------------------------------------
 caf::VecIjk RicExportCarfinUi::lgrCellCount() const
 {
-    return caf::VecIjk{m_cellCountI, m_cellCountJ, m_cellCountK};
+    return caf::VecIjk (m_cellCountI, m_cellCountJ, m_cellCountK);
 }
 
 //--------------------------------------------------------------------------------------------------
