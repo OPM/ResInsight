@@ -179,8 +179,9 @@ private:
     void                                            syncronizeWellsWithResults();
 
     void                                            clampCurrentTimestep() override;
+    void                                            setVisibleGridParts(const std::vector<RivCellSetEnum>& cellSets);
 
-
+private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
