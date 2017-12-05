@@ -917,7 +917,11 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(RifEcli
             auto address = RifEclipseSummaryAddress(category, selectedIdentifiers);
             addressSet.insert(address);
         }
-        identifierPath.pop_back();
+
+        if (!identifierPath.empty())
+        {
+            identifierPath.pop_back();
+        }
     }
 }
 
