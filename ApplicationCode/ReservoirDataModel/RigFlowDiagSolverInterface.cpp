@@ -733,6 +733,12 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeC
         return false;
     }
 
+    CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
+    if (!m_opmFlowDiagStaticData->m_eclPvtCurveCollection)
+    {
+        return false;
+    }
+
     // Bo
     {
         std::vector<double> phasePress = { pressure };
@@ -767,6 +773,12 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t a
     if (mu_g) *mu_g = HUGE_VAL;
 
     if (!ensureStaticDataObjectInstanceCreated())
+    {
+        return false;
+    }
+
+    CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
+    if (!m_opmFlowDiagStaticData->m_eclPvtCurveCollection)
     {
         return false;
     }
