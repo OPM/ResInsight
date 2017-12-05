@@ -686,19 +686,31 @@ QString RimWellPlotTools::flowPlotAxisTitle(RimWellLogFile::WellFlowCondition co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString flowConditionReservoirUnitText(RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    QString unitText;
+
+    switch (unitSystem)
+    {
+        case RiaEclipseUnitTools::UNITS_METRIC: unitText = "[m<sup>3</sup>/day]"; break;
+        case RiaEclipseUnitTools::UNITS_FIELD:  unitText = "[Brl/day]"; break;
+        case RiaEclipseUnitTools::UNITS_LAB:    unitText = "[cm<sup>3</sup>/hr]"; break;
+        default: break;
+    }
+
+    return unitText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellPlotTools::flowUnitText(RimWellLogFile::WellFlowCondition condition, RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     QString unitText;
 
     if (condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR)
     {
-        switch (unitSystem)
-        {
-            case RiaEclipseUnitTools::UNITS_METRIC: unitText = "[m<sup>3</sup>/day]"; break;
-            case RiaEclipseUnitTools::UNITS_FIELD:  unitText = "[Brl/day]"; break;
-            case RiaEclipseUnitTools::UNITS_LAB:    unitText = "[cm<sup>3</sup>/hr]"; break;
-            default: break;
-        }
+        unitText = flowConditionReservoirUnitText(unitSystem);
     }
     else
     {
@@ -707,6 +719,49 @@ QString RimWellPlotTools::flowUnitText(RimWellLogFile::WellFlowCondition conditi
             case RiaEclipseUnitTools::UNITS_METRIC: unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]"; break;
             case RiaEclipseUnitTools::UNITS_FIELD:  unitText = "[Liquid BBL/day], [Gas BOE/day]"; break;
             case RiaEclipseUnitTools::UNITS_LAB:    unitText = "[cm<sup>3</sup>/hr]"; break;
+            default: break;
+        }
+    }
+
+    return unitText;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPlotTools::curveUnitText(RimWellLogFile::WellFlowCondition condition, RiaEclipseUnitTools::UnitSystem unitSystem, FlowPhase flowPhase)
+{
+    QString unitText;
+
+    if (condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR)
+    {
+        unitText = flowConditionReservoirUnitText(unitSystem);
+    }
+    else
+    {
+        switch (unitSystem)
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:
+                switch (flowPhase)
+                {
+                    case FLOW_PHASE_GAS: unitText = "[kSm<sup>3</sup>/day]"; break;
+                    case FLOW_PHASE_WATER: // Intentionally fall through, water and oil have same unit
+                    case FLOW_PHASE_OIL: unitText = "[Sm<sup>3</sup>/day]"; break;
+                    default:             unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]"; break;
+                }
+                break;
+
+            case RiaEclipseUnitTools::UNITS_FIELD:
+                switch (flowPhase)
+                {
+                    case FLOW_PHASE_GAS: unitText = "[BOE/day]"; break;
+                    case FLOW_PHASE_WATER: // Intentionally fall through, water and oil have same unit
+                    case FLOW_PHASE_OIL: unitText = "[BBL/day]"; break;
+                    default:             unitText = "[Liquid BBL/day], [Gas BOE/day]"; break;
+                }
+                break;
+            case RiaEclipseUnitTools::UNITS_LAB: unitText = "[cm<sup>3</sup>/hr]"; break;
             default: break;
         }
     }

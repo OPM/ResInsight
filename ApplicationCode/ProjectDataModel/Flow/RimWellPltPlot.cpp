@@ -528,6 +528,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         std::unique_ptr<RigResultPointCalculator> resultPointCalc;
 
         QString curveName;
+
         {
             curveName += sourceDef.eclCase()     ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
@@ -535,23 +536,32 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             curveName += ", " + timeStep.toString(dateFormatString);
         }
 
+        RimEclipseResultCase* rimEclipseResultCase = dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase());
+
         if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT )
         {
             resultPointCalc.reset(new RigRftResultPointCalculator(m_wellPathName,
-                                                                  dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
+                                                                  rimEclipseResultCase,
                                                                   timeStep));
         }
         else if (sourceDef.sourceType() == RifDataSourceForRftPlt::GRID)
         {
             resultPointCalc.reset(new RigSimWellResultPointCalculator(m_wellPathName,
-                                                                      dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase()),
+                                                                      rimEclipseResultCase,
                                                                       timeStep));
+        }
+
+        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+        if (rimEclipseResultCase)
+        {
+            unitSet = rimEclipseResultCase->eclipseCaseData()->unitsType();
         }
 
         if (resultPointCalc != nullptr)
         {
              if ( resultPointCalc->pipeBranchCLCoords().size() )
              {
+
                  if (   selectedPhases.count(FLOW_PHASE_TOTAL)
                      && m_useReservoirConditionCurves()
                      && sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
@@ -563,8 +573,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                      const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop(0);
 
+                     QString curveUnitText = RimWellPlotTools::flowUnitText(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet);
+
                      const std::vector<double> accFlow = wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, 0);
-                     addStackedCurve(curveName + ", " + RIG_FLOW_TOTAL_NAME + " [R]",
+                     addStackedCurve(curveName + ", " + RIG_FLOW_TOTAL_NAME + " " + curveUnitText,
                                      depthValues,
                                      accFlow,
                                      plotTrack,
@@ -595,8 +607,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                              || tracerName == RIG_FLOW_GAS_NAME   && selectedPhases.count(FLOW_PHASE_GAS)
                              || tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count(FLOW_PHASE_WATER) )
                          {
+                             FlowPhase flowPhase = FLOW_PHASE_NONE;
+                             if      (tracerName == RIG_FLOW_OIL_NAME)   flowPhase = FLOW_PHASE_OIL;
+                             else if (tracerName == RIG_FLOW_GAS_NAME)   flowPhase = FLOW_PHASE_GAS;
+                             else if (tracerName == RIG_FLOW_WATER_NAME) flowPhase = FLOW_PHASE_WATER;
+                            QString curveUnitText = RimWellPlotTools::curveUnitText(RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase);
+
                              const std::vector<double> accFlow = wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
-                             addStackedCurve(curveName + ", " + tracerName + " [S]",
+                             addStackedCurve(curveName + ", " + tracerName + " " + curveUnitText,
                                              depthValues,
                                              accFlow,
                                              plotTrack,
@@ -639,7 +657,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     }
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
-                    QString conditionName = (flowCondition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR) ? " [R]" : " [S]";
+
+                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                    {
+                        RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
+                        if (depthUnit == RiaDefines::UNIT_FEET) unitSystem = RiaEclipseUnitTools::UNITS_FIELD;
+                        if (depthUnit == RiaDefines::UNIT_METER) unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+                    }
+
 
                     for ( const ChannelValNameIdxTuple& channelInfo: sortedChannels )
                     {
@@ -651,8 +676,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                 RimWellPlotTools::isWaterFlowChannel(channelName) ? cvf::Color3f::BLUE :
                                 cvf::Color3f::DARK_GRAY;
 
+                            
+                            FlowPhase flowPhase = FLOW_PHASE_NONE;
+                            if      (RimWellPlotTools::isOilFlowChannel(channelName))   flowPhase = FLOW_PHASE_OIL;
+                            else if (RimWellPlotTools::isGasFlowChannel(channelName))   flowPhase = FLOW_PHASE_GAS;
+                            else if (RimWellPlotTools::isWaterFlowChannel(channelName)) flowPhase = FLOW_PHASE_WATER;
+                            QString curveUnitText = RimWellPlotTools::curveUnitText(flowCondition, unitSet, flowPhase);
 
-                            addStackedCurve(curveName + ", " + channelName + conditionName,
+                            addStackedCurve(curveName + ", " + channelName + curveUnitText,
                                             depthValues,
                                             channelData[std::get<2>(channelInfo)],
                                             plotTrack,
