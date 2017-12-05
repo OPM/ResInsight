@@ -495,7 +495,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         m_datumElevation.uiCapability()->setUiHidden(true);
     }
 
-    caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup("Formation Names");
+    caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup("Well Picks");
     formationFileInfoGroup->add(&m_wellPathFormationFilePath);
     formationFileInfoGroup->add(&m_formationKeyInFile);
 

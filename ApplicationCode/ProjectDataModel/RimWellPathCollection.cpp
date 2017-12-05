@@ -349,7 +349,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
             }
             wellPath->setFormationsGeometry(it->second);
             m_newestAddedWellPath = wellPath;
-            RiaLogging::info(QString("Well path formations set for well %1").arg(wellPath->name()));
+            RiaLogging::info(QString("Well picks set for well %1").arg(wellPath->name()));
         }
     }
 

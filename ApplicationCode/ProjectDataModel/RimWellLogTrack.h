@@ -68,7 +68,7 @@ public:
     virtual ~RimWellLogTrack();
 
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
-    enum FormationSource { CASE, WELL };
+    enum FormationSource { CASE, WELL_PICK };
 
     void setDescription(const QString& description);
     bool isVisible();

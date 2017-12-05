@@ -36,7 +36,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
     readFileIntoMap(filePath, &formations);
     if (formations.empty())
     {
-        RiaLogging::error(QString("Failed to parse %1 as well path formations").arg(filePath));
+        RiaLogging::error(QString("Failed to parse %1 as well picks").arg(filePath));
     }
 
     std::map<QString, std::vector<std::pair<double, QString>>>::iterator it;

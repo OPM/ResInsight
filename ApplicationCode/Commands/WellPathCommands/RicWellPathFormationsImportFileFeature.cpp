@@ -49,8 +49,8 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory("WELLPATHFORMATIONS_DIR");
     QStringList     wellPathFormationsFilePaths =
-        QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Path Formations", defaultDir,
-                                      "Well Path Formations (*.csv);;All Files (*.*)");
+        QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Picks", defaultDir,
+                                      "Well Picks (*.csv);;All Files (*.*)");
 
     if (wellPathFormationsFilePaths.size() < 1)
         return;
@@ -85,6 +85,6 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathFormationsImportFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Import &Well Path Formation Names");
+    actionToSetup->setText("Import Well Picks");
     actionToSetup->setIcon(QIcon(":/Formations16x16.png"));
 }

@@ -79,7 +79,7 @@ namespace caf
     void AppEnum< RimWellLogTrack::FormationSource >::setUp()
     {
         addItem(RimWellLogTrack::CASE, "CASE", "Case");
-        addItem(RimWellLogTrack::WELL, "WELL", "Well");
+        addItem(RimWellLogTrack::WELL_PICK, "WELLPICK", "Well Pick");
         setDefault(RimWellLogTrack::CASE);
     }
 }
@@ -327,7 +327,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
         {
             RimTools::wellPathOptionItems(&options);
         }
-        else
+        else if(m_formationSource == WELL_PICK)
         {
             RimTools::wellPathWithFormationsOptionItems(&options);
         }
@@ -788,7 +788,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 {
     uiOrdering.add(&m_userName);
 
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
 
@@ -814,7 +814,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
             }
         }
     }
-    else
+    else if (m_formationSource() == WELL_PICK)
     {
         formationGroup->add(&m_formationWellPath);
     }
@@ -948,7 +948,7 @@ std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     formationGroup->setCollapsedByDefault(true);
     formationGroup->add(&m_showFormations);
     formationGroup->add(&m_formationSource);
@@ -1237,7 +1237,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         
         m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
     }
-    else
+    else if (m_formationSource() == WELL_PICK)
     {
         if (m_formationWellPath == nullptr) return;
         if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
