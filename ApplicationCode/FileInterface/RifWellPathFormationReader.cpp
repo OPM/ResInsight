@@ -23,6 +23,10 @@
 #include <QFile>
 #include <QStringList>
 
+#include <algorithm>
+#include <string>
+#include <cctype>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -50,6 +54,14 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
     return result;
 }
 
+void removeWhiteSpaces(QString* word)
+{
+    std::string wordStd = word->toStdString();
+    wordStd.erase(std::remove_if(wordStd.begin(), wordStd.end(), [](unsigned char x) {return std::isspace(x); }), wordStd.end());
+
+    (*word) = QString(wordStd.c_str());
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -66,10 +78,10 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
 
     while (header.size() < 3)
     {
-        QString line              = data.readLine().toLower();
-        QString lineWithoutSpaces = line.remove(' ');
+        QString line = data.readLine().toLower();
+        removeWhiteSpaces(&line);
 
-        header = lineWithoutSpaces.split(';', QString::KeepEmptyParts);
+        header = line.split(';', QString::KeepEmptyParts);
     }
 
     const QString wellNameText      = "wellname";
