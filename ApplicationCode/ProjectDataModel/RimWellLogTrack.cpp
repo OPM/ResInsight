@@ -1234,29 +1234,23 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   plot->depthType(),
                                                   &formationNamesToPlot,
                                                   &yValues);
+        
+        m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
     }
     else
     {
         if (m_formationWellPath == nullptr) return;
         if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
 
-        std::vector<double> topYValues;
+        std::vector<double> yValues;
 
         const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
         if (!formations) return;
 
-        formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, topYValues);
+        formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, yValues);
 
-        if (topYValues.empty()) return;
-
-        for (size_t i = 0; i < topYValues.size() - 1; i++)
-        {
-            yValues.push_back(std::pair<double, double>(topYValues[i], topYValues[i + 1]));
-        }
-        yValues.push_back(std::pair<double, double>(topYValues.back(), topYValues.back()));
+        m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
     }
-    
-    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------

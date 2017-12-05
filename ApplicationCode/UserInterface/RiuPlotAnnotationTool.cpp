@@ -40,46 +40,53 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
 
     if (names.size() != yPositions.size()) return;
     m_plot = plot;
-    QPen curvePen;
-    curvePen.setStyle(Qt::DashLine);
-    curvePen.setColor(QColor(0, 0, 100));
-    curvePen.setWidth(1);
 
     double delta = 0.5;
 
     for (size_t i = 0; i < names.size(); i++)
     {
         QwtPlotMarker* line(new QwtPlotMarker());
-   
-        line->setLineStyle(QwtPlotMarker::HLine);
-        line->setLinePen(curvePen);
-        line->setYValue(yPositions[i].first);
 
         QString name = names[i];
         if (names[i].toLower().indexOf("top") == -1)
         {
             name += " Top";
         }
-        
-        line->setLabel(name);
-        line->setLabelAlignment(Qt::AlignRight | Qt::AlignBottom);
+
+        RiuPlotAnnotationTool::horizontalDashedLine(line, name, yPositions[i].first);
 
         line->attach(m_plot);
-
         m_markers.push_back(std::move(line));
 
         if ((i != names.size() - 1) && cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
         {
-            QwtPlotMarker* line(new QwtPlotMarker());
+            QwtPlotMarker* bottomLine(new QwtPlotMarker());
+            RiuPlotAnnotationTool::horizontalDashedLine(bottomLine, QString(), yPositions[i].second);
 
-            line->setLineStyle(QwtPlotMarker::HLine);
-            line->setLinePen(curvePen);
-            line->setYValue(yPositions[i].second);
-            
-            line->attach(m_plot);
-
-            m_markers.push_back(std::move(line));
+            bottomLine->attach(m_plot);
+            m_markers.push_back(std::move(bottomLine));
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions)
+{
+    detachAllAnnotations();
+
+    if (names.size() != yPositions.size()) return;
+    m_plot = plot;
+
+    double delta = 0.5;
+
+    for (size_t i = 0; i < names.size(); i++)
+    {
+        QwtPlotMarker* line(new QwtPlotMarker());
+        RiuPlotAnnotationTool::horizontalDashedLine(line, names[i], yPositions[i]);
+        line->attach(m_plot);
+        m_markers.push_back(std::move(line));
     }
 }
 
@@ -98,3 +105,21 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
     }
     m_markers.clear();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue)
+{
+    QPen curvePen;
+    curvePen.setStyle(Qt::DashLine);
+    curvePen.setColor(QColor(0, 0, 100));
+    curvePen.setWidth(1);
+
+    line->setLineStyle(QwtPlotMarker::HLine);
+    line->setLinePen(curvePen);
+    line->setYValue(yValue);
+    line->setLabel(name);
+    line->setLabelAlignment(Qt::AlignRight | Qt::AlignBottom);
+}
+

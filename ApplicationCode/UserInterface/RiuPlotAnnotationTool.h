@@ -35,7 +35,11 @@ public:
     ~RiuPlotAnnotationTool();
 
     void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions);
+    void attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions);
     void detachAllAnnotations();
+
+private:
+    static void horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue);
 
 private:
     QPointer<QwtPlot> m_plot;
