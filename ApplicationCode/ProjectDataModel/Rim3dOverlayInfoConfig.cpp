@@ -204,12 +204,12 @@ QString Rim3dOverlayInfoConfig::caseInfoText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, bool showVolumeWeightedMean)
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
 
-    if (eclipseView) return resultInfoText(histData, eclipseView);
+    if (eclipseView) return resultInfoText(histData, eclipseView, showVolumeWeightedMean);
     if (geoMechView) return resultInfoText(histData, geoMechView);
     return "";
 }
@@ -486,7 +486,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimGeoMechView* geoMechView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView)
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean)
 {
     QString infoText;
 
@@ -557,7 +557,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
                                 "</table>").arg(min).arg(max);
         }
 
-        if (showVolumeWeightedMean() && histData.weightedMean != HUGE_VAL)
+        if (showVolumeWeightedMean && histData.weightedMean != HUGE_VAL)
         {
             infoText += QString("<b>Mobile Volume Weighted Mean:</b> %1").arg(histData.weightedMean);
         }
@@ -755,7 +755,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
     if (showResultInfo())
     {
-        infoText += resultInfoText(histData);
+        infoText += resultInfoText(histData, showVolumeWeightedMean());
     }
 
     if (!infoText.isEmpty())

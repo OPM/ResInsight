@@ -74,7 +74,7 @@ public:
     HistogramData                               histogramData();
     QString                                     timeStepText();
     QString                                     caseInfoText();
-    QString                                     resultInfoText(const HistogramData& histData);
+    QString                                     resultInfoText(const HistogramData& histData, bool showVolumeWeightedMean);
 
     void                                        showStatisticsInfoDialog(bool raise = true);
     QImage                                      statisticsDialogScreenShotImage();
@@ -107,7 +107,7 @@ private:
     HistogramData                               histogramData(RimGeoMechView* geoMechView);
     QString                                     caseInfoText(RimEclipseView* eclipseView);
     QString                                     caseInfoText(RimGeoMechView* geoMechView);
-    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView);
+    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean);
     QString                                     resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView);
 
     caf::PdmField<bool>                         active;

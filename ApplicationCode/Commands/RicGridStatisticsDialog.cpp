@@ -142,7 +142,7 @@ void RicGridStatisticsDialog::setInfoText(RimView* view)
         QString text;
         text = overlayInfo->timeStepText();
         text += overlayInfo->caseInfoText();
-        text += overlayInfo->resultInfoText(overlayInfo->histogramData());
+        text += overlayInfo->resultInfoText(overlayInfo->histogramData(), true);
         m_textEdit->setText(text);
         adjustTextEditHeightToContent();
     }
