@@ -395,7 +395,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
     std::vector< std::vector <cvf::Vec3d> > lines;
     if (type == CS_WELL_PATH)
     {
-        if (wellPath())
+        if (wellPath() && wellPath->wellPathGeometry() )
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
             clipToReservoir(lines[0]);
