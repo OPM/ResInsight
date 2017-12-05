@@ -18,6 +18,8 @@
 
 #include "RifWellPathFormationReader.h"
 
+#include "RiaLogging.h"
+
 #include <QFile>
 #include <QStringList>
 
@@ -32,6 +34,10 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
     std::map<QString, std::vector<std::pair<double, QString>>> formations;
 
     readFileIntoMap(filePath, &formations);
+    if (formations.empty())
+    {
+        RiaLogging::error(QString("Failed to parse %1 as well path formations").arg(filePath));
+    }
 
     std::map<QString, std::vector<std::pair<double, QString>>>::iterator it;
 

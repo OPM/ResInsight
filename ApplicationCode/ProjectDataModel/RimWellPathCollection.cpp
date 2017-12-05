@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaWellNameComparer.h"
 
@@ -348,6 +349,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
             }
             wellPath->setFormationsGeometry(it->second);
             m_newestAddedWellPath = wellPath;
+            RiaLogging::info(QString("Well path formations set for well %1").arg(wellPath->name()));
         }
     }
 
