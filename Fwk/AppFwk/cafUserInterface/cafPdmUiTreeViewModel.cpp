@@ -309,7 +309,13 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
                 {
                     newMergedOrdering.push_back(existingSubTreeRoot->child(it->second));
 
-                    recursiveUpdateData.push_back(RecursiveUpdateData(index(static_cast<int>(newMergedOrdering.size() - 1), 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+                    QModelIndex mi = index(static_cast<int>(newMergedOrdering.size() - 1), 0, existingSubTreeRootModIdx);
+                    if (mi.isValid())
+                    {
+                        // Do not insert an invalid index, as this causes flickering and reset of project tree expanded state
+
+                        recursiveUpdateData.push_back(RecursiveUpdateData(mi, existingSubTreeRoot->child(it->second), sourceChild));
+                    }
                 }
                 else
                 {
