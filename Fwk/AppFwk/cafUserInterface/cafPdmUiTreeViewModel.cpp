@@ -197,14 +197,14 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
 class RecursiveUpdateData
 {
 public:
-    RecursiveUpdateData(QModelIndex mi, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild)
-        : m_modelIndex(mi),
+    RecursiveUpdateData(int row, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild)
+        : m_row(row),
         m_existingChild(existingChild),
         m_sourceChild(sourceChild)
     {
     };
 
-    QModelIndex         m_modelIndex;
+    int m_row;
     PdmUiTreeOrdering*  m_existingChild;
     PdmUiTreeOrdering*  m_sourceChild;
 };
@@ -214,7 +214,9 @@ public:
 /// calling begin..() end..() to make the UI update accordingly.
 /// This assumes that all the items have a pointer an unique PdmObject 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTreeRootModIdx, PdmUiTreeOrdering* existingSubTreeRoot, PdmUiTreeOrdering* sourceSubTreeRoot)
+void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTreeRootModIdx,
+                                                PdmUiTreeOrdering* existingSubTreeRoot, 
+                                                PdmUiTreeOrdering* sourceSubTreeRoot)
 {
     // Build map for source items
     std::map<caf::PdmUiItem*, int> sourceTreeMap;
@@ -309,13 +311,10 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
                 {
                     newMergedOrdering.push_back(existingSubTreeRoot->child(it->second));
 
-                    QModelIndex mi = index(static_cast<int>(newMergedOrdering.size() - 1), 0, existingSubTreeRootModIdx);
-                    if (mi.isValid())
-                    {
-                        // Do not insert an invalid index, as this causes flickering and reset of project tree expanded state
-
-                        recursiveUpdateData.push_back(RecursiveUpdateData(mi, existingSubTreeRoot->child(it->second), sourceChild));
-                    }
+                    int rowIndexToBeUpdated = static_cast<int>(newMergedOrdering.size() - 1);
+                    recursiveUpdateData.push_back(RecursiveUpdateData(rowIndexToBeUpdated,
+                                                                      existingSubTreeRoot->child(it->second),
+                                                                      sourceChild));
                 }
                 else
                 {
@@ -361,7 +360,12 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
 
         for (size_t i = 0; i < recursiveUpdateData.size(); i++)
         {
-            updateSubTreeRecursive(recursiveUpdateData[i].m_modelIndex, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+            // Using the index() function here is OK, as new items has been inserted in the previous for-loop
+            // This code used to be executed before insertion of new items, and caused creation of invalid indices
+            QModelIndex mi = index(recursiveUpdateData[i].m_row, 0, existingSubTreeRootModIdx);
+            CAF_ASSERT(mi.isValid());
+
+            updateSubTreeRecursive(mi, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
         }
     }
 }
