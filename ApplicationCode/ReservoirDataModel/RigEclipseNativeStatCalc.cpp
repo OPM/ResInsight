@@ -103,6 +103,13 @@ void RigEclipseNativeStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, do
 {
     size_t mobPVResultIndex = m_resultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
+    // For statistics result cases, the pore volume is not available, as RigCaseCellResultsData::createPlaceholderResultEntries
+    // has not been executed
+    if (mobPVResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return;
+    }
+
     const std::vector<double>& weights = m_resultsData->cellScalarResults(mobPVResultIndex, 0);
     const std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
