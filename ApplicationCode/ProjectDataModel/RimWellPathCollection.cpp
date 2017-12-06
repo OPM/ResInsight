@@ -508,7 +508,7 @@ RimWellPath* RimWellPathCollection::newestAddedWellPath()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFormationFiles()
 {
-    caf::ProgressInfo progress(wellPaths.size(), "Reading well path formations from file");
+    caf::ProgressInfo progress(wellPaths.size(), "Reading well picks from file");
 
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
@@ -521,6 +521,28 @@ void RimWellPathCollection::readWellPathFormationFiles()
         }
 
         progress.setProgressDescription(QString("Reading formation file %1").arg(wpIdx));
+        progress.incrementProgress();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::reloadAllWellPathFormations()
+{
+    caf::ProgressInfo progress(wellPaths.size(), "Reloading well picks from file");
+
+    for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
+    {
+        QString errorMessage;
+        if (!wellPaths[wpIdx]->reloadWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
+        {
+            QMessageBox::warning(RiuMainWindow::instance(),
+                                 "File open error",
+                                 errorMessage);
+        }
+
+        progress.setProgressDescription(QString("Reloading formation file %1").arg(wpIdx));
         progress.incrementProgress();
     }
 }

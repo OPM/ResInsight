@@ -721,7 +721,28 @@ bool RimWellPath::readWellPathFormationsFile(QString* errorMessage, RifWellPathF
     }
     else
     {
-        if (errorMessage) (*errorMessage) = "Could not find the well path formation file: " + m_wellPathFormationFilePath();
+        if (errorMessage) (*errorMessage) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::reloadWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter)
+{
+    if (m_wellPathFormationFilePath().isEmpty())
+    {
+        return true;
+    }
+
+    if (caf::Utils::fileExists(m_wellPathFormationFilePath()))
+    {
+        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations(m_wellPathFormationFilePath(), m_formationKeyInFile());
+    }
+    else
+    {
+        if (errorMessage) (*errorMessage) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
         return false;
     }
 }

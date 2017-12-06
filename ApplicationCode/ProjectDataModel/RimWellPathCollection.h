@@ -96,6 +96,7 @@ public:
     RimWellPath*                        newestAddedWellPath();
 
     void                                readWellPathFormationFiles();
+    void                                reloadAllWellPathFormations();
 
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     RimWellPath*                        tryFindMatchingWellPath(const QString& wellName) const;

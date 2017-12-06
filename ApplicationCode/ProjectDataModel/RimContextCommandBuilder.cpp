@@ -232,6 +232,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicWellPathsImportSsihubFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
+            menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "Separator";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
@@ -239,6 +240,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
+            menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";

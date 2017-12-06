@@ -39,6 +39,16 @@ cvf::ref<RigWellPathFormations> RifWellPathFormationsImporter::readWellPathForma
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellPathFormations> RifWellPathFormationsImporter::reloadWellPathFormations(const QString& formationFilePath, const QString& wellName)
+{
+    m_fileNameToWellPathFormationMap.erase(formationFilePath);
+
+    return readWellPathFormations(formationFilePath, wellName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationsImporter::readWellPathFormationsFromPath(const QString& filePath)
 {
     // If we have the file in the map, assume it is already read.
@@ -53,6 +63,25 @@ std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationsImporter
     m_fileNameToWellPathFormationMap[filePath] = wellPathToFormationMap;
 
     return wellPathToFormationMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifWellPathFormationsImporter::reloadAllWellPathFormations()
+{
+    std::vector<QString> allFilePaths;
+    for (auto it = m_fileNameToWellPathFormationMap.begin(); it != m_fileNameToWellPathFormationMap.end(); it++)
+    {
+        allFilePaths.push_back(it->first);
+    }
+
+    m_fileNameToWellPathFormationMap.clear();
+
+    for (const QString& filePath : allFilePaths)
+    {
+        readWellPathFormationsFromPath(filePath);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
