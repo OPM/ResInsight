@@ -45,6 +45,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigActiveCellInfo.h"
+#include "RimPropertyFilterCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
@@ -488,8 +489,9 @@ bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
     if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
-        && reservoirView->rangeFilterCollection()->hasActiveFilters())
+    if (   reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
+        && (   reservoirView->rangeFilterCollection()->hasActiveFilters()
+            || reservoirView->propertyFilterCollection()->hasActiveFilters()) )
     {
         return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
