@@ -557,9 +557,12 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
     advancedGroup->add(&wellCellTransparencyLevel);
     advancedGroup->add(&wellHeadPosition);
 
-    RimEclipseResultCase* ownerCase; 
-    firstAncestorOrThisOfTypeAsserted(ownerCase);
-    m_showWellCommunicationLines.uiCapability()->setUiHidden(!ownerCase->flowDiagSolverInterface());
+    RimEclipseResultCase* ownerCase = nullptr; 
+    firstAncestorOrThisOfType(ownerCase);
+    if (ownerCase)
+    {
+        m_showWellCommunicationLines.uiCapability()->setUiHidden(!ownerCase->flowDiagSolverInterface());
+    }
 
     m_showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());
