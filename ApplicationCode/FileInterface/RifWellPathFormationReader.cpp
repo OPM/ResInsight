@@ -62,23 +62,6 @@ void removeWhiteSpaces(QString* word)
     (*word) = QString(wordStd.c_str());
 }
 
-bool isAHeaderLine(const QStringList& line)
-{
-    if (line.empty()) return false;
-
-    QString word;
-
-    for (int i = 0; i < line.size(); i++)
-    {
-        word = line[i].toLower();
-        removeWhiteSpaces(&word);
-
-        if (word.indexOf("wellname") != -1) { return true; }
-    }
-
-    return false;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -120,11 +103,13 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
 
         QStringList dataLine = line.split(';', QString::KeepEmptyParts);
         if (dataLine.size() != header.size()) continue;
-        if (isAHeaderLine(dataLine)) continue;
+
+        bool conversionOk;
+        double measuredDepth = dataLine[measuredDepthIndex].toDouble(&conversionOk);
+        if (!conversionOk) continue;
 
         QString wellName      = dataLine[wellNameIndex];
         QString surfaceName   = dataLine[surfaceNameIndex];
-        double  measuredDepth = dataLine[measuredDepthIndex].toDouble();
 
         (*formations)[wellName].push_back(std::make_pair(measuredDepth, surfaceName));
 
