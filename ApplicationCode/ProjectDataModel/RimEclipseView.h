@@ -180,6 +180,7 @@ private:
 
     void                                            clampCurrentTimestep() override;
     void                                            setVisibleGridParts(const std::vector<RivCellSetEnum>& cellSets);
+    void                                            setVisibleGridPartsWatertight();
 
 private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;

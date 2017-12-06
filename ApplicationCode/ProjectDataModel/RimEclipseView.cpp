@@ -196,12 +196,17 @@ void RimEclipseView::clampCurrentTimestep()
 void RimEclipseView::setVisibleGridParts(const std::vector<RivCellSetEnum>& cellSets)
 {
     m_visibleGridParts = cellSets;
+}
 
-    // Always make sure visible grid parts are marked as watertight
-    for (RivCellSetEnum cellSetType : m_visibleGridParts)
-    {
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(cellSetType);
-    }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setVisibleGridPartsWatertight()
+{
+    for (RivCellSetEnum cellSetType : m_visibleGridParts) 
+    { 
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(cellSetType); 
+    } 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,6 +413,8 @@ void RimEclipseView::createDisplayModel()
 
     if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
+        setVisibleGridPartsWatertight();
+
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
 
@@ -546,6 +553,7 @@ void RimEclipseView::updateCurrentTimeStep()
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
         setVisibleGridParts(geometriesToRecolor);
+        setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
@@ -569,7 +577,6 @@ void RimEclipseView::updateCurrentTimeStep()
         {
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
         }
-
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
