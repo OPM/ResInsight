@@ -24,8 +24,8 @@
 #include <QStringList>
 
 #include <algorithm>
-#include <string>
 #include <cctype>
+#include <string>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,9 +57,26 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 void removeWhiteSpaces(QString* word)
 {
     std::string wordStd = word->toStdString();
-    wordStd.erase(std::remove_if(wordStd.begin(), wordStd.end(), [](unsigned char x) {return std::isspace(x); }), wordStd.end());
+    wordStd.erase(std::remove_if(wordStd.begin(), wordStd.end(), [](unsigned char x) { return std::isspace(x); }), wordStd.end());
 
     (*word) = QString(wordStd.c_str());
+}
+
+bool isAHeaderLine(const QStringList& line)
+{
+    if (line.empty()) return false;
+
+    QString word;
+
+    for (int i = 0; i < line.size(); i++)
+    {
+        word = line[i].toLower();
+        removeWhiteSpaces(&word);
+
+        if (word.indexOf("wellname") != -1) { return true; }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +109,9 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
     int surfaceNameIndex   = header.indexOf(surfaceNameText);
     int measuredDepthIndex = header.indexOf(measuredDepthText);
 
-    if (wellNameIndex == -1 || surfaceNameIndex == -1 || measuredDepthIndex == -1)
+    if (wellNameIndex == -1 || surfaceNameIndex == -1 || measuredDepthIndex == -1) 
     {
-        return;
+        return; 
     }
 
     do
@@ -102,8 +119,8 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
         QString line = data.readLine();
 
         QStringList dataLine = line.split(';', QString::KeepEmptyParts);
-        if (dataLine.size() != header.size())
-            continue;
+        if (dataLine.size() != header.size()) continue;
+        if (isAHeaderLine(dataLine)) continue;
 
         QString wellName      = dataLine[wellNameIndex];
         QString surfaceName   = dataLine[surfaceNameIndex];
