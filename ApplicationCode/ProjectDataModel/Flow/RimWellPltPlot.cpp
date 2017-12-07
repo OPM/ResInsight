@@ -281,9 +281,7 @@ std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 {
     return RimWellPlotTools::curveDefsFromTimesteps(RimWellPlotTools::simWellName(m_wellPathName),
                                                     m_selectedTimeSteps.v(),
-                                                    { RifEclipseRftAddress::ORAT,
-                                                      RifEclipseRftAddress::WRAT,
-                                                      RifEclipseRftAddress::GRAT },
+                                                    false,
                                                     selectedSourcesExpanded());
 }
 

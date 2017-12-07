@@ -431,7 +431,7 @@ std::set < RiaRftPltCurveDefinition > RimWellRftPlot::selectedCurveDefs() const
 {
     return RimWellPlotTools::curveDefsFromTimesteps(associatedSimWellName(),
                                                   m_selectedTimeSteps.v(),
-                                                  { RifEclipseRftAddress::PRESSURE },
+                                                  true,
                                                   selectedSourcesExpanded());
 }
 

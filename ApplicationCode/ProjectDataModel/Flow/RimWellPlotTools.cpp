@@ -485,6 +485,14 @@ std::set<QDateTime> RimWellPlotTools::findMatchingOrAdjacentTimeSteps(const std:
         }
     }
 
+    // The above will only work if there are at least one available timestep equal or after any of the basetimeline times.
+    // If no timesteps matched but we have some, add the last available because the above code missed it.
+
+    if (!resultTimeSteps.size() && baseTimeLine.size() &&  availableTimeSteps.size())
+    {
+        resultTimeSteps.insert(*availableTimeSteps.rbegin());
+    }
+
     return resultTimeSteps;
 }
 
@@ -492,7 +500,8 @@ std::set<QDateTime> RimWellPlotTools::findMatchingOrAdjacentTimeSteps(const std:
 /// 
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps(RimEclipseCase * eclCase, 
-                                                                const QString& simWellName)
+                                                                const QString& simWellName, 
+                                                                bool addFirstReportTimestep)
 {
     std::set<QDateTime> availebleTimeSteps; 
 
@@ -501,7 +510,7 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps(RimEclipseCase *
 
     for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
     {
-        if ( simWell->hasWellResult(tsIdx) )
+        if ( simWell->hasWellResult(tsIdx) || (addFirstReportTimestep && tsIdx == 0) )
         {
             availebleTimeSteps.insert(allTimeSteps[tsIdx]);
         }
@@ -609,7 +618,7 @@ bool RimWellPlotTools::tryMatchChannelName(const std::set<QString>& channelNames
 //--------------------------------------------------------------------------------------------------
 std::set < RiaRftPltCurveDefinition > RimWellPlotTools::curveDefsFromTimesteps(const QString& simWellName, 
                                                                              const std::vector<QDateTime>& selectedTimeSteps,
-                                                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
+                                                                             bool firstSimWellTimeStepIsValid, 
                                                                              const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded) 
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
@@ -633,7 +642,7 @@ std::set < RiaRftPltCurveDefinition > RimWellPlotTools::curveDefsFromTimesteps(c
         }
         else if ( addr.sourceType() == RifDataSourceForRftPlt::GRID && addr.eclCase() )
         {
-            std::set<QDateTime> timeSteps = RimWellPlotTools::availableSimWellTimesteps(addr.eclCase(), simWellName);
+            std::set<QDateTime> timeSteps = RimWellPlotTools::availableSimWellTimesteps(addr.eclCase(), simWellName, firstSimWellTimeStepIsValid);
 
             for ( const QDateTime& time : timeSteps )
             {
@@ -778,6 +787,9 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(const QString& simWellN
                                                        QList<caf::PdmOptionItemInfo>& options)
 {
     //std::vector<RifDataSourceForRftPlt> selSources = selectedSourcesExpanded();
+    
+    bool addFirstTimestep = (interestingRFTResults.count(RifEclipseRftAddress::PRESSURE) == 1);
+
     bool hasObservedData = false; 
     bool hasRftData = false; 
     bool hasGridData = false; 
@@ -836,7 +848,7 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(const QString& simWellN
         {
             if ( source.sourceType() == RifDataSourceForRftPlt::GRID && source.eclCase() )
             {
-                std::set<QDateTime> wellTimeSteps = RimWellPlotTools::availableSimWellTimesteps(source.eclCase(), simWellName);
+                std::set<QDateTime> wellTimeSteps = RimWellPlotTools::availableSimWellTimesteps(source.eclCase(), simWellName, addFirstTimestep);
 
                 for ( const QDateTime& date: wellTimeSteps)
                 {
@@ -864,13 +876,20 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(const QString& simWellN
     {
         std::set<QDateTime> baseTimeSteps;
         for (const auto& dateSourceSetPair: *timeBaseline) baseTimeSteps.insert(dateSourceSetPair.first);
+        
         std::set<QDateTime> rftTimeSteps;
         for (const auto& dateSourceSetPair: rftTimeStepsWithSources) rftTimeSteps.insert(dateSourceSetPair.first);
+
         std::set<QDateTime> gridTimeSteps;
         for (const auto& dateSourceSetPair: gridTimestepsWithSources) gridTimeSteps.insert(dateSourceSetPair.first);
 
         std::set<QDateTime> filteredRftTimeSteps = RimWellPlotTools::findMatchingOrAdjacentTimeSteps(baseTimeSteps, rftTimeSteps);
         std::set<QDateTime> filteredGridTimeSteps = RimWellPlotTools::findMatchingOrAdjacentTimeSteps(baseTimeSteps, gridTimeSteps);
+
+        if (addFirstTimestep && gridTimeSteps.size())
+        {
+            filteredGridTimeSteps.insert(*gridTimeSteps.begin());
+        }
 
         // Fill final map 
         timestepsToShowWithSources = observedTimeStepsWithSources;

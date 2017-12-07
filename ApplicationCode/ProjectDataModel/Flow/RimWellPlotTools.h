@@ -91,7 +91,7 @@ public:
                                                                                       QList<caf::PdmOptionItemInfo>& options);
     static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
-                                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults, 
+                                                                           bool firstReportTimeStepIsValid, 
                                                                            const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
 
     static QString                                  flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
@@ -123,7 +123,7 @@ private:
     static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
     static bool                                     tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch);
     static std::set<QDateTime>                      findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, const std::set<QDateTime>& availableTimeSteps);
-    static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName);
+    static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName, bool addFirstReportTimeStep);
 
 };
 
