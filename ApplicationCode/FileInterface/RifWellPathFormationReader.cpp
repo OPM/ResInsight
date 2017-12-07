@@ -78,40 +78,71 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
 
     while (header.size() < 3)
     {
+        if (data.atEnd()) return;
+
         QString line = data.readLine().toLower();
         removeWhiteSpaces(&line);
 
         header = line.split(';', QString::KeepEmptyParts);
     }
 
-    const QString wellNameText      = "wellname";
-    const QString surfaceNameText   = "surfacename";
-    const QString measuredDepthText = "md";
+    static const QString wellNameText      = "wellname";
+    static const QString surfaceNameText   = "surfacename";
+    static const QString measuredDepthText = "md";
 
     int wellNameIndex      = header.indexOf(wellNameText);
     int surfaceNameIndex   = header.indexOf(surfaceNameText);
     int measuredDepthIndex = header.indexOf(measuredDepthText);
 
-    if (wellNameIndex == -1 || surfaceNameIndex == -1 || measuredDepthIndex == -1) 
+    if (wellNameIndex != -1 && surfaceNameIndex != -1 && measuredDepthIndex != -1)
     {
-        return; 
+        do
+        {
+            QString line = data.readLine();
+
+            QStringList dataLine = line.split(';', QString::KeepEmptyParts);
+            if (dataLine.size() != header.size()) continue;
+
+            bool   conversionOk;
+            double measuredDepth = dataLine[measuredDepthIndex].toDouble(&conversionOk);
+            if (!conversionOk) continue;
+
+            QString wellName    = dataLine[wellNameIndex];
+            QString surfaceName = dataLine[surfaceNameIndex];
+
+            (*formations)[wellName].push_back(std::make_pair(measuredDepth, surfaceName));
+
+        } while (!data.atEnd());
+
+        return;
     }
 
-    do
+    static const QString unitNameText          = "unitname";
+    static const QString measuredDepthToptext  = "topmd";
+    static const QString measuredDepthBasetext = "basemd";
+
+    int unitNameIndex          = header.indexOf(unitNameText);
+    int measuredDepthTopIndex  = header.indexOf(measuredDepthToptext);
+    int measuredDepthBaseIndex = header.indexOf(measuredDepthBasetext);
+
+    if (unitNameIndex != -1 && measuredDepthTopIndex != -1 && measuredDepthBaseIndex != -1)
     {
-        QString line = data.readLine();
+        do
+        {
+            QString line = data.readLine();
 
-        QStringList dataLine = line.split(';', QString::KeepEmptyParts);
-        if (dataLine.size() != header.size()) continue;
+            QStringList dataLine = line.split(';', QString::KeepEmptyParts);
+            if (dataLine.size() != header.size()) continue;
 
-        bool conversionOk;
-        double measuredDepth = dataLine[measuredDepthIndex].toDouble(&conversionOk);
-        if (!conversionOk) continue;
+            QString wellName         = dataLine[wellNameIndex];
+            QString unitName         = dataLine[unitNameIndex];
+            unitName                 = unitName.trimmed();
+            double measuredDepthTop  = dataLine[measuredDepthTopIndex].toDouble();
+            double measuredDepthBase = dataLine[measuredDepthBaseIndex].toDouble();
 
-        QString wellName      = dataLine[wellNameIndex];
-        QString surfaceName   = dataLine[surfaceNameIndex];
+            (*formations)[wellName].push_back(std::make_pair(measuredDepthTop, unitName));
+            (*formations)[wellName].push_back(std::make_pair(measuredDepthBase, unitName));
 
-        (*formations)[wellName].push_back(std::make_pair(measuredDepth, surfaceName));
-
-    } while (!data.atEnd());
+        } while (!data.atEnd());
+    }
 }
