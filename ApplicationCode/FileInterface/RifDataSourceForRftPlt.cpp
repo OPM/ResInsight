@@ -103,7 +103,7 @@ QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
 {
     switch (sourceType)
     {
-    case SourceType::RFT:       return QString("RFT Cases");
+    case SourceType::RFT:       return QString("RFT File Cases");
     case SourceType::GRID:      return QString("Grid Cases");
     case SourceType::OBSERVED:  return QString("Observed Data");
     }
