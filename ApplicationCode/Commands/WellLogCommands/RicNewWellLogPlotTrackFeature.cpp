@@ -62,7 +62,7 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
          plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
 
          wellLogPlot->updateConnectedEditors();
-         RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1);
+         RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1, true);
     }
 }
 

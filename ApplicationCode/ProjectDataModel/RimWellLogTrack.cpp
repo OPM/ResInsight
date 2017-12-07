@@ -58,6 +58,7 @@
 #include "cvfAssert.h"
 
 #include "qwt_scale_engine.h"
+#include "RiaSimWellBranchTools.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -119,10 +120,11 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_formationSimWellName, "FormationSimulationWellName", QString("None"), "Simulation Well", "", "", "");
     CAF_PDM_InitField(&m_formationBranchIndex, "FormationBranchIndex", 0, " ", "", "", "");
+    CAF_PDM_InitField(&m_formationBranchDetection, "FormationBranchDetection", true, "Branch Detection", "", 
+                      "Compute branches based on how simulation well cells are organized", "");
 
     CAF_PDM_InitFieldNoDefault(&m_formationCase, "FormationCase", "Formation Case", "", "", "");
     m_formationCase.uiCapability()->setUiTreeChildrenHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,8 +139,6 @@ RimWellLogTrack::~RimWellLogTrack()
         m_wellLogTrackPlotWidget->deleteLater();
         m_wellLogTrackPlotWidget = nullptr;
     }
-
-    clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,28 +176,6 @@ void RimWellLogTrack::simWellOptionItems(QList<caf::PdmOptionItemInfo>* options,
     {
         options->push_front(caf::PdmOptionItemInfo("None", "None"));
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Clean up existing generated well paths 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::clearGeneratedSimWellPaths(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches)
-{
-    RimWellLogPlotCollection* wellLogCollection = nullptr;
-
-    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when deleted.
-
-    RimProject * proj = RiaApplication::instance()->project();
-    if (proj && proj->mainPlotCollection()) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
-
-    if (!wellLogCollection) return;
-
-    for (size_t wpIdx = 0; wpIdx < generatedSimulationWellPathBranches->size(); ++wpIdx)
-    {
-        wellLogCollection->removeExtractors(generatedSimulationWellPathBranches->at(wpIdx));
-    }
-
-    generatedSimulationWellPathBranches->clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,8 +264,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_formationSimWellName = QString("None");
         }
 
-        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
-
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationWellPath)
@@ -296,17 +272,14 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_formationSimWellName)
     {
-        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
-
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationTrajectoryType)
     {
-        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
-
         loadDataAndUpdate();
     }
-    else if (changedField == &m_formationBranchIndex)
+    else if (changedField == &m_formationBranchIndex || 
+             changedField == &m_formationBranchDetection)
     {
         loadDataAndUpdate();
     }
@@ -346,19 +319,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_formationBranchIndex)
     {
-        updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_formationSimWellName(), m_formationCase);
-
-        size_t branchCount = m_generatedSimulationWellPathBranches.size();
-
-        for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
-        {
-            options.push_back(caf::PdmOptionItemInfo("Branch " + QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
-        }
-
-        if (options.size() == 0)
-        {
-            options.push_front(caf::PdmOptionItemInfo("None", -1));
-        }
+        auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches(m_formationSimWellName(), m_formationBranchDetection);
+        options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(simulationWellBranches);
     }
 
     return options;
@@ -528,13 +490,23 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData(RimCase* rimCase, R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, QString simWellName, int branchIndex)
+void RimWellLogTrack::setAndUpdateSimWellFormationNamesAndBranchData(RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection)
+{
+    m_formationBranchIndex = branchIndex;
+    m_formationBranchDetection = useBranchDetection;
+
+    setAndUpdateSimWellFormationNamesData(rimCase, simWellName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, const QString& simWellName)
 {
     m_formationCase = rimCase;
     m_formationTrajectoryType = RimWellLogTrack::SIMULATION_WELL;
     m_formationWellPath = nullptr;
     m_formationSimWellName = simWellName;
-    m_formationBranchIndex = branchIndex;
 
     updateConnectedEditors();
 
@@ -590,14 +562,6 @@ void RimWellLogTrack::setFormationCase(RimCase* rimCase)
 void RimWellLogTrack::setFormationTrajectoryType(TrajectoryType trajectoryType)
 {
     m_formationTrajectoryType = trajectoryType;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RimWellLogTrack::formationBranchIndex() const
-{
-    return m_formationBranchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,49 +702,6 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
     return nullptr;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase)
-{
-    if (generatedSimulationWellPathBranches->size()) return; // Already created. Nothing to do
-
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-
-    if (!(!simWellName.isEmpty() && simWellName != QString("None") && eclipseCase  && eclipseCase->eclipseCaseData()))
-    {
-        return;
-    }
-
-    RigEclipseCaseData* eclCaseData = eclipseCase->eclipseCaseData();
-    const RigSimWellData* simWellData = eclCaseData->findSimWellData(simWellName);
-
-    if (!simWellData) return;
-
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
-
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(eclCaseData,
-                                                                                    simWellData,
-                                                                                    -1,
-                                                                                    true,
-                                                                                    true,
-                                                                                    pipeBranchesCLCoords,
-                                                                                    pipeBranchesCellIds);
-
-    for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
-    {
-        auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]); // Todo, branch index
-
-        cvf::ref<RigWellPath> newWellPath = new RigWellPath();
-        newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
-        newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
-
-        generatedSimulationWellPathBranches->push_back(newWellPath.p());
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -805,10 +726,11 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         }
         else
         {
-            updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_formationSimWellName(), m_formationCase);
-
             formationGroup->add(&m_formationSimWellName);
-            if (m_generatedSimulationWellPathBranches.size() > 1)
+            formationGroup->add(&m_formationBranchDetection);
+
+            auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches(m_formationSimWellName(), m_formationBranchDetection);
+            if (simulationWellBranches.size() > 1)
             {
                 formationGroup->add(&m_formationBranchIndex);
             }
@@ -818,7 +740,6 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     {
         formationGroup->add(&m_formationWellPath);
     }
-
 
     uiOrderingForVisibleXRange(uiOrdering);
 
@@ -973,15 +894,14 @@ void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex)
+RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection)
 {
     if (!wellLogCollection) return nullptr;
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
     if (!eclipseCase) return nullptr;
     
-    RimProject* proj = RiaApplication::instance()->project();
-    std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(simWellName);
+    std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(simWellName, useBranchDetection);
     
     if (wellPaths.size() == 0) return nullptr;
     
@@ -1196,7 +1116,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             eclWellLogExtractor = RimWellLogTrack::createSimWellExtractor(wellLogCollection, 
                                                                           m_formationCase, 
                                                                           m_formationSimWellName, 
-                                                                          m_formationBranchIndex);
+                                                                          m_formationBranchIndex,
+                                                                          m_formationBranchDetection);
         }
         else
         {

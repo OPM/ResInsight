@@ -93,5 +93,3 @@ private:
 
     bool                                                                          m_isUsingPseudoLength;
 };
-
-

@@ -835,7 +835,7 @@ void RimWellAllocationPlot::updateFormationNamesData() const
     for (size_t i = 0; i < m_accumulatedWellFlowPlot->trackCount(); ++i)
     {
         RimWellLogTrack* track = m_accumulatedWellFlowPlot->trackByIndex(i);
-        track->setAndUpdateSimWellFormationNamesData(m_case, m_wellName, track->formationBranchIndex());
+        track->setAndUpdateSimWellFormationNamesData(m_case, m_wellName);
     }
 }
 

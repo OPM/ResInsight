@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
+#include "RiaSimWellBranchTools.h"
 
 #include "RifReaderEclipseRft.h"
 
@@ -46,6 +47,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPltPlot.h"
 
 #include "RiuWellRftPlot.h"
 
@@ -55,7 +57,6 @@
 #include <algorithm>
 #include <iterator>
 #include <tuple>
-#include "RimWellPltPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 
@@ -83,6 +84,8 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "");
+    CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
+                      "Compute branches based on how simulation well cells are organized", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -102,7 +105,25 @@ RimWellRftPlot::RimWellRftPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack::TrajectoryType trajectoryTypeFromWellName(const QString& wellPathOrSimWellName)
+{
+    RimWellLogTrack::TrajectoryType trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+
+    RimProject*  proj     = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathByName(wellPathOrSimWellName);
+
+    if (wellPath)
+    {
+        trajectoryType = RimWellLogTrack::WELL_PATH;
+    }
+
+    return trajectoryType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot::~RimWellRftPlot()
 {
@@ -234,19 +255,10 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 {
     if (m_wellLogPlot->trackCount() > 0)
     {
+        RimWellLogTrack::TrajectoryType trajectoryType = trajectoryTypeFromWellName(m_wellPathNameOrSimWellName);
+
         RimProject* proj = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
-
-        RimWellLogTrack::TrajectoryType trajectoryType;
-
-        if ( wellPath )
-        {
-            trajectoryType = RimWellLogTrack::WELL_PATH;
-        }
-        else
-        {
-            trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-        }
 
         RimCase* formationNamesCase = m_wellLogPlot->trackByIndex(0)->formationNamesCase();
 
@@ -264,7 +276,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 
         if (trajectoryType == RimWellLogTrack::SIMULATION_WELL)
         {
-            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesData(formationNamesCase, associatedSimWellName(), m_branchIndex);
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesAndBranchData(formationNamesCase, associatedSimWellName(), m_branchIndex, m_branchDetection);
         }
         else if (trajectoryType == RimWellLogTrack::WELL_PATH)
         {
@@ -487,7 +499,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
 
             cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(plotTrack->curveCount());
             curve->setColor(curveColor);
-            curve->setFromSimulationWellName(simWellName, m_branchIndex);
+            curve->setFromSimulationWellName(simWellName, m_branchIndex, m_branchDetection);
 
             // Fetch cases and time steps
             auto gridCase = curveDefToAdd.address().eclCase();
@@ -676,19 +688,9 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches(simWellName, m_branchDetection);
 
-        size_t branchCount = proj->simulationWellBranches(simWellName).size();
-
-        for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
-        {
-            options.push_back(caf::PdmOptionItemInfo("Branch " + QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
-        }
-
-        if (options.size() == 0)
-        {
-            options.push_front(caf::PdmOptionItemInfo("None", -1));
-        }
+        options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(simulationWellBranches);
     }
 
     return options;
@@ -706,7 +708,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         setDescription(QString(plotNameFormatString()).arg(m_wellPathNameOrSimWellName));
     }
 
-    if (changedField == &m_wellPathNameOrSimWellName || changedField == &m_branchIndex)
+    if (changedField == &m_wellPathNameOrSimWellName)
     {
         if (changedField == &m_wellPathNameOrSimWellName)
         {
@@ -719,11 +721,14 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateEditorsFromCurves();
         updateFormationsOnPlot();
     }
-    else if (changedField == &m_selectedSources)
+    else if (changedField == &m_branchIndex ||
+             changedField == &m_branchDetection)
     {
-    }
+        updateFormationsOnPlot();
+        syncCurvesFromUiSelection();
 
-    if (changedField == &m_selectedSources ||
+    }
+    else if (changedField == &m_selectedSources ||
         changedField == &m_selectedTimeSteps)
     {
         updateFormationsOnPlot();
@@ -773,11 +778,15 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathNameOrSimWellName);
-    
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->simulationWellBranches(associatedSimWellName()).size() > 1)
+
+    if (trajectoryTypeFromWellName(m_wellPathNameOrSimWellName) == RimWellLogTrack::SIMULATION_WELL)
     {
-        uiOrdering.add(&m_branchIndex);
+        uiOrdering.add(&m_branchDetection);
+
+        if (RiaSimWellBranchTools::simulationWellBranches(associatedSimWellName(), m_branchDetection).size() > 1)
+        {
+            uiOrdering.add(&m_branchIndex);
+        }
     }
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", "Sources");

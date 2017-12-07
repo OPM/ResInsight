@@ -135,6 +135,8 @@ private:
 
     caf::PdmField<QString>                          m_wellPathNameOrSimWellName;
     caf::PdmField<int>                              m_branchIndex;
+    caf::PdmField<bool>                             m_branchDetection;
+
     caf::PdmField<std::vector<RifDataSourceForRftPlt>>   m_selectedSources;
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;

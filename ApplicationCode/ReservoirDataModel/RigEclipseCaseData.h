@@ -99,7 +99,10 @@ public:
 
     std::vector<QString>                        simulationWellNames() const;
     bool                                        hasSimulationWell(const QString& simWellName) const;
-    std::vector<const RigWellPath*>             simulationWellBranches(const QString& simWellName);
+
+    std::vector<const RigWellPath*>             simulationWellBranches(const QString& simWellName,
+                                                                       bool includeAllCellCenters,
+                                                                       bool useAutoDetectionOfBranches);
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -124,5 +127,5 @@ private:
 
     RiaEclipseUnitTools::UnitSystem             m_unitsType;
 
-    std::map<QString, cvf::Collection<RigWellPath>>          m_branchCache;
+    std::map<std::tuple<QString, bool, bool>, cvf::Collection<RigWellPath>> m_simWellBranchCache;
 };

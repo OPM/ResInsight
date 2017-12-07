@@ -22,6 +22,7 @@ ${CEE_CURRENT_LIST_DIR}RiaSummaryTools.h
 ${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.h
 ${CEE_CURRENT_LIST_DIR}RiaStdStringTools.h
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.h
+${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -41,6 +42,7 @@ ${CEE_CURRENT_LIST_DIR}RiaSummaryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.cpp
 ${CEE_CURRENT_LIST_DIR}RiaStdStringTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.cpp
+${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

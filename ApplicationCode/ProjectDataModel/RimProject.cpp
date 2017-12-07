@@ -217,7 +217,6 @@ void RimProject::close()
     plotWindowTreeViewState = "";
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -811,24 +810,6 @@ std::vector<QString> RimProject::simulationWellNames() const
         }
     }
     return std::vector<QString>(wellNames.begin(), wellNames.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<const RigWellPath*> RimProject::simulationWellBranches(const QString& simWellName)
-{
-    // Find first case containing the specified simulation well
-    auto simCases = eclipseCases();
-    auto caseItr = std::find_if(simCases.begin(), simCases.end(), [&simWellName](const RimEclipseCase* eclCase) {
-        const auto& eclData = eclCase->eclipseCaseData();
-        return eclData != nullptr && eclData->hasSimulationWell(simWellName);
-    });
-    RimEclipseCase* eclipseCase = caseItr != simCases.end() ? *caseItr : nullptr;
-    RigEclipseCaseData* eclCaseData = eclipseCase != nullptr ? eclipseCase->eclipseCaseData() : nullptr;
-    return eclCaseData != nullptr ?
-        eclCaseData->simulationWellBranches(simWellName) :
-        std::vector<const RigWellPath*>();
 }
 
 //--------------------------------------------------------------------------------------------------

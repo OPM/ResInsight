@@ -44,6 +44,7 @@
 #include <QAction>
 
 #include <vector>
+#include "RimSimWellInViewCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
@@ -69,17 +70,29 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
     RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
-        RicWellLogTools::addExtractionCurve(wellLogPlotTrack, nullptr, nullptr, nullptr, -1);
+        RicWellLogTools::addExtractionCurve(wellLogPlotTrack, nullptr, nullptr, nullptr, -1, true);
     }
     else
     {
         RimWellPath* wellPath = RicWellLogTools::selectedWellPath();
         int branchIndex = -1;
         RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
+
+        bool useBranchDetection = true;
+        RimSimWellInViewCollection* simWellColl = nullptr;
+        if (simWell)
+        {
+            simWell->firstAncestorOrThisOfTypeAsserted(simWellColl);
+            useBranchDetection = simWellColl->isAutoDetectingBranches;
+        }
+
         if (wellPath || simWell)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogExtractionCurve* plotCurve = RicWellLogTools::addExtractionCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath, simWell, branchIndex);
+
+            RimWellLogExtractionCurve* plotCurve =
+                RicWellLogTools::addExtractionCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
+                                                    simWell, branchIndex, useBranchDetection);
 
             plotCurve->loadDataAndUpdate(true);
 

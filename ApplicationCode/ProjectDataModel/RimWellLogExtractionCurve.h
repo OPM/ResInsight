@@ -23,14 +23,13 @@
 
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
-#include "cvfCollection.h"
 
+class RigWellPath;
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
 class RimView;
 class RimWellPath;
-class RigWellPath;
 
 //==================================================================================================
 ///  
@@ -48,7 +47,7 @@ public:
     void            setWellPath(RimWellPath* wellPath);
     RimWellPath*    wellPath() const;
 
-    void            setFromSimulationWellName(const QString& simWellName, int branchIndex);
+    void            setFromSimulationWellName(const QString& simWellName, int branchIndex, bool branchDetection);
 
     void            setCase(RimCase* rimCase);
     RimCase*        rimCase() const;
@@ -83,8 +82,8 @@ private:
     void                                           clampTimestep();
     void                                           clampBranchIndex();
     std::set<QString>                              findSortedWellNames();
-    void                                           updateGeneratedSimulationWellpath();
     void                                           clearGeneratedSimWellPaths();
+    std::vector<const RigWellPath*>                simulationWellBranches() const;
 
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
@@ -92,6 +91,7 @@ private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmField<QString>                          m_simWellName;
     caf::PdmField<int>                              m_branchIndex;
+    caf::PdmField<bool>                             m_branchDetection;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
@@ -103,6 +103,5 @@ private:
     caf::PdmField<bool>                             m_addTimestepToCurveName;
     caf::PdmField<bool>                             m_addDateToCurveName;
 
-    cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
+    std::vector<const RigWellPath*>                 m_wellPathsWithExtractors;
 };
-

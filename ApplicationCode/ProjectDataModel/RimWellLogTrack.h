@@ -19,13 +19,12 @@
 
 #pragma once
 
+#include "RimWellLogPlot.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
-#include "cvfCollection.h"
 #include "cafPdmPtrField.h"
-
-#include "RimWellLogPlot.h"
 
 #include <QPointer>
 
@@ -86,15 +85,18 @@ public:
     void setFormationBranchIndex(int branchIndex);
     void setFormationCase(RimCase* rimCase);
     void setFormationTrajectoryType(TrajectoryType trajectoryType);
-    int  formationBranchIndex() const;
     RimCase* formationNamesCase() const; 
 
     void recreateViewer();
     void detachAllCurves();
 
     void loadDataAndUpdate();
+    
     void setAndUpdateWellPathFormationNamesData(RimCase* rimCase, RimWellPath* wellPath);
-    void setAndUpdateSimWellFormationNamesData(RimCase* rimCase, QString simWellName, int branchIndex);
+    
+    void setAndUpdateSimWellFormationNamesAndBranchData(RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection);
+    void setAndUpdateSimWellFormationNamesData(RimCase* rimCase, const QString& simWellName);
+    
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateXZoomAndParentPlotDepthZoom();
     void updateXZoom();
@@ -125,11 +127,9 @@ private:
 
     void computeAndSetXRangeMinForLogarithmicScale();
     
-    static void updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase);
     static void simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase);
-    static void clearGeneratedSimWellPaths(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches);
     
-    static RigEclipseWellLogExtractor* createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex);
+    static RigEclipseWellLogExtractor* createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection);
     static RigEclipseWellLogExtractor* createWellPathExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
     static RigGeoMechWellLogExtractor* createGeoMechExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
 
@@ -168,10 +168,10 @@ private:
     caf::PdmPtrField<RimCase*>                      m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType> >    m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                  m_formationWellPath;
+
     caf::PdmField<QString>                          m_formationSimWellName;
     caf::PdmField<int>                              m_formationBranchIndex;
-
-    cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
+    caf::PdmField<bool>                             m_formationBranchDetection;
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
     

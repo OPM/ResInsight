@@ -53,7 +53,7 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-    RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1);
+    RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1, true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaSimWellBranchTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
@@ -484,7 +485,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
     if (!eclExtractor)
     {
-        std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(m_wellName());
+        std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(m_wellName(), true);
         if (wellPaths.size() == 0) return nullptr;
 
         eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_wellName(), QString("Find or create sim well extractor"), wellPaths[0], m_eclipseResultCase->eclipseCaseData());

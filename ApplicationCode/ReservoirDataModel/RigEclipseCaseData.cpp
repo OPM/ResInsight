@@ -281,7 +281,10 @@ const RigSimWellData* RigEclipseCaseData::findSimWellData(QString wellName) cons
 {
     for (size_t wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
     {
-        if (m_simWellData[wIdx]->m_wellName == wellName) return m_simWellData[wIdx].p();
+        if (m_simWellData[wIdx]->m_wellName == wellName)
+        {
+            return m_simWellData[wIdx].p();
+        }
     }
 
     return nullptr;
@@ -467,52 +470,52 @@ bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName)
+std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName,
+                                                                           bool           includeAllCellCenters,
+                                                                           bool           useAutoDetectionOfBranches)
 {
     std::vector<const RigWellPath*> branches;
 
-    if (m_branchCache.find(simWellName) == m_branchCache.end())
+    if (simWellName.isEmpty() || simWellName.toUpper() == "NONE")
     {
-        if (!(!simWellName.isEmpty() && simWellName != "None"))
-        {
-            return branches;
-        }
+        return branches;
+    }
 
-        const RigSimWellData* simWellData = findSimWellData(simWellName);
+    const RigSimWellData* simWellData = findSimWellData(simWellName);
+    if (!simWellData) return branches;
 
-        if (!simWellData) return branches;
+    std::tuple<QString, bool, bool> simWellSeachItem =
+        std::make_tuple(simWellName, includeAllCellCenters, useAutoDetectionOfBranches);
 
-        std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-        std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+    if (m_simWellBranchCache.find(simWellSeachItem) == m_simWellBranchCache.end())
+    {
+        std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+        std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(this,
-                                                                                        simWellData,
-                                                                                        -1,
-                                                                                        true,
-                                                                                        true,
-                                                                                        pipeBranchesCLCoords,
-                                                                                        pipeBranchesCellIds);
+        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(
+            this, simWellData, -1, useAutoDetectionOfBranches, includeAllCellCenters, pipeBranchesCLCoords, pipeBranchesCellIds);
 
-        m_branchCache.insert(std::make_pair(simWellName, cvf::Collection<RigWellPath>()));
+        m_simWellBranchCache.insert(std::make_pair(simWellSeachItem, cvf::Collection<RigWellPath>()));
 
         for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
         {
             auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]);
 
             cvf::ref<RigWellPath> newWellPath = new RigWellPath();
-            newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
-            newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
+            newWellPath->m_measuredDepths     = wellMdCalculator.measuredDepths();
+            newWellPath->m_wellPathPoints     = wellMdCalculator.wellPathPoints();
 
-            m_branchCache[simWellName].push_back(newWellPath.p());
+            m_simWellBranchCache[simWellSeachItem].push_back(newWellPath.p());
         }
     }
 
-    for (const auto& branch : m_branchCache[simWellName])
+    for (const auto& branch : m_simWellBranchCache[simWellSeachItem])
     {
         branches.push_back(branch.p());
     }
+
     return branches;
 }
 

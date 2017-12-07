@@ -167,7 +167,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex)
+RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex, bool useBranchDetection)
 {
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
@@ -182,7 +182,7 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
     }
     if (simWell)
     {
-        curve->setFromSimulationWellName(simWell->name(), branchIndex);
+        curve->setFromSimulationWellName(simWell->name(), branchIndex, useBranchDetection);
         plotTrack->setFormationSimWellName(simWell->name());
         plotTrack->setFormationBranchIndex(branchIndex);
         plotTrack->setFormationTrajectoryType(RimWellLogTrack::SIMULATION_WELL);

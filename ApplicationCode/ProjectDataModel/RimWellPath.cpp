@@ -20,6 +20,10 @@
 
 #include "RimWellPath.h"
 
+#include "RiaApplication.h"
+#include "RiaSimWellBranchTools.h"
+#include "RiaWellNameComparer.h"
+
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
@@ -39,9 +43,6 @@
 #include "RiuMainWindow.h"
 
 #include "RivWellPathPartMgr.h"
-
-#include "RiaApplication.h"
-#include "RiaWellNameComparer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
@@ -345,9 +346,8 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        size_t branchCount = RimWellPath::simulationWellBranchCount(m_simWellName);
 
-        size_t branchCount = proj->simulationWellBranches(m_simWellName).size();
         if (branchCount == 0)
             branchCount = 1;
 
@@ -471,9 +471,10 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup("Simulation Well");
     simWellGroup->add(&m_simWellName);
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if(proj->simulationWellBranches(m_simWellName).size() > 1)
+    if (simulationWellBranchCount(m_simWellName) > 1)
+    {
         simWellGroup->add(&m_branchIndex);
+    }
 
     caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
     ssihubGroup->add(&id);
@@ -579,6 +580,18 @@ void RimWellPath::setupBeforeSave()
 
         filepath = newCacheFileName;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimWellPath::simulationWellBranchCount(const QString& simWellName)
+{
+    bool detectBranches = true;
+
+    auto branches = RiaSimWellBranchTools::simulationWellBranches(simWellName, detectBranches);
+
+    return branches.size();
 }
 
 //--------------------------------------------------------------------------------------------------

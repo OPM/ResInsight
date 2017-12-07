@@ -151,6 +151,9 @@ private:
 
     virtual void                        setupBeforeSave() override;
 
+    static size_t                       simulationWellBranchCount(const QString& simWellName);
+
+private:
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
     caf::PdmField<QString>              utmZone;
