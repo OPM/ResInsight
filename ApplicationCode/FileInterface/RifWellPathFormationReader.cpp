@@ -19,8 +19,10 @@
 #include "RifWellPathFormationReader.h"
 
 #include "RiaLogging.h"
+#include "RiuMainWindow.h"
 
 #include <QFile>
+#include <QMessageBox>
 #include <QStringList>
 
 #include <algorithm>
@@ -40,7 +42,9 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
     readFileIntoMap(filePath, &formations);
     if (formations.empty())
     {
-        RiaLogging::error(QString("Failed to parse %1 as well picks").arg(filePath));
+        QMessageBox::warning(RiuMainWindow::instance(), "Import failure",
+                             QString("Failed to parse %1 as well picks file").arg(filePath));
+        RiaLogging::error(QString("Failed to parse %1 as well picks file").arg(filePath));
     }
 
     std::map<QString, std::vector<std::pair<double, QString>>>::iterator it;

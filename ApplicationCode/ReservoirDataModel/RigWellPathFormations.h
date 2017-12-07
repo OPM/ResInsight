@@ -37,6 +37,8 @@ public:
     QString filePath() const;
     QString keyInFile() const;
 
+    size_t formationNamesCount() const;
+
 private:
     QString m_filePath;
     QString m_keyInFile;

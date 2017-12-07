@@ -64,3 +64,11 @@ QString RigWellPathFormations::keyInFile() const
 {
     return m_keyInFile;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigWellPathFormations::formationNamesCount() const
+{
+    return m_measuredDepthAndFormationNames.size();
+}

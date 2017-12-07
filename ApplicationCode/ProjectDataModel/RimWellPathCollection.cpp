@@ -333,6 +333,10 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 {
+    QString outputMessage = "Well Picks Import\n";
+    outputMessage += "-----------------------------------------------\n";
+    outputMessage += "Well Name \tDetected Well Path \tCount\n";
+
     for (QString filePath : filePaths)
     {
         std::map<QString, cvf::ref<RigWellPathFormations>> newFormations = 
@@ -346,12 +350,22 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
                 wellPath = new RimWellPath();
                 wellPath->setName(it->first);
                 wellPaths.push_back(wellPath);
+                RiaLogging::info(QString("Created new well: %1").arg(wellPath->name()));
             }
             wellPath->setFormationsGeometry(it->second);
+
+            QString wellFormationsCount = QString("%1").arg(it->second->formationNamesCount());
+            
             m_newestAddedWellPath = wellPath;
-            RiaLogging::info(QString("Well picks set for well %1").arg(wellPath->name()));
+
+            outputMessage += it->first + "\t\t";
+            outputMessage += wellPath->name() + " \t\t\t";
+            outputMessage += wellFormationsCount + "\n";
         }
     }
+    outputMessage += "-----------------------------------------------";
+    QMessageBox::information(RiuMainWindow::instance(), "Well Picks Import", outputMessage);
+    RiaLogging::info(outputMessage);
 
     this->sortWellsByName();
 }
