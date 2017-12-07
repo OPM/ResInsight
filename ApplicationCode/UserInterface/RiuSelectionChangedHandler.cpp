@@ -127,7 +127,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
 {
     RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
-    if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+    if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() && eclipseView->cellResult()->resultVariable() != RIG_NUM_FLOODED_PV)
     { 
         // NB! Do not read out data for flow results, as this can be a time consuming operation
 
