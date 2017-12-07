@@ -739,6 +739,7 @@ bool RimWellPath::reloadWellPathFormationsFile(QString* errorMessage, RifWellPat
     if (caf::Utils::fileExists(m_wellPathFormationFilePath()))
     {
         m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations(m_wellPathFormationFilePath(), m_formationKeyInFile());
+        return true;
     }
     else
     {
