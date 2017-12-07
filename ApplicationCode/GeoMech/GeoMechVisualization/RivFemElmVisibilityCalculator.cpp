@@ -112,6 +112,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
         for (size_t i = 0; i < propFilterColl->propertyFilters().size(); i++)
         {
             RimGeoMechPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
+            if (!propertyFilter->isActiveAndHasResult()) continue;
 
             const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 

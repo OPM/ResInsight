@@ -220,6 +220,19 @@ void RimGeoMechPropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechPropertyFilter::isActiveAndHasResult()
+{
+    if (this->isActive() && this->resultDefinition->hasResult())
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
