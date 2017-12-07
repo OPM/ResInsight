@@ -49,7 +49,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimE
 {
     RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(eclipseResultCase, "lastUsedWellAllocationView", "Show Contributing Wells in View");
 
-    CVF_ASSERT(viewToManipulate);
+   if (!viewToManipulate) return nullptr;
 
 
     RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(viewToManipulate, wellName, timeStep);
