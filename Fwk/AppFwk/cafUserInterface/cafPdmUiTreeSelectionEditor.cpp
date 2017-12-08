@@ -492,7 +492,14 @@ void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, co
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& current)
 {
-    m_treeView->setCurrentIndex(current);
+    if (current.isValid())
+    {
+        QVariant v = m_proxyModel->data(current, Qt::CheckStateRole);
+        if (v == Qt::Checked)
+        {
+            m_treeView->setCurrentIndex(current);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
