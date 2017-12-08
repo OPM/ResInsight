@@ -679,9 +679,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                             if      (RimWellPlotTools::isOilFlowChannel(channelName))   flowPhase = FLOW_PHASE_OIL;
                             else if (RimWellPlotTools::isGasFlowChannel(channelName))   flowPhase = FLOW_PHASE_GAS;
                             else if (RimWellPlotTools::isWaterFlowChannel(channelName)) flowPhase = FLOW_PHASE_WATER;
-                            QString curveUnitText = RimWellPlotTools::curveUnitText(flowCondition, unitSet, flowPhase);
+                            QString curveUnitText = RimWellPlotTools::curveUnitText(flowCondition, unitSystem, flowPhase);
 
-                            addStackedCurve(curveName + ", " + channelName + curveUnitText,
+                            addStackedCurve(curveName + ", " + channelName + " " + curveUnitText,
                                             depthValues,
                                             channelData[std::get<2>(channelInfo)],
                                             plotTrack,
