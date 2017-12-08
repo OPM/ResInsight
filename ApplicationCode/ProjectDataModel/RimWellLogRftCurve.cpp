@@ -23,14 +23,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaSimWellBranchTools.h"
 
-#include "RimEclipseResultCase.h"
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimTools.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
-#include "RimWellLogTrack.h"
-#include "RimWellPath.h"
+#include "RifEclipseRftAddress.h"
+#include "RifReaderEclipseRft.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -39,15 +33,21 @@
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
+#include "RimEclipseResultCase.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimTools.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
+#include "RimWellPath.h"
+#include "RimWellPlotTools.h"
+
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
-#include "RifEclipseRftAddress.h"
-#include "RifReaderEclipseRft.h"
-
 #include "cafPdmObject.h"
 #include "cafVecIjk.h"
-
 #include "cvfAssert.h"
 
 #include <qwt_plot.h>
@@ -90,6 +90,9 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStep", "Time Step", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "Well Name", "", "", "");
+    CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "");
+    CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
+                      "Compute branches based on how simulation well cells are organized", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "");
 
@@ -233,6 +236,15 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setSimWellBranchData(bool branchDetection, int branchIndex)
+{
+    m_branchDetection = branchDetection;
+    m_branchIndex = branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
     QStringList name;
@@ -341,6 +353,16 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_eclipseResultCase);
     curveDataGroup->add(&m_wellName);
+    if (!RimWellPlotTools::isWellPath(m_wellName))
+    {
+        curveDataGroup->add(&m_branchDetection);
+
+        if (RiaSimWellBranchTools::simulationWellBranches(RimWellPlotTools::simWellName(m_wellName), m_branchDetection).size() > 1)
+        {
+            curveDataGroup->add(&m_branchIndex);
+        }
+    }
+
     curveDataGroup->add(&m_wellLogChannelName);
     curveDataGroup->add(&m_timeStep);
 
@@ -350,6 +372,8 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
     nameGroup->add(&m_showLegend);
     RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,6 +436,13 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
 
         options.push_back(caf::PdmOptionItemInfo("None", QDateTime()));
     }
+    else if (fieldNeedingOptions == &m_branchIndex)
+    {
+        auto simulationWellBranches = 
+            RiaSimWellBranchTools::simulationWellBranches(RimWellPlotTools::simWellName(m_wellName), m_branchDetection);
+
+        options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(simulationWellBranches);
+    }
 
     return options;
 }
@@ -433,6 +464,12 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_wellName)
+    {
+        updateWellChannelNameAndTimeStep();
+        this->loadDataAndUpdate(true);
+    }
+    else if (changedField == &m_branchDetection ||
+             changedField == &m_branchIndex)
     {
         updateWellChannelNameAndTimeStep();
         this->loadDataAndUpdate(true);
@@ -485,10 +522,16 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
     if (!eclExtractor)
     {
-        std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(m_wellName(), true);
+        QString simWellName = RimWellPlotTools::simWellName(m_wellName);
+        std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(simWellName, m_branchDetection);
         if (wellPaths.size() == 0) return nullptr;
 
-        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_wellName(), QString("Find or create sim well extractor"), wellPaths[0], m_eclipseResultCase->eclipseCaseData());
+        auto wellPathBranch = wellPaths[m_branchIndex];
+
+        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(simWellName,
+                                                                       QString("Find or create sim well extractor"), 
+                                                                       wellPathBranch,
+                                                                       m_eclipseResultCase->eclipseCaseData());
         m_isUsingPseudoLength = true;
     }
 

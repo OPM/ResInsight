@@ -167,6 +167,17 @@ bool RimWellPlotTools::hasFlowData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellPlotTools::isWellPath(const QString& wellName)
+{
+    RimProject*  proj     = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathByName(wellName);
+
+    return wellPath != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::isFlowChannel(RimWellLogFileChannel* channel)
 {
     return tryMatchChannelName(FLOW_DATA_NAMES, channel->name());

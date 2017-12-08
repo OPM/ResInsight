@@ -60,6 +60,8 @@ public:
     void                  setDefaultAddress(QString wellName);
     void                  updateWellChannelNameAndTimeStep();
 
+    void                  setSimWellBranchData(bool branchDetection, int branchIndex);
+
 protected:
     // Overrides from RimWellLogPlotCurve
     virtual QString                         createCurveAutoName() override;
@@ -84,12 +86,13 @@ private:
     std::vector<double>  measuredDepthValues();
 
 private:
-    std::map<size_t, size_t>                                                      m_idxInWellPathToIdxInRftFile;
+    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseResultCase;
+    caf::PdmField<QDateTime>                m_timeStep;
+    caf::PdmField<QString>                  m_wellName;
+    caf::PdmField<int>                      m_branchIndex;
+    caf::PdmField<bool>                     m_branchDetection;
 
-    caf::PdmPtrField<RimEclipseResultCase*>                                       m_eclipseResultCase;
-    caf::PdmField<QDateTime>                                                      m_timeStep;
-    caf::PdmField<QString>                                                        m_wellName;
-    caf::PdmField< caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelType > >  m_wellLogChannelName;
-
-    bool                                                                          m_isUsingPseudoLength;
+    std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
+    bool                                                                     m_isUsingPseudoLength;
+    caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 };

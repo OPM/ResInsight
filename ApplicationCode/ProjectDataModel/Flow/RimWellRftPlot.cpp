@@ -489,6 +489,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(1);
+            curve->setSimWellBranchData(m_branchDetection, m_branchIndex);
 
             applyCurveAppearance(curve);
         }

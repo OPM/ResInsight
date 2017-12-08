@@ -79,6 +79,7 @@ public:
 
 // others
     static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
+    static bool                                     isWellPath(const QString& wellName);
 
 // Both
     static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& simWellName);
