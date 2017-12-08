@@ -461,6 +461,8 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     }
     else if (changedField == &m_wellName)
     {
+        m_branchIndex = 0;
+
         updateWellChannelNameAndTimeStep();
         this->loadDataAndUpdate(true);
     }
@@ -525,6 +527,8 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
         QString simWellName = RimWellPlotTools::simWellName(m_wellName);
         std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(simWellName, m_branchDetection);
         if (wellPaths.size() == 0) return nullptr;
+
+        m_branchIndex = RiaSimWellBranchTools::clampBranchIndex(simWellName, m_branchIndex, m_branchDetection);
 
         auto wellPathBranch = wellPaths[m_branchIndex];
 
