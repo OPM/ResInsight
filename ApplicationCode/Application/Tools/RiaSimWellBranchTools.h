@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafPdmField.h"
+
 #include <QList>
 #include <QString>
 
@@ -28,7 +30,8 @@ class RigWellPath;
 namespace caf
 {
 class PdmOptionItemInfo;
-}
+class PdmUiOrdering;
+} // namespace caf
 
 //==================================================================================================
 //
@@ -38,5 +41,10 @@ class RiaSimWellBranchTools
 public:
     static std::vector<const RigWellPath*> simulationWellBranches(const QString& simWellName, bool useAutoDetectionOfBranches);
 
-    static QList<caf::PdmOptionItemInfo> valueOptionsForBranchIndexField(const std::vector<const RigWellPath*>& simulationWellPaths);
+    static QList<caf::PdmOptionItemInfo>
+        valueOptionsForBranchIndexField(const std::vector<const RigWellPath*>& simulationWellPaths);
+
+    static void appendSimWellBranchFieldsIfRequired(caf::PdmUiOrdering* uiOrdering, const QString& wellPathOrSimWellName,
+                                                    const caf::PdmField<bool>& branchDetectionField,
+                                                    const caf::PdmField<int>&  branchIndexField);
 };

@@ -22,6 +22,8 @@
 #include "RigEclipseCaseData.h"
 #include "RimEclipseCase.h"
 #include "RimProject.h"
+#include "RimWellPlotTools.h"
+#include "cafPdmUiOrdering.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -65,4 +67,28 @@ QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexF
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequired(caf::PdmUiOrdering*        uiOrdering,
+                                                                const QString&             wellPathOrSimWellName,
+                                                                const caf::PdmField<bool>& branchDetectionField,
+                                                                const caf::PdmField<int>&  branchIndexField)
+{
+    if (!RimWellPlotTools::hasAssociatedWellPath(wellPathOrSimWellName))
+    {
+        const QString simWellName = RimWellPlotTools::simWellName(wellPathOrSimWellName);
+
+        if (RiaSimWellBranchTools::simulationWellBranches(simWellName, true).size() > 1)
+        {
+            uiOrdering->add(&branchDetectionField);
+
+            if (RiaSimWellBranchTools::simulationWellBranches(simWellName, branchDetectionField).size() > 1)
+            {
+                uiOrdering->add(&branchIndexField);
+            }
+        }
+    }
 }

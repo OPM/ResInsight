@@ -759,15 +759,10 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathNameOrSimWellName);
 
-    if (!RimWellPlotTools::hasAssociatedWellPath(m_wellPathNameOrSimWellName))
-    {
-        uiOrdering.add(&m_branchDetection);
-
-        if (RiaSimWellBranchTools::simulationWellBranches(associatedSimWellName(), m_branchDetection).size() > 1)
-        {
-            uiOrdering.add(&m_branchIndex);
-        }
-    }
+    RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequired(&uiOrdering,
+                                                               m_wellPathNameOrSimWellName,
+                                                               m_branchDetection,
+                                                               m_branchIndex);
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", "Sources");
     sourcesGroup->add(&m_selectedSources);
