@@ -121,9 +121,10 @@ int RiaSimWellBranchTools::clampBranchIndex(const QString& simWellName, int bran
         return -1;
     }
 
-    if (branchIndexValue >= branches.size())
+    int maxIndexValue = static_cast<int>(branches.size()) - 1;
+    if (branchIndexValue > maxIndexValue)
     {
-        branchIndexValue = static_cast<int>(branches.size()) - 1;
+        branchIndexValue = maxIndexValue;
     }
 
     return branchIndexValue;
