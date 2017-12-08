@@ -21,10 +21,11 @@
 
 #include "RiaApplication.h"
 
-#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -470,9 +471,21 @@ void RimIntersection::updateWellCenterline() const
     {
         if (m_wellBranchCenterlines.size() == 0)
         {
-            std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+            RimEclipseCase* rimEclCase = nullptr;
+            simulationWell->firstAncestorOrThisOfType(rimEclCase);
+            if (rimEclCase)
+            {
+                bool includeCellCenters = false;
+                bool detectBrances = true;
 
-            simulationWell->calculateWellPipeStaticCenterLine(m_wellBranchCenterlines, pipeBranchesCellIds);
+                RigEclipseCaseData* caseData = rimEclCase->eclipseCaseData();
+                auto branches = caseData->simulationWellBranches(simulationWell->name, includeCellCenters, detectBrances);
+
+                for (auto b : branches)
+                {
+                    m_wellBranchCenterlines.push_back(b->m_wellPathPoints);
+                }
+            }
         }
     }
     else
