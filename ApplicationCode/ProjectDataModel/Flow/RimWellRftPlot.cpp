@@ -704,6 +704,9 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_branchIndex ||
              changedField == &m_branchDetection)
     {
+        const QString simWellName = associatedSimWellName();
+        m_branchIndex = RiaSimWellBranchTools::clampBranchIndex(simWellName, m_branchIndex, m_branchDetection);
+
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
 

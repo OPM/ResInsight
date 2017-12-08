@@ -281,6 +281,8 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_formationBranchIndex || 
              changedField == &m_formationBranchDetection)
     {
+        m_formationBranchIndex = RiaSimWellBranchTools::clampBranchIndex(m_formationSimWellName, m_formationBranchIndex, m_formationBranchDetection);
+
         loadDataAndUpdate();
     }
 }

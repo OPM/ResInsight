@@ -106,3 +106,23 @@ void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(c
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaSimWellBranchTools::clampBranchIndex(const QString& simWellName, int branchIndexValue, bool branchDetection)
+{
+    auto branches = RiaSimWellBranchTools::simulationWellBranches(simWellName, branchDetection);
+
+    if (branches.size() == 0)
+    {
+        return -1;
+    }
+
+    if (branchIndexValue >= branches.size())
+    {
+        branchIndexValue = static_cast<int>(branches.size()) - 1;
+    }
+
+    return branchIndexValue;
+}

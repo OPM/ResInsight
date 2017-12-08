@@ -467,6 +467,10 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     else if (changedField == &m_branchDetection ||
              changedField == &m_branchIndex)
     {
+        QString simWellName = RimWellPlotTools::simWellName(m_wellName);
+
+        m_branchIndex = RiaSimWellBranchTools::clampBranchIndex(simWellName, m_branchIndex, m_branchDetection);
+
         updateWellChannelNameAndTimeStep();
         this->loadDataAndUpdate(true);
     }

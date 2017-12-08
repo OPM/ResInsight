@@ -581,12 +581,11 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     else 
     {
         curveDataGroup->add(&m_simWellName);
-        curveDataGroup->add(&m_branchDetection);
 
-        if ( simulationWellBranches().size() > 1 )
-        {
-            curveDataGroup->add(&m_branchIndex);
-        }
+        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(curveDataGroup,
+                                                                                  m_simWellName,
+                                                                                  m_branchDetection,
+                                                                                  m_branchIndex);
     }
 
     if (eclipseCase)
