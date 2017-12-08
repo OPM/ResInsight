@@ -202,7 +202,7 @@ const QString PdmUiItem::uiToolTip(QString uiConfigName) const
     if (conInfo && !(conInfo->m_toolTip.isNull()))
     {
         text = conInfo->m_toolTip;
-        if (PdmUiItem::showExtraDebugText())
+        if (PdmUiItem::showExtraDebugText() && !conInfo->m_extraDebugText.isEmpty())
         {
             text += QString(" (%1)").arg(conInfo->m_extraDebugText);
         }
@@ -211,7 +211,7 @@ const QString PdmUiItem::uiToolTip(QString uiConfigName) const
     if (text.isEmpty() && defInfo && !(defInfo->m_toolTip.isNull()))
     {
         text = defInfo->m_toolTip;
-        if (PdmUiItem::showExtraDebugText())
+        if (PdmUiItem::showExtraDebugText() && !defInfo->m_extraDebugText.isEmpty())
         {
             text += QString(" (%1)").arg(defInfo->m_extraDebugText);
         }
@@ -220,7 +220,7 @@ const QString PdmUiItem::uiToolTip(QString uiConfigName) const
     if (text.isEmpty() && sttInfo && !(sttInfo->m_toolTip.isNull()))
     {
         text = sttInfo->m_toolTip;
-        if (PdmUiItem::showExtraDebugText())
+        if (PdmUiItem::showExtraDebugText() && !sttInfo->m_extraDebugText.isEmpty())
         {
             text += QString(" (%1)").arg(sttInfo->m_extraDebugText);
         }
