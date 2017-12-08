@@ -80,8 +80,21 @@ namespace caf
     void AppEnum< RimWellLogTrack::FormationSource >::setUp()
     {
         addItem(RimWellLogTrack::CASE, "CASE", "Case");
-        addItem(RimWellLogTrack::WELL_PICK, "WELLPICK", "Well Pick");
+        addItem(RimWellLogTrack::WELL_PICK, "WELL_PICK", "Well Pick");
+        addItem(RimWellLogTrack::WELL_PICK_FILTER, "WELL_PICK_FILTER", "Well Pick Filter");
         setDefault(RimWellLogTrack::CASE);
+    }
+   
+    template<>
+    void AppEnum<RigWellPathFormation::FormationLevel>::setUp()
+    {
+        addItem(RigWellPathFormation::ALL, "ALL", "All");
+        addItem(RigWellPathFormation::GROUP, "GROUP", "Group");
+        addItem(RigWellPathFormation::LEVEL0, "LEVEL0", "Main");
+        addItem(RigWellPathFormation::LEVEL1, "LEVEL1", "Level 1");
+        addItem(RigWellPathFormation::LEVEL2, "LEVEL2", "Level 2");
+        addItem(RigWellPathFormation::LEVEL3, "LEVEL3", "Level 3");
+        setDefault(RigWellPathFormation::ALL);
     }
 }
 
@@ -125,6 +138,10 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault(&m_formationCase, "FormationCase", "Formation Case", "", "", "");
     m_formationCase.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_formationLevel, "FormationLevel", "Formation Level", "", "", "");
+
+    CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,6 +302,14 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         loadDataAndUpdate();
     }
+    else if (changedField == &m_formationLevel)
+    {
+        loadDataAndUpdate();
+    }
+    else if (changedField == &m_showformationFluids)
+    {
+        loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +327,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
         {
             RimTools::wellPathOptionItems(&options);
         }
-        else if(m_formationSource == WELL_PICK)
+        else if(m_formationSource == WELL_PICK || m_formationSource == WELL_PICK_FILTER)
         {
             RimTools::wellPathWithFormationsOptionItems(&options);
         }
@@ -740,6 +765,12 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     {
         formationGroup->add(&m_formationWellPath);
     }
+    else if (m_formationSource() == WELL_PICK_FILTER)
+    {
+        formationGroup->add(&m_formationWellPath);
+        formationGroup->add(&m_formationLevel);
+        formationGroup->add(&m_showformationFluids);
+    }
 
     uiOrderingForVisibleXRange(uiOrdering);
 
@@ -1170,6 +1201,20 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
         formations->measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(&formationNamesToPlot, &yValues);
 
+        m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
+    }
+    else if (m_formationSource() == WELL_PICK_FILTER)
+    {
+        if (m_formationWellPath == nullptr) return;
+        if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
+
+        std::vector<double> yValues;
+
+        const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+        if (!formations) return;
+
+        formations->measuredDepthAndFormationNamesUpToLevel(m_formationLevel(), &formationNamesToPlot, &yValues, m_showformationFluids());
+        
         m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
     }
 }

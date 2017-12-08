@@ -29,21 +29,35 @@
 
 struct RigWellPathFormation
 {
-    double mdTop;
-    double mdBase;
-    QString formationName;
-    size_t level = 0;
-};
+    enum FormationLevel
+    {
+        GROUP,
+        LEVEL0,
+        LEVEL1,
+        LEVEL2,
+        LEVEL3,
+        ALL,
+        FLUIDS
+    };
 
+    double         mdTop;
+    double         mdBase;
+    QString        formationName;
+    FormationLevel level;
+};
 
 class RigWellPathFormations : public cvf::Object
 {
 public:
     RigWellPathFormations(std::vector<RigWellPathFormation> formations, const QString& filePath, const QString& key);
 
-    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths) const;
+    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
+                                                                std::vector<double>*  measuredDepths) const;
 
-    void measuredDepthAndFormationNamesForLevel(size_t level, std::vector<QString>* names, std::vector<double>* measuredDepths) const;
+    void measuredDepthAndFormationNamesUpToLevel(RigWellPathFormation::FormationLevel level, std::vector<QString>* names,
+                                                 std::vector<double>* measuredDepths, bool includeFluids) const;
+
+    RigWellPathFormation::FormationLevel maxFormationLevel() const;
 
     QString filePath() const;
     QString keyInFile() const;
@@ -51,8 +65,13 @@ public:
     size_t formationNamesCount() const;
 
 private:
+    RigWellPathFormation::FormationLevel detectLevel(QString formationName);
+
+private:
     QString m_filePath;
     QString m_keyInFile;
-    
+
+    RigWellPathFormation::FormationLevel m_maxLevelDetected;
+
     std::vector<RigWellPathFormation> m_formations;
 };
