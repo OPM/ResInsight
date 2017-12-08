@@ -21,18 +21,19 @@
 
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 
-#include "cvfRay.h"
 #include "cvfBoundingBoxTree.h"
-#include "RigMainGrid.h"
+#include "cvfGeometryTools.h"
+#include "cvfRay.h"
+
 #include <deque>
 #include <list>
-#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline
@@ -43,7 +44,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
-    calculateWellPipeDynamicCenterline(rimWell, cvf::UNDEFINED_SIZE_T, pipeBranchesCLCoords, pipeBranchesCellIds);
+    calculateWellPipeDynamicCenterline(rimWell, -1, pipeBranchesCLCoords, pipeBranchesCellIds);
 }
 
 
@@ -51,7 +52,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimSimWellInView* rimWell, 
-                                                                               size_t timeStepIndex, 
+                                                                               int timeStepIndex, 
                                                                                std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                                std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
 {
@@ -71,7 +72,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
 
     calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
                                              simWellData,
-                                             static_cast<int>(timeStepIndex),
+                                             timeStepIndex,
                                              isAutoDetectBranches,
                                              useAllCellCenters,
                                              pipeBranchesCLCoords, 
@@ -102,14 +103,14 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     
     if (timeStepIndex < 0) 
     {
-        wellFramePtr =  &wellResults->staticWellCells();
+        wellFramePtr = &wellResults->staticWellCells();
     }
     else
     {
-        wellFramePtr =  &(wellResults->wellResultFrame(timeStepIndex));
+        wellFramePtr = &(wellResults->wellResultFrame(timeStepIndex));
     }
 
-    bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
+    bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
 
     #if 0 // Fancy branch splitting, but with artifacts. Needs a bit more work to be better overall than the one we have.
     RigWellResultFrame splittedWellFrame;
