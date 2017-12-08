@@ -276,6 +276,8 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
         connect(m_toggleAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(slotToggleAll()));
 
         m_textFilterLineEdit = new QLineEdit();
+        m_textFilterLineEdit->setPlaceholderText("Click to add filter");
+
         headerLayout->addWidget(m_textFilterLineEdit);
 
         connect(m_textFilterLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotTextFilterChanged()));
