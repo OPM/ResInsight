@@ -167,7 +167,7 @@ bool RimWellPlotTools::hasFlowData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::isWellPath(const QString& wellName)
+bool RimWellPlotTools::hasAssociatedWellPath(const QString& wellName)
 {
     RimProject*  proj     = RiaApplication::instance()->project();
     RimWellPath* wellPath = proj->wellPathByName(wellName);

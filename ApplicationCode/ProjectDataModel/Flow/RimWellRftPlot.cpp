@@ -107,24 +107,6 @@ RimWellRftPlot::RimWellRftPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack::TrajectoryType trajectoryTypeFromWellName(const QString& wellPathOrSimWellName)
-{
-    RimWellLogTrack::TrajectoryType trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-
-    RimProject*  proj     = RiaApplication::instance()->project();
-    RimWellPath* wellPath = proj->wellPathByName(wellPathOrSimWellName);
-
-    if (wellPath)
-    {
-        trajectoryType = RimWellLogTrack::WELL_PATH;
-    }
-
-    return trajectoryType;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellRftPlot::~RimWellRftPlot()
 {
     removeMdiWindowFromMdiArea();
@@ -255,8 +237,6 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 {
     if (m_wellLogPlot->trackCount() > 0)
     {
-        RimWellLogTrack::TrajectoryType trajectoryType = trajectoryTypeFromWellName(m_wellPathNameOrSimWellName);
-
         RimProject* proj = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
 
@@ -273,14 +253,13 @@ void RimWellRftPlot::updateFormationsOnPlot() const
                 formationNamesCase = cases[0];
             }
         }
-
-        if (trajectoryType == RimWellLogTrack::SIMULATION_WELL)
-        {
-            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesAndBranchData(formationNamesCase, associatedSimWellName(), m_branchIndex, m_branchDetection);
-        }
-        else if (trajectoryType == RimWellLogTrack::WELL_PATH)
+        else if (wellPath)
         {
             m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(formationNamesCase, wellPath);
+        }
+        else
+        {
+            m_wellLogPlot->trackByIndex(0)->setAndUpdateSimWellFormationNamesAndBranchData(formationNamesCase, associatedSimWellName(), m_branchIndex, m_branchDetection);
         }
     }
 }
@@ -780,7 +759,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathNameOrSimWellName);
 
-    if (trajectoryTypeFromWellName(m_wellPathNameOrSimWellName) == RimWellLogTrack::SIMULATION_WELL)
+    if (!RimWellPlotTools::hasAssociatedWellPath(m_wellPathNameOrSimWellName))
     {
         uiOrdering.add(&m_branchDetection);
 

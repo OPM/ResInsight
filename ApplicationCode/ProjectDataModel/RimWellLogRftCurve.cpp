@@ -353,7 +353,7 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_eclipseResultCase);
     curveDataGroup->add(&m_wellName);
-    if (!RimWellPlotTools::isWellPath(m_wellName))
+    if (!RimWellPlotTools::hasAssociatedWellPath(m_wellName))
     {
         curveDataGroup->add(&m_branchDetection);
 
