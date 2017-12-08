@@ -278,7 +278,7 @@ namespace caf {
         for (int i = static_cast<int>(progressStack_v.size()) - 1; i >= 0; --i)
         {
             size_t span = (i < 1) ? 1 : progressSpanStack_v[i - 1];
-            progress = span*(progress + progressStack_v[i]) / maxProgressStack_v[i];
+            progress = span*(progress + progressStack_v[i]) / (double)maxProgressStack_v[i];
         }
 
         size_t totalIntProgress = static_cast<size_t>(currentTotalMaxProgressValue()*progress);
@@ -305,6 +305,9 @@ namespace caf {
 
     }
 
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
     static bool isUpdatePossible()
     {
         if (!qApp) return false;
@@ -313,6 +316,72 @@ namespace caf {
 
         return progressDialog()->thread() == QThread::currentThread();
     }
+
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    #ifdef _MSC_VER
+    #pragma warning (push)
+    #pragma warning (disable: 4668)
+    #include <windows.h>
+    #pragma warning (pop)
+    #endif
+   
+
+    void openDebugWindow()
+    {
+    #ifdef _MSC_VER
+        #pragma warning (push)
+        #pragma warning (disable: 4996)
+        AllocConsole();
+        freopen("conin$", "r", stdin);
+        freopen("conout$", "w", stdout);
+        freopen("conout$", "w", stderr);
+        #pragma warning (pop)
+    #endif
+    }
+
+
+    void reportError(const std::string& errorMsg )
+    {
+        openDebugWindow();
+        std::cout << "Error in caf::ProgressInfo :" << std::endl;
+        std::cout << errorMsg << std::endl;
+        std::cout << "Current progress state:"  << std::endl;
+        std::cout << "-------"  << std::endl;
+        std::cout << currentComposedLabel().toStdString();
+        std::cout << std::endl;
+        std::cout << "-------" << std::endl;
+        std::cout << "Prog\tMax\tSpan"  << std::endl;
+
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+
+        size_t level = 0;
+        bool hasMoreProgLevels = level < progressStack_v.size() ;
+        bool hasMoreMaxLevels  = level < maxProgressStack_v.size();
+        bool hasMoreSpanLevels = level < progressSpanStack_v.size();
+
+        while (hasMoreProgLevels || hasMoreMaxLevels || hasMoreSpanLevels)
+        {
+            if (hasMoreProgLevels) std::cout << progressStack_v[level] << "\t";
+            else  std::cout << "--" << "\t";
+            if (hasMoreMaxLevels) std::cout << maxProgressStack_v[level] << "\t";
+            else  std::cout << "--" << "\t";
+            if (hasMoreSpanLevels) std::cout << progressSpanStack_v[level] << "\t";
+            else  std::cout << "--" << "\t";
+
+            std::cout << std::endl;
+            ++level;
+            hasMoreProgLevels = level < progressStack_v.size() ;
+            hasMoreMaxLevels  = level < maxProgressStack_v.size();
+            hasMoreSpanLevels = level < progressSpanStack_v.size();
+        }
+    }
+
+
     //==================================================================================================
     ///
     /// \class caf::ProgressInfoStatic
@@ -386,7 +455,11 @@ namespace caf {
         if (progressValue == progressStack_v.back()) return; // Do nothing if no progress.
 
         // Guard against the max value set for this level
-        if (progressValue > maxProgressStack_v.back()) progressValue = maxProgressStack_v.back();
+        if ( progressValue > maxProgressStack_v.back() )
+        {
+            reportError("setProgress() is called with a progressValue > max, progressValue == " + std::to_string(progressValue));
+            progressValue = maxProgressStack_v.back();
+        }
 
         progressStack_v.back() = progressValue;
         progressSpanStack_v.back() = 1;
@@ -394,7 +467,13 @@ namespace caf {
         int totalProgress = static_cast<int>(currentTotalProgress());
         int totalMaxProgress = static_cast<int>(currentTotalMaxProgressValue());
 
-        CAF_ASSERT(static_cast<int>(totalProgress) <= totalMaxProgress);
+        if (static_cast<int>(totalProgress) > totalMaxProgress)
+        {
+            reportError("totalProgress > totalMaxProgress" 
+                        ", totalProgress == " + std::to_string(totalProgress)  
+                        + ", totalMaxProgress == " + std::to_string(totalMaxProgress)); 
+            totalProgress = totalMaxProgress;
+        }
 
         progressDialog()->setMaximum(totalMaxProgress);
         progressDialog()->setValue(totalProgress);
@@ -427,6 +506,18 @@ namespace caf {
         if (!isUpdatePossible()) return;
 
         CAF_ASSERT(progressSpanStack().size());
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+        std::vector<size_t>& progressStack_v     = progressStack();
+
+        // Guard against the max value set for this level
+        if ((progressStack_v.back() + nextStepSize) > maxProgressStack_v.back())
+        {
+            reportError("setNextProgressIncrement() is using a too high increment(" + std::to_string(nextStepSize)+").\n" 
+                        + "It will result in a total progress of " + std::to_string(progressStack_v.back() + nextStepSize) 
+                        + "\nwhich is past the max limit: " + std::to_string(maxProgressStack_v.back()) );
+
+            nextStepSize = maxProgressStack_v.back() - progressStack_v.back();
+        }
 
         progressSpanStack().back() = nextStepSize;
     }
@@ -443,7 +534,11 @@ namespace caf {
         std::vector<size_t>& progressSpanStack_v = progressSpanStack();
         std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
-        CAF_ASSERT(maxProgressStack_v.size() && progressStack_v.size() && progressSpanStack_v.size() && titleStack().size() && descriptionStack().size());
+        CAF_ASSERT(maxProgressStack_v.size() 
+                   && progressStack_v.size() 
+                   && progressSpanStack_v.size() 
+                   && titleStack().size() 
+                   && descriptionStack().size());
 
         // Set progress to max value, and leave it there until somebody touches the progress again
 
