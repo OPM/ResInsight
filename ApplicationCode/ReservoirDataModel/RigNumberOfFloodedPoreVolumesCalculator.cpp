@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <QString>
+#include "cafProgressInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -47,28 +48,42 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     size_t resultCellCount    = actCellInfo->reservoirCellResultCount();
 
+    size_t timeStepCount = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
+    size_t totalProgress = tracerNames.size() 
+                           + 8
+                           + timeStepCount
+                           + 2* timeStepCount;
+    caf::ProgressInfo progress(totalProgress, "Calculating number of flooded mobile pore volumes." );
+    progress.setProgressDescription("Loading required results");
     // PORV
     const std::vector<double>* porvResults = nullptr;
     std::vector<double> porvActiveCellsResultStorage;
     porvResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "PORV", porvActiveCellsResultStorage);
 
+    progress.incrementProgress();
+    
     // SWCR if defined
 
     const std::vector<double>* swcrResults = nullptr;
     swcrResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
+    progress.incrementProgress();
 
     std::vector<size_t> scalarResultIndexTracers;
     for (QString tracerName : tracerNames)
     {
         scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
+        progress.incrementProgress();
     }
     std::vector<std::vector<double> > summedTracersAtAllTimesteps;
 
     //TODO: Option for Oil and Gas instead of water
 
-    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+");
-    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+");
-    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+");
+    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"); 
+    progress.incrementProgress();
+    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"); 
+    progress.incrementProgress();
+    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"); 
+    progress.incrementProgress();
 
     std::vector<const std::vector<double>* > flowrateIatAllTimeSteps;
     std::vector<const std::vector<double>* > flowrateJatAllTimeSteps;
@@ -76,13 +91,18 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
     RigNNCData* nncData = eclipseCaseData->mainGrid()->nncData();
     const std::vector<RigConnection> connections = nncData->connections();
+    
+    progress.incrementProgress();
 
     //TODO: oil or gas flowrate
     std::vector<const std::vector<double>* > flowrateNNCatAllTimeSteps;
     QString nncConnectionProperty = mainGrid->nncData()->propertyNameFluxWat();
 
-    
-    std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart();
+    progress.incrementProgress();
+
+    std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(); 
+
+    progress.incrementProgress();
 
     for (size_t timeStep = 0; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
@@ -133,9 +153,13 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
             }
         }
         summedTracersAtAllTimesteps.push_back(summedTracerValues);
-        
+
+        progress.incrementProgress();
     }
     
+    progress.setNextProgressIncrement(2*timeStepCount);
+    progress.setProgressDescription("Calculating");
+
     calculate(mainGrid,
               caseToApply,
               daysSinceSimulationStart,
@@ -178,6 +202,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     size_t resultCellCount = actCellInfo->reservoirCellResultCount();
 
+    caf::ProgressInfo progress(2*daysSinceSimulationStart.size() , "");
 
     std::vector<std::vector<double>> cellQwInAtAllTimeSteps;
     std::vector<double> cellQwInTimeStep0(resultCellCount);
@@ -233,6 +258,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
+        progress.incrementProgress();
     }
 
     
@@ -257,6 +283,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
                                             / scaledPoreVolume;
         }
         m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
+        progress.incrementProgress();
     }
 
 }

@@ -410,7 +410,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     if (isNNCsEnabled())
     {
         progInfo.setProgressDescription("Reading NNC data");
-        progInfo.setNextProgressIncrement(5);
+        progInfo.setNextProgressIncrement(4);
         transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
         progInfo.incrementProgress();
 

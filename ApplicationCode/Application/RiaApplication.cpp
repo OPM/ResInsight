@@ -558,24 +558,25 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
             caseProgress.setProgressDescription(cas->caseUserDescription());
             std::vector<RimView*> views = cas->views();
-            caf::ProgressInfo viewProgress(views.size(), "Creating Views");
+            { // To delete the view progress before incrementing the caseProgress
+                caf::ProgressInfo viewProgress(views.size(), "Creating Views");
 
-            size_t j;
-            for (j = 0; j < views.size(); j++)
-            {
-                RimView* riv = views[j];
-                CVF_ASSERT(riv);
+                size_t j;
+                for ( j = 0; j < views.size(); j++ )
+                {
+                    RimView* riv = views[j];
+                    CVF_ASSERT(riv);
 
-                viewProgress.setProgressDescription(riv->name());
+                    viewProgress.setProgressDescription(riv->name());
 
-                riv->loadDataAndUpdate();
-                this->setActiveReservoirView(riv);
+                    riv->loadDataAndUpdate();
+                    this->setActiveReservoirView(riv);
 
-                riv->rangeFilterCollection()->updateIconState();
+                    riv->rangeFilterCollection()->updateIconState();
 
-                viewProgress.incrementProgress();
+                    viewProgress.incrementProgress();
+                }
             }
-
             caseProgress.incrementProgress();
         }
     }
