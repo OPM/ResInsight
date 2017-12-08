@@ -25,9 +25,6 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigSimulationWellCoordsAndMD.h"
-#include "RigWellPath.h"
 
 #include "RimCalcScript.h"
 #include "RimSummaryCalculationCollection.h"

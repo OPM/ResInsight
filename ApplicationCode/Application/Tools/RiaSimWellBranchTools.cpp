@@ -19,10 +19,13 @@
 #include "RiaSimWellBranchTools.h"
 
 #include "RiaApplication.h"
+
 #include "RigEclipseCaseData.h"
+
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimWellPlotTools.h"
+
 #include "cafPdmUiOrdering.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +52,8 @@ std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexField(const std::vector<const RigWellPath*>& simulationWellPaths)
+QList<caf::PdmOptionItemInfo>
+    RiaSimWellBranchTools::valueOptionsForBranchIndexField(const std::vector<const RigWellPath*>& simulationWellPaths)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -70,7 +74,7 @@ QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexF
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(caf::PdmUiOrdering*        uiOrdering,
                                                                             const QString&             wellPathOrSimWellName,
@@ -81,9 +85,7 @@ void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(caf:
     {
         const QString simWellName = RimWellPlotTools::simWellName(wellPathOrSimWellName);
 
-        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(uiOrdering, 
-                                                                                  simWellName, 
-                                                                                  branchDetectionField,
+        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(uiOrdering, simWellName, branchDetectionField,
                                                                                   branchIndexField);
     }
 }
@@ -108,7 +110,7 @@ void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaSimWellBranchTools::clampBranchIndex(const QString& simWellName, int branchIndexValue, bool branchDetection)
 {
