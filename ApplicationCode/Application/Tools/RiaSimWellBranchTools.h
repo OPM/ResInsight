@@ -44,7 +44,11 @@ public:
     static QList<caf::PdmOptionItemInfo>
         valueOptionsForBranchIndexField(const std::vector<const RigWellPath*>& simulationWellPaths);
 
-    static void appendSimWellBranchFieldsIfRequired(caf::PdmUiOrdering* uiOrdering, const QString& wellPathOrSimWellName,
+    static void appendSimWellBranchFieldsIfRequiredFromWellName(caf::PdmUiOrdering* uiOrdering, const QString& wellPathOrSimWellName,
+                                                    const caf::PdmField<bool>& branchDetectionField,
+                                                    const caf::PdmField<int>&  branchIndexField);
+
+    static void appendSimWellBranchFieldsIfRequiredFromSimWellName(caf::PdmUiOrdering* uiOrdering, const QString& simWellName,
                                                     const caf::PdmField<bool>& branchDetectionField,
                                                     const caf::PdmField<int>&  branchIndexField);
 };

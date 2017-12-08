@@ -72,23 +72,37 @@ QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequired(caf::PdmUiOrdering*        uiOrdering,
-                                                                const QString&             wellPathOrSimWellName,
-                                                                const caf::PdmField<bool>& branchDetectionField,
-                                                                const caf::PdmField<int>&  branchIndexField)
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(caf::PdmUiOrdering*        uiOrdering,
+                                                                            const QString&             wellPathOrSimWellName,
+                                                                            const caf::PdmField<bool>& branchDetectionField,
+                                                                            const caf::PdmField<int>&  branchIndexField)
 {
     if (!RimWellPlotTools::hasAssociatedWellPath(wellPathOrSimWellName))
     {
         const QString simWellName = RimWellPlotTools::simWellName(wellPathOrSimWellName);
 
-        if (RiaSimWellBranchTools::simulationWellBranches(simWellName, true).size() > 1)
-        {
-            uiOrdering->add(&branchDetectionField);
+        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(uiOrdering, 
+                                                                                  simWellName, 
+                                                                                  branchDetectionField,
+                                                                                  branchIndexField);
+    }
+}
 
-            if (RiaSimWellBranchTools::simulationWellBranches(simWellName, branchDetectionField).size() > 1)
-            {
-                uiOrdering->add(&branchIndexField);
-            }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(caf::PdmUiOrdering*        uiOrdering,
+                                                                               const QString&             simWellName,
+                                                                               const caf::PdmField<bool>& branchDetectionField,
+                                                                               const caf::PdmField<int>&  branchIndexField)
+{
+    if (RiaSimWellBranchTools::simulationWellBranches(simWellName, true).size() > 1)
+    {
+        uiOrdering->add(&branchDetectionField);
+
+        if (RiaSimWellBranchTools::simulationWellBranches(simWellName, branchDetectionField).size() > 1)
+        {
+            uiOrdering->add(&branchIndexField);
         }
     }
 }

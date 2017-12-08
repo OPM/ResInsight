@@ -353,15 +353,11 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_eclipseResultCase);
     curveDataGroup->add(&m_wellName);
-    if (!RimWellPlotTools::hasAssociatedWellPath(m_wellName))
-    {
-        curveDataGroup->add(&m_branchDetection);
 
-        if (RiaSimWellBranchTools::simulationWellBranches(RimWellPlotTools::simWellName(m_wellName), m_branchDetection).size() > 1)
-        {
-            curveDataGroup->add(&m_branchIndex);
-        }
-    }
+    RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(curveDataGroup,
+                                                                           m_wellName,
+                                                                           m_branchDetection,
+                                                                           m_branchIndex);
 
     curveDataGroup->add(&m_wellLogChannelName);
     curveDataGroup->add(&m_timeStep);

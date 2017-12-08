@@ -727,13 +727,11 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         else
         {
             formationGroup->add(&m_formationSimWellName);
-            formationGroup->add(&m_formationBranchDetection);
-
-            auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches(m_formationSimWellName(), m_formationBranchDetection);
-            if (simulationWellBranches.size() > 1)
-            {
-                formationGroup->add(&m_formationBranchIndex);
-            }
+            
+            RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(formationGroup,
+                                                                                      m_formationSimWellName,
+                                                                                      m_formationBranchDetection,
+                                                                                      m_formationBranchIndex);
         }
     }
     else if (m_formationSource() == WELL_PICK)
