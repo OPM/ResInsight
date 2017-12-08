@@ -22,17 +22,28 @@
 #include "cvfObject.h"
 
 #include <map>
+#include <utility>
 #include <vector>
 
 #include <QString>
-#include <utility>
+
+struct RigWellPathFormation
+{
+    double mdTop;
+    double mdBase;
+    QString formationName;
+    size_t level = 0;
+};
+
 
 class RigWellPathFormations : public cvf::Object
 {
 public:
-    RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames, const QString& filePath, const QString& key);
+    RigWellPathFormations(std::vector<RigWellPathFormation> formations, const QString& filePath, const QString& key);
 
-    void measuredDepthAndFormationNamesWithoutDuplicates(std::vector<QString>& names, std::vector<double>& measuredDepths) const;
+    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths) const;
+
+    void measuredDepthAndFormationNamesForLevel(size_t level, std::vector<QString>* names, std::vector<double>* measuredDepths) const;
 
     QString filePath() const;
     QString keyInFile() const;
@@ -43,5 +54,5 @@ private:
     QString m_filePath;
     QString m_keyInFile;
     
-    std::vector<std::pair<double, QString>> m_measuredDepthAndFormationNames;
+    std::vector<RigWellPathFormation> m_formations;
 };

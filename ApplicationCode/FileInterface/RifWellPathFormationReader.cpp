@@ -37,22 +37,46 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 {
     std::map<QString, cvf::ref<RigWellPathFormations>> result;
 
-    std::map<QString, std::vector<std::pair<double, QString>>> formations;
+    std::vector<QString> wellNames;
+    std::vector<QString> formationNames;
+    std::vector<double> mdTop;
+    std::vector<double> mdBase;
 
-    readFileIntoMap(filePath, &formations);
-    if (formations.empty())
+    readFile(filePath, &wellNames, &formationNames, &mdTop, &mdBase);
+    if (wellNames.empty() || formationNames.empty() || mdTop.empty() || mdBase.empty())
     {
         QMessageBox::warning(RiuMainWindow::instance(), "Import failure",
-                             QString("Failed to parse %1 as well picks file").arg(filePath));
-        RiaLogging::error(QString("Failed to parse %1 as well picks file").arg(filePath));
+                             QString("Failed to parse %1 as a well pick file").arg(filePath));
+        RiaLogging::error(QString("Failed to parse %1 as a well pick file").arg(filePath));
+
+        return result;
     }
 
-    std::map<QString, std::vector<std::pair<double, QString>>>::iterator it;
+    CVF_ASSERT(wellNames.size() == formationNames.size());
+    CVF_ASSERT(mdTop.size() == formationNames.size());
+    CVF_ASSERT(mdBase.size() == formationNames.size());
 
-    for (it = formations.begin(); it != formations.end(); it++)
+    std::map<QString, std::vector<RigWellPathFormation>> formations;
+
+    for (size_t i = 0; i < wellNames.size(); i++)
+    {
+        RigWellPathFormation formation;
+        formation.formationName = formationNames[i];
+        formation.mdTop = mdTop[i];
+        formation.mdBase = mdBase[i];
+
+        if (!formations.count(wellNames[i]))
+        {
+            formations[wellNames[i]] = std::vector<RigWellPathFormation>();
+        }
+
+        formations[wellNames[i]].push_back(formation);
+    }
+
+    for (auto it = formations.begin(); it != formations.end(); it++)
     {
         cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations(it->second, filePath, it->first);
-        result[it->first]                                  = wellPathFormations;
+        result[it->first] = wellPathFormations;
     }
 
     return result;
@@ -69,8 +93,9 @@ void removeWhiteSpaces(QString* word)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifWellPathFormationReader::readFileIntoMap(const QString&                                              filePath,
-                                                 std::map<QString, std::vector<std::pair<double, QString>>>* formations)
+void RifWellPathFormationReader::readFile(const QString& filePath, std::vector<QString>* wellNames,
+                                          std::vector<QString>* formationNames, std::vector<double>* mdTop,
+                                          std::vector<double>* mdBase)
 {
     QFile data(filePath);
 
@@ -90,12 +115,12 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
         header = line.split(';', QString::KeepEmptyParts);
     }
 
-    static const QString wellNameText      = "wellname";
-    static const QString surfaceNameText   = "surfacename";
+    static const QString wellNameText = "wellname";
+    static const QString surfaceNameText = "surfacename";
     static const QString measuredDepthText = "md";
 
-    int wellNameIndex      = header.indexOf(wellNameText);
-    int surfaceNameIndex   = header.indexOf(surfaceNameText);
+    int wellNameIndex = header.indexOf(wellNameText);
+    int surfaceNameIndex = header.indexOf(surfaceNameText);
     int measuredDepthIndex = header.indexOf(measuredDepthText);
 
     if (wellNameIndex != -1 && surfaceNameIndex != -1 && measuredDepthIndex != -1)
@@ -111,22 +136,24 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
             double measuredDepth = dataLine[measuredDepthIndex].toDouble(&conversionOk);
             if (!conversionOk) continue;
 
-            QString wellName    = dataLine[wellNameIndex];
+            QString wellName = dataLine[wellNameIndex];
             QString surfaceName = dataLine[surfaceNameIndex];
 
-            (*formations)[wellName].push_back(std::make_pair(measuredDepth, surfaceName));
+            wellNames->push_back(wellName);
+            formationNames->push_back(surfaceName);
+            mdTop->push_back(measuredDepth);
 
         } while (!data.atEnd());
 
         return;
     }
 
-    static const QString unitNameText          = "unitname";
-    static const QString measuredDepthToptext  = "topmd";
+    static const QString unitNameText = "unitname";
+    static const QString measuredDepthToptext = "topmd";
     static const QString measuredDepthBasetext = "basemd";
 
-    int unitNameIndex          = header.indexOf(unitNameText);
-    int measuredDepthTopIndex  = header.indexOf(measuredDepthToptext);
+    int unitNameIndex = header.indexOf(unitNameText);
+    int measuredDepthTopIndex = header.indexOf(measuredDepthToptext);
     int measuredDepthBaseIndex = header.indexOf(measuredDepthBasetext);
 
     if (unitNameIndex != -1 && measuredDepthTopIndex != -1 && measuredDepthBaseIndex != -1)
@@ -138,14 +165,16 @@ void RifWellPathFormationReader::readFileIntoMap(const QString&                 
             QStringList dataLine = line.split(';', QString::KeepEmptyParts);
             if (dataLine.size() != header.size()) continue;
 
-            QString wellName         = dataLine[wellNameIndex];
-            QString unitName         = dataLine[unitNameIndex];
-            unitName                 = unitName.trimmed();
-            double measuredDepthTop  = dataLine[measuredDepthTopIndex].toDouble();
+            QString wellName = dataLine[wellNameIndex];
+            QString unitName = dataLine[unitNameIndex];
+            unitName = unitName.trimmed();
+            double measuredDepthTop = dataLine[measuredDepthTopIndex].toDouble();
             double measuredDepthBase = dataLine[measuredDepthBaseIndex].toDouble();
 
-            (*formations)[wellName].push_back(std::make_pair(measuredDepthTop, unitName));
-            (*formations)[wellName].push_back(std::make_pair(measuredDepthBase, unitName));
+            wellNames->push_back(wellName);
+            formationNames->push_back(unitName);
+            mdTop->push_back(measuredDepthTop);
+            mdBase->push_back(measuredDepthBase);
 
         } while (!data.atEnd());
     }

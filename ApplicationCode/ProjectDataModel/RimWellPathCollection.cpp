@@ -337,6 +337,8 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
     outputMessage += "-----------------------------------------------\n";
     outputMessage += "Well Name \tDetected Well Path \tCount\n";
 
+    bool fileReadSuccess = false;
+
     for (QString filePath : filePaths)
     {
         std::map<QString, cvf::ref<RigWellPathFormations>> newFormations = 
@@ -344,6 +346,8 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 
         for (auto it = newFormations.begin(); it != newFormations.end(); it++)
         {
+            fileReadSuccess = true;
+
             RimWellPath* wellPath = tryFindMatchingWellPath(it->first);
             if (!wellPath)
             {
@@ -364,8 +368,12 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
         }
     }
     outputMessage += "-----------------------------------------------";
-    QMessageBox::information(RiuMainWindow::instance(), "Well Picks Import", outputMessage);
-    RiaLogging::info(outputMessage);
+
+    if (fileReadSuccess)
+    {
+        QMessageBox::information(RiuMainWindow::instance(), "Well Picks Import", outputMessage);
+        RiaLogging::info(outputMessage);
+    }
 
     this->sortWellsByName();
 }

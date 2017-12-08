@@ -18,33 +18,59 @@
 
 #include "RigWellPathFormations.h"
 
+#include "QStringList"
+
+#include "cvfMath.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellPathFormations::RigWellPathFormations(std::vector<std::pair<double, QString>> measuredDepthAndFormationNames, const QString& filePath, const QString& key)
+RigWellPathFormations::RigWellPathFormations(std::vector<RigWellPathFormation> formations, const QString& filePath, const QString& key)
 {
-    m_measuredDepthAndFormationNames = measuredDepthAndFormationNames;
     m_filePath = filePath;
     m_keyInFile = key;
+    m_formations = formations;
 }
+
+struct MeasuredDepthComp
+{
+    bool operator()(const double& md1, const double& md2) const
+    {
+        if (cvf::Math::abs(md1 - md2) < 1.0)
+        {
+            return false;
+        }
+        return md1 < md2;
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::measuredDepthAndFormationNamesWithoutDuplicates(std::vector<QString>& names, std::vector<double>& measuredDepths) const
+void RigWellPathFormations::measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths) const
 {
-    names.clear();
-    measuredDepths.clear();
+    names->clear();
+    measuredDepths->clear();
 
-    std::map<double, QString> tempMakeVectorUniqueOnMeasuredDepth;
+    std::map<double, bool, MeasuredDepthComp> tempMakeVectorUniqueOnMeasuredDepth;
 
-    for (const std::pair<double, QString>& mdAndFormName : m_measuredDepthAndFormationNames)
+    for (RigWellPathFormation formation : m_formations)
     {
-        if (tempMakeVectorUniqueOnMeasuredDepth.find(mdAndFormName.first) == tempMakeVectorUniqueOnMeasuredDepth.end())
+        if (!tempMakeVectorUniqueOnMeasuredDepth.count(formation.mdTop))
         {
-            measuredDepths.push_back(mdAndFormName.first);
-            names.push_back(mdAndFormName.second);
-            tempMakeVectorUniqueOnMeasuredDepth[mdAndFormName.first] = mdAndFormName.second;
+            measuredDepths->push_back(formation.mdTop);
+            names->push_back(formation.formationName + " Top");
+            tempMakeVectorUniqueOnMeasuredDepth[formation.mdTop] = true;
+        }
+    }
+
+    for (RigWellPathFormation formation : m_formations)
+    {
+        if (!tempMakeVectorUniqueOnMeasuredDepth.count(formation.mdBase))
+        {
+            measuredDepths->push_back(formation.mdBase);
+            names->push_back(formation.formationName + " Base");
+            tempMakeVectorUniqueOnMeasuredDepth[formation.mdBase] = true;
         }
     }
 }
@@ -70,5 +96,5 @@ QString RigWellPathFormations::keyInFile() const
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPathFormations::formationNamesCount() const
 {
-    return m_measuredDepthAndFormationNames.size();
+    return m_formations.size();
 }

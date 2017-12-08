@@ -1247,7 +1247,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
         if (!formations) return;
 
-        formations->measuredDepthAndFormationNamesWithoutDuplicates(formationNamesToPlot, yValues);
+        formations->measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(&formationNamesToPlot, &yValues);
 
         m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
     }

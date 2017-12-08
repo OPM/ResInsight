@@ -21,8 +21,8 @@
 #include "RigWellPathFormations.h"
 
 #include <map>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -35,8 +35,9 @@
 class RifWellPathFormationReader
 {
 public:
-    static std::map<QString, cvf::ref<RigWellPathFormations> > readWellFormationsToGeometry(const QString& filePath);
+    static std::map<QString, cvf::ref<RigWellPathFormations>> readWellFormationsToGeometry(const QString& filePath);
 
 private:
-    static void readFileIntoMap(const QString& filePath, std::map<QString, std::vector<std::pair<double, QString>> >* formations);
+    static void readFile(const QString& filePath, std::vector<QString>* wellNames, std::vector<QString>* formationNames,
+                         std::vector<double>* mdTop, std::vector<double>* mdBase);
 };
