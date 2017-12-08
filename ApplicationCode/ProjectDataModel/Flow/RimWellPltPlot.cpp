@@ -700,6 +700,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
+    updateWidgetTitleWindowTitle();
     m_wellLogPlot->loadDataAndUpdate();
     m_wellLogPlot->updateDepthZoom();
     plotTrack->updateXZoom();
