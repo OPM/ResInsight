@@ -46,51 +46,58 @@
 class DecimalScaleDraw : public QwtScaleDraw
 {
 public:
+    DecimalScaleDraw(double scaleFactor, int numberOfDecimals)
+    {
+        m_scaleFactor = scaleFactor;
+        m_numberOfDecimals = numberOfDecimals;
+    }
+
     virtual QwtText label(double value) const override
     {
-        if (qFuzzyCompare(value + 1.0, 1.0))
+        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;
 
-        int precision = DecimalScaleDraw::calculatePrecision(value);
-
-        return QString::number(value, 'f', precision);
+        return QString::number(scaledValue(value), 'f', m_numberOfDecimals);
     }
 
 private:
-    static int calculatePrecision(double value)
+    double scaledValue(double value) const
     {
-        double absVal = fabs(value);
-
-        const int numberOfDigits = 2;
-
-        if (1e-16 < absVal && absVal < 1.0e3)
-        {
-            int logVal = static_cast<int>(log10(absVal));
-            int numDigitsAfterPoint = abs(logVal - numberOfDigits);
-            return numDigitsAfterPoint;
-        }
-        else
-        {
-            return numberOfDigits;
-        }
+        return value / m_scaleFactor;
     }
-};
 
+    double  m_scaleFactor;
+    int     m_numberOfDecimals;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 class ScientificScaleDraw : public QwtScaleDraw
 {
-
 public:
+    ScientificScaleDraw(double scaleFactor, int numberOfDecimals)
+    {
+        m_scaleFactor = scaleFactor;
+        m_numberOfDecimals = numberOfDecimals;
+    }
+
     virtual QwtText label(double value) const override
     {
-        if (qFuzzyCompare(value + 1.0, 1.0))
+        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;
 
-        return QString::number(value, 'e', 2);
+        return QString::number(scaledValue(value), 'e', m_numberOfDecimals);
     }
+
+private:
+    double scaledValue(double value) const
+    {
+        return value / m_scaleFactor;
+    }
+
+    double  m_scaleFactor;
+    int     m_numberOfDecimals;
 };
 
 
@@ -107,7 +114,6 @@ RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryAxisPropert
     m_timeHistoryCurveQuantities(timeHistoryCurveQuantities)
 {
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -156,13 +162,14 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
         }
         else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new DecimalScaleDraw);
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
+                                      new DecimalScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
         }
         else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new ScientificScaleDraw());
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
+                                      new ScientificScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
         }
-
     }
 
     {
@@ -214,6 +221,17 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     }
 
     QString assembledYAxisText;
+    QString scaleFactorText = "";
+
+    if (m_axisProperties->numberFormat() != RimSummaryAxisProperties::NUMBER_FORMAT_AUTO)
+    {
+        if (m_axisProperties->scaleFactor() != 1.0)
+        {
+            int exponent = std::log10(m_axisProperties->scaleFactor());
+            scaleFactorText = QString(" x 10<sup>%1</sup> ").arg(QString::number(exponent));
+        }
+    }
+
 
     for ( auto unitIt : unitToQuantityNameMap )
     {
@@ -221,7 +239,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         {
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
-        assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + "] ";
+        assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
     }
 
     if (m_timeHistoryCurveQuantities.size() > 0)

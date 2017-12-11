@@ -21,6 +21,10 @@
 #include "RimSummaryPlot.h"
 #include "RiaDefines.h"
 
+#include "cafPdmUiSliderEditor.h"
+
+#include <cmath>
+
 
 namespace caf
 {
@@ -72,6 +76,11 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
+    CAF_PDM_InitField(&numberOfDecimals, "Decimals", 2, "Number of Decimals", "", "", "");
+    CAF_PDM_InitField(&scaleFactor, "ScaleFactor", 1.0, "Scale Factor", "", "", "");
+
+    numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+
 
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
 
@@ -109,6 +118,18 @@ QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(co
             options.push_back(caf::PdmOptionItemInfo(text, value));
         }
     }
+    else if (fieldNeedingOptions == &scaleFactor)
+    {
+        for (int exp = -12; exp <= 12; exp += 3)
+        {
+            QString uiText = 
+                exp == 0 ? "1" : 
+                QString("10 ^ %1").arg(exp);
+            double value = std::pow(10, exp);
+
+            options.push_back(caf::PdmOptionItemInfo(uiText, value));
+        }
+    }
 
     return options;
 }
@@ -127,9 +148,17 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup& scaleGroup =  *(uiOrdering.addNewGroup("Axis Values"));
     scaleGroup.add(&isLogarithmicScaleEnabled);
     scaleGroup.add(&numberFormat);
+    
+    if (numberFormat() != NUMBER_FORMAT_AUTO)
+    {
+        scaleGroup.add(&numberOfDecimals);
+        scaleGroup.add(&scaleFactor);
+    }
+
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
 
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

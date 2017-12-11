@@ -70,6 +70,8 @@ public:
     caf::PdmField<double>       visibleRangeMax;
 
     caf::PdmField< caf::AppEnum< NumberFormatType > > numberFormat;
+    caf::PdmField<int>          numberOfDecimals;
+    caf::PdmField<double>       scaleFactor;
 
     caf::PdmField<bool>         isLogarithmicScaleEnabled;
 
