@@ -94,7 +94,9 @@ namespace caf
         addItem(RigWellPathFormation::LEVEL1, "LEVEL1", "Level 1");
         addItem(RigWellPathFormation::LEVEL2, "LEVEL2", "Level 2");
         addItem(RigWellPathFormation::LEVEL3, "LEVEL3", "Level 3");
-        setDefault(RigWellPathFormation::ALL);
+        addItem(RigWellPathFormation::LEVEL4, "LEVEL4", "Level 4");
+        addItem(RigWellPathFormation::LEVEL5, "LEVEL5", "Level 5");
+        addItem(RigWellPathFormation::LEVEL6, "LEVEL6", "Level 6");
     }
 }
 
@@ -348,6 +350,27 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
     {
         auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches(m_formationSimWellName(), m_formationBranchDetection);
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(simulationWellBranches);
+    }
+    else if (fieldNeedingOptions == &m_formationLevel)
+    {
+        if (m_formationWellPath)
+        {
+            const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+            if (formations)
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RigWellPathFormation::FormationLevel>::uiText(RigWellPathFormation::ALL),
+                                                         caf::AppEnum<RigWellPathFormation::FormationLevel>::fromText("All")));
+
+                for (const RigWellPathFormation::FormationLevel& level : formations->formationsLevelsPresent())
+                {
+                    size_t index = caf::AppEnum<RigWellPathFormation::FormationLevel>::index(level);
+                    if (index >= caf::AppEnum<RigWellPathFormation::FormationLevel>::size()) continue;
+
+                    options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RigWellPathFormation::FormationLevel>::uiTextFromIndex(index),
+                                                             caf::AppEnum<RigWellPathFormation::FormationLevel>::fromIndex(index)));
+                }
+            }
+        }
     }
 
     return options;
@@ -768,8 +791,11 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
         formationGroup->add(&m_formationWellPath);
-        formationGroup->add(&m_formationLevel);
-        formationGroup->add(&m_showformationFluids);
+        if (m_formationWellPath())
+        {
+            formationGroup->add(&m_formationLevel);
+            formationGroup->add(&m_showformationFluids);
+        }
     }
 
     uiOrderingForVisibleXRange(uiOrdering);
@@ -1106,6 +1132,8 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
     m_formationCase.uiCapability()->setUiReadOnly(readOnly);
     m_formationWellPath.uiCapability()->setUiReadOnly(readOnly);
     m_formationBranchIndex.uiCapability()->setUiReadOnly(readOnly);
+    m_formationLevel.uiCapability()->setUiReadOnly(readOnly);
+    m_showformationFluids.uiCapability()->setUiReadOnly(readOnly);
 }
 
 //--------------------------------------------------------------------------------------------------

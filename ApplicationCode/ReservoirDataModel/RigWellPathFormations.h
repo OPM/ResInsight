@@ -36,8 +36,12 @@ struct RigWellPathFormation
         LEVEL1,
         LEVEL2,
         LEVEL3,
+        LEVEL4,
+        LEVEL5,
+        LEVEL6,
         ALL,
-        FLUIDS
+        FLUIDS,
+        UNKNOWN
     };
 
     double         mdTop;
@@ -57,7 +61,7 @@ public:
     void measuredDepthAndFormationNamesUpToLevel(RigWellPathFormation::FormationLevel level, std::vector<QString>* names,
                                                  std::vector<double>* measuredDepths, bool includeFluids) const;
 
-    RigWellPathFormation::FormationLevel maxFormationLevel() const;
+    std::vector<RigWellPathFormation::FormationLevel> formationsLevelsPresent() const;
 
     QString filePath() const;
     QString keyInFile() const;
@@ -71,7 +75,7 @@ private:
     QString m_filePath;
     QString m_keyInFile;
 
-    RigWellPathFormation::FormationLevel m_maxLevelDetected;
+    std::map<RigWellPathFormation::FormationLevel, bool> m_formationsLevelsPresent;
 
     std::vector<RigWellPathFormation> m_formations;
 };
