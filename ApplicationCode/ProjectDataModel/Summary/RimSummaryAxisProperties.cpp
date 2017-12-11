@@ -70,7 +70,7 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
     CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
     CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-    CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
+    CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "");
     CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
@@ -78,6 +78,7 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
     CAF_PDM_InitField(&numberOfDecimals, "Decimals", 2, "Number of Decimals", "", "", "");
     CAF_PDM_InitField(&scaleFactor, "ScaleFactor", 1.0, "Scale Factor", "", "", "");
+    CAF_PDM_InitField(&valuesFontSize, "ValuesFontSize", 11, "Font Size", "", "", "");
 
     numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
@@ -103,7 +104,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(co
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&fontSize == fieldNeedingOptions)
+    if (&titleFontSize == fieldNeedingOptions ||
+        &valuesFontSize == fieldNeedingOptions)
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
@@ -147,7 +149,7 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
     titleGroup.add(&isAutoTitle);
     titleGroup.add(&customTitle);
     titleGroup.add(&titlePositionEnum);
-    titleGroup.add(&fontSize);
+    titleGroup.add(&titleFontSize);
 
     caf::PdmUiGroup& scaleGroup =  *(uiOrdering.addNewGroup("Axis Values"));
     scaleGroup.add(&isLogarithmicScaleEnabled);
@@ -161,7 +163,7 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
-
+    scaleGroup.add(&valuesFontSize);
     uiOrdering.skipRemainingFields(true);
 }
 

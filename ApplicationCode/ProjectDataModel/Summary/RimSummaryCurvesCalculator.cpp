@@ -130,7 +130,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 
         QFont axisTitleYFont = axisTitleY.font();
         axisTitleYFont.setBold(true);
-        axisTitleYFont.setPixelSize(m_axisProperties->fontSize);
+        axisTitleYFont.setPixelSize(m_axisProperties->titleFontSize);
         axisTitleY.setFont(axisTitleYFont);
 
         axisTitleY.setText(axisTitle);
@@ -151,7 +151,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
     {
         QFont yAxisFont = qwtPlot->axisFont(m_axisProperties->qwtPlotAxisType());
         yAxisFont.setBold(false);
-        yAxisFont.setPixelSize(m_axisProperties->fontSize);
+        yAxisFont.setPixelSize(m_axisProperties->valuesFontSize);
         qwtPlot->setAxisFont(m_axisProperties->qwtPlotAxisType(), yAxisFont);
     }
 

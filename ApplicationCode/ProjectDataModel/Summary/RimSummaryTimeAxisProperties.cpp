@@ -79,7 +79,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitField(&title, "Title", QString("Time"), "Title", "", "", "");
     CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
 
-    CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
+    CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
+    CAF_PDM_InitField(&valuesFontSize, "ValuesFontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_timeMode, "TimeMode", "Time Mode", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeUnit, "TimeUnit", "Time Unit", "", "", "");
@@ -222,14 +223,18 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&fontSize == fieldNeedingOptions)
+    if (&titleFontSize == fieldNeedingOptions ||
+        &valuesFontSize == fieldNeedingOptions)
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
+        fontSizes.push_back(9);
         fontSizes.push_back(10);
         fontSizes.push_back(11);
         fontSizes.push_back(12);
+        fontSizes.push_back(14);
         fontSizes.push_back(16);
+        fontSizes.push_back(18);
         fontSizes.push_back(24);
 
         for (int value : fontSizes)
@@ -319,7 +324,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
     titleGroup.add(&showTitle);
     titleGroup.add(&title);
     titleGroup.add(&titlePositionEnum);
-    titleGroup.add(&fontSize);
+    titleGroup.add(&titleFontSize);
 
     caf::PdmUiGroup* timeGroup =  uiOrdering.addNewGroup("Time Values");
     timeGroup->add(&m_timeMode);
@@ -334,6 +339,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
         timeGroup->add(&m_visibleTimeRangeMax);
         timeGroup->add(&m_visibleTimeRangeMin);
     }
+    timeGroup->add(&valuesFontSize);
 
     uiOrdering.skipRemainingFields(true);
 }

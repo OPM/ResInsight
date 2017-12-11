@@ -741,7 +741,7 @@ void RimSummaryPlot::updateTimeAxis()
 
         QFont font = timeAxisTitle.font();
         font.setBold(true);
-        font.setPixelSize(m_timeAxisProperties->fontSize);
+        font.setPixelSize(m_timeAxisProperties->titleFontSize);
         timeAxisTitle.setFont(font);
 
         timeAxisTitle.setText(axisTitle);
@@ -762,7 +762,7 @@ void RimSummaryPlot::updateTimeAxis()
     {
         QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
         timeAxisFont.setBold(false);
-        timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
+        timeAxisFont.setPixelSize(m_timeAxisProperties->valuesFontSize);
         m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
     }
 }

@@ -63,7 +63,7 @@ public:
 
     caf::PdmField<bool>         isAutoTitle;
     caf::PdmField<QString>      customTitle;
-    caf::PdmField<int>          fontSize;
+    caf::PdmField<int>          titleFontSize;
     caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
 
     caf::PdmField<double>       visibleRangeMin;
@@ -72,8 +72,8 @@ public:
     caf::PdmField< caf::AppEnum< NumberFormatType > > numberFormat;
     caf::PdmField<int>          numberOfDecimals;
     caf::PdmField<double>       scaleFactor;
-
     caf::PdmField<bool>         isLogarithmicScaleEnabled;
+    caf::PdmField<int>          valuesFontSize;
 
     bool                        isActive() const;
 
