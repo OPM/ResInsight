@@ -280,6 +280,12 @@ RigWellPathFormations::FormationLevel RigWellPathFormations::detectLevel(QString
 
     QString levelDescriptor = levelDesctiptorCandidates[0];
 
+    QStringList joinedLevel = levelDescriptor.split('+');
+    if ( joinedLevel.size() > 1 )
+    {
+        levelDescriptor = joinedLevel[0];
+    }
+
     int dotCount = levelDescriptor.count('.');
 
     size_t level = dotCount + 1;
