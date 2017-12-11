@@ -773,13 +773,11 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword("Time Steps", "TimeSteps");
     timeStepsGroup->add(&m_selectedTimeSteps);
 
-    //uiOrdering.add(&m_showPlotTitle);
-
     if (m_wellLogPlot && m_wellLogPlot->trackCount() > 0)
     {
         RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
 
-        track->uiOrderingForShowFormationNamesAndCase(uiOrdering);
+        track->uiOrderingForFormations(uiOrdering);
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);

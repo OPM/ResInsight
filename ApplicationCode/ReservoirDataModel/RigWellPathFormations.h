@@ -29,53 +29,42 @@
 
 struct RigWellPathFormation
 {
-    enum FormationLevel
-    {
-        GROUP,
-        LEVEL0,
-        LEVEL1,
-        LEVEL2,
-        LEVEL3,
-        LEVEL4,
-        LEVEL5,
-        LEVEL6,
-        ALL,
-        FLUIDS,
-        UNKNOWN
-    };
-
-    double         mdTop;
-    double         mdBase;
-    QString        formationName;
-    FormationLevel level;
+    double  mdTop;
+    double  mdBase;
+    QString formationName;
 };
 
 class RigWellPathFormations : public cvf::Object
 {
 public:
-    RigWellPathFormations(std::vector<RigWellPathFormation> formations, const QString& filePath, const QString& key);
+    RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key);
 
     void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
                                                                 std::vector<double>*  measuredDepths) const;
 
-    void measuredDepthAndFormationNamesUpToLevel(RigWellPathFormation::FormationLevel level, std::vector<QString>* names,
+    enum FormationLevel
+    {
+        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, FLUIDS, UNKNOWN
+    };
+
+    void measuredDepthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names,
                                                  std::vector<double>* measuredDepths, bool includeFluids) const;
 
-    std::vector<RigWellPathFormation::FormationLevel> formationsLevelsPresent() const;
+    std::vector<FormationLevel> formationsLevelsPresent() const;
 
     QString filePath() const;
     QString keyInFile() const;
 
-    size_t formationNamesCount() const;
+    size_t  formationNamesCount() const;
 
 private:
-    RigWellPathFormation::FormationLevel detectLevel(QString formationName);
+    FormationLevel detectLevel(QString formationName);
 
 private:
     QString m_filePath;
     QString m_keyInFile;
 
-    std::map<RigWellPathFormation::FormationLevel, bool> m_formationsLevelsPresent;
+    std::map<FormationLevel, bool> m_formationsLevelsPresent;
 
-    std::vector<RigWellPathFormation> m_formations;
+    std::vector<std::pair<RigWellPathFormation, FormationLevel>> m_formations;
 };

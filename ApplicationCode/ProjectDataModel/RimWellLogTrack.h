@@ -21,6 +21,8 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RigWellPathFormations.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
@@ -67,7 +69,7 @@ public:
     virtual ~RimWellLogTrack();
 
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
-    enum FormationSource { CASE, WELL_PICK };
+    enum FormationSource { CASE, WELL_PICK_FILTER };
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -114,7 +116,7 @@ public:
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
 
-    void uiOrderingForShowFormationNamesAndCase(caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForFormations(caf::PdmUiOrdering& uiOrdering);
     void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
 
 private:
@@ -163,15 +165,17 @@ private:
     caf::PdmField<bool>   m_isAutoScaleXEnabled;
     caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
 
-    caf::PdmField<bool>                             m_showFormations;
-    caf::PdmField<caf::AppEnum<FormationSource> >   m_formationSource;
-    caf::PdmPtrField<RimCase*>                      m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType> >    m_formationTrajectoryType;
-    caf::PdmPtrField<RimWellPath*>                  m_formationWellPath;
+    caf::PdmField<bool>                                                m_showFormations;
+    caf::PdmField<caf::AppEnum<FormationSource> >                      m_formationSource;
+    caf::PdmPtrField<RimCase*>                                         m_formationCase;
+    caf::PdmField<caf::AppEnum<TrajectoryType> >                       m_formationTrajectoryType;
+    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPath;
+    caf::PdmField<QString>                                             m_formationSimWellName;
+    caf::PdmField<int>                                                 m_formationBranchIndex;
+    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
+    caf::PdmField<bool>                                                m_showformationFluids;
 
-    caf::PdmField<QString>                          m_formationSimWellName;
-    caf::PdmField<int>                              m_formationBranchIndex;
-    caf::PdmField<bool>                             m_formationBranchDetection;
+    caf::PdmField<bool> m_formationBranchDetection;
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
     
