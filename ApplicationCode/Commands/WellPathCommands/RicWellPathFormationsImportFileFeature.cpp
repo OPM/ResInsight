@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -65,6 +66,11 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
     if (project)
     {
         project->createDisplayModelAndRedrawAllViews();
+        if (project->mainPlotCollection())
+        {
+            project->mainPlotCollection->updatePlotsWithFormations();
+        }
+
         RimOilField* oilField = project->activeOilField();
 
         if (!oilField) return;
