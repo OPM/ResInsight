@@ -251,7 +251,11 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         {
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
-        assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
+
+        if (!unitIt.first.empty())
+        {
+            assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
+        }
     }
 
     if (m_timeHistoryCurveQuantities.size() > 0)
