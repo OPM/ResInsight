@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RigFlowDiagSolverInterface.h"
+#include "RiaEclipseUnitTools.h"
 
 #include <QWidget>
 
@@ -58,19 +59,21 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void                setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure);
+    void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
 
 private:
     void            plotUiSelectedCurves();
     static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static void     plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static QString  unitStringFromCurveIdent(RiaEclipseUnitTools::UnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent);
 
 private slots:
     void            slotPhaseComboCurrentIndexChanged(int);
     
 private:
+    RiaEclipseUnitTools::UnitSystem                     m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
     FvfDynProps                                         m_fvfDynProps;

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RigFlowDiagSolverInterface.h"
+#include "RiaEclipseUnitTools.h"
 
 #include <QWidget>
 
@@ -46,7 +47,7 @@ public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
     virtual ~RiuRelativePermeabilityPlotPanel();
     
-    void                                setPlotData(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString cellReferenceText);
+    void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString cellReferenceText);
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
 
@@ -70,7 +71,7 @@ private:
 
     void                plotUiSelectedCurves();
     static void         setPlotDefaults(QwtPlot* plot);
-    static void         plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, bool logScaleLeftAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static void         plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, double swat, double sgas, QString cellReferenceText, bool logScaleLeftAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
     static QString      determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
     static void         addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
     static void         addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, WhichYAxis whichYAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
@@ -82,6 +83,7 @@ private slots:
     void            slotSomeCheckBoxStateChanged(int);
 
 private:
+    RiaEclipseUnitTools::UnitSystem                         m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::RelPermCurve>   m_allCurvesArr;
     double                                                  m_swat;
     double                                                  m_sgas;

@@ -68,6 +68,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
 :   QWidget(parent),
+    m_unitSystem(RiaEclipseUnitTools::UNITS_UNKNOWN),
     m_pressure(HUGE_VAL),
     m_plotUpdater(new RiuPvtPlotUpdater(this))
 {
@@ -132,10 +133,11 @@ void RiuPvtPlotPanel::setPlotDefaults(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure)
+void RiuPvtPlotPanel::setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
+    m_unitSystem = unitSystem;
     m_allFvfCurvesArr = fvfCurveArr;
     m_allViscosityCurvesArr = viscosityCurveArr;
     m_fvfDynProps = fvfDynProps;
@@ -157,6 +159,7 @@ void RiuPvtPlotPanel::clearPlot()
         return;
     }
 
+    m_unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
     m_fvfDynProps = FvfDynProps();
@@ -179,64 +182,86 @@ RiuPvtPlotUpdater* RiuPvtPlotPanel::plotUpdater()
 //--------------------------------------------------------------------------------------------------
 void RiuPvtPlotPanel::plotUiSelectedCurves()
 {
-    std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedFvfCurves;
-    std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedViscosityCurves;
 
     // Determine which curves (phase) to actually plot based on selection in GUI
     const int currComboIdx = m_phaseComboBox->currentIndex();
     const RigFlowDiagSolverInterface::PvtCurve::Phase phaseToPlot = static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>(m_phaseComboBox->itemData(currComboIdx).toInt());
 
-    for (RigFlowDiagSolverInterface::PvtCurve curve : m_allFvfCurvesArr)
-    {
-        if (curve.phase == phaseToPlot) 
-        {
-            selectedFvfCurves.push_back(curve);
-        }
-    }
-
-    for (RigFlowDiagSolverInterface::PvtCurve curve : m_allViscosityCurvesArr)
-    {
-        if (curve.phase == phaseToPlot)
-        {
-            selectedViscosityCurves.push_back(curve);
-        }
-    }
-
     QString phaseString = "";
-    double fvfPointMarkerYValue = HUGE_VAL;
-    double viscosityPointMarkerYValue = HUGE_VAL;
     if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)
     {
         phaseString = "Gas ";
-        fvfPointMarkerYValue = m_fvfDynProps.bg;
-        viscosityPointMarkerYValue = m_viscosityDynProps.mu_g;
     }
     else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)
     {
         phaseString = "Oil ";
-        fvfPointMarkerYValue = m_fvfDynProps.bo;
-        viscosityPointMarkerYValue = m_viscosityDynProps.mu_o;
     }
 
+    // FVF plot
     {
-        const QString plotTitle = phaseString + "Formation Volume Factor";
-        const QString yAxisTitle = phaseString + "Formation Volume Factor";
-        plotCurvesInQwt(selectedFvfCurves, m_pressure, fvfPointMarkerYValue, plotTitle, yAxisTitle, m_fvfPlot, &m_fvfPlotMarkers);
-    }
-    
-    {
-        const QString plotTitle = phaseString + "Viscosity";
-        const QString yAxisTitle = phaseString + "Viscosity";
-        plotCurvesInQwt(selectedViscosityCurves, m_pressure, viscosityPointMarkerYValue, plotTitle, yAxisTitle, m_viscosityPlot, &m_viscosityPlotMarkers);
-    }
+        RigFlowDiagSolverInterface::PvtCurve::Ident curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Unknown;
+        double fvfPointMarkerYValue = HUGE_VAL;
 
+        if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)
+        {
+            curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Bg;
+            fvfPointMarkerYValue = m_fvfDynProps.bg;
+        }
+        else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)
+        {
+            curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Bo;
+            fvfPointMarkerYValue = m_fvfDynProps.bo;
+        }
+
+        std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedFvfCurves;
+        for (RigFlowDiagSolverInterface::PvtCurve curve : m_allFvfCurvesArr)
+        {
+            if (curve.ident == curveIdentToPlot)
+            {
+                selectedFvfCurves.push_back(curve);
+            }
+        }
+
+        const QString plotTitle = QString("%1 Formation Volume Factor").arg(phaseString);
+        const QString yAxisTitle = QString("%1 Formation Volume Factor [%2]").arg(phaseString).arg(unitStringFromCurveIdent(m_unitSystem, curveIdentToPlot));
+        plotCurvesInQwt(m_unitSystem, selectedFvfCurves, m_pressure, fvfPointMarkerYValue, plotTitle, yAxisTitle, m_fvfPlot, &m_fvfPlotMarkers);
+    }
     
+    // Viscosity plot
+    {
+        RigFlowDiagSolverInterface::PvtCurve::Ident curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Unknown;
+        double viscosityPointMarkerYValue = HUGE_VAL;
+
+        if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS)
+        {
+            curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Visc_g;
+            viscosityPointMarkerYValue = m_viscosityDynProps.mu_g;
+        }
+        else if (phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::OIL)
+        {
+            curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Visc_o;
+            viscosityPointMarkerYValue = m_viscosityDynProps.mu_o;
+        }
+
+        std::vector<RigFlowDiagSolverInterface::PvtCurve> selectedViscosityCurves;
+        for (RigFlowDiagSolverInterface::PvtCurve curve : m_allViscosityCurvesArr)
+        {
+            if (curve.ident == curveIdentToPlot)
+            {
+                selectedViscosityCurves.push_back(curve);
+            }
+        }
+
+        const QString plotTitle = QString("%1 Viscosity").arg(phaseString);
+        const QString yAxisTitle = QString("%1 Viscosity [%2]").arg(phaseString).arg(unitStringFromCurveIdent(m_unitSystem, curveIdentToPlot));
+        plotCurvesInQwt(m_unitSystem, selectedViscosityCurves, m_pressure, viscosityPointMarkerYValue, plotTitle, yAxisTitle, m_viscosityPlot, &m_viscosityPlotMarkers);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
+void RiuPvtPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
     plot->detachItems(QwtPlotItem::Rtti_PlotCurve);
 
@@ -256,8 +281,8 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
         const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
         QwtPlotCurve* qwtCurve = new QwtPlotCurve();
 
-        CVF_ASSERT(curve.xVals.size() == curve.yVals.size());
-        qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));
+        CVF_ASSERT(curve.pressureVals.size() == curve.yVals.size());
+        qwtCurve->setSamples(curve.pressureVals.data(), curve.yVals.data(), static_cast<int>(curve.pressureVals.size()));
 
         qwtCurve->setStyle(QwtPlotCurve::Lines);
 
@@ -308,10 +333,50 @@ void RiuPvtPlotPanel::plotCurvesInQwt(const std::vector<RigFlowDiagSolverInterfa
 
     plot->setTitle(plotTitle);
 
-    plot->setAxisTitle(QwtPlot::xBottom, "Pressure");
+    plot->setAxisTitle(QwtPlot::xBottom, QString("Pressure [%1]").arg(RiaEclipseUnitTools::unitStringPressure(unitSystem)));
     plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
 
     plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuPvtPlotPanel::unitStringFromCurveIdent(RiaEclipseUnitTools::UnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent)
+{
+    if (curveIdent == RigFlowDiagSolverInterface::PvtCurve::Bo)
+    {
+        switch (unitSystem)
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:     return "rm3/sm3";
+            case RiaEclipseUnitTools::UNITS_FIELD:      return "rb/stb";
+            case RiaEclipseUnitTools::UNITS_LAB:        return "rcc/scc";
+            default:                                    return "";
+        }
+    }
+    else if (curveIdent == RigFlowDiagSolverInterface::PvtCurve::Bg)
+    {
+        switch (unitSystem)
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:     return "rm3/sm3";
+            case RiaEclipseUnitTools::UNITS_FIELD:      return "rb/Mscf";
+            case RiaEclipseUnitTools::UNITS_LAB:        return "rcc/scc";
+            default:                                    return "";
+        }
+    }
+    else if (curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_o ||
+             curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_g)
+    {
+        switch (unitSystem)
+        {
+            case RiaEclipseUnitTools::UNITS_METRIC:     return "cP";
+            case RiaEclipseUnitTools::UNITS_FIELD:      return "cP";
+            case RiaEclipseUnitTools::UNITS_LAB:        return "cP";
+            default:                                    return "";
+        }
+    }
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
