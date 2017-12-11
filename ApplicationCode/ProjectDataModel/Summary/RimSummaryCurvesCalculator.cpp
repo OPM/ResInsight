@@ -26,6 +26,7 @@
 #include "RimAsciiDataCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorDescriptionMap.h"
 
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
@@ -124,7 +125,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 
     {
         QString axisTitle = m_axisProperties->customTitle;
-        if (m_axisProperties->isAutoTitle) axisTitle = autoAxisTitle();
+        if (m_axisProperties->useAutoTitle()) axisTitle = autoAxisTitle();
 
         QwtText axisTitleY = qwtPlot->axisTitle(m_axisProperties->qwtPlotAxisType());
 
@@ -200,35 +201,55 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
-    std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
+    std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
-    if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
+    for (RimSummaryCurve* rimCurve : m_summaryCurves)
     {
-        for (RimSummaryCurve* rimCurve : m_summaryCurves)
-        {
-            std::string quantityName = rimCurve->summaryAddressX().quantityName();
-            if (rimCurve->summaryAddressX().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
-            {
-                quantityName = shortCalculationName(quantityName);
-            }
+        RifEclipseSummaryAddress sumAddress;
+        std::string              unitText;
 
-            unitToQuantityNameMap[rimCurve->unitNameX()].insert(quantityName);
+        if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
+        {
+            sumAddress = rimCurve->summaryAddressX();
+            unitText   = rimCurve->unitNameX();
         }
-    }
-    else
-    {
-        for (RimSummaryCurve* rimCurve : m_summaryCurves)
+        else if (rimCurve->axisY() == this->m_axisProperties->plotAxisType())
         {
-            if (rimCurve->axisY() == this->m_axisProperties->plotAxisType())
+            sumAddress = rimCurve->summaryAddressY();
+            unitText   = rimCurve->unitNameY();
+        }
+        else
+        {
+            continue;
+        }
+
+        std::string quantityNameForDisplay;
+        {
+            std::string quantityName = sumAddress.quantityName();
+
+            if (sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
             {
-                std::string quantityName = rimCurve->summaryAddressY().quantityName();
-                if (rimCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+                quantityNameForDisplay = shortCalculationName(quantityName);
+            }
+            else
+            {
+                if (m_axisProperties->showDescription())
                 {
-                    quantityName = shortCalculationName(quantityName);
+                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(quantityName);
                 }
 
-                unitToQuantityNameMap[rimCurve->unitNameY()].insert(quantityName);
+                if (m_axisProperties->showAcronym())
+                {
+                    if (!quantityNameForDisplay.empty())
+                    {
+                        quantityNameForDisplay += " ";
+                    }
+
+                    quantityNameForDisplay += quantityName;
+                }
             }
+
+            unitToQuantityNameMap[unitText].insert(quantityNameForDisplay);
         }
     }
 
@@ -239,20 +260,19 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     {
         if (m_axisProperties->scaleFactor() != 1.0)
         {
-            int exponent = std::log10(m_axisProperties->scaleFactor());
+            int exponent    = std::log10(m_axisProperties->scaleFactor());
             scaleFactorText = QString(" x 10<sup>%1</sup> ").arg(QString::number(exponent));
         }
     }
 
-
-    for ( auto unitIt : unitToQuantityNameMap )
+    for (auto unitIt : unitToQuantityNameMap)
     {
-        for (const auto &quantIt: unitIt.second)
+        for (const auto& quantIt : unitIt.second)
         {
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
 
-        if (!unitIt.first.empty())
+        if (m_axisProperties->showUnitText() && !unitIt.first.empty())
         {
             assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
         }

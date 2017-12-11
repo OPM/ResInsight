@@ -61,7 +61,11 @@ public:
     QwtPlot::Axis               qwtPlotAxisType() const;
     RiaDefines::PlotAxis        plotAxisType() const;
 
-    caf::PdmField<bool>         isAutoTitle;
+    bool useAutoTitle() const;
+    bool showDescription() const;
+    bool showAcronym() const;
+    bool showUnitText() const;
+
     caf::PdmField<QString>      customTitle;
     caf::PdmField<int>          titleFontSize;
     caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
@@ -89,7 +93,13 @@ private:
     void                                    updateOptionSensitivity();
 
 private:
-    caf::PdmField<bool>         m_isActive;
+    caf::PdmField<bool> m_isActive;
+    
+    caf::PdmField<bool> isAutoTitle;
+    caf::PdmField<bool> m_displayShortName;
+    caf::PdmField<bool> m_displayLongName;
+    caf::PdmField<bool> m_displayUnitText;
+
     caf::PdmField<QString>      m_name;
     QwtPlot::Axis               m_axis;
 };

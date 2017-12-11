@@ -776,15 +776,15 @@ void RimSummaryPlot::updateBottomXAxis()
 
     QwtPlot::Axis qwtAxis = QwtPlot::xBottom;
 
-    RimSummaryAxisProperties* yAxisProperties = m_bottomAxisProperties();
+    RimSummaryAxisProperties* bottomAxisProperties = m_bottomAxisProperties();
 
-    if (yAxisProperties->isActive())
+    if (bottomAxisProperties->isActive())
     {
         m_qwtPlot->enableAxis(qwtAxis, true);
 
         std::set<QString> timeHistoryQuantities;
 
-        RimSummaryPlotYAxisFormatter calc(yAxisProperties,
+        RimSummaryPlotYAxisFormatter calc(bottomAxisProperties,
                                           visibleSummaryCurvesForAxis(RiaDefines::PLOT_AXIS_BOTTOM),
                                           visibleAsciiDataCurvesForAxis(RiaDefines::PLOT_AXIS_BOTTOM),
                                           timeHistoryQuantities);
@@ -805,7 +805,6 @@ void RimSummaryPlot::updateCaseNameHasChanged()
     {
         m_summaryCurveCollection->updateCaseNameHasChanged();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,6 +59,8 @@ CAF_PDM_SOURCE_INIT(RimSummaryAxisProperties, "SummaryYAxisProperties");
 //--------------------------------------------------------------------------------------------------
 RimSummaryAxisProperties::RimSummaryAxisProperties()
 {
+    // clang-format off
+
     CAF_PDM_InitObject("Y-Axis Properties", ":/LeftAxis16x16.png", "", "");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
@@ -68,6 +70,11 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
+    
+    CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "Title Names", "", "", "");
+    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "Title Acronymes", "", "", "");
+    CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "Title Units", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
     CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
     CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
@@ -86,6 +93,8 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
 
     updateOptionSensitivity();
+
+    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +157,20 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
     titleGroup.add(&isAutoTitle);
     titleGroup.add(&customTitle);
+
+    if (isAutoTitle())
+    {
+        titleGroup.add(&m_displayShortName);
+        titleGroup.add(&m_displayLongName);
+        titleGroup.add(&m_displayUnitText);
+        
+        customTitle.uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        customTitle.uiCapability()->setUiReadOnly(false);
+    }
+
     titleGroup.add(&titlePositionEnum);
     titleGroup.add(&titleFontSize);
 
@@ -164,6 +187,7 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
     scaleGroup.add(&valuesFontSize);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -196,6 +220,38 @@ RiaDefines::PlotAxis RimSummaryAxisProperties::plotAxisType() const
     if (m_axis == QwtPlot::xBottom) return RiaDefines::PLOT_AXIS_BOTTOM;
 
     return RiaDefines::PLOT_AXIS_LEFT;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAxisProperties::useAutoTitle() const
+{
+    return isAutoTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAxisProperties::showDescription() const
+{
+    return m_displayLongName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAxisProperties::showAcronym() const
+{
+    return m_displayShortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAxisProperties::showUnitText() const
+{
+    return m_displayUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
