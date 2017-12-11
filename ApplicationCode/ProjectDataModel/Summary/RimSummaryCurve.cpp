@@ -523,16 +523,15 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
         curveDataGroup->add(&m_yValuesSummaryCase);
         curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
+        curveDataGroup->add(&m_plotAxis);
+        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
 
-        QString curveVarSelectionGroupName = "Vector Selection";
-        if (isCrossPlotCurve()) curveVarSelectionGroupName += " Y";
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword(curveVarSelectionGroupName, "Vector Selection Y");
+        QString curveVarSelectionGroupName = "Vector Selection Filter Y";
+        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", curveVarSelectionGroupName);
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
-        curveVarSelectionGroup->add(&m_yPushButtonSelectSummaryAddress);
 
-        curveDataGroup->add(&m_plotAxis);
     }
 
     if (isCrossPlotCurve())
@@ -540,15 +539,13 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector X");
         curveDataGroup->add(&m_xValuesSummaryCase);
         curveDataGroup->add(&m_xValuesSelectedVariableDisplayField);
+        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
 
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection X");
+        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", "Vector Selection Filter X");
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_xValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_xValuesUiFilterResultSelection);
-
-        curveVarSelectionGroup->add(&m_xPushButtonSelectSummaryAddress);
     }
-
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
