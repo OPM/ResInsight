@@ -87,6 +87,7 @@ namespace caf
     template<>
     void AppEnum<RigWellPathFormations::FormationLevel>::setUp()
     {
+        addItem(RigWellPathFormations::NONE, "NONE", "None");
         addItem(RigWellPathFormations::ALL, "ALL", "All");
         addItem(RigWellPathFormations::GROUP, "GROUP", "Formation Group");
         addItem(RigWellPathFormations::LEVEL0, "LEVEL0", "Formation");
@@ -100,6 +101,7 @@ namespace caf
         addItem(RigWellPathFormations::LEVEL8, "LEVEL8", "Formation 8");
         addItem(RigWellPathFormations::LEVEL9, "LEVEL9", "Formation 9");
         addItem(RigWellPathFormations::LEVEL10, "LEVEL10", "Formation 10");
+        setDefault(RigWellPathFormations::ALL);
     }
 }
 
@@ -129,7 +131,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_formationSource, "FormationSource", "Formation Source", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_formationSource, "FormationSource", "Source", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_formationTrajectoryType, "FormationTrajectoryType", "Trajectory", "", "", "");
 
@@ -362,9 +364,12 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
             if (formations)
             {
                 using FormationLevelEnum = caf::AppEnum<RigWellPathFormations::FormationLevel>;
+                
+                options.push_back(caf::PdmOptionItemInfo(FormationLevelEnum::uiText(RigWellPathFormations::NONE),
+                                                         RigWellPathFormations::NONE));
 
                 options.push_back(caf::PdmOptionItemInfo(FormationLevelEnum::uiText(RigWellPathFormations::ALL),
-                                                         FormationLevelEnum::fromText("All")));
+                                                         RigWellPathFormations::ALL));
 
                 for (const RigWellPathFormations::FormationLevel& level : formations->formationsLevelsPresent())
                 {

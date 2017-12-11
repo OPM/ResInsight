@@ -44,7 +44,7 @@ public:
 
     enum FormationLevel
     {
-        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, FLUIDS, UNKNOWN
+        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, FLUID, UNKNOWN, NONE
     };
 
     void measuredDepthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names,
