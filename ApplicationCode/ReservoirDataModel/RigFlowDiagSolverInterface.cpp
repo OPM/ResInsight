@@ -130,7 +130,8 @@ public:
         m_hasUnifiedRestartFile = false;
         m_poreVolume = m_eclGraph->poreVolume();
 
-        m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
+        //m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
+        m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData, true, Opm::ECLSaturationFunc::InvalidEPBehaviour::IgnorePoint));
 
         try
         {
