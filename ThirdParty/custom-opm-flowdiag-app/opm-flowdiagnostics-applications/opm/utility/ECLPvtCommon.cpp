@@ -25,6 +25,7 @@
 #include <opm/parser/eclipse/Units/Units.hpp>
 
 #include <functional>
+#include <utility>
 
 #include <ert/ecl/ecl_kw_magic.h>
 
@@ -262,15 +263,25 @@ Opm::ECLPVT::PVDx::viscosity(const std::vector<double>& p) const
     });
 }
 
-Opm::FlowDiagnostics::Graph
+Opm::ECLPVT::PVTGraph
 Opm::ECLPVT::PVDx::getPvtCurve(const RawCurve curve) const
 {
     if (curve == RawCurve::SaturatedState) {
         // Not applicable to dry gas or dead oil.  Return empty.
-        return FlowDiagnostics::Graph{};
+        return {};
     }
 
-    return extractRawPVTCurve(this->interp_, curve);
+    auto ret = PVTGraph{};
+
+    auto basic = extractRawPVTCurve(this->interp_, curve);
+
+    // Dead oil/dry gas.  Mixing ratio == 0.
+    ret.mixRat.assign(basic.first.size(), 0.0);
+
+    ret.press = std::move(basic.first);
+    ret.value = std::move(basic.second);
+
+    return ret;
 }
 
 // =====================================================================

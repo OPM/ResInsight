@@ -95,7 +95,7 @@ public:
     viscosity(const std::vector<double>& rs,
               const std::vector<double>& po) const = 0;
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const = 0;
 
     virtual std::unique_ptr<PVxOBase> clone() const = 0;
@@ -130,7 +130,7 @@ public:
         return this->interpolant_.viscosity(po);
     }
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
         return { this->interpolant_.getPvtCurve(curve) };
@@ -187,7 +187,7 @@ public:
         return this->interp_.viscosity(key, x);
     }
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
         return this->interp_.getPvtCurve(curve);
@@ -406,7 +406,7 @@ public:
         return this->rhoS_[region];
     }
 
-    std::vector<FlowDiagnostics::Graph>
+    std::vector<PVTGraph>
     getPvtCurve(const RegIdx   region,
                 const RawCurve curve) const;
 
@@ -475,7 +475,7 @@ viscosity(const RegIdx               region,
     return this->eval_[region]->viscosity(rs, po);
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::Oil::Impl::
 getPvtCurve(const RegIdx   region,
             const RawCurve curve) const
@@ -558,7 +558,7 @@ double Opm::ECLPVT::Oil::surfaceMassDensity(const int region) const
     return this->pImpl_->surfaceMassDensity(region);
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::Oil::
 getPvtCurve(const RawCurve curve,
             const int      region) const

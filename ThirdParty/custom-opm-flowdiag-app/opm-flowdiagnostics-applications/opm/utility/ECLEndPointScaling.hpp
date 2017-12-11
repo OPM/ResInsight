@@ -67,6 +67,19 @@ namespace Opm { namespace SatFunc {
             double sat;
         };
 
+        /// Policy for how to handle an invalid end-point scaling (e.g., if
+        /// lower and/or upper scaled saturations have nonsensical values
+        /// like -1.0E+20).
+        enum class InvalidEndpointBehaviour {
+            /// Use the unscaled value for this point.
+            UseUnscaled,
+
+            /// Ignore this scaling request (e.g., produce no graphical
+            /// output for a scaled saturation function when the scaled
+            /// end-points are meaningless).
+            IgnorePoint,
+        };
+
         /// Convenience type alias.
         using SaturationPoints = std::vector<SaturationAssoc>;
 
@@ -128,8 +141,19 @@ namespace Opm { namespace SatFunc {
         /// \param[in] smin Left end points for a set of cells.
         ///
         /// \param[in] smax Right end points for a set of cells.
-        TwoPointScaling(std::vector<double> smin,
-                        std::vector<double> smax);
+        ///
+        /// \param[in] handle_invalid How to treat scaling requests with
+        ///    invalid scaled saturations.  This can, for instance, happen
+        ///    if the scaled saturations are present in the result set but
+        ///    some (or all) cells have irreconcilable values (e.g., minimum
+        ///    saturation greater than maximum saturation, smin < -1E+20,
+        ///    smax < -1E+20).
+        ///
+        ///    Default behaviour: Use unscaled saturation if this happens.
+        TwoPointScaling(std::vector<double>            smin,
+                        std::vector<double>            smax,
+                        const InvalidEndpointBehaviour handle_invalid
+                        = InvalidEndpointBehaviour::UseUnscaled);
 
         /// Destructor.
         ~TwoPointScaling();
@@ -237,9 +261,20 @@ namespace Opm { namespace SatFunc {
         ///    for a set of cells.
         ///
         /// \param[in] smax Right end points for a set of cells.
-        ThreePointScaling(std::vector<double> smin,
-                          std::vector<double> sdisp,
-                          std::vector<double> smax);
+        ///
+        /// \param[in] handle_invalid How to treat scaling requests with
+        ///    invalid scaled saturations.  This can, for instance, happen
+        ///    if the scaled saturations are present in the result set but
+        ///    some (or all) cells have irreconcilable values (e.g., minimum
+        ///    saturation greater than maximum saturation, smin < -1E+20,
+        ///    smax < -1E+20).
+        ///
+        ///    Default behaviour: Use unscaled saturation if this happens.
+        ThreePointScaling(std::vector<double>            smin,
+                          std::vector<double>            sdisp,
+                          std::vector<double>            smax,
+                          const InvalidEndpointBehaviour handle_invalid
+                          = InvalidEndpointBehaviour::UseUnscaled);
 
         /// Destructor.
         ~ThreePointScaling();
@@ -385,6 +420,13 @@ namespace Opm { namespace SatFunc {
             ///   auto eps = CreateEPS::fromECLOutput(G, init, opt);
             /// \endcode
             ::Opm::ECLPhaseIndex thisPh;
+
+            /// How to handle an invalid end-point scaling (e.g., if lower
+            /// and/or upper scaled saturations have nonsensical values like
+            /// -1.0E+20).
+            EPSEvalInterface::InvalidEndpointBehaviour handle_invalid {
+                EPSEvalInterface::InvalidEndpointBehaviour::UseUnscaled
+            };
         };
 
         /// Collection of raw saturation table end points.

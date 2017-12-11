@@ -25,6 +25,7 @@
 
 #include <opm/utility/ECLEndPointScaling.hpp>
 #include <opm/utility/ECLGraph.hpp>
+#include <opm/utility/ECLPropertyUnitConversion.hpp>
 #include <opm/utility/ECLPropTable.hpp>
 #include <opm/utility/ECLRegionMapping.hpp>
 #include <opm/utility/ECLResultData.hpp>
@@ -682,9 +683,12 @@ public:
     Impl(Impl&& rhs);
     Impl(const Impl& rhs);
 
-    void init(const ECLGraph&        G,
-              const ECLInitFileData& init,
-              const bool             useEPS);
+    void init(const ECLGraph&          G,
+              const ECLInitFileData&   init,
+              const bool               useEPS,
+              const InvalidEPBehaviour handle_invalid);
+
+    void setOutputUnits(std::unique_ptr<const ECLUnits::UnitSystem> usys);
 
     std::vector<double>
     relperm(const ECLGraph&             G,
@@ -716,14 +720,16 @@ private:
             bool wat;
         };
 
-        void define(const ECLGraph&        G,
-                    const ECLInitFileData& init,
-                    const RawTEP&          ep,
-                    const bool             use3PtScaling,
-                    const ActPh&           active)
+        void define(const ECLGraph&          G,
+                    const ECLInitFileData&   init,
+                    const RawTEP&            ep,
+                    const bool               use3PtScaling,
+                    const ActPh&             active,
+                    const InvalidEPBehaviour handle_invalid)
         {
             auto opt = Create::EPSOptions{};
-            opt.use3PtScaling = use3PtScaling;
+            opt.use3PtScaling  = use3PtScaling;
+            opt.handle_invalid = handle_invalid;
 
             if (active.oil) {
                 this->create_oil_eps(G, init, ep, active, opt);
@@ -1093,11 +1099,15 @@ private:
 
     ECLRegionMapping rmap_;
 
-    std::unique_ptr<Oil::KrFunction>    oil_;
-    std::unique_ptr<Gas::SatFunction>   gas_;
-    std::unique_ptr<Water::SatFunction> wat_;
+    std::unique_ptr<const ECLUnits::UnitSystem> usys_internal_{nullptr};
 
-    std::unique_ptr<EPSEvaluator> eps_;
+    std::unique_ptr<Oil::KrFunction>    oil_{nullptr};
+    std::unique_ptr<Gas::SatFunction>   gas_{nullptr};
+    std::unique_ptr<Water::SatFunction> wat_{nullptr};
+
+    std::unique_ptr<EPSEvaluator> eps_{nullptr};
+
+    std::unique_ptr<const ECLUnits::UnitSystem> usys_output_{nullptr};
 
     void initRelPermInterp(const EPSEvaluator::ActPh& active,
                            const ECLInitFileData&     init,
@@ -1106,7 +1116,8 @@ private:
     void initEPS(const EPSEvaluator::ActPh& active,
                  const bool                 use3PtScaling,
                  const ECLGraph&            G,
-                 const ECLInitFileData&     init);
+                 const ECLInitFileData&     init,
+                 const InvalidEPBehaviour   handle_invalid);
 
     std::vector<double>
     kro(const ECLGraph&       G,
@@ -1224,25 +1235,56 @@ private:
 
 Opm::ECLSaturationFunc::Impl::Impl(const ECLGraph&        G,
                                    const ECLInitFileData& init)
-    : satnum_(satnumVector(G, init))
-    , rmap_  (satnum_)
-{
-}
+    : satnum_       (satnumVector(G, init))
+    , rmap_         (satnum_)
+    , usys_internal_(ECLUnits::internalUnitConventions())
+{}
 
 Opm::ECLSaturationFunc::Impl::Impl(Impl&& rhs)
-    : satnum_(std::move(rhs.satnum_))
-    , rmap_  (std::move(rhs.rmap_))
-    , oil_   (std::move(rhs.oil_ ))
-    , gas_   (std::move(rhs.gas_ ))
-    , wat_   (std::move(rhs.wat_ ))
+    : satnum_       (std::move(rhs.satnum_))
+    , rmap_         (std::move(rhs.rmap_))
+    , usys_internal_(std::move(rhs.usys_internal_))
+    , oil_          (std::move(rhs.oil_))
+    , gas_          (std::move(rhs.gas_))
+    , wat_          (std::move(rhs.wat_))
+    , eps_          (std::move(rhs.eps_))
+    , usys_output_  (std::move(rhs.usys_output_))
 {}
+
+Opm::ECLSaturationFunc::Impl::Impl(const Impl& rhs)
+    : satnum_       (rhs.satnum_)
+    , rmap_         (rhs.rmap_)
+    , usys_internal_(rhs.usys_internal_->clone())
+{
+    if (rhs.oil_) {
+        // Polymorphic object must use clone().
+        this->oil_ = rhs.oil_->clone();
+    }
+
+    if (rhs.gas_) {
+        this->gas_.reset(new Gas::SatFunction(*rhs.gas_));
+    }
+
+    if (rhs.wat_) {
+        this->wat_.reset(new Water::SatFunction(*rhs.wat_));
+    }
+
+    if (rhs.eps_) {
+        this->eps_.reset(new EPSEvaluator(*rhs.eps_));
+    }
+
+    if (rhs.usys_output_) {
+        this->usys_output_ = rhs.usys_output_->clone();
+    }
+}
 
 // ---------------------------------------------------------------------
 
 void
-Opm::ECLSaturationFunc::Impl::init(const ECLGraph&        G,
-                                   const ECLInitFileData& init,
-                                   const bool             useEPS)
+Opm::ECLSaturationFunc::Impl::init(const ECLGraph&          G,
+                                   const ECLInitFileData&   init,
+                                   const bool               useEPS,
+                                   const InvalidEPBehaviour handle_invalid)
 {
     // Extract INTEHEAD from main grid
     const auto& ih   = init.keywordData<int>(INTEHEAD_KW);
@@ -1263,7 +1305,7 @@ Opm::ECLSaturationFunc::Impl::init(const ECLGraph&        G,
                 lh[LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX]);
 
             // Must be called *after* initRelPermInterp().
-            this->initEPS(active, use3PtScaling, G, init);
+            this->initEPS(active, use3PtScaling, G, init, handle_invalid);
         }
     }
 }
@@ -1322,35 +1364,24 @@ void Opm::ECLSaturationFunc::
 Impl::initEPS(const EPSEvaluator::ActPh& active,
               const bool                 use3PtScaling,
               const ECLGraph&            G,
-              const ECLInitFileData&     init)
+              const ECLInitFileData&     init,
+              const InvalidEPBehaviour   handle_invalid)
 {
     const auto ep = this->extractRawTableEndPoints(active);
 
     this->eps_.reset(new EPSEvaluator());
 
-    this->eps_->define(G, init, ep, use3PtScaling, active);
+    this->eps_->define(G, init, ep, use3PtScaling, active, handle_invalid);
 }
 
 // #####################################################################
 
-Opm::ECLSaturationFunc::Impl::Impl(const Impl& rhs)
-    : rmap_(rhs.rmap_)
+void
+Opm::ECLSaturationFunc::Impl::
+setOutputUnits(std::unique_ptr<const ECLUnits::UnitSystem> usys)
 {
-    if (rhs.oil_) {
-        // Polymorphic object must use clone().
-        this->oil_ = rhs.oil_->clone();
-    }
-
-    if (rhs.gas_) {
-        this->gas_.reset(new Gas::SatFunction(*rhs.gas_));
-    }
-
-    if (rhs.wat_) {
-        this->wat_.reset(new Water::SatFunction(*rhs.wat_));
-    }
+    this->usys_output_ = std::move(usys);
 }
-
-// #####################################################################
 
 std::vector<double>
 Opm::ECLSaturationFunc::Impl::
@@ -1717,7 +1748,13 @@ pcgoCurve(const ECLRegionMapping&    rmap,
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
-    const auto pc = this->gas_->pcgo(regID - 1, sg_inp);
+    auto pc = this->gas_->pcgo(regID - 1, sg_inp);
+
+    if (this->usys_output_ != nullptr) {
+        ::Opm::ECLUnits::Convert::Pressure()
+            .from(*this->usys_internal_)
+            .to  (*this->usys_output_).appliedTo(pc);
+    }
 
     // FD::Graph == pair<vector<double>, vector<double>>
     return FlowDiagnostics::Graph {
@@ -1831,7 +1868,13 @@ pcowCurve(const ECLRegionMapping&    rmap,
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
-    const auto pc = this->wat_->pcow(regID - 1, sw_inp);
+    auto pc = this->wat_->pcow(regID - 1, sw_inp);
+
+    if (this->usys_output_ != nullptr) {
+        ::Opm::ECLUnits::Convert::Pressure()
+            .from(*this->usys_internal_)
+            .to  (*this->usys_output_).appliedTo(pc);
+    }
 
     // FD::Graph == pair<vector<double>, vector<double>>
     return FlowDiagnostics::Graph {
@@ -1941,12 +1984,13 @@ extractRawTableEndPoints(const EPSEvaluator::ActPh& active) const
 // =====================================================================
 
 Opm::ECLSaturationFunc::
-ECLSaturationFunc(const ECLGraph&        G,
-                  const ECLInitFileData& init,
-                  const bool             useEPS)
+ECLSaturationFunc(const ECLGraph&          G,
+                  const ECLInitFileData&   init,
+                  const bool               useEPS,
+                  const InvalidEPBehaviour handle_invalid)
     : pImpl_(new Impl(G, init))
 {
-    this->pImpl_->init(G, init, useEPS);
+    this->pImpl_->init(G, init, useEPS, handle_invalid);
 }
 
 Opm::ECLSaturationFunc::~ECLSaturationFunc()
@@ -1974,6 +2018,13 @@ Opm::ECLSaturationFunc::operator=(const ECLSaturationFunc& rhs)
     this->pImpl_.reset(new Impl(*rhs.pImpl_));
 
     return *this;
+}
+
+void
+Opm::ECLSaturationFunc::
+setOutputUnits(std::unique_ptr<const ECLUnits::UnitSystem> usys)
+{
+    this->pImpl_->setOutputUnits(std::move(usys));
 }
 
 std::vector<double>

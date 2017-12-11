@@ -103,7 +103,7 @@ namespace Opm { namespace ECLPVT {
         ///           pvtCC.getPvtCurve(ECLPVT::RawCurve::Viscosity,
         ///                             ECLPhaseIndex::Vapour, 31415);
         ///    \endcode
-        std::vector<FlowDiagnostics::Graph>
+        std::vector<PVTGraph>
         getPvtCurve(const RawCurve      curve,
                     const ECLPhaseIndex phase,
                     const int           activeCell) const;
@@ -256,10 +256,10 @@ namespace Opm { namespace ECLPVT {
         /// \param[in] phase Phase for which to compute the property curve.
         ///    Must be \code ECLPhaseIndex::Vapour \endcode or \code
         ///    ECLPhaseIndex::Liquid \endcode.
-        std::vector<FlowDiagnostics::Graph>
-        convertToOutputUnits(std::vector<FlowDiagnostics::Graph>&& graph,
-                             const RawCurve                        curve,
-                             const ECLPhaseIndex                   phase) const;
+        std::vector<PVTGraph>
+        convertToOutputUnits(std::vector<PVTGraph>&& graph,
+                             const RawCurve          curve,
+                             const ECLPhaseIndex     phase) const;
     };
 
 }} // Opm::ECLPVT

@@ -175,7 +175,7 @@ namespace Opm { namespace ECLPVT {
         ///       const auto graph =
         ///           pvtGas.getPvtCurve(ECLPVT::RawCurve::FVF, 0);
         ///    \endcode
-        std::vector<FlowDiagnostics::Graph>
+        std::vector<PVTGraph>
         getPvtCurve(const RawCurve curve,
                     const int      region) const;
 

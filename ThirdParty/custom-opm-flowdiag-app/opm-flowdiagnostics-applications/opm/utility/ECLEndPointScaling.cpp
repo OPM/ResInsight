@@ -29,6 +29,9 @@
 
 #include <cassert>
 #include <exception>
+#include <initializer_list>
+#include <iterator>
+#include <numeric>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -76,6 +79,21 @@ namespace {
 
         return tep;
     }
+
+    bool validSaturation(const double s)
+    {
+        return (! (s < 0.0)) && (! (s > 1.0));
+    }
+
+    bool validSaturations(std::initializer_list<double> sats)
+    {
+        return std::accumulate(std::begin(sats),
+                               std::end  (sats), true,
+            [](const bool result, const double s) -> bool
+        {
+            return result && validSaturation(s);
+        });
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -85,10 +103,12 @@ namespace {
 class Opm::SatFunc::TwoPointScaling::Impl
 {
 public:
-    Impl(std::vector<double> smin,
-         std::vector<double> smax)
-        : smin_(std::move(smin))
-        , smax_(std::move(smax))
+    Impl(std::vector<double>      smin,
+         std::vector<double>      smax,
+         InvalidEndpointBehaviour handle_invalid)
+        : smin_          (std::move(smin))
+        , smax_          (std::move(smax))
+        , handle_invalid_(handle_invalid)
     {
         if (this->smin_.size() != this->smax_.size()) {
             throw std::invalid_argument {
@@ -109,6 +129,11 @@ public:
 private:
     std::vector<double> smin_;
     std::vector<double> smax_;
+
+    InvalidEndpointBehaviour handle_invalid_;
+
+    void handleInvalidEndpoint(const SaturationAssoc& sp,
+                               std::vector<double>&   effsat) const;
 };
 
 std::vector<double>
@@ -126,6 +151,12 @@ Impl::eval(const TableEndPoints&   tep,
 
         const auto sLO = this->smin_[cell];
         const auto sHI = this->smax_[cell];
+
+        if (! validSaturations({ sLO, sHI })) {
+            this->handleInvalidEndpoint(eval_pt, effsat);
+
+            continue;
+        }
 
         effsat.push_back(0.0);
         auto& s_eff = effsat.back();
@@ -192,6 +223,22 @@ Impl::reverse(const TableEndPoints&   tep,
     return unscaledsat;
 }
 
+void
+Opm::SatFunc::TwoPointScaling::Impl::
+handleInvalidEndpoint(const SaturationAssoc& sp,
+                      std::vector<double>&   effsat) const
+{
+    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
+        // User requests that invalid scaling be treated as unscaled
+        // saturations.  Pick that.
+        effsat.push_back(sp.sat);
+        return;
+    }
+
+    // Nothing to do for IgnorePoint.  In particular, we must not change the
+    // contents or the size of effsat.
+}
+
 // ---------------------------------------------------------------------
 // Class Opm::ThreePointScaling::Impl
 // ---------------------------------------------------------------------
@@ -199,12 +246,14 @@ Impl::reverse(const TableEndPoints&   tep,
 class Opm::SatFunc::ThreePointScaling::Impl
 {
 public:
-    Impl(std::vector<double> smin ,
-         std::vector<double> sdisp,
-         std::vector<double> smax )
-        : smin_ (std::move(smin ))
-        , sdisp_(std::move(sdisp))
-        , smax_ (std::move(smax ))
+    Impl(std::vector<double>      smin ,
+         std::vector<double>      sdisp,
+         std::vector<double>      smax ,
+         InvalidEndpointBehaviour handle_invalid)
+        : smin_          (std::move(smin ))
+        , sdisp_         (std::move(sdisp))
+        , smax_          (std::move(smax ))
+        , handle_invalid_(handle_invalid)
     {
         if ((this->sdisp_.size() != this->smin_.size()) ||
             (this->sdisp_.size() != this->smax_.size()))
@@ -228,6 +277,11 @@ private:
     std::vector<double> smin_;
     std::vector<double> sdisp_;
     std::vector<double> smax_;
+
+    InvalidEndpointBehaviour handle_invalid_;
+
+    void handleInvalidEndpoint(const SaturationAssoc& sp,
+                               std::vector<double>&   effsat) const;
 };
 
 std::vector<double>
@@ -241,12 +295,18 @@ Impl::eval(const TableEndPoints&   tep,
     for (const auto& eval_pt : sp) {
         const auto cell = eval_pt.cell;
 
-        effsat.push_back(0.0);
-        auto& s_eff = effsat.back();
-
         const auto sLO = this->smin_ [cell];
         const auto sR  = this->sdisp_[cell];
         const auto sHI = this->smax_ [cell];
+
+        if (! validSaturations({ sLO, sR, sHI })) {
+            this->handleInvalidEndpoint(eval_pt, effsat);
+
+            continue;
+        }
+
+        effsat.push_back(0.0);
+        auto& s_eff = effsat.back();
 
         if (! (eval_pt.sat > sLO)) {
             // s <= sLO
@@ -324,6 +384,22 @@ Impl::reverse(const TableEndPoints&   tep,
     return unscaledsat;
 }
 
+void
+Opm::SatFunc::ThreePointScaling::Impl::
+handleInvalidEndpoint(const SaturationAssoc& sp,
+                      std::vector<double>&   effsat) const
+{
+    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
+        // User requests that invalid scaling be treated as unscaled
+        // saturations.  Pick that.
+        effsat.push_back(sp.sat);
+        return;
+    }
+
+    // Nothing to do for IgnorePoint.  In particular, we must not change the
+    // contents or the size of effsat.
+}
+
 // ---------------------------------------------------------------------
 // EPS factory functions for two-point and three-point scaling options
 // ---------------------------------------------------------------------
@@ -332,6 +408,7 @@ namespace Create {
     using EPSOpt = ::Opm::SatFunc::CreateEPS::EPSOptions;
     using RTEP   = ::Opm::SatFunc::CreateEPS::RawTableEndPoints;
     using TEP    = ::Opm::SatFunc::EPSEvalInterface::TableEndPoints;
+    using InvBeh = ::Opm::SatFunc::EPSEvalInterface::InvalidEndpointBehaviour;
 
     namespace TwoPoint {
         using EPS    = ::Opm::SatFunc::TwoPointScaling;
@@ -340,29 +417,35 @@ namespace Create {
         struct Kr {
             static EPSPtr
             G(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const InvBeh                  handle_invalid);
 
             static EPSPtr
             OG(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
 
             static EPSPtr
             W(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const InvBeh                  handle_invalid);
         };
 
         struct Pc {
             static EPSPtr
             GO(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
         };
 
         static EPSPtr
@@ -381,19 +464,23 @@ namespace Create {
         struct Kr {
             static EPSPtr
             G(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const InvBeh                  handle_invalid);
 
             static EPSPtr
             OG(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const InvBeh                  handle_invalid);
 
             static EPSPtr
             W(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const InvBeh                  handle_invalid);
         };
 
         static EPSPtr
@@ -410,7 +497,8 @@ namespace Create {
 // Implementation of Create::TwoPoint::scalingFunction()
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::G(const ::Opm::ECLGraph&        G,
-                        const ::Opm::ECLInitFileData& init)
+                        const ::Opm::ECLInitFileData& init,
+                        const InvBeh                  handle_invalid)
 {
     auto sgcr = G.rawLinearisedCellData<double>(init, "SGCR");
     auto sgu  = G.rawLinearisedCellData<double>(init, "SGU");
@@ -424,12 +512,17 @@ Create::TwoPoint::Kr::G(const ::Opm::ECLGraph&        G,
         };
     }
 
-    return EPSPtr { new EPS { std::move(sgcr), std::move(sgu) } };
+    return EPSPtr {
+        new EPS {
+            std::move(sgcr), std::move(sgu), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::OG(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const InvBeh                  handle_invalid)
 {
     auto sogcr = G.rawLinearisedCellData<double>(init, "SOGCR");
 
@@ -475,12 +568,17 @@ Create::TwoPoint::Kr::OG(const ::Opm::ECLGraph&        G,
         }
     }
 
-    return EPSPtr { new EPS { std::move(sogcr), std::move(smax) } };
+    return EPSPtr {
+        new EPS {
+            std::move(sogcr), std::move(smax), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::OW(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const InvBeh                  handle_invalid)
 {
     auto sowcr = G.rawLinearisedCellData<double>(init, "SOWCR");
 
@@ -526,12 +624,17 @@ Create::TwoPoint::Kr::OW(const ::Opm::ECLGraph&        G,
         }
     }
 
-    return EPSPtr { new EPS { std::move(sowcr), std::move(smax) } };
+    return EPSPtr {
+        new EPS {
+            std::move(sowcr), std::move(smax), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::W(const ::Opm::ECLGraph&        G,
-                        const ::Opm::ECLInitFileData& init)
+                        const ::Opm::ECLInitFileData& init,
+                        const InvBeh                  handle_invalid)
 {
     auto swcr = G.rawLinearisedCellData<double>(init, "SWCR");
     auto swu  = G.rawLinearisedCellData<double>(init, "SWU");
@@ -542,12 +645,17 @@ Create::TwoPoint::Kr::W(const ::Opm::ECLGraph&        G,
         };
     }
 
-    return EPSPtr { new EPS { std::move(swcr), std::move(swu) } };
+    return EPSPtr {
+        new EPS {
+            std::move(swcr), std::move(swu), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const InvBeh                  handle_invalid)
 {
     auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
     auto sgu = G.rawLinearisedCellData<double>(init, "SGU");
@@ -561,12 +669,17 @@ Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
         };
     }
 
-    return EPSPtr { new EPS { std::move(sgl), std::move(sgu) } };
+    return EPSPtr {
+        new EPS {
+            std::move(sgl), std::move(sgu), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const InvBeh                  handle_invalid)
 {
     auto swl = G.rawLinearisedCellData<double>(init, "SWL");
     auto swu = G.rawLinearisedCellData<double>(init, "SWU");
@@ -580,7 +693,11 @@ Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
         };
     }
 
-    return EPSPtr { new EPS { std::move(swl), std::move(swu) } };
+    return EPSPtr {
+        new EPS {
+            std::move(swl), std::move(swu), handle_invalid
+        }
+    };
 }
 
 Create::TwoPoint::EPSPtr
@@ -606,10 +723,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
             }
 
             if (opt.thisPh == PhIdx::Aqua) {
-                return Create::TwoPoint::Kr::W(G, init);
+                return Create::TwoPoint::Kr::W(G, init, opt.handle_invalid);
             }
 
-            return Create::TwoPoint::Kr::OW(G, init);
+            return Create::TwoPoint::Kr::OW(G, init, opt.handle_invalid);
         }
 
         if (opt.subSys == SSys::OilGas) {
@@ -621,10 +738,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
             }
 
             if (opt.thisPh == PhIdx::Vapour) {
-                return Create::TwoPoint::Kr::G(G, init);
+                return Create::TwoPoint::Kr::G(G, init, opt.handle_invalid);
             }
 
-            return Create::TwoPoint::Kr::OG(G, init);
+            return Create::TwoPoint::Kr::OG(G, init, opt.handle_invalid);
         }
     }
 
@@ -637,11 +754,11 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Vapour) {
-            return Create::TwoPoint::Pc::GO(G, init);
+            return Create::TwoPoint::Pc::GO(G, init, opt.handle_invalid);
         }
 
         if (opt.thisPh == PhIdx::Aqua) {
-            return Create::TwoPoint::Pc::OW(G, init);
+            return Create::TwoPoint::Pc::OW(G, init, opt.handle_invalid);
         }
     }
 
@@ -726,7 +843,8 @@ Create::TwoPoint::unscaledEndPoints(const RTEP& ep, const EPSOpt& opt)
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::G(const ::Opm::ECLGraph&        G,
-                          const ::Opm::ECLInitFileData& init)
+                          const ::Opm::ECLInitFileData& init,
+                          const InvBeh                  handle_invalid)
 {
     auto sgcr = G.rawLinearisedCellData<double>(init, "SGCR");
     auto sgu  = G.rawLinearisedCellData<double>(init, "SGU");
@@ -777,13 +895,16 @@ Create::ThreePoint::Kr::G(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(sgcr), std::move(sr), std::move(sgu) }
+        new EPS {
+            std::move(sgcr), std::move(sr), std::move(sgu), handle_invalid
+        }
     };
 }
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::OG(const ::Opm::ECLGraph&        G,
-                           const ::Opm::ECLInitFileData& init)
+                           const ::Opm::ECLInitFileData& init,
+                           const InvBeh                  handle_invalid)
 {
     auto sogcr = G.rawLinearisedCellData<double>(init, "SOGCR");
 
@@ -850,13 +971,16 @@ Create::ThreePoint::Kr::OG(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(sogcr), std::move(sdisp), std::move(smax) }
+        new EPS {
+            std::move(sogcr), std::move(sdisp), std::move(smax), handle_invalid
+        }
     };
 }
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::OW(const ::Opm::ECLGraph&        G,
-                           const ::Opm::ECLInitFileData& init)
+                           const ::Opm::ECLInitFileData& init,
+                           const InvBeh                  handle_invalid)
 {
     auto sowcr = G.rawLinearisedCellData<double>(init, "SOWCR");
 
@@ -923,13 +1047,16 @@ Create::ThreePoint::Kr::OW(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(sowcr), std::move(sdisp), std::move(smax) }
+        new EPS {
+            std::move(sowcr), std::move(sdisp), std::move(smax), handle_invalid
+        }
     };
 }
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::W(const ::Opm::ECLGraph&        G,
-                          const ::Opm::ECLInitFileData& init)
+                          const ::Opm::ECLInitFileData& init,
+                          const InvBeh                  handle_invalid)
 {
     auto swcr = G.rawLinearisedCellData<double>(init, "SWCR");
     auto swu  = G.rawLinearisedCellData<double>(init, "SWU");
@@ -979,7 +1106,9 @@ Create::ThreePoint::Kr::W(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(swcr), std::move(sdisp), std::move(swu) }
+        new EPS {
+            std::move(swcr), std::move(sdisp), std::move(swu), handle_invalid
+        }
     };
 }
 
@@ -1008,10 +1137,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Aqua) {
-            return Create::ThreePoint::Kr::W(G, init);
+            return Create::ThreePoint::Kr::W(G, init, opt.handle_invalid);
         }
 
-        return Create::ThreePoint::Kr::OW(G, init);
+        return Create::ThreePoint::Kr::OW(G, init, opt.handle_invalid);
     }
 
     if (opt.subSys == SSys::OilGas) {
@@ -1023,10 +1152,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Vapour) {
-            return Create::ThreePoint::Kr::G(G, init);
+            return Create::ThreePoint::Kr::G(G, init, opt.handle_invalid);
         }
 
-        return Create::ThreePoint::Kr::OG(G, init);
+        return Create::ThreePoint::Kr::OG(G, init, opt.handle_invalid);
     }
 
     // Invalid.
@@ -1124,9 +1253,10 @@ Opm::SatFunc::EPSEvalInterface::~EPSEvalInterface()
 
 // Class Opm::SatFunc::TwoPointScaling
 Opm::SatFunc::TwoPointScaling::
-TwoPointScaling(std::vector<double> smin,
-                std::vector<double> smax)
-    : pImpl_(new Impl(std::move(smin), std::move(smax)))
+TwoPointScaling(std::vector<double>      smin,
+                std::vector<double>      smax,
+                InvalidEndpointBehaviour handle_invalid)
+    : pImpl_(new Impl(std::move(smin), std::move(smax), handle_invalid))
 {}
 
 Opm::SatFunc::TwoPointScaling::~TwoPointScaling()
@@ -1182,10 +1312,14 @@ Opm::SatFunc::TwoPointScaling::clone() const
 
 // Class Opm::SatFunc::ThreePointScaling
 Opm::SatFunc::ThreePointScaling::
-ThreePointScaling(std::vector<double> smin,
-                  std::vector<double> sdisp,
-                  std::vector<double> smax)
-    : pImpl_(new Impl(std::move(smin), std::move(sdisp), std::move(smax)))
+ThreePointScaling(std::vector<double>      smin,
+                  std::vector<double>      sdisp,
+                  std::vector<double>      smax,
+                  InvalidEndpointBehaviour handle_invalid)
+    : pImpl_(new Impl(std::move(smin) ,
+                      std::move(sdisp),
+                      std::move(smax) ,
+                      handle_invalid))
 {}
 
 Opm::SatFunc::ThreePointScaling::~ThreePointScaling()

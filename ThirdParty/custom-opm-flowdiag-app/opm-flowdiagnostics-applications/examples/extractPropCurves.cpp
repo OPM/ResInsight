@@ -22,6 +22,7 @@
 
 #include <opm/utility/ECLCaseUtilities.hpp>
 #include <opm/utility/ECLPhaseIndex.hpp>
+#include <opm/utility/ECLPropertyUnitConversion.hpp>
 #include <opm/utility/ECLPvtCommon.hpp>
 #include <opm/utility/ECLPvtCurveCollection.hpp>
 #include <opm/utility/ECLResultData.hpp>
@@ -53,6 +54,34 @@ namespace {
 
             for (auto n = x.size(), i = 0*n; i < n; ++i) {
                 os << x[i] << ' ' << y[i] << '\n';
+            }
+
+            os << "];\n\n";
+            k += 1;
+        }
+
+        os.setf(oflags);
+        os.precision(oprec);
+    }
+
+    template <class OStream>
+    void printGraph(OStream&                                  os,
+                    const std::string&                        name,
+                    const std::vector<Opm::ECLPVT::PVTGraph>& graphs)
+    {
+        const auto oprec  = os.precision(16);
+        const auto oflags = os.setf(std::ios_base::scientific);
+
+        auto k = 1;
+        for (const auto& graph : graphs) {
+            const auto& p = graph.press;
+            const auto& R = graph.mixRat;
+            const auto& f = graph.value;
+
+            os << name << '{' << k << "} = [\n";
+
+            for (auto n = p.size(), i = 0*n; i < n; ++i) {
+                os << p[i] << ' ' << R[i] << ' ' << f[i] << '\n';
             }
 
             os << "];\n\n";
@@ -274,6 +303,38 @@ namespace {
 
         printGraph(std::cout, "rsSat", graph);
     }
+
+    // -----------------------------------------------------------------
+
+    std::unique_ptr<const Opm::ECLUnits::UnitSystem>
+    makeUnits(const std::string&          unit,
+              const Opm::ECLInitFileData& init)
+    {
+        if ((unit == "si") || (unit == "SI") || (unit == "internal")) {
+            return {};          // No conversion needed.
+        }
+
+        if ((unit == "metric") || (unit == "Metric") || (unit == "METRIC")) {
+            return Opm::ECLUnits::metricUnitConventions();
+        }
+
+        if ((unit == "field") || (unit == "Field") || (unit == "FIELD")) {
+            return Opm::ECLUnits::fieldUnitConventions();
+        }
+
+        if ((unit == "lab") || (unit == "Lab") || (unit == "LAB")) {
+            return Opm::ECLUnits::labUnitConventions();
+        }
+
+        if ((unit == "pvt-m") || (unit == "PVT-M") || (unit == "PVTM")) {
+            return Opm::ECLUnits::pvtmUnitConventions();
+        }
+
+        std::cerr << "Unit convention '" << unit << "' not recognized\n"
+                  << "Using 'native' (input/serialised) conventions.\n";
+
+        return Opm::ECLUnits::serialisedUnitConventions(init);
+    }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
@@ -285,8 +346,16 @@ try {
     const auto rset  = example::identifyResultSet(prm);
     const auto init  = Opm::ECLInitFileData(rset.initFile());
     const auto graph = Opm::ECLGraph::load(rset.gridFile(), init);
-    const auto sfunc = Opm::ECLSaturationFunc(graph, init, useEPS);
-    const auto pvtCC = Opm::ECLPVT::ECLPvtCurveCollection(graph, init);
+
+    auto sfunc = Opm::ECLSaturationFunc(graph, init, useEPS);
+    auto pvtCC = Opm::ECLPVT::ECLPvtCurveCollection(graph, init);
+
+    if (prm.has("unit")) {
+        auto units = makeUnits(prm.get<std::string>("unit"), init);
+        
+        sfunc.setOutputUnits(units->clone());
+        pvtCC.setOutputUnits(std::move(units));
+    }
 
     // -----------------------------------------------------------------
     // Relative permeability

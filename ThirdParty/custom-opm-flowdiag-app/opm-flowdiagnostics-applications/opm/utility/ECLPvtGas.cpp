@@ -98,7 +98,7 @@ public:
     viscosity(const std::vector<double>& rv,
               const std::vector<double>& pg) const = 0;
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const = 0;
 
     virtual std::unique_ptr<PVxGBase> clone() const = 0;
@@ -133,7 +133,7 @@ public:
         return this->interpolant_.viscosity(pg);
     }
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
         return { this->interpolant_.getPvtCurve(curve) };
@@ -190,10 +190,30 @@ public:
         return this->interp_.viscosity(key, x);
     }
 
-    virtual std::vector<Opm::FlowDiagnostics::Graph>
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
     getPvtCurve(const Opm::ECLPVT::RawCurve curve) const override
     {
-        return this->interp_.getPvtCurve(curve);
+        // Interpolant blindly assigns pressure values to mixing ratios and
+        // vice versa.  Need to switch those.
+
+        auto graphs = this->interp_.getPvtCurve(curve);
+
+        if (curve == Opm::ECLPVT::RawCurve::SaturatedState) {
+            assert ((graphs.size() == 1) && "Logic Error");
+
+            graphs[0].press.swap(graphs[0].mixRat);
+            graphs[0].value = graphs[0].mixRat; // Just for consistency
+        }
+        else {
+            assert ((graphs.size() > 1) && "Logic Error");
+
+            // FVF or viscosity.  Just swap Pg <-> Rv.
+            for (auto& graph : graphs) {
+                graph.press.swap(graph.mixRat);
+            }
+        }
+
+        return graphs;
     }
 
     virtual std::unique_ptr<PVxGBase> clone() const override
@@ -391,7 +411,7 @@ public:
         return this->rhoS_[region];
     }
 
-    std::vector<FlowDiagnostics::Graph>
+    std::vector<PVTGraph>
     getPvtCurve(const RegIdx   region,
                 const RawCurve curve) const;
 
@@ -460,7 +480,7 @@ viscosity(const RegIdx               region,
     return this->eval_[region]->viscosity(rv, pg);
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::Gas::Impl::
 getPvtCurve(const RegIdx   region,
             const RawCurve curve) const
@@ -543,7 +563,7 @@ double Opm::ECLPVT::Gas::surfaceMassDensity(const int region) const
     return this->pImpl_->surfaceMassDensity(region);
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::Gas::
 getPvtCurve(const RawCurve curve,
             const int      region) const

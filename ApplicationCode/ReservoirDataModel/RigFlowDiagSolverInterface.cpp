@@ -707,12 +707,12 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
         const Opm::ECLPhaseIndex queryPhaseIndex = queryPhaseArr[i];
         const PvtCurve::Phase mapToPhase = mapToPhaseArr[i];
 
-        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(rawCurveType, queryPhaseIndex, static_cast<int>(activeCellIndex));
-        for (Opm::FlowDiagnostics::Graph srcGraph : graphArr)
+        std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(rawCurveType, queryPhaseIndex, static_cast<int>(activeCellIndex));
+        for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
         {
-            if (srcGraph.first.size() > 0)
+            if (srcGraph.press.size() > 0)
             {
-                retCurveArr.push_back({ mapToPhase, srcGraph.first, srcGraph.second });
+                retCurveArr.push_back({ mapToPhase, srcGraph.press, srcGraph.value});
             }
         }
     }

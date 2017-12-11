@@ -44,13 +44,8 @@ namespace {
         return pvtnum;
     }
 
-    std::vector<Opm::FlowDiagnostics::Graph> emptyFDGraph()
-    {
-        return { Opm::FlowDiagnostics::Graph{} };
-    }
-
     template <class PVTInterp>
-    std::vector<Opm::FlowDiagnostics::Graph>
+    std::vector<Opm::ECLPVT::PVTGraph>
     rawPvtCurve(const PVTInterp*            pvt,
                 const Opm::ECLPVT::RawCurve curve,
                 const int                   regID)
@@ -58,7 +53,7 @@ namespace {
         if (pvt == nullptr) {
             // Result set does not provide requisite tabulated properties.
             // Return empty.
-            return emptyFDGraph();
+            return {};
         }
 
         return pvt->getPvtCurve(curve, regID);
@@ -144,123 +139,113 @@ namespace {
         return viscosity(pvt, regID, po, rs);
     }
 
-    std::vector<Opm::FlowDiagnostics::Graph>
-    convertCurve(std::vector<Opm::FlowDiagnostics::Graph>&&      curves,
-                 const Opm::ECLUnits::Convert::PhysicalQuantity& cvrt_x,
-                 const Opm::ECLUnits::Convert::PhysicalQuantity& cvrt_y)
+    std::vector<Opm::ECLPVT::PVTGraph>
+    convertCurve(std::vector<Opm::ECLPVT::PVTGraph>&&            curves,
+                 const Opm::ECLUnits::Convert::PhysicalQuantity& cvrt_p,
+                 const Opm::ECLUnits::Convert::PhysicalQuantity& cvrt_R,
+                 const Opm::ECLUnits::Convert::PhysicalQuantity& cvrt_f)
     {
         for (auto& curve : curves) {
-            cvrt_x.appliedTo(curve.first);
-            cvrt_y.appliedTo(curve.second);
+            cvrt_p.appliedTo(curve.press);
+            cvrt_R.appliedTo(curve.mixRat);
+            cvrt_f.appliedTo(curve.value);
         }
 
         return curves;
     }
 
-    std::vector<Opm::FlowDiagnostics::Graph>
-    convertFvfCurve(std::vector<Opm::FlowDiagnostics::Graph>&& curve,
-                    const Opm::ECLPhaseIndex                   phase,
-                    const Opm::ECLUnits::UnitSystem&           usysFrom,
-                    const Opm::ECLUnits::UnitSystem&           usysTo)
+    std::vector<Opm::ECLPVT::PVTGraph>
+    convertFvfCurve(std::vector<Opm::ECLPVT::PVTGraph>&& curve,
+                    const Opm::ECLPhaseIndex             phase,
+                    const Opm::ECLUnits::UnitSystem&     usysFrom,
+                    const Opm::ECLUnits::UnitSystem&     usysTo)
     {
         assert ((phase == Opm::ECLPhaseIndex::Liquid) ||
                 (phase == Opm::ECLPhaseIndex::Vapour));
+
+        auto cvrt_p = Opm::ECLUnits::Convert::Pressure();
+        cvrt_p.from(usysFrom).to(usysTo);
 
         if (phase == Opm::ECLPhaseIndex::Liquid) {
-             // Oil FVF.  First column is pressure, second column is Bo.
-            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
-            cvrt_x.from(usysFrom).to(usysTo);
+             // Oil FVF.  Mixing ratio is Rs, value is Bo.
+            auto cvrt_R = Opm::ECLUnits::Convert::DissolvedGasOilRatio();
+            cvrt_R.from(usysFrom).to(usysTo);
 
-            auto cvrt_y = Opm::ECLUnits::Convert::OilFVF();
-            cvrt_y.from(usysFrom).to(usysTo);
+            auto cvrt_f = Opm::ECLUnits::Convert::OilFVF();
+            cvrt_f.from(usysFrom).to(usysTo);
 
-            return convertCurve(std::move(curve), cvrt_x, cvrt_y);
+            return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_f);
         }
 
-        // Gas FVF.  Need to distinguish miscible from immiscible cases.  In
-        // the former, the first column is Rv (vapourised oil/gas ratio) and
-        // in the second case the first column is the gas pressure.
-        //
-        // Immiscible case identified by curve.size() <= 1.
+        // Gas FVF.  Mixing ratio is Rv, value is Bg.
+        auto cvrt_R = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_R.from(usysFrom).to(usysTo);
 
-        auto cvrt_y = Opm::ECLUnits::Convert::GasFVF();
-        cvrt_y.from(usysFrom).to(usysTo);
+        auto cvrt_f = Opm::ECLUnits::Convert::GasFVF();
+        cvrt_f.from(usysFrom).to(usysTo);
 
-        if (curve.size() <= 1) {
-            // Immiscible Gas FVF.  First column is Pg.
-            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
-            cvrt_x.from(usysFrom).to(usysTo);
-
-            return convertCurve(std::move(curve), cvrt_x, cvrt_y);
-        }
-
-        // Miscible Gas FVF.  First column is Rv.
-        auto cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
-        cvrt_x.from(usysFrom).to(usysTo);
-
-        return convertCurve(std::move(curve), cvrt_x, cvrt_y);
+        return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_f);
     }
 
-    std::vector<Opm::FlowDiagnostics::Graph>
-    convertViscosityCurve(std::vector<Opm::FlowDiagnostics::Graph>&& curve,
-                          const Opm::ECLPhaseIndex                   phase,
-                          const Opm::ECLUnits::UnitSystem&           usysFrom,
-                          const Opm::ECLUnits::UnitSystem&           usysTo)
+    std::vector<Opm::ECLPVT::PVTGraph>
+    convertViscosityCurve(std::vector<Opm::ECLPVT::PVTGraph>&& curve,
+                          const Opm::ECLPhaseIndex             phase,
+                          const Opm::ECLUnits::UnitSystem&     usysFrom,
+                          const Opm::ECLUnits::UnitSystem&     usysTo)
     {
         assert ((phase == Opm::ECLPhaseIndex::Liquid) ||
                 (phase == Opm::ECLPhaseIndex::Vapour));
 
-        // This is the viscosity curve.  Second column is always viscosity
-        // irrespective of phase or miscible/immiscible fluids.
-        auto cvrt_y = Opm::ECLUnits::Convert::Viscosity();
-        cvrt_y.from(usysFrom).to(usysTo);
+        auto cvrt_p = Opm::ECLUnits::Convert::Pressure();
+        cvrt_p.from(usysFrom).to(usysTo);
 
-        if ((phase == Opm::ECLPhaseIndex::Liquid) || (curve.size() <= 1)) {
-             // Graph is oil viscosity or immiscible gas viscosity.  First
-             // column is pressure.
-            auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
-            cvrt_x.from(usysFrom).to(usysTo);
+        // This is the viscosity curve.  Value is always viscosity
+        // irrespective of mixing ratios.
+        auto cvrt_f = Opm::ECLUnits::Convert::Viscosity();
+        cvrt_f.from(usysFrom).to(usysTo);
 
-            return convertCurve(std::move(curve), cvrt_x, cvrt_y);
-        }
-
-        // Miscible Gas viscosity.  First column is Rv (vapourised oil/gas
-        // ratio).
-        auto cvrt_x = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
-        cvrt_x.from(usysFrom).to(usysTo);
-
-        return convertCurve(std::move(curve), cvrt_x, cvrt_y);
-    }
-
-    std::vector<Opm::FlowDiagnostics::Graph>
-    convertSatStateCurve(std::vector<Opm::FlowDiagnostics::Graph>&& curve,
-                         const Opm::ECLPhaseIndex                   phase,
-                         const Opm::ECLUnits::UnitSystem&           usysFrom,
-                         const Opm::ECLUnits::UnitSystem&           usysTo)
-    {
-        assert ((phase == Opm::ECLPhaseIndex::Liquid) ||
-                (phase == Opm::ECLPhaseIndex::Vapour));
-
-        // First column is pressure (Po or Pg).
-        auto cvrt_x = Opm::ECLUnits::Convert::Pressure();
-        cvrt_x.from(usysFrom).to(usysTo);
-
-        // Second column is Rs or Rv depending on 'phase'.
         if (phase == Opm::ECLPhaseIndex::Liquid) {
-            // Saturated state curve for miscible oil.  Second column is Rs
-            // (dissolved gas/oil ratio).
-            auto cvrt_y = Opm::ECLUnits::Convert::DissolvedGasOilRatio();
-            cvrt_y.from(usysFrom).to(usysTo);
+             // Oil viscosity.  Mixing ratio is Rs.
+            auto cvrt_R = Opm::ECLUnits::Convert::DissolvedGasOilRatio();
+            cvrt_R.from(usysFrom).to(usysTo);
 
-            return convertCurve(std::move(curve), cvrt_x, cvrt_y);
+            return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_f);
         }
 
-        // Saturated state curve for miscible gas.  Second column is Rv
-        // (vapourised oil/gas ratio).
-        auto cvrt_y = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
-        cvrt_y.from(usysFrom).to(usysTo);
+        // Gas viscosity.  Mixing ratio is Rv.
+        auto cvrt_R = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_R.from(usysFrom).to(usysTo);
 
-        return convertCurve(std::move(curve), cvrt_x, cvrt_y);
+        return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_f);
+    }
+
+    std::vector<Opm::ECLPVT::PVTGraph>
+    convertSatStateCurve(std::vector<Opm::ECLPVT::PVTGraph>&& curve,
+                         const Opm::ECLPhaseIndex             phase,
+                         const Opm::ECLUnits::UnitSystem&     usysFrom,
+                         const Opm::ECLUnits::UnitSystem&     usysTo)
+    {
+        assert ((phase == Opm::ECLPhaseIndex::Liquid) ||
+                (phase == Opm::ECLPhaseIndex::Vapour));
+
+        auto cvrt_p = Opm::ECLUnits::Convert::Pressure();
+        cvrt_p.from(usysFrom).to(usysTo);
+
+        if (phase == Opm::ECLPhaseIndex::Liquid) {
+            // Saturated state curve for miscible oil.  Mixing ratio (and
+            // function value) is Rs (dissolved gas/oil ratio).
+            auto cvrt_R = Opm::ECLUnits::Convert::DissolvedGasOilRatio();
+            cvrt_R.from(usysFrom).to(usysTo);
+
+            return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_R);
+        }
+
+        // Saturated state curve for miscible gas.  Second column (and
+        // function value) is Rv (vapourised oil/gas ratio).
+        auto cvrt_R = Opm::ECLUnits::Convert::VaporisedOilGasRatio();
+        cvrt_R.from(usysFrom).to(usysTo);
+
+        return convertCurve(std::move(curve), cvrt_p, cvrt_R, cvrt_R);
     }
 }
 
@@ -281,7 +266,7 @@ setOutputUnits(std::unique_ptr<const ECLUnits::UnitSystem> usys)
     this->usys_output_ = std::move(usys);
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::ECLPvtCurveCollection::
 getPvtCurve(const RawCurve      curve,
             const ECLPhaseIndex phase,
@@ -290,7 +275,7 @@ getPvtCurve(const RawCurve      curve,
     if (! this->isValidRequest(phase, activeCell)) {
         // Not a supported phase or cell index out of bounds.  Not a valid
         // request so return empty.
-        return emptyFDGraph();
+        return {};
     }
 
     // PVTNUM is traditional one-based region identifier.  Subtract one to
@@ -442,11 +427,11 @@ isValidRequest(const ECLPhaseIndex phase,
         <  this->pvtnum_.size();
 }
 
-std::vector<Opm::FlowDiagnostics::Graph>
+std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::ECLPvtCurveCollection::
-convertToOutputUnits(std::vector<FlowDiagnostics::Graph>&& graph,
-                     const RawCurve                        curve,
-                     const ECLPhaseIndex                   phase) const
+convertToOutputUnits(std::vector<PVTGraph>&& graph,
+                     const RawCurve          curve,
+                     const ECLPhaseIndex     phase) const
 {
     if (this->usys_output_ == nullptr) {
         // No defined system of units for outputs.  Return unconverted (SI).

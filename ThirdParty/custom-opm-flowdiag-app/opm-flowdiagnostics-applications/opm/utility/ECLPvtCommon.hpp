@@ -301,6 +301,22 @@ namespace Opm { namespace ECLPVT {
         SaturatedState,
     };
 
+    /// Collection of Miscible PVT States and Function Values.
+    ///
+    /// Intended for graphical representation of miscible and immiscible PVT
+    /// functions.
+    struct PVTGraph {
+        /// Pressure values
+        std::vector<double> press;
+
+        /// Mixing ratio.  Typically Rs or Rv.
+        std::vector<double> mixRat;
+
+        /// Function value.  Typically Bg, Bo, mu_g or mu_o.  Usually a copy
+        /// of the mixing ratio for the case of the saturated state curve.
+        std::vector<double> value;
+    };
+
     template <std::size_t N>
     class DenseVector {
     public:
@@ -485,8 +501,8 @@ namespace Opm { namespace ECLPVT {
         ///
         /// \param[in] curve PVT property curve descriptor
         ///
-        /// \return 2D graph for PVT property curve identified by
-        ///    requests represented by \p func.
+        /// \return 2D graph for PVT property curve identified by requests
+        ///    represented by \p func.  Mixing ratio is a vector of zeros.
         ///
         /// Example: Retrieve formation volume factor curve.
         ///
@@ -494,7 +510,7 @@ namespace Opm { namespace ECLPVT {
         ///       const auto graph =
         ///           pvdx.getPvtCurve(ECLPVT::RawCurve::FVF);
         ///    \endcode
-        FlowDiagnostics::Graph getPvtCurve(const RawCurve curve) const;
+        PVTGraph getPvtCurve(const RawCurve curve) const;
 
     private:
         /// Extrapolation policy for property evaluator/interpolant.
@@ -658,7 +674,8 @@ namespace Opm { namespace ECLPVT {
         /// \return Collection of 2D graphs for PVT property curve
         ///    identified by requests represented by \p curve.  One curve
         ///    (vector element) for each tabulated value of the function's
-        ///    primary lookup key.
+        ///    primary lookup key.  Primary key expanded and assigned to the
+        ///    appropriate graph's mixing ratio vector (PVTO convention).
         ///
         /// Example: Retrieve formation volume factor curves.
         ///
@@ -666,7 +683,7 @@ namespace Opm { namespace ECLPVT {
         ///       const auto graph =
         ///           pvtx.getPvtCurve(ECLPVT::RawCurve::FVF);
         ///    \endcode
-        std::vector<FlowDiagnostics::Graph>
+        std::vector<PVTGraph>
         getPvtCurve(const RawCurve curve) const
         {
             if (curve == RawCurve::SaturatedState) {
@@ -828,35 +845,52 @@ namespace Opm { namespace ECLPVT {
             return result;
         }
 
-        std::vector<FlowDiagnostics::Graph>
+        std::vector<PVTGraph>
         mainPvtCurve(const RawCurve curve) const
         {
-            auto ret = std::vector<FlowDiagnostics::Graph>{};
+            // Uses setup appropriate for PVTO.  The PVTG case must be
+            // handled in the caller.
+
+            auto ret = std::vector<PVTGraph>{};
             ret.reserve(this->propInterp_.size());
 
+            auto i = static_cast<std::vector<double>::size_type>(0);
+
             for (const auto& interp : this->propInterp_) {
-                ret.push_back(extractRawPVTCurve(interp, curve));
+                auto basic = extractRawPVTCurve(interp, curve);
+
+                ret.emplace_back();
+                auto& pvtgraph = ret.back();
+
+                pvtgraph.mixRat.assign(basic.first.size(), this->key_[i]);
+
+                pvtgraph.press = std::move(basic.first);
+                pvtgraph.value = std::move(basic.second);
+
+                i += 1;
             }
 
             return ret;
         }
 
-        std::vector<FlowDiagnostics::Graph> saturatedStateCurve() const
+        std::vector<PVTGraph> saturatedStateCurve() const
         {
-            auto y = std::vector<double>{};
-            y.reserve(this->propInterp_.size());
+            // Uses setup appropriate for PVTO.  The PVTG case must be
+            // handled in the caller.
+
+            auto curve = PVTGraph{};
+
+            curve.press.reserve(this->propInterp_.size());
+            curve.mixRat = this->key_;
+            curve.value  = this->key_;
 
             for (const auto& interp : this->propInterp_) {
                 const auto& yi = interp.independentVariable();
 
-                y.push_back(yi[0]);
+                curve.press.push_back(yi[0]);
             }
 
-            return {
-                FlowDiagnostics::Graph {
-                    this->key_, std::move(y)
-                }
-            };
+            return { curve };
         }
     };
 
