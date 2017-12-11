@@ -33,10 +33,17 @@ RigWellPathFormations::RigWellPathFormations(const std::vector<RigWellPathFormat
 
     for (const RigWellPathFormation& formation : formations)
     {
-        FormationLevel level = detectLevel(formation.formationName);
-        m_formationsLevelsPresent[level] = true;
+        if (isFluid(formation.formationName))
+        {
+            m_fluids.push_back(formation);
+        }
+        else
+        {
+            FormationLevel level = detectLevel(formation.formationName);
+            m_formationsLevelsPresent[level] = true;
 
-        m_formations.push_back(std::pair<RigWellPathFormation, FormationLevel>(formation, level));
+            m_formations.push_back(std::pair<RigWellPathFormation, FormationLevel>(formation, level));
+        }
     }
 }
 
@@ -58,9 +65,6 @@ struct MeasuredDepthComp
 void RigWellPathFormations::measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
                                                                                    std::vector<double>*  measuredDepths) const
 {
-    names->clear();
-    measuredDepths->clear();
-
     std::map<double, bool, MeasuredDepthComp> tempMakeVectorUniqueOnMeasuredDepth;
 
     for (const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations)
@@ -96,18 +100,21 @@ struct LevelAndName
     QString                               name;
 };
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 enum PICK_POSITION
 {
     TOP,
     BASE
 };
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>>& formations, 
-                        const RigWellPathFormations::FormationLevel& maxLevel,
-                        bool includeFluids, const PICK_POSITION& position,
-                        std::map<double, LevelAndName, MeasuredDepthComp>* uniqueListMaker)
+void evaluateFormationsForOnePosition(const std::vector<std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>>& formations, 
+                                      const RigWellPathFormations::FormationLevel& maxLevel, const PICK_POSITION& position,
+                                      std::map<double, LevelAndName, MeasuredDepthComp>* uniqueListMaker)
 {
     QString postFix;
 
@@ -132,15 +139,6 @@ void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, RigWel
             md = formation.first.mdBase;
         }
 
-        if (formation.second == RigWellPathFormations::FLUID)
-        {
-            if (includeFluids)
-            {
-                (*uniqueListMaker)[md] = LevelAndName(formation.second, formation.first.formationName + postFix);
-            }
-            continue;
-        }
-
         if (formation.second > maxLevel) continue;
 
         if (!uniqueListMaker->count(md) || uniqueListMaker->at(md).level < formation.second)
@@ -150,25 +148,42 @@ void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, RigWel
     }
 }
 
-void evaluateFluids(const std::vector<std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>>& formations,
-                    std::map<double, LevelAndName, MeasuredDepthComp>* uniqueListMaker)
+void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>>& formations,
+                        const RigWellPathFormations::FormationLevel& maxLevel,
+                        std::vector<QString>* names, std::vector<double>* measuredDepths)
 {
-    for (const std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>& formation : formations)
+    std::map<double, LevelAndName, MeasuredDepthComp> tempMakeVectorUniqueOnMeasuredDepth;
+
+    evaluateFormationsForOnePosition(formations, maxLevel, PICK_POSITION::TOP, &tempMakeVectorUniqueOnMeasuredDepth);
+    evaluateFormationsForOnePosition(formations, maxLevel, PICK_POSITION::BASE, &tempMakeVectorUniqueOnMeasuredDepth);
+
+    for (auto it = tempMakeVectorUniqueOnMeasuredDepth.begin(); it != tempMakeVectorUniqueOnMeasuredDepth.end(); it++)
     {
-        if (formation.second == RigWellPathFormations::FLUID)
-        {
-            (*uniqueListMaker)[formation.first.mdBase] = 
-                LevelAndName(formation.second, formation.first.formationName + " Base");
-        }
+        measuredDepths->push_back(it->first);
+        names->push_back(it->second.name);
+    }
+}
+
+void evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations,
+                    std::vector<QString>* names, std::vector<double>* measuredDepths)
+{
+
+    std::map<double, QString, MeasuredDepthComp> uniqueListMaker;
+
+    for (const RigWellPathFormation& formation : fluidFormations)
+    {
+        uniqueListMaker[formation.mdBase] = formation.formationName + " Base";
     }
 
-    for (const std::pair<RigWellPathFormation, RigWellPathFormations::FormationLevel>& formation : formations)
+    for (const RigWellPathFormation& formation : fluidFormations)
     {
-        if (formation.second == RigWellPathFormations::FLUID)
-        {
-            (*uniqueListMaker)[formation.first.mdTop] = 
-                LevelAndName(formation.second, formation.first.formationName + " Top");
-        }
+        uniqueListMaker[formation.mdTop] = formation.formationName + " Top";
+    }
+
+    for (auto it = uniqueListMaker.begin(); it != uniqueListMaker.end(); it++)
+    {
+        measuredDepths->push_back(it->first);
+        names->push_back(it->second);
     }
 }
 
@@ -182,34 +197,22 @@ void RigWellPathFormations::measuredDepthAndFormationNamesUpToLevel(FormationLev
     names->clear();
     measuredDepths->clear();
 
-    std::map<double, LevelAndName, MeasuredDepthComp> tempMakeVectorUniqueOnMeasuredDepth;
+    if (includeFluids)
+    {
+        evaluateFluids(m_fluids, names, measuredDepths);
+    }
 
     if (maxLevel == RigWellPathFormations::NONE)
     {
-        if (includeFluids)
-        {
-            evaluateFluids(m_formations, &tempMakeVectorUniqueOnMeasuredDepth);
-        }
-        else
-        {
-            return;
-        }
+        return;
     }
     else if (maxLevel == RigWellPathFormations::ALL)
     {
         measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(names, measuredDepths);
-        return;
     }
     else
     {
-        evaluateFormations(m_formations, maxLevel, includeFluids, PICK_POSITION::TOP, &tempMakeVectorUniqueOnMeasuredDepth);
-        evaluateFormations(m_formations, maxLevel, includeFluids, PICK_POSITION::BASE, &tempMakeVectorUniqueOnMeasuredDepth);
-    }
-
-    for (auto it = tempMakeVectorUniqueOnMeasuredDepth.begin(); it != tempMakeVectorUniqueOnMeasuredDepth.end(); it++)
-    {
-        measuredDepths->push_back(it->first);
-        names->push_back(it->second.name);
+        evaluateFormations(m_formations, maxLevel, names, measuredDepths);
     }
 }
 
@@ -248,7 +251,21 @@ QString RigWellPathFormations::keyInFile() const
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPathFormations::formationNamesCount() const
 {
-    return m_formations.size();
+    return m_formations.size() + m_fluids.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigWellPathFormations::isFluid(QString formationName)
+{
+    formationName = formationName.trimmed();
+
+    if (formationName == "OIL" || formationName == "GAS" || formationName == "WATER")
+    {
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,11 +274,6 @@ size_t RigWellPathFormations::formationNamesCount() const
 RigWellPathFormations::FormationLevel RigWellPathFormations::detectLevel(QString formationName)
 {
     formationName = formationName.trimmed();
-
-    if (formationName == "OIL" || formationName == "GAS" || formationName == "WATER")
-    {
-        return RigWellPathFormations::FLUID;
-    }
 
     bool isGroupName = true;
     for (QChar c : formationName)

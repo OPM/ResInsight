@@ -39,12 +39,9 @@ class RigWellPathFormations : public cvf::Object
 public:
     RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key);
 
-    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
-                                                                std::vector<double>*  measuredDepths) const;
-
     enum FormationLevel
     {
-        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, FLUID, UNKNOWN, NONE
+        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, UNKNOWN, NONE
     };
 
     void measuredDepthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names,
@@ -58,6 +55,10 @@ public:
     size_t  formationNamesCount() const;
 
 private:
+    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
+                                                                std::vector<double>*  measuredDepths) const;
+
+    bool           isFluid(QString formationName);
     FormationLevel detectLevel(QString formationName);
 
 private:
@@ -67,4 +68,5 @@ private:
     std::map<FormationLevel, bool> m_formationsLevelsPresent;
 
     std::vector<std::pair<RigWellPathFormation, FormationLevel>> m_formations;
+    std::vector<RigWellPathFormation> m_fluids;
 };
