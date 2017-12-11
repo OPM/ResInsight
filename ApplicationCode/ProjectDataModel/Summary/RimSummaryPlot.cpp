@@ -68,6 +68,9 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
     m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 11, "Legend Font Size", "", "", "");
+    m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitField(&m_isUsingAutoName, "IsUsingAutoName", false, "Auto Name", "", "", "");
     m_isUsingAutoName.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -970,6 +973,35 @@ caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSummaryPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_legendFontSize)
+    {
+        std::vector<int> fontSizes;
+        fontSizes.push_back(8);
+        fontSizes.push_back(9);
+        fontSizes.push_back(10);
+        fontSizes.push_back(11);
+        fontSizes.push_back(12);
+        fontSizes.push_back(14);
+        fontSizes.push_back(16);
+        fontSizes.push_back(18);
+        fontSizes.push_back(24);
+
+        for (int value : fontSizes)
+        {
+            QString text = QString("%1").arg(value);
+            options.push_back(caf::PdmOptionItemInfo(text, value));
+        }
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
@@ -977,6 +1009,7 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_userDefinedPlotTitle || 
         changedField == &m_showPlotTitle ||
         changedField == &m_showLegend ||
+        changedField == &m_legendFontSize || 
         changedField == &m_isUsingAutoName)
     {
         updatePlotTitle();
@@ -1177,12 +1210,19 @@ void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_showPlotTitle);
     uiOrdering.add(&m_showLegend);
 
+    if (m_showLegend())
+    {
+        uiOrdering.add(&m_legendFontSize);
+    }
+
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_isUsingAutoName);
 
     if (m_isUsingAutoName)
     {
         m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
     }
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1276,6 +1316,10 @@ void RimSummaryPlot::updateMdiWindowTitle()
         {
             // Will be released in plot destructor or when a new legend is set
             QwtLegend* legend = new QwtLegend(m_qwtPlot);
+
+            auto font = legend->font();
+            font.setPixelSize(m_legendFontSize());
+            legend->setFont(font);
             m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
         }
         else

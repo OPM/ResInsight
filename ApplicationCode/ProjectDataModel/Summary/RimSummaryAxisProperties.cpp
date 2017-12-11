@@ -107,9 +107,13 @@ QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(co
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
+        fontSizes.push_back(9);
         fontSizes.push_back(10);
+        fontSizes.push_back(11);
         fontSizes.push_back(12);
+        fontSizes.push_back(14);
         fontSizes.push_back(16);
+        fontSizes.push_back(18);
         fontSizes.push_back(24);
 
         for (int value : fontSizes)

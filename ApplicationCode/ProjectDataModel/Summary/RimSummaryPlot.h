@@ -115,6 +115,7 @@ private:
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField();
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -144,6 +145,7 @@ private:
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
     caf::PdmField<bool>                                 m_showLegend;
+    caf::PdmField<int>                                  m_legendFontSize;
 
     caf::PdmField<bool>                                 m_isUsingAutoName;
     caf::PdmField<QString>                              m_userDefinedPlotTitle;
