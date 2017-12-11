@@ -206,16 +206,28 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     {
         for (RimSummaryCurve* rimCurve : m_summaryCurves)
         {
-            unitToQuantityNameMap[rimCurve->unitNameX()].insert(rimCurve->summaryAddressX().quantityName());
+            std::string quantityName = rimCurve->summaryAddressX().quantityName();
+            if (rimCurve->summaryAddressX().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+            {
+                quantityName = shortCalculationName(quantityName);
+            }
+
+            unitToQuantityNameMap[rimCurve->unitNameX()].insert(quantityName);
         }
     }
     else
     {
-        for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+        for (RimSummaryCurve* rimCurve : m_summaryCurves)
         {
-            if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+            if (rimCurve->axisY() == this->m_axisProperties->plotAxisType())
             {
-                unitToQuantityNameMap[rimCurve->unitNameY()].insert(rimCurve->summaryAddressY().quantityName());
+                std::string quantityName = rimCurve->summaryAddressY().quantityName();
+                if (rimCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+                {
+                    quantityName = shortCalculationName(quantityName);
+                }
+
+                unitToQuantityNameMap[rimCurve->unitNameY()].insert(quantityName);
             }
         }
     }
@@ -258,9 +270,21 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     return assembledYAxisText;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotYAxisFormatter::shortCalculationName(const std::string& calculationName)
+{
+    QString calculationShortName = QString::fromStdString(calculationName);
 
+    int indexOfFirstSpace = calculationShortName.indexOf(' ');
+    if (indexOfFirstSpace > -1 && indexOfFirstSpace < calculationShortName.size())
+    {
+        calculationShortName = calculationShortName.left(indexOfFirstSpace);
+    }
 
-
+    return calculationShortName.toStdString();
+}
 
 
 

@@ -42,6 +42,8 @@ public:
 
 private:
     QString autoAxisTitle() const;
+    
+    static std::string shortCalculationName(const std::string& calculationName);
 
 private:
     RimSummaryAxisProperties*             m_axisProperties;
