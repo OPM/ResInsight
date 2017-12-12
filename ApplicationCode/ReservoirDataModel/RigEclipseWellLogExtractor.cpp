@@ -134,13 +134,6 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
    
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigEclipseWellLogExtractor::intersectedCellsGlobIdx()
-{
-    return m_intersectedCellsGlobIdx;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -61,6 +61,7 @@ public:
 
     const std::vector<double>&  measuredDepth()     { return m_measuredDepth; }
     const std::vector<double>&  trueVerticalDepth() { return m_trueVerticalDepth; }
+    const std::vector<size_t>&  intersectedCellsGlobIdx();
 
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 

@@ -74,6 +74,14 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::intersectionInfo(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx()
+{
+    return m_intersectedCellsGlobIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, 
                                                    cvf::Vec3d p1, 
                                                    double md1, 

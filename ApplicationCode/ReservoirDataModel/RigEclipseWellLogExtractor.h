@@ -40,7 +40,6 @@ public:
     void                                      curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData*                 caseData()     { return m_caseData.p();}
 
-    const std::vector<size_t>&                intersectedCellsGlobIdx();
 
 protected:
     void                                      calculateIntersection();
