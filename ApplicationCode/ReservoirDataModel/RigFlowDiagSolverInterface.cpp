@@ -715,7 +715,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
             {
                 if (srcGraph.press.size() > 0)
                 {
-                    retCurveArr.push_back({ PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value });
+                    retCurveArr.push_back({ PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat });
                 }
             }
         }
@@ -727,7 +727,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
             {
                 if (srcGraph.press.size() > 0)
                 {
-                    retCurveArr.push_back({ PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value });
+                    retCurveArr.push_back({ PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat });
                 }
             }
         }
@@ -742,7 +742,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
             {
                 if (srcGraph.press.size() > 0)
                 {
-                    retCurveArr.push_back({ PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value });
+                    retCurveArr.push_back({ PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat });
                 }
             }
         }
@@ -754,7 +754,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
             {
                 if (srcGraph.press.size() > 0)
                 {
-                    retCurveArr.push_back({ PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value });
+                    retCurveArr.push_back({ PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat });
                 }
             }
         }

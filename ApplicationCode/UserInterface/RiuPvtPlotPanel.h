@@ -22,6 +22,7 @@
 #include "RiaEclipseUnitTools.h"
 
 #include <QWidget>
+#include <QPointer>
 
 #include <cmath>
 #include <memory>
@@ -31,6 +32,58 @@ class QDockWidget;
 class QwtPlot;
 class QComboBox;
 class QwtPlotMarker;
+class QwtPlotCurve;
+
+class PvtQwtPicker;
+class RiuPvtPlotPanel;
+
+
+
+// Interface for providing our custom picker with a tracker text
+class RiuPvtTrackerTextProvider
+{
+public:
+    virtual QString trackerText() const = 0;
+};
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RiuPvtPlotWidget : public QWidget, public RiuPvtTrackerTextProvider
+{
+    Q_OBJECT
+
+public:
+    RiuPvtPlotWidget(RiuPvtPlotPanel* parent);
+
+    void    plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle);
+
+private:
+    static void                 setPlotDefaults(QwtPlot* plot);
+    static const QwtPlotCurve*  closestCurveSample(const QPoint& cursorPosition, const QwtPlot& plot, int* closestSampleIndex);
+    size_t                      indexOfQwtCurve(const QwtPlotCurve* qwtCurve) const;
+    void                        updateTrackerPlotMarkerAndLabelFromPicker();
+    virtual QString             trackerText() const override;
+
+private slots:
+    void            slotPickerActivated(bool);
+    void            slotPickerPointChanged(const QPoint& pt);
+
+private:
+    QPointer<QwtPlot>                                   m_qwtPlot;
+
+    std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_pvtCurveArr;
+    std::vector<const QwtPlotCurve*>                    m_qwtCurveArr;
+
+    QPointer<PvtQwtPicker>                              m_qwtPicker;
+    QString                                             m_trackerLabel;
+    QwtPlotMarker*                                      m_trackerPlotMarker;
+
+};
+
 
 
 //==================================================================================================
@@ -64,14 +117,12 @@ public:
     RiuPvtPlotUpdater*  plotUpdater();
 
 private:
-    void            plotUiSelectedCurves();
-    static void     setPlotDefaults(QwtPlot* plot);
-    static void     plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static QString  unitStringFromCurveIdent(RiaEclipseUnitTools::UnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent);
+    void                plotUiSelectedCurves();
+    static QString      unitLabelFromCurveIdent(RiaEclipseUnitTools::UnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent);
 
 private slots:
-    void            slotPhaseComboCurrentIndexChanged(int);
-    
+    void                slotPhaseComboCurrentIndexChanged(int);
+
 private:
     RiaEclipseUnitTools::UnitSystem                     m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allFvfCurvesArr;
@@ -82,11 +133,11 @@ private:
 
     QComboBox*                                          m_phaseComboBox;
 
-    QwtPlot*                                            m_fvfPlot;
-    QwtPlot*                                            m_viscosityPlot;
-    std::vector<QwtPlotMarker*>                         m_fvfPlotMarkers;
-    std::vector<QwtPlotMarker*>                         m_viscosityPlotMarkers;
+    RiuPvtPlotWidget*                                   m_fvfPlot;
+    RiuPvtPlotWidget*                                   m_viscosityPlot;
 
     std::unique_ptr<RiuPvtPlotUpdater>                  m_plotUpdater;
 };
+
+
 

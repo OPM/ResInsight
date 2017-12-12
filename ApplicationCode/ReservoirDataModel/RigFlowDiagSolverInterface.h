@@ -102,6 +102,7 @@ public:
         Phase               phase;
         std::vector<double> pressureVals;
         std::vector<double> yVals;
+        std::vector<double> mixRatVals;
     };
 
 public:
