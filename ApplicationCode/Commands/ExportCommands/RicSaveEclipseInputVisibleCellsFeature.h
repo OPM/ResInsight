@@ -36,7 +36,7 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    RimEclipseView* selectedView();
+    RimEclipseView* selectedView() const;
 };
 
 //==================================================================================================

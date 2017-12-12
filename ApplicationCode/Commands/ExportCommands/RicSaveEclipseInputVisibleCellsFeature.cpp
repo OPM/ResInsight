@@ -27,12 +27,13 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include "RimView.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimView.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
 
 #include "RiuMainWindow.h"
 
@@ -119,9 +120,20 @@ void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView()
+RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 {
     RimEclipseView* view = dynamic_cast<RimEclipseView*>(caf::SelectionManager::instance()->selectedItem());
+    if (view)
+    {
+        return view;
+    }
+
+    RimEclipseCellColors* cellResultItem = dynamic_cast<RimEclipseCellColors*>(caf::SelectionManager::instance()->selectedItem());
+    if (cellResultItem)
+    {
+        cellResultItem->firstAncestorOrThisOfType(view);
+    }
+
     return view;
 }
 

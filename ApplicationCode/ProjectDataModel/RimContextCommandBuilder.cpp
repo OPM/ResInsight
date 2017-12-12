@@ -185,6 +185,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+            menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
         {
