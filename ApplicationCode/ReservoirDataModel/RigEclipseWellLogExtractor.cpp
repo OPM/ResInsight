@@ -153,9 +153,15 @@ std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellInters
             if (cellIdx1 == cellIdx2)
             {
                 cvf::Vec3d internalCellLengths;
-                internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell( m_caseData->mainGrid(), cellIdx1, m_intersections[cpIdx], m_intersections[cpIdx+1] );
+                internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell(m_caseData->mainGrid(),
+                                                                                          cellIdx1,
+                                                                                          m_intersections[cpIdx],
+                                                                                          m_intersections[cpIdx+1]);
 
-                cellIntersectionInfos.push_back(WellPathCellIntersectionInfo(cellIdx1, m_intersections[cpIdx], m_intersections[cpIdx+1], internalCellLengths));
+                cellIntersectionInfos.push_back(WellPathCellIntersectionInfo(cellIdx1,
+                                                                             m_intersections[cpIdx],
+                                                                             m_intersections[cpIdx+1],
+                                                                             internalCellLengths));
             }
         }
     }

@@ -848,7 +848,7 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
     }
     std::sort(wellSegmentLocations.begin(), wellSegmentLocations.end(), wellSegmentLocationOrdering);
 
-    assignBranchAndSegmentNumbers(caseToApply, &wellSegmentLocations);
+    assignLateralIntersectionsAndBranchAndSegmentNumbers(caseToApply, &wellSegmentLocations);
 
     return wellSegmentLocations;
 }
@@ -856,14 +856,15 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const RimEclipseCase* caseToApply, 
+void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const RimEclipseCase* caseToApply, 
                                                                            WellSegmentLocation* location, 
                                                                            int* branchNum, 
                                                                            int* segmentNum)
 {
     for (WellSegmentLateral& lateral : location->laterals)
     {
-        lateral.branchNumber = ++(*branchNum);
+        ++(*branchNum);
+        lateral.branchNumber = (*branchNum);
 
         std::vector<std::pair<cvf::Vec3d, double> > lateralCoordMDPairs = location->fishbonesSubs->coordsAndMDForLateral(location->subIndex, lateral.lateralIndex);
         
@@ -884,8 +885,8 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
                                                                                                                            lateralMDs);
 
         auto intersection = intersections.cbegin();
-        double length = 0;
-        double depth = 0;
+        double mdFromPreviousIntersection = 0;
+        double tvdChangeFromPreviousIntersection = 0;
         cvf::Vec3d startPoint = lateralCoords[0];
         int attachedSegmentNumber = location->icdSegmentNumber;
 
@@ -893,28 +894,31 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
         {
             if (isPointBetween(startPoint, lateralCoords[i], intersection->endPoint))
             {
-                length += (intersection->endPoint - startPoint).length();
-                depth += intersection->endPoint.z() - startPoint.z();
+                mdFromPreviousIntersection += (intersection->endPoint - startPoint).length();
+                tvdChangeFromPreviousIntersection  += intersection->endPoint.z() - startPoint.z();
+                ++(*segmentNum);
 
-                WellSegmentLateralIntersection lateralIntersection( ++(*segmentNum), 
+                WellSegmentLateralIntersection lateralIntersection((*segmentNum), 
                                                                    attachedSegmentNumber, 
                                                                    intersection->globCellIndex, 
-                                                                   length, 
-                                                                   depth);
+                                                                   mdFromPreviousIntersection, 
+                                                                   tvdChangeFromPreviousIntersection, 
+                                                                   intersection->internalCellLengths);
 
-                lateralIntersection.lengthsInCell = intersection->internalCellLengths;
                 lateral.intersections.push_back(lateralIntersection);
 
-                length = 0;
-                depth = 0;
+                mdFromPreviousIntersection = 0;
+                tvdChangeFromPreviousIntersection = 0;
+
                 startPoint = intersection->endPoint;
-                attachedSegmentNumber = *segmentNum;
+                
+                attachedSegmentNumber = (*segmentNum);
                 ++intersection;
             }
             else
             {
-                length += (lateralCoords[i] - startPoint).length();
-                depth += lateralCoords[i].z() - startPoint.z();
+                mdFromPreviousIntersection        += (lateralCoords[i] - startPoint).length();
+                tvdChangeFromPreviousIntersection += lateralCoords[i].z() - startPoint.z();
                 startPoint = lateralCoords[i];
             }
         }
@@ -924,10 +928,11 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations)
+void RicWellPathExportCompletionDataFeature::assignLateralIntersectionsAndBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations)
 {
     int segmentNumber = 1;
     int branchNumber = 1;
+    
     // First loop over the locations so that each segment on the main stem is an incremental number
     for (WellSegmentLocation& location : *locations)
     {
@@ -935,10 +940,11 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
         location.icdBranchNumber = ++branchNumber;
         location.icdSegmentNumber = ++segmentNumber;
     }
+
     // Then assign branch and segment numbers to each lateral parts
     for (WellSegmentLocation& location : *locations)
     {
-        calculateLateralIntersections(caseToApply, &location, &branchNumber, &segmentNumber);
+        assignLateralIntersections(caseToApply, &location, &branchNumber, &segmentNumber);
     }
 }
 

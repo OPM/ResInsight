@@ -55,13 +55,17 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject* project, const RimEclipseCase* eclipseCase, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate)
+void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimProject* project, 
+                                                                      const RimEclipseCase* eclipseCase, 
+                                                                      const RigMainGrid* grid, 
+                                                                      std::vector<double>& completionTypeCellResults, 
+                                                                      const QDateTime& fromDate)
 {
     for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
     {
         if (wellPath->showWellPath())
         {
-            calculateWellPathIntersections(wellPath, grid, values, fromDate);
+            calculateWellPathIntersections(wellPath, grid, completionTypeCellResults, fromDate);
         }
     }
 
@@ -72,7 +76,7 @@ void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject*
         {
             for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
             {
-                calculateFractureIntersections(grid, fracture, values);
+                calculateFractureIntersections(grid, fracture, completionTypeCellResults);
             }
         }
     }
@@ -82,9 +86,13 @@ void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const RimWellPath* wellPath, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate)
+void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const RimWellPath* wellPath, 
+                                                                       const RigMainGrid* grid, 
+                                                                       std::vector<double>& values, 
+                                                                       const QDateTime& fromDate)
 {
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, wellPath->wellPathGeometry()->m_wellPathPoints);
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, 
+                                                                                                       wellPath->wellPathGeometry()->m_wellPathPoints);
     
     for (auto& intersection : intersections)
     {

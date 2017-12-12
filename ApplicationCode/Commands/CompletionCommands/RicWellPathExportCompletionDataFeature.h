@@ -43,12 +43,18 @@ class RimWellPath;
 /// 
 //==================================================================================================
 struct WellSegmentLateralIntersection {
-    WellSegmentLateralIntersection(int segmentNumber, int attachedSegmentNumber, size_t cellIndex, double length, double depth)
+    WellSegmentLateralIntersection(int segmentNumber, 
+                                   int attachedSegmentNumber, 
+                                   size_t cellIndex, 
+                                   double length, 
+                                   double depth, 
+                                   const cvf::Vec3d& lengthsInCell)
         : segmentNumber(segmentNumber),
           attachedSegmentNumber(attachedSegmentNumber),
           cellIndex(cellIndex),
-          length(length),
-          depth(depth),
+          mdFromPreviousIntersection(length),
+          tvdChangeFromPreviousIntersection(depth),
+          lengthsInCell(lengthsInCell),
           mainBoreCell(false)
     {}
 
@@ -56,8 +62,8 @@ struct WellSegmentLateralIntersection {
     int                      attachedSegmentNumber;
     size_t                   cellIndex;
     bool                     mainBoreCell;
-    double                   length;
-    double                   depth;
+    double                   mdFromPreviousIntersection;
+    double                   tvdChangeFromPreviousIntersection;
     cvf::Vec3d               lengthsInCell;
 };
 
@@ -172,8 +178,8 @@ private:
 
     static bool                                  wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second);
     static bool                                  isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle);
-    static void                                  calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
-    static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
+    static void                                  assignLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
+    static void                                  assignLateralIntersectionsAndBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 
     static void                                  appendCompletionData(std::map<IJKCellIndex, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data);
 

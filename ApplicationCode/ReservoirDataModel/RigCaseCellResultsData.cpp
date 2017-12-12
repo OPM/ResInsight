@@ -2257,7 +2257,7 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
 
     QDateTime timeStepDate = this->timeStepDates()[timeStep];
 
-    RimCompletionCellIntersectionCalc::calculateIntersections(project, eclipseCase, m_ownerMainGrid, completionTypeResult, timeStepDate);
+    RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(project, eclipseCase, m_ownerMainGrid, completionTypeResult, timeStepDate);
 }
 
 

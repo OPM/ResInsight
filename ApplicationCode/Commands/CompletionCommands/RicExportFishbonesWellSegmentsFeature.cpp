@@ -297,13 +297,13 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                 {
                     if (wellPath->fishbonesCollection()->lengthAndDepth() == RimFishbonesCollection::INC)
                     {
-                        depth = intersection.depth;
-                        length = intersection.length;
+                        depth = intersection.tvdChangeFromPreviousIntersection;
+                        length = intersection.mdFromPreviousIntersection;
                     }
                     else
                     {
-                        depth += intersection.depth;
-                        length += intersection.length;
+                        depth += intersection.tvdChangeFromPreviousIntersection;
+                        length += intersection.mdFromPreviousIntersection;
                     }
                     double diameter = computeEffectiveDiameter(location.fishbonesSubs->tubingDiameter(unitSystem), location.fishbonesSubs->holeDiameter(unitSystem));
                     formatter.add(intersection.segmentNumber);
@@ -370,10 +370,10 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
                 formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
                 formatter.add(lateral.branchNumber);
                 formatter.add(aggregatedLength);
-                formatter.add(aggregatedLength + intersection.length);
+                formatter.add(aggregatedLength + intersection.mdFromPreviousIntersection);
                 formatter.rowCompleted();
 
-                aggregatedLength += intersection.length;
+                aggregatedLength += intersection.mdFromPreviousIntersection;
             }
         }
     }

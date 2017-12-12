@@ -25,7 +25,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName) : m_wellPath(wellpath), m_wellCaseErrorMsgName(wellCaseErrorMsgName)
+RigWellLogExtractor::RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName) 
+ : m_wellPath(wellpath), 
+   m_wellCaseErrorMsgName(wellCaseErrorMsgName)
 {
 
 }
@@ -95,9 +97,9 @@ void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersec
         }
 
         uniqueIntersections->insert(std::make_pair(RigMDCellIdxEnterLeaveKey(measuredDepthOfPoint,
-            intersections[intIdx].m_hexIndex,
-            intersections[intIdx].m_isIntersectionEntering),
-            intersections[intIdx]));
+                                                                             intersections[intIdx].m_hexIndex,
+                                                                             intersections[intIdx].m_isIntersectionEntering),
+                                                   intersections[intIdx]));
     }
 }
 

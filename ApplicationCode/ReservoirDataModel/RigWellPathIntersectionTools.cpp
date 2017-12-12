@@ -42,15 +42,16 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     const RigMainGrid* grid = caseData->mainGrid();
 
     if (pathCoords.size() < 2) return intersectionInfos;
+
     cvf::ref<RigWellPath> dummyWellPath = new RigWellPath;
     dummyWellPath->m_wellPathPoints = pathCoords;
     dummyWellPath->m_measuredDepths = pathMds;
 
-    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData, dummyWellPath.p(), caseData->ownerCase()->caseUserDescription().toStdString());
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData, 
+                                                                                    dummyWellPath.p(), 
+                                                                                    caseData->ownerCase()->caseUserDescription().toStdString());
 
     return extractor->cellIntersectionInfo();
-
- 
 }
 
 //--------------------------------------------------------------------------------------------------
