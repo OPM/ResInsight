@@ -34,11 +34,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<EclipseWellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
+std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
                                                                                                    const std::vector<cvf::Vec3d>& pathCoords, 
                                                                                                    const std::vector<double>& pathMds)
 {
-    std::vector<EclipseWellPathCellIntersectionInfo> intersectionInfos;
+    std::vector<WellPathCellIntersectionInfo> intersectionInfos;
     const RigMainGrid* grid = caseData->mainGrid();
 
     if (pathCoords.size() < 2) return intersectionInfos;
@@ -51,7 +51,7 @@ std::vector<EclipseWellPathCellIntersectionInfo> RigWellPathIntersectionTools::f
                                                                                     dummyWellPath.p(), 
                                                                                     caseData->ownerCase()->caseUserDescription().toStdString());
 
-    return extractor->cellIntersectionInfo();
+    return extractor->intersectionInfo();
 }
 
 //--------------------------------------------------------------------------------------------------

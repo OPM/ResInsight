@@ -51,6 +51,9 @@ public:
 private:
     void                         calculateIntersection();
     std::vector<size_t>          findCloseCells(const cvf::BoundingBox& bb);
+    virtual cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
+                                                       const cvf::Vec3d& startPoint, 
+                                                       const cvf::Vec3d& endPoint) const override;
 
     cvf::ref<RigGeoMechCaseData> m_caseData;
 };

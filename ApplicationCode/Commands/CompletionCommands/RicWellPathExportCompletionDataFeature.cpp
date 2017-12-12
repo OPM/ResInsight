@@ -62,6 +62,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "RigWellLogExtractor.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -718,7 +719,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 
         using namespace std;
         pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
-        std::vector<EclipseWellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
                                                                                                                               perforationPointsAndMD.first,
                                                                                                                               perforationPointsAndMD.second);
         for (auto& cell : intersectedCells)
@@ -729,11 +730,11 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.globCellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
-            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.internalCellLengths);
+            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
 
             double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
                                                                                                         wellPath,
-                                                                                                        cell.internalCellLengths,
+                                                                                                        cell.intersectionLengthsInCellCS,
                                                                                                         interval->skinFactor(),
                                                                                                         interval->diameter(unitSystem) / 2,
                                                                                                         cell.globCellIndex,
@@ -880,7 +881,7 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
             lateralMDs.push_back(coordMD.second);
         }
 
-        std::vector<EclipseWellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
                                                                                                                            lateralCoords,
                                                                                                                            lateralMDs);
 
@@ -903,7 +904,7 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
                                                                    intersection->globCellIndex, 
                                                                    mdFromPreviousIntersection, 
                                                                    tvdChangeFromPreviousIntersection, 
-                                                                   intersection->internalCellLengths);
+                                                                   intersection->intersectionLengthsInCellCS);
 
                 lateral.intersections.push_back(lateralIntersection);
 

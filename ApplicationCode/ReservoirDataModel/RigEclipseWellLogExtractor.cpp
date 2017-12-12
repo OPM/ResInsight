@@ -137,53 +137,6 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<EclipseWellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellIntersectionInfo()
-{
-    //std::vector<CellIntersectionInfo> intersectionInfos =  this->intersectionInfo();
-    //
-    //for (const auto& cellIntersectInfo: intersectionInfos)
-    //{
-    //    cvf::Vec3d internalCellLengths;
-    //    internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell(m_caseData->mainGrid(),
-    //                                                                              cellIntersectInfo.globCellIndex,
-    //                                                                              cellIntersectInfo.startPoint,
-    //                                                                              cellIntersectInfo.endPoint);
-    //    
-    //}
-
-    std::vector<EclipseWellPathCellIntersectionInfo> cellIntersectionInfos;
-
-    if (m_intersections.size() > 1)
-    {
-        cellIntersectionInfos.reserve(m_intersections.size()-1);
-   
-        for (size_t cpIdx = 0; cpIdx < m_intersections.size()-1; ++cpIdx)
-        {
-            size_t cellIdx1 = m_intersectedCellsGlobIdx[cpIdx];
-            size_t cellIdx2 = m_intersectedCellsGlobIdx[cpIdx+1];
-
-            if (cellIdx1 == cellIdx2)
-            {
-                cvf::Vec3d internalCellLengths;
-                internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell(m_caseData->mainGrid(),
-                                                                                          cellIdx1,
-                                                                                          m_intersections[cpIdx],
-                                                                                          m_intersections[cpIdx+1]);
-
-                cellIntersectionInfos.push_back(EclipseWellPathCellIntersectionInfo(cellIdx1,
-                                                                             m_intersections[cpIdx],
-                                                                             m_intersections[cpIdx+1],
-                                                                             internalCellLengths));
-            }
-        }
-    }
-
-    return  cellIntersectionInfos;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigEclipseWellLogExtractor::intersectedCellsGlobIdx()
 {
     return m_intersectedCellsGlobIdx;
@@ -199,4 +152,14 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
     return closeCells;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell(size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint) const
+{
+    std::array<cvf::Vec3d, 8> hexCorners;
+    m_caseData->mainGrid()->cellCornerVertices(cellIndex, hexCorners.data());
+
+    return RigWellPathIntersectionTools::calculateLengthInCell(hexCorners, startPoint, endPoint); 
+}
 

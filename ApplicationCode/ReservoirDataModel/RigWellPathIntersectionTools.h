@@ -29,27 +29,7 @@
 class RigWellPath;
 class RigMainGrid;
 class RigEclipseCaseData;
-
-//==================================================================================================
-/// 
-//==================================================================================================
-struct EclipseWellPathCellIntersectionInfo 
-{
-    EclipseWellPathCellIntersectionInfo(size_t globReservoirCellIndex, 
-                                 cvf::Vec3d startPoint, 
-                                 cvf::Vec3d endPoint, 
-                                 cvf::Vec3d internalCellLengths)
-        : globCellIndex(globReservoirCellIndex),
-          startPoint(startPoint),
-          endPoint(endPoint),
-          internalCellLengths(internalCellLengths)
-    {}
-
-    size_t                        globCellIndex;
-    cvf::Vec3d                    startPoint;
-    cvf::Vec3d                    endPoint;
-    cvf::Vec3d                    internalCellLengths; // intersectionLengthsInCellCS
-};
+struct WellPathCellIntersectionInfo;
 
 //==================================================================================================
 /// 
@@ -57,7 +37,7 @@ struct EclipseWellPathCellIntersectionInfo
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<EclipseWellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
+    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
                                                                                   const std::vector<cvf::Vec3d>& pathCoords,
                                                                                   const std::vector<double>& pathMds);
 

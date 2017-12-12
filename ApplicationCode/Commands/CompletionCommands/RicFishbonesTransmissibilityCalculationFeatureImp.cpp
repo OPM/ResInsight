@@ -33,6 +33,7 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
+#include "RigWellLogExtractor.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -182,7 +183,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
-        std::vector<EclipseWellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
                                                                                                                               fishbonesPath->coordinates(),
                                                                                                                               fishbonesPath->measuredDepths());
         for (auto& cell : intersectedCells)
@@ -191,7 +192,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 
             double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
             QString completionMetaData = fishbonesPath->name();
-            WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(cell.internalCellLengths, 
+            WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(cell.intersectionLengthsInCellCS, 
                                                                              diameter / 2, 
                                                                              skinFactor, 
                                                                              isMainBore,
@@ -219,7 +220,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     std::pair< std::vector<cvf::Vec3d>, std::vector<double> > fishbonePerfWellPathCoords = wellPath->wellPathGeometry()->clippedPointSubset(wellPath->fishbonesCollection()->startMD(),
                                                                                                                                             wellPathEndMD);
 
-    std::vector<EclipseWellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
+    std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
                                                                                                                                           fishbonePerfWellPathCoords.first,
                                                                                                                                           fishbonePerfWellPathCoords.second);
 
@@ -227,7 +228,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     {
         double skinFactor = wellPath->fishbonesCollection()->mainBoreSkinFactor();
         QString completionMetaData = wellPath->name() + " main bore";
-        WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(cell.internalCellLengths,
+        WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(cell.intersectionLengthsInCellCS,
                                                                          holeDiameter / 2,
                                                                          skinFactor,
                                                                          isMainBore,

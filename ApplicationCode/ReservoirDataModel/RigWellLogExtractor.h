@@ -42,6 +42,7 @@ struct WellPathCellIntersectionInfo
     cvf::Vec3d                         endPoint;
     double                             startMD;
     double                             endMD;
+    cvf::Vec3d                         intersectionLengthsInCellCS; 
 
     cvf::StructGridInterface::FaceType intersectedCellFaceIn;
     cvf::StructGridInterface::FaceType intersectedCellFaceOut;
@@ -76,15 +77,20 @@ protected:
     void                        populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > &uniqueIntersections);
     void                        appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection);
 
-    std::vector<double>         m_measuredDepth;
-    std::vector<double>         m_trueVerticalDepth;
-    
+    virtual  cvf::Vec3d         calculateLengthInCell(size_t cellIndex, 
+                                                      const cvf::Vec3d& startPoint, 
+                                                      const cvf::Vec3d& endPoint) const = 0;
+
     std::vector<cvf::Vec3d>     m_intersections;
     std::vector<size_t>         m_intersectedCellsGlobIdx;
     std::vector<cvf::StructGridInterface::FaceType> 
                                 m_intersectedCellFaces;
 
     cvf::cref<RigWellPath>      m_wellPath;
+
+private:
+    std::vector<double>         m_measuredDepth;
+    std::vector<double>         m_trueVerticalDepth;
 
     std::string                 m_wellCaseErrorMsgName;
 };

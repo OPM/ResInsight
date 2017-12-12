@@ -63,6 +63,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::intersectionInfo(
         cellInfo.intersectedCellFaceIn = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i+1];
 
+        cellInfo.intersectionLengthsInCellCS =  this->calculateLengthInCell(cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint);
+
         infoVector.push_back(cellInfo);
     }
     

@@ -29,6 +29,7 @@
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "cvfGeometryTools.h"
+#include "RigWellPathIntersectionTools.h"
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -190,4 +191,26 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells(const cvf::Boundi
     return closeCells;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell(size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint) const
+{
+    std::array<cvf::Vec3d, 8> hexCorners;
+
+    const RigFemPart* femPart = m_caseData->femParts()->part(0);
+    const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
+    const int* cornerIndices = femPart->connectivities(cellIndex);
+
+    hexCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
+    hexCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
+    hexCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
+    hexCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
+    hexCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
+    hexCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
+    hexCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
+    hexCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
+
+    return RigWellPathIntersectionTools::calculateLengthInCell(hexCorners, startPoint, endPoint); 
+}
 
