@@ -185,6 +185,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+            menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
         {
@@ -330,6 +331,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryCrossPlotCollection*>(uiItem))
         {
+            menuBuilder << "RicPasteSummaryCrossPlotFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
@@ -358,12 +361,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
+            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
@@ -377,9 +383,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
+            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicDuplicateSummaryCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
+            menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
@@ -388,6 +397,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryCurveCollection*>(uiItem))
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
+            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";

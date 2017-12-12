@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,39 +18,26 @@
 
 #pragma once
 
+#include "RicPasteSummaryCurveFeature.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmPointer.h"
 
-class RimEclipseInputProperty;
-class RimEclipseView;
+#include <vector>
+
+class RimSummaryCurve;
+class RimSummaryCurveFilter;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicSaveEclipseInputVisibleCellsFeature : public caf::CmdFeature
+class RicPasteSummaryCrossPlotCurveFeature : public RicPasteSummaryCurveFeature
 {
     CAF_CMD_HEADER_INIT;
 
 protected:
+    // Overrides
     virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
+    //virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
-
-private:
-    RimEclipseView* selectedView() const;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicSaveEclipseInputActiveVisibleCellsFeature : public caf::CmdFeature
-{
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static RimEclipseView* getEclipseActiveView();
 };

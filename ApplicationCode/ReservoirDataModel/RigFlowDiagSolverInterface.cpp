@@ -706,22 +706,56 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
 
 
     // Requesting FVF or Viscosity
-    const Opm::ECLPVT::RawCurve rawCurveType = (pvtCurveType == PvtCurveType::PVT_CT_FVF) ? Opm::ECLPVT::RawCurve::FVF : Opm::ECLPVT::RawCurve::Viscosity;
-
-    const std::array<Opm::ECLPhaseIndex, 2> queryPhaseArr = { Opm::ECLPhaseIndex::Vapour, Opm::ECLPhaseIndex::Liquid };
-    const std::array<PvtCurve::Phase, 2>    mapToPhaseArr = { PvtCurve::GAS,              PvtCurve::OIL };
-
-    for (size_t i = 0; i < queryPhaseArr.size(); i++)
+    if (pvtCurveType == PvtCurveType::PVT_CT_FVF)
     {
-        const Opm::ECLPhaseIndex queryPhaseIndex = queryPhaseArr[i];
-        const PvtCurve::Phase mapToPhase = mapToPhaseArr[i];
-
-        std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(rawCurveType, queryPhaseIndex, static_cast<int>(activeCellIndex));
-        for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
+        // Bo
         {
-            if (srcGraph.press.size() > 0)
+            std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex));
+            for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
             {
-                retCurveArr.push_back({ mapToPhase, srcGraph.press, srcGraph.value});
+                if (srcGraph.press.size() > 0)
+                {
+                    retCurveArr.push_back({ PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value });
+                }
+            }
+        }
+
+        // Bg
+        {
+            std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex));
+            for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
+            {
+                if (srcGraph.press.size() > 0)
+                {
+                    retCurveArr.push_back({ PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value });
+                }
+            }
+        }
+    }
+
+    else if (pvtCurveType == PvtCurveType::PVT_CT_VISCOSITY)
+    {
+        // Visc_o / mu_o
+        {
+            std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::Viscosity, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex));
+            for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
+            {
+                if (srcGraph.press.size() > 0)
+                {
+                    retCurveArr.push_back({ PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value });
+                }
+            }
+        }
+
+        // Visc_g / mu_g
+        {
+            std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::Viscosity, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex));
+            for (Opm::ECLPVT::PVTGraph srcGraph : graphArr)
+            {
+                if (srcGraph.press.size() > 0)
+                {
+                    retCurveArr.push_back({ PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value });
+                }
             }
         }
     }

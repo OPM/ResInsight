@@ -26,6 +26,7 @@
 #include "RimAsciiDataCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorDescriptionMap.h"
 
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
@@ -124,7 +125,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 
     {
         QString axisTitle = m_axisProperties->customTitle;
-        if (m_axisProperties->isAutoTitle) axisTitle = autoAxisTitle();
+        if (m_axisProperties->useAutoTitle()) axisTitle = autoAxisTitle();
 
         QwtText axisTitleY = qwtPlot->axisTitle(m_axisProperties->qwtPlotAxisType());
 
@@ -200,23 +201,60 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
-    std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
+    std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
-    if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
+    for (RimSummaryCurve* rimCurve : m_summaryCurves)
     {
-        for (RimSummaryCurve* rimCurve : m_summaryCurves)
+        RifEclipseSummaryAddress sumAddress;
+        std::string              unitText;
+
+        if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
         {
-            unitToQuantityNameMap[rimCurve->unitNameX()].insert(rimCurve->curveName().toStdString());
+            sumAddress = rimCurve->summaryAddressX();
+            unitText   = rimCurve->unitNameX();
         }
-    }
-    else
-    {
-        for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+        else if (rimCurve->axisY() == this->m_axisProperties->plotAxisType())
         {
-            if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+            sumAddress = rimCurve->summaryAddressY();
+            unitText   = rimCurve->unitNameY();
+        }
+        else
+        {
+            continue;
+        }
+
+        std::string quantityNameForDisplay;
+        {
+            std::string quantityName = sumAddress.quantityName();
+
+            if (sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
             {
-                unitToQuantityNameMap[rimCurve->unitNameY()].insert(rimCurve->curveName().toStdString());
+                quantityNameForDisplay = shortCalculationName(quantityName);
             }
+            else
+            {
+                if (m_axisProperties->showDescription())
+                {
+                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(quantityName);
+                }
+
+                if (m_axisProperties->showAcronym())
+                {
+                    if (!quantityNameForDisplay.empty())
+                    {
+                        quantityNameForDisplay += " (";
+                        quantityNameForDisplay += quantityName;
+                        quantityNameForDisplay += ")";
+                    }
+                    else
+                    {
+                        quantityNameForDisplay += quantityName;
+                    }
+
+                }
+            }
+
+            unitToQuantityNameMap[unitText].insert(quantityNameForDisplay);
         }
     }
 
@@ -227,19 +265,22 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     {
         if (m_axisProperties->scaleFactor() != 1.0)
         {
-            int exponent = std::log10(m_axisProperties->scaleFactor());
+            int exponent    = std::log10(m_axisProperties->scaleFactor());
             scaleFactorText = QString(" x 10<sup>%1</sup> ").arg(QString::number(exponent));
         }
     }
 
-
-    for ( auto unitIt : unitToQuantityNameMap )
+    for (auto unitIt : unitToQuantityNameMap)
     {
-        for (const auto &quantIt: unitIt.second)
+        for (const auto& quantIt : unitIt.second)
         {
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
-        assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
+
+        if (m_axisProperties->showUnitText() && !unitIt.first.empty())
+        {
+            assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
+        }
     }
 
     if (m_timeHistoryCurveQuantities.size() > 0)
@@ -258,9 +299,21 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     return assembledYAxisText;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotYAxisFormatter::shortCalculationName(const std::string& calculationName)
+{
+    QString calculationShortName = QString::fromStdString(calculationName);
 
+    int indexOfFirstSpace = calculationShortName.indexOf(' ');
+    if (indexOfFirstSpace > -1 && indexOfFirstSpace < calculationShortName.size())
+    {
+        calculationShortName = calculationShortName.left(indexOfFirstSpace);
+    }
 
-
+    return calculationShortName.toStdString();
+}
 
 
 

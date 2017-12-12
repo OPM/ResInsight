@@ -49,5 +49,7 @@ public:
     static RiaDefines::DepthUnitType depthUnit(UnitSystem unit);
 
     static double convertSurfaceGasFlowRateToOilEquivalents(UnitSystem, double eclGasFlowRate);
+
+    static QString unitStringPressure(UnitSystem unitSystem);
 };
 

@@ -1283,8 +1283,8 @@ void RiuMainWindow::selectedObjectsChanged()
             if (selectedReservoirView->viewer())
             {
                 setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                isActiveViewChanged = true;
             }
-            isActiveViewChanged = true;
         }
 
         if (isActiveViewChanged)

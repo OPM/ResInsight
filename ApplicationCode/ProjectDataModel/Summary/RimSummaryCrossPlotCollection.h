@@ -37,7 +37,8 @@ public:
     void deleteAllChildObjects();
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
-    RimSummaryPlot* addSummaryPlot();
+    RimSummaryPlot* createSummaryPlot();
+    void addSummaryPlot(RimSummaryPlot *plot);
 
     void updateSummaryNameHasChanged();
     void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;

@@ -73,7 +73,8 @@ std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAdd
     {
         return calculation->unitName().toStdString();
     }
-    return "Calculated Curve Unit";
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------

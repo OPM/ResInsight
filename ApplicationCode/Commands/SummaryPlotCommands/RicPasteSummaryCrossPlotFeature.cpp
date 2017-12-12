@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicPasteSummaryPlotFeature.h"
+#include "RicPasteSummaryCrossPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryCrossPlot.h"
+#include "RimSummaryCrossPlotCollection.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
@@ -34,22 +34,22 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature");
+CAF_CMD_SOURCE_INIT(RicPasteSummaryCrossPlotFeature, "RicPasteSummaryCrossPlotFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection(RimSummaryPlot *sourcePlot)
+void RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection(RimSummaryCrossPlot *sourcePlot)
 {
-    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
+    RimSummaryCrossPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCrossPlotCollection*>();
 
     if (plotColl)
     {
-        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(sourcePlot->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+        RimSummaryCrossPlot* newSummaryPlot = dynamic_cast<RimSummaryCrossPlot*>(sourcePlot->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(newSummaryPlot);
 
-        plotColl->summaryPlots.push_back(newSummaryPlot);
+        plotColl->addSummaryPlot(newSummaryPlot);
 
         // Resolve references after object has been inserted into the data model
         newSummaryPlot->resolveReferencesRecursively();
@@ -67,26 +67,26 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection(RimSummaryPlot *sour
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryPlotFeature::isCommandEnabled()
+bool RicPasteSummaryCrossPlotFeature::isCommandEnabled()
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
-    RimSummaryPlotCollection* plotColl = nullptr;
+    RimSummaryCrossPlotCollection* plotColl = nullptr;
     destinationObject->firstAncestorOrThisOfType(plotColl);
     if (!plotColl)
     {
         return false;
     }
 
-    return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;
+    return RicPasteSummaryCrossPlotFeature::summaryPlots().size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
+void RicPasteSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<caf::PdmPointer<RimSummaryPlot> > sourceObjects = RicPasteSummaryPlotFeature::summaryPlots();
+    std::vector<caf::PdmPointer<RimSummaryCrossPlot> > sourceObjects = RicPasteSummaryCrossPlotFeature::summaryPlots();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
@@ -97,9 +97,9 @@ void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Paste Summary Plot");
+    actionToSetup->setText("Paste Summary Cross Plot");
 
     RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
@@ -107,12 +107,12 @@ void RicPasteSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimSummaryPlot> > RicPasteSummaryPlotFeature::summaryPlots()
+std::vector<caf::PdmPointer<RimSummaryCrossPlot> > RicPasteSummaryCrossPlotFeature::summaryPlots()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimSummaryPlot> > typedObjects;
+    std::vector<caf::PdmPointer<RimSummaryCrossPlot> > typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     return typedObjects;

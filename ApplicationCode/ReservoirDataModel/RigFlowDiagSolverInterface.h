@@ -83,7 +83,7 @@ public:
         Ident               ident;
         std::string         name;
         EpsMode             epsMode;
-        std::vector<double> xVals;
+        std::vector<double> saturationVals;
         std::vector<double> yVals;
     };
 
@@ -96,9 +96,11 @@ public:
     struct PvtCurve
     {
         enum Phase { OIL, GAS };
+        enum Ident { Unknown, Bo, Bg, Visc_o, Visc_g };
 
+        Ident               ident;
         Phase               phase;
-        std::vector<double> xVals;
+        std::vector<double> pressureVals;
         std::vector<double> yVals;
     };
 

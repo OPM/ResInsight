@@ -27,12 +27,13 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include "RimView.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimView.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
 
 #include "RiuMainWindow.h"
 
@@ -43,23 +44,15 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclipseInputActiveVisibleCellsFeature");
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputVisibleCellsFeature, "RicSaveEclipseInputVisibleCellsFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
-{
-    return getSelectedEclipseView() != nullptr;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
+void executeCommand(RimEclipseView* view)
 {
-    RimEclipseView* view = getEclipseActiveView();
-
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
@@ -102,6 +95,23 @@ void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
+{
+    return selectedView() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
+{
+    RimEclipseView* view = RicSaveEclipseInputVisibleCellsFeature::selectedView();
+    executeCommand(view);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Visible Cells as FLUXNUM/MULTNUM");
@@ -110,17 +120,61 @@ void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::getEclipseActiveView()
+RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
+{
+    RimEclipseView* view = dynamic_cast<RimEclipseView*>(caf::SelectionManager::instance()->selectedItem());
+    if (view)
+    {
+        return view;
+    }
+
+    RimEclipseCellColors* cellResultItem = dynamic_cast<RimEclipseCellColors*>(caf::SelectionManager::instance()->selectedItem());
+    if (cellResultItem)
+    {
+        cellResultItem->firstAncestorOrThisOfType(view);
+    }
+
+    return view;
+}
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
+{
+    return getEclipseActiveView() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered(bool isChecked)
+{
+    RimEclipseView* view = RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView();
+    executeCommand(view);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Export Visible Cells as FLUXNUM/MULTNUM");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView()
 {
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
 
     return dynamic_cast<RimEclipseView*>(activeView);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseView * RicSaveEclipseInputVisibleCellsFeature::getSelectedEclipseView()
-{
-    return dynamic_cast<RimEclipseView*>(caf::SelectionManager::instance()->selectedItem());
-}

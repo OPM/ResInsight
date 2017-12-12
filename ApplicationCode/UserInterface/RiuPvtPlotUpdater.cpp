@@ -159,7 +159,7 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
             eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity(activeCellIndex, cellPressure, cellRS, cellRV, &viscosityDynProps.mu_o, &viscosityDynProps.mu_g);
 
-            plotPanel->setPlotData(fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellPressure);
+            plotPanel->setPlotData(eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellPressure);
 
             return true;
         }

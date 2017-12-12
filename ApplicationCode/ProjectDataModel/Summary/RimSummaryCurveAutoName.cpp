@@ -63,7 +63,7 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
     {
         text += summaryAddress.quantityName();
 
-        if (m_unit && summaryCurve)
+        if (m_unit && summaryCurve && !summaryCurve->unitNameY().empty())
         {
             text += "[" + summaryCurve->unitNameY() + "]";
         }

@@ -67,9 +67,10 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault(&m_cellI,             "SummaryCellI",        "I", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_cellJ,             "SummaryCellJ",        "J", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_cellK,             "SummaryCellK",        "K", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_aquiferNumber,     "SummaryAquifer",      "Aquifer", "", "", "");
 
     m_category = RifEclipseSummaryAddress::SUMMARY_INVALID;
-    m_regionNumber = m_regionNumber2 = m_wellSegmentNumber = m_cellI = m_cellJ = m_cellK = -1;
+    m_regionNumber = m_regionNumber2 = m_wellSegmentNumber = m_cellI = m_cellJ = m_cellK = m_aquiferNumber -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +94,7 @@ void RimSummaryAddress::setAddress(const RifEclipseSummaryAddress& addr)
     m_wellName                      = addr.wellName().c_str();
     m_wellSegmentNumber             = addr.wellSegmentNumber();
     m_lgrName                       = addr.lgrName().c_str();
+    m_aquiferNumber                 = addr.aquiferNumber();
 
     m_cellI = addr.cellI(); m_cellJ = addr.cellJ(); m_cellK = addr.cellK();
 }
@@ -110,6 +112,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
                                      m_wellName().toStdString(),
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
-                                     m_cellI(), m_cellJ(), m_cellK());
+                                     m_cellI(), m_cellJ(), m_cellK(),
+                                     m_aquiferNumber);
 }
 

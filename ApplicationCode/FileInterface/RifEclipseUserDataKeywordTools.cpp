@@ -167,13 +167,20 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     int         cellI = -1;
     int         cellJ = -1;
     int         cellK = -1;
+    int         aquiferNumber = -1;
 
     switch (category)
     {
     case RifEclipseSummaryAddress::SUMMARY_FIELD:
         break;
     case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+    {
+        if (columnHeaderText.size() > 0)
+        {
+            aquiferNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
+        }
         break;
+    }
     case RifEclipseSummaryAddress::SUMMARY_NETWORK:
         break;
     case RifEclipseSummaryAddress::SUMMARY_MISC:
@@ -268,7 +275,8 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
                                     lgrName,
                                     cellI,
                                     cellJ,
-                                    cellK);
+                                    cellK,
+                                    aquiferNumber);
 
 }
 

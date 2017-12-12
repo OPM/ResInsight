@@ -62,6 +62,6 @@ private:
     caf::PdmField<int>                      m_cellI;
     caf::PdmField<int>                      m_cellJ;
     caf::PdmField<int>                      m_cellK;
-
+    caf::PdmField<int>                      m_aquiferNumber;
 };
 

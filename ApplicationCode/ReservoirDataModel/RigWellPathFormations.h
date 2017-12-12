@@ -29,30 +29,44 @@
 
 struct RigWellPathFormation
 {
-    double mdTop;
-    double mdBase;
+    double  mdTop;
+    double  mdBase;
     QString formationName;
-    size_t level = 0;
 };
-
 
 class RigWellPathFormations : public cvf::Object
 {
 public:
-    RigWellPathFormations(std::vector<RigWellPathFormation> formations, const QString& filePath, const QString& key);
+    RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key);
 
-    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths) const;
+    enum FormationLevel
+    {
+        GROUP, LEVEL0, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6, LEVEL7, LEVEL8, LEVEL9, LEVEL10, ALL, UNKNOWN, NONE
+    };
 
-    void measuredDepthAndFormationNamesForLevel(size_t level, std::vector<QString>* names, std::vector<double>* measuredDepths) const;
+    void measuredDepthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names,
+                                                 std::vector<double>* measuredDepths, bool includeFluids) const;
+
+    std::vector<FormationLevel> formationsLevelsPresent() const;
 
     QString filePath() const;
     QString keyInFile() const;
 
-    size_t formationNamesCount() const;
+    size_t  formationNamesCount() const;
+
+private:
+    void measuredDepthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
+                                                                std::vector<double>*  measuredDepths) const;
+
+    bool           isFluid(QString formationName);
+    FormationLevel detectLevel(QString formationName);
 
 private:
     QString m_filePath;
     QString m_keyInFile;
-    
-    std::vector<RigWellPathFormation> m_formations;
+
+    std::map<FormationLevel, bool> m_formationsLevelsPresent;
+
+    std::vector<std::pair<RigWellPathFormation, FormationLevel>> m_formations;
+    std::vector<RigWellPathFormation> m_fluids;
 };

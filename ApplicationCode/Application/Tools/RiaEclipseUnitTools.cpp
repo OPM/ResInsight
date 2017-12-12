@@ -108,3 +108,19 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(UnitSystem
     return oilEquivalentGasRate;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaEclipseUnitTools::unitStringPressure(UnitSystem unitSystem)
+{
+    switch (unitSystem)
+    {
+        case RiaEclipseUnitTools::UNITS_METRIC:     return "barsa";
+        case RiaEclipseUnitTools::UNITS_FIELD:      return "psia";
+        case RiaEclipseUnitTools::UNITS_LAB:        return "atma";
+        case RiaEclipseUnitTools::UNITS_UNKNOWN:    return "";
+        default:                                    return "";
+    }
+}
+
