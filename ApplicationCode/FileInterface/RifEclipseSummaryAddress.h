@@ -59,7 +59,8 @@ public:
         INPUT_CELL_IJK,
         INPUT_LGR_NAME,
         INPUT_SEGMENT_NUMBER,
-        INPUT_VECTOR_NAME
+        INPUT_AQUIFER_NUMBER,
+        INPUT_VECTOR_NAME,
     };
 
 public:
@@ -71,7 +72,8 @@ public:
         m_wellSegmentNumber(-1),
         m_cellI(-1),
         m_cellJ(-1),
-        m_cellK(-1)
+        m_cellK(-1),
+        m_aquiferNumber(-1)
     {
     }
     
@@ -85,7 +87,8 @@ public:
                              const std::string& lgrName,
                              int                cellI,
                              int                cellJ,
-                             int                cellK): 
+                             int                cellK,
+                             int                aquiferNumber): 
         m_variableCategory(category),
         m_quantityName(quantityName),
         m_regionNumber(regionNumber),
@@ -96,7 +99,8 @@ public:
         m_lgrName(lgrName),
         m_cellI(cellI),
         m_cellJ(cellJ),
-        m_cellK(cellK)
+        m_cellK(cellK),
+        m_aquiferNumber(aquiferNumber)
     {
     }
 
@@ -124,6 +128,7 @@ public:
     int                 cellI() const               { return m_cellI; }
     int                 cellJ() const               { return m_cellJ; }
     int                 cellK() const               { return m_cellK; }
+    int                 aquiferNumber() const       { return m_aquiferNumber; }
 
     // Derived properties
 
@@ -135,6 +140,7 @@ public:
     void            setWellName(const std::string& wellName)            { m_wellName = wellName; }
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
     void            setRegion(int region)                               { m_regionNumber = region; }
+    void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = aquiferNumber; }
 
 private:
 
@@ -154,6 +160,7 @@ private:
     int                 m_cellI;
     int                 m_cellJ;
     int                 m_cellK;
+    int                 m_aquiferNumber;
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);

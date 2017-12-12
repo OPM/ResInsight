@@ -88,6 +88,9 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
         m_cellJ = std::get<1>(ijkTuple);
         m_cellK = std::get<2>(ijkTuple);
         break;
+    case SUMMARY_AQUIFER:
+        m_aquiferNumber = RiaStdStringTools::toInt(identifiers[INPUT_AQUIFER_NUMBER]);
+        break;
     }
 
     // Set quantity for all categories
@@ -195,6 +198,11 @@ std::string RifEclipseSummaryAddress::uiText() const
             text += ":" + formatUiTextIJK();
         }
         break;
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        {
+            text += ":" + std::to_string(this->aquiferNumber());
+        }
+        break;
     }
 
     return text;
@@ -214,6 +222,7 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     case RifEclipseSummaryAddress::INPUT_CELL_IJK: return formatUiTextIJK();
     case RifEclipseSummaryAddress::INPUT_LGR_NAME: return lgrName();
     case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
+    case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
     case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName();
     }
     return "";
@@ -282,6 +291,10 @@ bool RifEclipseSummaryAddress::isValid() const
         if (m_cellI == -1) return false;
         if (m_cellJ == -1) return false;
         if (m_cellK == -1) return false;
+        return true;
+
+    case SUMMARY_AQUIFER:
+        if (m_aquiferNumber == -1) return false;
         return true;
     }
 
@@ -409,7 +422,11 @@ bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
             if(first.cellK() != second.cellK()) return false;
         }
         break;
-
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        {
+            if (first.aquiferNumber() != second.aquiferNumber()) return false;
+        }
+        break;
     }
     return true;
 }
@@ -487,6 +504,11 @@ bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAdd
             if(first.cellI() != second.cellI()) return (first.cellI() < second.cellI());
             if(first.cellJ() != second.cellJ()) return (first.cellJ() < second.cellJ());
             if(first.cellK() != second.cellK()) return (first.cellK() < second.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        {
+            if (first.aquiferNumber() != second.aquiferNumber()) return first.aquiferNumber() < second.aquiferNumber();
         }
         break;
 

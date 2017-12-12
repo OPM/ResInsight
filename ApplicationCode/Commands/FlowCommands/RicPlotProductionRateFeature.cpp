@@ -280,6 +280,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         "",
         -1,
         -1,
+        -1,
         -1);
 
     if (!gridSummaryCase->summaryReader()->hasAddress(addr))

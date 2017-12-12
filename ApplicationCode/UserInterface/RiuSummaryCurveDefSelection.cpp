@@ -84,6 +84,7 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_AQUIFER, {
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER) },
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_NETWORK, {
@@ -155,7 +156,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
 
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "AquiferVectors", "Aquifer Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "Aquifers", "Aquifers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][1]->pdmField(), "AquiferVectors", "Aquifer Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkVectors", "Network Vectors", "", "", "");
 
@@ -586,7 +588,12 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_AQUIFER)
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField();
+        {
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Aquifers");
+            myGroup->add(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField());
+        }
+
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][1]->pdmField();
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_NETWORK)
     {

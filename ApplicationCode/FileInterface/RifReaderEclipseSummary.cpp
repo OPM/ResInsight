@@ -112,6 +112,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
     int                cellI(-1);
     int                cellJ(-1);
     int                cellK(-1);
+    int                aquiferNumber(-1);
 
     quantityName = smspec_node_get_keyword(ertSumVarNode);
 
@@ -120,6 +121,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_AQUIFER_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+            aquiferNumber = smspec_node_get_num(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_WELL_VAR:
@@ -230,7 +232,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
                                     wellName, 
                                     wellSegmentNumber, 
                                     lgrName, 
-                                    cellI, cellJ, cellK);
+                                    cellI, cellJ, cellK,
+                                    aquiferNumber);
 }
 
 //--------------------------------------------------------------------------------------------------
