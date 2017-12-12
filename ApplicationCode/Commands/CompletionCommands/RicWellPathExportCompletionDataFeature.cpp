@@ -876,47 +876,28 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
             lateralMDs.push_back(coordMD.second);
         }
 
-        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), 
-                                                                                                                           lateralCoords,
-                                                                                                                           lateralMDs);
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(),
+                                                                                                                                   lateralCoords,
+                                                                                                                                   lateralMDs);
+        double previousExitMD = lateralMDs.front();
+        double previousExitTVD = lateralCoords.front().z();
 
-        auto intersection = intersections.cbegin();
-        double mdFromPreviousIntersection = 0;
-        double tvdChangeFromPreviousIntersection = 0;
-        cvf::Vec3d startPoint = lateralCoords[0];
         int attachedSegmentNumber = location->icdSegmentNumber;
-
-        for (size_t i = 1; i < lateralCoords.size() && intersection != intersections.cend(); ++i)
+        for (const auto& cellIntInfo: intersections)
         {
-            if (isPointBetween(startPoint, lateralCoords[i], intersection->endPoint))
-            {
-                mdFromPreviousIntersection += (intersection->endPoint - startPoint).length();
-                tvdChangeFromPreviousIntersection  += intersection->endPoint.z() - startPoint.z();
-                ++(*segmentNum);
+            ++(*segmentNum);
+            WellSegmentLateralIntersection lateralIntersection((*segmentNum), 
+                                                               attachedSegmentNumber, 
+                                                               cellIntInfo.globCellIndex, 
+                                                               cellIntInfo.endMD - previousExitMD, 
+                                                               cellIntInfo.endPoint.z() - previousExitTVD, 
+                                                               cellIntInfo.intersectionLengthsInCellCS);
+            
+            lateral.intersections.push_back(lateralIntersection);
 
-                WellSegmentLateralIntersection lateralIntersection((*segmentNum), 
-                                                                   attachedSegmentNumber, 
-                                                                   intersection->globCellIndex, 
-                                                                   mdFromPreviousIntersection, 
-                                                                   tvdChangeFromPreviousIntersection, 
-                                                                   intersection->intersectionLengthsInCellCS);
-
-                lateral.intersections.push_back(lateralIntersection);
-
-                mdFromPreviousIntersection = 0;
-                tvdChangeFromPreviousIntersection = 0;
-
-                startPoint = intersection->endPoint;
-                
-                attachedSegmentNumber = (*segmentNum);
-                ++intersection;
-            }
-            else
-            {
-                mdFromPreviousIntersection        += (lateralCoords[i] - startPoint).length();
-                tvdChangeFromPreviousIntersection += lateralCoords[i].z() - startPoint.z();
-                startPoint = lateralCoords[i];
-            }
+            attachedSegmentNumber = (*segmentNum);
+            previousExitMD = cellIntInfo.endMD;
+            previousExitTVD = cellIntInfo.endPoint.z();
         }
     }
 }
