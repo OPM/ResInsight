@@ -25,9 +25,9 @@
 
 #include <cmath>
 
+// clang-format off
 namespace caf
 {
-// clang-format off
 template<>
 void caf::AppEnum<RimSummaryAxisProperties::NumberFormatType>::setUp()
 {
@@ -46,7 +46,6 @@ void caf::AppEnum<RimSummaryAxisProperties::AxisTitlePositionType>::setUp()
 
     setDefault(RimSummaryAxisProperties::AXIS_TITLE_CENTER);
 }
-// clang-format on
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT(RimSummaryAxisProperties, "SummaryYAxisProperties");
@@ -56,8 +55,6 @@ CAF_PDM_SOURCE_INIT(RimSummaryAxisProperties, "SummaryYAxisProperties");
 //--------------------------------------------------------------------------------------------------
 RimSummaryAxisProperties::RimSummaryAxisProperties()
 {
-    // clang-format off
-
     CAF_PDM_InitObject("Y-Axis Properties", ":/LeftAxis16x16.png", "", "");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
@@ -68,31 +65,30 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
 
     CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
     
-    CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "Title Names", "", "", "");
-    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "Title Acronymes", "", "", "");
-    CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "Title Units", "", "", "");
+    CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "   Names", "", "", "");
+    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "   Acronymes", "", "", "");
+    CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "   Units", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-    CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&customTitle,        "CustomTitle",      "Title", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&titlePositionEnum,  "TitlePosition",    "Title Position", "", "", "");
+    CAF_PDM_InitField(&titleFontSize,               "FontSize", 11,     "Font Size", "", "", "");
 
     CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "");
     CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
-    CAF_PDM_InitField(&numberOfDecimals, "Decimals", 2, "Number of Decimals", "", "", "");
-    CAF_PDM_InitField(&scaleFactor, "ScaleFactor", 1.0, "Scale Factor", "", "", "");
-    CAF_PDM_InitField(&valuesFontSize, "ValuesFontSize", 11, "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&numberFormat,   "NumberFormat",         "Number Format", "", "", "");
+    CAF_PDM_InitField(&numberOfDecimals,        "Decimals", 2,          "Number of Decimals", "", "", "");
+    CAF_PDM_InitField(&scaleFactor,             "ScaleFactor", 1.0,     "Scale Factor", "", "", "");
+    CAF_PDM_InitField(&valuesFontSize,          "ValuesFontSize", 11,   "Font Size", "", "", "");
 
     numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
-
 
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
 
     updateOptionSensitivity();
-
-    // clang-format on
 }
+
+// clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -149,25 +145,31 @@ QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
-    titleGroup.add(&isAutoTitle);
-    titleGroup.add(&customTitle);
-
-    if (isAutoTitle())
     {
-        titleGroup.add(&m_displayShortName);
-        titleGroup.add(&m_displayLongName);
-        titleGroup.add(&m_displayUnitText);
+        caf::PdmUiGroup* titleTextGroup = uiOrdering.addNewGroup("Title Text");
 
-        customTitle.uiCapability()->setUiReadOnly(true);
+        titleTextGroup->add(&isAutoTitle);
+
+        if (isAutoTitle())
+        {
+            titleTextGroup->add(&m_displayLongName);
+            titleTextGroup->add(&m_displayShortName);
+            titleTextGroup->add(&m_displayUnitText);
+
+            customTitle.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            titleTextGroup->add(&customTitle);
+            customTitle.uiCapability()->setUiReadOnly(false);
+        }
     }
-    else
+
     {
-        customTitle.uiCapability()->setUiReadOnly(false);
+        caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup("Title Layout");
+        titleGroup->add(&titlePositionEnum);
+        titleGroup->add(&titleFontSize);
     }
-
-    titleGroup.add(&titlePositionEnum);
-    titleGroup.add(&titleFontSize);
 
     caf::PdmUiGroup& scaleGroup = *(uiOrdering.addNewGroup("Axis Values"));
     scaleGroup.add(&isLogarithmicScaleEnabled);

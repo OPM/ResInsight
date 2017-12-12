@@ -156,7 +156,7 @@ void RimSummaryPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const
 {
-    return yAxisPropertiesForAxis(plotAxis)->isLogarithmicScaleEnabled();
+    return yAxisPropertiesLeftOrRight(plotAxis)->isLogarithmicScaleEnabled();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,7 +516,7 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
         qwtAxis = QwtPlot::yRight;
     }
 
-    RimSummaryAxisProperties* yAxisProperties = yAxisPropertiesForAxis(plotAxis);
+    RimSummaryAxisProperties* yAxisProperties = yAxisPropertiesLeftOrRight(plotAxis);
     if (yAxisProperties->isActive() && hasVisibleCurvesForAxis(plotAxis))
     {
         m_qwtPlot->enableAxis(qwtAxis, true);
@@ -545,7 +545,7 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
 {
-    RimSummaryAxisProperties* yAxisProps = yAxisPropertiesForAxis(plotAxis);
+    RimSummaryAxisProperties* yAxisProps = yAxisPropertiesLeftOrRight(plotAxis);
 
     if (yAxisProps->isLogarithmicScaleEnabled)
     {
@@ -648,11 +648,11 @@ bool RimSummaryPlot::hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const
+RimSummaryAxisProperties* RimSummaryPlot::yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const
 {
     RimSummaryAxisProperties* yAxisProps = nullptr;
 
-    if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
+    if (leftOrRightPlotAxis == RiaDefines::PLOT_AXIS_LEFT)
     {
         yAxisProps = m_leftYAxisProperties();
     }

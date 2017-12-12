@@ -134,7 +134,7 @@ private:
     std::vector<RimAsciiDataCurve*>                 visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
-    RimSummaryAxisProperties*                       yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    RimSummaryAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
