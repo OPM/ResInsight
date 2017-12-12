@@ -175,9 +175,13 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
             // Needs wellpath start point in front
             HexIntersectionInfo firstLeavingPoint = it->second;
             firstLeavingPoint.m_intersectionPoint =  m_wellPath->m_wellPathPoints[0];
+            firstLeavingPoint.m_face = cvf::StructGridInterface::NO_FACE;
+            firstLeavingPoint.m_isIntersectionEntering = true;
 
-            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths[0], true, firstLeavingPoint.m_hexIndex),
-                firstLeavingPoint));
+            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths[0], 
+                                                                                      true, 
+                                                                                      firstLeavingPoint.m_hexIndex),
+                                                            firstLeavingPoint));
         }
 
         // Add an intersection for the well endpoint possibly inside the last cell.
@@ -188,9 +192,12 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
             HexIntersectionInfo lastEnterPoint = rit->second;
             lastEnterPoint.m_intersectionPoint =  m_wellPath->m_wellPathPoints.back();
             lastEnterPoint.m_isIntersectionEntering = false;
+            lastEnterPoint.m_face = cvf::StructGridInterface::NO_FACE;
 
-            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths.back(), false, lastEnterPoint.m_hexIndex),
-                lastEnterPoint));
+            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths.back(), 
+                                                                                      false, 
+                                                                                      lastEnterPoint.m_hexIndex),
+                                                            lastEnterPoint));
         }
     }
 
