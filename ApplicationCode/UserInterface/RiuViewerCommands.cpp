@@ -389,7 +389,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     menuBuilder.addSeparator();
     menuBuilder << "RicNewGridTimeHistoryCurveFeature";
     menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
-    menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+    menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
     menuBuilder << "RicShowGridStatisticsFeature";
 
     menuBuilder.appendToMenu(&menu);

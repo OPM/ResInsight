@@ -31,12 +31,26 @@ class RicSaveEclipseInputVisibleCellsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    RimEclipseView* getEclipseActiveView();
-    RimEclipseView* getSelectedEclipseView();
+    RimEclipseView* selectedView();
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicSaveEclipseInputActiveVisibleCellsFeature : public caf::CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static RimEclipseView* getEclipseActiveView();
 };
