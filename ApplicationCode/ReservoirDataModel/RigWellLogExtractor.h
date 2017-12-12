@@ -35,7 +35,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-struct CellIntersectionInfo
+struct WellPathCellIntersectionInfo
 {
     size_t                             globCellIndex;
     cvf::Vec3d                         startPoint;
@@ -63,7 +63,7 @@ public:
 
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
-    std::vector<CellIntersectionInfo> intersectionInfo() const;
+    std::vector<WellPathCellIntersectionInfo> intersectionInfo() const;
 
 protected:
     static void                 insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections,

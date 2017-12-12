@@ -25,7 +25,7 @@ class RigEclipseCaseData;
 class RigWellPath;
 class RigResultAccessor;
 
-struct WellPathCellIntersectionInfo;
+struct EclipseWellPathCellIntersectionInfo;
 
 namespace cvf {
     class BoundingBox;
@@ -42,7 +42,7 @@ public:
     void                                      curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData*                 caseData()     { return m_caseData.p();}
 
-    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfo();
+    std::vector<EclipseWellPathCellIntersectionInfo> cellIntersectionInfo();
     const std::vector<size_t>&                intersectedCellsGlobIdx();
 
 protected:

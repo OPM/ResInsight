@@ -33,9 +33,9 @@ class RigEclipseCaseData;
 //==================================================================================================
 /// 
 //==================================================================================================
-struct WellPathCellIntersectionInfo 
+struct EclipseWellPathCellIntersectionInfo 
 {
-    WellPathCellIntersectionInfo(size_t globReservoirCellIndex, 
+    EclipseWellPathCellIntersectionInfo(size_t globReservoirCellIndex, 
                                  cvf::Vec3d startPoint, 
                                  cvf::Vec3d endPoint, 
                                  cvf::Vec3d internalCellLengths)
@@ -57,7 +57,7 @@ struct WellPathCellIntersectionInfo
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
+    static std::vector<EclipseWellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
                                                                                   const std::vector<cvf::Vec3d>& pathCoords,
                                                                                   const std::vector<double>& pathMds);
 

@@ -182,7 +182,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+        std::vector<EclipseWellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
                                                                                                                               fishbonesPath->coordinates(),
                                                                                                                               fishbonesPath->measuredDepths());
         for (auto& cell : intersectedCells)
@@ -219,7 +219,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     std::pair< std::vector<cvf::Vec3d>, std::vector<double> > fishbonePerfWellPathCoords = wellPath->wellPathGeometry()->clippedPointSubset(wellPath->fishbonesCollection()->startMD(),
                                                                                                                                             wellPathEndMD);
 
-    std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
+    std::vector<EclipseWellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
                                                                                                                                           fishbonePerfWellPathCoords.first,
                                                                                                                                           fishbonePerfWellPathCoords.second);
 

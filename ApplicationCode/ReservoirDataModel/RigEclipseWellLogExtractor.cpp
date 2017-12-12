@@ -137,9 +137,21 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellIntersectionInfo()
+std::vector<EclipseWellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellIntersectionInfo()
 {
-    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfos;
+    //std::vector<CellIntersectionInfo> intersectionInfos =  this->intersectionInfo();
+    //
+    //for (const auto& cellIntersectInfo: intersectionInfos)
+    //{
+    //    cvf::Vec3d internalCellLengths;
+    //    internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell(m_caseData->mainGrid(),
+    //                                                                              cellIntersectInfo.globCellIndex,
+    //                                                                              cellIntersectInfo.startPoint,
+    //                                                                              cellIntersectInfo.endPoint);
+    //    
+    //}
+
+    std::vector<EclipseWellPathCellIntersectionInfo> cellIntersectionInfos;
 
     if (m_intersections.size() > 1)
     {
@@ -158,7 +170,7 @@ std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellInters
                                                                                           m_intersections[cpIdx],
                                                                                           m_intersections[cpIdx+1]);
 
-                cellIntersectionInfos.push_back(WellPathCellIntersectionInfo(cellIdx1,
+                cellIntersectionInfos.push_back(EclipseWellPathCellIntersectionInfo(cellIdx1,
                                                                              m_intersections[cpIdx],
                                                                              m_intersections[cpIdx+1],
                                                                              internalCellLengths));

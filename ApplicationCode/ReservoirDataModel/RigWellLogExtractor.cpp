@@ -43,16 +43,16 @@ RigWellLogExtractor::~RigWellLogExtractor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<CellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
+std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
 {
-    std::vector<CellIntersectionInfo> infoVector;
+    std::vector<WellPathCellIntersectionInfo> infoVector;
     if (m_intersectedCellsGlobIdx.empty()) return infoVector;
 
     for (size_t i = 0; i < m_intersectedCellsGlobIdx.size() - 1; i=i+2)
     {
         CVF_ASSERT(m_intersectedCellsGlobIdx[i] == m_intersectedCellsGlobIdx[i + 1]);
 
-        CellIntersectionInfo cellInfo;
+        WellPathCellIntersectionInfo cellInfo;
 
         cellInfo.globCellIndex = m_intersectedCellsGlobIdx[i];
         cellInfo.startPoint = m_intersections[i];

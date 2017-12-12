@@ -718,7 +718,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 
         using namespace std;
         pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+        std::vector<EclipseWellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
                                                                                                                               perforationPointsAndMD.first,
                                                                                                                               perforationPointsAndMD.second);
         for (auto& cell : intersectedCells)
@@ -880,7 +880,7 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
             lateralMDs.push_back(coordMD.second);
         }
 
-        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
+        std::vector<EclipseWellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
                                                                                                                            lateralCoords,
                                                                                                                            lateralMDs);
 
