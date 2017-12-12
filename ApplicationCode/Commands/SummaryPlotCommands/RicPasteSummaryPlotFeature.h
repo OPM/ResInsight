@@ -32,6 +32,9 @@ class RicPasteSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void copyPlotAndAddToCollection(RimSummaryPlot *sourcePlot);
+
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;

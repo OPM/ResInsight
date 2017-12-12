@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017  Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,32 +18,21 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
+
+#include <vector>
 
 class RimSummaryPlot;
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimSummaryCrossPlotCollection : public caf::PdmObject
+class RicDuplicateSummaryCurveFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimSummaryCrossPlotCollection();
-    virtual ~RimSummaryCrossPlotCollection();
-
-    void deleteAllChildObjects();
-
-    std::vector<RimSummaryPlot*> summaryPlots() const;
-    RimSummaryPlot* createSummaryPlot();
-    void addSummaryPlot(RimSummaryPlot *plot);
-
-    void updateSummaryNameHasChanged();
-    void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;
-
-private:
-    caf::PdmChildArrayField<RimSummaryPlot*> m_summaryCrossPlots;
-public:
+    CAF_CMD_HEADER_INIT;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 };

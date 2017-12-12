@@ -130,3 +130,11 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection(caf::P
 
     return crossPlotColl;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryTools::isSummaryCrossPlot(const RimSummaryPlot* plot)
+{
+    return dynamic_cast<const RimSummaryCrossPlot*>(plot);
+}

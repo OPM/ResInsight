@@ -44,4 +44,5 @@ public:
 
     static RimSummaryCrossPlot*             parentCrossPlot(caf::PdmObject* object);
     static RimSummaryCrossPlotCollection*   parentCrossPlotCollection(caf::PdmObject* object);
+    static bool                             isSummaryCrossPlot(const RimSummaryPlot* plot);
 };

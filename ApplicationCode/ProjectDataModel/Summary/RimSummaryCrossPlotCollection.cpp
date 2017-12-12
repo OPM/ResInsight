@@ -86,13 +86,19 @@ void RimSummaryCrossPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionIte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RimSummaryCrossPlotCollection::addSummaryPlot()
+RimSummaryPlot* RimSummaryCrossPlotCollection::createSummaryPlot()
 {
     RimSummaryPlot* plot = new RimSummaryCrossPlot();
-    m_summaryCrossPlots().push_back(plot);
 
     plot->setDescription(QString("Summary Cross Plot %1").arg(m_summaryCrossPlots.size()));
 
     return plot;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCrossPlotCollection::addSummaryPlot(RimSummaryPlot *plot)
+{
+    m_summaryCrossPlots().push_back(plot);
+}

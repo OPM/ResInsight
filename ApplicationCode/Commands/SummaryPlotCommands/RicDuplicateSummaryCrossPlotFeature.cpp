@@ -16,70 +16,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryCrossPlotFeature.h"
+#include "RicDuplicateSummaryCrossPlotFeature.h"
 
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
-#include "RicEditSummaryPlotFeature.h"
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicPasteSummaryCrossPlotFeature.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "RimSummaryCurveFilter.h"
-#include "RimSummaryPlot.h"
-
-#include "RiuMainPlotWindow.h"
 
 #include "cvfAssert.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotFeature, "RicNewSummaryCrossPlotFeature");
+CAF_CMD_SOURCE_INIT(RicDuplicateSummaryCrossPlotFeature, "RicDuplicateSummaryCrossPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
+bool RicDuplicateSummaryCrossPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        sumPlotColl = RiaSummaryTools::parentCrossPlotCollection(selObj);
+    }
+
+    if (sumPlotColl) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
+void RicDuplicateSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    std::vector<RimSummaryCrossPlot*> selectedObjects = caf::selectedObjectsByType<RimSummaryCrossPlot*>();
 
-    RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
-    RimSummaryPlot* summaryPlot = summaryCrossPlotColl->createSummaryPlot();
-    
-    summaryCrossPlotColl->addSummaryPlot(summaryPlot);
-    if (summaryPlot)
+    if (selectedObjects.size() == 1)
     {
-        summaryCrossPlotColl->updateConnectedEditors();
-        summaryPlot->loadDataAndUpdate();
-
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->selectAsCurrentItem(summaryPlot);
-            mainPlotWindow->setExpanded(summaryPlot);
-        }
+        RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection(selectedObjects[0]);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicDuplicateSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Summary Cross Plot");
+    actionToSetup->setText("Duplicate Summary Cross Plot");
     actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 

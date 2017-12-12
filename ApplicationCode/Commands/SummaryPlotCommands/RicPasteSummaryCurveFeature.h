@@ -33,12 +33,14 @@ class RicPasteSummaryCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static RimSummaryCurve* copyCurveAndAddToPlot(RimSummaryCurve *sourceCurve);
+
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
-private:
-    static std::vector<caf::PdmPointer<RimSummaryCurve> > summaryCurves();
+    static std::vector<caf::PdmPointer<RimSummaryCurve> > summaryCurvesOnClipboard();
 };

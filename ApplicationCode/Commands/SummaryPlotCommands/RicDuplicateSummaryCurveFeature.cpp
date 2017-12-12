@@ -16,70 +16,65 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryCrossPlotFeature.h"
+#include "RicDuplicateSummaryCurveFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
 
-#include "RicEditSummaryPlotFeature.h"
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicPasteSummaryCurveFeature.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCrossPlotCollection.h"
-#include "RimSummaryCurveFilter.h"
+#include "RiaSummaryTools.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainPlotWindow.h"
+
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotFeature, "RicNewSummaryCrossPlotFeature");
+CAF_CMD_SOURCE_INIT(RicDuplicateSummaryCurveFeature, "RicDuplicateSummaryCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
+bool RicDuplicateSummaryCurveFeature::isCommandEnabled()
 {
-    return true;
+    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    return (selectedPlot && !RiaSummaryTools::isSummaryCrossPlot(selectedPlot));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
+void RicDuplicateSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
-    RimSummaryPlot* summaryPlot = summaryCrossPlotColl->createSummaryPlot();
-    
-    summaryCrossPlotColl->addSummaryPlot(summaryPlot);
-    if (summaryPlot)
+    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve*>();
+    if (curve)
     {
-        summaryCrossPlotColl->updateConnectedEditors();
-        summaryPlot->loadDataAndUpdate();
+        RimSummaryCurve* newCurve = RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(curve);
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->selectAsCurrentItem(summaryPlot);
-            mainPlotWindow->setExpanded(summaryPlot);
-        }
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicDuplicateSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Summary Cross Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setText("Duplicate Summary Curve");
+    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
 }
-

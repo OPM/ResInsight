@@ -18,16 +18,19 @@
 
 #include "RicPasteSummaryCurveFeature.h"
 
+#include "RiaSummaryTools.h"
+
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryCrossPlot.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -39,18 +42,59 @@ CAF_CMD_SOURCE_INIT(RicPasteSummaryCurveFeature, "RicPasteSummaryCurveFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(RimSummaryCurve *sourceCurve)
+{
+    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+
+    RimSummaryCurve* newCurve = dynamic_cast<RimSummaryCurve*>(sourceCurve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(newCurve);
+
+    summaryPlot->addCurveAndUpdate(newCurve);
+
+    // Resolve references after object has been inserted into the project data model
+    newCurve->resolveReferencesRecursively();
+
+    // If source curve is part of a curve filter, resolve of references to the summary case does not
+    // work when pasting the new curve into a plot. Must set summary case manually.
+    newCurve->setSummaryCaseY(sourceCurve->summaryCaseY());
+
+    newCurve->initAfterReadRecursively();
+
+    newCurve->loadDataAndUpdate(true);
+    newCurve->updateConnectedEditors();
+
+    summaryPlot->updateConnectedEditors();
+
+    return newCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryCurveFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
 
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
-    if (!summaryPlot)
+    if(!RiaSummaryTools::parentSummaryPlot(destinationObject))
     {
         return false;
     }
 
-    return RicPasteSummaryCurveFeature::summaryCurves().size() > 0;
+    if (summaryCurvesOnClipboard().size() == 0)
+    {
+        return false;
+    }
+
+    for (caf::PdmPointer<RimSummaryCurve> curve : summaryCurvesOnClipboard())
+    {
+        // Check that owner plot is correct type
+        RimSummaryPlot* ownerPlot = RiaSummaryTools::parentSummaryPlot(curve);
+        
+        if (!ownerPlot) return false;
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,37 +102,11 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-
-    RimSummaryPlot* summaryPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType(summaryPlot);
-    if (!summaryPlot)
-    {
-        return;
-    }
-
-    std::vector<caf::PdmPointer<RimSummaryCurve> > sourceObjects = RicPasteSummaryCurveFeature::summaryCurves();
+    std::vector<caf::PdmPointer<RimSummaryCurve> > sourceObjects = RicPasteSummaryCurveFeature::summaryCurvesOnClipboard();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
-        RimSummaryCurve* newObject = dynamic_cast<RimSummaryCurve*>(sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        CVF_ASSERT(newObject);
-
-        summaryPlot->addCurveAndUpdate(newObject);
-
-        // Resolve references after object has been inserted into the project data model
-        newObject->resolveReferencesRecursively();
-
-        // If source curve is part of a curve filter, resolve of references to the summary case does not
-        // work when pasting the new curve into a plot. Must set summary case manually.
-        newObject->setSummaryCaseY(sourceObjects[i]->summaryCaseY());
-
-        newObject->initAfterReadRecursively();
-
-        newObject->loadDataAndUpdate(true);
-        newObject->updateConnectedEditors();
-
-        summaryPlot->updateConnectedEditors();
+        copyCurveAndAddToPlot(sourceObjects[i]);
     }
 }
 
@@ -105,7 +123,7 @@ void RicPasteSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimSummaryCurve> > RicPasteSummaryCurveFeature::summaryCurves()
+std::vector<caf::PdmPointer<RimSummaryCurve> > RicPasteSummaryCurveFeature::summaryCurvesOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
