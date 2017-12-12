@@ -360,7 +360,7 @@ public:
         RigEclipseWellLogExtractor* eclExtractor = findWellLogExtractor(wellPathName, eclCase);
         if (!eclExtractor) return;
 
-        std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+        std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->cellIntersectionInfosAlongWellPath();
 
         for (size_t wpExIdx = 0; wpExIdx < intersections.size(); wpExIdx++)
         {
@@ -452,7 +452,7 @@ public:
 
         if (!eclExtractor) return;
         
-        std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+        std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->cellIntersectionInfosAlongWellPath();
 
         for (size_t wpExIdx = 0; wpExIdx < intersections.size(); wpExIdx++)
         {

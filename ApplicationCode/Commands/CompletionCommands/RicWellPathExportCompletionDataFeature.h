@@ -144,7 +144,7 @@ public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
     //functions also used by RicFishbonesTransmissibilityCalculationFeatureImp
-    static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
+    static std::set<size_t>                      findIntersectedCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
     static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell);
     

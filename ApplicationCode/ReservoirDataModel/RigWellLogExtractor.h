@@ -65,7 +65,7 @@ public:
 
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
-    std::vector<WellPathCellIntersectionInfo> intersectionInfo() const;
+    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 
 protected:
     static void                 insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections,

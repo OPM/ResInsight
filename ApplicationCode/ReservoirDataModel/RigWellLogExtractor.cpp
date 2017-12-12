@@ -43,7 +43,7 @@ RigWellLogExtractor::~RigWellLogExtractor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
+std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionInfosAlongWellPath() const
 {
     std::vector<WellPathCellIntersectionInfo> infoVector;
     if (m_intersectedCellsGlobIdx.empty()) return infoVector;

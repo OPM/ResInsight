@@ -556,7 +556,7 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
 
     if (!eclExtractor) return false;
 
-    std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+    std::vector<WellPathCellIntersectionInfo> intersections = eclExtractor->cellIntersectionInfosAlongWellPath();
     if (intersections.empty()) return false;
 
     std::map<size_t, size_t> globCellIndicesToIndexInWell;

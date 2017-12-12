@@ -18,17 +18,16 @@
 
 #pragma once
 
-#include "RigCell.h"
-
-#include "RigHexIntersectionTools.h"
-
+#include "cvfBase.h"
 #include "cvfVector3.h"
+#include "cvfBoundingBox.h"
 
 #include <array>
 
 class RigWellPath;
 class RigMainGrid;
 class RigEclipseCaseData;
+struct HexIntersectionInfo;
 struct WellPathCellIntersectionInfo;
 
 //==================================================================================================
@@ -37,18 +36,21 @@ struct WellPathCellIntersectionInfo;
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
-                                                                                  const std::vector<cvf::Vec3d>& pathCoords,
-                                                                                  const std::vector<double>& pathMds);
+    static std::vector<WellPathCellIntersectionInfo> findCellIntersectionInfosAlongPath(const RigEclipseCaseData* caseData,
+                                                                                        const std::vector<cvf::Vec3d>& pathCoords,
+                                                                                        const std::vector<double>& pathMds);
 
-    static std::vector<HexIntersectionInfo>            getIntersectedCells(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
+    static std::vector<HexIntersectionInfo>          findRawHexCellIntersections(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
 
-    static cvf::Vec3d                                  calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
-    static cvf::Vec3d                                  calculateLengthInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
+    static cvf::Vec3d                                calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners, 
+                                                                           const cvf::Vec3d& startPoint, 
+                                                                           const cvf::Vec3d& endPoint);
+    static cvf::Vec3d                                calculateLengthInCell(const RigMainGrid* grid, 
+                                                                           size_t cellIndex, 
+                                                                           const cvf::Vec3d& startPoint, 
+                                                                           const cvf::Vec3d& endPoint);
 
-    static std::vector<size_t>                         findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb);
-    static size_t                                      findCellFromCoords(const RigMainGrid* caseData, const cvf::Vec3d& coords, bool* foundCell);
+    static std::vector<size_t>                       findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb);
+    static size_t                                    findCellFromCoords(const RigMainGrid* caseData, const cvf::Vec3d& coords, bool* foundCell);
 
-private:
-    static void                                        removeEnteringIntersections(std::vector<HexIntersectionInfo>* intersections);
 };

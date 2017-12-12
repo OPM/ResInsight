@@ -176,19 +176,19 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                                                   const RicExportCompletionDataSettingsUi& settings)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
-    std::vector<size_t> wellPathCells = RicWellPathExportCompletionDataFeature::findIntersectingCells(settings.caseToApply()->eclipseCaseData(), 
-                                                                                                      wellPath->wellPathGeometry()->m_wellPathPoints);
+    std::set<size_t> wellPathCells = RicWellPathExportCompletionDataFeature::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
+                                                                                                   wellPath->wellPathGeometry()->m_wellPathPoints);
     bool isMainBore = false;
 
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(settings.caseToApply->eclipseCaseData(), 
                                                                                                                               fishbonesPath->coordinates(),
                                                                                                                               fishbonesPath->measuredDepths());
         for (auto& cell : intersectedCells)
         {
-            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.globCellIndex) != wellPathCells.end()) continue;
+            if (wellPathCells.count(cell.globCellIndex) ) continue;
 
             double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
             QString completionMetaData = fishbonesPath->name();
@@ -220,7 +220,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     std::pair< std::vector<cvf::Vec3d>, std::vector<double> > fishbonePerfWellPathCoords = wellPath->wellPathGeometry()->clippedPointSubset(wellPath->fishbonesCollection()->startMD(),
                                                                                                                                             wellPathEndMD);
 
-    std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
+    std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(settings.caseToApply->eclipseCaseData(),
                                                                                                                                           fishbonePerfWellPathCoords.first,
                                                                                                                                           fishbonePerfWellPathCoords.second);
 

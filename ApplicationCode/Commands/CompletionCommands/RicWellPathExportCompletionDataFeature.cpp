@@ -719,9 +719,9 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 
         using namespace std;
         pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
-                                                                                                                              perforationPointsAndMD.first,
-                                                                                                                              perforationPointsAndMD.second);
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(settings.caseToApply->eclipseCaseData(),
+                                                                                                                                      perforationPointsAndMD.first,
+                                                                                                                                      perforationPointsAndMD.second);
         for (auto& cell : intersectedCells)
         {
             bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
@@ -757,22 +757,17 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
+std::set<size_t> RicWellPathExportCompletionDataFeature::findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
     std::set<size_t> cells;
 
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(caseData->mainGrid(), coords);
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(caseData->mainGrid(), coords);
     for (auto intersection : intersections)
     {
         cells.insert(intersection.m_hexIndex);
     }
 
-    // Ensure only unique cells are included
-    std::vector<size_t> cellsVector;
-    cellsVector.assign(cells.begin(), cells.end());
-    // Sort cells
-    std::sort(cellsVector.begin(), cellsVector.end());
-    return cellsVector;
+    return cells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -881,7 +876,7 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
             lateralMDs.push_back(coordMD.second);
         }
 
-        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), 
                                                                                                                            lateralCoords,
                                                                                                                            lateralMDs);
 

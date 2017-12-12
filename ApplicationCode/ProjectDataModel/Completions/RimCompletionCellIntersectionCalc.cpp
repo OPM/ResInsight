@@ -51,6 +51,7 @@
 
 
 #include <QDateTime>
+#include "RigHexIntersectionTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -91,8 +92,8 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
                                                                        std::vector<double>& values, 
                                                                        const QDateTime& fromDate)
 {
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, 
-                                                                                                       wellPath->wellPathGeometry()->m_wellPathPoints);
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid, 
+                                                                                                               wellPath->wellPathGeometry()->m_wellPathPoints);
     
     for (auto& intersection : intersections)
     {
@@ -144,7 +145,8 @@ void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const Ri
     {
         for (size_t lateralIndex : sub.lateralIndices)
         {
-            std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
+            std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid, 
+                                                                                                                       fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
             for (auto& intersection : intersections)
             {
                 values[intersection.m_hexIndex] = RiaDefines::FISHBONES;
@@ -165,8 +167,8 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
     pair<vector<cvf::Vec3d>, vector<double> > clippedWellPathData =  wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), 
                                                                                                                       perforationInterval->endMD());
 
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid,  
-                                                                                                       clippedWellPathData.first);
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid,
+                                                                                                               clippedWellPathData.first);
     for (auto& intersection : intersections)
     {
         values[intersection.m_hexIndex] = RiaDefines::PERFORATION_INTERVAL;
