@@ -277,6 +277,22 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 pltPlot->updateConnectedEditors();
             }
         }
+
+        bool validWellPathChosen = false;
+        std::vector<RimWellPath*> wellPaths;
+        RimTools::wellPathWithFormations(&wellPaths);
+        for (RimWellPath* wellPath : wellPaths)
+        {
+            if (wellPath == m_formationWellPath)
+            {
+                validWellPathChosen = true;
+                break;
+            }
+        }
+        if (!validWellPathChosen)
+        {
+            m_formationWellPath = nullptr;
+        }
     }
     else if (changedField == &m_formationCase)
     {

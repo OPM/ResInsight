@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RimWellPath.h"
+
 #include <QList>
 #include <QString>
 
@@ -43,6 +45,7 @@ public:
 
     static void wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options);
     static void wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options);
+    static void wellPathWithFormations(std::vector<RimWellPath*>* wellPaths);
     static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
 
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);

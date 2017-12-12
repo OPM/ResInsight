@@ -248,17 +248,31 @@ void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* 
     CVF_ASSERT(options);
     if (!options) return;
 
+    std::vector<RimWellPath*> wellPaths;
+    RimTools::wellPathWithFormations(&wellPaths);
+
+    QIcon wellIcon(":/Well.png");
+    for (RimWellPath* wellPath : wellPaths)
+    {
+        options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
+{
     RimProject* proj = RiaApplication::instance()->project();
     if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
 
-        QIcon wellIcon(":/Well.png");
-        for (RimWellPath* wellPath : wellPaths)
+        for (RimWellPath* wellPath : allWellPaths)
         {
             if (wellPath->hasFormations())
             {
-                options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
+                wellPaths->push_back(wellPath);
             }
         }
     }
