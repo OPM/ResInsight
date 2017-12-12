@@ -534,22 +534,22 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 }
 
                 auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
-                for (const auto& iName : itemNames[i])
+                for (const auto& itemName : itemNames[i])
                 {
                     QString displayName;
 
                     if (isVectorField)
                     {
-                        std::string descriptiveName = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(iName);
-                        displayName = QString::fromStdString(descriptiveName);
-                        displayName += QString(" [%1]").arg(QString::fromStdString(iName));
+                        std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(itemName);
+                        displayName = QString::fromStdString(longVectorName);
+                        displayName += QString(" (%1)").arg(QString::fromStdString(itemName));
                     }
                     else
                     {
-                        displayName = QString::fromStdString(iName);
+                        displayName = QString::fromStdString(itemName);
                     }
 
-                    auto optionItem = caf::PdmOptionItemInfo(displayName, QString::fromStdString(iName) + itemPostfix);
+                    auto optionItem = caf::PdmOptionItemInfo(displayName, QString::fromStdString(itemName) + itemPostfix);
                     if (groupItems)
                         optionItem.setLevel(1);
                     options.push_back(optionItem);

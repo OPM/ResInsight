@@ -242,10 +242,15 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
                 {
                     if (!quantityNameForDisplay.empty())
                     {
-                        quantityNameForDisplay += " ";
+                        quantityNameForDisplay += " (";
+                        quantityNameForDisplay += quantityName;
+                        quantityNameForDisplay += ")";
+                    }
+                    else
+                    {
+                        quantityNameForDisplay += quantityName;
                     }
 
-                    quantityNameForDisplay += quantityName;
                 }
             }
 
