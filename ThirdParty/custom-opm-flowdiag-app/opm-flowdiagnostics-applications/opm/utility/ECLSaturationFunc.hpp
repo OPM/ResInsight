@@ -102,12 +102,12 @@ namespace Opm {
         ///    Default value (\c true) means that effects of EPS are
         ///    included if requisite data is present in the INIT result.
         ///
-        /// \param[in] invalidIsUnscaled Whether or not treat invalid scaled
-        ///    saturation end-points (e.g., SWL=-1.0E+20) as unscaled
-        ///    saturations.  True for "treat as unscaled", false for "
+        /// \param[in] handle_invalid Run-time policy for how to handle
+        ///    scaling requests relative to invalid scaled saturations
+        ///    (e.g., SWL = -1.0E+20).
         ///
-        ///    Default value (\c true) means that invalid scalings are
-        ///    treated as unscaled, false
+        ///    Default value (\c UseUnscaled) means that invalid scalings
+        ///    are treated as unscaled.
         ECLSaturationFunc(const ECLGraph&          G,
                           const ECLInitFileData&   init,
                           const bool               useEPS = true,

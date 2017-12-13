@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -1620,6 +1621,11 @@ kroCurve(const ECLRegionMapping&    rmap,
     auto abscissas =
         (subsys == RawCurve::SubSystem::OilGas) ? so_g : so_w;
 
+    if (abscissas.empty()) {
+        // No finite scaled saturations.  Return empty.
+        return {};
+    }
+
     const auto nPoints = abscissas.size();
 
     // Re-expand input arrays to match size requirements of EPS evaluator.
@@ -1703,6 +1709,12 @@ krgCurve(const ECLRegionMapping&    rmap,
     }
 
     auto abscissas = sg_inp;
+
+    if (abscissas.empty()) {
+        // No finite scaled saturations.  Return empty.
+        return {};
+    }
+
     const auto nPoints = abscissas.size();
 
     // Re-expand input arrays to match size requirements of EPS evaluator.
@@ -1739,6 +1751,12 @@ pcgoCurve(const ECLRegionMapping&    rmap,
     }
 
     auto abscissas = sg_inp;
+
+    if (abscissas.empty()) {
+        // No finite scaled saturations.  Return empty.
+        return {};
+    }
+
     const auto nPoints = abscissas.size();
 
     // Re-expand input arrays to match size requirements of EPS evaluator.
@@ -1823,6 +1841,12 @@ krwCurve(const ECLRegionMapping&    rmap,
     }
 
     auto abscissas = sw_inp;
+
+    if (abscissas.empty()) {
+        // No finite scaled saturations.  Return empty.
+        return {};
+    }
+
     const auto nPoints = abscissas.size();
 
     // Re-expand input arrays to match size requirements of EPS evaluator.
@@ -1859,6 +1883,12 @@ pcowCurve(const ECLRegionMapping&    rmap,
     }
 
     auto abscissas = sw_inp;
+
+    if (abscissas.empty()) {
+        // No finite scaled saturations.  Return empty.
+        return {};
+    }
+
     const auto nPoints = abscissas.size();
 
     // Re-expand input arrays to match size requirements of EPS evaluator.
@@ -1947,8 +1977,20 @@ void
 Opm::ECLSaturationFunc::Impl::
 uniqueReverseScaleSat(std::vector<double>& s) const
 {
-    std::sort(std::begin(s), std::end(s));
-    auto u = std::unique(std::begin(s), std::end(s));
+    auto nan = std::partition(std::begin(s), std::end(s),
+        [](const double si)
+    {
+        return std::isfinite(si);
+    });
+
+    if (nan == std::begin(s)) {
+        // No finite scaled saturations.  Return empty.
+        s.clear();
+        return;
+    }
+
+    std::sort(std::begin(s), nan);
+    auto u = std::unique(std::begin(s), nan);
 
     s.assign(std::begin(s), u);
 }
