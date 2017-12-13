@@ -44,15 +44,16 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclipseInputActiveVisibleCellsFeature");
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputVisibleCellsFeature, "RicSaveEclipseInputVisibleCellsFeature");
-
+CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclipseInputActiveVisibleCellsFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void executeCommand(RimEclipseView* view)
 {
+    if (!view) return;
+
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
@@ -148,7 +149,7 @@ RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 {
-    return getEclipseActiveView() != nullptr;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

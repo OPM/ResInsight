@@ -204,6 +204,7 @@ void RiuMainPlotWindow::createMenus()
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotAllPlotsToFileFeature"));
+    exportMenu->addAction(cmdFeatureMgr->action("RicSaveEclipseInputActiveVisibleCellsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
