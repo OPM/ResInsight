@@ -143,6 +143,14 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
 {
     RiuSummaryQwtPlot::setCommonPlotBehaviour(plot);
 
+    {
+        QwtText plotTitle = plot->title();
+        QFont titleFont = plotTitle.font();
+        titleFont.setPixelSize(14);
+        plotTitle.setFont(titleFont);
+        plot->setTitle(plotTitle);
+    }
+
     plot->enableAxis(QwtPlot::xBottom, true);
     plot->enableAxis(QwtPlot::yLeft, true);
     plot->enableAxis(QwtPlot::xTop, false);

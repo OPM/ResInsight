@@ -137,27 +137,43 @@ void RiuPvtPlotWidget::setPlotDefaults(QwtPlot* plot)
     }
 
     // Grid
-    QwtPlotGrid* grid = new QwtPlotGrid;
-    grid->attach(plot);
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    grid->setPen(gridPen);
+    {
+        QwtPlotGrid* grid = new QwtPlotGrid;
+        grid->attach(plot);
+        QPen gridPen(Qt::SolidLine);
+        gridPen.setColor(Qt::lightGray);
+        grid->setPen(gridPen);
+    }
 
     // Axis number font
-    QFont axisFont = plot->axisFont(QwtPlot::xBottom);
-    axisFont.setPixelSize(11);
-    plot->setAxisFont(QwtPlot::xBottom, axisFont);
-    plot->setAxisFont(QwtPlot::yLeft, axisFont);
+    {
+        QFont axisFont = plot->axisFont(QwtPlot::xBottom);
+        axisFont.setPixelSize(11);
+        plot->setAxisFont(QwtPlot::xBottom, axisFont);
+        plot->setAxisFont(QwtPlot::yLeft, axisFont);
+    }
 
     // Axis title font
-    QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
-    QFont axisTitleFont = axisTitle.font();
-    axisTitleFont.setPixelSize(11);
-    axisTitleFont.setBold(false);
-    axisTitle.setFont(axisTitleFont);
-    axisTitle.setRenderFlags(Qt::AlignRight);
-    plot->setAxisTitle(QwtPlot::xBottom, axisTitle);
-    plot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    {
+        QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
+        QFont axisTitleFont = axisTitle.font();
+        axisTitleFont.setPixelSize(11);
+        axisTitleFont.setBold(false);
+        axisTitle.setFont(axisTitleFont);
+        axisTitle.setRenderFlags(Qt::AlignRight);
+        plot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+        plot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    }
+
+    // Title font
+    {
+        QwtText plotTitle = plot->title();
+        QFont titleFont = plotTitle.font();
+        titleFont.setPixelSize(14);
+        plotTitle.setFont(titleFont);
+        plot->setTitle(plotTitle);
+    }
+
 
     plot->setAxisMaxMinor(QwtPlot::xBottom, 2);
     plot->setAxisMaxMinor(QwtPlot::yLeft, 3);
