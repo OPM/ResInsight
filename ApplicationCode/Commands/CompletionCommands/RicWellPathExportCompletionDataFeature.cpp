@@ -864,6 +864,11 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersections(const Ri
 
         std::vector<std::pair<cvf::Vec3d, double> > lateralCoordMDPairs = location->fishbonesSubs->coordsAndMDForLateral(location->subIndex, lateral.lateralIndex);
         
+        if ( !lateralCoordMDPairs.size() ) 
+        {
+            continue;
+        }
+
         std::vector<cvf::Vec3d> lateralCoords;
         std::vector<double> lateralMDs;
 
