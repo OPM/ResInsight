@@ -18,25 +18,43 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QDialog>
+#include <QPlainTextEdit>
 
 
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicShowPlotDataFeature : public caf::CmdFeature
+class RiuQPlainTextEdit : public QPlainTextEdit
 {
-    CAF_CMD_HEADER_INIT;
+    Q_OBJECT
+public:
+    explicit RiuQPlainTextEdit(QWidget *parent = 0) : QPlainTextEdit(parent) {}
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual void keyPressEvent(QKeyEvent *e) override;
+
+private slots:
+    void slotCopyContentToClipboard();
+    void slotSelectAll();
+
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuTextDialog : public QDialog
+{
+    Q_OBJECT
 
 public:
-    static void showTextWindow(const QString& title, const QString& text);
+    explicit RiuTextDialog(QWidget* parent = 0);
+
+    void setText(const QString& text);
+
+private:
+    RiuQPlainTextEdit* m_textEdit;
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *) override;
+
 };
 
 

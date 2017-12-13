@@ -37,6 +37,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.h
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.h
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
+${CEE_CURRENT_LIST_DIR}RiuTextDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuTimeStepChangedHandler.h
 ${CEE_CURRENT_LIST_DIR}RiuTofAccumulatedPhaseFractionsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuToolTipMenu.h
@@ -101,6 +102,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuTextDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RiuTimeStepChangedHandler.cpp
 ${CEE_CURRENT_LIST_DIR}RiuTofAccumulatedPhaseFractionsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuToolTipMenu.cpp
@@ -147,6 +149,7 @@ ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuPvtPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
+${CEE_CURRENT_LIST_DIR}RiuTextDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuViewer.h
 ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
 ${CEE_CURRENT_LIST_DIR}RiuMultiCaseImportDialog.h

@@ -153,8 +153,9 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
             //cvf::Trace::show("cellSWAT = %f  cellSGAS = %f  cellSATNUM = %f", cellSWAT, cellSGAS, cellSATNUM);
 
             QString cellRefText = constructCellReferenceText(eclipseCaseData, gridIndex, gridLocalCellIndex, cellSATNUM);
+            QString caseName = eclipseResultCase->caseUserDescription;
 
-            plotPanel->setPlotData(eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, cellRefText);
+            plotPanel->setPlotData(eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText);
 
             return true;
         }

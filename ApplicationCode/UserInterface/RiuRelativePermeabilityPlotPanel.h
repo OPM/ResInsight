@@ -47,7 +47,7 @@ public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
     virtual ~RiuRelativePermeabilityPlotPanel();
     
-    void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString cellReferenceText);
+    void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, double swat, double sgas, QString caseName, QString cellReferenceText);
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
 
@@ -75,18 +75,24 @@ private:
     static QString      determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
     static void         addVerticalSaturationMarkerLine(double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
     static void         addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve, double saturationValue, QColor markerColor, WhichYAxis whichYAxis, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers);
-    static ValueRange   calcValueRange(const std::vector<double>& valueArr, bool includePositiveValuesOnly);
     static double       interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
+    
+    std::vector<RigFlowDiagSolverInterface::RelPermCurve>   gatherUiSelectedCurves() const;
+    QString                                                 asciiDataForUiSelectedCurves() const;
+
+    virtual void        contextMenuEvent(QContextMenuEvent* event) override;
 
 private slots:
     void            slotButtonInButtonGroupClicked(int);
     void            slotSomeCheckBoxStateChanged(int);
+    void            slotCurrentPlotDataInTextDialog();
 
 private:
     RiaEclipseUnitTools::UnitSystem                         m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::RelPermCurve>   m_allCurvesArr;
     double                                                  m_swat;
     double                                                  m_sgas;
+    QString                                                 m_caseName;
     QString                                                 m_cellReferenceText;
     QwtPlot*                                                m_qwtPlot;
     std::vector<QwtPlotMarker*>                             m_myPlotMarkers;
