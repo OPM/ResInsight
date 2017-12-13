@@ -272,7 +272,7 @@ void RiuPvtPlotWidget::updateTrackerPlotMarkerAndLabelFromPicker()
             if (curveIdx < m_pvtCurveArr.size())
             {
                 const RigFlowDiagSolverInterface::PvtCurve& pvtCurve = m_pvtCurveArr[curveIdx];
-                if (pointSampleIdx < pvtCurve.mixRatVals.size())
+                if (static_cast<size_t>(pointSampleIdx) < pvtCurve.mixRatVals.size())
                 {
                     mixRat = pvtCurve.mixRatVals[pointSampleIdx];
 
@@ -342,7 +342,7 @@ const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPos
     if (closestSampleIndex) *closestSampleIndex = -1;
 
     const QwtPlotCurve* closestCurve = NULL;
-    double distMin = DBL_MAX;
+    double distMin = HUGE_VAL;
     int closestPointSampleIndex = -1;
 
     const QwtPlotItemList& itemList = plot.itemList();
@@ -351,7 +351,7 @@ const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPos
         if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
             const QwtPlotCurve* candidateCurve = static_cast<const QwtPlotCurve*>(*it);
-            double dist = DBL_MAX;
+            double dist = HUGE_VAL;
             int candidateSampleIndex = candidateCurve->closestPoint(cursorPosition, &dist);
             if (dist < distMin)
             {
