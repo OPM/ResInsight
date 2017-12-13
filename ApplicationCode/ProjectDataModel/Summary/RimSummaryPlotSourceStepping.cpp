@@ -201,7 +201,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
+    analyzer.appendAdresses(allAddressesUsedInCurveCollection());
 
     if (analyzer.wellNames().size() == 1)
     {
@@ -292,8 +292,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
             RiaSummaryCurveAnalyzer quantityAnalyzer;
 
             auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
-            quantityAnalyzer.analyzeAdresses(subset);
 
+            quantityAnalyzer.appendAdresses(subset);
             for (const auto& quantity : quantityAnalyzer.quantities())
             {
                 identifierTexts.insert(QString::fromStdString(quantity));
@@ -556,7 +556,7 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
+    analyzer.appendAdresses(allAddressesUsedInCurveCollection());
 
     RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
     {
@@ -616,7 +616,7 @@ void RimSummaryPlotSourceStepping::updateUiFromCurves()
 caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.analyzeAdresses(allAddressesUsedInCurveCollection());
+    analyzer.appendAdresses(allAddressesUsedInCurveCollection());
 
     if (analyzer.wellNames().size() == 1)
     {
@@ -732,7 +732,7 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader(RifSumm
         m_curveAnalyzerForReader = std::make_pair(reader, analyzer);
     }
 
-    m_curveAnalyzerForReader.second.analyzeAdresses(reader->allResultAddresses());
+    m_curveAnalyzerForReader.second.appendAdresses(reader->allResultAddresses());
 
     return &m_curveAnalyzerForReader.second;
 }

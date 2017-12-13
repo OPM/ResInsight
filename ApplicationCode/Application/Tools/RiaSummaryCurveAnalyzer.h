@@ -36,14 +36,16 @@ class RiaSummaryCurveAnalyzer
 public:
     RiaSummaryCurveAnalyzer();
 
-    void analyzeAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
-    void analyzeAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses);
+    void appendAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses);
+    void appendAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
+
+    void clear();
 
     std::set<std::string> quantities() const;
     std::set<std::string> wellNames() const;
     std::set<std::string> wellGroupNames() const;
+    std::set<int>         regionNumbers() const;
 
-    std::set<int>                                          regionNumbers() const;
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
 
     std::set<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const;
@@ -52,14 +54,13 @@ public:
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category);
 
 private:
-    void clearAllSets();
-    void analyzeAddress(const RifEclipseSummaryAddress& address);
+    void analyzeSingleAddress(const RifEclipseSummaryAddress& address);
 
 private:
-    std::set<std::string>     m_quantities;
-    std::set<std::string>     m_wellNames;
-    std::set<std::string>     m_wellGroupNames;
-    std::set<int>             m_regionNumbers;
+    std::set<std::string> m_quantities;
+    std::set<std::string> m_wellNames;
+    std::set<std::string> m_wellGroupNames;
+    std::set<int>         m_regionNumbers;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
 };

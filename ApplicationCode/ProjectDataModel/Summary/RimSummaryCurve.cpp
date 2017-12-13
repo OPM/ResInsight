@@ -369,11 +369,13 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    QString name = m_curveNameConfig->curveName(m_yValuesCurveVariable->address());
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
 
+    QString name = m_curveNameConfig->curveName(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
     if (isCrossPlotCurve())
     {
-        QString xCurveName = m_curveNameConfig->curveName(m_xValuesCurveVariable->address());
+        QString xCurveName = m_curveNameConfig->curveName(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
 
         name += " | " + xCurveName;
     }

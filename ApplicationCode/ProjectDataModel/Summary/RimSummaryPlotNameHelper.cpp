@@ -16,175 +16,189 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RimSummaryPlotNameHelper.h"
 
-#include "RiaSummaryCurveDefinition.h"
+#include "RifEclipseSummaryAddress.h"
 
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveCollection.h"
-
-#include <QString>
-
-#include <set>
+#include "RimSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveAnalyzer::RiaSummaryCurveAnalyzer() {}
+RimSummaryPlotNameHelper::RimSummaryPlotNameHelper() {}
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses)
+void RimSummaryPlotNameHelper::clear()
 {
-    for (const auto& adr : allAddresses)
-    {
-        analyzeSingleAddress(adr);
-    }
+    m_summaryCases.clear();
+
+    m_analyzer.clear();
+
+    clearTitleSubStrings();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses)
+void RimSummaryPlotNameHelper::appendAddresses(const std::vector<RifEclipseSummaryAddress>& addresses)
 {
-    for (const auto& adr : allAddresses)
+    m_analyzer.appendAdresses(addresses);
+
+    extractPlotTitleSubStrings();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
+{
+    m_summaryCases.clear();
+
+    for (auto c : summaryCases)
     {
-        analyzeSingleAddress(adr);
+        m_summaryCases.insert(c);
     }
+
+    extractPlotTitleSubStrings();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::quantities() const
+QString RimSummaryPlotNameHelper::plotTitle() const
 {
-    return m_quantities;
+    QString title;
+
+    if (!m_titleCaseName.isEmpty())
+    {
+        if (!title.isEmpty()) title += ", ";
+        title += m_titleCaseName;
+    }
+
+    if (!m_titleWellName.empty())
+    {
+        if (!title.isEmpty()) title += ", ";
+        title += QString::fromStdString(m_titleWellName);
+    }
+
+    if (!m_titleWellGroupName.empty())
+    {
+        if (!title.isEmpty()) title += ", ";
+        title += QString::fromStdString(m_titleWellGroupName);
+    }
+
+    if (!m_titleRegion.empty())
+    {
+        if (!title.isEmpty()) title += ", ";
+        title += "Region : " + QString::fromStdString(m_titleRegion);
+    }
+
+    if (!m_titleQuantity.empty())
+    {
+        if (!title.isEmpty()) title += ", ";
+        title += QString::fromStdString(m_titleQuantity);
+    }
+
+    if (title.isEmpty())
+    {
+        title = "Composed Plot";
+    }
+
+    return title;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::wellNames() const
+bool RimSummaryPlotNameHelper::isQuantityInTitle() const
 {
-    return m_wellNames;
+    return !m_titleQuantity.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::wellGroupNames() const
+bool RimSummaryPlotNameHelper::isWellNameInTitle() const
 {
-    return m_wellGroupNames;
+    return !m_titleWellName.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RiaSummaryCurveAnalyzer::regionNumbers() const
+bool RimSummaryPlotNameHelper::isWellGroupNameInTitle() const
 {
-    return m_regionNumbers;
+    return !m_titleWellGroupName.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::categories() const
+bool RimSummaryPlotNameHelper::isRegionInTitle() const
 {
-    return m_categories;
+    return !m_titleRegion.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotNameHelper::isCaseInTitle() const
+{
+    return !m_titleCaseName.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotNameHelper::clearTitleSubStrings()
+{
+    m_titleQuantity.clear();
+    m_titleRegion.clear();
+    m_titleWellName.clear();
+    m_titleRegion.clear();
+
+    m_titleCaseName.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const
+void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 {
-    std::set<QString> stringSet;
+    clearTitleSubStrings();
 
-    if (category == RifEclipseSummaryAddress::SUMMARY_REGION)
+    auto quantities     = m_analyzer.quantities();
+    auto wellNames      = m_analyzer.wellNames();
+    auto wellGroupNames = m_analyzer.wellGroupNames();
+    auto regions        = m_analyzer.regionNumbers();
+
+    if (quantities.size() == 1)
     {
-        for (const auto& regionNumber : m_regionNumbers)
-        {
-            stringSet.insert(QString::number(regionNumber));
-        }
-    }
-    else if (category == RifEclipseSummaryAddress::SUMMARY_WELL)
-    {
-        for (const auto& wellName : m_wellNames)
-        {
-            stringSet.insert(QString::fromStdString(wellName));
-        }
-    }
-    else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-    {
-        for (const auto& wellGroupName : m_wellGroupNames)
-        {
-            stringSet.insert(QString::fromStdString(wellGroupName));
-        }
+        m_titleQuantity = *(quantities.begin());
     }
 
-    return stringSet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress>
-    RiaSummaryCurveAnalyzer::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses,
-                                                  RifEclipseSummaryAddress::SummaryVarCategory category)
-{
-    std::vector<RifEclipseSummaryAddress> filteredAddresses;
-
-    for (const auto& adr : addresses)
+    if (wellNames.size() == 1)
     {
-        if (adr.category() == category)
-        {
-            filteredAddresses.push_back(adr);
-        }
+        m_titleWellName = *(wellNames.begin());
     }
 
-    return filteredAddresses;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::clear()
-{
-    m_quantities.clear();
-    m_wellNames.clear();
-    m_wellGroupNames.clear();
-    m_regionNumbers.clear();
-    m_categories.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::analyzeSingleAddress(const RifEclipseSummaryAddress& address)
-{
-    if (!address.wellName().empty())
+    if (wellGroupNames.size() == 1)
     {
-        m_wellNames.insert(address.wellName());
+        m_titleWellGroupName = *(wellGroupNames.begin());
     }
 
-    if (!address.quantityName().empty())
+    if (regions.size() == 1)
     {
-        m_quantities.insert(address.quantityName());
+        m_titleRegion = *(regions.begin());
     }
 
-    if (!address.wellGroupName().empty())
+    // Case mane
+    if (m_summaryCases.size() == 1)
     {
-        m_wellGroupNames.insert(address.wellGroupName());
-    }
+        auto summaryCase = *(m_summaryCases.begin());
 
-    if (address.regionNumber() != -1)
-    {
-        m_regionNumbers.insert(address.regionNumber());
-    }
-
-    if (address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
-    {
-        m_categories.insert(address.category());
+        m_titleCaseName = summaryCase->caseName();
     }
 }

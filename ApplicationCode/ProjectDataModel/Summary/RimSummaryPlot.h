@@ -22,9 +22,15 @@
 #include "cafPdmChildArrayField.h"
 
 #include "RiaDefines.h"
+
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimViewWindow.h"
 
 #include <QPointer>
+
+#include <set>
+#include <memory>
 
 class PdmUiTreeOrdering;
 class RimAsciiDataCurve;
@@ -36,6 +42,7 @@ class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
 class RimSummaryAxisProperties;
 class RiuSummaryQwtPlot;
+class RimSummaryPlotNameHelper;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -103,6 +110,8 @@ public:
 
     void                                            updatePlotTitle();
 
+    const RimSummaryPlotNameHelper*                 activePlotTitleHelper() const;
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
@@ -111,6 +120,8 @@ public:
 
 private:
     void                                            updateMdiWindowTitle() override;
+    QString                                         generatePlotTitle();
+    void                                            updateAutoNameOfCurves();
 
 protected:
     // Overridden PDM methods
@@ -125,8 +136,6 @@ protected:
     virtual QImage                                  snapshotWindowContent() override;
 
     void                                            setAsCrossPlot();
-
-
 
 private:
     std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
@@ -163,8 +172,12 @@ private:
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
 
-    caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves_OBSOLETE;
-    caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
 
     bool                                                m_isCrossPlot;
+
+    std::unique_ptr<RimSummaryPlotNameHelper>           m_nameHelper;
+
+    // Obsolete fields
+    caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
+    caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
 };

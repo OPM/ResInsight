@@ -33,6 +33,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotSourceStepping.h
 ${CEE_CURRENT_LIST_DIR}RimCsvUserData.h
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotNameHelper.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -64,6 +65,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCrossPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotSourceStepping.cpp
 ${CEE_CURRENT_LIST_DIR}RimCsvUserData.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotNameHelper.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

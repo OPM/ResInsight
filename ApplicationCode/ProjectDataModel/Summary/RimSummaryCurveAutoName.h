@@ -24,6 +24,7 @@
 
 
 class RifEclipseSummaryAddress;
+class RimSummaryPlotNameHelper;
 
 class RimSummaryCurveAutoName : public caf::PdmObject
 {
@@ -31,7 +32,7 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();;
 
-    QString         curveName(const RifEclipseSummaryAddress& summaryAddress) const;
+    QString         curveName(const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper) const;
 
     void            applySettings(const RimSummaryCurveAutoName& other);
 
@@ -43,7 +44,7 @@ protected:
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void            appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
+    void            appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper) const;
     void            appendLgrName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
 
 private:

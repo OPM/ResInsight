@@ -276,7 +276,7 @@ QString RimSummaryCurveCollection::compileAutoPlotTitle() const
         // Suggestion : Delegate to RimSummaryPlotSourceStepping to find title
     }
 
-    analyzer.analyzeAdresses(addresses);
+    analyzer.appendAdresses(addresses);
 
     auto quantities = analyzer.quantities();
     auto wellNames = analyzer.wellNames();

@@ -23,14 +23,15 @@
 
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
+#include "RimSummaryAxisProperties.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
-#include "RimSummaryAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSummaryQwtPlot.h"
@@ -115,6 +116,8 @@ RimSummaryPlot::RimSummaryPlot()
     setAsPlotMdiWindow();
 
     m_isCrossPlot = false;
+
+    m_nameHelper.reset(new RimSummaryPlotNameHelper);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,6 +152,8 @@ void RimSummaryPlot::updateAxes()
     {
         updateTimeAxis();
     }
+
+    updatePlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,10 +498,27 @@ void RimSummaryPlot::updatePlotTitle()
 {
     if (m_isUsingAutoName)
     {
-        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
+        m_userDefinedPlotTitle = generatePlotTitle();
+
+        updateAutoNameOfCurves();
+
+        this->updateConnectedEditors();
     }
 
     updateMdiWindowTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelper() const
+{
+    if (m_isUsingAutoName())
+    {
+        return m_nameHelper.get();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1013,8 +1035,17 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updatePlotTitle();
     }
-}
 
+    if (changedField == &m_isUsingAutoName && !m_isUsingAutoName)
+    {
+        // When auto name of plot is turned off, update the auto name for all curves
+
+        for (auto c : summaryCurves())
+        {
+            c->updateCurveNameNoLegendUpdate();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1068,10 +1099,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onLoadDataAndUpdate()
 {
-    if (m_isUsingAutoName)
-    {
-        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
-    }
+    updatePlotTitle();
 
     updateMdiWindowVisibility();    
 
@@ -1216,11 +1244,6 @@ void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_isUsingAutoName);
 
-    if (m_isUsingAutoName)
-    {
-        m_userDefinedPlotTitle = m_summaryCurveCollection->compileAutoPlotTitle();
-    }
-
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -1324,6 +1347,50 @@ void RimSummaryPlot::updateMdiWindowTitle()
         else
         {
             m_qwtPlot->insertLegend(nullptr);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::generatePlotTitle()
+{
+    std::vector<RifEclipseSummaryAddress> addresses;
+    std::vector<RimSummaryCase*>          sumCases;
+
+    if (m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible())
+    {
+        for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
+        {
+            if (curve->isCurveVisible())
+            {
+                addresses.push_back(curve->summaryAddressY());
+                sumCases.push_back(curve->summaryCaseY());
+            }
+        }
+    }
+
+    m_nameHelper->clear();
+    m_nameHelper->appendAddresses(addresses);
+    m_nameHelper->appendSummaryCases(sumCases);
+
+    return m_nameHelper->plotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAutoNameOfCurves()
+{
+    if (m_summaryCurveCollection->isCurvesVisible())
+    {
+        for (auto c : summaryCurves())
+        {
+            if (c->isCurveVisible())
+            {
+                c->updateCurveNameNoLegendUpdate();
+            }
         }
     }
 }
