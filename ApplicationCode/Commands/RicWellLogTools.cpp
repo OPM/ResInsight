@@ -28,6 +28,7 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -134,9 +135,14 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, 
         RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(plotTrack);
 
         RimWellPath* wellPath;
+        RimWellLogFile* wellLogFile;
         wellLogFileChannels[cIdx]->firstAncestorOrThisOfType(wellPath);
+        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType(wellLogFile);
+
         if (wellPath)
         {
+            if(wellLogFile) plotCurve->setWellLogFile(wellLogFile);
+
             plotCurve->setWellPath(wellPath);
             plotCurve->setWellLogChannelName(wellLogFileChannels[cIdx]->name());
             plotCurve->loadDataAndUpdate(true);
