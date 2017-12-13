@@ -63,8 +63,6 @@ public:
 
     std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
-    QString                                 compileAutoPlotTitle() const;
-
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
 private:

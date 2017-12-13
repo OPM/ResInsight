@@ -19,7 +19,6 @@
 #include "RimSummaryCurveCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaSummaryCurveAnalyzer.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -258,51 +257,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolb
     }
 
     return m_ySourceStepping()->fieldsToShowInToolbar();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCurveCollection::compileAutoPlotTitle() const
-{
-    RiaSummaryCurveAnalyzer analyzer;
-
-    std::set<RifEclipseSummaryAddress> addresses;
-    for (auto c : m_curves)
-    {
-        addresses.insert(c->summaryAddressY());
-
-        // TODO : Improve how cross plot curves contribute to title
-        // Suggestion : Delegate to RimSummaryPlotSourceStepping to find title
-    }
-
-    analyzer.appendAdresses(addresses);
-
-    auto quantities = analyzer.quantities();
-    auto wellNames = analyzer.wellNames();
-    auto wellGroupNames = analyzer.wellGroupNames();
-    auto regions = analyzer.regionNumbers();
-
-    QString title;
-
-    if (wellNames.size() == 1)
-    {
-        title = QString::fromStdString(*(wellNames.begin()));
-    }
-    else if (wellGroupNames.size() == 1)
-    {
-        title = QString::fromStdString(*(wellGroupNames.begin()));
-    }
-    else if (regions.size() == 1)
-    {
-        title = "Region : " + QString::number(*(regions.begin()));
-    }
-    else if (quantities.size() == 1)
-    {
-        title = QString::fromStdString(*(quantities.begin()));
-    }
-
-    return title;
 }
 
 //--------------------------------------------------------------------------------------------------

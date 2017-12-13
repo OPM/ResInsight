@@ -111,6 +111,7 @@ public:
     void                                            updatePlotTitle();
 
     const RimSummaryPlotNameHelper*                 activePlotTitleHelper() const;
+    QString                                         generatedPlotTitleFromVisibleCurves() const;
 
     // RimViewWindow overrides
 public:
@@ -120,7 +121,7 @@ public:
 
 private:
     void                                            updateMdiWindowTitle() override;
-    QString                                         generatePlotTitle();
+    QString                                         generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const;
     void                                            updateAutoNameOfCurves();
 
 protected:

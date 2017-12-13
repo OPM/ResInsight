@@ -498,7 +498,7 @@ void RimSummaryPlot::updatePlotTitle()
 {
     if (m_isUsingAutoName)
     {
-        m_userDefinedPlotTitle = generatePlotTitle();
+        m_userDefinedPlotTitle = generatePlotTitle(m_nameHelper.get());
 
         updateAutoNameOfCurves();
 
@@ -519,6 +519,16 @@ const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelper() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::generatedPlotTitleFromVisibleCurves() const
+{
+    RimSummaryPlotNameHelper nameHelper;
+
+    return generatePlotTitle(&nameHelper);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1354,8 +1364,10 @@ void RimSummaryPlot::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::generatePlotTitle()
+QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const
 {
+    if (!nameHelper) return "";
+
     std::vector<RifEclipseSummaryAddress> addresses;
     std::vector<RimSummaryCase*>          sumCases;
 
@@ -1371,11 +1383,11 @@ QString RimSummaryPlot::generatePlotTitle()
         }
     }
 
-    m_nameHelper->clear();
-    m_nameHelper->appendAddresses(addresses);
-    m_nameHelper->appendSummaryCases(sumCases);
+    nameHelper->clear();
+    nameHelper->appendAddresses(addresses);
+    nameHelper->appendSummaryCases(sumCases);
 
-    return m_nameHelper->plotTitle();
+    return nameHelper->plotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

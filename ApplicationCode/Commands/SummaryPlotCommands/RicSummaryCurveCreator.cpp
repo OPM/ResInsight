@@ -656,14 +656,12 @@ void RicSummaryCurveCreator::createNewPlot()
         QString candidatePlotName;
         if (m_previewPlot)
         {
-            candidatePlotName = m_previewPlot->summaryCurveCollection()->compileAutoPlotTitle();
+            candidatePlotName = m_previewPlot->generatedPlotTitleFromVisibleCurves();
         }
 
         RimSummaryPlot* newSummaryPlot = nullptr;
 
-        if (candidatePlotName.isEmpty())
         {
-            candidatePlotName = QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
             bool ok = false;
             candidatePlotName = QInputDialog::getText(NULL,
                                                       "New Summary Plot Name", "New Summary Plot Name",
@@ -677,10 +675,6 @@ void RicSummaryCurveCreator::createNewPlot()
             }
 
             newSummaryPlot = summaryPlotColl->createNamedSummaryPlot(candidatePlotName);
-        }
-        else
-        {
-            newSummaryPlot = summaryPlotColl->createSummaryPlotAutoName();
         }
 
         if (newSummaryPlot)
