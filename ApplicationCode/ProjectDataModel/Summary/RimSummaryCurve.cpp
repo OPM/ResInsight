@@ -32,8 +32,10 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 
@@ -803,6 +805,24 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         this->loadDataAndUpdate(true);
 
         plot->updateAxes();
+    }
+
+    if (&m_showCurve == changedField)
+    {
+        // If no plot collection is found, we assume that we are inside a curve creator
+        // Update the summary curve collection to make sure the curve names are updated in curve creator UI
+
+        RimSummaryPlotCollection* plotCollection = nullptr;
+        this->firstAncestorOrThisOfType(plotCollection);
+        if (!plotCollection)
+        {
+            RimSummaryCurveCollection* curveColl = nullptr;
+            this->firstAncestorOrThisOfType(curveColl);
+            if (curveColl)
+            {
+                curveColl->updateConnectedEditors();
+            }
+        }
     }
 }
 
