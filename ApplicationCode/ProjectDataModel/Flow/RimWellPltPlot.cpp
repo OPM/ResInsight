@@ -917,7 +917,26 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_selectedSources)
     {
-      
+        RimProject* project = RiaApplication::instance()->project();
+        RimWellPath* wellPath = project->wellPathByName(m_wellPathName());
+        if (wellPath && !wellPath->wellPathGeometry())
+        {
+            for (RifDataSourceForRftPlt address : m_selectedSources())
+            {
+                if (address.sourceType() == RifDataSourceForRftPlt::RFT || address.sourceType() == RifDataSourceForRftPlt::GRID)
+                {
+                    if (!wellPath->wellPathGeometry())
+                    {
+                        QString tmp = QString("Display of Measured Depth (MD) for Grid or RFT curves is not possible without a well log path, and the curve will be hidden in this mode.\n\n");
+
+                        QMessageBox::warning(nullptr, "Grid/RFT curve without MD", tmp);
+
+                        // Do not show multiple dialogs
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     if (changedField == &m_selectedSources ||
@@ -926,10 +945,6 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
-    }
-    else if (changedField == &m_showPlotTitle)
-    {
-        //m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
 
     if (   changedField == &m_useStandardConditionCurves 
