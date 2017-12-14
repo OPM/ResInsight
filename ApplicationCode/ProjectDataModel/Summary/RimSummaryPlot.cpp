@@ -152,8 +152,6 @@ void RimSummaryPlot::updateAxes()
     {
         updateTimeAxis();
     }
-
-    updatePlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

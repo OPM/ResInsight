@@ -666,6 +666,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (&m_showCurve == changedField)
     {
         plot->updateAxes();
+        plot->updatePlotTitle();
     }
     else if (changedField == &m_plotAxis)
     {
@@ -805,6 +806,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         this->loadDataAndUpdate(true);
 
         plot->updateAxes();
+        plot->updatePlotTitle();
     }
 
     if (&m_showCurve == changedField)
