@@ -671,28 +671,35 @@ void RicSummaryCurveCreator::createNewPlot()
     RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
     if (summaryPlotColl)
     {
-        QString candidatePlotName;
-        if (m_previewPlot)
-        {
-            candidatePlotName = m_previewPlot->generatedPlotTitleFromVisibleCurves();
-        }
-
         RimSummaryPlot* newSummaryPlot = nullptr;
-
+        if (m_useAutoPlotTitleProxy())
         {
-            bool ok = false;
-            candidatePlotName = QInputDialog::getText(NULL,
-                                                      "New Summary Plot Name", "New Summary Plot Name",
-                                                      QLineEdit::Normal,
-                                                      candidatePlotName, 
-                                                      &ok, 
-                                                      RiuTools::defaultDialogFlags());
-            if (!ok)
+            newSummaryPlot = summaryPlotColl->createSummaryPlotWithAutoTitle();
+        }
+        else
+        {
+            QString candidatePlotName;
+            if (m_previewPlot)
             {
-                return;
+                candidatePlotName = m_previewPlot->generatedPlotTitleFromVisibleCurves();
             }
 
-            newSummaryPlot = summaryPlotColl->createNamedSummaryPlot(candidatePlotName);
+
+            {
+                bool ok = false;
+                candidatePlotName = QInputDialog::getText(NULL,
+                                                          "New Summary Plot Name", "New Summary Plot Name",
+                                                          QLineEdit::Normal,
+                                                          candidatePlotName, 
+                                                          &ok, 
+                                                          RiuTools::defaultDialogFlags());
+                if (!ok)
+                {
+                    return;
+                }
+
+                newSummaryPlot = summaryPlotColl->createNamedSummaryPlot(candidatePlotName);
+            }
         }
 
         if (newSummaryPlot)
