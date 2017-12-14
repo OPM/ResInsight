@@ -1250,9 +1250,9 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_showPlotTitle);
     uiOrdering.add(&m_useAutoPlotTitle);
     uiOrdering.add(&m_userDefinedPlotTitle);
-    uiOrdering.add(&m_showPlotTitle);
     uiOrdering.add(&m_showLegend);
 
     if (m_showLegend())
