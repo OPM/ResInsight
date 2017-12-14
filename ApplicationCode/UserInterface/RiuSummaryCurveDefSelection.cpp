@@ -937,14 +937,15 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(RifEcli
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*> (attribute);
-    if (attrib)
+    if (&m_selectedSummaryCategories == field)
     {
-        if (&m_selectedSummaryCategories == field)
+        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*> (attribute);
+        if (attrib)
         {
             attrib->fieldToReceiveCurrentItemValue = &m_currentSummaryCategory;
             attrib->showTextFilter = false;
             attrib->showToggleAllCheckbox = false;
+            attrib->setCurrentIndexWhenItemIsChecked = true;
         }
 
         attrib->singleSelectionMode = !m_multiSelectionMode;
