@@ -870,6 +870,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateFormationsOnPlot();
     m_wellLogPlot->loadDataAndUpdate();
     updateEditorsFromCurves();
+    updateWidgetTitleWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
