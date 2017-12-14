@@ -1073,17 +1073,13 @@ void RimWellPltPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 
     if (proj != nullptr)
     {
-        std::set<QString> wellNames;
-       
         // Observed wells
         for (const RimWellPath* const wellPath : proj->allWellPaths())
         {
-            wellNames.insert(wellPath->name());
-        }
+            const QString wellName = wellPath->name();
 
-        for (const auto& wellName : wellNames)
-        {
-            options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
+            if(wellPath->wellPathGeometry() || RimWellPlotTools::hasFlowData(wellPath))
+                options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
         }
     }
 

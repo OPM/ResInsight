@@ -152,7 +152,7 @@ bool RimWellPlotTools::hasFlowData(const RimWellLogFile* wellLogFile)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasFlowData(RimWellPath* wellPath)
+bool RimWellPlotTools::hasFlowData(const RimWellPath* wellPath)
 {
     for (RimWellLogFile* const wellLogFile : wellPath->wellLogFiles())
     {

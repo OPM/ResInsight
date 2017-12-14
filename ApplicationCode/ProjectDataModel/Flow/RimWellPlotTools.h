@@ -104,6 +104,9 @@ public:
     static QString                                  curveUnitText(RimWellLogFile::WellFlowCondition condition, 
                                                                   RiaEclipseUnitTools::UnitSystem unitSystem,
                                                                   FlowPhase flowPhase);
+
+    static bool                                     hasFlowData(const RimWellPath* wellPath);
+
 private:
     friend class StaticFieldsInitializer;
     static const std::set<QString> PRESSURE_DATA_NAMES;
@@ -120,7 +123,6 @@ private:
     static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
     static bool                                     hasPressureData(RimWellPath* wellPath);
     static bool                                     hasFlowData(RimEclipseResultCase* gridCase);
-    static bool                                     hasFlowData(RimWellPath* wellPath);
     static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
     static bool                                     tryMatchChannelName(const std::set<QString>& channelNames, const QString& channelNameToMatch);
     static std::set<QDateTime>                      findMatchingOrAdjacentTimeSteps(const std::set<QDateTime>& baseTimeLine, const std::set<QDateTime>& availableTimeSteps);
