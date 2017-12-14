@@ -193,6 +193,40 @@ void RiuPvtPlotWidget::plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, co
     m_trackerPlotMarker = NULL;
 
 
+    // Construct an auxiliary curve that connects the first point in all the input curves as a visual aid
+    // This should only be shown when the phase being plotted is oil
+    // Will not be added to our array of qwt curves since we do not expect the user to interact with it
+    {
+        std::vector<double> xVals;
+        std::vector<double> yVals;
+        for (size_t i = 0; i < curveArr.size(); i++)
+        {
+            const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
+            if (curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL && curve.pressureVals.size() > 0 && curve.yVals.size() > 0)
+            {
+                xVals.push_back(curve.pressureVals[0]);
+                yVals.push_back(curve.yVals[0]);
+            }
+        }
+
+        if (xVals.size() > 1)
+        {
+            QwtPlotCurve* qwtCurve = new QwtPlotCurve();
+            qwtCurve->setSamples(xVals.data(), yVals.data(), static_cast<int>(xVals.size()));
+
+            qwtCurve->setStyle(QwtPlotCurve::Lines);
+            qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+
+            QColor curveClr = Qt::darkGreen;
+            const QPen curvePen(curveClr);
+            qwtCurve->setPen(curvePen);
+
+            qwtCurve->attach(m_qwtPlot);
+        }
+    }
+
+
+    // Add the primary curves
     for (size_t i = 0; i < curveArr.size(); i++)
     {
         const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
@@ -278,7 +312,7 @@ void RiuPvtPlotWidget::updateTrackerPlotMarkerAndLabelFromPicker()
         const QPoint trackerPos = m_qwtPicker->trackerPosition();
 
         int pointSampleIdx = -1;
-        const QwtPlotCurve* closestQwtCurve = closestCurveSample(trackerPos, *m_qwtPlot, &pointSampleIdx);
+        const QwtPlotCurve* closestQwtCurve = closestCurveSample(trackerPos, &pointSampleIdx);
         if (closestQwtCurve && pointSampleIdx >= 0)
         {
             samplePoint = closestQwtCurve->sample(pointSampleIdx);
@@ -353,27 +387,34 @@ void RiuPvtPlotWidget::updateTrackerPlotMarkerAndLabelFromPicker()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPosition, const QwtPlot& plot, int* closestSampleIndex)
+const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPosition, int* closestSampleIndex) const
 {
+    // Construct a set containing the relevant qwt curves to consider
+    // These are the curves that have a corresponding Pvt source curve
+    std::set<const QwtPlotCurve*> relevantQwtCurvesSet(m_qwtCurveArr.begin(), m_qwtCurveArr.end());
+
     if (closestSampleIndex) *closestSampleIndex = -1;
 
     const QwtPlotCurve* closestCurve = NULL;
     double distMin = HUGE_VAL;
     int closestPointSampleIndex = -1;
 
-    const QwtPlotItemList& itemList = plot.itemList();
+    const QwtPlotItemList& itemList = m_qwtPlot->itemList();
     for (QwtPlotItemIterator it = itemList.begin(); it != itemList.end(); it++)
     {
         if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
-            const QwtPlotCurve* candidateCurve = static_cast<const QwtPlotCurve*>(*it);
-            double dist = HUGE_VAL;
-            int candidateSampleIndex = candidateCurve->closestPoint(cursorPosition, &dist);
-            if (dist < distMin)
+            const QwtPlotCurve* curve = static_cast<const QwtPlotCurve*>(*it);
+            if (relevantQwtCurvesSet.find(curve) != relevantQwtCurvesSet.end())
             {
-                closestCurve = candidateCurve;
-                closestPointSampleIndex = candidateSampleIndex;
-                distMin = dist;
+                double dist = HUGE_VAL;
+                int candidateSampleIndex = curve->closestPoint(cursorPosition, &dist);
+                if (dist < distMin)
+                {
+                    closestCurve = curve;
+                    closestPointSampleIndex = candidateSampleIndex;
+                    distMin = dist;
+                }
             }
         }
     }

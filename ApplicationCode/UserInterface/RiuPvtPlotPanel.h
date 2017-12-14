@@ -63,7 +63,7 @@ public:
 
 private:
     static void                 setPlotDefaults(QwtPlot* plot);
-    static const QwtPlotCurve*  closestCurveSample(const QPoint& cursorPosition, const QwtPlot& plot, int* closestSampleIndex);
+    const QwtPlotCurve*         closestCurveSample(const QPoint& cursorPosition, int* closestSampleIndex) const;
     size_t                      indexOfQwtCurve(const QwtPlotCurve* qwtCurve) const;
     void                        updateTrackerPlotMarkerAndLabelFromPicker();
     virtual QString             trackerText() const override;
@@ -75,8 +75,8 @@ private slots:
 private:
     QPointer<QwtPlot>                                   m_qwtPlot;
 
-    std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_pvtCurveArr;
-    std::vector<const QwtPlotCurve*>                    m_qwtCurveArr;
+    std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_pvtCurveArr;  // Array of source Pvt curves currently being plotted
+    std::vector<const QwtPlotCurve*>                    m_qwtCurveArr;  // Array of corresponding qwt curves used for mapping to Pvt curve when doing tracking
 
     QPointer<PvtQwtPicker>                              m_qwtPicker;
     QString                                             m_trackerLabel;
