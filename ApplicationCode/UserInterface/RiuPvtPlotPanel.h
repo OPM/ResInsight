@@ -34,7 +34,7 @@ class QComboBox;
 class QwtPlotMarker;
 class QwtPlotCurve;
 
-class PvtQwtPicker;
+class RiuPvtQwtPicker;
 class RiuPvtPlotPanel;
 
 
@@ -59,7 +59,7 @@ class RiuPvtPlotWidget : public QWidget, public RiuPvtTrackerTextProvider
 public:
     RiuPvtPlotWidget(RiuPvtPlotPanel* parent);
 
-    void    plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString plotTitle, QString yAxisTitle);
+    void    plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString pointMarkerLabel, QString plotTitle, QString yAxisTitle);
 
 private:
     static void                 setPlotDefaults(QwtPlot* plot);
@@ -68,7 +68,7 @@ private:
     void                        updateTrackerPlotMarkerAndLabelFromPicker();
     virtual QString             trackerText() const override;
 
-private slots:
+    private slots:
     void            slotPickerActivated(bool);
     void            slotPickerPointChanged(const QPoint& pt);
 
@@ -78,10 +78,9 @@ private:
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_pvtCurveArr;  // Array of source Pvt curves currently being plotted
     std::vector<const QwtPlotCurve*>                    m_qwtCurveArr;  // Array of corresponding qwt curves used for mapping to Pvt curve when doing tracking
 
-    QPointer<PvtQwtPicker>                              m_qwtPicker;
+    QPointer<RiuPvtQwtPicker>                           m_qwtPicker;
     QString                                             m_trackerLabel;
     QwtPlotMarker*                                      m_trackerPlotMarker;
-
 };
 
 
@@ -96,6 +95,13 @@ class RiuPvtPlotPanel : public QWidget
     Q_OBJECT
 
 public:
+    struct CellValues
+    {
+        double pressure = HUGE_VAL;
+        double rs = HUGE_VAL;
+        double rv = HUGE_VAL;
+    };
+
     struct FvfDynProps
     {
         double bo = HUGE_VAL;
@@ -112,7 +118,7 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, double pressure);
+    void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
 
@@ -129,7 +135,7 @@ private:
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_allViscosityCurvesArr;
     FvfDynProps                                         m_fvfDynProps;
     ViscosityDynProps                                   m_viscosityDynProps;
-    double                                              m_pressure;
+    CellValues                                          m_cellValues;
 
     QComboBox*                                          m_phaseComboBox;
 
@@ -138,6 +144,5 @@ private:
 
     std::unique_ptr<RiuPvtPlotUpdater>                  m_plotUpdater;
 };
-
 
 

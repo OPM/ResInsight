@@ -148,18 +148,18 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             cvf::ref<RigResultAccessor> rsAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RS", RiaDefines::DYNAMIC_NATIVE);
             cvf::ref<RigResultAccessor> rvAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RV", RiaDefines::DYNAMIC_NATIVE);
             cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PRESSURE", RiaDefines::DYNAMIC_NATIVE);
-            const double cellRS = rsAccessor.notNull() ? rsAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
-            const double cellRV = rvAccessor.notNull() ? rvAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
-            const double cellPressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
-            //cvf::Trace::show("cellRS = %f  cellRV = %f  cellPressure = %f", cellRS, cellRV, cellPressure);
+            RiuPvtPlotPanel::CellValues cellValues;
+            cellValues.rs = rsAccessor.notNull() ? rsAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
+            cellValues.rv = rvAccessor.notNull() ? rvAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
+            cellValues.pressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
 
             RiuPvtPlotPanel::FvfDynProps fvfDynProps;
-            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf(activeCellIndex, cellPressure, cellRS, cellRV, &fvfDynProps.bo, &fvfDynProps.bg);
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf(activeCellIndex, cellValues.pressure, cellValues.rs, cellValues.rv, &fvfDynProps.bo, &fvfDynProps.bg);
 
             RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
-            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity(activeCellIndex, cellPressure, cellRS, cellRV, &viscosityDynProps.mu_o, &viscosityDynProps.mu_g);
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity(activeCellIndex, cellValues.pressure, cellValues.rs, cellValues.rv, &viscosityDynProps.mu_o, &viscosityDynProps.mu_g);
 
-            plotPanel->setPlotData(eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellPressure);
+            plotPanel->setPlotData(eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellValues);
 
             return true;
         }
