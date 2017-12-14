@@ -499,8 +499,6 @@ void RimSummaryPlot::updatePlotTitle()
         m_userDefinedPlotTitle = generatePlotTitle(m_nameHelper.get());
 
         updateCurveNames();
-
-        this->updateConnectedEditors();
     }
 
     updateMdiWindowTitle();
@@ -1042,6 +1040,7 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         changedField == &m_useAutoPlotTitle)
     {
         updatePlotTitle();
+        updateConnectedEditors();
     }
 
     if (changedField == &m_useAutoPlotTitle && !m_useAutoPlotTitle)

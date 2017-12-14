@@ -217,6 +217,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
     else if (changedField == &m_useAutoPlotTitleProxy)
     {
         m_previewPlot->updatePlotTitle();
+
         m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
     }
 }
