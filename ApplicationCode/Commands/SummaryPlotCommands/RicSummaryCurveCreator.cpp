@@ -254,8 +254,9 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     // Appearance settings
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Curve Appearance Assignment", RiuSummaryCurveDefinitionKeywords::appearance());
+
     caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup("Appearance Type Assignment");
-    appearanceGroup->setCollapsedByDefault(true);
+    appearanceSubGroup->setCollapsedByDefault(true);
 
     appearanceSubGroup->add(&m_useAutoAppearanceAssignment);
     appearanceSubGroup->add(&m_caseAppearanceType);
@@ -263,6 +264,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     appearanceSubGroup->add(&m_wellAppearanceType);
     appearanceSubGroup->add(&m_groupAppearanceType);
     appearanceSubGroup->add(&m_regionAppearanceType);
+
     appearanceGroup->add(&m_appearanceApplyButton);
 
     // Appearance option sensitivity
@@ -275,7 +277,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
     // Name config
-    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig());
+    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig());
     autoNameGroup->setCollapsedByDefault(true);
 
     autoNameGroup->add(&m_useAutoPlotTitleProxy);
