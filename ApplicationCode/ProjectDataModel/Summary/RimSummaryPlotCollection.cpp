@@ -45,10 +45,10 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotAutoName()
+RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
-    plot->enableAutoName(true);
+    plot->enableAutoPlotTitle(true);
     summaryPlots.push_back(plot);
 
     return plot;

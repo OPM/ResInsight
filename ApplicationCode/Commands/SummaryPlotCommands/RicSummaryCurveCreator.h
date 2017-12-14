@@ -28,6 +28,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
@@ -97,10 +98,15 @@ private:
     static RimSummaryCase*                  calculatedSummaryCase();
     void                                    selectionEditorFieldChanged();
 
+    void                                    proxyEnablePlotAutoTitle(const bool& enable);
+    bool                                    proxyPlotAutoTitle() const;
+
 private:
     caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
     
     std::unique_ptr<RimSummaryPlot>                 m_previewPlot;
+
+    caf::PdmProxyValueField<bool>                   m_useAutoPlotTitleProxy;
 
     caf::PdmField<bool>                             m_useAutoAppearanceAssignment;
     caf::PdmField<bool>                             m_appearanceApplyButton;

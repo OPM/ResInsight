@@ -61,8 +61,10 @@ public:
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
-    void                                            setShowDescription(bool showDescription);
-    void                                            enableAutoName(bool enable);
+
+    void                                            enableShowPlotTitle(bool enable);
+    void                                            enableAutoPlotTitle(bool enable);
+    bool                                            autoPlotTitle() const;
 
     void                                            addCurveAndUpdate(RimSummaryCurve* curve);
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
@@ -70,7 +72,6 @@ public:
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
-    //void                                            deleteAllTopLevelCurves();
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
@@ -111,6 +112,7 @@ public:
     void                                            updatePlotTitle();
 
     const RimSummaryPlotNameHelper*                 activePlotTitleHelper() const;
+    void                                            updateCurveNames();
     QString                                         generatedPlotTitleFromVisibleCurves() const;
 
     // RimViewWindow overrides
@@ -122,7 +124,6 @@ public:
 private:
     void                                            updateMdiWindowTitle() override;
     QString                                         generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const;
-    void                                            updateAutoNameOfCurves();
 
 protected:
     // Overridden PDM methods
@@ -157,7 +158,7 @@ private:
     caf::PdmField<bool>                                 m_showLegend;
     caf::PdmField<int>                                  m_legendFontSize;
 
-    caf::PdmField<bool>                                 m_isUsingAutoName;
+    caf::PdmField<bool>                                 m_useAutoPlotTitle;
     caf::PdmField<QString>                              m_userDefinedPlotTitle;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;

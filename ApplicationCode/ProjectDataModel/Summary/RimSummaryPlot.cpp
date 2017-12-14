@@ -72,8 +72,8 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 11, "Legend Font Size", "", "", "");
     m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_isUsingAutoName, "IsUsingAutoName", false, "Auto Name", "", "", "");
-    m_isUsingAutoName.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_useAutoPlotTitle, "IsUsingAutoName", false, "Auto Name", "", "", "");
+    m_useAutoPlotTitle.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden(true);
@@ -496,11 +496,11 @@ RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updatePlotTitle()
 {
-    if (m_isUsingAutoName)
+    if (m_useAutoPlotTitle)
     {
         m_userDefinedPlotTitle = generatePlotTitle(m_nameHelper.get());
 
-        updateAutoNameOfCurves();
+        updateCurveNames();
 
         this->updateConnectedEditors();
     }
@@ -513,7 +513,7 @@ void RimSummaryPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelper() const
 {
-    if (m_isUsingAutoName())
+    if (m_useAutoPlotTitle())
     {
         return m_nameHelper.get();
     }
@@ -1041,12 +1041,12 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         changedField == &m_showPlotTitle ||
         changedField == &m_showLegend ||
         changedField == &m_legendFontSize || 
-        changedField == &m_isUsingAutoName)
+        changedField == &m_useAutoPlotTitle)
     {
         updatePlotTitle();
     }
 
-    if (changedField == &m_isUsingAutoName && !m_isUsingAutoName)
+    if (changedField == &m_useAutoPlotTitle && !m_useAutoPlotTitle)
     {
         // When auto name of plot is turned off, update the auto name for all curves
 
@@ -1216,17 +1216,25 @@ QString RimSummaryPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setShowDescription(bool showDescription)
+void RimSummaryPlot::enableShowPlotTitle(bool enable)
 {
-    m_showPlotTitle = showDescription;
+    m_showPlotTitle = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::enableAutoName(bool enable)
+void RimSummaryPlot::enableAutoPlotTitle(bool enable)
 {
-    m_isUsingAutoName = enable;
+    m_useAutoPlotTitle = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::autoPlotTitle() const
+{
+    return m_useAutoPlotTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1242,7 +1250,7 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_isUsingAutoName);
+    uiOrdering.add(&m_useAutoPlotTitle);
     uiOrdering.add(&m_userDefinedPlotTitle);
     uiOrdering.add(&m_showPlotTitle);
     uiOrdering.add(&m_showLegend);
@@ -1252,7 +1260,7 @@ void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.add(&m_legendFontSize);
     }
 
-    m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_isUsingAutoName);
+    m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_useAutoPlotTitle);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -1393,7 +1401,7 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAutoNameOfCurves()
+void RimSummaryPlot::updateCurveNames()
 {
     if (m_summaryCurveCollection->isCurvesVisible())
     {
@@ -1479,7 +1487,7 @@ void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 {
     if (field == &m_showLegend || 
         field == &m_showPlotTitle ||
-        field == &m_isUsingAutoName)
+        field == &m_useAutoPlotTitle)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)

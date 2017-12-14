@@ -73,7 +73,10 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
     m_previewPlot.reset(new RimSummaryPlot());
-    m_previewPlot->setShowDescription(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title", "", "", "");
+    m_useAutoPlotTitleProxy.registerGetMethod(this, &RicSummaryCurveCreator::proxyPlotAutoTitle);
+    m_useAutoPlotTitleProxy.registerSetMethod(this, &RicSummaryCurveCreator::proxyEnablePlotAutoTitle);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
     m_applyButtonField = false;
@@ -141,6 +144,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     else
     {
         setDefaultCurveSelection();
+        m_previewPlot->enableAutoPlotTitle(true);
     }
 
     syncPreviewCurvesFromUiSelection();
@@ -210,6 +214,11 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         m_previewPlot->loadDataAndUpdate();
         m_appearanceApplyButton = false;
     }
+    else if (changedField == &m_useAutoPlotTitleProxy)
+    {
+        m_previewPlot->updatePlotTitle();
+        m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,6 +256,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Curve Appearance Assignment", RiuSummaryCurveDefinitionKeywords::appearance());
     caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup("Appearance Type Assignment");
     appearanceGroup->setCollapsedByDefault(true);
+
     appearanceSubGroup->add(&m_useAutoAppearanceAssignment);
     appearanceSubGroup->add(&m_caseAppearanceType);
     appearanceSubGroup->add(&m_variableAppearanceType);
@@ -267,6 +277,9 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     // Name config
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig());
     autoNameGroup->setCollapsedByDefault(true);
+
+    autoNameGroup->add(&m_useAutoPlotTitleProxy);
+
     m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     // Fields to be displayed directly in UI
@@ -494,6 +507,9 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
             curve->setCurveVisiblity(false);
     }
 
+    m_previewPlot->enableAutoPlotTitle(sourceSummaryPlot.autoPlotTitle());
+    m_previewPlot->updatePlotTitle();
+
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
 
     updateAppearanceEditor();
@@ -517,6 +533,8 @@ void RicSummaryCurveCreator::updateTargetPlot()
         }
         copyCurveAndAddToPlot(editedCurve, m_targetPlot);
     }
+
+    m_targetPlot->enableAutoPlotTitle(m_useAutoPlotTitleProxy());
 
     m_targetPlot->loadDataAndUpdate();
     m_targetPlot->updateConnectedEditors();
@@ -727,4 +745,23 @@ RimSummaryCase* RicSummaryCurveCreator::calculatedSummaryCase()
 void RicSummaryCurveCreator::selectionEditorFieldChanged()
 {
     syncPreviewCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::proxyEnablePlotAutoTitle(const bool& enable)
+{
+    m_previewPlot->enableAutoPlotTitle(enable);
+    m_previewPlot->enableShowPlotTitle(enable);
+    m_previewPlot->updateCurveNames();
+    m_previewPlot->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicSummaryCurveCreator::proxyPlotAutoTitle() const
+{
+    return m_previewPlot->autoPlotTitle();
 }
