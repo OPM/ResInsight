@@ -28,14 +28,17 @@
 #include <memory>
 
 class RiuPvtPlotUpdater;
+class RiuPvtQwtPicker;
+class RiuPvtPlotPanel;
+
 class QDockWidget;
-class QwtPlot;
 class QComboBox;
+class QLabel;
+
+class QwtPlot;
 class QwtPlotMarker;
 class QwtPlotCurve;
 
-class RiuPvtQwtPicker;
-class RiuPvtPlotPanel;
 
 
 
@@ -118,7 +121,7 @@ public:
     RiuPvtPlotPanel(QDockWidget* parent);
     virtual ~RiuPvtPlotPanel();
 
-    void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues);
+    void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues, QString cellReferenceText);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
 
@@ -136,8 +139,10 @@ private:
     FvfDynProps                                         m_fvfDynProps;
     ViscosityDynProps                                   m_viscosityDynProps;
     CellValues                                          m_cellValues;
+    QString                                             m_cellReferenceText;
 
     QComboBox*                                          m_phaseComboBox;
+    QLabel*                                             m_titleLabel;
 
     RiuPvtPlotWidget*                                   m_fvfPlot;
     RiuPvtPlotWidget*                                   m_viscosityPlot;

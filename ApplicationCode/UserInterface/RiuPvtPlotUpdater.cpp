@@ -144,14 +144,20 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "RS");
             cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "RV");
             cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
+            cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PVTNUM");
 
             cvf::ref<RigResultAccessor> rsAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RS", RiaDefines::DYNAMIC_NATIVE);
             cvf::ref<RigResultAccessor> rvAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RV", RiaDefines::DYNAMIC_NATIVE);
             cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PRESSURE", RiaDefines::DYNAMIC_NATIVE);
+            cvf::ref<RigResultAccessor> pvtnumAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PVTNUM", RiaDefines::STATIC_NATIVE);
+
             RiuPvtPlotPanel::CellValues cellValues;
             cellValues.rs = rsAccessor.notNull() ? rsAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             cellValues.rv = rvAccessor.notNull() ? rvAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             cellValues.pressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
+
+            const double cellPVTNUM = pvtnumAccessor.notNull() ? pvtnumAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
+
 
             RiuPvtPlotPanel::FvfDynProps fvfDynProps;
             eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf(activeCellIndex, cellValues.pressure, cellValues.rs, cellValues.rv, &fvfDynProps.bo, &fvfDynProps.bg);
@@ -159,13 +165,49 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
             eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity(activeCellIndex, cellValues.pressure, cellValues.rs, cellValues.rv, &viscosityDynProps.mu_o, &viscosityDynProps.mu_g);
 
-            plotPanel->setPlotData(eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellValues);
+            QString cellRefText = constructCellReferenceText(eclipseCaseData, gridIndex, gridLocalCellIndex, cellPVTNUM);
+
+            plotPanel->setPlotData(eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellValues, cellRefText);
 
             return true;
         }
     }
 
     return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuPvtPlotUpdater::constructCellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex, double pvtnum)
+{
+    const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
+    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+    if (grid && gridLocalCellIndex < grid->cellCount())
+    {
+        size_t i = 0;
+        size_t j = 0;
+        size_t k = 0;
+        if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+        {
+            // Adjust to 1-based Eclipse indexing
+            i++;
+            j++;
+            k++;
+
+            QString retText = QString("Grid index %1, Cell: [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
+
+            if (pvtnum != HUGE_VAL)
+            {
+                retText += QString(" (PVTNUM=%1)").arg(pvtnum);
+            }
+
+            return retText;
+        }
+    }
+
+    return QString();
 }
 
 

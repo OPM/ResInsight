@@ -504,11 +504,18 @@ RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
     m_phaseComboBox->addItem("Oil", QVariant(RigFlowDiagSolverInterface::PvtCurve::OIL));
     m_phaseComboBox->addItem("Gas", QVariant(RigFlowDiagSolverInterface::PvtCurve::GAS));
 
-    QHBoxLayout* comboLayout = new QHBoxLayout();
-    comboLayout->addWidget(new QLabel("Phase:"));
-    comboLayout->addWidget(m_phaseComboBox);
-    comboLayout->addStretch(1);
-    comboLayout->setContentsMargins(5, 5, 0, 0);
+    m_titleLabel = new QLabel("", this);
+    m_titleLabel->setAlignment(Qt::AlignHCenter);
+    QFont font = m_titleLabel->font();
+    font.setPixelSize(14);
+    font.setBold(true);
+    m_titleLabel->setFont(font);
+
+    QHBoxLayout* topLayout = new QHBoxLayout();
+    topLayout->addWidget(new QLabel("Phase:"));
+    topLayout->addWidget(m_phaseComboBox);
+    topLayout->addWidget(m_titleLabel, 1);
+    topLayout->setContentsMargins(5, 5, 0, 0);
 
     m_fvfPlot = new RiuPvtPlotWidget(this);
     m_viscosityPlot = new RiuPvtPlotWidget(this);
@@ -520,7 +527,7 @@ RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
     plotLayout->setContentsMargins(0, 0, 0, 0);
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(comboLayout);
+    mainLayout->addLayout(topLayout);
     mainLayout->addLayout(plotLayout);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -541,7 +548,7 @@ RiuPvtPlotPanel::~RiuPvtPlotPanel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues)
+void RiuPvtPlotPanel::setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues, QString cellReferenceText)
 {
     //cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 
@@ -551,6 +558,7 @@ void RiuPvtPlotPanel::setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, co
     m_fvfDynProps = fvfDynProps;
     m_viscosityDynProps = viscosityDynProps;
     m_cellValues = cellValues;
+    m_cellReferenceText = cellReferenceText;
 
     plotUiSelectedCurves();
 }
@@ -562,7 +570,7 @@ void RiuPvtPlotPanel::clearPlot()
 {
     //cvf::Trace::show("RiuPvtPlotPanel::clearPlot()");
 
-    if (m_allFvfCurvesArr.empty() && m_allViscosityCurvesArr.empty())
+    if (m_allFvfCurvesArr.empty() && m_allViscosityCurvesArr.empty() && m_cellReferenceText.isEmpty())
     {
         return;
     }
@@ -573,6 +581,7 @@ void RiuPvtPlotPanel::clearPlot()
     m_fvfDynProps = FvfDynProps();
     m_viscosityDynProps = ViscosityDynProps();
     m_cellValues = CellValues();
+    m_cellReferenceText.clear();
 
     plotUiSelectedCurves();
 }
@@ -625,7 +634,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
             curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Bo;
             pointMarkerFvfValue = m_fvfDynProps.bo;
             pointMarkerLabel = QString("%1 (%2)").arg(pointMarkerFvfValue).arg(m_cellValues.pressure);
-            if (m_cellValues.rv != HUGE_VAL)
+            if (m_cellValues.rs != HUGE_VAL)
             {
                 pointMarkerLabel += QString("\nRs = %1").arg(m_cellValues.rs);
             }
@@ -685,6 +694,15 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
         const QString yAxisTitle = QString("%1 Viscosity [%2]").arg(phaseString).arg(unitLabelFromCurveIdent(m_unitSystem, curveIdentToPlot));
         m_viscosityPlot->plotCurves(m_unitSystem, selectedViscosityCurves, m_cellValues.pressure, pointMarkerViscosityValue, pointMarkerLabel, plotTitle, yAxisTitle);
     }
+
+    // Update the label on top in our panel
+    QString titleStr = "PVT";
+    if (!m_cellReferenceText.isEmpty())
+    {
+        titleStr += ", " + m_cellReferenceText;
+    }
+
+    m_titleLabel->setText(titleStr);
 }
 
 //--------------------------------------------------------------------------------------------------

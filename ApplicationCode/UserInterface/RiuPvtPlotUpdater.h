@@ -25,6 +25,7 @@ class RiuSelectionItem;
 class RiuPvtPlotPanel;
 class RimView;
 class RimEclipseView;
+class RigEclipseCaseData;
 
 
 //==================================================================================================
@@ -41,7 +42,8 @@ public:
     void updateOnTimeStepChanged(RimView* changedView);
 
 private:
-    static bool queryDataAndUpdatePlot(const RimEclipseView& eclipseView, size_t gridIndex, size_t gridLocalCellIndex, RiuPvtPlotPanel* plotPanel);
+    static bool     queryDataAndUpdatePlot(const RimEclipseView& eclipseView, size_t gridIndex, size_t gridLocalCellIndex, RiuPvtPlotPanel* plotPanel);
+    static QString  constructCellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex, double pvtnum);
 
 private:
     QPointer<RiuPvtPlotPanel>   m_targetPlotPanel;
