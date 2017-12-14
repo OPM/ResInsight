@@ -56,7 +56,8 @@ private:
     caf::PdmField<bool> m_wellSegmentNumber;
     caf::PdmField<bool> m_lgrName;
     caf::PdmField<bool> m_completion;
-
+    caf::PdmField<bool> m_aquiferNumber;
+    
     caf::PdmField<bool> m_caseName;
 
     caf::PdmField<bool> m_showAdvancedProperties;

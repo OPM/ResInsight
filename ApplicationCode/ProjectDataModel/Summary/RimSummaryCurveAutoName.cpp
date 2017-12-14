@@ -47,6 +47,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "Well Segment Number", "", "", "");
     CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "Lgr Name", "", "", "");
     CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
+    CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",            true, "Aquifer Number", "", "", "");
     
     CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
 }
@@ -77,6 +78,15 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
 
     switch (summaryAddress.category())
     {
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        {
+            if (m_aquiferNumber)
+            {
+                if (text.size() > 0) text +=":";
+                text += std::to_string(summaryAddress.aquiferNumber());
+            }
+        }
+        break;
         case RifEclipseSummaryAddress::SUMMARY_REGION:
         {
             if (m_regionNumber)
@@ -219,6 +229,7 @@ void RimSummaryCurveAutoName::applySettings(const RimSummaryCurveAutoName& other
     m_wellSegmentNumber = other.m_wellSegmentNumber;
     m_lgrName           = other.m_lgrName;
     m_completion        = other.m_completion;
+    m_aquiferNumber     = other.m_aquiferNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,6 +298,7 @@ void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     advanced.add(&m_lgrName);
     advanced.add(&m_completion);
     advanced.add(&m_wellSegmentNumber);
+    advanced.add(&m_aquiferNumber);
     advanced.add(&m_unit);
 
     uiOrdering.skipRemainingFields();
