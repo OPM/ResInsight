@@ -352,17 +352,18 @@ void RiuMainWindow::createMenus()
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
-    importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
     importMenu->addSeparator();
     #endif
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
+
+    importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
