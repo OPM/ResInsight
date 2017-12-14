@@ -62,6 +62,7 @@ public:
     bool showTextFilter;
     bool showToggleAllCheckbox;
     bool singleSelectionMode;
+    bool setCurrentIndexWhenItemIsChecked;
 
     /// fieldToReceiveCurrentFieldValue is used to communicate the value of current item in the tree view
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on 
@@ -75,6 +76,7 @@ public:
         showTextFilter = true;
         showToggleAllCheckbox = true;
         singleSelectionMode = false;
+        setCurrentIndexWhenItemIsChecked = false;
 
         fieldToReceiveCurrentItemValue = nullptr;
     }
@@ -110,7 +112,7 @@ private slots:
     void                slotTextFilterChanged();
 
     void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
-    void                slotClicked(const QModelIndex& current);
+    void                slotClicked(const QModelIndex& index);
 
 private:
     void                setCheckedStateOfSelected(bool checked);

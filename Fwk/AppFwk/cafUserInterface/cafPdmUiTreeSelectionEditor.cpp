@@ -573,14 +573,18 @@ void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& current)
+void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
 {
-    if (current.isValid())
+    if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
     {
-        QVariant v = m_proxyModel->data(current, Qt::CheckStateRole);
-        if (v == Qt::Checked)
+        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
+        if (selectedIndexes.size() < 2)
         {
-            m_treeView->setCurrentIndex(current);
+            QVariant v = m_proxyModel->data(index, Qt::CheckStateRole);
+            if (v == Qt::Checked)
+            {
+                m_treeView->setCurrentIndex(index);
+            }
         }
     }
 }
