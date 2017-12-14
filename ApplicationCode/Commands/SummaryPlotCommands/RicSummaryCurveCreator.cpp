@@ -277,7 +277,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
     // Name config
-    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig());
+    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Plot and Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig());
     autoNameGroup->setCollapsedByDefault(true);
 
     autoNameGroup->add(&m_useAutoPlotTitleProxy);
