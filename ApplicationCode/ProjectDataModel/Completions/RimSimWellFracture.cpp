@@ -48,6 +48,7 @@ RimSimWellFracture::RimSimWellFracture(void)
     CAF_PDM_InitFieldNoDefault(&m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "");
     m_displayIJK.registerGetMethod(this, &RimSimWellFracture::createOneBasedIJKText);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
+    m_displayIJK.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_branchIndex, "Branch", 0, "Branch", "", "", "");
 }
