@@ -86,8 +86,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&m_yValuesSelectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
-    m_yValuesSelectedVariableDisplayField.xmlCapability()->setIOWritable(false);
-    m_yValuesSelectedVariableDisplayField.xmlCapability()->setIOReadable(false);
+    m_yValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
     m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "");
@@ -97,8 +96,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_yValuesUiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
-    m_yValuesUiFilterResultSelection.xmlCapability()->setIOWritable(false);
-    m_yValuesUiFilterResultSelection.xmlCapability()->setIOReadable(false);
+    m_yValuesUiFilterResultSelection.xmlCapability()->disableIO();
     m_yValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_yValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_yValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
@@ -116,33 +114,31 @@ RimSummaryCurve::RimSummaryCurve()
 
     // X Values
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryCase, "x_SummaryCase", "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryCase, "SummaryCaseX", "Case", "", "", "");
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden(true);
     m_xValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesSelectedVariableDisplayField, "x_SelectedVariableDisplayVar", "Vector", "", "", "");
-    m_xValuesSelectedVariableDisplayField.xmlCapability()->setIOWritable(false);
-    m_xValuesSelectedVariableDisplayField.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSelectedVariableDisplayField, "SelectedVariableDisplayVarX", "Vector", "", "", "");
+    m_xValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
     m_xValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryFilter, "x_VarListFilter", "Filter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryFilter, "VarListFilterX", "Filter", "", "", "");
     m_xValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_xValuesSummaryFilter.uiCapability()->setUiHidden(true);
 
     m_xValuesSummaryFilter = new RimSummaryFilter;
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesUiFilterResultSelection, "x_FilterResultSelection", "Filter Result", "", "", "");
-    m_xValuesUiFilterResultSelection.xmlCapability()->setIOWritable(false);
-    m_xValuesUiFilterResultSelection.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&m_xValuesUiFilterResultSelection, "FilterResultSelectionX", "Filter Result", "", "", "");
+    m_xValuesUiFilterResultSelection.xmlCapability()->disableIO();
     m_xValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_xValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_xValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "x_SummaryAddress", "Summary Address", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "SummaryAddressX", "Summary Address", "", "", "");
     m_xValuesCurveVariable.uiCapability()->setUiHidden(true);
     m_xValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_xPushButtonSelectSummaryAddress, "x_SelectAddress", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xPushButtonSelectSummaryAddress, "SelectAddressX", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_xPushButtonSelectSummaryAddress);
     m_xPushButtonSelectSummaryAddress = false;
 
