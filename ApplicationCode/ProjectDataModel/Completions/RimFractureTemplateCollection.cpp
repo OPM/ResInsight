@@ -35,7 +35,10 @@ RimFractureTemplateCollection::RimFractureTemplateCollection(void)
 {
     CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplates16x16.png", "", "");
 
-    CAF_PDM_InitField(&defaultUnitsForFracTemplates, "defaultUnitForFracTemplates", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Default unit system for fracture templates", "", "", "");
+    CAF_PDM_InitField(&defaultUnitsForFracTemplates, "DefaultUnitForTemplates",
+                      caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC),
+                      "Default unit system for fracture templates", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "FractureDefinitions", "", "", "", "");
     fractureDefinitions.uiCapability()->setUiHidden(true);
 }

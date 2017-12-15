@@ -64,22 +64,22 @@ RimFractureTemplate::RimFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
+    CAF_PDM_InitField(&name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+    CAF_PDM_InitField(&fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
     fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&orientationType, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
-    CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
-    CAF_PDM_InitField(&skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "");
+    CAF_PDM_InitField(&orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
+    CAF_PDM_InitField(&azimuthAngle,        "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
+    CAF_PDM_InitField(&skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
 
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "");
-    CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "Perforation Efficiency", "", "", "");
+    CAF_PDM_InitField(&perforationLength,     "PerforationLength",      1.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&perforationEfficiency, "PerforationEfficiency",  1.0, "Perforation Efficiency", "", "", "");
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
+    CAF_PDM_InitField(&wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
 
-    CAF_PDM_InitField(&conductivityType, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
+    CAF_PDM_InitField(&conductivityType,    "ConductivityType", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "fractureContainmentField", "Fracture Containment", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "");
     m_fractureContainment = new RimFractureContainment();
     m_fractureContainment.uiCapability()->setUiTreeHidden(true);
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden(true);

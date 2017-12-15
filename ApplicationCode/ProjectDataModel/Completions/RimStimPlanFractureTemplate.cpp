@@ -61,18 +61,18 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_stimPlanFileName, "StimPlanFileName", QString(""), "File Name", "", "", "");
+    CAF_PDM_InitField(&m_stimPlanFileName,          "StimPlanFileName", QString(""), "File Name", "", "", "");
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
+    CAF_PDM_InitField(&m_wellPathDepthAtFracture,   "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_borderPolygonResultName, "parameterForPolyton", QString(""), "Parameter", "", "", "");
+    CAF_PDM_InitField(&m_borderPolygonResultName,   "BorderPolygonResultName", QString(""), "Parameter", "", "", "");
     m_borderPolygonResultName.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_activeTimeStepIndex, "activeTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
-    CAF_PDM_InitField(&m_showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
-    CAF_PDM_InitField(&m_conductivityScalingFactor, "FractureConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
+    CAF_PDM_InitField(&m_activeTimeStepIndex,       "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
+    CAF_PDM_InitField(&m_showStimPlanMesh,          "ShowStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
+    CAF_PDM_InitField(&m_conductivityScalingFactor, "ConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
 
     m_fractureGrid = new RigFractureGrid();
 }
