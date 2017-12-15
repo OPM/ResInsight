@@ -68,6 +68,7 @@ protected:
     virtual QString                         createCurveAutoName() override;
     virtual void                            updateZoomInParentPlot() override;
     virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;

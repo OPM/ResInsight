@@ -181,6 +181,26 @@ void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimAsciiDataCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimPlotCurve::updateOptionSensitivity();
+
+    uiOrdering.add(&m_plotAxis);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->setCollapsedByDefault(true);
+    nameGroup->add(&m_showLegend);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
