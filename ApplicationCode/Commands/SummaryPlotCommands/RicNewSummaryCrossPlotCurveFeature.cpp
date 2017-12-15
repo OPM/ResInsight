@@ -77,6 +77,9 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
         plot->updateConnectedEditors();
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
 }
 

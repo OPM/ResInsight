@@ -32,6 +32,7 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -241,6 +242,14 @@ void RicDeleteItemExec::redo()
         RimSummaryPlotCollection* summaryPlotCollection = nullptr;
         parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
         if (summaryPlotCollection)
+        {
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
+
+        RimSummaryCrossPlotCollection* summaryCrossPlotCollection = nullptr;
+        parentObj->firstAncestorOrThisOfType(summaryCrossPlotCollection);
+        if (summaryCrossPlotCollection)
         {
             RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
