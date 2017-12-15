@@ -253,9 +253,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
             RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
 
-            if (curveCollection->curves().size() > 0)
+            if (curveCollection->visibleCurves().size() > 0)
             {
-                category = curveCollection->curves()[0]->summaryAddressY().category();
+                category = curveCollection->visibleCurves()[0]->summaryAddressY().category();
             }
 
             RiaSummaryCurveAnalyzer quantityAnalyzer;
@@ -472,7 +472,7 @@ RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
     std::set<RimSummaryCase*> cases;
-    for (auto curve : curveCollection->curves())
+    for (auto curve : curveCollection->visibleCurves())
     {
         if (isYAxisStepping())
         {
