@@ -129,8 +129,8 @@ RimWellPltPlot::RimWellPltPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitField(&m_useStandardConditionCurves, "showStandardConditionCurves", true, "Standard Volume", "", "", "");
-    CAF_PDM_InitField(&m_useReservoirConditionCurves, "showReservoirConditionCurves", true, "Reservoir Volume", "", "", "");
+    CAF_PDM_InitField(&m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume", "", "", "");
+    CAF_PDM_InitField(&m_useReservoirConditionCurves, "UseReservoirConditionCurves", true, "Reservoir Volume", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_phases, "Phases", "Phases", "", "", "");
     m_phases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
