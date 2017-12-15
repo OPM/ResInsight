@@ -330,6 +330,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
         {
             m_rangeSubSpacing = 13;
             m_lateralLength = "11";
+            m_lateralBuildAngle = 6.0;
             m_lateralTubingDiameter = 8;
             m_lateralOpenHoleRoghnessFactor = 0.001;
             m_lateralTubingRoghnessFactor = 1e-05;
@@ -339,6 +340,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
         {
             m_rangeSubSpacing = 42;
             m_lateralLength = "36";
+            m_lateralBuildAngle = 1.83;
             m_lateralTubingDiameter = 0.31;
             m_lateralOpenHoleRoghnessFactor = 0.0032;
             m_lateralTubingRoghnessFactor = 3.28e-05;
