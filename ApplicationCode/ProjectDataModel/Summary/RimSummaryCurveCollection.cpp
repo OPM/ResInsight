@@ -187,6 +187,24 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::visibleCurves() const
+{
+    std::vector<RimSummaryCurve*> visible;
+
+    for (auto c : m_curves)
+    {
+        if (c->isCurveVisible())
+        {
+            visible.push_back(c);
+        }
+    }
+
+    return visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 {
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;

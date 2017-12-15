@@ -79,11 +79,11 @@ private:
 private:
     RifSummaryReaderInterface* summaryReader() const;
     RimSummaryCase*            singleSummaryCase() const;
-    void                       updateUiFromCurves();
     caf::PdmValueField*        fieldToModify();
 
-    std::set<RifEclipseSummaryAddress> allAddressesUsedInCurveCollection() const;
-    std::set<RimSummaryCase*>          allSummaryCasesUsedInCurveCollection() const;
+    std::set<RifEclipseSummaryAddress> visibleAddressesCurveCollection() const;
+    std::set<RimSummaryCase*>          visibleSummaryCasesCurveCollection() const;
+    std::vector<caf::PdmFieldHandle*>  computeVisibleFieldsAndSetFieldVisibility();
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
