@@ -22,6 +22,7 @@
 
 #include <set>
 
+class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
 class RimGridTimeHistoryCurve;
@@ -40,5 +41,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void extractSelectedCurveFiltersAndSoloCurves(std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves);
+    static void extractSelectedCurves(std::vector<RimSummaryCurve*>* summaryCurves, 
+                                      std::vector<RimAsciiDataCurve*>* asciiDataCurves, 
+                                      std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves);
 };
