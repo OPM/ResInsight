@@ -123,6 +123,11 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseUserDataParserTools::iden
 {
     if (word.size() == 0) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
+    if (word.size() > 2 && word[0] == 'R' && word[2] == 'F')
+    {
+        return RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
+    }
+
     char firstLetter = word.at(0);
 
     if (firstLetter == 'A') return RifEclipseSummaryAddress::SUMMARY_AQUIFER;
@@ -131,25 +136,17 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseUserDataParserTools::iden
     if (firstLetter == 'F') return RifEclipseSummaryAddress::SUMMARY_FIELD;
     if (firstLetter == 'G') return RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
     if (firstLetter == 'N') return RifEclipseSummaryAddress::SUMMARY_NETWORK;
-    if (firstLetter == 'R') return RifEclipseSummaryAddress::SUMMARY_REGION; //TODO: CAN BE REGION2REGION OR MISC!!
+    if (firstLetter == 'R') return RifEclipseSummaryAddress::SUMMARY_REGION;
     if (firstLetter == 'S') return RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
     if (firstLetter == 'W') return RifEclipseSummaryAddress::SUMMARY_WELL;
 
     if (word.size() < 2) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
-    std::string firstTwoLetters;
-    firstTwoLetters.push_back(word.at(0));
-    firstTwoLetters.push_back(word.at(1));
+    std::string firstTwoLetters = word.substr(0, 2);
 
     if (firstTwoLetters == "LB") return RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
     if (firstTwoLetters == "LC") return RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR;
     if (firstTwoLetters == "LW") return RifEclipseSummaryAddress::SUMMARY_WELL_LGR;
-
-    /*
-    TODO
-    return RifEclipseSummaryAddress::SUMMARY_MISC
-    return RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION
-    */
 
     return RifEclipseSummaryAddress::SUMMARY_INVALID;
 }
