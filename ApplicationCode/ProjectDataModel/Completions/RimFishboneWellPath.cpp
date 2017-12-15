@@ -34,8 +34,10 @@ RimFishboneWellPath::RimFishboneWellPath()
     CAF_PDM_InitObject("WellPathCompletion", ":/FishBoneLateralFromFile16x16.png", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coordinates, "Coordinates", "Coordinates", "", "", "");
     m_coordinates.uiCapability()->setUiHidden(true);
+    
     CAF_PDM_InitFieldNoDefault(&m_measuredDepths, "MeasuredDepth", "MeasuredDepth", "", "", "");
     m_measuredDepths.uiCapability()->setUiHidden(true);
+    
     userDescriptionField()->uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "");
@@ -44,7 +46,6 @@ RimFishboneWellPath::RimFishboneWellPath()
     m_displayCoordinates.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_displayCoordinates.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -61,7 +61,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "");
 
-    CAF_PDM_InitField(&fishbonesColor,                  "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
+    CAF_PDM_InitField(&fishbonesColor,                  "Color", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("11.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
