@@ -110,8 +110,13 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
     this->firstAncestorOrThisOfType(wellPath);
     if (!wellPath) return cvf::UNDEFINED_DOUBLE;
 
+    double wellPathAzimuth = 0.0;
+    
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
+    if (wellPathGeometry)
+    {
+        wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
+    }
 
     if (wellPathAzimuth < 0) wellPathAzimuth += 360;
 
@@ -142,7 +147,10 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
     if (!wellPath) return;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
+    if (wellPathGeometry)
+    {
+        positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
+    }
 
     this->setAnchorPosition(positionAlongWellpath);
 }
