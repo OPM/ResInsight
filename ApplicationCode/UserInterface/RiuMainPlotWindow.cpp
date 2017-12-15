@@ -328,7 +328,7 @@ void RiuMainPlotWindow::refreshToolbars()
 void RiuMainPlotWindow::createDockPanels()
 {
     {
-        QDockWidget* dockWidget = new QDockWidget("Plot Object Project Tree", this);
+        QDockWidget* dockWidget = new QDockWidget("Plot Project Tree", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
