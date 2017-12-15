@@ -72,8 +72,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     m_filteredTimeStepsText.uiCapability()->setUiReadOnly(true);
     m_filteredTimeStepsText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_filteredTimeStepsText.xmlCapability()->setIOReadable(false);
-    m_filteredTimeStepsText.xmlCapability()->setIOWritable(false);
+    m_filteredTimeStepsText.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_applyReloadOfCase, "ApplyReloadOfCase", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyReloadOfCase);

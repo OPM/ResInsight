@@ -43,18 +43,18 @@ RimSummaryCalculationVariable::RimSummaryCalculationVariable()
     CAF_PDM_InitFieldNoDefault(&m_name,             "VariableName",     "Variable Name", "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_button, "PushButton", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_button,           "PushButton", "", "", "", "");
     m_button.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_button.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryAddressUi,   "SummaryAddressUi",   "Summary Address", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryAddressUi, "SummaryAddressUi",   "Summary Address", "", "", "");
     m_summaryAddressUi.registerGetMethod(this, &RimSummaryCalculationVariable::summaryAddressDisplayString);
     m_summaryAddressUi.xmlCapability()->disableIO();
     m_summaryAddressUi.uiCapability()->setUiReadOnly(true);
 
-    
-    CAF_PDM_InitFieldNoDefault(&m_case, "SummaryCase", "Summary Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case,             "SummaryCase",      "Summary Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryAddress,   "SummaryAddress",   "Summary Address", "", "", "");
+
     m_summaryAddress = new RimSummaryAddress;
 }
 
