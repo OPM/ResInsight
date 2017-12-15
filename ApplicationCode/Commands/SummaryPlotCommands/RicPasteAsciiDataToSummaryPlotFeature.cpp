@@ -56,14 +56,12 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
-    if (!summaryPlot)
+
+    RimSummaryPlotCollection* summaryPlotCollection = nullptr;
+    destinationObject->firstAncestorOrThisOfType(summaryPlotCollection);
+    if (!summaryPlotCollection)
     {
-        RimSummaryPlotCollection* summaryPlotCollection = nullptr;
-        destinationObject->firstAncestorOrThisOfType(summaryPlotCollection);
-        if (!summaryPlotCollection)
-        {
-            return false;
-        }
+        return false;
     }
 
     return hasPastedText();
