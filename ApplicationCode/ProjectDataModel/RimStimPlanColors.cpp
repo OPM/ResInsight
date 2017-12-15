@@ -45,7 +45,7 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "StimPlan Result Variable", "", "", "");
-    CAF_PDM_InitField(&m_opacityLevel,      "opacityLevel", 1.0f,       "Transparency", "", "", "");
+    CAF_PDM_InitField(&m_opacityLevel,      "OpacityLevel", 1.0f,       "Transparency", "", "", "");
     m_opacityLevel.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
