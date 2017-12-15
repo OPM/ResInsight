@@ -21,6 +21,8 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RiaApplication.h"
+
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -29,6 +31,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -36,6 +39,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "RiuMainPlotWindow.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
@@ -230,6 +235,15 @@ void RicDeleteItemExec::redo()
                 RimCase* aCase = dynamic_cast<RimCase*>(reffingObj);
                 if (aCase) aCase->updateFormationNamesData();
             }
+        }
+
+
+        RimSummaryPlotCollection* summaryPlotCollection = nullptr;
+        parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
+        if (summaryPlotCollection)
+        {
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
         }
     }
 }
