@@ -122,7 +122,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Paste Excel Data to Summary Curve");
+    actionToSetup->setText("Paste Excel Data to Summary Plot");
 
     RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
