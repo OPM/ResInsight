@@ -373,6 +373,16 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         recomputeLocations = true;
     }
 
+    if (changedField == &m_rangeStart && m_rangeStart > m_rangeEnd)
+    {
+        m_rangeEnd = m_rangeStart;
+    }
+
+    if (changedField == &m_rangeEnd && m_rangeEnd < m_rangeStart)
+    {
+        m_rangeStart = m_rangeEnd;
+    }
+
     if (changedField == &m_rangeSubSpacing &&
         m_rangeSubSpacing() < 13.0)
     {
