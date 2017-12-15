@@ -194,16 +194,15 @@ void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field
         {
             RimWellPath* rimWellPath = nullptr;
             this->firstAncestorOrThisOfType(rimWellPath);
-            CVF_ASSERT(rimWellPath);
+            if (!rimWellPath) return;
 
             RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
-            CVF_ASSERT(wellPathGeo);
+            if (!wellPathGeo) return;
+
+            if (wellPathGeo->m_measuredDepths.size() > 2)
             {
-                if (wellPathGeo->m_measuredDepths.size() > 2)
-                {
-                    myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
-                    myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
-                }
+                myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
+                myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
             }
         }
     }
