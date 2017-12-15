@@ -106,6 +106,8 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     if (mainPlotWindow)
     {
         mainPlotWindow->selectAsCurrentItem(sumCase);
+
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
     
     app->addToRecentFiles(fileName);

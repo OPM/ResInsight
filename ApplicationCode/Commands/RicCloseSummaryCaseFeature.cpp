@@ -28,6 +28,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuMainPlotWindow.h"
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -68,6 +70,9 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummary
 
         summaryCaseMainCollection->updateAllRequiredEditors();
     }
+
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateSummaryPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

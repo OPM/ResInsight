@@ -40,6 +40,7 @@
 #include "RimTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuMainPlotWindow.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
 
@@ -668,6 +669,9 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updateAxes();
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
+
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
     else if (changedField == &m_plotAxis)
     {
@@ -809,6 +813,9 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updateAxes();
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
+
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
 
     if (&m_showCurve == changedField)
