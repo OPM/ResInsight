@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
@@ -49,11 +50,14 @@
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimObservedData.h"
+#include "RimPltPlotCollection.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -63,18 +67,15 @@
 #include "RimViewLinker.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellRftPlot.h"
 #include "RimWellPltPlot.h"
-#include "RimRftPlotCollection.h"
-#include "RimPltPlotCollection.h"
-#include "RimWellLogFile.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellRftPlot.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
@@ -360,6 +361,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {
+            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>(uiItem);
+
             menuBuilder << "RicPasteSummaryCurveFeature";
             menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
@@ -374,7 +377,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicAsciiExportSummaryPlotFeature";
+
+            // Export is not supported for cross plot
+            if (!summaryCrossPlot) menuBuilder << "RicAsciiExportSummaryPlotFeature";
+            
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
@@ -576,7 +582,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
-            menuBuilder << "RicAsciiExportSummaryPlotFeature";
+            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>(uiItem);
+            if (!summaryCrossPlot)
+            {
+                menuBuilder << "RicAsciiExportSummaryPlotFeature";
+            }
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {

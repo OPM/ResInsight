@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimProject.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
@@ -45,7 +46,18 @@ CAF_CMD_SOURCE_INIT(RicShowPlotDataFeature, "RicShowPlotDataFeature");
 bool RicShowPlotDataFeature::isCommandEnabled()
 {
     auto selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
-    if (selectedSummaryPlots.size() > 0) return true;
+    if (selectedSummaryPlots.size() > 0)
+    {
+        for (auto c : selectedSummaryPlots)
+        {
+            if (dynamic_cast<RimSummaryCrossPlot*>(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     auto wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
     if (wellLogPlots.size() > 0) return true;
