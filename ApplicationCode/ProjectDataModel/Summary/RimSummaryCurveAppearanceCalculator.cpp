@@ -43,6 +43,20 @@ void caf::AppEnum< RimSummaryCurveAppearanceCalculator::CurveAppearanceType >::s
     setDefault(RimSummaryCurveAppearanceCalculator::NONE);
 }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool isExcplicitHandled(char secondChar)
+{
+    if (secondChar == 'W' || secondChar == 'O' || secondChar == 'G' || secondChar == 'V')
+    {
+        return true;
+    }
+
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -66,15 +80,12 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
             // Indexes for sub color ranges
             char secondChar = 0;
             if(varname.size() > 1)
-            { 
+            {
                 secondChar = varname[1];
-                if (   secondChar != 'W' 
-                    && secondChar != 'O'
-                    && secondChar != 'G'
-                    && secondChar != 'V')
-                 { 
-                     secondChar = 0; // Consider all others as one group for coloring
-                 } 
+                if (!isExcplicitHandled(secondChar))
+                {
+                    secondChar = 0; // Consider all others as one group for coloring
+                }
             }
             m_secondCharToVarToAppearanceIdxMap[secondChar][varname] = -1;
         }
@@ -304,7 +315,14 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
         int subColorIndex = -1;
         char secondChar = 0;
         std::string varname = curve->summaryAddressY().quantityName();
-        if (varname.size() > 1) secondChar = varname[1];
+        if (varname.size() > 1)
+        {
+            secondChar = varname[1];
+            if (!isExcplicitHandled(secondChar))
+            {
+                secondChar = 0; // Consider all others as one group for coloring
+            }
+        }
 
         subColorIndex = m_secondCharToVarToAppearanceIdxMap[secondChar][varname];
         
