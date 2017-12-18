@@ -196,7 +196,15 @@ QString RiuPvtPlotUpdater::constructCellReferenceText(const RigEclipseCaseData* 
             j++;
             k++;
 
-            QString retText = QString("Grid index %1, Cell: [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
+            QString retText;
+            if (gridIndex == 0)
+            {
+                retText = QString("Cell: [%1, %2, %3]").arg(i).arg(j).arg(k);
+            }
+            else
+            {
+                retText = QString("LGR %1, Cell: [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
+            }
 
             if (pvtnum != HUGE_VAL)
             {
