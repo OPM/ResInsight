@@ -124,6 +124,8 @@ private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
+    caf::PdmField<bool>                             m_branchDetection;
+
     caf::PdmPtrField<RimEclipseResultCase*>         m_case;
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<int>                              m_timeStep;

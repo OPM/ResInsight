@@ -80,6 +80,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
+    CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
+                    "Compute branches based on how simulation well cells are organized", "");
+
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
 
@@ -201,7 +204,7 @@ void RimWellAllocationPlot::updateFromWell()
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->eclipseCaseData(),
                                                                                     simWellData,
                                                                                     m_timeStep,
-                                                                                    true,
+                                                                                    m_branchDetection,
                                                                                     true,
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
@@ -715,7 +718,8 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
              || changedField == &m_flowDiagSolution
              || changedField == &m_groupSmallContributions
              || changedField == &m_smallContributionsThreshold
-             || changedField == &m_flowType )
+             || changedField == &m_flowType
+             || changedField == &m_branchDetection)
     {
         onLoadDataAndUpdate();
     }
@@ -768,6 +772,7 @@ void RimWellAllocationPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     dataGroup.add(&m_case);
     dataGroup.add(&m_timeStep);
     dataGroup.add(&m_wellName);
+    dataGroup.add(&m_branchDetection);
 
     caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup("Options");
     optionGroup.add(&m_flowDiagSolution);
