@@ -42,7 +42,7 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent)
     dummy->setContentsMargins(0, 0, 0, 0);
     dummy->addWidget(propertyWidget);
 
-    setWindowTitle("ResInsight: Plot Editor");
+    setWindowTitle("Plot Editor");
     resize(1200, 800);
     connect(m_curveCreatorSplitterUi, SIGNAL(signalCloseButtonPressed()), this, SLOT(accept()));
     
