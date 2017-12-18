@@ -316,6 +316,11 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 
             triggerLoadDataAndUpdate = true;
         }
+
+        m_wellName.uiCapability()->updateConnectedEditors();
+        m_wellGroupName.uiCapability()->updateConnectedEditors();
+        m_region.uiCapability()->updateConnectedEditors();
+        m_quantity.uiCapability()->updateConnectedEditors();
     }
     else if (changedField == &m_wellName)
     {
