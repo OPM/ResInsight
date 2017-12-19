@@ -37,9 +37,11 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <memory>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -185,6 +187,11 @@ namespace {
                 return this->func_.saturationPoints(this->table(regID));
             }
 
+            ::Opm::ECLPropTableRawData::SizeType numTables() const
+            {
+                return this->func_.numTables();
+            }
+
         private:
             ::Opm::SatFuncInterpolant func_;
 
@@ -297,6 +304,11 @@ namespace {
             }
 
             virtual std::unique_ptr<KrFunction> clone() const = 0;
+
+            ::Opm::ECLPropTableRawData::SizeType numTables() const
+            {
+                return this->func_.numTables();
+            }
 
         protected:
             std::vector<double>
@@ -514,6 +526,11 @@ namespace {
             saturationPoints(const std::size_t regID) const
             {
                 return this->func_.saturationPoints(this->table(regID));
+            }
+
+            ::Opm::ECLPropTableRawData::SizeType numTables() const
+            {
+                return this->func_.numTables();
             }
 
         private:
@@ -1100,6 +1117,8 @@ private:
 
     ECLRegionMapping rmap_;
 
+    ::Opm::ECLPropTableRawData::SizeType numTables_{0};
+
     std::unique_ptr<const ECLUnits::UnitSystem> usys_internal_{nullptr};
 
     std::unique_ptr<Oil::KrFunction>    oil_{nullptr};
@@ -1119,6 +1138,8 @@ private:
                  const ECLGraph&            G,
                  const ECLInitFileData&     init,
                  const InvalidEPBehaviour   handle_invalid);
+
+    void setNumTables(const ECLPropTableRawData::SizeType ntab);
 
     std::vector<double>
     kro(const ECLGraph&       G,
@@ -1317,6 +1338,8 @@ Impl::initRelPermInterp(const EPSEvaluator::ActPh& active,
                         const ECLInitFileData&     init,
                         const int                  usys)
 {
+    this->numTables_ = 0;
+
     const auto isThreePh =
         active.oil && active.gas && active.wat;
 
@@ -1326,10 +1349,14 @@ Impl::initRelPermInterp(const EPSEvaluator::ActPh& active,
 
     if (active.gas) {
         this->gas_.reset(new Gas::SatFunction(tabdims, tab, usys));
+
+        this->setNumTables(this->gas_->numTables());
     }
 
     if (active.wat) {
         this->wat_.reset(new Water::SatFunction(tabdims, tab, usys));
+
+        this->setNumTables(this->wat_->numTables());
     }
 
     if (active.oil) {
@@ -1358,6 +1385,8 @@ Impl::initRelPermInterp(const EPSEvaluator::ActPh& active,
 
             this->oil_.reset(new KrModel(tabdims, tab, this->wat_->swco()));
         }
+
+        this->setNumTables(this->oil_->numTables());
     }
 }
 
@@ -1373,6 +1402,26 @@ Impl::initEPS(const EPSEvaluator::ActPh& active,
     this->eps_.reset(new EPSEvaluator());
 
     this->eps_->define(G, init, ep, use3PtScaling, active, handle_invalid);
+}
+
+void Opm::ECLSaturationFunc::
+Impl::setNumTables(const ECLPropTableRawData::SizeType ntab)
+{
+    if (this->numTables_ == ECLPropTableRawData::SizeType(0)) {
+        // Number of tables not previously assigned.  Pick 'ntab'.
+        this->numTables_ = ntab;
+    }
+    else if (this->numTables_ != ntab) {
+        // Number of tables WAS previously assigned, but this new candidate
+        // number (ntab) does not match the existing number of tables.  This
+        // is an error.
+
+        throw std::invalid_argument {
+            "Inconsistent Number of Sat-Func Tables.  Expected "
+                + std::to_string(this->numTables_) + ", but got "
+                + std::to_string(ntab)
+        };
+    }
 }
 
 // #####################################################################
@@ -1999,6 +2048,8 @@ Opm::ECLSaturationFunc::Impl::EPSEvaluator::RawTEP
 Opm::ECLSaturationFunc::Impl::
 extractRawTableEndPoints(const EPSEvaluator::ActPh& active) const
 {
+    const auto zero = std::vector<double>(this->numTables_, 0.0);
+
     auto ep = EPSEvaluator::RawTEP{};
 
     if (active.oil) {
@@ -2013,11 +2064,21 @@ extractRawTableEndPoints(const EPSEvaluator::ActPh& active) const
         ep.crit.gas = this->gas_->sgcr();
         ep.smax.gas = this->gas_->sgmax();
     }
+    else {
+        ep.conn.gas = zero;
+        ep.crit.gas = zero;
+        ep.smax.gas = zero;
+    }
 
     if (active.wat) {
         ep.conn.water = this->wat_->swco();
         ep.crit.water = this->wat_->swcr();
         ep.smax.water = this->wat_->swmax();
+    }
+    else {
+        ep.conn.water = zero;
+        ep.crit.water = zero;
+        ep.smax.water = zero;
     }
 
     return ep;

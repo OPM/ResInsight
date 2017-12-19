@@ -276,6 +276,9 @@ BOOST_AUTO_TEST_CASE (AtNodes)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     const auto s         = std::vector<double>{ 0.8, 0.3, 0.3, 0.2 };
     const auto kr_expect = std::vector<double>{ 0.5, 0.1, 0.1, 0.0 };
     const auto pc_expect = std::vector<double>{ 0.0, 0.0, 0.0, 0.0 };
@@ -326,6 +329,9 @@ BOOST_AUTO_TEST_CASE (AboveAndBelow)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     const auto s         = std::vector<double>{ 0.80000001, 0.9, 0.199999999, 0.1 };
     const auto kr_expect = std::vector<double>{ 0.5,        0.5, 0.0,         0.0 };
     const auto pc_expect = std::vector<double>{ 0.0,        0.0, 0.0,         0.0 };
@@ -363,6 +369,9 @@ BOOST_AUTO_TEST_CASE (Interpolation)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     const auto s = std::vector<double>{
         0.2000,
@@ -460,6 +469,9 @@ BOOST_AUTO_TEST_CASE (InterpolationLargeNodeAlloc)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     const auto s = std::vector<double>{
         0.0000,
@@ -588,6 +600,9 @@ BOOST_AUTO_TEST_CASE (AtNodes)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     const auto s         = std::vector<double>{ 0.8, 0.3, 0.3, 0.2 };
     const auto kr_expect = std::vector<double>{ 0.5, 0.1, 0.1, 0.0 };
     const auto pc_expect = std::vector<double>{ 0.0, 0.0, 0.0, 0.0 };
@@ -657,6 +672,9 @@ BOOST_AUTO_TEST_CASE (AboveAndBelow)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     const auto s         = std::vector<double>{ 0.80000001, 0.9, 0.199999999, 0.1 };
     const auto kr_expect = std::vector<double>{ 0.5,        0.5, 0.0,         0.0 };
     const auto pc_expect = std::vector<double>{ 0.0,        0.0, 0.0,         0.0 };
@@ -716,6 +734,9 @@ BOOST_AUTO_TEST_CASE (Interpolation)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     const auto s = std::vector<double>{
         0.2000,
@@ -871,6 +892,9 @@ BOOST_AUTO_TEST_CASE (InterpolationLargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     const auto s = std::vector<double>{
         0.0000,
         0.1000,
@@ -986,6 +1010,9 @@ BOOST_AUTO_TEST_CASE (SWFN_CritIsConn)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn = swfunc.connateSat();
@@ -1039,6 +1066,9 @@ BOOST_AUTO_TEST_CASE (SWFN_CritIsConn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn = swfunc.connateSat();
@@ -1079,6 +1109,9 @@ BOOST_AUTO_TEST_CASE (SWFN)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1134,6 +1167,9 @@ BOOST_AUTO_TEST_CASE (SWFN_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn = swfunc.connateSat();
@@ -1174,6 +1210,9 @@ BOOST_AUTO_TEST_CASE (SOF3_CritIsConn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1230,6 +1269,9 @@ BOOST_AUTO_TEST_CASE (SOF3_CritIsConn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -1273,6 +1315,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOGCR_is_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1330,6 +1375,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOGCR_is_Conn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -1373,6 +1421,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOWCR_is_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1430,6 +1481,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOWCR_is_Conn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -1475,6 +1529,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SCR_Not_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1531,6 +1588,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SCR_Not_Conn_LargeNodeAlloc)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1596,6 +1656,9 @@ BOOST_AUTO_TEST_CASE (SWFN_CritIsConn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1701,6 +1764,9 @@ BOOST_AUTO_TEST_CASE (SWFN_CritIsConn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn = swfunc.connateSat();
@@ -1759,6 +1825,9 @@ BOOST_AUTO_TEST_CASE (SWFN)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -1868,6 +1937,9 @@ BOOST_AUTO_TEST_CASE (SWFN_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn = swfunc.connateSat();
@@ -1923,6 +1995,9 @@ BOOST_AUTO_TEST_CASE (SOF3_CritIsConn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -2030,6 +2105,9 @@ BOOST_AUTO_TEST_CASE (SOF3_CritIsConn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -2091,6 +2169,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOGCR_is_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -2202,6 +2283,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOGCR_is_Conn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -2263,6 +2347,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOWCR_is_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -2374,6 +2461,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SOWCR_is_Conn_LargeNodeAlloc)
         createDummyUnitConverter(t.numCols - 1)
     };
 
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
+
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
     const auto sconn      = swfunc.connateSat();
@@ -2443,6 +2533,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SCR_Not_Conn)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 
@@ -2553,6 +2646,9 @@ BOOST_AUTO_TEST_CASE (SOF3_SCR_Not_Conn_LargeNodeAlloc)
         toRawTableFormat(t),
         createDummyUnitConverter(t.numCols - 1)
     };
+
+    // Check number of tables
+    BOOST_CHECK_EQUAL(swfunc.numTables(), t.numTables);
 
     using ResultColumn = Opm::SatFuncInterpolant::ResultColumn;
 

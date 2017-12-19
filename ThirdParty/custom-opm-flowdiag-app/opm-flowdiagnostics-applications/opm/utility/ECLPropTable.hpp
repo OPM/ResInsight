@@ -235,6 +235,14 @@ namespace Opm {
         ///    to particular saturation region.
         const std::vector<double>& saturationPoints(const InTable& t) const;
 
+        /// Retrieve number of internal tables.
+        ///
+        /// \return Number of internal tables.
+        ECLPropTableRawData::SizeType numTables() const
+        {
+            return this->table_.size();
+        }
+
     private:
         /// Single tabulated 1D interpolant.
         class SingleTable
