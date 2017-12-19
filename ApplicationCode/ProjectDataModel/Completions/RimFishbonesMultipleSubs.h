@@ -119,7 +119,7 @@ private:
     static int                  randomValueFromRange(int min, int max);
     
 private:
-    caf::PdmField<size_t>               m_lateralCountPerSub;
+    caf::PdmField<int>                  m_lateralCountPerSub;
     caf::PdmField<QString>              m_lateralLength;
 
     caf::PdmField<double>               m_lateralExitAngle;
@@ -132,7 +132,7 @@ private:
 
     caf::PdmField<double>               m_lateralInstallSuccessFraction;
 
-    caf::PdmField<size_t>               m_icdCount;
+    caf::PdmField<int>                  m_icdCount;
     caf::PdmField<double>               m_icdOrificeDiameter;
     caf::PdmField<double>               m_icdFlowCoefficient;
 
@@ -140,7 +140,7 @@ private:
     caf::PdmField<double>               m_rangeStart;
     caf::PdmField<double>               m_rangeEnd;
     caf::PdmField<double>               m_rangeSubSpacing;
-    caf::PdmField<size_t>               m_rangeSubCount;
+    caf::PdmField<int>                  m_rangeSubCount;
 
     caf::PdmField<caf::AppEnum<LateralsOrientationType> >    m_subsOrientationMode;
 

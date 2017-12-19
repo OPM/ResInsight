@@ -63,7 +63,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     CAF_PDM_InitField(&fishbonesColor,                  "Color", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
+    CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", 3,            "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("11.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
 
     CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
@@ -76,7 +76,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     CAF_PDM_InitField(&m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0,     "Install Success Rate [0..1]", "", "", "");
 
-    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICDs per Sub", "", "", "");
+    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", 2,                      "ICDs per Sub", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
     CAF_PDM_InitField(&m_icdFlowCoefficient,            "IcdFlowCoefficient", 1.5,          "ICD Flow Coefficient", "", "", "");
 
@@ -87,7 +87,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  13.0,           "Spacing [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    size_t(25),     "Number of Subs", "", "", "");
+    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    25,             "Number of Subs", "", "", "");
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
     
@@ -421,7 +421,7 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
     if (m_subsLocationMode == FB_SUB_COUNT_END)
     {
-        size_t divisor = 1;
+        int divisor = 1;
         if (m_rangeSubCount > 2) divisor = m_rangeSubCount - 1;
 
         m_rangeSubSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
@@ -685,7 +685,7 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
         SubLateralIndex subLateralIndex;
         subLateralIndex.subIndex = subIndex;
 
-        for (size_t lateralIndex = 0; lateralIndex < m_lateralCountPerSub(); ++lateralIndex)
+        for (int lateralIndex = 0; lateralIndex < m_lateralCountPerSub(); ++lateralIndex)
         {
             subLateralIndex.lateralIndices.push_back(lateralIndex);
         }
