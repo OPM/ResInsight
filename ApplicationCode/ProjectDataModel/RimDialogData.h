@@ -22,6 +22,7 @@
 #include "cafPdmChildField.h"
 
 class RicExportCarfinUi;
+class RicExportCompletionDataSettingsUi;
 
 //==================================================================================================
 ///  
@@ -38,6 +39,9 @@ public:
     QString            exportCarfinDataAsString() const;
     void               setExportCarfinDataFromString(const QString& data);
 
+    RicExportCompletionDataSettingsUi* exportCompletionData(bool onlyWellPathCollectionSelected) const;
+
 private:
-    caf::PdmChildField<RicExportCarfinUi*> m_exportCarfin;
+    caf::PdmChildField<RicExportCarfinUi*>                  m_exportCarfin;
+    caf::PdmChildField<RicExportCompletionDataSettingsUi*>  m_exportCompletionData;
 };

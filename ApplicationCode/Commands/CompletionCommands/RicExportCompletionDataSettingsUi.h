@@ -55,7 +55,6 @@ public:
     RicExportCompletionDataSettingsUi();
     RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected);
 
-
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<WellSelectionType>        wellSelection;
     caf::PdmField<CompdatExportType>        compdatExport;
@@ -71,6 +70,8 @@ public:
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
 
     caf::PdmField<int>                      timeStep;
+
+    void                                    setOnlyWellPathCollectionSelected(bool onlyWellPathCollectionSelected);
 
     void                                    showForSimWells();
     void                                    showForWellPath();

@@ -86,6 +86,14 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setOnlyWellPathCollectionSelected(bool onlyWellPathCollectionSelected)
+{
+    m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showForSimWells()
 {
     m_displayForSimWell = true;

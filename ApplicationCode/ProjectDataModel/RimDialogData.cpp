@@ -19,6 +19,7 @@
 #include "RimDialogData.h"
 
 #include "ExportCommands/RicExportCarfinUi.h"
+#include "CompletionCommands/RicExportCompletionDataSettingsUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -31,6 +32,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_exportCarfin, "ExportCarfin", "Export Carfin", "", "", "");
     m_exportCarfin = new RicExportCarfinUi;
+
+    CAF_PDM_InitFieldNoDefault(&m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "");
+    m_exportCompletionData = new RicExportCompletionDataSettingsUi(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,5 +60,14 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 {
     m_exportCarfin->readObjectFromXmlString(data, caf::PdmDefaultObjectFactory::instance());
     m_exportCarfin->resolveReferencesRecursively();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData(bool onlyWellPathCollectionSelected) const
+{
+    m_exportCompletionData->setOnlyWellPathCollectionSelected(onlyWellPathCollectionSelected);
+    return m_exportCompletionData;
 }
 

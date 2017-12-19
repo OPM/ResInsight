@@ -38,6 +38,7 @@
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
+#include "RimDialogData.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"
@@ -110,20 +111,21 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
 
     RiaApplication* app = RiaApplication::instance();
+    RimProject* project = app->project();
 
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
     bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
-    RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
+    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(onlyWellPathCollectionSelected);
 
     if (wellPaths.empty())
     {
-        exportSettings.showForSimWells();
+        exportSettings->showForSimWells();
     }
     else
     {
-        exportSettings.showForWellPath();
+        exportSettings->showForWellPath();
     }
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
@@ -132,19 +134,19 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
         if (eclipseCase != nullptr)
         {
-            exportSettings.caseToApply = eclipseCase;
+            exportSettings->caseToApply = eclipseCase;
             break;
         }
     }
 
-    exportSettings.folder = defaultDir;
+    exportSettings->folder = defaultDir;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), exportSettings, "Export Completion Data", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);
+        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
 
         exportCompletions(wellPaths, simWells, exportSettings);
     }
