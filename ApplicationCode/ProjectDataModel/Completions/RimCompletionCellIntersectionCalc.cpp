@@ -104,7 +104,7 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
     {
         for (const RimFishbonesMultipleSubs* fishbones : wellPath->fishbonesCollection()->fishbonesSubs)
         {
-            if (fishbones->isChecked())
+            if (fishbones->isActive())
             {
                 calculateFishbonesIntersections(fishbones, grid, values);
             }

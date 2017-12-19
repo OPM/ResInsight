@@ -56,7 +56,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
                 double diameter = location.fishbonesSubs->holeDiameter(unitSystem);
-                QString completionMetaData = (location.fishbonesSubs->name() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
+                QString completionMetaData = (location.fishbonesSubs->generatedName() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
                                                                                  diameter / 2, 
                                                                                  location.fishbonesSubs->skinFactor(), 

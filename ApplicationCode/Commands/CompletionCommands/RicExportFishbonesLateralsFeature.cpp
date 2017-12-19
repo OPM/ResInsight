@@ -57,10 +57,9 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     QString completeFilename = QFileDialog::getSaveFileName(nullptr, "Select File for Well Path Data Export", defaultFileName, "Well Path Text File(*.dev);;All files(*.*)");
     if (completeFilename.isEmpty()) return;
 
-    QFile exportFile(completeFilename);
-
     RiaLogging::info("Starting export of Fishbones well path laterals to : " + completeFilename);
 
+    QFile exportFile(completeFilename);
     if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error("Could not open the file :\n" + completeFilename);
@@ -73,7 +72,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     // http://resinsight.org/docs/wellpaths/
     // Export format
     //
-    // wellname : <well name>__<sub lateral name>_<sub index>_<lateral index>
+    // WELLNAME: <well name>_<fishbone name>_Sub<sub index>_Lat<lateral index>
     //
     // for each coordinate along lateral, export
     // x y TVD MD 
@@ -82,7 +81,9 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     QTextStream stream(&exportFile);
     for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->fishbonesSubs())
     {
-        if (!fishbone->isChecked()) continue;
+        if (!fishbone->isActive()) continue;
+
+        const QString fishboneName = fishbone->generatedName();
 
         for (auto& sub : fishbone->installedLateralIndices())
         {
@@ -93,8 +94,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
                 // Pad with "0" to get a total of two characters defining the sub index text
                 QString subIndexText = QString("%1").arg(sub.subIndex, 2, 10, QChar('0'));
 
-                QString lateralNameCandidate = QString("%1_%2_%3_%4").arg(wellPath->name()).arg("fishbone").arg(subIndexText).arg(lateralIndex);
-
+                QString lateralNameCandidate = QString("%1_%2_Sub%3_Lat%4").arg(wellPath->name()).arg(fishboneName).arg(subIndexText).arg(lateralIndex);
                 QString lateralName = caf::Utils::makeValidFileBasename(lateralNameCandidate);
 
                 stream << "WELLNAME: " << lateralName << endl;

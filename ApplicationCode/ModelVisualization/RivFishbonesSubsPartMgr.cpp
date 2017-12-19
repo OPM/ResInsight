@@ -58,7 +58,7 @@ void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mo
 {
     clearGeometryCache();
 
-    if (!m_rimFishbonesSubs->isChecked()) return;
+    if (!m_rimFishbonesSubs->isActive()) return;
 
     if (m_parts.size() == 0)
     {

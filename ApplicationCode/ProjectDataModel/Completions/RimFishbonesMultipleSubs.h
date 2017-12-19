@@ -31,6 +31,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmChildField.h"
+#include "cafPdmProxyValueField.h"
 
 #include <algorithm>
 #include <memory>
@@ -50,7 +51,7 @@ struct SubLateralIndex {
 ///  
 ///  
 //==================================================================================================
-class RimFishbonesMultipleSubs : public RimCheckableNamedObject, public Rim3dPropertiesInterface
+class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,6 +73,8 @@ public:
     RimFishbonesMultipleSubs();
     virtual ~RimFishbonesMultipleSubs();
 
+    bool                isActive() const;
+    QString             generatedName() const;
 
     void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
 
@@ -104,11 +107,12 @@ public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;
 
 protected:
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
+    virtual caf::PdmFieldHandle*    objectToggleField() override;
 
-    virtual void        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void        initAfterRead() override;
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                    initAfterRead() override;
 
 private:
     void                        computeRangesAndLocations();
@@ -119,6 +123,9 @@ private:
     static int                  randomValueFromRange(int min, int max);
     
 private:
+    caf::PdmField<bool>                 m_isActive;
+    caf::PdmProxyValueField<QString>    m_name;
+
     caf::PdmField<int>                  m_lateralCountPerSub;
     caf::PdmField<QString>              m_lateralLength;
 

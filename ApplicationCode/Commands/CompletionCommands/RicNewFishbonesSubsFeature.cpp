@@ -54,7 +54,6 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
-    obj->setName(QString("Fishbones Subs (%1)").arg(fishbonesCollection->fishbonesSubs.size()));
     fishbonesCollection->appendFishbonesSubs(obj);
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);

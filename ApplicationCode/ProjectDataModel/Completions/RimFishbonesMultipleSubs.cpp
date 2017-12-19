@@ -61,6 +61,14 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive,                      "Active", true, "Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_name,                 "Name", "Name", "", "", "");
+    m_name.registerGetMethod(this, &RimFishbonesMultipleSubs::generatedName);
+    m_name.uiCapability()->setUiReadOnly(true);
+    m_name.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitField(&fishbonesColor,                  "Color", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", 3,            "Laterals Per Sub", "", "", "");
@@ -101,8 +109,6 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     m_pipeProperties = new RimFishbonesPipeProperties;
 
-    nameField()->uiCapability()->setUiReadOnly(true);
-
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
 }
 
@@ -111,6 +117,27 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 //--------------------------------------------------------------------------------------------------
 RimFishbonesMultipleSubs::~RimFishbonesMultipleSubs()
 {
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFishbonesMultipleSubs::isActive() const
+{
+    return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFishbonesMultipleSubs::generatedName() const
+{
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbonesMultipleSubs*>*>(this->parentField());
+    CVF_ASSERT(container);
+
+    size_t index = container->index(this);
+    return QString("Fishbone %1").arg(index);
 
 }
 
@@ -417,6 +444,22 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimFishbonesMultipleSubs::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
+{
+    return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
     if (m_subsLocationMode == FB_SUB_COUNT_END)
@@ -622,18 +665,6 @@ void RimFishbonesMultipleSubs::initAfterRead()
         computeRotationAngles();
     }
     computeSubLateralIndices();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
-{
-    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbonesMultipleSubs*>*>(this->parentField());
-    CVF_ASSERT(container);
-
-    size_t index = container->index(this);
-    this->setName(QString("Fishbone %1").arg(index));
 }
 
 //--------------------------------------------------------------------------------------------------

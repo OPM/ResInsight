@@ -288,7 +288,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 
             for (const WellSegmentLateral& lateral : location.laterals)
             {
-                formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
+                formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->generatedName()).arg(location.subIndex).arg(lateral.lateralIndex));
 
                 double depth = 0;
                 double length = 0;
