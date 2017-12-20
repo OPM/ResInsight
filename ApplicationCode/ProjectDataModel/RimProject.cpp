@@ -880,6 +880,8 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
     return cases;
 }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -914,6 +916,7 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
     }
     return templates;
 }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
