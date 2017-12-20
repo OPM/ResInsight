@@ -50,6 +50,7 @@ public:
 
     RimLegendConfig*    activeLegend() const;
     QString             resultName() const;
+    void                setDefaultResultNameForStimPlan();
     QString             unit() const;
     float               opacityLevel() const;
     cvf::Color3f        defaultColor() const;
@@ -66,7 +67,6 @@ protected:
 
 private:
     RimFractureTemplateCollection*          fractureTemplateCollection() const;
-    static QString                          toString(const std::pair<QString, QString>& resultNameAndUnit);
     
     static QString                          toResultName(const QString& resultNameAndUnit);
     static QString                          toUnit(const QString& resultNameAndUnit);

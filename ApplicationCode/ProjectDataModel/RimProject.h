@@ -52,6 +52,8 @@ class RimViewLinker;
 class RimViewLinkerCollection;
 class RimWellPath;
 class RimWellPathImport;
+class RimFractureTemplateCollection;
+class RimFractureTemplate;
 
 namespace caf
 {
@@ -110,7 +112,7 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    void                allOilFields(std::vector<RimOilField*>& oilFields);
+    void                allOilFields(std::vector<RimOilField*>& oilFields) const;
     RimOilField*        activeOilField();
     const RimOilField*  activeOilField() const;
 
@@ -132,6 +134,9 @@ public:
     std::vector<RimWellPath*>       allWellPaths() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
+
+    std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
+    std::vector<RimFractureTemplate*> allFractureTemplates() const;
 
 protected:
     // Overridden methods

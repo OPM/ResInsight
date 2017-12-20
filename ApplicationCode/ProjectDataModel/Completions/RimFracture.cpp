@@ -46,6 +46,7 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimStimPlanColors.h"
 #include "RimView.h"
 
 #include "RivWellFracturePartMgr.h"
@@ -68,6 +69,29 @@
 #include <math.h>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void setDefaultFractureColorResult()
+{
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* proj = app->project();
+
+    for (RimEclipseCase* const eclCase : proj->eclipseCases())
+    {
+        for (RimView* const view : eclCase->views())
+        {
+            std::vector<RimStimPlanColors*> fractureColors;
+            view->descendantsIncludingThisOfType(fractureColors);
+
+            for (RimStimPlanColors* const stimPlanColors : fractureColors)
+            {
+                stimPlanColors->setDefaultResultNameForStimPlan();
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -151,6 +175,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     if (changedField == &m_fractureTemplate)
     {
         setFractureTemplate(m_fractureTemplate);
+        setDefaultFractureColorResult();
     }
 
     if (changedField == &azimuth || 

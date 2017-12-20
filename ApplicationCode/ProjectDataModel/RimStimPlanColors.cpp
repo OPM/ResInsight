@@ -18,6 +18,8 @@
 
 #include "RimStimPlanColors.h"
 
+#include "RiaApplication.h"
+
 #include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimLegendConfig.h"
@@ -28,6 +30,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfqtUtils.h"
 
@@ -36,6 +39,12 @@
 
 
 CAF_PDM_SOURCE_INIT(RimStimPlanColors, "RimStimPlanColors");
+
+//--------------------------------------------------------------------------------------------------
+/// Internal methods
+//--------------------------------------------------------------------------------------------------
+static void setDefaultResultIfStimPlan(caf::PdmField<QString> &field);
+static QString toString(const std::pair<QString, QString>& resultNameAndUnit);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -84,7 +93,7 @@ void RimStimPlanColors::loadDataAndUpdate()
             bool found = false;
             for (auto resultNameAndUnit : resultNameAndUnits)
             {
-                if (RimStimPlanColors::toString(resultNameAndUnit) == legendVariableName)
+                if (toString(resultNameAndUnit) == legendVariableName)
                 {
                     found = true;
                 }
@@ -107,7 +116,7 @@ void RimStimPlanColors::loadDataAndUpdate()
     // Create legend for result if not already present
     for (auto resultNameAndUnit : resultNameAndUnits)
     {
-        QString resultNameUnitString = RimStimPlanColors::toString(resultNameAndUnit);
+        QString resultNameUnitString = toString(resultNameAndUnit);
         bool foundResult = false;
 
         for (RimLegendConfig* legend : m_legendConfigurations)
@@ -148,7 +157,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf
 
         for (auto resultNameAndUnit : fractureTemplates->stimPlanResultNamesAndUnits())
         {
-            QString resultNameAndUnitString = RimStimPlanColors::toString(resultNameAndUnit);
+            QString resultNameAndUnitString = toString(resultNameAndUnit);
             options.push_back(caf::PdmOptionItemInfo(resultNameAndUnitString, resultNameAndUnitString));
         }
     }
@@ -216,6 +225,14 @@ QString RimStimPlanColors::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanColors::setDefaultResultNameForStimPlan()
+{
+    setDefaultResultIfStimPlan(m_resultNameAndUnit);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::unit() const
 {
     return RimStimPlanColors::toUnit(m_resultNameAndUnit());
@@ -273,14 +290,6 @@ RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() c
     this->firstAncestorOrThisOfType(proj);
 
     return proj->activeOilField()->fractureDefinitionCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimStimPlanColors::toString(const std::pair<QString, QString>& resultNameAndUnit)
-{
-    return QString("%1 [%2]").arg(resultNameAndUnit.first).arg(resultNameAndUnit.second);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,3 +365,40 @@ void RimStimPlanColors::defineEditorAttribute(const caf::PdmFieldHandle* field, 
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Internal methods
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString toString(const std::pair<QString, QString>& resultNameAndUnit)
+{
+    return QString("%1 [%2]").arg(resultNameAndUnit.first).arg(resultNameAndUnit.second);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void setDefaultResultIfStimPlan(caf::PdmField<QString> &field)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimFractureTemplate*> stimPlanFracTemplates = proj->allFractureTemplates();
+
+    if (!stimPlanFracTemplates.empty() && field() == "None")
+    {
+        RimFractureTemplateCollection* templColl = proj->allFractureTemplateCollections().front();
+
+        for (auto resultNameAndUnit : templColl->stimPlanResultNamesAndUnits())
+        {
+            if (resultNameAndUnit.first == "CONDUCTIVITY")
+            {
+                field = toString(resultNameAndUnit);
+                break;
+            }
+        }
+    }
+
+}

@@ -40,6 +40,7 @@
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
+#include "RimFractureTemplate.h"
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RimGeoMechCase.h"
@@ -653,7 +654,7 @@ void RimProject::createDisplayModelAndRedrawAllViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allOilFields(std::vector<RimOilField*>& oilFields)
+void RimProject::allOilFields(std::vector<RimOilField*>& oilFields) const
 {
     oilFields.clear();
     for (const auto& oilField : this->oilFields)
@@ -877,6 +878,41 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
         }
     }
     return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFractureTemplateCollection*> RimProject::allFractureTemplateCollections() const
+{
+    std::vector<RimFractureTemplateCollection*> templColls;
+    std::vector<RimOilField*> oilFields;
+
+    allOilFields(oilFields);
+    for (RimOilField* oilField : oilFields)
+    {
+        templColls.push_back(oilField->fractureDefinitionCollection());
+    }
+    return templColls;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
+{
+    std::vector<RimFractureTemplate*> templates;
+    std::vector<RimOilField*> oilFields;
+
+    allOilFields(oilFields);
+    for (RimFractureTemplateCollection* templColl : allFractureTemplateCollections())
+    {
+        for (RimFractureTemplate* templ : templColl->fractureDefinitions())
+        {
+            templates.push_back(templ);
+        }
+    }
+    return templates;
 }
 
 //--------------------------------------------------------------------------------------------------
