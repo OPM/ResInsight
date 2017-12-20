@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
@@ -56,11 +57,12 @@ RicfExportSimWellCompletions::RicfExportSimWellCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportSimWellCompletions::execute()
 {
-    RicExportCompletionDataSettingsUi exportSettings(false);
-    exportSettings.timeStep = m_timeStep;
-    exportSettings.wellSelection = m_wellSelection;
-    exportSettings.fileSplit = m_fileSplit;
-    exportSettings.compdatExport = m_compdatExport;
+    RimProject* project = RiaApplication::instance()->project();
+    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(false);
+    exportSettings->timeStep = m_timeStep;
+    exportSettings->wellSelection = m_wellSelection;
+    exportSettings->fileSplit = m_fileSplit;
+    exportSettings->compdatExport = m_compdatExport;
 
     {
         bool foundCase = false;
@@ -68,7 +70,7 @@ void RicfExportSimWellCompletions::execute()
         {
             if (c->caseId() == m_caseId())
             {
-                exportSettings.caseToApply = c;
+                exportSettings->caseToApply = c;
                 foundCase = true;
                 break;
             }
@@ -85,11 +87,11 @@ void RicfExportSimWellCompletions::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("completions");
     }
-    exportSettings.folder = exportFolder;
+    exportSettings->folder = exportFolder;
 
     // FIXME : Select correct view?
     RimEclipseView* view;
-    for (RimView* v : exportSettings.caseToApply->views())
+    for (RimView* v : exportSettings->caseToApply->views())
     {
         view = dynamic_cast<RimEclipseView*>(v);
         if (view) break;
@@ -125,5 +127,5 @@ void RicfExportSimWellCompletions::execute()
 
     std::vector<RimWellPath*> wellPaths;
 
-    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, exportSettings);
+    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, *exportSettings);
 }

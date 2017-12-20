@@ -148,7 +148,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
 
-        exportCompletions(wellPaths, simWells, exportSettings);
+        exportCompletions(wellPaths, simWells, *exportSettings);
     }
 }
 

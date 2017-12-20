@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RimDialogData.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
@@ -55,14 +56,15 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportWellPathCompletions::execute()
 {
-    RicExportCompletionDataSettingsUi exportSettings(false);
-    exportSettings.timeStep = m_timeStep;
-    exportSettings.wellSelection = m_wellSelection;
-    exportSettings.fileSplit = m_fileSplit;
-    exportSettings.compdatExport = m_compdatExport;
-    exportSettings.includePerforations = m_includePerforations;
-    exportSettings.includeFishbones = m_includeFishbones;
-    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
+    RimProject* project = RiaApplication::instance()->project();
+    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(false);
+    exportSettings->timeStep = m_timeStep;
+    exportSettings->wellSelection = m_wellSelection;
+    exportSettings->fileSplit = m_fileSplit;
+    exportSettings->compdatExport = m_compdatExport;
+    exportSettings->includePerforations = m_includePerforations;
+    exportSettings->includeFishbones = m_includeFishbones;
+    exportSettings->excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
 
     {
         bool foundCase = false;
@@ -70,7 +72,7 @@ void RicfExportWellPathCompletions::execute()
         {
             if (c->caseId() == m_caseId())
             {
-                exportSettings.caseToApply = c;
+                exportSettings->caseToApply = c;
                 foundCase = true;
                 break;
             }
@@ -87,7 +89,7 @@ void RicfExportWellPathCompletions::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("completions");
     }
-    exportSettings.folder = exportFolder;
+    exportSettings->folder = exportFolder;
 
     std::vector<RimWellPath*> wellPaths;
     if (m_wellPathNames().empty())
@@ -114,5 +116,5 @@ void RicfExportWellPathCompletions::execute()
 
     std::vector<RimSimWellInView*> simWells;
 
-    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, exportSettings);
+    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, *exportSettings);
 }
