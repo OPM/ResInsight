@@ -907,7 +907,7 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
     allOilFields(oilFields);
     for (RimFractureTemplateCollection* templColl : allFractureTemplateCollections())
     {
-        for (RimFractureTemplate* templ : templColl->fractureDefinitions())
+        for (RimFractureTemplate* templ : templColl->fractureDefinitions)
         {
             templates.push_back(templ);
         }
