@@ -2414,12 +2414,29 @@ void RiaApplication::slotRecaulculateCompletionType()
 {
     std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
 
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    QModelIndex mi = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
+
     for (RimEclipseCase* eclipseCase : uniqueCases)
     {
         eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
     }
 
     m_eclipseCasesToRecalculate.clear();
+
+    // Recalculation of completion type causes active view to be set to potentially a different view
+    // Also current index in project tree is changed. Restore both to initial state.
+
+    if (activeView && activeView->viewer())
+    {
+        RiaApplication::instance()->setActiveReservoirView(activeView);
+        RiuMainWindow::instance()->setActiveViewer(activeView->viewer()->layoutWidget());
+    }
+
+    if (mi.isValid())
+    {
+        RiuMainWindow::instance()->projectTreeView()->treeView()->setCurrentIndex(mi);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
