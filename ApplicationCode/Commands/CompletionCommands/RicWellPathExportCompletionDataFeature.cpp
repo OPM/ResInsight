@@ -139,7 +139,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
         }
     }
 
-    exportSettings->folder = defaultDir;
+    if(exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), exportSettings, "Export Completion Data", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
