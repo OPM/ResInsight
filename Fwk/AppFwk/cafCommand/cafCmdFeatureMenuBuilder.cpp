@@ -153,7 +153,7 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
     {
         if (m_items[i].itemType == MenuItem::SEPARATOR)
         {
-            menu->addSeparator();
+            menus.back()->addSeparator();
         }
         else if (m_items[i].itemType == MenuItem::SUBMENU_START)
         {
