@@ -55,7 +55,6 @@ CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
-
     CAF_PDM_InitFieldNoDefault(&m_category,          "SummaryVarType",      "Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_quantityName,      "SummaryQuantityName", "Quantity", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionNumber,      "SummaryRegion",       "Region", "", "", "");
@@ -70,7 +69,13 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault(&m_aquiferNumber,     "SummaryAquifer",      "Aquifer", "", "", "");
 
     m_category = RifEclipseSummaryAddress::SUMMARY_INVALID;
-    m_regionNumber = m_regionNumber2 = m_wellSegmentNumber = m_cellI = m_cellJ = m_cellK = m_aquiferNumber -1;
+    m_regionNumber = -1;
+    m_regionNumber2 = -1;
+    m_wellSegmentNumber = -1;
+    m_cellI = -1;
+    m_cellJ = -1;
+    m_cellK = -1;
+    m_aquiferNumber = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
