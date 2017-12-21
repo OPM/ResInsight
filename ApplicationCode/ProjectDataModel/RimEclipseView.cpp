@@ -39,6 +39,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimFaultInViewCollection.h"
@@ -1400,6 +1401,50 @@ void RimEclipseView::updateDisplayModelForWellResults()
    
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
+{
+    bool isDependingOnCompletionType = false;
+
+    if (cellResult->isCompletionTypeSelected())
+    {
+        isDependingOnCompletionType = true;
+    }
+
+    if (cellEdgeResult()->hasResult())
+    {
+        std::vector<RimCellEdgeMetaData> metaData;
+        cellEdgeResult()->cellEdgeMetaData(&metaData);
+        for (const auto cellEdgeMeta : metaData)
+        {
+            if (cellEdgeMeta.m_resultVariable == RiaDefines::completionTypeResultName())
+            {
+                isDependingOnCompletionType = true;
+            }
+        }
+    }
+
+    if (currentFaultResultColors() && currentFaultResultColors()->isCompletionTypeSelected())
+    {
+        isDependingOnCompletionType = true;
+    }
+
+    for (auto propFilter : m_propertyFilterCollection()->propertyFilters)
+    {
+        if (propFilter->isActive() && propFilter->resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+        {
+            isDependingOnCompletionType = true;
+        }
+    }
+
+    if (isDependingOnCompletionType)
+    {
+        this->loadDataAndUpdate();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

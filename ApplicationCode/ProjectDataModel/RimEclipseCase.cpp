@@ -268,7 +268,11 @@ void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
 
     for (RimView* view : views())
     {
-        view->loadDataAndUpdate();
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+        if (eclipseView)
+        {
+            eclipseView->calculateCompletionTypeAndRedrawIfRequired();
+        }
     }
 }
 

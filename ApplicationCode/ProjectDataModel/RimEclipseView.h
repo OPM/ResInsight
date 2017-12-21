@@ -131,6 +131,8 @@ public:
     void                                            scheduleReservoirGridGeometryRegen();
     void                                            scheduleSimWellGeometryRegen();
     void                                            updateDisplayModelForWellResults();
+    
+    void                                            calculateCompletionTypeAndRedrawIfRequired();
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
     const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
