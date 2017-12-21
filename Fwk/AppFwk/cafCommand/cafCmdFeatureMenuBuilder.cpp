@@ -202,4 +202,19 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CmdFeatureMenuBuilder::isCmdFeatureAdded(const QString &commandId)
+{
+    for (const MenuItem &item : m_items)
+    {
+        if (item.itemType == MenuItem::COMMAND && item.itemName == commandId)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 } // end namespace caf

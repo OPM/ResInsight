@@ -67,7 +67,9 @@ public:
     CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const QIcon& menuIcon = QIcon());
     CmdFeatureMenuBuilder& subMenuEnd();
 
-    void appendToMenu(QMenu* menu);
+    void                   appendToMenu(QMenu* menu);
+
+    bool                   isCmdFeatureAdded(const QString &commandId);
 
 private:
     struct MenuItem
