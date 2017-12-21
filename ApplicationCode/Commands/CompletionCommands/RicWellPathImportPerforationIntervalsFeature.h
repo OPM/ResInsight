@@ -36,6 +36,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimWellPathCollection* selectedWellPath();
+    static RimWellPathCollection* selectedWellPathCollection();
 };
 
