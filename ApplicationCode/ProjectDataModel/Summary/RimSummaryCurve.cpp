@@ -376,7 +376,10 @@ QString RimSummaryCurve::createCurveAutoName()
     {
         QString xCurveName = m_curveNameConfig->curveName(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
 
-        name += " | " + xCurveName;
+        if (!name.isEmpty() || !xCurveName.isEmpty())
+        {
+            name += " | " + xCurveName;
+        }
     }
 
     return name;
