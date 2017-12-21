@@ -230,26 +230,48 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
+            menuBuilder.subMenuStart("Import");
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
-            menuBuilder << "Separator";
+            menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
+            menuBuilder.subMenuEnd();
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
+            menuBuilder.subMenuStart("Import");
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
-            menuBuilder << "Separator";
+            menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+
+            menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellLogCurveExtractionFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
+            menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+
+            menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
+            // Fracture commands
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            menuBuilder << "RicNewWellPathFractureFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+            menuBuilder << "RicNewFishbonesSubsFeature";
+            menuBuilder << "RicNewPerforationIntervalFeature";
+            menuBuilder << "RicEditPerforationCollectionFeature";
+            menuBuilder.subMenuEnd();
+
+            menuBuilder << "Separator";
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {
@@ -441,9 +463,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogCurveExtractionFeature";
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
+
+            menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicPlotProductionRateFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
+            menuBuilder.subMenuEnd();
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
@@ -515,7 +542,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
     }
 
-    // Command supporting multiple selected objects
     if (uiItems.size() > 0)
     {
         // Work in progress -- Start
@@ -535,12 +561,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         
-        menuBuilder << "RicNewFishbonesSubsFeature";
-        menuBuilder << "RicNewPerforationIntervalFeature";
+        if (!menuBuilder.isCmdFeatureAdded("RicNewFishbonesSubsFeature"))
+        {
+            menuBuilder << "RicNewFishbonesSubsFeature";
+        }
+        if (!menuBuilder.isCmdFeatureAdded("RicNewPerforationIntervalFeature"))
+        {
+            menuBuilder << "RicNewPerforationIntervalFeature";
+        }
+
         menuBuilder << "RicEditPerforationCollectionFeature";
         menuBuilder << "RicExportFishbonesLateralsFeature";
         menuBuilder << "RicExportFishbonesWellSegmentsFeature";
-        menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
         menuBuilder << "RicWellPathExportCompletionDataFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
@@ -557,11 +589,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
-
-        // Fracture commands
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-        menuBuilder << "RicNewWellPathFractureFeature";
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
         // Work in progress -- End
 
@@ -609,7 +636,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSimWellInView*>(uiItem))
         {
-            menuBuilder << "RicPlotProductionRateFeature";
             menuBuilder << "RicShowContributingWellsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEclipseWellShowLabelFeature";
