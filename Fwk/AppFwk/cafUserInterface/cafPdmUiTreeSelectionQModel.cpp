@@ -151,11 +151,13 @@ void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* fiel
 {
     m_uiFieldHandle = field;
 
-    if (m_options.size() != options.size())
+    bool mustRebuildOptionItemTree = m_options.size() != options.size();
+
+    m_options = options;
+
+    if (mustRebuildOptionItemTree)
     {
         beginResetModel();
-
-        m_options = options;
 
         if (m_tree)
         {
