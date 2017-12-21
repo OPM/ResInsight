@@ -25,6 +25,8 @@ ManyGroups::ManyGroups()
     if (!(m_proxyDoubleField == 3)) { std::cout << "Double is not 3 " << std::endl; }
 
     CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
+    m_multiSelectList.uiCapability()->setAutoAddingOptionFromValue(false);
+    
     m_multiSelectList.xmlCapability()->setIOReadable(false);
     m_multiSelectList.xmlCapability()->setIOWritable(false);
     m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -59,6 +61,29 @@ void ManyGroups::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const
 QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
+
+    // Test code used to switch between two lists with different content, but same item count
+    if (fieldNeedingOptions == &m_multiSelectList)
+    {
+        if (m_intField < 10)
+        {
+            QString text = "Apple 1";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Apple 2";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+        }
+        else
+        {
+            QString text = "Car 1";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Car 2";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+        }
+
+        return options;
+    }
 
     if (fieldNeedingOptions == &m_multiSelectList)
     {
