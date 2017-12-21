@@ -490,7 +490,7 @@ RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
         }
     }
 
-    if (cases.size() == 1)
+    if (cases.size() > 0)
     {
         return *(cases.begin());
     }
