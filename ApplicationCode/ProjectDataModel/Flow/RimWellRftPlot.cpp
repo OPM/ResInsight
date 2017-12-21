@@ -295,7 +295,7 @@ void RimWellRftPlot::applyInitialSelections()
         RimWellPlotTools::appendSet(gridTimeSteps, RimWellPlotTools::timeStepsFromGridCase(gridCase));
     }
     
-    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(simWellName);
+    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName);
     if(wellLogFiles.size() > 0)
     {
         sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED));
@@ -541,7 +541,7 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
     {
         if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED)
         {
-            for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure(associatedSimWellName()))
+            for (RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName))
             {
                 sources.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, wellLogFile));
             }
@@ -582,6 +582,10 @@ RimWellLogPlot* RimWellRftPlot::wellLogPlot() const
 void RimWellRftPlot::setSimWellOrWellPathName(const QString& currWellName)
 {
     m_wellPathNameOrSimWellName = currWellName;
+    if (m_wellPathNameOrSimWellName().isEmpty())
+    {
+        m_wellPathNameOrSimWellName = "None";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -649,7 +653,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             options.push_back(item);
         }
 
-        if (RimWellPlotTools::wellLogFilesContainingPressure(simWellName).size() > 0)
+        if (RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName).size() > 0)
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::OBSERVED), true));
 
@@ -799,6 +803,8 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 {
     RimProject * proj = RiaApplication::instance()->project();
 
+    options.push_back(caf::PdmOptionItemInfo("None", "None"));
+
     if (proj != nullptr)
     {
         const std::vector<QString> simWellNames = proj->simulationWellNames();
@@ -830,8 +836,6 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
             options.push_back(caf::PdmOptionItemInfo(wellName.first, wellName.second));
         }
     }
-
-    options.push_back(caf::PdmOptionItemInfo("None", "None"));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -65,7 +65,7 @@ public:
     static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
     static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd);
-    static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& simWellName);
+    static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellPathNameOrSimWellName);
     static RimWellLogFileChannel*                   getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile);
     static RimWellPath*                             wellPathFromWellLogFile(const RimWellLogFile* wellLogFile);
     static std::set<QDateTime>                      timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
