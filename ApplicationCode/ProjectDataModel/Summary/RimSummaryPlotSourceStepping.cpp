@@ -229,7 +229,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
     std::set<QString> identifierTexts;
 
-    RifSummaryReaderInterface* reader = summaryReader();
+    RifSummaryReaderInterface* reader = firstSummaryReaderForVisibleCurves();
     if (reader)
     {
         RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(reader);
@@ -457,9 +457,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryPlotSourceStepping::summaryReader() const
+RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForVisibleCurves() const
 {
-    RimSummaryCase* sumCase = singleSummaryCase();
+    RimSummaryCase* sumCase = firstSummaryCaseForVisibleCurves();
     if (sumCase)
     {
         return sumCase->summaryReader();
@@ -471,28 +471,22 @@ RifSummaryReaderInterface* RimSummaryPlotSourceStepping::summaryReader() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryPlotSourceStepping::singleSummaryCase() const
+RimSummaryCase* RimSummaryPlotSourceStepping::firstSummaryCaseForVisibleCurves() const
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
-    std::set<RimSummaryCase*> cases;
     for (auto curve : curveCollection->visibleCurves())
     {
-        if (isYAxisStepping())
+        if (isYAxisStepping() && curve->summaryCaseY())
         {
-            cases.insert(curve->summaryCaseY());
+            return curve->summaryCaseY();
         }
 
-        if (isXAxisStepping())
+        if (isXAxisStepping() && curve->summaryCaseX())
         {
-            cases.insert(curve->summaryCaseX());
+            return curve->summaryCaseX();
         }
-    }
-
-    if (cases.size() > 0)
-    {
-        return *(cases.begin());
     }
 
     return nullptr;

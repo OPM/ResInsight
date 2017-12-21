@@ -77,8 +77,8 @@ private:
                                        caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    RifSummaryReaderInterface* summaryReader() const;
-    RimSummaryCase*            singleSummaryCase() const;
+    RifSummaryReaderInterface* firstSummaryReaderForVisibleCurves() const;
+    RimSummaryCase*            firstSummaryCaseForVisibleCurves() const;
     caf::PdmValueField*        fieldToModify();
 
     std::set<RifEclipseSummaryAddress> visibleAddressesCurveCollection() const;
