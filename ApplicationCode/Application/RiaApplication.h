@@ -229,7 +229,7 @@ private:
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();
-    void                slotRecaulculateCompletionType();
+    void                slotRecalculateCompletionType();
 
     // Friend classes required to have access to slotUpdateScheduledDisplayModels
     // As snapshots are produced fast in sequence, the feature must have access to force redraw

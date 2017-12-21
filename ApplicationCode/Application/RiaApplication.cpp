@@ -2343,7 +2343,7 @@ void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawAllViews()
     {
         m_recalculateCompletionTypeTimer = new QTimer(this);
         m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
     }
 
     m_recalculateCompletionTypeTimer->start(500);
@@ -2361,7 +2361,7 @@ void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEc
     {
         m_recalculateCompletionTypeTimer = new QTimer(this);
         m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
     }
 
     m_recalculateCompletionTypeTimer->start(500);
@@ -2410,7 +2410,7 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::slotRecaulculateCompletionType()
+void RiaApplication::slotRecalculateCompletionType()
 {
     std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
 
