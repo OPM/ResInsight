@@ -371,18 +371,18 @@ QString RimSummaryCurve::createCurveAutoName()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
 
-    QString name = m_curveNameConfig->curveName(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
+    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
     if (isCrossPlotCurve())
     {
-        QString xCurveName = m_curveNameConfig->curveName(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
+        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
 
-        if (!name.isEmpty() || !xCurveName.isEmpty())
+        if (!curveName.isEmpty() || !curveNameX.isEmpty())
         {
-            name += " | " + xCurveName;
+            curveName += " | " + curveNameX;
         }
     }
 
-    return name;
+    return curveName;
 }
 
 //--------------------------------------------------------------------------------------------------

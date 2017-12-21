@@ -31,8 +31,10 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();
 
-    QString curveName(const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper) const;
-    void    applySettings(const RimSummaryCurveAutoName& other);
+    QString curveNameY(const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper) const;
+    QString curveNameX(const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper) const;
+
+    void applySettings(const RimSummaryCurveAutoName& other);
 
 private:
     friend class RimSummaryCurve;
@@ -41,6 +43,8 @@ private:
                                   const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+    void appendAddressDetails(std::string& text, const RifEclipseSummaryAddress& summaryAddress,
+                              const RimSummaryPlotNameHelper* nameHelper) const;
     void appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress,
                         const RimSummaryPlotNameHelper* nameHelper) const;
     void appendLgrName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;

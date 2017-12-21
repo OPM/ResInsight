@@ -1384,6 +1384,16 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
             {
                 addresses.push_back(curve->summaryAddressY());
                 sumCases.push_back(curve->summaryCaseY());
+
+                if (curve->summaryCaseX())
+                {
+                    sumCases.push_back(curve->summaryCaseX());
+
+                    if (curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
+                    {
+                        addresses.push_back(curve->summaryAddressX());
+                    }
+                }
             }
         }
     }
