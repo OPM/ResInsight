@@ -830,10 +830,18 @@ bool RicWellPathExportCompletionDataFeature::isPointBetween(const cvf::Vec3d& st
 std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath)
 {
     std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
-    for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
+    
+    if (wellPath->fishbonesCollection()->isChecked())
     {
-        fishbonesSubs.push_back(subs);
+        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
+        {
+            if (subs->isActive())
+            {
+                fishbonesSubs.push_back(subs);
+            }
+        }
     }
+
     return findWellSegmentLocations(caseToApply, wellPath, fishbonesSubs);
 }
 
