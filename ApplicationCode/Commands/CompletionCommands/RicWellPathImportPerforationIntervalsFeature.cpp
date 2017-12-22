@@ -73,7 +73,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
 
     for (auto& entry : perforationIntervals)
     {
-        RimWellPath* wellPath = wellPathCollection->wellPathByName(entry.first);
+        RimWellPath* wellPath = wellPathCollection->tryFindMatchingWellPath(entry.first);
         if (wellPath == nullptr)
         {
             RiaLogging::warning(QString("Import Well Path Perforation Intervals : Imported file contains unknown well path '%1'.").arg(entry.first));
