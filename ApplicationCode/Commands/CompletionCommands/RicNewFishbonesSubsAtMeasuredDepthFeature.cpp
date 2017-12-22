@@ -52,7 +52,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     wellPath->fishbonesCollection()->appendFishbonesSubs(obj);
 
-    obj->setMeasuredDepthAndCount(wellPathSelItem->m_measuredDepth, 24, 1);
+    obj->setMeasuredDepthAndCount(wellPathSelItem->m_measuredDepth, 12.5, 13);
 
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(wellPath->fishbonesCollection());

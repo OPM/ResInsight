@@ -22,6 +22,8 @@
 
 #include "RiaApplication.h"
 
+#include "RigWellPath.h"
+
 #include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -44,6 +46,11 @@ CAF_CMD_SOURCE_INIT(RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double getWellPathTipMd(RimWellPath* wellPath);
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 {
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
@@ -55,6 +62,12 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     fishbonesCollection->appendFishbonesSubs(obj);
+
+    double wellPathTipMd = getWellPathTipMd(wellPath);
+    if (wellPathTipMd != NAN)
+    {
+        obj->setMeasuredDepthAndCount(wellPathTipMd - 150 - 100, 12.5, 13);
+    }
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);
 
@@ -176,4 +189,18 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
 
         RiuMainWindow::instance()->updateScaleValue();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double getWellPathTipMd(RimWellPath* wellPath)
+{
+    RigWellPath* geometry = wellPath ? wellPath->wellPathGeometry() : nullptr;
+
+    if (geometry && !geometry->m_measuredDepths.empty())
+    {
+        return geometry->m_measuredDepths.back();
+    }
+    return NAN;
 }

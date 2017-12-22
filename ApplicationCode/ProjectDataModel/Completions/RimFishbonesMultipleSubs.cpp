@@ -94,8 +94,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_COUNT_END), "Location Defined By", "", "", "");
     CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  13.0,           "Spacing [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    25,             "Number of Subs", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_rangeSubSpacing,      "RangeSubSpacing",                  "Spacing [m]", "", "", "");
+    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    13,             "Number of Subs", "", "", "");
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
     
@@ -355,7 +355,6 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
     {
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
         {
-            m_rangeSubSpacing = 13;
             m_lateralLength = "11";
             m_lateralBuildAngle = 6.0;
             m_lateralTubingDiameter = 8;
@@ -365,7 +364,6 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
         }
         else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
         {
-            m_rangeSubSpacing = 42;
             m_lateralLength = "36";
             m_lateralBuildAngle = 1.83;
             m_lateralTubingDiameter = 0.31;
