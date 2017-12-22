@@ -728,41 +728,45 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
     const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
 
-    for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
+    if (wellPath->perforationIntervalCollection()->isChecked())
     {
-        if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
-
-        using namespace std;
-        pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(settings.caseToApply->eclipseCaseData(),
-                                                                                                                                      perforationPointsAndMD.first,
-                                                                                                                                      perforationPointsAndMD.second);
-        for (auto& cell : intersectedCells)
+        for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
         {
-            bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
-            if (!cellIsActive) continue;
+            if (!interval->isChecked()) continue;
+            if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
 
-            size_t i, j, k;
-            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.globCellIndex, &i, &j, &k);
-            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
-            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
+            using namespace std;
+            pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
+            std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(settings.caseToApply->eclipseCaseData(),
+                                                                                                                                          perforationPointsAndMD.first,
+                                                                                                                                          perforationPointsAndMD.second);
+            for (auto& cell : intersectedCells)
+            {
+                bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
+                if (!cellIsActive) continue;
 
-            double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
-                                                                                                        wellPath,
-                                                                                                        cell.intersectionLengthsInCellCS,
-                                                                                                        interval->skinFactor(),
-                                                                                                        interval->diameter(unitSystem) / 2,
-                                                                                                        cell.globCellIndex,
-                                                                                                        settings.useLateralNTG);
+                size_t i, j, k;
+                settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.globCellIndex, &i, &j, &k);
+                RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
+                CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
+
+                double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
+                                                                                                            wellPath,
+                                                                                                            cell.intersectionLengthsInCellCS,
+                                                                                                            interval->skinFactor(),
+                                                                                                            interval->diameter(unitSystem) / 2,
+                                                                                                            cell.globCellIndex,
+                                                                                                            settings.useLateralNTG);
               
 
 
-            completion.setTransAndWPImultBackgroundDataFromPerforation(transmissibility, 
-                                                                       interval->skinFactor(), 
-                                                                       interval->diameter(unitSystem),
-                                                                       direction);
-            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()) + QString(" : ") + QString::number(transmissibility));
-            completionData.push_back(completion);
+                completion.setTransAndWPImultBackgroundDataFromPerforation(transmissibility, 
+                                                                           interval->skinFactor(), 
+                                                                           interval->diameter(unitSystem),
+                                                                           direction);
+                completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()) + QString(" : ") + QString::number(transmissibility));
+                completionData.push_back(completion);
+            }
         }
     }
 
