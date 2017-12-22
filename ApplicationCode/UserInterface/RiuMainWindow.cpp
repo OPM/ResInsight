@@ -586,6 +586,10 @@ void RiuMainWindow::createDockPanels()
     }
 */
 
+    QDockWidget* resultPlotDock = nullptr;
+    QDockWidget* relPermPlotDock = nullptr;
+    QDockWidget* pvtPlotDock = nullptr;
+
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
         dockWidget->setObjectName("dockWidget");
@@ -626,6 +630,7 @@ void RiuMainWindow::createDockPanels()
         dockPanel->setWidget(m_resultQwtPlot);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        resultPlotDock = dockPanel;
     }
  
     {
@@ -636,7 +641,7 @@ void RiuMainWindow::createDockPanels()
         dockPanel->setWidget(m_relPermPlotPanel);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        dockPanel->hide();
+        relPermPlotDock = dockPanel;
     }
 
     {
@@ -647,7 +652,7 @@ void RiuMainWindow::createDockPanels()
         dockPanel->setWidget(m_pvtPlotPanel);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        dockPanel->hide();
+        pvtPlotDock = dockPanel;
     }
 
     {
@@ -661,6 +666,10 @@ void RiuMainWindow::createDockPanels()
 
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+
+    // Tabify docks
+    tabifyDockWidget(pvtPlotDock, relPermPlotDock);
+    tabifyDockWidget(relPermPlotDock, resultPlotDock);
 }
 
 //--------------------------------------------------------------------------------------------------
