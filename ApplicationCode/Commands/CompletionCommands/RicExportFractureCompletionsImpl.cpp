@@ -32,6 +32,8 @@
 #include "RimStimPlanFractureTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigTransmissibilityCondenser.h"
@@ -57,7 +59,17 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     RimEclipseCase* caseToApply = settings.caseToApply();
 
     std::vector<RimFracture*> fracturesAlongWellPath;
-    wellPath->descendantsIncludingThisOfType(fracturesAlongWellPath);
+
+    if (wellPath->fractureCollection()->isChecked())
+    {
+        for (const auto& frac : wellPath->fractureCollection()->fractures)
+        {
+            if (frac->isChecked())
+            {
+                fracturesAlongWellPath.push_back(frac);
+            }
+        }
+    }
 
     return generateCompdatValues(caseToApply,
                                  wellPath->completions()->wellNameForExport(),
