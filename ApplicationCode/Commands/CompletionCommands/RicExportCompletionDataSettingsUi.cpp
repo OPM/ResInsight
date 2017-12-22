@@ -66,6 +66,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
     CAF_PDM_InitFieldNoDefault(&wellSelection, "WellSelection", "Well Selection", "", "", "");
+    wellSelection.uiCapability()->setAutoAddingOptionFromValue(false);
+
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
@@ -180,7 +182,17 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
     generalExportSettings->add(&useLateralNTG);
 
     generalExportSettings->add(&wellSelection);
-    if(!m_onlyWellPathCollectionSelected) wellSelection.setValue(SELECTED_WELLS);
+    if (!m_onlyWellPathCollectionSelected)
+    {
+        wellSelection.setValue(SELECTED_WELLS);
+    }
+    else
+    {
+        if (wellSelection() != ALL_WELLS && wellSelection() != CHECKED_WELLS)
+        {
+            wellSelection.setValue(CHECKED_WELLS);
+        }
+    }
 
     generalExportSettings->add(&fileSplit);
 
