@@ -107,7 +107,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         std::vector<RimFracture*> fractures;
         for (RimSimWellFracture* fracture : well->simwellFractureCollection->simwellFractures())
         {
-            if (static_cast<size_t>(fracture->branchIndex()) == branchIndex)
+            if (fracture->isChecked() && static_cast<size_t>(fracture->branchIndex()) == branchIndex)
             {
                 fractures.push_back(fracture);
             }
