@@ -21,6 +21,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
+#include "RiuSummaryVectorDescriptionMap.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -98,7 +99,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
     if (!m_titleQuantity.empty())
     {
         if (!title.isEmpty()) title += ", ";
-        title += QString::fromStdString(m_titleQuantity);
+        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->fieldInfo(m_titleQuantity));
     }
 
     if (title.isEmpty())
