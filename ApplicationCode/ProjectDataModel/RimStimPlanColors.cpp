@@ -387,7 +387,9 @@ void setDefaultResultIfStimPlan(caf::PdmField<QString> &field)
 
     std::vector<RimFractureTemplate*> stimPlanFracTemplates = proj->allFractureTemplates();
 
-    if (!stimPlanFracTemplates.empty() && field() == "None")
+    QString currentResultName = field();
+
+    if (!stimPlanFracTemplates.empty() && (currentResultName.isEmpty() || currentResultName == "None"))
     {
         RimFractureTemplateCollection* templColl = proj->allFractureTemplateCollections().front();
 
