@@ -64,9 +64,12 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
     fishbonesCollection->appendFishbonesSubs(obj);
 
     double wellPathTipMd = getWellPathTipMd(wellPath);
-    if (wellPathTipMd != NAN)
+    if (wellPathTipMd != HUGE_VAL)
     {
-        obj->setMeasuredDepthAndCount(wellPathTipMd - 150 - 100, 12.5, 13);
+        double startMd = wellPathTipMd - 150 - 100;
+        if (startMd < 100) startMd = 100;
+
+        obj->setMeasuredDepthAndCount(startMd, 12.5, 13);
     }
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);
@@ -202,5 +205,5 @@ double getWellPathTipMd(RimWellPath* wellPath)
     {
         return geometry->m_measuredDepths.back();
     }
-    return NAN;
+    return HUGE_VAL;
 }
