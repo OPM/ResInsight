@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
@@ -281,18 +282,26 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             return;
         }
     }
-    
+
     std::map<IJKCellIndex, std::vector<RigCompletionData> > completionsPerEclipseCell;
-//    FractureTransmissibilityExportInformation
+
+    // FractureTransmissibilityExportInformation
+    std::unique_ptr<QTextStream> fractureTransmissibilityExportInformationStream = nullptr;
 
     QString fractureTransmisibillityExportInformationPath = QDir(exportSettings.folder).filePath("FractureTransmissibilityExportInformation");
     QFile fractureTransmissibilityExportInformationFile(fractureTransmisibillityExportInformationPath);
-    if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly))
+
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    if (prefs->includeFractureDebugInfoFile())
     {
-        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(fractureTransmisibillityExportInformationPath));
-        return;
+        if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly))
+        {
+            RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(fractureTransmisibillityExportInformationPath));
+            return;
+        }
+
+        fractureTransmissibilityExportInformationStream = std::unique_ptr<QTextStream>(new QTextStream(&fractureTransmissibilityExportInformationFile));
     }
-    QTextStream fractureTransmissibilityExportInformationStream(&fractureTransmissibilityExportInformationFile);
 
     for (auto wellPath : usedWellPaths)
     {
@@ -312,7 +321,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         if (exportSettings.includeFractures())
         {
-            std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, &fractureTransmissibilityExportInformationStream);
+            std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, fractureTransmissibilityExportInformationStream.get());
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
         }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
@@ -322,9 +331,9 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (auto simWell : simWells)
     {
-        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), 
-                                                                                                                                  simWell, 
-                                                                                                                                  &fractureTransmissibilityExportInformationStream);
+        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(),
+                                                                                                                                    simWell,
+                                                                                                                                    fractureTransmissibilityExportInformationStream.get());
         appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
     }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES

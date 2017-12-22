@@ -72,6 +72,8 @@ RiaPreferences::RiaPreferences(void)
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
     appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
+    includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -122,6 +124,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &showHud ||
             field == &appendClassNameToUiText ||
             field == &appendFieldKeywordToToolTipText ||
+            field == &includeFractureDebugInfoFile ||
             field == &showLasCurveWithoutTvdWarning)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
@@ -181,6 +184,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&appendClassNameToUiText);
         uiOrdering.add(&appendFieldKeywordToToolTipText);
+        uiOrdering.add(&includeFractureDebugInfoFile);
     }
 
     uiOrdering.skipRemainingFields(true);
