@@ -50,6 +50,6 @@ private:
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
                                                                 const QString& wellPathName,
                                                                 const RigWellPath* wellPathGeometry,
-                                                                const std::vector<RimFracture*> fractures,
+                                                                const std::vector<RimFracture*>& fractures,
                                                                 QTextStream* outputStreamForIntermediateResultsText);
 };

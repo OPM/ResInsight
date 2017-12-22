@@ -115,7 +115,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValues(RimEclipseCase* caseToApply,
                                                                                        const QString& wellPathName,
                                                                                        const RigWellPath* wellPathGeometry,
-                                                                                       const std::vector<RimFracture*> fractures,
+                                                                                       const std::vector<RimFracture*>& fractures,
                                                                                        QTextStream* outputStreamForIntermediateResultsText)
 {
     double cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
@@ -159,7 +159,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         const std::vector<RigFractureCell>& fractureCells = fractureGrid->fractureCells();
 
-        for (const RigFractureCell fractureCell : fractureCells)
+        for (const RigFractureCell& fractureCell : fractureCells)
         {
             if (!fractureCell.hasNonZeroConductivity()) continue;
 

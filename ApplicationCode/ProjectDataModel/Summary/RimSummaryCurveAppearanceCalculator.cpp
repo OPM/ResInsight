@@ -60,7 +60,7 @@ bool isExcplicitHandled(char secondChar)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames)
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, const std::set<std::string>& allSummaryCaseNames, const std::set<std::string>& allSummaryWellNames)
 {
     m_allSummaryCaseNames = allSummaryCaseNames;
     m_allSummaryWellNames = allSummaryWellNames;

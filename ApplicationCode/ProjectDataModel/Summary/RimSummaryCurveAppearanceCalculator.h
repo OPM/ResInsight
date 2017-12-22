@@ -33,8 +33,8 @@ class RimSummaryCurveAppearanceCalculator
 {
 public:
     explicit RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, 
-                                                 const std::set<std::string> allSummaryCaseNames, 
-                                                 const std::set<std::string> allSummaryWellNames);
+                                                 const std::set<std::string>& allSummaryCaseNames, 
+                                                 const std::set<std::string>& allSummaryWellNames);
     enum CurveAppearanceType
     {
         NONE,
