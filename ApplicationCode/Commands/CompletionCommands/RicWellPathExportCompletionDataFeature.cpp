@@ -128,15 +128,19 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         exportSettings->showForWellPath();
     }
-    std::vector<RimCase*> cases;
-    app->project()->allCases(cases);
-    for (auto c : cases)
+
+    if (!exportSettings->caseToApply())
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
-        if (eclipseCase != nullptr)
+        std::vector<RimCase*> cases;
+        app->project()->allCases(cases);
+        for (auto c : cases)
         {
-            exportSettings->caseToApply = eclipseCase;
-            break;
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+            if (eclipseCase != nullptr)
+            {
+                exportSettings->caseToApply = eclipseCase;
+                break;
+            }
         }
     }
 
