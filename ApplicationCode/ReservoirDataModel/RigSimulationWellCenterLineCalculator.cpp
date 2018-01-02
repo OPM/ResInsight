@@ -142,14 +142,13 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
     const RigWellResultPoint* prevWellResPoint = NULL;
 
-    CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1);
+    // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
 
     // The centerline is calculated by adding a point when the pipe enters a cell, 
     // and one when the line leaves the cell.
     // For the sake of the loop:
     // The currentResultPoint (Cell) and the one we index by the loop variable is the one we calculate the entry point to.
     // The previous cell is the one we leave, and calculate the "out-point" from 
-
 
     for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
     {
