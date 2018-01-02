@@ -48,6 +48,7 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiDoubleValueEditor.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -129,6 +130,8 @@ set( PROJECT_FILES
     cafPdmUiPropertyViewDialog.h
     cafPdmUiWidgetBasedObjectEditor.cpp
     cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiDoubleValueEditor.cpp
+    cafPdmUiDoubleValueEditor.h
 
 
     # div
