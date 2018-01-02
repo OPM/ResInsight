@@ -68,13 +68,13 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
     m_watCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_oilCurve = new QwtPlotCurve;
-    setCurveColor(m_oilCurve, QColor(169, 18, 16)); // Red
+    setCurveColor(m_oilCurve,  QColor(123, 167, 0)); // Green
     m_oilCurve->setZ(0.8);
     m_oilCurve->setTitle("Oil");
     m_oilCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_gasCurve = new QwtPlotCurve;
-    setCurveColor(m_gasCurve, QColor(123, 167, 0)); // Green
+    setCurveColor(m_gasCurve, QColor(169, 18, 16)); // Red
     m_gasCurve->setZ(0.7);
     m_gasCurve->setTitle("Gas");
     m_gasCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);

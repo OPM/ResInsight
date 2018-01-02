@@ -44,29 +44,12 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                      size_t timestep)
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
-    RigCaseCellResultsData* gridCellResults = caseToApply->results(porosityModel);
+    
 
-    size_t scalarResultIndexSwat = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-    size_t scalarResultIndexSoil = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-    size_t scalarResultIndexSgas = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-    size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
-    const std::vector<double>* swatResults = nullptr;
-    const std::vector<double>* soilResults = nullptr;
-    const std::vector<double>* sgasResults = nullptr;
-    if (scalarResultIndexSwat != cvf::UNDEFINED_SIZE_T)
-    {
-        swatResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwat, timestep));
-    }
-    if (scalarResultIndexSoil != cvf::UNDEFINED_SIZE_T)
-    {
-        soilResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSoil, timestep));
-    }
-    if (scalarResultIndexSgas != cvf::UNDEFINED_SIZE_T)
-    {
-        sgasResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSgas, timestep));
-    }
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));
+    const std::vector<double>* swatResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timestep);
+    const std::vector<double>* soilResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timestep);
+    const std::vector<double>* sgasResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timestep);
+    const std::vector<double>* porvResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0);
         
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
