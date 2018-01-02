@@ -205,6 +205,8 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         view->updateCurrentTimeStepAndRedraw();
     }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
     // Update stim plan templates if relevant
     RimStimPlanColors* stimPlanColors;
     firstAncestorOrThisOfType(stimPlanColors);
@@ -212,7 +214,7 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         stimPlanColors->updateStimPlanTemplates();
     }
-
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
