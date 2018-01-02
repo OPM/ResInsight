@@ -191,39 +191,7 @@ RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
 
 }
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void removeCrossFlowCells(std::pair<const std::string, std::vector<int>> & tracerCellIdxsPair,
-                          std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> & WellInFluxPrCell,
-                          std::function<bool(double)> isFlowOkFunction)
-{
-    std::string tracerName = tracerCellIdxsPair.first;
-    tracerName = RimFlowDiagSolution::removeCrossFlowEnding(QString::fromStdString(tracerName)).toStdString();
-    auto cellSetIdInFlowsPair =  WellInFluxPrCell.find(Opm::FlowDiagnostics::CellSetID(tracerName));
 
-    CVF_TIGHT_ASSERT(cellSetIdInFlowsPair != WellInFluxPrCell.end());
-
-    std::vector<int> filteredCellIndices;
-
-    for ( int activeCellIdx : tracerCellIdxsPair.second )
-    {
-        auto activeCellIdxFluxPair = cellSetIdInFlowsPair->second.find(activeCellIdx);
-        CVF_TIGHT_ASSERT(activeCellIdxFluxPair != cellSetIdInFlowsPair->second.end());
-
-        if ( isFlowOkFunction(activeCellIdxFluxPair->second) )
-        {
-            filteredCellIndices.push_back(activeCellIdx);
-        }
-    }
-
-    if ( tracerCellIdxsPair.second.size() != filteredCellIndices.size() ) 
-    { 
-        tracerCellIdxsPair.second = filteredCellIndices;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -285,7 +253,6 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         // Create the Toolbox.
 
         m_opmFlowDiagStaticData->m_fldToolbox.reset(new Opm::FlowDiagnostics::Toolbox{ connGraph });
-        m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume);
 
         // Look for unified restart file
         QStringList m_filesWithSameBaseName;
@@ -324,6 +291,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     progressInfo.setProgress(3);
     progressInfo.setProgressDescription("Assigning Flux Field");
+
+    assignPhaseCorrecedPORV(phaseSelection, timeStepIndex);
 
     Opm::ECLRestartData* currentRestartData = nullptr;
 
@@ -384,56 +353,6 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(WellInFluxPrCell);
 
-        #if 0
-        // Start Hack: Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
-        for ( auto& tracerCellIdxsPair: injectorTracers )
-        {
-            std::vector<int> filteredCellIndices;
-                        
-            for (int activeCellIdx : tracerCellIdxsPair.second)
-            {
-                auto activeCellIdxFluxPair = WellInFluxPrCell.find(activeCellIdx);
-                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != WellInFluxPrCell.end());
-
-                if (activeCellIdxFluxPair->second > 0 )
-                {
-                    filteredCellIndices.push_back(activeCellIdx);
-                }
-            }
-
-            if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
-        }
-
-        for ( auto& tracerCellIdxsPair: producerTracers )
-        {
-            std::vector<int> filteredCellIndices;
-
-            for (int activeCellIdx : tracerCellIdxsPair.second)
-            {
-                auto activeCellIdxFluxPair = WellInFluxPrCell.find(activeCellIdx);
-                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != WellInFluxPrCell.end());
-
-                if (activeCellIdxFluxPair->second < 0 )
-                {
-                    filteredCellIndices.push_back(activeCellIdx);
-                }
-            }
-            if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
-        }
-      
-
-        // End Hack
-        // New Filtering Probably not neccesary
-        for ( auto& tracerCellIdxsPair: injectorTracers )
-        {
-            removeCrossFlowCells(tracerCellIdxsPair, WellInFluxPrCell, [](double inFlow){ return inFlow > 0;});
-        }
-
-        for ( auto& tracerCellIdxsPair: producerTracers )
-        {
-            removeCrossFlowCells(tracerCellIdxsPair, WellInFluxPrCell, [](double inFlow){ return inFlow < 0;});
-        }
-        #endif
     }
 
     progressInfo.incrementProgress();
@@ -588,6 +507,50 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
     }
 
     return m_opmFlowDiagStaticData.notNull() ? true : false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV(RigFlowDiagResultAddress::PhaseSelection phaseSelection, 
+                                                         size_t timeStepIdx)
+{
+    RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
+
+    const std::vector<double>* phaseSaturation = nullptr;
+
+    switch ( phaseSelection )
+    {
+        case RigFlowDiagResultAddress::PHASE_OIL:
+        phaseSaturation = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStepIdx);
+        break;
+        case RigFlowDiagResultAddress::PHASE_GAS:
+        phaseSaturation = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIdx);
+        break;
+        case RigFlowDiagResultAddress::PHASE_WAT:
+        phaseSaturation = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIdx);
+        break;
+        default:
+        m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume(m_opmFlowDiagStaticData->m_poreVolume);
+        break;
+    }
+
+
+    if (phaseSaturation)
+    {
+        std::vector<double> porvAdjusted = m_opmFlowDiagStaticData->m_poreVolume;
+        CAF_ASSERT(porvAdjusted.size() == phaseSaturation->size());
+        for (size_t idx = 0; idx < porvAdjusted.size(); ++idx )
+        {
+            porvAdjusted[idx] *= phaseSaturation->at(idx);
+        }
+
+        m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume(porvAdjusted);
+    }
+    else
+    {
+        m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume(m_opmFlowDiagStaticData->m_poreVolume);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

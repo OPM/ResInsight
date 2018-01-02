@@ -109,10 +109,10 @@ public:
     explicit RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
     virtual ~RigFlowDiagSolverInterface();
 
-    RigFlowDiagTimeStepResult calculate(size_t timestep,  
-                                        RigFlowDiagResultAddress::PhaseSelection phaseSelection,
-                                        std::map<std::string, std::vector<int> > injectorTracers, 
-                                        std::map<std::string, std::vector<int> > producerTracers);
+    RigFlowDiagTimeStepResult      calculate(size_t timeStepIdx,  
+                                             RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                             std::map<std::string, std::vector<int> > injectorTracers,
+                                             std::map<std::string, std::vector<int> > producerTracers);
 
     FlowCharacteristicsResultFrame calculateFlowCharacteristics(const std::vector<double>* injector_tof,
                                                                 const std::vector<double>* producer_tof,
@@ -125,13 +125,13 @@ public:
     bool                           calculatePvtDynamicPropertiesViscosity(size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g);
 
 private:
-    std::string getInitFileName() const;
-    bool        ensureStaticDataObjectInstanceCreated();
+    std::string                    getInitFileName() const;
+    bool                           ensureStaticDataObjectInstanceCreated();
+    void                           assignPhaseCorrecedPORV(RigFlowDiagResultAddress::PhaseSelection phaseSelection, 
+                                                           size_t timeStepIdx);
 
-    RimEclipseResultCase * m_eclipseCase;
-
+    RimEclipseResultCase *             m_eclipseCase;
     cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;
-   
 };
 
 
