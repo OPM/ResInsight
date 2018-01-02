@@ -204,6 +204,15 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         view->updateCurrentTimeStepAndRedraw();
     }
+
+    // Update stim plan templates if relevant
+    RimStimPlanColors* stimPlanColors;
+    firstAncestorOrThisOfType(stimPlanColors);
+    if (stimPlanColors)
+    {
+        stimPlanColors->updateStimPlanTemplates();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

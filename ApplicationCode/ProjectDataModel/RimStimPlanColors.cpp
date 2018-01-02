@@ -179,22 +179,7 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 
     if (changedField == &m_resultNameAndUnit)
     {
-        //Get all frac templates and re-generate stimplan cells
-        RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
-        {
-            std::vector<RimStimPlanFractureTemplate*> stimPlanFracTemplates;
-            proj->descendantsIncludingThisOfType(stimPlanFracTemplates);
-            for (RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates)
-            {
-                stimPlanFracTemplate->updateFractureGrid();
-            }
-            proj->createDisplayModelAndRedrawAllViews();
-        }
-
-
-
+        updateStimPlanTemplates();
     }
 }
 
@@ -278,6 +263,26 @@ void RimStimPlanColors::updateLegendData()
         }
 
         legendConfig->setTitle(cvfqt::Utils::toString(m_resultNameAndUnit()));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanColors::updateStimPlanTemplates() const
+{
+    //Get all frac templates and re-generate stimplan cells
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        std::vector<RimStimPlanFractureTemplate*> stimPlanFracTemplates;
+        proj->descendantsIncludingThisOfType(stimPlanFracTemplates);
+        for (RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates)
+        {
+            stimPlanFracTemplate->updateFractureGrid();
+        }
+        proj->createDisplayModelAndRedrawAllViews();
     }
 }
 
