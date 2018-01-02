@@ -56,6 +56,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
 #include "cvfPlane.h"
@@ -236,7 +237,6 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                                                                const std::vector<RimSimWellInView*>& simWells,
                                                                const RicExportCompletionDataSettingsUi& exportSettings)
 {
-
     if (exportSettings.caseToApply() == nullptr)
     {
         RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
@@ -270,6 +270,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 break;
             }
         }
+
         for (const RimSimWellInView* simWell : simWells)
         {
             RimEclipseCase* eclipseCase;
@@ -307,6 +308,17 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         fractureTransmissibilityExportInformationStream = std::unique_ptr<QTextStream>(new QTextStream(&fractureTransmissibilityExportInformationFile));
     }
 
+    size_t maxProgress = 
+        usedWellPaths.size() * 3 +
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        simWells.size() +
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+        (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ? usedWellPaths.size() :
+         exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE ? usedWellPaths.size() * 3 : 1);
+
+    caf::ProgressInfo progress(maxProgress, "Export Completions");
+
+    progress.setProgressDescription("Read Completion Data");
     for (auto wellPath : usedWellPaths)
     {
         // Generate completion data
@@ -316,11 +328,14 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             std::vector<RigCompletionData> perforationCompletionData = generatePerforationsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionsPerEclipseCell, perforationCompletionData);
         }
+        progress.incrementProgress();
+
         if (exportSettings.includeFishbones)
         {
             std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
             appendCompletionData(&completionsPerEclipseCell, fishbonesCompletionData);
         }
+        progress.incrementProgress();
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         if (exportSettings.includeFractures())
@@ -329,7 +344,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
         }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
+        progress.incrementProgress();
     }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
@@ -339,11 +354,13 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                                                                                                                                     simWell,
                                                                                                                                     fractureTransmissibilityExportInformationStream.get());
         appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
+        progress.incrementProgress();
     }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
+    progress.setProgressDescription("Write Export Files");
     if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
     {
         std::vector<RigCompletionData> completions;
@@ -354,6 +371,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
         const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
         printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.compdatExport);
+        progress.incrementProgress();
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL)
     {
@@ -378,6 +396,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
             QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
             printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
+            progress.incrementProgress();
         }
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
@@ -397,6 +416,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                     QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
                     printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
                 }
+                progress.incrementProgress();
             }
             {
                 std::vector<RigCompletionData> perforationCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::PERFORATION);
@@ -405,6 +425,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                     QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
                     printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
                 }
+                progress.incrementProgress();
             }
             {
                 std::vector<RigCompletionData> fractureCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FRACTURE);
@@ -413,6 +434,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                     QString fileName = QString("%1_Fractures_%2").arg(wellPath->name()).arg(eclipseCaseName);
                     printCompletionsToFile(exportSettings.folder, fileName, fractureCompletions, exportSettings.compdatExport);
                 }
+                progress.incrementProgress();
             }
         }
     }
