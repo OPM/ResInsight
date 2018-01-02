@@ -141,9 +141,11 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     for (RimFracture* fracture : fractures)
     {
-        bool useFiniteConductivityInFracture = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
-        
         RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
+
+        if (!fracTemplate) continue;
+
+        bool useFiniteConductivityInFracture = (fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
         const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
 
         //If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture

@@ -44,6 +44,7 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
     {
         RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();
 
+        if(fractureTemplate)
         {
             const std::vector<RigFractureCell>& stpCells = fractureTemplate->fractureGrid()->fractureCells();
             for ( const auto& stpCell: stpCells ) stpCellPolygons.push_back(stpCell.getPolygon());

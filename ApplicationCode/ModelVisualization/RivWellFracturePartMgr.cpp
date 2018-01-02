@@ -113,12 +113,19 @@ void RivWellFracturePartMgr::generateSurfacePart(const caf::DisplayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::generateContainmentMaskPart(const RimEclipseView* activeView)
 {
-    std::vector<cvf::Vec3f> borderPolygonLocalCS =  m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
+    RimFractureTemplate* fracTemplate = m_rimFracture->fractureTemplate();
+    std::vector<cvf::Vec3f> borderPolygonLocalCS;
     cvf::Mat4d frMx = m_rimFracture->transformMatrix();
 
     cvf::BoundingBox frBBox;
     std::vector<cvf::Vec3d> borderPolygonGlobCs;
     std::vector<cvf::Vec3d> borderPolygonLocalCsd;
+
+    if (fracTemplate)
+    {
+        borderPolygonLocalCS = fracTemplate->fractureBorderPolygon(m_rimFracture->fractureUnit());
+    }
+
     for (const auto& pv: borderPolygonLocalCS)
     {
         cvf::Vec3d pvd(pv);
@@ -450,7 +457,12 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax)
 {
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
+    std::vector<cvf::Vec3f> polygon;
+    
+    if (m_rimFracture->fractureTemplate())
+    {
+        polygon = m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
+    }
 
     if (polygon.size() > 1)
     {
@@ -477,6 +489,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(const c
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
 
+    if(m_rimFracture->fractureTemplate())
     {
         std::vector<cvf::Vec3f> polygon = m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
 
