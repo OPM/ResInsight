@@ -723,6 +723,26 @@ const RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityMo
     return m_fractureModelResults.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigEclipseCaseData::resultValues(RiaDefines::PorosityModelType porosityModel,
+                                                            RiaDefines::ResultCatType type, 
+                                                            const QString& resultName, 
+                                                            size_t timeStepIndex)
+{
+    RigCaseCellResultsData* gridCellResults = this->results(porosityModel);
+    size_t scalarResultIndex = gridCellResults->findOrLoadScalarResult(type, resultName);
+
+    const std::vector<double>* swatResults = nullptr;
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        swatResults = &(gridCellResults->cellScalarResults(scalarResultIndex, timeStepIndex));
+    }
+
+    return swatResults;
+}
+
 /*
 //--------------------------------------------------------------------------------------------------
 /// 

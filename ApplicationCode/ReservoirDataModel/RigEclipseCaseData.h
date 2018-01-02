@@ -73,6 +73,10 @@ public:
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
+    const std::vector<double>*                  resultValues(RiaDefines::PorosityModelType porosityModel, 
+                                                             RiaDefines::ResultCatType type, 
+                                                             const QString& resultName, 
+                                                             size_t timeStepIndex);
 
     RigActiveCellInfo*                          activeCellInfo(RiaDefines::PorosityModelType porosityModel);
     const RigActiveCellInfo*                    activeCellInfo(RiaDefines::PorosityModelType porosityModel) const;
