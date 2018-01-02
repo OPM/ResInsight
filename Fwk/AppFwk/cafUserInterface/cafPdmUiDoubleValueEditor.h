@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,25 +34,22 @@
 //
 //##################################################################################################
 
-
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QLabel>
-#include <QWidget>
-#include <QPointer>
-#include <QLineEdit>
 #include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPointer>
+#include <QString>
+#include <QWidget>
 
-
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-
 class PdmUiDoubleValueEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -62,29 +59,31 @@ public:
     }
 
 public:
-    int     m_decimals;
+    int m_decimals;
 };
 
-
+//==================================================================================================
+///
+//==================================================================================================
 class PdmUiDoubleValueEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleValueEditor()          {} 
-    virtual ~PdmUiDoubleValueEditor() {} 
+    PdmUiDoubleValueEditor();
+    virtual ~PdmUiDoubleValueEditor();
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
+    void     configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget(QWidget* parent) override;
+    QWidget* createLabelWidget(QWidget* parent) override;
 
 protected slots:
-    void                slotEditingFinished();
+    void slotEditingFinished();
 
 private:
-    void                writeValueToField();
+    void writeValueToField();
 
 private:
     QPointer<QLineEdit> m_lineEdit;
@@ -92,6 +91,5 @@ private:
 
     PdmUiDoubleValueEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

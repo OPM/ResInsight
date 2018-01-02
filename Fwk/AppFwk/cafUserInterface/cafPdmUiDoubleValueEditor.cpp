@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,30 +34,36 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiDoubleValueEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 
-#include <QLineEdit>
-#include <QLabel>
-#include <QHBoxLayout>
 #include <QDoubleValidator>
-
-#include <QDebug>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 
 namespace caf
 {
-
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiDoubleValueEditor);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiDoubleValueEditor::PdmUiDoubleValueEditor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
@@ -72,9 +78,9 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
     }
-    
-    bool valueOk = false;
-    double value = field()->uiValue().toDouble(&valueOk);
+
+    bool    valueOk = false;
+    double  value   = field()->uiValue().toDouble(&valueOk);
     QString textValue;
     if (valueOk)
     {
@@ -84,13 +90,14 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         textValue = field()->uiValue().toString();
     }
+
     m_lineEdit->setText(textValue);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget* parent)
 {
     QWidget* containerWidget = new QWidget(parent);
 
@@ -107,17 +114,16 @@ QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiDoubleValueEditor::createLabelWidget(QWidget* parent)
 {
     m_label = new QLabel(parent);
     return m_label;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleValueEditor::slotEditingFinished()
 {
@@ -125,11 +131,11 @@ void PdmUiDoubleValueEditor::slotEditingFinished()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleValueEditor::writeValueToField()
 {
-    QString textValue = m_lineEdit->text();
+    QString  textValue = m_lineEdit->text();
     QVariant v;
     v = textValue;
     this->setValueToField(v);
