@@ -314,7 +314,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         simWells.size() +
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
         (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ? usedWellPaths.size() :
-         exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE ? usedWellPaths.size() * 3 : 1);
+         exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE ? usedWellPaths.size() * 3 : 1) +
+        simWells.size();
 
     caf::ProgressInfo progress(maxProgress, "Export Completions");
 
@@ -438,6 +439,38 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             }
         }
     }
+
+    // Export sim wells
+    if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ||
+        exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
+    {
+        for (auto simWell : simWells)
+        {
+            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, simWell->name());
+            std::vector<RigCompletionData> completions;
+            for (auto& data : filteredWellCompletions)
+            {
+                completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
+            }
+            std::vector<RigCompletionData> wellCompletions;
+            for (auto completion : completions)
+            {
+                if (completion.wellName() == simWell->name())
+                {
+                    wellCompletions.push_back(completion);
+                }
+            }
+
+            if (wellCompletions.empty()) continue;
+
+            QString fileName = exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ?
+                QString("%1_unifiedCompletions_%2").arg(simWell->name()).arg(eclipseCaseName) :
+                QString("%1_Fractures_%2").arg(simWell->name()).arg(eclipseCaseName);
+            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
+            progress.incrementProgress();
+        }
+    }
+
 }
 
 //==================================================================================================
