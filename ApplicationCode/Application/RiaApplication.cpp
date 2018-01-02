@@ -2346,7 +2346,7 @@ void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawAllViews()
         connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
     }
 
-    m_recalculateCompletionTypeTimer->start(500);
+    m_recalculateCompletionTypeTimer->start(1500);
 }
 
 //--------------------------------------------------------------------------------------------------
