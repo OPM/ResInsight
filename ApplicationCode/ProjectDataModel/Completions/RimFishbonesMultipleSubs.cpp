@@ -24,6 +24,7 @@
 #include "RimWellPath.h"
 #include "RimFishbonesCollection.h"
 
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 
 #include "cvfAssert.h"
@@ -93,8 +94,14 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_COUNT_END), "Location Defined By", "", "", "");
     CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
+    m_rangeStart.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+
     CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
+    m_rangeEnd.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&m_rangeSubSpacing,      "RangeSubSpacing",                  "Spacing [m]", "", "", "");
+    m_rangeSubSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+
     CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    13,             "Number of Subs", "", "", "");
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
@@ -453,6 +460,24 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::userDescriptionField()
 caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_rangeStart ||
+        field == &m_rangeEnd ||
+        field == &m_rangeSubSpacing)
+    {
+        caf::PdmUiDoubleValueEditorAttribute* attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>(attribute);
+
+        if (attr)
+        {
+            attr->m_decimals = 2;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
