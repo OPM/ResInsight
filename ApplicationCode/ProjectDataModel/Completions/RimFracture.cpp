@@ -589,6 +589,11 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
     m_fractureTemplate = fractureTemplate;
 
+    if (!fractureTemplate)
+    {
+        return;
+    }
+
     RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fractureTemplate);
     if (stimPlanFracTemplate)
     {
