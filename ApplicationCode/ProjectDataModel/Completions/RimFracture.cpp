@@ -120,8 +120,6 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
-    CAF_PDM_InitField(&showPolygonFractureOutline, "ShowPolygonFractureOutline", false, "Show Polygon Outline", "", "", "");
-    showPolygonFractureOutline.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
     m_fractureUnit.uiCapability()->setUiReadOnly(true);
@@ -182,13 +180,9 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &m_fractureTemplate ||
         changedField == &stimPlanTimeIndexToPlot ||
         changedField == this->objectToggleField() ||
-        changedField == &showPolygonFractureOutline ||
         changedField == &dip ||
         changedField == &tilt)
     {
-
-        clearDisplayGeometryCache();
-
         RimView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
@@ -317,14 +311,6 @@ cvf::Mat4d RimFracture::transformMatrix() const
     m.setTranslation(center);
 
     return m;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFracture::clearDisplayGeometryCache()
-{
-    m_fracturePartMgr->clearGeometryCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -530,8 +516,6 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 {
     m_anchorPosition = pos;
-    clearDisplayGeometryCache();
-
 }
 
 //--------------------------------------------------------------------------------------------------

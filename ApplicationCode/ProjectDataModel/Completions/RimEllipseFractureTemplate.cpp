@@ -88,17 +88,6 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (proj)
         {
             //Regenerate geometry
-            std::vector<RimFracture*> fractures;
-            proj->descendantsIncludingThisOfType(fractures);
-
-            for (RimFracture* fracture : fractures)
-            {
-                if (fracture->fractureTemplate() == this)
-                {
-                    fracture->clearDisplayGeometryCache();
-                }
-            }
-
             proj->createDisplayModelAndRedrawAllViews();
             setupFractureGridCells();
         }

@@ -113,7 +113,7 @@ public:
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     void                                appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                         const RimEclipseView* eclView);
+                                                                         const RimEclipseView& eclView);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 

@@ -113,8 +113,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                        fracture->stimPlanTimeIndexToPlot = m_activeTimeStepIndex;
-                        fracture->clearDisplayGeometryCache();
+                    fracture->stimPlanTimeIndexToPlot = m_activeTimeStepIndex;
                 }
             }
             proj->createDisplayModelAndRedrawAllViews();
@@ -138,19 +137,8 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         if (proj)
         {
             //Regenerate geometry
-            std::vector<RimFracture*> fractures;
-            proj->descendantsIncludingThisOfType(fractures);
-
-            for (RimFracture* fracture : fractures)
-            {
-                if (fracture->fractureTemplate() == this)
-                {
-                    fracture->clearDisplayGeometryCache();
-                }
-            }
+            proj->createDisplayModelAndRedrawAllViews();
         }
-
-        proj->createDisplayModelAndRedrawAllViews();
     }
 }
 

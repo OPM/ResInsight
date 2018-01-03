@@ -102,7 +102,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 /// 
 //--------------------------------------------------------------------------------------------------
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const RimEclipseView* eclView)
+void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView)
 {
     if (!m_rimWellPath || !m_rimWellPath->showWellPath() || !m_rimWellPath->fractureCollection()->isChecked()) return;
 

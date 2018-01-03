@@ -64,7 +64,6 @@ public:
     caf::PdmField<double>           tilt;
 
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
-    caf::PdmField<bool>             showPolygonFractureOutline;
 
 
     double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
@@ -84,8 +83,6 @@ public:
 
     RivWellFracturePartMgr*         fracturePartManager();
 
-    void                            clearDisplayGeometryCache();
-    
     void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords );
 
     std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid);

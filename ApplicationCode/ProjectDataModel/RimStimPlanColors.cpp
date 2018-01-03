@@ -27,7 +27,6 @@
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
 
-#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManagerTools.h"
@@ -54,8 +53,6 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "StimPlan Result Variable", "", "", "");
-    CAF_PDM_InitField(&m_opacityLevel,      "OpacityLevel", 1.0f,       "Transparency", "", "", "");
-    m_opacityLevel.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
 
@@ -226,14 +223,6 @@ QString RimStimPlanColors::unit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float RimStimPlanColors::opacityLevel() const
-{
-    return m_opacityLevel();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimStimPlanColors::defaultColor() const
 {
     return m_defaultColor();
@@ -350,24 +339,6 @@ void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&m_defaultColor);
 
     uiOrdering.skipRemainingFields(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-    if (field == &m_opacityLevel)
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            myAttr->m_minimum = 0.0;
-            myAttr->m_maximum = 1.0;
-            myAttr->m_decimals = 2;
-            myAttr->m_sliderTickCount = 100;
-        }
-    }
 }
 
 

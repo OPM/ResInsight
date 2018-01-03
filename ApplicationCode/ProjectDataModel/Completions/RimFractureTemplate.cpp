@@ -123,7 +123,6 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                     if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
                     {
                         fracture->azimuth = azimuthAngle;
-                        fracture->clearDisplayGeometryCache();
                     }
 
                     if (changedField == &orientationType)
@@ -133,8 +132,6 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                             fracture->azimuth = azimuthAngle;
                         }
                         else fracture->updateAzimuthBasedOnWellAzimuthAngle();
-
-                        fracture->clearDisplayGeometryCache();
                     }
                 }
             }

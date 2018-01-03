@@ -52,7 +52,6 @@ public:
     QString             resultName() const;
     void                setDefaultResultNameForStimPlan();
     QString             unit() const;
-    float               opacityLevel() const;
     cvf::Color3f        defaultColor() const;
 
     void                loadDataAndUpdate();
@@ -65,7 +64,6 @@ protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     RimFractureTemplateCollection*          fractureTemplateCollection() const;
@@ -74,7 +72,6 @@ private:
     static QString                          toUnit(const QString& resultNameAndUnit);
 
 private:
-    caf::PdmField<float>                        m_opacityLevel;
     caf::PdmField<cvf::Color3f>                 m_defaultColor;
     caf::PdmField<QString>                      m_resultNameAndUnit;
     caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigurations;

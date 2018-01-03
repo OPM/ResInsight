@@ -265,16 +265,6 @@ void RimEclipseView::updateScaleTransform()
     this->scaleTransform()->setLocalTransform(scale);
     m_simWellsPartManager->setScaleTransform(this->scaleTransform());
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    // Regenerate fracture geometry
-    std::vector<RimFracture*> fractures;
-    this->descendantsIncludingThisOfType(fractures);
-    for (RimFracture* fracture : fractures)
-    {
-        fracture->clearDisplayGeometryCache();
-    }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
 
@@ -476,7 +466,7 @@ void RimEclipseView::createDisplayModel()
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    wellPathCollection()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
+    wellPathCollection()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), *this);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
@@ -732,7 +722,7 @@ void RimEclipseView::updateCurrentTimeStep()
                         }
                     }
 
-                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), this);
+                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), *this);
                 }
 
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
