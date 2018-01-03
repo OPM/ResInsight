@@ -49,6 +49,7 @@ public:
     virtual caf::PdmFieldHandle*        objectToggleField();
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        initAfterRead();
 
     caf::PdmField<bool>                 showFault;
 
