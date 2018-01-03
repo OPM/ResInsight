@@ -66,7 +66,7 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
     CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
     
     CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "   Names", "", "", "");
-    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "   Acronymes", "", "", "");
+    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "   Acronyms", "", "", "");
     CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "   Units", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&customTitle,        "CustomTitle",      "Title", "", "", "");
