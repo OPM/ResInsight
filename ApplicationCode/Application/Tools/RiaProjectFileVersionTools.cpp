@@ -95,6 +95,60 @@ QStringList RiaProjectFileVersionTools::knownProjectVersionStrings()
     versionStrings << "2017.05.2-dev.14";
     versionStrings << "2017.05.2-dev.13";
     versionStrings << "2017.05.2-dev.12";
+    versionStrings << "2017.05.2-dev.11";
+    versionStrings << "2017.05.2-dev.10";
+    versionStrings << "2017.05.2-dev.09";
+    versionStrings << "2017.05.2-dev.08";
+    versionStrings << "2017.05.2-dev.07";
+    versionStrings << "2017.05.2-dev.06";
+    versionStrings << "2017.05.2-dev.05";
+    versionStrings << "2017.05.2-dev.04";
+    versionStrings << "2017.05.2-dev.03";
+    versionStrings << "2017.05.2-dev.02";
+    versionStrings << "2017.05.2-fdev.02";
+    versionStrings << "2017.05.2-dev.1";
+    versionStrings << "2017.05.2-fdev.01";
+    versionStrings << "2017.05.2";
+    versionStrings << "2017.05.pre-proto.15";
+    versionStrings << "2017.05.1-dev";
+    versionStrings << "2017.05.1";
+    versionStrings << "2017.05.0";
+
+    versionStrings << "2016.11.flow.14";
+    versionStrings << "2016.11.flow.12";
+    versionStrings << "2016.11.flow.11";
+    versionStrings << "2016.11.flow.9";
+    versionStrings << "2016.11.flow.8";
+    versionStrings << "2016.11.flow.7";
+    versionStrings << "2016.11.flow.1";
+    versionStrings << "2016.11.m.1";
+    versionStrings << "2016.11.0";
+
+    versionStrings << "1.6.10-dev";
+    versionStrings << "1.6.9-dev";
+    versionStrings << "1.6.8-dev";
+    versionStrings << "1.6.7-gm-beta";
+    versionStrings << "1.6.6-dev";
+    versionStrings << "1.6.5-dev";
+    versionStrings << "1.6.4-dev";
+    versionStrings << "1.6.3-dev";
+    versionStrings << "1.6.1-dev";
+    versionStrings << "1.6.2-dev";
+    versionStrings << "1.6.0-RC";
+
+    versionStrings << "1.5.111-RC";
+    versionStrings << "1.5.110-RC";
+    versionStrings << "1.5.109-RC";
+    versionStrings << "1.5.108-RC";
+    versionStrings << "1.5.107-RC";
+    versionStrings << "1.5.106-RC";
+    versionStrings << "1.5.105-RC";
+    versionStrings << "1.5.104-RC";
+    versionStrings << "1.5.103-dev";
+    versionStrings << "1.5.102-dev";
+    versionStrings << "1.5.101-dev";
+    versionStrings << "1.5.100-dev";
+    versionStrings << "1.5.0";
 
     return versionStrings;
 }
