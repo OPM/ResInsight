@@ -192,7 +192,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
     if (regions.size() == 1)
     {
-        m_titleRegion = *(regions.begin());
+        m_titleRegion = std::to_string(*(regions.begin()));
     }
 
     // Case mane
