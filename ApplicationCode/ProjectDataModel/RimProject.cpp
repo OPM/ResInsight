@@ -1010,12 +1010,11 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->analysisModels())                 uiTreeOrdering.add(oilField->analysisModels());
             if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
+            if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
             if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
-            if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());

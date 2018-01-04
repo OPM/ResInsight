@@ -63,6 +63,7 @@ RimOilField::RimOilField(void)
     wellPathCollection = new RimWellPathCollection();
     summaryCaseMainCollection = new RimSummaryCaseMainCollection();
     observedDataCollection = new RimObservedDataCollection();
+    formationNamesCollection = new RimFormationNamesCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
