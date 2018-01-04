@@ -94,6 +94,7 @@ public:
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
+    bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;
     void            close();
 
     void            setProjectFileNameAndUpdateDependencies(const QString& fileName);

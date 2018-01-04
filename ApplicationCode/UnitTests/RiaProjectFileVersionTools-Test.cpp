@@ -1,65 +1,8 @@
 #include "gtest/gtest.h"
 
 #include "RiaProjectFileVersionTools.h"
+
 #include <QStringList>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST(RiaProjectFileVersionTools, BasicUsage)
-{
-    /*
-        {
-            QString projectFileVersionString = "2017.05.1";
-
-            int majorVersion  = 2017;
-            int minorVersion  = 5;
-            int patchNumber   = 0;
-            int developmentId = 0;
-
-            bool isNewer = RiaProjectFileVersionTools::isProjectFileVersionNewerThan(projectFileVersionString, majorVersion,
-                                                                                     minorVersion, patchNumber, developmentId);
-            EXPECT_TRUE(isNewer);
-        }
-
-        {
-            QString projectFileVersionString = "2017.05.1.text.13";
-
-            {
-                int majorVersion  = 2017;
-                int minorVersion  = 5;
-                int patchNumber   = 1;
-                int developmentId = 14;
-
-                bool isNewer = RiaProjectFileVersionTools::isProjectFileVersionNewerThan(projectFileVersionString, majorVersion,
-                                                                                         minorVersion, patchNumber,
-       developmentId); EXPECT_FALSE(isNewer);
-            }
-
-            {
-                int majorVersion  = 2017;
-                int minorVersion  = 5;
-                int patchNumber   = 1;
-                int developmentId = 13;
-
-                bool isNewer = RiaProjectFileVersionTools::isProjectFileVersionNewerThan(projectFileVersionString, majorVersion,
-                                                                                         minorVersion, patchNumber,
-       developmentId); EXPECT_TRUE(isNewer);
-            }
-
-            {
-                int majorVersion  = 2017;
-                int minorVersion  = 5;
-                int patchNumber   = 1;
-                int developmentId = 12;
-
-                bool isNewer = RiaProjectFileVersionTools::isProjectFileVersionNewerThan(projectFileVersionString, majorVersion,
-                                                                                         minorVersion, patchNumber,
-       developmentId); EXPECT_TRUE(isNewer);
-            }
-        }
-    */
-}
 
 TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
 {
@@ -202,8 +145,7 @@ TEST(RiaProjectFileVersionTools, OrderKnownVersionStrings)
 
     QStringList sortedVersionList = versionStrings;
     {
-        qSort(sortedVersionList.begin(), sortedVersionList.end(),
-              RiaProjectFileVersionTools::isCandidateVersionNewerThanOther);
+        qSort(sortedVersionList.begin(), sortedVersionList.end(), RiaProjectFileVersionTools::isCandidateVersionNewerThanOther);
     }
 
     for (const auto& s : sortedVersionList)

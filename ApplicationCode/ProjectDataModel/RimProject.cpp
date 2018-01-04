@@ -21,6 +21,7 @@
 #include "RimProject.h"
 
 #include "RiaApplication.h"
+#include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RigEclipseCaseData.h"
@@ -412,6 +413,15 @@ QString RimProject::projectFileVersionString() const
     return m_projectFileVersionString;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimProject::isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const
+{
+    QString candidateProjectFileVersion = projectFileVersionString();
+
+    return RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(candidateProjectFileVersion, otherProjectFileVersion);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

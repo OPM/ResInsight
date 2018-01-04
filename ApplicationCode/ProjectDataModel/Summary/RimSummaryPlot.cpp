@@ -23,6 +23,7 @@
 
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
+#include "RimProject.h"
 #include "RimSummaryAxisProperties.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -1326,6 +1327,16 @@ void RimSummaryPlot::initAfterRead()
     for (const auto& curve : curvesToMove)
     {
         m_summaryCurveCollection->addCurve(curve);
+    }
+
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        if (proj->isProjectFileVersionEqualOrOlderThan("2017.0.0"))
+        {
+            m_useAutoPlotTitle = false;
+        }
     }
 }
 
