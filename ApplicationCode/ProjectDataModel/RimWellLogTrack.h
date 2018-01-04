@@ -116,7 +116,7 @@ public:
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
 
-    void uiOrderingForFormations(caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrdering);
     void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
 
 private:
@@ -169,7 +169,8 @@ private:
     caf::PdmField<caf::AppEnum<FormationSource> >                      m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType> >                       m_formationTrajectoryType;
-    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPath;
+    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
+    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
     caf::PdmField<QString>                                             m_formationSimWellName;
     caf::PdmField<int>                                                 m_formationBranchIndex;
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;

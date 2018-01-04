@@ -253,7 +253,8 @@ void RimWellRftPlot::updateFormationsOnPlot() const
                 formationNamesCase = cases[0];
             }
         }
-        else if (wellPath)
+
+        if (wellPath)
         {
             m_wellLogPlot->trackByIndex(0)->setAndUpdateWellPathFormationNamesData(formationNamesCase, wellPath);
         }
@@ -781,7 +782,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
 
-        track->uiOrderingForFormations(uiOrdering);
+        track->uiOrderingForRftPltFormations(uiOrdering);
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);

@@ -135,8 +135,11 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault(&m_formationTrajectoryType, "FormationTrajectoryType", "Trajectory", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_formationWellPath, "FormationWellPath", "Well Path", "", "", "");
-    m_formationWellPath.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_formationWellPathForSourceCase, "FormationWellPath", "Well Path", "", "", "");
+    m_formationWellPathForSourceCase.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_formationWellPathForSourceWellPath, "FormationWellPathForSourceWellPath", "Well Path", "", "", "");
+    m_formationWellPathForSourceWellPath.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_formationSimWellName, "FormationSimulationWellName", QString("None"), "Simulation Well", "", "", "");
     CAF_PDM_InitField(&m_formationBranchIndex, "FormationBranchIndex", 0, " ", "", "", "");
@@ -257,8 +260,19 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_showFormations || changedField == &m_formationSource)
     {
-        loadDataAndUpdate();
+        bool validWellPathChosen = false;
+        std::vector<RimWellPath*> wellPaths;
+        RimTools::wellPathWithFormations(&wellPaths);
+        for (RimWellPath* wellPath : wellPaths)
+        {
+            if (wellPath == m_formationWellPathForSourceCase)
+            {
+                m_formationWellPathForSourceWellPath = m_formationWellPathForSourceCase();
+                break;
+            }
+        }
 
+        loadDataAndUpdate();
         RimWellRftPlot* rftPlot(nullptr);
 
         firstAncestorOrThisOfType(rftPlot);
@@ -277,36 +291,20 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 pltPlot->updateConnectedEditors();
             }
         }
-
-        bool validWellPathChosen = false;
-        std::vector<RimWellPath*> wellPaths;
-        RimTools::wellPathWithFormations(&wellPaths);
-        for (RimWellPath* wellPath : wellPaths)
-        {
-            if (wellPath == m_formationWellPath)
-            {
-                validWellPathChosen = true;
-                break;
-            }
-        }
-        if (!validWellPathChosen)
-        {
-            m_formationWellPath = nullptr;
-        }
     }
     else if (changedField == &m_formationCase)
     {
         QList<caf::PdmOptionItemInfo> options;
         RimWellLogTrack::simWellOptionItems(&options, m_formationCase);
 
-        if (options.isEmpty())
+        if (options.isEmpty() || m_formationCase == nullptr)
         {
             m_formationSimWellName = QString("None");
         }
 
         loadDataAndUpdate();
     }
-    else if (changedField == &m_formationWellPath)
+    else if (changedField == &m_formationWellPathForSourceCase)
     {
         loadDataAndUpdate();
     }
@@ -316,6 +314,19 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_formationTrajectoryType)
     {
+        if (m_formationTrajectoryType == WELL_PATH)
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+            m_formationWellPathForSourceCase = proj->wellPathFromSimWellName(m_formationSimWellName);
+        }
+        else
+        {
+            if (m_formationWellPathForSourceCase)
+            {
+                m_formationSimWellName = m_formationWellPathForSourceCase->m_simWellName;
+            }
+        }
+
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationBranchIndex || 
@@ -323,6 +334,10 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         m_formationBranchIndex = RiaSimWellBranchTools::clampBranchIndex(m_formationSimWellName, m_formationBranchIndex, m_formationBranchDetection);
 
+        loadDataAndUpdate();
+    }
+    else if (changedField == &m_formationWellPathForSourceWellPath)
+    {
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationLevel)
@@ -344,17 +359,15 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
 
     if (options.size() > 0) return options;
 
-    if (fieldNeedingOptions == &m_formationWellPath)
+    if (fieldNeedingOptions == &m_formationWellPathForSourceCase)
     {
-        if (m_formationSource == CASE)
-        {
-            RimTools::wellPathOptionItems(&options);
-        }
-        else if(m_formationSource == WELL_PICK_FILTER)
-        {
-            RimTools::wellPathWithFormationsOptionItems(&options);
-        }
+        RimTools::wellPathOptionItems(&options);
 
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
+    else if (fieldNeedingOptions == &m_formationWellPathForSourceWellPath)
+    {
+        RimTools::wellPathWithFormationsOptionItems(&options);
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
     else if (fieldNeedingOptions == &m_formationCase)
@@ -374,9 +387,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_formationLevel)
     {
-        if (m_formationWellPath)
+        if (m_formationWellPathForSourceWellPath)
         {
-            const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+            const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
             if (formations)
             {
                 using FormationLevelEnum = caf::AppEnum<RigWellPathFormations::FormationLevel>;
@@ -551,7 +564,7 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData(RimCase* rimCase, R
 {
     m_formationCase = rimCase;
     m_formationTrajectoryType = RimWellLogTrack::WELL_PATH;
-    m_formationWellPath = wellPath;
+    m_formationWellPathForSourceCase = wellPath;
     m_formationSimWellName = "";
     m_formationBranchIndex = -1;
 
@@ -581,7 +594,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, co
 {
     m_formationCase = rimCase;
     m_formationTrajectoryType = RimWellLogTrack::SIMULATION_WELL;
-    m_formationWellPath = nullptr;
+    m_formationWellPathForSourceCase = nullptr;
     m_formationSimWellName = simWellName;
 
     updateConnectedEditors();
@@ -605,7 +618,7 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
 {
-    m_formationWellPath = wellPath;
+    m_formationWellPathForSourceCase = wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -798,7 +811,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         formationGroup->add(&m_formationTrajectoryType);
         if (m_formationTrajectoryType() == WELL_PATH)
         {
-            formationGroup->add(&m_formationWellPath);
+            formationGroup->add(&m_formationWellPathForSourceCase);
         }
         else
         {
@@ -812,8 +825,8 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
-        formationGroup->add(&m_formationWellPath);
-        if (m_formationWellPath())
+        formationGroup->add(&m_formationWellPathForSourceWellPath);
+        if (m_formationWellPathForSourceWellPath())
         {
             formationGroup->add(&m_formationLevel);
             formationGroup->add(&m_showformationFluids);
@@ -946,7 +959,7 @@ std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::uiOrderingForFormations(caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     formationGroup->setCollapsedByDefault(true);
@@ -958,8 +971,7 @@ void RimWellLogTrack::uiOrderingForFormations(caf::PdmUiOrdering& uiOrdering)
     }
     if (m_formationSource == WELL_PICK_FILTER)
     {
-        formationGroup->add(&m_formationWellPath);
-        if (m_formationWellPath())
+        if (m_formationWellPathForSourceWellPath() && m_formationWellPathForSourceWellPath()->hasFormations())
         {
             formationGroup->add(&m_formationLevel);
             formationGroup->add(&m_showformationFluids);
@@ -1161,7 +1173,8 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
     m_formationTrajectoryType.uiCapability()->setUiReadOnly(readOnly);
     m_formationSimWellName.uiCapability()->setUiReadOnly(readOnly);
     m_formationCase.uiCapability()->setUiReadOnly(readOnly);
-    m_formationWellPath.uiCapability()->setUiReadOnly(readOnly);
+    m_formationWellPathForSourceCase.uiCapability()->setUiReadOnly(readOnly);
+    m_formationWellPathForSourceWellPath.uiCapability()->setUiReadOnly(readOnly);
     m_formationBranchIndex.uiCapability()->setUiReadOnly(readOnly);
     m_formationLevel.uiCapability()->setUiReadOnly(readOnly);
     m_showformationFluids.uiCapability()->setUiReadOnly(readOnly);
@@ -1189,7 +1202,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     if (m_formationSource == CASE)
     {
-        if ((m_formationSimWellName == QString("None") && m_formationWellPath == nullptr) || m_formationCase == nullptr) return;
+        if ((m_formationSimWellName == QString("None") && m_formationWellPathForSourceCase == nullptr) || m_formationCase == nullptr) return;
 
         RimMainPlotCollection* mainPlotCollection;
         this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
@@ -1213,7 +1226,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         {
             eclWellLogExtractor = RimWellLogTrack::createWellPathExtractor(wellLogCollection, 
                                                                            m_formationCase, 
-                                                                           m_formationWellPath);
+                                                                           m_formationWellPathForSourceCase);
         }
 
         if (eclWellLogExtractor)
@@ -1230,7 +1243,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPath);
+            geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPathForSourceCase);
             if (!geoMechWellLogExtractor) return;
 
             std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
@@ -1250,12 +1263,12 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     }
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
-        if (m_formationWellPath == nullptr) return;
-        if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
+        if (m_formationWellPathForSourceWellPath == nullptr) return;
+        if (!(plot->depthType() == RimWellLogPlot::MEASURED_DEPTH || plot->depthType() == RimWellLogPlot::PSEUDO_LENGTH)) return;
 
         std::vector<double> yValues;
 
-        const RigWellPathFormations* formations = m_formationWellPath->formationsGeometry();
+        const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
         if (!formations) return;
 
         formations->measuredDepthAndFormationNamesUpToLevel(m_formationLevel(), &formationNamesToPlot, &yValues, m_showformationFluids());

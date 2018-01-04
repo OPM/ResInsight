@@ -1005,7 +1005,7 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
 
-        track->uiOrderingForFormations(uiOrdering);
+        track->uiOrderingForRftPltFormations(uiOrdering);
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);
