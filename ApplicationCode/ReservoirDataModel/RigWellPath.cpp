@@ -115,7 +115,7 @@ double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
     }
 
     //For vertical well (x-component of direction = 0) returned angle will be 90. 
-    double AzimuthAngle = 90.0;
+    double azimuthAngleDegrees = 90.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
     {
@@ -135,20 +135,15 @@ double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
 
         cvf::Vec3d direction = p2 - p1;
 
-
-        if (abs(direction.y()) > 1e-5)
+        if (fabs(direction.y()) > 1e-5)
         {
             double atanValue = direction.x() / direction.y();
-            AzimuthAngle = atan(atanValue);
-            AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
+            double azimuthRadians = atan(atanValue);
+            azimuthAngleDegrees = cvf::Math::toDegrees(azimuthRadians);
         }
     }
 
-    return AzimuthAngle;
-
-
-
-
+    return azimuthAngleDegrees;
 }
 
 //--------------------------------------------------------------------------------------------------
