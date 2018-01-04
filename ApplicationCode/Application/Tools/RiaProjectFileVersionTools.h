@@ -23,34 +23,20 @@
 //==================================================================================================
 //
 //==================================================================================================
-struct RiaProjectFileVersionData
-{
-    int m_majorVersion;
-    int m_minorVersion;
-    int m_patch;
-    int m_developmentId;
-
-    RiaProjectFileVersionData() : m_majorVersion(0), m_minorVersion(0), m_patch(0), m_developmentId(0) {}
-
-    RiaProjectFileVersionData(int majorVersion, int minorVersion, int patch, int developmentId)
-        : m_majorVersion(majorVersion), m_minorVersion(minorVersion), m_patch(patch), m_developmentId(developmentId)
-
-    {
-    }
-};
-
-//==================================================================================================
-//
-//==================================================================================================
 class RiaProjectFileVersionTools
 {
 public:
-    static bool isProjectFileVersionNewerThan(const QString&                   projectFileVersion,
-                                              const RiaProjectFileVersionData& fileVersionData);
+    static bool isCandidateVersionNewerThanOther(const QString& candidateProjectFileVersion,
+                                                 const QString& otherProjectFileVersion);
+
+    // Public to be able to unit test function, not intended to be used
+    static void decodeVersionString(const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch,
+                                    int* developmentId);
 
 private:
-    static bool isProjectFileVersionNewerThan(const QString& projectFileVersion, int majorVersion, int minorVersion, int patch,
-                                              int developmentId);
+    static bool isCandidateNewerThanOther(int candidateMajorVersion, int candidateMinorVersion, int candidatePatchNumber,
+                                          int candidateDevelopmentId, int otherMajorVersion, int otherMinorVersion,
+                                          int otherPatchNumber, int otherDevelopmentId);
 
-    static QStringList knownProjectVersionStrings();
+    static QString stringOfDigits(const QString& string);
 };

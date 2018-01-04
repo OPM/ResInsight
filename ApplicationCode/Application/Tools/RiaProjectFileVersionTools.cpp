@@ -23,62 +23,93 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isProjectFileVersionNewerThan(const QString&                   projectFileVersion,
-                                                               const RiaProjectFileVersionData& fileVersionData)
+bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(const QString& candidateProjectFileVersion,
+                                                               const QString& projectFileVersion)
 {
-    return isProjectFileVersionNewerThan(projectFileVersion, fileVersionData.m_majorVersion, fileVersionData.m_minorVersion,
-                                         fileVersionData.m_patch, fileVersionData.m_developmentId);
+    int candidateMajorVersion  = 0;
+    int candidateMinorVersion  = 0;
+    int candidatePatchNumber   = 0;
+    int candidateDevelopmentId = 0;
+
+    RiaProjectFileVersionTools::decodeVersionString(candidateProjectFileVersion, &candidateMajorVersion, &candidateMinorVersion,
+                                                    &candidatePatchNumber, &candidateDevelopmentId);
+
+    int majorVersion  = 0;
+    int minorVersion  = 0;
+    int patchNumber   = 0;
+    int developmentId = 0;
+
+    RiaProjectFileVersionTools::decodeVersionString(projectFileVersion, &majorVersion, &minorVersion, &patchNumber,
+                                                    &developmentId);
+
+    return RiaProjectFileVersionTools::isCandidateNewerThanOther(candidateMajorVersion, candidateMinorVersion,
+                                                                 candidatePatchNumber, candidateDevelopmentId, majorVersion,
+                                                                 minorVersion, patchNumber, developmentId);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isProjectFileVersionNewerThan(const QString& projectFileVersion, int majorVersion,
-                                                               int minorVersion, int patchNumber, int developmentId)
+void RiaProjectFileVersionTools::decodeVersionString(const QString& projectFileVersion, int* majorVersion, int* minorVersion,
+                                                     int* patch, int* developmentId)
 {
-    int projectMajorVersion  = 0;
-    int projectMinorVersion  = 0;
-    int projectPatchNumber   = 0;
-    int projectDevelopmentId = 0;
+    if (projectFileVersion.isEmpty()) return;
 
-    // Split string and interpret sub strings
+    QStringList subStrings = projectFileVersion.split(".");
+
+    if (subStrings.size() > 0)
     {
-        QStringList subStrings = projectFileVersion.split(".");
-
-        if (subStrings.size() > 0)
-        {
-            projectMajorVersion = subStrings[0].toInt();
-        }
-
-        if (subStrings.size() > 1)
-        {
-            projectMinorVersion = subStrings[1].toInt();
-        }
-
-        if (subStrings.size() > 2)
-        {
-            projectPatchNumber = subStrings[2].toInt();
-        }
+        *majorVersion = subStrings[0].toInt();
     }
 
-    if (projectMajorVersion != majorVersion)
+    if (subStrings.size() > 1)
     {
-        return (projectMajorVersion > majorVersion);
+        *minorVersion = subStrings[1].toInt();
     }
 
-    if (projectMinorVersion != minorVersion)
+    if (subStrings.size() > 2)
     {
-        return (projectMinorVersion > minorVersion);
+        QString candidate           = subStrings[2];
+        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits(candidate);
+
+        *patch = candidateDigitsOnly.toInt();
     }
 
-    if (projectPatchNumber != patchNumber)
+    if (subStrings.size() > 3)
     {
-        return (projectPatchNumber > patchNumber);
+        QString candidate           = subStrings.back();
+        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits(candidate);
+
+        *developmentId = candidateDigitsOnly.toInt();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaProjectFileVersionTools::isCandidateNewerThanOther(int candidateMajorVersion, int candidateMinorVersion,
+                                                           int candidatePatchNumber, int candidateDevelopmentId,
+                                                           int otherMajorVersion, int otherMinorVersion, int otherPatchNumber,
+                                                           int otherDevelopmentId)
+{
+    if (candidateMajorVersion != otherMajorVersion)
+    {
+        return (candidateMajorVersion > otherMajorVersion);
     }
 
-    if (projectDevelopmentId != developmentId)
+    if (candidateMinorVersion != otherMinorVersion)
     {
-        return (projectDevelopmentId > developmentId);
+        return (candidateMinorVersion > otherMinorVersion);
+    }
+
+    if (candidatePatchNumber != otherPatchNumber)
+    {
+        return (candidatePatchNumber > otherPatchNumber);
+    }
+
+    if (candidateDevelopmentId != otherDevelopmentId)
+    {
+        return (candidateDevelopmentId > otherDevelopmentId);
     }
 
     return false;
@@ -87,68 +118,25 @@ bool RiaProjectFileVersionTools::isProjectFileVersionNewerThan(const QString& pr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaProjectFileVersionTools::knownProjectVersionStrings()
+QString RiaProjectFileVersionTools::stringOfDigits(const QString& string)
 {
-    QStringList versionStrings;
+    QString digitsOnly;
 
-    versionStrings << "2017.05.2-dev.15";
-    versionStrings << "2017.05.2-dev.14";
-    versionStrings << "2017.05.2-dev.13";
-    versionStrings << "2017.05.2-dev.12";
-    versionStrings << "2017.05.2-dev.11";
-    versionStrings << "2017.05.2-dev.10";
-    versionStrings << "2017.05.2-dev.09";
-    versionStrings << "2017.05.2-dev.08";
-    versionStrings << "2017.05.2-dev.07";
-    versionStrings << "2017.05.2-dev.06";
-    versionStrings << "2017.05.2-dev.05";
-    versionStrings << "2017.05.2-dev.04";
-    versionStrings << "2017.05.2-dev.03";
-    versionStrings << "2017.05.2-dev.02";
-    versionStrings << "2017.05.2-fdev.02";
-    versionStrings << "2017.05.2-dev.1";
-    versionStrings << "2017.05.2-fdev.01";
-    versionStrings << "2017.05.2";
-    versionStrings << "2017.05.pre-proto.15";
-    versionStrings << "2017.05.1-dev";
-    versionStrings << "2017.05.1";
-    versionStrings << "2017.05.0";
+    for (const auto& c : string)
+    {
+        if (c.isDigit())
+        {
+            digitsOnly += c;
+        }
+        else
+        {
+            if (!digitsOnly.isEmpty())
+            {
+                return digitsOnly;
+            }
+        }
+    }
 
-    versionStrings << "2016.11.flow.14";
-    versionStrings << "2016.11.flow.12";
-    versionStrings << "2016.11.flow.11";
-    versionStrings << "2016.11.flow.9";
-    versionStrings << "2016.11.flow.8";
-    versionStrings << "2016.11.flow.7";
-    versionStrings << "2016.11.flow.1";
-    versionStrings << "2016.11.m.1";
-    versionStrings << "2016.11.0";
-
-    versionStrings << "1.6.10-dev";
-    versionStrings << "1.6.9-dev";
-    versionStrings << "1.6.8-dev";
-    versionStrings << "1.6.7-gm-beta";
-    versionStrings << "1.6.6-dev";
-    versionStrings << "1.6.5-dev";
-    versionStrings << "1.6.4-dev";
-    versionStrings << "1.6.3-dev";
-    versionStrings << "1.6.1-dev";
-    versionStrings << "1.6.2-dev";
-    versionStrings << "1.6.0-RC";
-
-    versionStrings << "1.5.111-RC";
-    versionStrings << "1.5.110-RC";
-    versionStrings << "1.5.109-RC";
-    versionStrings << "1.5.108-RC";
-    versionStrings << "1.5.107-RC";
-    versionStrings << "1.5.106-RC";
-    versionStrings << "1.5.105-RC";
-    versionStrings << "1.5.104-RC";
-    versionStrings << "1.5.103-dev";
-    versionStrings << "1.5.102-dev";
-    versionStrings << "1.5.101-dev";
-    versionStrings << "1.5.100-dev";
-    versionStrings << "1.5.0";
-
-    return versionStrings;
+    return digitsOnly;
 }
+
