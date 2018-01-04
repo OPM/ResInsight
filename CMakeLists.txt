@@ -145,7 +145,7 @@ if(MSVC)
     set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
 endif()
 
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" OFF)
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
