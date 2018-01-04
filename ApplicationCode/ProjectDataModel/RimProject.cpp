@@ -420,7 +420,7 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan(const QString& otherProjec
 {
     QString candidateProjectFileVersion = projectFileVersionString();
 
-    return RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(candidateProjectFileVersion, otherProjectFileVersion);
+    return !RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(candidateProjectFileVersion, otherProjectFileVersion);
 }
 
 //--------------------------------------------------------------------------------------------------
