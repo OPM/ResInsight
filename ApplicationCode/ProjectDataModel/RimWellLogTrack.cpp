@@ -725,8 +725,12 @@ void RimWellLogTrack::updateXZoom()
 
     if (!m_isAutoScaleXEnabled())
     {
-        m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
-        m_wellLogTrackPlotWidget->replot();
+        if (m_wellLogTrackPlotWidget)
+        {
+            m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+            m_wellLogTrackPlotWidget->replot();
+        }
+
         return;
     }
 
