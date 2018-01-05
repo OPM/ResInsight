@@ -1797,7 +1797,7 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
 
                     float por = srcPORFrameData[nodeIdx];
 
-                    if ( por == inf || abs(por) < 0.01e6*1.0e-5 )
+                    if ( por == inf || fabs(por) < 0.01e6*1.0e-5 )
                         dstFrameData[elmNodResIdx] = inf;
                     else
                         dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;

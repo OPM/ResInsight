@@ -180,9 +180,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m_fractureTransform.translation()),
                                                 static_cast<cvf::Vec3d>(m_fractureTransform.col(2)));
 
-            Ax += abs(area*(fracturePlane.normal().dot(localY)));
-            Ay += abs(area*(fracturePlane.normal().dot(localX)));
-            Az += abs(area*(fracturePlane.normal().dot(localZ)));
+            Ax += fabs(area*(fracturePlane.normal().dot(localY)));
+            Ay += fabs(area*(fracturePlane.normal().dot(localX)));
+            Az += fabs(area*(fracturePlane.normal().dot(localZ)));
         }
 
         double fractureArea = 0.0;

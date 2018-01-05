@@ -159,7 +159,7 @@ double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& posit
         cvf::Vec3d direction = p2 - p1;
 
 
-        if (abs(direction.y()) > 1e-5) 
+        if (fabs(direction.y()) > 1e-5)
          {
              double atanValue = direction.x() / direction.y();
              azimuthAngle = atan(atanValue);
@@ -200,7 +200,7 @@ double RigSimulationWellCoordsAndMD::simWellDipAngle(const cvf::Vec3d& position)
         double horizonal = sqrt(pow(direction.x(), 2) + pow(direction.y(), 2));
         double vertical = direction.z();
 
-        if (abs(vertical) > 1e-5)
+        if (fabs(vertical) > 1e-5)
         {
             double atanValue =  vertical / horizonal;
             dipAngle = atan(atanValue);
