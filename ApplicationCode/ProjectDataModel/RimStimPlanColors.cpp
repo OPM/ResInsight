@@ -150,7 +150,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
 
-        options.push_back(caf::PdmOptionItemInfo("None", "None"));
+        options.push_back(caf::PdmOptionItemInfo("None", ""));
 
         for (auto resultNameAndUnit : fractureTemplates->stimPlanResultNamesAndUnits())
         {
