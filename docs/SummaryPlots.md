@@ -6,18 +6,35 @@ published: true
 ---
 ![]({{ site.baseurl }}/images/ResInsightMainPlotMediumSize.png)
 
-ResInsight can create summary plots based on vectors from SUMMARY files (`*.SMSPEC`). 
+A Summary Plot is a window displaying a graph in the main area of the **Plot Main Window**. It can contain Summary Curves, Grid time history curves and pasted ascii curves ( See below ).
+
+A new plot can be created by using the context menu of a plot selecting ![]({{ site.baseurl }}/images/SummaryPlot16x16.png) **New Summary Plot**. The [Summary Plot Editor]({{ site.baseurl }}/docs/summaryploteditor) dialog will then open.
+
+## Plot Data
+
+ResInsight can create summary plots based on vectors from SUMMARY files ( _`*.SMSPEC`_ ), imported Observed Time History Data, Grid Cell Time history Curve and pasted ascii curves. 
+
+### SUMMARY Files
 
 When opening an Eclipse case in the 3D view, the associated summary file is opened automatically by default, and made available as a **Summary Case**.
-Summary files can also be imported directly using the command: **File->Import->Import Summary Case**.
+Summary files can also be imported directly using the command: **File->Import->Import Summary Case**. All cases will be available under **Summary Cases** in the **Plot Object Project Tree**. 
 
-When a summary case has been imported, a Summary Plot with a default **Curve Filter** is created. This default behaviour can be configured in the  [ Preferences ]({{ site.baseurl }}/docs/preferences).
+A selection of cases can be grouped by right-clicking  a selection of summary cases and selecting the command **Group Summary Cases**. Summary cases can also be drag-dropped between summary groups. The groups will be used when listing the cases in the [Summary Plot Editor]({{ site.baseurl }}/docs/summaryploteditor).
 
-## Summary Plots
+### Observed Data
 
-A Summary Plot is a window displaying a graph in the main area of the **Plot Main Window**. It can contain **Summary Curve Filters** and **Summary Curves** ( See below ).
+See [Observed Time History Data]({{ site.baseurl }}/docs/importobstimehistdata)
 
-A new plot can be created by using the context menu of a plot selecting ![]({{ site.baseurl }}/images/SummaryPlot16x16.png) **New Summary Plot**. 
+### Grid Cell Time History Curve
+
+Time history curves from a grid cell property can also be added to a Summary Plot. 
+See [Result Inspection]({{ site.baseurl }}/docs/resultinspection#result-plot).
+
+### Pasted Ascii Curves
+
+You can copy an ascii table directly from Excel or any text source and paste it directly into a Summary Plot using the command **Paste Excel Data to Summary Plot**. See [Paste Excel Time History Data]({{ site.baseurl }}/docs/pasteexceltimedata).
+
+## Plot Settings
 
 ![]({{ site.baseurl }}/images/SummaryPlotTree.png)
 
@@ -31,42 +48,49 @@ Most of the settings for the Plot itself is controlled by its sub items in the P
 
 ![]({{ site.baseurl }}/images/SummaryTimeAxisProperties.png)
 
-- **Show Title** -- Toggles whether to show the axis title 
-- **Title** -- A user defined name for the axis 
-- **Title Position** --  Either *Center* or *At End* 
-- **Font Size** -- The font Size used for the date/times shown at the ticks of the axis 
-- **Time Mode** -- Option to show the time from Simulation Start, or as real date-times. 
-- **Time Unit** -- The time unit used to display **Time From Simulation Start** 
-- **Max**/**Min** -- The range of the visible time in the Plot in the appropriate time unit.  
-  The format of dates is _`yyyy-mm-ddThh:mm:ssZ`_ 
+- **Axis Title**
+  - **Show Title** -- Toggles whether to show the axis title 
+  - **Title** -- A user defined name for the axis 
+  - **Title Position** --  Either *Center* or *At End* 
+  - **Font Size** -- The font size used for the axis title
+- **Time Values**
+  - **Time Mode** -- Option to show the time from Simulation Start, or as real date-times. 
+  - **Time Unit** -- The time unit used to display **Time From Simulation Start** 
+  - **Max**/**Min** -- The range of the visible time in the Plot in the appropriate time unit.  
+    The format of dates is _`yyyy-mm-ddThh:mm:ssZ`_ 
+  - **Font Size** -- The font size used for the date/times shown at the ticks of the axis 
 
-### Y-axis properties
+### Y-axis Properties
 
 ![]({{ site.baseurl }}/images/summary_plot_yaxis_properties.png)
+- **Axis Title**
+  - **Auto Title** -- If enabled, the y-axis title is derived from the vectors associated with the axis. Long names, acronymes  and unit can be used. 
+    - **Names** -- Use the long name of the quantities
+    - **Acronymes** -- Add the shortname/acronyme of the quantities
+  - **Title** -- If **Auto Title** is disabled, the plot title is set using this field.
+- **Title Layout**
+  - **Title Position** -- Controls the position of the title. Center or At End.
+  - **Font Size** --  Defines the font size used by the axis title. 
+- **Axis Values**
+  - **Logarithmic Scale**  - Draw plot curves using a logarithmic scale. 
+  - **Number Format** -- Defines how the legend numbers are formatted.
+    - **Auto** -- Legend numbers are either using a scientific or decimal notation based on the number of digits of the value
+    - **Decimal** -- Legend numbers are displayed using decimal notation.
+    - **Scientific** -- Legend numbers are displayed using scientific notation (ie. 1.2e+6).
+  - **Number of Decimals** -- Controls the number of digits after "." (for  **Decimal** or **Scientific** format options).
+  - **Scale Factor** -- "Moves" the scale value away from the values along the axis and into the unit on the axis title (for  **Decimal** or **Scientific** format options).
+  - **Max and Min** -- Defines the visible y range.
+  - **Font Size** -- The font size used for the values shown at the ticks on the axis.   
 
-- **Auto Title** -- If enabled, the y-axis title is derived from the vectors associated with the axis. Names and unit are used. 
-- **Title** -- If **Auto Title** is disabled, the plot title is set using this field 
-- **Title Position** -- Controls the position of the title. Center or At End 
-- **Font Size** --  Defines the font size used by the axis title 
-- **Logarithmic Scale**  - Draw plot curves using a logarithmic scale 
-- **Number Format** -- Defines how the legend numbers are formatted 
-- **Max and Min** -- Defines the visible y range 
-
-#### Number Format
-
-- **Auto** -- Legend numbers are either using a scientific or decimal notation based on the number of digits of the value
-- **Decimal** -- Legend numbers are displayed using decimal notation
-- **Scientific** -- Legend numbers are displayed using scientific notation (ie. 1.2e+6)
-
-### Plot mouse interaction
+### Plot Mouse Interaction
 
 - **Value Tracking** -- When the mouse cursor is close to a curve, the closest curve sample is highlighted and the curve sample value at this location is displayed in a tooltip. 
 - **Selection** -- Left mouse button click can be used to select several of the parts in the plot, and display them in the Property Editor:
-  - The closest curve
-  - Each of the Plot Axes
+  - The closest curve.
+  - Each of the Plot Axes.
   - The Plot itself if none of the above is hit and the Plot window is activated by the mouse click.
 - **Window Zoom** -- Window zoom is available by dragging the mouse when the left mouse button is pressed. Use ![]({{ site.baseurl }}/images/ZoomAll16x16.png) **Zoom All** to restore default zoom level.
-- **Wheel Zoom** -- The mouse wheel will zoom the plot in and out towards the current mouse cursor position 
+- **Wheel Zoom** -- The mouse wheel will zoom the plot in and out towards the current mouse cursor position.
 
 ### Accessing the Plot Data
 
@@ -74,46 +98,45 @@ The command context command **Show Plot Data** will show a window containing the
 
 It is also possible to save the ascii data to a file directly by using the context command **Export Plot Data to Text File** on the plot. 
 
-## Summary Curve Filter
 
-A Summary Curve filter is a simplified way of creating and controlling many related curves at the same time. It enables efficient search options to select a sensible subset of vectors and controls the appearance and naming of the resulting curves.
+## Summary Curves
 
-A new curve filter can be created by using the context menu of a plot selecting ![]({{ site.baseurl }}/images/SummaryCurveFilter16x16.png) **New Summary Curve Filter**.
+Summary curves are normally created using the **Plot Editor** see [Summary Plot Editor]({{ site.baseurl }}/docs/summaryploteditor), but can be created directly using the context menu in the **Main Plot Window Project Tree**. Right click a Summary Plot, the Summary Curves folder or an existing curve and select the command ![]({{ site.baseurl }}/images/SummaryCurve16x16.png) **New Summary Curve**.
 
-![]({{ site.baseurl }}/images/summary_curve_filter_properties.PNG)
+![]({{ site.baseurl }}/images/summary_curve_properties.png)
 
-The property panel is divided in four main groups of options:
+The property panel is divided in three main groups of options:
 
-- **Cases** -- Selecting the cases to extract data from
-- **Vector Selection** -- Selecting what vectors to create curves from
-- **Appearance Settings** -- Options controlling how colors, symbols etc are assigned to the curves
-- **Curve Name Configuration** -- Control how the curves are named
+- **Summary Vector** -- Options selecting the value to plot.
+- **Appearance Settings** -- Options controlling the color, symbol etc of the curve.
+- **Curve Name Configuration** -- Controls how the curve is labeled in the legend.
 
-In addition you have the following options:
+### Summary Vector
 
-- **Axis** -- Controls whether the curves are to be associated with the left or right Y-Axis 
-- **Auto Apply Changes** -- When toggled, the changes in the property panel is instantly reflected in the generated and controlled curves 
-- **Apply** -- Applies the settings, and thus generates and updates the controlled curves 
+This group of options is used to define the summary vector data that the curve will display. 
 
-In the following sections the option groups are described in more detail.
+- **Case** -- Selects the imported Summary or Observed Data case to use as source.
+- **Vector** -- Displays a short name/ acronyme of the selected vector.
+- **Axis** -- Controls whether the curve is to be associated with the left or right Y-Axis. 
 
-### Cases
+<div class="note">
+Switching the Y-Axis for several curves in one go can be done using the context command <b>Switch Plot Axis</b>.  
+</div>
 
-Selects the cases to be used when searching for data vectors. Several Cases can be selected at the same time and the filter will contain the union of all vectors in those cases. Curves will be created for each selected case for the selected set of vectors. 
+To optional ways to select the curve data are available: The **Vector Selection Dialog** and the **Vector Selection Filter**.
 
-### Vector Selection
+The first is accessed by clicking the button **Vector Selection Dialog**. This opens a dialog similar to the one used as Plot Editor. See [Summary Plot Editor]({{ site.baseurl }}/docs/summaryploteditor).
 
-This group of options is used to define the selection of summary vectors of interest. Several filtering tools are available to make this as convenient as possible. 
-
+The **Vector Selection Filter** group of options is a different way of selecting the curve data:
 - **Search** -- This option controls the filtering mode. Several are available and controls witch search fields that are made available. The search modes are described below 
-- *Options depending on Search Mode* -- Described below. 
-- *list of vector names* -- This list displays the set of vectors filtered by the search options. Use this to select which of the vectors you want as curves. **Ctrl-A** selects them all.
+- **Options depending on Search Mode** -- Described below. 
+- **List of vector names** -- This list displays the set of vectors filtered by the search options. Use this to select which of the vectors you want to plot.
 
 In the following, all the search fields are wildcard-based text filters. An empty search string will match anything: any value or no value at all. A single _`*`_ however, will only match something: There has to be some value for that particular quantity to make the filter match.
 
 The **Vector Name** field will match the name of the quantity itself, while the additional mode specific fields will match the item(s) being addressed. 
 
-#### Search Modes with filter fields
+#### Search Modes with Filter Fields
 
 - **All** -- A wildcard search filter applied to the colon-separated string that describes the complete vector. Eg. _`"*:*, 55, *"`_ or _`"WBHP:*"`_. This mode is the default.
    - **Filter** -- The actual filter text to apply
@@ -164,46 +187,36 @@ The **Vector Name** field will match the name of the quantity itself, while the 
    - **Vector name** -- Filter for Network category vector names 
 - **All (Advanced)** -- This is a complete combined search mode with all the different search options available to create advanced cross item type searches.  
 
-### Appearance Settings
+### Curve Name 
 
-Curves created by a curve filter are assigned individual visual properties like colors and symbols in a systematic manner to make the plots easy to read. Different aspects of the vectors are assigned to different curve appearances. Eg. using symbols to distinguish cases, while using colors to distinguish quantity.
-
-These assignments can be controlled using the options in the **Appearance Settings** group. 
-
-![]({{ site.baseurl }}/images/SummaryCurveFilterAppearance.png)
-
-When set to **Auto** ResInsight assigns visual properties based on the present vector categories and the number of different values in each category.
-
-When disabling the **Auto** option, you can select which of the visual curve properties to use for which vector category. The vector Category that currently can be used is Case, Vector, Well, Group and Region. The visual properties supported types are Color, Symbols, Line Style, Gradient and Line Thickness.
-
-### Curve Name Configuration 
-
-The user can control the curve names by toggling what part of the summary vector information to use in the name.
-
-#### Contribute To Legend
-
-This option controls whether the curves created by the filter will be visible in the plot legend at all. In addition will  Curves with an empty name also be removed from the legend.  
-
-## Summary Curve
-A new curve can be created by using the context menu of a plot selecting ![]({{ site.baseurl }}/images/SummaryCurve16x16.png) **New Summary Curve**.
-
-![]({{ site.baseurl }}/images/summary_curve_properties.png)
-
-Many of the properties of a single curve is similar to the properties described for a curve filter. There are some differences, however:
-
-### Appearance
-
-The curve's appearance is controlled directly, and not automatically as for **Curve Filters**.
-<div class="note">
-The appearance set on a curve in a <b>Curve Filter</b> will override the settings in the <b>Curve Filter</b> until the <b>Curve Filter</b> settings are applied again. Then the local changes on the curve are overwritten. 
-</div>
-
-### Curve Name
+The user can control the curve name used in the plot legend by using these options.
 
 - **Contribute To Legend** -- This option controls whether the curve will be visible in the plot legend at all. A curves with an empty name will also be removed from the legend. 
 - **Auto Name** -- If enabled, ResInsight will create a name for the curve automatically based on the settings in this option group.
 - **Curve Name** -- If **Auto Name** is off, you can enter any name here. If empty, the curve will be removed from the legend, but still visible in the plot.
+- **Case Name, Vector name ...** etc. -- These options controls what part of the summary vector information to use in the curve auto-name.
 
 ## Copy and Paste 
 
-Copy and Paste of selections of Summary Plots, Curves, or Curve Filter is possible using the Project Tree Context menu and standard keyboard shortcuts (CTRL-C/CTRL-V).
+Copy and Paste of selections of Summary Plots and Curves, is possible using the Project Tree Context menu and standard keyboard shortcuts (CTRL-C/CTRL-V).
+
+## Summary Source Stepping
+Summary Source Stepping is a function which lets the user step through multiple vectors in one click. This function is available from both the toolbar and the **Summary Curves** property editor under a **Summary Plot** item in the **Main Plot Window Project Tree**.
+
+The toolbar version may look like this
+
+![]({{site.baseurl}}/images/SummarySourceSteppingToolbar.png)
+
+and the property editor version may looks like this
+
+![]({{site.baseurl}}/images/SummarySourceSteppingPropertyEditor.png)
+
+In some cases some of the stepping components are hidden, depending on the set of summary curves currently visible. When ResInsight decides which stepping component to display, all visible curves in the current plot are taken into account. If, for instance, all curves display data from the same well, the well stepping component is displayed. This policy applies to the following source dimensions:
+- Cases
+- Wells
+- Well groups
+- Regions
+- Vectors/Summaries
+
+When one of the **next buttons** are clicked, all curves are changed to display data for the next item for the clicked source dimension. Example: The user clicks the **next well button**. Then the well source for all curves in the current plot are changed to display data for the next well.
+

@@ -7,39 +7,62 @@ published: true
 
 ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 
-## Derived results for Eclipse cases
+## Derived Results for Eclipse Cases
 
-The derived results are listed at the bottom of the **Static** result properties, as shown below.
+ResInsight calculates several derived cell properties that is made available as **Static** or **Dynamic** cell properties.
+The derived results listed at the bottom of the **Static** result properties, are shown below.
 
 ![]({{ site.baseurl }}/images/DerivedStaticResults.png)
 
-
-### Transmissibility normalized by area
-The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named riTRANXbyArea, riTRANYbyArea and riTRANZbyArea respectively.
+### Transmissibility Normalized by Area
+The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named **riTRANXbyArea**, **riTRANYbyArea** and **riTRANZbyArea** respectively.
 
 The normalized transmissibilities make it easier to compare and check the flow capacity visually. This can be useful when history matching pressure differences across a fault. 
 
-### Identification of questionable NNCs
+
+### Overall Transmissibility Multiplier
+Transmissibility can be set or adjusted with multiple keywords in an Eclipse data deck. To visualize the adjustments made, ResInsight calculates a multiplicator for the overall change. First unadjusted transmissibilities for all neighbor cells and NNCs are evaluated based on geometry and permeabilities, similar to the NEWTRAN algorithm in Eclipse. For x- and y-directions, the NTG parameter is also included. The results are named **riTRANX**, **riTRANY** and **riTRANZ** respectively.
+
+The TRANX, TRANY and TRANZ used in the simulation are divided by the ResInsight calculated transmissibilities and the resulting multiplicators are named **riMULTX**, **riMULTY** and **riMULTZ** respectively. The derived properties are listed under **Static** properties. The riMULT-properties are useful for quality checking consistence in user input for fault seal along a fault plane. 
+
+### Directional Combined Results
+
+Cell properties with names ending in I, J, K, X, Y, or Z, and an optional "+" or "-" are combined into derived results postfixed with IJK, or XYZ depending on their origin. (Eg. the static cell properties MULTX, MULTY, MULTZ, and their negatives are combined into the result MULTXYZ, while the dynamic cell properties FLRGASI, FLRGASJ, FLRGASK are combined to FLRGASIJK). 
+
+These combined cell properties visualize the property as a color in all directions combined when selected in 
+as a **Cell Result** and **Separate Fault Result**. 
+
+The face of a cell is then colored based on the value associated with that particular face. The Positive I-face of the cell gets the cell X/I-value, while the J-face gets the Y/J-value etc. The negative faces, however, get the value from the neighbor cell on that side. The negative I-face gets the X-value of the IJK-neighbor in negative I direction, and so on for the J- and K-faces.
+
+The directional combined parameters available are:
+
+- Static Properties
+  - **TRANXYZ** (inluding NNCs)
+  - **MULTXYZ**
+  - **riTRANXYZ** (inluding NNCs)
+  - **riMULTXYZ** (inluding NNCs)
+  - **riTRANXYZbyArea** (inluding NNCs)
+- Dynamic Properties
+  - **FLRWATIJK** (inluding NNCs)
+  - **FLROILIJK** (inluding NNCs)
+  - **FLRGASIJK** (inluding NNCs)
+- Generated
+  - Octave generated results with same name but ending with I,J and K will also be combined into a _`<name>IJK`_ cell property.
+
+### Completion Type
+
+![]({{ site.baseurl }}/images/CompletionTypes.png)
+
+The dynamic cell property named **Completion Type** is calculated from the intersections between [Completions]({{ site.baseurl }}/docs/completions) and the grid cells. All grid cells intersected by a completion will be assigned a color based on the type of completion that intersects the cell.
+
+### Identification of Questionable NNCs
 In the process of normalizing transmissibility by the overlapping flow area, the NNCs in the model without any shared surface between two cells are identified. These NNCs are listed in the **Faults/NNCs With No Common Area** folder. These NNCs are questionable since flow normally is associated with a flow area.
 
 ![]({{ site.baseurl }}/images/ResInsight_NNCsWithNoCommonArea.png)
  
+### Water Flooded PV
 
-### Overall transmissibility multiplyer
-Transmissibility can be set or adjusted with multiple keywords in an Eclipse data deck. To visualize the adjustments made, ResInsight calculates a multiplicator for the overall change. First unadjusted transmissibilities for all neighbor cells and NNCs are evaluated based on geometry and permeabilities, similar to the NEWTRAN algorithm in Eclipse. For x- and y-directions, the NTG parameter is also included. The results are named riTRANX, riTRANY and riTRANZ respectively.
-
-The TRANX, TRANY and TRANZ used in the simulation are divided by the ResInsight calculated transmissibilities and the resulting multiplicators are named riMULTX, riMULTY and riMULTZ respectively. The derived properties are listed under **Static** properties. The riMULT-properties are useful for quality checking consistence in user input for fault seal along a fault plane. 
-
-### Directional combined results
-Some static properties with directional dependency can be visualized in x-, y- and z-direction combined in **Cell Result** and **Separate Fault Result**. The face of a cell is then colored based on the value associated with that particular face. The Positive I-face of the cell gets the cell X-value, while the J-face gets the Y-value etc. The negative faces, however, get the value from the neighbor cell on that side. The negative I-face gets the X-value of the IJK-neighbor in negative I direction, and so on for the J- and K-faces.
-
-The directional combined parameters available are:
-
-- **TRANXYZ** (inluding NNCs)
-- **MULTXYZ**
-- **riTRANXYZ** (inluding NNCs)
-- **riMULTXYZ** (inluding NNCs)
-- **riTRANXYZbyArea** (inluding NNCs)
+Water Flooded PV, also called _Number of flooded porevolumes_ shows the amount of flow from a selected set of simulation tracers into a particular cell, compared to the cells mobile pore volume. A value of 1.0 will tell that the tracers accumulated flow into the cell has reached a volume equal to the mobile pore volume in the cell.   
 
 ## Derived Geomechanical results
 
@@ -97,7 +120,7 @@ The calculated result fields are:
     * FAULTMOB 
     * PCRIT
     
-#### Definitions of derived results
+#### Definitions of Derived Results
 
 In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectively from the odb file.
 
@@ -108,7 +131,7 @@ Components with two subscripts however, refers to the global directions 1, 2, an
 - Inclination is measured from the downwards direction
 - Azimuth is measured from the Northing (Y) Axis in Clockwise direction looking down.
 
-##### Case constants
+##### Case Constants
 
 Two constants can be assigned to a Geomechanical case:
 
@@ -119,7 +142,7 @@ In the following they are denoted s0 and fa respectively. Some of the derived re
 
 ![]({{ site.baseurl }}/images/GeoMechCasePropertyPanel.png)
 
-##### ST - Total stress
+##### ST - Total Stress
 
 ST<sub>ii</sub> = -Sa<sub>ii</sub> + POR (i= 1,2,3)
 
@@ -137,7 +160,7 @@ STM = (ST<sub>11</sub> + ST<sub>22</sub> + ST<sub>33</sub>)/3
 
 Q = sqrt( (3/2) * ( (ST<sub>1</sub> – STM)<sup>2</sup>  + (ST<sub>2</sub> – STM)<sup>2</sup>  + (ST<sub>3</sub> – STM)<sup>2</sup> )) 
 
-##### Gamma - Stress path
+##### Gamma - Stress Path
 
 Gamma<sub>ii</sub> = ST<sub>ii</sub>/POR (i= 1,2,3) 
 
@@ -198,7 +221,7 @@ a coordinate system is established such that:
 
 The stress tensors in that particular face are then transformed to that coordinate system.  The following quantities are derived from the transformed tensor named TS in the following:
 
-##### SN - Stress component normal to face
+##### SN - Stress component Normal to face
 
 SN = TS<sub>33</sub>
 
@@ -220,7 +243,7 @@ Angle of the total in-plane shear relative to the Quasi Vertical direction
 
 TPinc = acos(TPQV/TP)
 
-##### Pinc and Pazi - Face inclination and Azimuth
+##### Pinc and Pazi - Face Inclination and Azimuth
 
 These are the directional angles of the face-normal itself. 
 

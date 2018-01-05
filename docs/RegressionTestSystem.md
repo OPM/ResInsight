@@ -12,10 +12,10 @@ A regression tool for QA is build into ResInsight. This tool will do the followi
 3. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. 
 4. Based on these three sets of images, an HTML report is created and automatically displayed.
 
-## Regression test files
+## Regression Test Files
 As the model size of some test files is quite large, the test data is located in a [separate repository](https://github.com/OPM/ResInsight-regression-test). In addition, some of the files are stored using [Git Large File Storage](https://git-lfs.github.com/).
 
-## How to run regression tests
+## How to Run Regression Tests
 
 To be able to run regression tests you need the **compare** tool from the [ImageMagic suite](http://www.imagemagick.org/script/compare.php).
 
@@ -26,7 +26,9 @@ From the ResInsight Gui select : **File->Testing->Regression Test Dialog**
 
 Specify location of compare tool in **Folder containing compare**. The current working directory of ResInsight is temporarily changed to this path during execution.
 
-## Creating regression tests
+To execute a subset of tests, specify folder names separated by ";" in the *Test Filter*. If the test filter is empty, all tests are executed.
+
+## Creating Regression Tests
 
 An example of the folder structure is shown below:
 

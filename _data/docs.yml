@@ -10,32 +10,51 @@
   - gridimportexport
   - modelnavigation
   
-- title: Application
+- title: 3D Main Window
   docs:
   - reservoirviews
   - cellresults
   - resultcolorlegend
   - resultinspection
+  - gridstatisticsdialog
+  - linkedviews
   - simulationwells
   - faults
   - intersections
   - filters
-  - formations
   - wellpaths
-  - linkedviews
+  - completions
+  - formations
   - casegroupsandstatistics 
+  - preferences
+  
+- title: Plot Window
+  docs:
   - summaryplots
+  - summaryploteditor
+  - summarycrossplots
+  - observeddata
+  - curvecalculator
   - welllogsandplots
+  - rftplot
+  - pltplot
   - flowdiagnosticsplots
-  - preferences  
-   
-- title: Export and Interfaces  
+     
+- title: Export and Import 
   docs:
   - snapshots
-  - batchcommands
   - exporteclipseproperties
-  - octaveinterface
+  - exportfluxnummultnum
+  - carfinexport
   - odbsupport
+  - importobstimehistdata
+  - pasteexceltimedata
+  
+- title: Scripting
+  docs:
+  - octaveinterface
+  - batchcommands
+  - commandfile
 
 - title: Appendix
   docs:

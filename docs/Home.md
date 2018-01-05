@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: ResInsight 2017.05
+title: ResInsight 2018.01
 permalink: /docs/home/
 published: true
 ---
@@ -18,7 +18,7 @@ Flow diagnostics calculations are embedded in the user interface and allows inst
 ### Octave Integration
 Integration with GNU Octave enables powerful and flexible result manipulation and computations. Derived results can be returned to ResInsight for further handling and visualization. Eventually, derived and computed properties can be directly exported to Eclipse input formats for further simulation cycles and parameter studies.
 
-### Data support
+### Data Support
 The main input data is
 _`*.GRID`_ and _`*.EGRID`_ files along with their _`*.INIT`_ and restart files _`*.XNNN`_ and _`*.UNRST`_. 
 Summary vectors can be imported from _`*.SMSPEC`_ files.

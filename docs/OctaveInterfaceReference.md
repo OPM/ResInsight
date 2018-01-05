@@ -12,11 +12,11 @@ To identify a ResInsight case uniquely in the Octave script, an integer Id (Case
 <b>Note:</b> The Octave interface does not support Geomechanical cases and flow diagnostic results. 
 </div>
 
-### Single case scripts
+### Single Case Scripts
 Single case scripts do not need to address cases explicitly, but works on what ResInsight considers being the "Current Case". When the user selects several cases and executes a script on them, ResInsight loops over all cases in the selection, sets the current case and executes the script. All references to the "Current Case" from the script will then refer to the case currently being processed by ResInsight. 
 The Current Case can be accessed directly using **riGetCurrentCase()**, but the more direct way is to *omit the CaseId parameter* in the functions, the Current Case is then automatically used. 
 
-### Multi case scripts
+### Multi Case Scripts
 Scripts can access the selection state in ResInsight, and also retrieve lists of Case Groups and cases including some meta information. This can be used if the scripts need to get values from some cases, and store the results in others, etc.
 
 ### Case Types
@@ -29,7 +29,7 @@ The case type (Labeled "CaseType" in the following specification) of a case is r
 |StatisticsCase | A statistics case based on many source cases in Grid Case Group | 
 |SourceCase     | A binary Eclipse case in a Grid Case Group |
 
-### Unresolved issues
+### Unresolved Issues
 The issue around having multiple instances of ResInsight is still not addressed, but might affect the function signatures by adding a port number parameter to all of them. We will try to find ways to avoid this, but are still not certain that we will succeed.
 
 ## Specification
@@ -142,13 +142,13 @@ If the CaseId is not defined, ResInsight's Current Case is used.
 This function returns a two dimensional matrix: [ActiveCells][Num TimestepsRequested] containing the requested property data from the case with CaseId.
 If the case contains coarse-cells, the results are expanded onto the active cells. 
 If the CaseId is not defined, ResInsight's Current Case is used. 
-The RequestedTimeSteps must contain a list of indices to the requested timesteps. If not defined, all the timesteps are returned.
+The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.
 
 #### Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
-This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested timestep.
+This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested time step.
 Grids are indexed from 0 (main grid) to max number of LGR's 
 If the CaseId is not defined, ResInsight's Current Case is used.
-The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the timesteps are returned.
+The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.
 Writing Back to ResInsight
 
 #### riSetActiveCellProperty( Matrix[numActiveCells][numTimeSteps], [CaseId], PropertyName, [TimeStepIndices], [PorosityModel = "Matrix"|"Fracture"])
@@ -222,4 +222,76 @@ This function returns the status information for a specified well for each reque
                            # or open respectively
     }
     
+If the CaseId is not defined, ResInsight's Current Case is used.
+
+#### Matrix[numSelectedCells][5] riGetSelectedCells([CaseId])
+
+This function returns a two dimensional matrix containing the cell info for each selected cell in the case with `CaseId`.
+The columns contain the following information:
+
+    [CaseId, GridIdx, I, J, K]
+      CaseId  # The ID of the case the cell resides in.
+      GridIdx # The index of the grid the cell resides in.
+              # Main grid has index 0
+      I, J, K # 1-based index of the cell in the grid.
+
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+
+
+#### Matrix[numSelectedCells][numTimestepsRequested] riGetGridPropertyForSelectedCells([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"] )
+
+This function returns a two dimensional matrix: [numSelectedCells][numTimestepsRequested] containing the requested property data from the case with CaseId.
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+The RequestedTimeSteps must contain a list of 1-based indices to the requested time steps. If not defined, all the time steps are returned.
+
+
+#### Vector[PropertyInfo] riGetNNCPropertyNames([CaseId])
+
+This function returns the name and type of all NNC properties in the case as a vector of structures.
+
+The structure is defined as:
+
+    PropertyInfo {
+      PropName    = string # Name of the property as received from
+                           # the analysis tool
+      PropType    = string # The type of the property: "StaticNative",
+                           # "DynamicNative", "Generated"
+    }
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+
+
+#### Matrix[numNNCConnections][2] riGetNNCConnections([CaseId])
+
+This function returns a two dimensional matrix containing grid and IJK information about each NNC connection.
+Each row contains a from and to cell for the connection.
+The cells are specified in a structure defined as:
+
+    CellInfo = {
+      GridIndex = int # Index of the grid the cell resides in.
+                      # Main grid has index 0.
+      I, J, K   = int # 1-based index address of the cell in the grid.
+    }
+
+#### Matrix[numConnections][numTimestepsRequested] riGetDynamicNNCValues([CaseId], PropertyName, [RequestedTimeSteps])
+
+This function returns a two dimensional matrix: [Num Connections][Num Time Steps Requested] containing the value of the requested property from the case with CaseId. The order of connections is the same as the order from `riGetNNCConnections`.
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.
+
+#### Vector[numConnections] riGetStaticNNCValues([CaseId], PropertyName)
+
+This function returns a vector of values for the requested static property for each NNC connection. The order of connections is the same as the order from `riGetNNCConnections`.
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+
+#### riSetNNCProperty(Matrix[numNNCConnections][numTimeSteps], [CaseId], PropertyName, [TimeStepIndices])
+
+Interprets the supplied matrix as a property set defined for the NNC connections in the case, and puts the data into ResInsight as a "Generated" property with the name "PropertyName".
+The "TimeStepIndices" argument is used to "label" all the steps present in the supplied data matrix and must thus be complete.
+The time step data will then be put into ResInsight at the time steps requested.
+
 If the CaseId is not defined, ResInsight's Current Case is used.

@@ -8,13 +8,13 @@ published: true
 ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave") including:
 
 - Octave functions that communicates with a running ResInsight session
-- Features to simplify managment and editing of Octave scripts from ResInsight
+- Features to simplify management and editing of Octave scripts from ResInsight
 - Commands to execute scripts using Octave.  
 
 The Octave functions are documented in [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterfacereference).
 
 <div class="note info"> 
-<b>Note:</b> The Octave interface does not support Geomechanical cases and flow diagnostic results. 
+<b>Note:</b> The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases. 
 </div>
 
 ## Octave Script Management 
@@ -56,7 +56,7 @@ When an Octave script is executed, the **Process Monitor** pops up and displays 
 
 ![]({{ site.baseurl }}/images/ProcessMonitor.png)
 
-In addition to the output from the script, it prints a start and stop timestamp. The **Clear**-button deletes all the text in the monitor, and the **Stop**-button tries to kill the running Octave process.
+In addition to the output from the script, it prints a start and stop time stamp. The **Clear**-button deletes all the text in the monitor, and the **Stop**-button tries to kill the running Octave process.
 
 ## Octave Script Examples
 
@@ -69,7 +69,7 @@ Here are some example-scripts that illustrates the use of the octave interface.
 #### Example 1
 
 ```matlab 
-# Calculate change of oil saturation from timestep to timestep
+# Calculate change of oil saturation from time step to time step
 SOIL = riGetActiveCellProperty("SOIL");
 SOILDIFF = SOIL;
 

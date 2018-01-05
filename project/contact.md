@@ -5,7 +5,7 @@ permalink: /project/contact/
 published: true
 ---
 
-For inquiries for new features,enhancements or support and maintenance agreements, please contact us for an offer:
+For inquiries for new features, enhancements or support and maintenance agreements, please contact us for an offer:
 
 Web : [Ceetron Solutions AS](http://www.ceetronsolutions.com) <br>
 Phone : +47 73 60 43 00 <br>

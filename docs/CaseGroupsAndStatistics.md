@@ -7,13 +7,13 @@ published: true
 
 ![]({{ site.baseurl }}/images/GridCaseGroupTree.png)
 
-**Grid Case Group**'s are designed to make it easy to calculate statistics per cell and per timestep of a large number of Eclipse simulation Cases with identical Grids (often labeled *realizations*).
+**Grid Case Group**'s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled *realizations*).
  
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each timestep between the realizations.
+If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.
 
 ## Creating Grid Case Groups
 
-### From files
+### From Files
 The easiest way to create a **Grid Case Group** is to use the Import command:
 **File->Import->Create Grid Case Group from Files**
 
@@ -33,7 +33,7 @@ This is useful if you want to create statistics based only on a subset of the so
 
 **Drag and Drop** of cases will normally copy the cases to the new destination, but moving them is possible by pressing and holding the **Shift** key while dropping.
 
-## Viewing special Source Cases
+## Viewing Special Source Cases
 To reduce the number of views, only a view for the first case is created automatically. If you want to inspect the results of a particular source case, right-click the case and select **New view** from the context menu. A new 3D View will the be created on that particular case.
 
 <div class="note">
@@ -44,14 +44,14 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 ## Statistics
 After creating a grid case group, an empty **Statistics Case** is created for you in the **Derived Statistics** folder of the **Grid Case Group**. 
 
-### Setting up and Calculate
+### Setting Up and Calculate
 The properties of non-calculated and calculated **Statistics Case** is shown below:
 
 ![]({{ site.baseurl }}/images/StatisticsCaseProperties.png)  ![]({{ site.baseurl }}/images/StatisticsCasePropertiesCalculated.png)
 
 - **Compute** --  Starts to calculate requested statistical Properties.
 - **Edit** -- Deletes the calculated results, and makes the controls to edit the setup available.
-- **Summary of calculation setup** -- Summarizes what to calculate 
+- **Summary of calculation setup** -- Summarizes what to calculate.
 - **Properties to consider** -- These options makes it possible to select what Eclipse properties to include in the Statistical calculations. Adding variables increase the memory usage and the computational time.
 - **Percentile Setup** -- Selects whether to calculate percentiles, what method and what percentile levels should be used. Turning this off speeds up the calculations.
 - **Well Data Source Case** -- This option selects which set of **Simulation Wells** to be shown along with the statistical results. You can select one of the **Source Cases**.
@@ -68,7 +68,7 @@ The values are sorted, and the first observation representing a probability high
 A histogram is created and the percentile is calculated based on the histogram. This method will be faster when having a large number of realizations, because no value sorting is involved. You would however need several hundred realizations before this method should be considered.
 
 
-### Viewing the results
+### Viewing the Results
 When the computation is complete, you have to create a 3D View on the **Statistics Case** to view the results. Use the Context menu available by right-clicking the **Statistics Case** to create it.
 
 ### Adding Statistics Cases

@@ -10,7 +10,7 @@ published: true
 
 ![]({{ site.baseurl }}/images/ViewTree.png)
 
-Each item has a set of properties that can be editied in the **Property Editor**.
+Each item has a set of properties that can be edited in the **Property Editor**.
 
 Several views can be added to the same case by right-clicking the case or a view and select **New View**. You can also **Copy** and then **Paste** a view into a Case. All the settings are then copied to the new view.  
 
@@ -20,7 +20,9 @@ Views of Eclipse models and Geomechanical models has a lot in common, but Eclips
 
 ### View properties
 
-Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibility controls of inactive and invalid cells. ![]({{ site.baseurl }}/images/ViewProperties.png) 
+Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibility controls of inactive and invalid cells.
+
+![]({{ site.baseurl }}/images/ViewProperties.png) 
 
 Visibility of the grid box with labels displaying the coordinates for the reservoir can also be controlled using **Show Grid Box**. 
 
@@ -42,9 +44,9 @@ The **Animation Progress** shows which time step you are viewing.
 
 ![]({{ site.baseurl }}/images/AnimationProgress.png)
 
-The **Info Text** shows general info about the case, the selected results, and some statistics. 
+The **Info Text** shows general info about the case, the selected results, and some statistics. **Mobile Volume Weighted Mean** is the mean of the current **Cell Property** weighted by the **Mobile pore volume**. Mobile pore volume is defined in every cell as: MULTPV _*_ PORV(1-SWCR). If MULTPV data is not present, it is ignored in the equation. The same applies to SWCR data.
 
-![]({{ site.baseurl }}/images/CaseInfoText.png)
+![]({{ site.baseurl }}/images/infoBox.png)
 
 The **Histogram** shows a histogram of the complete time series of the currently loaded **Cell Result** together with:
 

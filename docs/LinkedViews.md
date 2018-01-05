@@ -15,7 +15,7 @@ To establish a link between views, select ![]({{ site.baseurl }}/images/chain.pn
 
 ![]({{ site.baseurl }}/images/LinkedViewsInProjectTree.png)
 
-## Linked view Options
+## Linked View Options
 
 When selecting a linked view in the project tree, the different options are available in the **Property Editor**. 
 
@@ -27,7 +27,7 @@ When selecting a linked view in the project tree, the different options are avai
 - **Show Cursor** -- Shows the position of the mouse cursor in the other views as a cross-hair 
 - **Time Step** -- Change of time step in any of the views where this option is active will be applied to the other linked views with this option set.
 - **Cell Color Result** -- Change of cell result in the master view will be applied to all dependent views where this option is active. **Cell Color Result** is only supported between views of the *same type*.
-- **Legend Definition** -- Links the legend between views already linking the **Cell Results Color**
+- **Legend Definition** -- Links the legend between views already linking the **Cell Results Color**.
 
 #### Link Cell Filters
 
@@ -42,17 +42,17 @@ A linked view can temporarily be disabled by unchecking the linked view. To disa
 
 Right-clicking one of the linked view entries in the **Project Tree** displays the following menu entries: 
 
-- **Open All Linked Views** -- Open all the views which is part of the linked view group
+- **Open All Linked Views** -- Open all the views which is part of the linked view group.
 - **Delete All Linked Views** -- Delete the linked views group, and thereby unlink all the views.
-- **Delete** -- Remove an individual view from the group of linked views
+- **Delete** -- Remove an individual view from the group of linked views.
 
-## 3D view Context menu
+## 3D View Context Menu
 To activate the menu items for a linked view, right-click inside the 3D view anywhere outside the model. 
 Depending on whether the view is a dependent-, or an unlinked view, some of the following commands are available: 
 
 - **Show Link Options** -- Activate the linked view item in the project tree, and show its properties.
-- **Set As Master View** -- Use the view as Master View
-- **Link View** -- Add the view to list of linked views
-- **Unlink View** -- Delete the view from list of linked views
+- **Set As Master View** -- Use the view as Master View.
+- **Link View** -- Add the view to list of linked views.
+- **Unlink View** -- Delete the view from list of linked views.
 
 Master views have no available linking commands.

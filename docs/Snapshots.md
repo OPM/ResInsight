@@ -27,13 +27,13 @@ If a project contains multiple 3D Views or Plot Windows, all of them can be expo
 The files generated are stored in a folder named _`snapshots`_ within the folder where the Project File resides. 
 
 <div class="note">
- Snapshots of existing views can also be created and saved from the command line. 
- ( See <a href="{{ site.baseurl }}/docs/commandlineparameters">Command Line Arguments</a> )
+ Snapshots of existing views can also be created and saved from the command line 
+ ( See <a href="{{ site.baseurl }}/docs/commandlineparameters">Command Line Arguments</a> ).
 </div>
 
 ## Advanced Snapshot Export  ![]({{ site.baseurl }}/images/SnapShotSaveViews.png)
 
-The **Advanced Snapshot Export** command is useful for exporting several images of a specified set of views while simultaneously changing some of their settings. By using this command it is easy to document all layers of a specific model, or generate images with identical setup across several different cases. It is also easy to export an image for each of the timesteps in a case, or even a combination of all these parameters.
+The **Advanced Snapshot Export** command is useful for exporting several images of a specified set of views while simultaneously changing some of their settings. By using this command it is easy to document all layers of a specific model, or generate images with identical setup across several different cases. It is also easy to export an image for each of the time steps in a case, or even a combination of all these parameters.
 
 The **Advanced Snapshot Export** is available from the **File**->**Export** menu in the **3D Main Window** 
 Invoking the command will display the following dialog: 
@@ -46,13 +46,13 @@ To edit a row, the row must be activated by toggling it on in the **Active** col
 
 Options represented by columns:
 
-- **View** -- Selects the view to modify
+- **View** -- Selects the view to modify.
 - **Result Type**, **Properties** -- Defines a list of eclipse result properties to cycle through when creating snapshots. If properties from both the dynamic and static list is needed, you must create a new row.
-- **Start Time**, **End Time** -- Defines the timestep range to cycle through when creating snapshots
+- **Start Time**, **End Time** -- Defines the time step range to cycle through when creating snapshots.
 - **Range Filter Slice**, **Range Start**, **Range End** -- Defines a range filter slice that will be added to the view, and then cycled from *Range Start* to *Range End* when creating snapshots. 
-- **Cases** -- Defines the cases to cycle while creating snapshots. Normaly you can not change which case a view is displaying, but this option does temporarily.
+- **Cases** -- Defines the cases to cycle while creating snapshots. Normally you can not change which case a view is displaying, but this option does temporarily.
 
-The number of exported snapshots from a row can easily end up being huge, so it is wise to use some caution. The total number will be Properties * Timesteps * Range Steps * Cases.
+The number of exported snapshots from a row can easily end up being huge, so it is wise to use some caution. The total number will be Properties * Time Steps * Range Steps * Cases.
 
 Rows can be deleted and created by right-clicking in the table. 5 rows are created for convenience by default.
 

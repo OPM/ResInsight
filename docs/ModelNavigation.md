@@ -11,7 +11,7 @@ ResInsight comes with four navigation modes. The active mode can be selected in 
 
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 
-These abbrevitations are used in the tables below:
+These abbreviations are used in the tables below:
 
 |Abbreviation | Meaning |
 |-------------|---------|

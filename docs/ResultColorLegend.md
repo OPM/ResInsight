@@ -14,7 +14,7 @@ The color mapping of the displayed cell result is controlled by the **Legend Def
 - **Number format** -- Defines how the numbers are formatted
 - **Colors** -- Defines the color palette
 
-- **Mapping** -- This option defines how the values are mappend onto the color distribution
+- **Mapping** -- This option defines how the values are mapped onto the color distribution
   - **Discrete Linear** -- Legend divided into linear levels defined by **Number of levels**
   - **Continuous Linear** -- Continuous linear legend with tick mark count defined by **Number of levels**
   - **Continuous Logarithmic** -- Continuous logarithmic legend with tick mark count defined by **Number of levels**
@@ -25,5 +25,5 @@ The color mapping of the displayed cell result is controlled by the **Legend Def
   - **All Timesteps** -- values for all time steps are used to find min and max value of 
   the result values represented by the color legend.  
   (Not available for Flow Diagnostics results)
-  - **Current Time Step** -- use current (one) time step to find min and max values  
+  - **Current Timestep** -- use current (one) time step to find min and max values  
   - **User Defined Range** -- user specifies numeric values for min and max  

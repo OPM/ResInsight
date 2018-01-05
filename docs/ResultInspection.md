@@ -13,11 +13,11 @@ The selected cells will be highlighted, text information displayed in the **Resu
 Visibility of the docking widows can be controlled from the <b>Windows</b> menu.
 </div>
 
-## Result Info information
+## Result Info
 
-Clicking cells will display slightly different information text based on the case type as described in the following tables:
+Clicking cells will display slightly different information text based on the case type as described in the following tables.
 
-### Eclipse model
+### Eclipse Model
 
 Geometry      | Description
 --------------|------------
@@ -26,7 +26,7 @@ Fault face    | Displays the same info as for a *Reservoir cell*. In addition th
 Fault face with NNC | Displays the same info as *Fault face*, except the Non Neighbor Connections (NNC) result value is displayed instead of grid cell value. Information added in section **-- NNC details --** is geometry information of the two cells connected by the NNC.
 Formation names| Displays name of formation the cell is part of
 
-### Geomechanical model
+### Geomechanical Model
 
 Name                   | Description
 -----------------------|------------
@@ -44,7 +44,7 @@ Additional curves can be added to the plot if CTRL-key is pressed during picking
 
 To clear the cell-selection, left-click outside the visible geometry.
 
-### Adding the curves to a Summary plot
+### Adding the Curves to a Summary Plot
 
 The time history curves of the selected cells can be added to a Summary Plot by right-clicking in the **Result Plot** or in the 3D View.
 
@@ -54,3 +54,33 @@ A dialog will appear to prompt you to select an existion plot, or to create a ne
 
 ![]({{ site.baseurl }}/images/ResultPlotToSummaryPlotDialog.png)
 
+## PVT Plot
+
+Show the PVT Plot window by selecting **Windows -> PVT Plot**.
+
+![]({{ site.baseurl }}/images/pvtOil.png)
+
+![]({{ site.baseurl }}/images/pvtGas.png)
+
+The PVT plot window shows two plots, based on PVTNUM in the selected cell. One plots *Phase Formation Volume Factor* and the other plots *Phase Viscosity*, both against pressure. The *Phase* can be either oil or gas, and can be selected in the top left corner of the window.
+
+Pressure for the selected cell, at the current time step, is marked on the plot as a vertical line, and a large circle marks the scalar value of the cell (formation volume factor/viscosity). RV for the selected cell is also shown.
+
+## Relative Permeability Plot
+
+Show the Relative Permeability Plot window by selecting **Windows -> Relative Permeability Plot**.
+
+![]({{ site.baseurl }}/images/relParm.png)
+
+The Relative Permeability Plot window shows up to six curves, based on SATNUM in the selected cell. The curves can be turned on/off in the top left corner of the window, and they are described in the following table:
+
+Name | Description                     | Axis
+-----|---------------------------------|-----------
+KRW  | Relative permeability water     | KR (Left)
+KRG  | Relative permeability gas       | KR (Left)
+KROW | Relative permeability oil water | KR (Left)
+KROG | Relative permeability oil gas   | KR (Left)
+PCOW | Capilar pressure oil water      | PC (Right)
+PCOG | Capilar pressure oil gas        | PC (Right)
+
+Saturation of water and gas in the selected cell, at the current time step, are annotated in the plot by a blue and orange vertical line, respectively. The intersections between the lines and the relevant curves are marked with large circles.

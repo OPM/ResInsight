@@ -23,7 +23,7 @@ The following dialog will appear:
 - **Eclipse Keyword** -- The keyword to use for the property in the eclipse file
 - **Undefined Value** -- This value is written to the file for all values that are flagged as undefined in ResInsight
 
-### File format
+### File Format
 
 The exported file has the following format, that matches the Eclipse input format:
 

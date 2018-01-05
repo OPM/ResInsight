@@ -35,28 +35,28 @@ As import of faults can be time consuming, reading of faults can be disabled fro
 If enabled in **Preferences**, ResInsight will read Non Neighbor Connections from the Eclipse output file (_`*.INIT`_), and create explicit visualizations of those. 
 The NNC's are sorted onto the Fault's and their visibility is controlled along with them.
 
-## Fault visualization options
+## Fault Visualization Options
 
-### Fault visibility
+### Fault Visibility
 Faults can be hidden and shown in several ways. 
 
 - Checking or unchecking the checkbox in front of the fault will show or hide the fault. 
 - Visibility for multiple faults can be controlled at the same time by selecting multiple faults and use the context menu: **On**, **Off** and **Toggle**. 
 - Right-clicking a Fault in the 3D View will enable a context menu with a command to hide the fault.
 
-### Fault color
+### Fault Color
 Each named Fault is given a color on import. This color can be controlled by selecting the fault and edit its  **Fault color** in the **Property Editor.**
 
 ### Separate Fault Result
 The default result mapping used on faults are to use the same as specified in **Cell Result**. If a different result mapping is wanted, enable the checkbox at **Separate Fault Result** and select the result from the result selection dialog in the **Property Editor**. A second legend for the fault result is then added to the view.
 
-### Toolbar control
+### Toolbar Control
 Visualization mode and mesh lines can be controlled from the toolbar.
 
 - ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Faults-Only** visualization mode. 
    <br>When turned on, this option hides all the grid cells, and shows only the fault faces in the reservoir limited by the applied range and property filters. (Unless **Show faults outside filters** are turned on. See below.)
 - ![]({{ site.baseurl }}/images/draw_style_surface_24x24.png) Turns faces on and mesh off
-- ![]({{ site.baseurl }}/images/draw_style_surface_w_fault_mesh_24x24.png) Turns on all faces, and shows meshlines on faults only.
+- ![]({{ site.baseurl }}/images/draw_style_surface_w_fault_mesh_24x24.png) Turns on all faces, and shows mesh lines on faults only.
    <br> This is a useful method to highlight the faults in your reservoir, because the faults stands out with black outlining. 
 - ![]({{ site.baseurl }}/images/draw_style_faults_label_24x24.png) Shows labels for faults  
 
@@ -65,19 +65,19 @@ By clicking the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Fau
 
  ![]({{ site.baseurl }}/images/FaultProperties.png)
  
-##### Fault labels
+##### Fault Labels
 - **Show labels** -- Displays one label per fault with the name defined in the _`*.DATA`_ file
 - **Label color** -- Defines the label color
  
-##### Fault options
+##### Fault Options
 - **Show faults outside filters** -- Turning this option on, will display faults outside the filter region, making the fault visualization completely ignore the Range and Property filters in action.
 
 ##### Fault Face Visibility
 This group of options controls the visibility of the fault faces. Since they work together, and in some cases are overridden by the system, they can be a bit confusing. 
 
-First of all. These options are only available in **Faults-only** visualization mode. ( See *Toolbar Control* above) When not in **Faults-Only** mode, ResInsight overrides the options, and the controls are inactive. 
+First of all, these options are only available in **Faults-only** visualization mode ( See [Toolbar Control](#toolbar-control) ). When not in **Faults-Only** mode, ResInsight overrides the options, and the controls are inactive. 
 
-Secondly: The option you would normally want to adjust is **Dynamic Face Selection** ( See below ).
+Secondly, the option you would normally want to adjust is **Dynamic Face Selection** ( See below ).
 
 - **Show defined faces** -- Displays the fault cell faces that are defined on the Eclipse input file (_`*.DATA`_)
 - **Show opposite faces** -- Displays the opposite fault cell faces from what is defined on the input file, based on IJK neighbors.  

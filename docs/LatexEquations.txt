@@ -1,0 +1,14 @@
+Equations can be stored as png images using http://latex2png.com/
+Resoluton 200 and colour FFFFFF has been used when saving pngs
+
+Equations from Completions 
+
+Perforation Intervals
+
+K = \sqrt{K_Y K_Z}
+
+r_{0_X} = 0.28 \frac{ \sqrt{ D_z^2 \sqrt{\frac{K_Y}{K_Z}} + D_y^2 \sqrt{\frac{K_Z}{K_Y}} } }{\sqrt[4]{\frac{K_y}{K_z}} + \sqrt[4]{\frac{K_z}{K_y}}}
+
+T_X = \frac{c 2 \pi K l_x }{\ln (\frac{r_{0_x}}{r_w}) + S}
+
+T = \sqrt{T_x + T_y + T_z}

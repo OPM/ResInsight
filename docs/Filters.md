@@ -8,15 +8,15 @@ published: true
 
 Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
 
-- **Range filter** -- Extracts an IJK subset of the model.
-- **Property filter** -- Extracts cells with a property value matching a value range.
+- **Range Filter** -- Extracts an IJK subset of the model.
+- **Property Filter** -- Extracts cells with a property value matching a value range.
 
 <div class="note">
 The visibilities of cells connection to wells, and fences based on these cells can be controlled from <b> <a href="{{ site.baseurl }}/docs/simulationwells">Simulation Wells</a> </b>.<br> 
 <small><i>(Not applicable for Geomechanical cases)</i></small>
 </div>
 
-## Common properties for Range and Property Filters
+## Common Properties for Range and Property Filters
 
 Both filter types can be turned on or off using the toggle in the **Project Tree** and controlled from their corresponding **Property Editor**.
 
@@ -37,7 +37,7 @@ Each *Include* range filter will *add more cells* to the visualization. The view
 A new range filter can be added by activating the context menu for the **Range Filters** collection in the **Project Tree**. 
 
 <div class="note">
-An I,J or K-slice range filter can be added directly from a Cell in the <b>3D View</b> by rightclicking the cell and using the context menu. 
+An I,J or K-slice range filter can be added directly from a Cell in the <b>3D View</b> by right-clicking the cell and using the context menu. 
 </div>
 
 Below is a snapshot of the **Property Editor** of the **Range Filter** :
@@ -52,9 +52,9 @@ The **Start** and **Width** labels in front of the sliders features a number in 
 The **Start** labels shows the index of the start of the active cells.<br>
 The **Width** labels shows the number of active cells from the start of the active cells.
 
-## Property filters
+## Property Filters
 
-**Property filters** applies to the results of the **Range filters** and limits the visible cells to the ones approved by the filter. For a cell to be visible it must be accepted by all the property filters. 
+**Property Filters** applies to the results of the **Range Filters** and limits the visible cells to the ones approved by the filter. For a cell to be visible it must be accepted by all the property filters. 
 
 A new property filter can be made by activating the context menu on **Property Filters** or by right-clicking inside a 3D view. The new property filter is based on the currently viewed cell result by default. 
 
@@ -68,15 +68,15 @@ Below is a snapshot of the **Property Editor** of the **Property Filter**.
   
 ![]({{ site.baseurl }}/images/PropertyFilterProperties.png)
 
-### Property value range
+### Property Value Range
 The filter is based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the **Filter Type** (*Include*/*Exclude*). Exclude-filters removes the selected cells from the **View** even if some other filter includes them.
 
-#### Range Behavior for Flow Diagnostic results
-Normally the available range in the sliders is the max and min of all the values in all the timesteps. For Flow Diagnostics results, however, the available range is based on the current timestep. 
+#### Range Behavior for Flow Diagnostic Results
+Normally the available range in the sliders is the max and min of all the values in all the time steps. For Flow Diagnostics results, however, the available range is based on the current time step. 
 
-We still need to keep the range somewhat fixed while moving from timestep to timestep, so in order to do so ResInsight tries to keep the intentions of your range settings, as the available range changes. If either the max or min value is set to the limit, ResInsight will keep that setting at the limit even when the limit changes. If you set a spesific value for the max or the min, that setting will keep its value, even if it happens to end up outside the available range at a time step.   
+We still need to keep the range somewhat fixed while moving from time step to time step, so in order to do so ResInsight tries to keep the intentions of your range settings, as the available range changes. If either the max or min value is set to the limit, ResInsight will keep that setting at the limit even when the limit changes. If you set a specific value for the max or the min, that setting will keep its value, even if it happens to end up outside the available range at a time step.   
 
-### Category selection
+### Category Selection
 If the property is representing integer values, well tracer names or [ formation names ]({{ site.baseurl }}/docs/formations), the property filter displays a list of available categories used to filter cells. The separate values can then be toggled on or off using the list in the Property Editor.
 
 ![]({{ site.baseurl }}/images/PropertyFilterWithCategories.png)
