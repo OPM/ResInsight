@@ -206,7 +206,7 @@ cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3]) c
     bool isAllTensCompsZero = true;
     for (i = 0; i < 6; i++)
     {
-        if (!(abs(m_tensor[i]) < floatThreshold))
+        if (!(fabs(m_tensor[i]) < floatThreshold))
         {
             isAllTensCompsZero = false;
             break;
