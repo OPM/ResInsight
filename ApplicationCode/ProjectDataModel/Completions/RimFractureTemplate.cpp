@@ -21,14 +21,15 @@
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
+#include "RimFractureContainment.h"
 #include "RimProject.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfVector3.h"
-#include "RimFractureContainment.h"
 
+#include <cmath>
 
 namespace caf
 {
