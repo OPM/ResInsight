@@ -130,8 +130,14 @@ public:
         m_hasUnifiedRestartFile = false;
         m_poreVolume = m_eclGraph->poreVolume();
 
-        //m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
-        m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData, true, Opm::ECLSaturationFunc::InvalidEPBehaviour::IgnorePoint));
+        try
+        {
+            m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData, true, Opm::ECLSaturationFunc::InvalidEPBehaviour::IgnorePoint));
+        }
+        catch (...)
+        {
+            RiaLogging::warning("Exception during initialization of relative permeability plotting functionality. Functionality will not be available.");
+        }
 
         try
         {
@@ -607,7 +613,10 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     }
 
     CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
-    CVF_ASSERT(m_opmFlowDiagStaticData->m_eclSaturationFunc);
+    if (!m_opmFlowDiagStaticData->m_eclSaturationFunc)
+    {
+        return retCurveArr;
+    }
 
     const Opm::ECLSaturationFunc::RawCurve krw  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua };    // water rel-perm in oil-water system
     const Opm::ECLSaturationFunc::RawCurve krg  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,  Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Vapour };  // gas rel-perm in oil-gas system
