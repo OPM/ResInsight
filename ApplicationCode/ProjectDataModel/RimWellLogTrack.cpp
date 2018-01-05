@@ -1265,7 +1265,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
         if (m_formationWellPathForSourceWellPath == nullptr) return;
-        if (!(plot->depthType() == RimWellLogPlot::MEASURED_DEPTH || plot->depthType() == RimWellLogPlot::PSEUDO_LENGTH)) return;
+        if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
 
         std::vector<double> yValues;
 
