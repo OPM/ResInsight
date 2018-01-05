@@ -160,5 +160,36 @@ PdmObjectHandle* PdmUiTableView::pdmObjectFromModelIndex(const QModelIndex& mi)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditorAttribute::registerPushButtonTextForFieldKeyword(const QString& keyword, const QString& text)
+{
+    m_fieldKeywordAndPushButtonText[keyword] = text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTableViewEditorAttribute::showPushButtonForFieldKeyword(const QString& keyword) const
+{
+    if (m_fieldKeywordAndPushButtonText.count(keyword) > 0) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiTableViewEditorAttribute::pushButtonText(const QString& keyword) const
+{
+    if (showPushButtonForFieldKeyword(keyword))
+    {
+        return m_fieldKeywordAndPushButtonText.at(keyword);
+    }
+
+    return "";
+}
+
 } //End of namespace caf
 

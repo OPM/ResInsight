@@ -55,7 +55,7 @@ class RivIntersectionVertexWeights;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
+    explicit RivIntersectionPartMgr(RimIntersection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -103,7 +103,7 @@ public:
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
 
-    const RimIntersection*      m_rimCrossSection;
+    RimIntersection*            m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 

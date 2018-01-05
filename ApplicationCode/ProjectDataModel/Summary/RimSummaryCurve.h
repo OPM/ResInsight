@@ -25,45 +25,19 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
-#include "RifEclipseSummaryAddress.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
+#include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"
 
-
-class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
+class RimSummaryAddress;
 
-class RimSummaryAddress: public caf::PdmObject
-{
-    CAF_PDM_HEADER_INIT;
-public:
-    RimSummaryAddress();;
-    virtual ~RimSummaryAddress();
-
-    void setAddress(const RifEclipseSummaryAddress& addr);
-    RifEclipseSummaryAddress address();
-
-private:
-
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
-        m_category;
-    caf::PdmField<QString>                  m_quantityName;
-    caf::PdmField<int>                      m_regionNumber;
-    caf::PdmField<int>                      m_regionNumber2;
-    caf::PdmField<QString>                  m_wellGroupName;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<int>                      m_wellSegmentNumber;
-    caf::PdmField<QString>                  m_lgrName;
-    caf::PdmField<int>                      m_cellI;
-    caf::PdmField<int>                      m_cellJ;
-    caf::PdmField<int>                      m_cellK;
-
-};
 
 //==================================================================================================
 ///  
@@ -77,20 +51,27 @@ public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
 
-    void                                    setSummaryCase(RimSummaryCase* sumCase);
-    RimSummaryCase*                         summaryCase(); 
+    // Y Axis functions
+    void                                    setSummaryCaseY(RimSummaryCase* sumCase);
+    RimSummaryCase*                         summaryCaseY() const; 
+    void                                    setSummaryAddressY(const RifEclipseSummaryAddress& address);
+    RifEclipseSummaryAddress                summaryAddressY() const;
+    std::string                             unitNameY() const;
+    std::vector<double>                     valuesY() const;
+    void                                    setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis                    axisY() const;
+    const std::vector<time_t>&              timeStepsY() const;
 
-    RifEclipseSummaryAddress                summaryAddress();
-    void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
-    std::string                             unitName();
+    // X Axis functions
+    void                                    setSummaryCaseX(RimSummaryCase* sumCase);
+    RimSummaryCase*                         summaryCaseX() const; 
+    RifEclipseSummaryAddress                summaryAddressX() const;
+    void                                    setSummaryAddressX(const RifEclipseSummaryAddress& address);
+    std::string                             unitNameX() const;
+    std::vector<double>                     valuesX() const;
 
-    std::vector<double>                     yValues() const;
-    const std::vector<time_t>&              timeSteps() const;
-
-    void                                    setYAxis(RimDefines::PlotAxis plotAxis);
-    RimDefines::PlotAxis                    yAxis() const;
+    // Other
     void                                    updateQwtPlotAxis();
-
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
 protected:
@@ -98,29 +79,44 @@ protected:
 
     virtual QString                         createCurveAutoName() override;
     virtual void                            updateZoomInParentPlot() override;
-    virtual void                            onLoadDataAndUpdate() override;
+    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
 private:
-    RifReaderEclipseSummary*                summaryReader() const;
-    bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
+    RifSummaryReaderInterface*              valuesSummaryReaderX() const;
+    RifSummaryReaderInterface*              valuesSummaryReaderY() const;
+    const std::vector<time_t>&              timeStepsX() const;
+
+    void                                    calculateCurveInterpolationFromAddress();
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
+    static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                                                 RimSummaryCase* summaryCase,
+                                                                                 RimSummaryFilter* summaryFilter);
+
+    bool                                    isCrossPlotCurve() const;
 
 private:
-    // Fields
-    caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
-    caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
-    caf::PdmField<QString>                  m_selectedVariableDisplayField;
+    // Y values
+    caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>  m_yValuesCurveVariable;
+    caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
+    caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
 
-    caf::PdmChildField<RimSummaryCurveAutoName*>   m_curveNameConfig;
+    // X values
+    caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>  m_xValuesCurveVariable;
+    caf::PdmField<QString>                  m_xValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>   m_xValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress> m_xValuesUiFilterResultSelection;
+    caf::PdmField<bool>                     m_xPushButtonSelectSummaryAddress;
 
-    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
-
-    // Filter fields
-    caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-    caf::PdmField<int>                      m_uiFilterResultSelection;
+    caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
+    caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 };

@@ -63,10 +63,14 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
             cvf::Vec3d domainCoord = transForm->transformToDomainCoord(uiEvent->globalIntersectionPoint);
 
             double measuredDepth = wellPathSourceInfo->measuredDepth(uiEvent->firstPartTriangleIndex, domainCoord);
+
+            // NOTE: This computation was used to find the location for a fracture when clicking on a well path
+            // It turned out that the computation was a bit inaccurate
+            // Consider to use code in RigSimulationWellCoordsAndMD instead
             cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(uiEvent->firstPartTriangleIndex, domainCoord);
 
             QString wellPathText;
-            wellPathText += QString("Well path name : %1\n").arg(wellPathSourceInfo->wellPath()->name);
+            wellPathText += QString("Well path name : %1\n").arg(wellPathSourceInfo->wellPath()->name());
             wellPathText += QString("Measured depth : %1\n").arg(measuredDepth);
 
             QString formattedText;

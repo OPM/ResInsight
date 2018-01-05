@@ -37,23 +37,19 @@
 
 #include "cafPdmUiFilePathEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
-#include "cafPdmField.h"
-
-#include <QLineEdit>
-#include <QLabel>
+#include <QBoxLayout>
+#include <QDir>
+#include <QFileDialog>
 #include <QIntValidator>
-
-#include "cafFactory.h"
-#include "qboxlayout.h"
-#include "qtoolbutton.h"
-#include "qfiledialog.h"
-
+#include <QLabel>
+#include <QLineEdit>
 
 
 namespace caf
@@ -69,18 +65,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_lineEdit.isNull());
     CAF_ASSERT(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
-
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
@@ -154,7 +139,14 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     QString defaultPath;
     if ( m_lineEdit->text().isEmpty())
     {
-        defaultPath = QDir::homePath();
+        if (m_attributes.m_defaultPath.isNull())
+        {
+            defaultPath = QDir::homePath();
+        }
+        else
+        {
+            defaultPath = m_attributes.m_defaultPath;
+        }
     }
     else
     {

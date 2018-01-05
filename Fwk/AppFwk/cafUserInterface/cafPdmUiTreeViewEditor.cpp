@@ -147,17 +147,28 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    // If we have a real object, get its editor attributes (Column headers for now)
+    PdmUiTreeViewEditorAttribute editorAttributes;
 
-    if (this->pdmItemRoot() && dynamic_cast<PdmUiObjectHandle*>(this->pdmItemRoot()))
     {
-        dynamic_cast<PdmUiObjectHandle*>(this->pdmItemRoot())->objectEditorAttribute(uiConfigName, &m_editorAttributes);
+        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>(this->pdmItemRoot());
+        if (uiObjectHandle)
+        {
+            uiObjectHandle->objectEditorAttribute(uiConfigName, &editorAttributes);
+        }
     }
 
-    m_treeViewModel->setColumnHeaders(m_editorAttributes.columnHeaders);
+    m_treeViewModel->setColumnHeaders(editorAttributes.columnHeaders);
     m_treeViewModel->setUiConfigName(uiConfigName);
     m_treeViewModel->setPdmItemRoot(this->pdmItemRoot());
 
+    if (editorAttributes.currentObject)
+    {
+        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->uiCapability();
+        if (uiObjectHandle)
+        {
+            selectAsCurrentItem(uiObjectHandle);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +309,7 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::selectAsCurrentItem(PdmUiItem* uiItem)
+void PdmUiTreeViewEditor::selectAsCurrentItem(const PdmUiItem* uiItem)
 {
     QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
     m_treeView->setCurrentIndex(index);

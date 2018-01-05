@@ -23,7 +23,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RiaSummaryTools.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -57,12 +58,6 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
-
     RimSummaryPlot* plot = selectedSummaryPlot();
     if (plot)
     {
@@ -70,22 +65,25 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
         cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
         newCurve->setColor(curveColor);
 
-        plot->addCurve(newCurve);
+        plot->addCurveAndUpdate(newCurve);
 
         RimSummaryCase* defaultCase = nullptr; 
-        if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)
+        if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
         {
-            defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
-            newCurve->setSummaryCase(defaultCase);
+            defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
+            newCurve->setSummaryCaseY(defaultCase);
 
-            newCurve->setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
+            newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
 
-            newCurve->loadDataAndUpdate();
+            newCurve->loadDataAndUpdate(true);
         }
         
         plot->updateConnectedEditors();
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
 }
 
@@ -103,9 +101,13 @@ void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryCurveFeature::selectedSummaryPlot() const
 {
+    RimSummaryPlot* sumPlot = nullptr;
+
     caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    RimSummaryPlot * sumPlot;
-    selObj->firstAncestorOrThisOfType(sumPlot);
+    if (selObj)
+    {
+        sumPlot = RiaSummaryTools::parentSummaryPlot(selObj);
+    }
 
     return sumPlot;
 }

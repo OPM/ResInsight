@@ -41,8 +41,9 @@ import datetime
 import ctypes
 
 from cwrap import BaseCClass
-from ecl.ecl import EclPrototype, EclKW, EclFileEnum, EclFileView
 from ecl.util import CTime
+from ecl.util import monkey_the_camel
+from ecl.ecl import EclPrototype, EclKW, EclFileEnum, EclFileView
 
 
 class EclFile(BaseCClass):
@@ -61,10 +62,12 @@ class EclFile(BaseCClass):
     _has_report_step             = EclPrototype("bool        ecl_file_has_report_step( ecl_file , int)")
     _has_sim_time                = EclPrototype("bool        ecl_file_has_sim_time( ecl_file , time_t )")
     _get_global_view             = EclPrototype("ecl_file_view_ref ecl_file_get_global_view( ecl_file )")
+    _write_index                 = EclPrototype("bool        ecl_file_write_index( ecl_file , char*)")
+    _fast_open                   = EclPrototype("void*       ecl_file_fast_open( char* , char* , int )" , bind=False)
 
 
     @staticmethod
-    def getFileType(filename):
+    def get_filetype(filename):
         fmt_file    = ctypes.c_bool()
         report_step = ctypes.c_int()
 
@@ -177,7 +180,7 @@ class EclFile(BaseCClass):
         return self._create_repr('"%s"%s' % (fn,wr))
 
 
-    def __init__( self , filename , flags = 0):
+    def __init__( self , filename , flags = 0 , index_filename = None):
         """
         Loads the complete file @filename.
 
@@ -201,7 +204,11 @@ class EclFile(BaseCClass):
         constituting the file, like e.g. SWAT from a restart file or
         FIPNUM from an INIT file.
         """
-        c_ptr = self._open( filename , flags )
+        if index_filename is None:
+            c_ptr = self._open( filename , flags )
+        else:
+            c_ptr = self._fast_open(filename, index_filename, flags)
+
         if c_ptr is None:
             raise IOError('Failed to open file "%s"' % filename)
         else:
@@ -253,7 +260,7 @@ class EclFile(BaseCClass):
         self.close()
 
 
-    def blockView(self, kw, kw_index):
+    def block_view(self, kw, kw_index):
         if not kw in self:
             raise KeyError('No such keyword "%s".' % kw)
         ls = self.global_view.numKeywords(kw)
@@ -265,16 +272,15 @@ class EclFile(BaseCClass):
         raise IndexError('Index out of range, must be in [0, %d), was %d.' % (ls, kw_index))
 
 
-    def blockView2(self, start_kw , stop_kw , start_index):
+    def block_view2(self, start_kw, stop_kw, start_index):
         return self.global_view.blockView2( start_kw , stop_kw, start_index )
 
 
-    def restartView( self, seqnum_index = None, report_step = None , sim_time = None , sim_days = None):
+    def restart_view(self, seqnum_index=None, report_step=None, sim_time=None, sim_days=None):
         return self.global_view.restartView( seqnum_index, report_step , sim_time, sim_days )
 
 
-
-    def select_block( self, kw , kw_index):
+    def select_block(self, kw, kw_index):
         raise NotImplementedError("The select_block implementation has been removed - use EclFileView")
 
 
@@ -653,7 +659,7 @@ class EclFile(BaseCClass):
         return self._iget_restart_days( index )
 
 
-    def getFilename(self):
+    def get_filename(self):
         """
         Name of the file currently loaded.
         """
@@ -678,6 +684,10 @@ class EclFile(BaseCClass):
         """
         self._fwrite(  fortio , 0 )
 
+    def write_index(self, index_file_name):
+        if not self._write_index(index_file_name):
+            raise IOError("Failed to write index file:%s" % index_file_name)
+
 
 class EclFileContextManager(object):
 
@@ -693,4 +703,16 @@ class EclFileContextManager(object):
 
 
 def openEclFile( file_name , flags = 0):
-    return EclFileContextManager( EclFile( file_name , flags ))
+    print('The function openEclFile is deprecated, use open_ecl_file.')
+    return open_ecl_file(file_name, flags)
+
+def open_ecl_file(file_name, flags=0):
+    return EclFileContextManager(EclFile(file_name, flags))
+
+
+
+monkey_the_camel(EclFile, 'getFileType', EclFile.get_filetype, staticmethod)
+monkey_the_camel(EclFile, 'blockView', EclFile.block_view)
+monkey_the_camel(EclFile, 'blockView2', EclFile.block_view2)
+monkey_the_camel(EclFile, 'restartView', EclFile.restart_view)
+monkey_the_camel(EclFile, 'getFilename', EclFile.get_filename)

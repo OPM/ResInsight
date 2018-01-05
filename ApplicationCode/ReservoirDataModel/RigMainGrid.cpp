@@ -21,7 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RiaLogging.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RigFault.h"
 #include "RigActiveCellInfo.h"
 
@@ -50,6 +50,22 @@ RigMainGrid::~RigMainGrid(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const
+{
+     return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const
+{
+    return gridByIndex(gridIdx)->reservoirCellIndex(gridLocalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 {
     CVF_ASSERT(localGrid && localGrid->gridId() != cvf::UNDEFINED_INT); // The grid ID must be set.
@@ -72,11 +88,14 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::initAllSubGridsParentGridPointer()
 {
-    initSubGridParentPointer();
-    size_t i;
-    for (i = 0; i < m_localGrids.size(); ++i)
+    if ( m_localGrids.size() && m_localGrids[0]->parentGrid() == nullptr )
     {
-       m_localGrids[i]->initSubGridParentPointer(); 
+        initSubGridParentPointer();
+        size_t i;
+        for ( i = 0; i < m_localGrids.size(); ++i )
+        {
+            m_localGrids[i]->initSubGridParentPointer();
+        }
     }
 }
 
@@ -237,8 +256,8 @@ bool RigMainGrid::hasFaultWithName(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 {
-    if (hasFaultWithName(RimDefines::undefinedGridFaultName())
-        && hasFaultWithName(RimDefines::undefinedGridFaultWithInactiveName()))
+    if (hasFaultWithName(RiaDefines::undefinedGridFaultName())
+        && hasFaultWithName(RiaDefines::undefinedGridFaultWithInactiveName()))
     {
         //RiaLogging::debug(QString("Calculate faults already run for grid."));
         return;
@@ -255,12 +274,12 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
     // Separate the grid faults that has an inactive cell as member
 
     RigFault* unNamedFault = new RigFault;
-    unNamedFault->setName(RimDefines::undefinedGridFaultName());
+    unNamedFault->setName(RiaDefines::undefinedGridFaultName());
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
     m_faults.push_back(unNamedFault);
 
     RigFault* unNamedFaultWithInactive = new RigFault;
-    unNamedFaultWithInactive->setName(RimDefines::undefinedGridFaultWithInactiveName());
+    unNamedFaultWithInactive->setName(RiaDefines::undefinedGridFaultWithInactiveName());
     int unNamedFaultWithInactiveIdx = static_cast<int>(m_faults.size());
     m_faults.push_back(unNamedFaultWithInactive);
 
@@ -280,7 +299,10 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
         bool firstNO_FAULTFaceForCell = true;
         bool isCellActive = true;
 
-        for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
+        char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
+
+        // Compare only I and J faces
+        for (char faceIdx = 0; faceIdx < upperLimitForFaceType; ++faceIdx)
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
 

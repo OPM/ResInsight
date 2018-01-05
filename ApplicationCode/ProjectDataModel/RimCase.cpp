@@ -19,17 +19,15 @@
 
 #include "RimCase.h"
 
+#include "RiaApplication.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimTimeStepFilter.h"
+
 #include "cafPdmObjectFactory.h"
 
-#include <QFile>
-#include <QFileInfo>
-#include <QDir>
-#include <QDebug>
-#include "RimProject.h"
-#include "RiaApplication.h"
-#include "RimOilField.h"
-#include "RimFormationNamesCollection.h"
-#include "RimFormationNames.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 
@@ -45,7 +43,11 @@ RimCase::RimCase()
     caseId.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "");
-    
+
+    CAF_PDM_InitFieldNoDefault(&m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "");
+    m_timeStepFilter.uiCapability()->setUiHidden(true);
+    m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden(true);
+    m_timeStepFilter = new RimTimeStepFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +64,29 @@ RimCase::~RimCase()
 cvf::Vec3d RimCase::displayModelOffset() const
 {
     return cvf::Vec3d::ZERO;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCase::setFormationNames(RimFormationNames* formationNames)
+{
+    activeFormationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
+{
+    std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredNativeTimeStepIndices();
+
+    if (nativeTimeIndices.size() > 0)
+    {
+        return nativeTimeIndices.at(uiTimeStepIndex);
+    }
+
+    return uiTimeStepIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

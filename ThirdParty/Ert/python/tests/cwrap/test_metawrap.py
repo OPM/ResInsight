@@ -9,7 +9,7 @@ from ecl.test import ExtendedTestCase
 
 # Local copies so that the real ones don't get changed
 class TestUtilPrototype(Prototype):
-    lib = ecl.load("libert_util")
+    lib = ecl.load("libecl")
     def __init__(self, prototype, bind=False):
         super(TestUtilPrototype, self).__init__(TestUtilPrototype.lib, prototype, bind=bind)
 
@@ -113,7 +113,6 @@ class MetaWrapTest(ExtendedTestCase):
         def stringObj(c_ptr):
             char_ptr = ctypes.c_char_p(c_ptr)
             python_string = char_ptr.value
-            TestUtilPrototype.lib.free(c_ptr)
             return python_string.decode('ascii')
 
         Prototype.registerType("string_obj", stringObj)

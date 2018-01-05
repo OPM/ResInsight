@@ -26,12 +26,11 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
@@ -107,7 +106,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
             
             CVF_ASSERT(eclCase && eclCase->eclipseCaseData() );
 
-            timeStepCount = eclCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+            timeStepCount = eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
         }
 
@@ -129,12 +128,12 @@ std::vector<QString> RimFlowDiagSolution::tracerNames() const
     
     if (eclCase)
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();   
+        const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
 
-        for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
+        for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
         {
-            tracerNameSet.push_back(wellResults[wIdx]->m_wellName); 
-            tracerNameSet.push_back(addCrossFlowEnding(wellResults[wIdx]->m_wellName)); 
+            tracerNameSet.push_back(simWellData[wIdx]->m_wellName);
+            tracerNameSet.push_back(addCrossFlowEnding(simWellData[wIdx]->m_wellName));
         }
     }
 
@@ -169,20 +168,20 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
 
     if ( eclCase )
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
+        const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
         RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
-        RigActiveCellInfo* activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); //Todo: Must come from the results definition
+        RigActiveCellInfo* activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL); //Todo: Must come from the results definition
 
-        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
-            if (!wellResults[wIdx]->hasWellResult(timeStepIndex) ) continue;
-            const RigWellResultFrame& wellResFrame = wellResults[wIdx]->wellResultFrame(timeStepIndex);
+            if (!simWellData[wIdx]->hasWellResult(timeStepIndex) ) continue;
+            const RigWellResultFrame& wellResFrame = simWellData[wIdx]->wellResultFrame(timeStepIndex);
            
             bool isInjectorWell =  (   wellResFrame.m_productionType != RigWellResultFrame::PRODUCER
                                     && wellResFrame.m_productionType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE);
 
-            std::string wellName   = wellResults[wIdx]->m_wellName.toStdString();
-            std::string wellNameXf = addCrossFlowEnding(wellResults[wIdx]->m_wellName).toStdString();
+            std::string wellName   = simWellData[wIdx]->m_wellName.toStdString();
+            std::string wellNameXf = addCrossFlowEnding(simWellData[wIdx]->m_wellName).toStdString();
 
             std::vector<int>& tracerCells = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
@@ -229,16 +228,16 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(c
 
     TracerStatusType tracerStatus = UNDEFINED;
 
-    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
+    const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
 
-    for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+    for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
     {
         QString wellName = removeCrossFlowEnding(tracerName);
 
-        if ( wellResults[wIdx]->m_wellName != wellName ) continue;
+        if ( simWellData[wIdx]->m_wellName != wellName ) continue;
 
         tracerStatus = CLOSED;
-        for ( const RigWellResultFrame& wellResFrame : wellResults[wIdx]->m_wellCellsTimeSteps )
+        for ( const RigWellResultFrame& wellResFrame : simWellData[wIdx]->m_wellCellsTimeSteps )
         {
             if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
                 || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
@@ -275,16 +274,16 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfTypeAsserted(eclCase);
 
-    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
+    const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
 
-    for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+    for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
     {
         QString wellName = removeCrossFlowEnding(tracerName);
 
-        if ( wellResults[wIdx]->m_wellName != wellName ) continue;
-        if (!wellResults[wIdx]->hasWellResult(timeStepIndex))  return CLOSED;
+        if ( simWellData[wIdx]->m_wellName != wellName ) continue;
+        if (!simWellData[wIdx]->hasWellResult(timeStepIndex))  return CLOSED;
 
-        const RigWellResultFrame& wellResFrame = wellResults[wIdx]->wellResultFrame(timeStepIndex);
+        const RigWellResultFrame& wellResFrame = simWellData[wIdx]->wellResultFrame(timeStepIndex);
 
         if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
             || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR

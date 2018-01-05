@@ -21,21 +21,27 @@
 #include "RiaApplication.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimProject.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuQwtScalePicker.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
+#include "RiuQwtScalePicker.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
-#include "qwt_date_scale_engine.h"
 #include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_magnifier.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_engine.h"
@@ -45,9 +51,6 @@
 #include <QWheelEvent>
 
 #include <float.h>
-#include "qwt_plot_magnifier.h"
-#include "RiuQwtPlotWheelZoomer.h"
-#include "RiuQwtPlotZoomer.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -165,17 +168,29 @@ QSize RiuSummaryQwtPlot::minimumSizeHint() const
 void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
 
-    commandIds << "RicShowPlotDataFeature";
+    menuBuilder << "RicShowPlotDataFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {
         menu.exec(event->globalPos());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::keyPressEvent(QKeyEvent* keyEvent)
+{
+    if (m_plotDefinition && m_plotDefinition->summaryCurveCollection())
+    {
+        RimSummaryCurveCollection* curveColl = m_plotDefinition->summaryCurveCollection();
+        curveColl->handleKeyPressEvent(keyEvent);
     }
 }
 
@@ -316,8 +331,6 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
     return QwtPlot::eventFilter(watched, event);
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +358,11 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
     if(closestCurve && distMin < 20)
     {
         caf::PdmObject* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
-        if(selectedCurve)
+        
+        RimProject* proj = nullptr;
+        selectedCurve->firstAncestorOrThisOfType(proj);
+
+        if(proj && selectedCurve)
         {
             RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
         }

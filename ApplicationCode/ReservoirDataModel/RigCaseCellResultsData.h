@@ -22,7 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfCollection.h"
 
@@ -32,9 +32,11 @@
 #include <cmath>
 
 class RifReaderInterface;
-class RigMainGrid;
 class RigActiveCellInfo;
+class RigMainGrid;
+class RigEclipseResultInfo;
 class RigStatisticsDataCache;
+class RigEclipseTimeStepInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -42,7 +44,10 @@ class RigStatisticsDataCache;
 class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    explicit RigCaseCellResultsData(RigMainGrid* ownerGrid);
+    explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData);
+
+    void                                               setReaderInterface(RifReaderInterface* readerInterface);
+    void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
@@ -64,15 +69,17 @@ public:
     const std::vector<int>&                            uniqueCellScalarValues(size_t scalarResultIndex);
     void                                               sumCellScalarValues(size_t scalarResultIndex, double& sumValue);
     void                                               sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue);
-
+    void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, double& meanValue);
+    void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
     // Access meta-information about the results
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
-    QStringList                                        resultNames(RimDefines::ResultCatType type) const;
+    QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
+    std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
@@ -80,19 +87,26 @@ public:
     std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers);
+    
+    std::vector<RigEclipseTimeStepInfo>                timeStepInfos(size_t scalarResultIndex) const;
+    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
+
+    size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
+    size_t                                             findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
 
     // Find or create a slot for the results
 
-    size_t                                             findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
+    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               createPlaceholderResultEntries();
+    void                                               computeDepthRelatedResults();
 
-    void                                               removeResult(const QString& resultName);
+    void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
 
@@ -102,50 +116,58 @@ public:
     std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
 
-    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
+    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
-    bool                                               updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+    static const std::vector<double>*                  getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo,
+                                                                                      RigCaseCellResultsData* gridCellResults,
+                                                                                      QString porvResultName,
+                                                                                      std::vector<double> &activeCellsResultsTempContainer);
 
 public:
-    class ResultInfo
-    {
-    public:
-        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex), m_mustBeCalculated(mustBeCalculated) { }
+    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex() { return m_resultInfos;}
 
-    public:
-        RimDefines::ResultCatType   m_resultType;
-        bool                        m_needsToBeStored;
-        bool                        m_mustBeCalculated;
-        QString                     m_resultName;
-        size_t                      m_gridScalarResultIndex;
-        std::vector<QDateTime>      m_timeStepDates;
-        std::vector<int>            m_timeStepReportNumbers;
-        std::vector<double>         m_daysSinceSimulationStart;
-    };
-
-    const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
-
-    bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
-    void                                                    setMustBeCalculated(size_t scalarResultIndex);
+    bool                                               mustBeCalculated(size_t scalarResultIndex) const;
+    void                                               setMustBeCalculated(size_t scalarResultIndex);
+    void                                               eraseAllSourSimData();
 
     
 public:
-    size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
-                                                                                  const QString& resultName, 
-                                                                                  bool needsToBeStored,
-                                                                                  size_t resultValueCount);
+    size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
+                                                                             const QString& resultName, 
+                                                                             bool needsToBeStored,
+                                                                             size_t resultValueCount);
 
-    bool                                                    findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+    bool
+                                                       findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+private: // from RimReservoirCellResultsStorage
+    void                                               computeSOILForTimeStep(size_t timeStepIndex);
+    void                                               testAndComputeSgasForTimeStep(size_t timeStepIndex);
+
+    void                                               computeRiTransComponent(const QString& riTransComponentResultName);
+    void                                               computeNncCombRiTrans();
+
+    void                                               computeRiMULTComponent(const QString& riMultCompName);
+    void                                               computeNncCombRiMULT();
+    void                                               computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
+    void                                               computeNncCombRiTRANSbyArea();
+
+    void                                               computeCompletionTypeForTimeStep(size_t timeStep);
+    double                                             darchysValue();
+
+    void                                               computeMobilePV();
+
+    bool                                               isDataPresent(size_t scalarResultIndex) const;
+
+    cvf::ref<RifReaderInterface>                       m_readerInterface;
 
 private:
-    std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
-    cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
+    std::vector< std::vector< std::vector<double> > >  m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
+    cvf::Collection<RigStatisticsDataCache>            m_statisticsDataCache;
 
 private:
-    std::vector<ResultInfo>                                 m_resultInfos;
+    std::vector<RigEclipseResultInfo>                  m_resultInfos;
 
-    RigMainGrid*                                            m_ownerMainGrid;
-    RigActiveCellInfo*                                      m_activeCellInfo;
-
+    RigMainGrid*                                       m_ownerMainGrid;
+    RigEclipseCaseData*                                m_ownerCaseData;
+    RigActiveCellInfo*                                 m_activeCellInfo;
 };

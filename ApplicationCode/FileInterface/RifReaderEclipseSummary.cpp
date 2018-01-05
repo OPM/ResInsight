@@ -41,7 +41,11 @@ RifReaderEclipseSummary::RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary::~RifReaderEclipseSummary()
 {
-    close();
+    if (m_ecl_sum)
+    {
+        ecl_sum_free(m_ecl_sum);
+        m_ecl_sum = NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,12 +67,13 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
     }
 
     std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(headerFileName.data(), dataFiles, itemSeparatorInVariableNames.data());
+    m_ecl_sum = ecl_sum_fread_alloc(headerFileName.data(), dataFiles, itemSeparatorInVariableNames.data(), false);
 
     stringlist_free(dataFiles);
 
     if (m_ecl_sum)
     {
+        m_timeSteps.clear();
         m_ecl_SmSpec = ecl_sum_get_smspec(m_ecl_sum);
 
         for ( int time_index = 0; time_index < timeStepCount(); time_index++ )
@@ -76,6 +81,8 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
             time_t sim_time = ecl_sum_iget_sim_time(m_ecl_sum, time_index);
             m_timeSteps.push_back(sim_time);
         }
+
+        buildMetaData();
 
         return true;
     }
@@ -86,18 +93,13 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::close()
-{
-    if (m_ecl_sum)
-    {
-        ecl_sum_free(m_ecl_sum);
-        m_ecl_sum = NULL;
-    }
-}
-
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
-    if (smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR) return RifEclipseSummaryAddress();
+    if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR
+        || !smspec_node_is_valid(ertSumVarNode)) 
+    {
+        return RifEclipseSummaryAddress();
+    }
 
     RifEclipseSummaryAddress::SummaryVarCategory sumCategory(RifEclipseSummaryAddress::SUMMARY_INVALID);
     std::string        quantityName;
@@ -110,6 +112,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
     int                cellI(-1);
     int                cellJ(-1);
     int                cellK(-1);
+    int                aquiferNumber(-1);
 
     quantityName = smspec_node_get_keyword(ertSumVarNode);
 
@@ -118,6 +121,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_AQUIFER_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+            aquiferNumber = smspec_node_get_num(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_WELL_VAR:
@@ -228,23 +232,14 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
                                     wellName, 
                                     wellSegmentNumber, 
                                     lgrName, 
-                                    cellI, cellJ, cellK);
+                                    cellI, cellJ, cellK,
+                                    aquiferNumber);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RifEclipseSummaryAddress>& RifReaderEclipseSummary::allResultAddresses() 
-{
-    buildMetaData();
-
-    return m_allResultAddresses;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values)
+bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
     assert(m_ecl_sum != NULL);
 
@@ -286,7 +281,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderEclipseSummary::timeSteps() const
+const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
     assert(m_ecl_sum != NULL);
 
@@ -296,32 +291,14 @@ const std::vector<time_t>& RifReaderEclipseSummary::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseSummary::fromTimeT(const std::vector<time_t>& timeSteps)
+int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const
 {
-    std::vector<QDateTime> a;
-
-    for (size_t i = 0; i < timeSteps.size(); i++)
-    {
-        QDateTime dt = QDateTime::fromTime_t(timeSteps[i]);
-        a.push_back(dt);
-    }
-
-    return a;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& resultAddress)
-{
-    this->buildMetaData();
-
     auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
     if (it != m_resultAddressToErtNodeIdx.end())
     {
         return it->second;
     }
- 
+
     return -1;
 }
 
@@ -330,7 +307,10 @@ int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& re
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::buildMetaData()
 {
-    if(m_allResultAddresses.size() == 0 && m_ecl_SmSpec)
+    m_allResultAddresses.clear();
+    m_resultAddressToErtNodeIdx.clear();
+
+    if(m_ecl_SmSpec)
     {
         int varCount = ecl_smspec_num_nodes(m_ecl_SmSpec);
         for(int i = 0; i < varCount; i++)
@@ -343,22 +323,11 @@ void RifReaderEclipseSummary::buildMetaData()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::hasAddress(const RifEclipseSummaryAddress& resultAddress)
-{
-    this->buildMetaData();
-
-    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
-
-    return (it != m_resultAddressToErtNodeIdx.end());
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& resultAddress)
+std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
     if (!m_ecl_SmSpec) return "";
 

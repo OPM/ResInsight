@@ -32,9 +32,9 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
@@ -167,6 +167,7 @@ RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchDat
         while (i < branchIndex)
         {
             brIt++;
+            i++;
         }
 
         return &(*brIt);
@@ -208,15 +209,15 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
-    RigSingleWellResultsData* wRes = m_rimWell->wellResults();
-    if (wRes == NULL) return;
+    RigSimWellData* simWellData = m_rimWell->simWellData();
+    if (simWellData == NULL) return;
 
-    if (!wRes->hasWellResult(frameIndex)) return; // Or reset colors or something
+    if (!simWellData->hasWellResult(frameIndex)) return; // Or reset colors or something
 
     const double closed = -0.1, producing = 1.5, water = 2.5, hcInjection = 3.5; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
 
     std::list<RivPipeBranchData>::iterator brIt;
-    const RigWellResultFrame& wResFrame = wRes->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wResFrame = simWellData->wellResultFrame(frameIndex);
 
     std::vector<double> wellCellStates;
 
@@ -252,7 +253,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
         wellCellStates.clear();
         wellCellStates.resize(brIt->m_cellIds.size(), closed);
 
-        RimEclipseWellCollection* wellColl = nullptr;
+        RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
         {
             m_rimWell->firstAncestorOrThisOfType(wellColl);
@@ -356,28 +357,6 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
             brIt->m_centerLinePart->setEffect(scalarMapperMeshEffect.p());
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::findGridIndexAndCellIndex(size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
-{
-    CVF_ASSERT(branchIndex < m_wellBranches.size());
-
-    RivPipeBranchData* branchData = pipeBranchData(branchIndex);
-    if (branchData)
-    {
-        size_t segmentIndex = branchData->m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
-
-        *gridIndex = branchData->m_cellIds[segmentIndex].m_gridIndex;
-        *cellIndex = branchData->m_cellIds[segmentIndex].m_gridCellIndex;
-    }
-    else
-    {
-        *gridIndex = cvf::UNDEFINED_SIZE_T;
-        *cellIndex = cvf::UNDEFINED_SIZE_T;
     }
 }
 

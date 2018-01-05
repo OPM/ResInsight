@@ -18,14 +18,26 @@
 
 #include "RicImportFormationNamesFeature.h"
 
-#include "RimFormationNamesCollection.h"
 #include "RiaApplication.h"
-#include "RimProject.h"
+
+#include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimGeoMechCase.h"
 #include "RimOilField.h"
+#include "RimProject.h"
+#include "RimView.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RiuMainWindow.h"
 
 #include <QAction>
 #include <QFileDialog>
+
 
 CAF_CMD_SOURCE_INIT(RicImportFormationNamesFeature, "RicImportFormationNamesFeature");
 
@@ -62,9 +74,30 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     }
 
     // For each file, find existing Formation names item, or create new
+    RimFormationNames* formationName = fomNameColl->importFiles(fileNames);
 
-    fomNameColl->importFiles(fileNames);
+    if (fileNames.size() > 1) return;
+
+    std::vector<RimCase*> cases;
+    proj->allCases(cases);
+    
+    if (!cases.empty())
+    {
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        RimCase* ownerCase = activeView->ownerCase();
+
+        if (ownerCase)
+        {
+            ownerCase->setFormationNames(formationName);
+        }
+    }
+
     proj->updateConnectedEditors();
+
+    if (formationName)
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(formationName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

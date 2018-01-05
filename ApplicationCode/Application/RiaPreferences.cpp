@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences(void)
 {
-    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_CEETRON), "Navigation Mode", "", "", "");
+    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_RMS), "Navigation Mode", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -68,11 +68,12 @@ RiaPreferences::RiaPreferences(void)
     useShaders.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
     showHud.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "[System] Show Class Names", "", "", "");
+    CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "Show Class Names", "", "", "");
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-#ifndef _DEBUG
-    appendClassNameToUiText.uiCapability()->setUiHidden(true);
-#endif
+    CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
+    appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
+    includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -83,18 +84,13 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "");
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader Settings", "", "", "");
-    readerSettings = new RifReaderSettings;
-
-    CAF_PDM_InitField(&autoCreatePlotsOnImport,         "AutoCreatePlotsOnImport", true, "Automatically Create Summary Plots On Import", "", "", "");
-    autoCreatePlotsOnImport.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    
-    CAF_PDM_InitField(&defaultCurveFilter,              "DefaultCurveFilter", QString("F*PT"), "Default Vector Selection Filter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
+    m_readerSettings = new RifReaderSettings;
 
     m_tabNames << "General";
     m_tabNames << "Eclipse";
     m_tabNames << "Octave";
-    m_tabNames << "Summary";
+    m_tabNames << "System";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +98,7 @@ RiaPreferences::RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::~RiaPreferences(void)
 {
-    delete readerSettings;
+    delete m_readerSettings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +106,7 @@ RiaPreferences::~RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    readerSettings->defineEditorAttribute(field, uiConfigName, attribute);
+    m_readerSettings->defineEditorAttribute(field, uiConfigName, attribute);
 
     if (field == &scriptDirectories)
     {
@@ -127,8 +123,9 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &useShaders ||
             field == &showHud ||
             field == &appendClassNameToUiText ||
-            field == &showLasCurveWithoutTvdWarning ||
-            field == &autoCreatePlotsOnImport)
+            field == &appendFieldKeywordToToolTipText ||
+            field == &includeFractureDebugInfoFile ||
+            field == &showLasCurveWithoutTvdWarning)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -164,7 +161,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
 
-        uiOrdering.add(&appendClassNameToUiText);
     }
     else if (uiConfigName == m_tabNames[1])
     {
@@ -172,7 +168,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
-        readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
+        m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
     }
     else if (uiConfigName == m_tabNames[2])
     {
@@ -186,8 +182,9 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     }
     else if (uiConfigName == m_tabNames[3])
     {
-        uiOrdering.add(&autoCreatePlotsOnImport);
-        uiOrdering.add(&defaultCurveFilter);
+        uiOrdering.add(&appendClassNameToUiText);
+        uiOrdering.add(&appendFieldKeywordToToolTipText);
+        uiOrdering.add(&includeFractureDebugInfoFile);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -225,5 +222,13 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 QStringList RiaPreferences::tabNames()
 {
     return m_tabNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RifReaderSettings* RiaPreferences::readerSettings() const
+{
+    return m_readerSettings;
 }
 

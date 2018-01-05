@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 
 #include <ert/ecl/ecl_file.h>
+#include "ert/ecl/ecl_kw_magic.h"
 
 #include "RifReaderEclipseOutput.h"
 #include "RifEclipseOutputFileTools.h"
@@ -260,7 +261,7 @@ TEST(RigReservoirTest, UnifiedTestFile)
 
 
 
-void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
+void buildResultInfoString(RigReservoir* reservoir, RiaDefines::PorosityModelType porosityModel, RiaDefines::ResultCatType resultType)
 {
     RigCaseCellResultsData* matrixResults = reservoir->results(porosityModel);
     {
@@ -302,22 +303,22 @@ TEST(RigReservoirTest, DualPorosityTest)
     qDebug() << "\n\n" << 
         "Matrix porosities, DYNAMIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RifReaderInterface::MATRIX_RESULTS, RimDefines::DYNAMIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Matrix porosities, STATIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RifReaderInterface::MATRIX_RESULTS, RimDefines::STATIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Fracture porosities, DYNAMIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RifReaderInterface::FRACTURE_RESULTS, RimDefines::DYNAMIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::FRACTURE_MODEL, RiaDefines::DYNAMIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Fracture porosities, STATIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RifReaderInterface::FRACTURE_RESULTS, RimDefines::STATIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::FRACTURE_MODEL, RiaDefines::STATIC_NATIVE);
 }
 
 
@@ -460,4 +461,27 @@ TEST(RigReservoirTest, WellTest)
 
 
 #endif
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(DISABLED_RigReservoirTest, WellTest)
+{
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(nullptr);
+
+    // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
+#ifdef WIN32
+    QString filename("d:/Models/Statoil/soursim/PKMUNK_NOV_TEST_SS.GRID");
+    QString sourSim("d:/Models/Statoil/soursim/result.sourres.00001");
+#else
+    QString filename("/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
+    QString sourSim("d:/Models/Statoil/soursim/result.sourres");
+#endif
+
+    bool result = readerInterfaceEcl->open(filename, reservoir.p());
+    EXPECT_TRUE(result);
+
+    readerInterfaceEcl->setHdf5FileName(sourSim);
+}
 

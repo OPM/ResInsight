@@ -18,10 +18,12 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <vector>
+
 class RimSummaryCase;
-class RimEclipseResultCase;
 
 class RimSummaryCaseCollection : public caf::PdmObject
 {
@@ -29,28 +31,17 @@ class RimSummaryCaseCollection : public caf::PdmObject
 public:
     RimSummaryCaseCollection();
     virtual ~RimSummaryCaseCollection();
+	
+    void                removeCase(RimSummaryCase* summaryCase);
+    void                addCase(RimSummaryCase* summaryCase);
 
-    RimSummaryCase*     summaryCase(size_t idx);
-    size_t              summaryCaseCount();
-
-    void                createSummaryCasesFromRelevantEclipseResultCases();
-    RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
-    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
-    
-    RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
-    RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
-
-    void                deleteCase(RimSummaryCase* summaryCase);
-
-
-    void                loadAllSummaryCaseData();
-
-    QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
-
-    void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    std::vector<RimSummaryCase*>    allSummaryCases();
+    QString                         name() const { return m_name; }
 
 private:
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+    caf::PdmField<QString>                   m_name;
 };

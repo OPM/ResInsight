@@ -49,6 +49,8 @@ add_library( ${PROJECT_NAME}
 	cvfStructGridGeometryGenerator.cpp
 	cvfStructGridGeometryGenerator.h
 	cvfStructGridScalarDataAccess.h
+    cafVecIjk.cpp
+    cafVecIjk.h
 
     ${MOC_FILES_CPP}
 )

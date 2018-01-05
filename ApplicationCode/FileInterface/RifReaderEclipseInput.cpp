@@ -52,9 +52,6 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigEclipseCaseData* ec
 {
     CVF_ASSERT(eclipseCase);
 
-    // Make sure everything's closed
-    close();
-
     // Should we handle gridless properties ?
     //    If so, they must match dimensions, and a grid afterwards must match dimension
 

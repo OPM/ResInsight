@@ -39,26 +39,41 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QWidget>
-#include <QPointer>
 #include <QComboBox>
+#include <QHBoxLayout>
 #include <QLabel>
-
+#include <QPointer>
+#include <QString>
+#include <QToolButton>
+#include <QWidget>
 
 namespace caf 
 {
 
 //==================================================================================================
-/// The default editor for several PdmFields.
+/// 
 //==================================================================================================
-
 class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 {
+public:
+    PdmUiComboBoxEditorAttribute()
+    {
+        adjustWidthToContents = false;
+        showPreviousAndNextButtons = false;
+    }
 
+public:
+    bool adjustWidthToContents;
+    bool showPreviousAndNextButtons;
+    
+    QString nextButtonText;
+    QString prevButtonText;
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -76,9 +91,17 @@ protected:
 protected slots:
     void                slotIndexActivated(int index);
 
+    void                slotNextButtonPressed();
+    void                slotPreviousButtonPressed();
+
 private:
     QPointer<QComboBox> m_comboBox;
     QPointer<QLabel>    m_label;
+
+    QPointer<QToolButton> m_previousItemButton;
+    QPointer<QToolButton> m_nextItemButton;
+    QPointer<QHBoxLayout> m_layout;
+    QPointer<QWidget>     m_placeholder;
 };
 
 

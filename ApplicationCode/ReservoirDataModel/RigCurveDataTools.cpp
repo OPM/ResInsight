@@ -19,15 +19,17 @@
 
 #include "RigCurveDataTools.h"
 
-#include <cmath>
+
+#include <cmath> // Needed for HUGE_VAL on Linux 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals, bool removeNegativeValues)
+RigCurveDataTools::CurveIntervals RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                                                     bool includePositiveValuesOnly)
 {
-    CVF_ASSERT(intervals);
+    CurveIntervals intervals;
 
     int startIdx = -1;
     size_t vIdx = 0;
@@ -35,24 +37,13 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
     size_t valueCount = values.size();
     while (vIdx < valueCount)
     {
-        double value = values[vIdx];
+        bool isValid = RigCurveDataTools::isValidValue(values[vIdx], includePositiveValuesOnly);
 
-        bool isInvalidValueDetected = false;
-        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-        {
-            isInvalidValueDetected = true;
-        }
-
-        if (removeNegativeValues && value <= 0.0)
-        {
-            isInvalidValueDetected = true;
-        }
-
-        if (isInvalidValueDetected)
+        if (!isValid)
         {
             if (startIdx >= 0)
             {
-                intervals->push_back(std::make_pair(startIdx, vIdx - 1));
+                intervals.push_back(std::make_pair(startIdx, vIdx - 1));
                 startIdx = -1;
             }
         }
@@ -66,29 +57,51 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
 
     if (startIdx >= 0 && startIdx < ((int)valueCount))
     {
-        intervals->push_back(std::make_pair(startIdx, valueCount - 1));
+        intervals.push_back(std::make_pair(startIdx, valueCount - 1));
     }
+
+    return intervals;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                          std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+std::vector<std::pair<size_t, size_t>> RigCurveDataTools::computePolyLineStartStopIndices(const CurveIntervals& intervals)
 {
-    CVF_ASSERT(fltrIntervals);
+    std::vector<std::pair<size_t, size_t>> lineStartAndStopIndices;
 
     const size_t intervalCount = intervals.size();
-    if (intervalCount < 1) return;
+    if (intervalCount < 1) return lineStartAndStopIndices;
 
     size_t index = 0;
     for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
     {
         size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
-        fltrIntervals->push_back(std::make_pair(index, index + intervalSize - 1));
+        lineStartAndStopIndices.push_back(std::make_pair(index, index + intervalSize - 1));
 
         index += intervalSize;
     }
+
+    return lineStartAndStopIndices;
+}
+
+
+//-------------------------------------------------------------------------------------------------- 
+///  
+//-------------------------------------------------------------------------------------------------- 
+bool RigCurveDataTools::isValidValue(double value, bool allowPositiveValuesOnly)
+{
+    if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+    {
+        return false;
+    }
+
+    if (allowPositiveValuesOnly && value <= 0)
+    {
+        return false;
+    }
+
+    return true;
 }
 

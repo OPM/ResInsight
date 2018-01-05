@@ -138,6 +138,10 @@ void QMinimizePanel::initialize(const QString &title)
     m_titleFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
     m_titleFrame->setAutoFillBackground(true);
 
+    m_titleLabel = new QLabel(title, m_titleFrame);
+    QPalette titleLabelPalette = m_titleLabel->palette();
+    titleLabelPalette.setBrush(QPalette::Foreground, titleLabelPalette.windowText());
+
     {
         QLinearGradient titleGrad(QPointF(0, 0), QPointF(0, 1));
         titleGrad.setCoordinateMode(QGradient::StretchToDeviceMode);
@@ -150,12 +154,13 @@ void QMinimizePanel::initialize(const QString &title)
         m_titleFrame->setPalette(titleFramePalette);
     }
 
-    m_titleLabel = new QLabel(title, m_titleFrame);
-    m_titleLabel->setPalette(QApplication::palette()); // To avoid title foreground color bleeding through
+    m_titleLabel->setPalette(titleLabelPalette);
 
     m_collapseButton = new QPushButton( m_titleFrame);
     m_collapseButton->setFlat(true);
     m_collapseButton->setIcon(expandUpIcon());
+    m_collapseButton->setDefault(false);
+    m_collapseButton->setAutoDefault(false);
 
     m_contentFrame = new QFrame(this);
     m_contentFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);

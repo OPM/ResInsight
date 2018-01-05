@@ -28,6 +28,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellLogCurve.h"
 
+#include "RicWellLogTools.h"
+
 #include "RiaApplication.h"
 
 #include <QAction>
@@ -51,7 +53,7 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-    RicNewWellLogCurveExtractionFeature::addCurve(plotTrack, NULL, NULL, nullptr, -1);
+    RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1, true);
 }
 
 //--------------------------------------------------------------------------------------------------

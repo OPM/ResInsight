@@ -42,6 +42,8 @@ public:
 
     QStringList tabNames();
 
+    const RifReaderSettings* readerSettings() const;
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
@@ -65,19 +67,13 @@ public: // Pdm Fields
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
     caf::PdmField<bool>     appendClassNameToUiText;
+    caf::PdmField<bool>     appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>     includeFractureDebugInfoFile;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
-
-    caf::PdmChildField<RifReaderSettings*> readerSettings;
-
-    // Summary
-
-    caf::PdmField<bool>     autoCreatePlotsOnImport;
-    caf::PdmField<QString>  defaultCurveFilter;
-
 
 protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -85,5 +81,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
+    caf::PdmChildField<RifReaderSettings*> m_readerSettings;
+
     QStringList m_tabNames;
 };

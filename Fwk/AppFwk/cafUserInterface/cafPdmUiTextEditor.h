@@ -55,10 +55,20 @@ namespace caf
 class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
 {
 public:
+    enum WrapMode {
+        NoWrap,
+        WordWrap,
+        ManualWrap,
+        WrapAnywhere,
+        WrapAtWordBoundaryOrAnywhere
+    };
+
     PdmUiTextEditorAttribute()
     {
         textMode = PLAIN;
         showSaveButton = false;
+        wrapMode = WrapAtWordBoundaryOrAnywhere;
+        heightHint = 2000;
     }
 
     enum TextMode 
@@ -70,6 +80,9 @@ public:
 public:
     TextMode    textMode;
     bool        showSaveButton;
+    WrapMode    wrapMode;
+    QFont       font;
+    int         heightHint;
 };
 
 //==================================================================================================
@@ -81,11 +94,17 @@ class TextEdit : public QTextEdit
 public:
     explicit TextEdit(QWidget *parent = 0);
 
+    virtual QSize sizeHint() const override;
+    void          setHeightHint(int heightHint);
+
 protected:
     virtual void focusOutEvent(QFocusEvent *e);
 
 signals: 
     void editingFinished(); 
+
+private:
+    int m_heightHint;
 };
 
 
@@ -108,6 +127,9 @@ protected:
 
 protected slots:
     void                slotSetValueToField();
+
+private:
+    QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);
 
 private:
     QPointer<TextEdit>      m_textEdit;

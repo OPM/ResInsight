@@ -136,7 +136,7 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
 
     // Check if we have a Requested TimeSteps
     int lastArgumentIndex = argIndices[2] ;
-    if (!(nargin > argIndices[2] && args(argIndices[2]).is_matrix_type()))
+    if (!(nargin > argIndices[2] && (args(argIndices[2]).is_matrix_type() || args(argIndices[2]).is_numeric_type())))
     {
         argIndices[2] = -1;
     }

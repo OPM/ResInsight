@@ -19,6 +19,7 @@
 #include "RicSelectSummaryPlotUI.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -91,13 +92,9 @@ QList<caf::PdmOptionItemInfo> RicSelectSummaryPlotUI::calculateValueOptions(cons
 
     if (fieldNeedingOptions == &m_selectedSummaryPlot)
     {
-        for (RimSummaryPlot* plot : RicSelectSummaryPlotUI::summaryPlots())
-        {
-            QIcon icon = plot->uiCapability()->uiIcon();
-            QString displayName = plot->description();
+        RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-            options.push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));
-        }
+        summaryPlotColl->summaryPlotItemInfos(&options);
     }
 
     return options;
@@ -108,7 +105,7 @@ QList<caf::PdmOptionItemInfo> RicSelectSummaryPlotUI::calculateValueOptions(cons
 //--------------------------------------------------------------------------------------------------
 void RicSelectSummaryPlotUI::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (RicSelectSummaryPlotUI::summaryPlots().size() == 0)
+    if (RiaSummaryTools::summaryPlotCollection()->summaryPlots().size() == 0)
     {
         m_createNewPlot = true;
     }
@@ -123,25 +120,5 @@ void RicSelectSummaryPlotUI::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         m_newSummaryPlotName.uiCapability()->setUiReadOnly(true);
         m_selectedSummaryPlot.uiCapability()->setUiReadOnly(false);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RicSelectSummaryPlotUI::summaryPlots()
-{
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
-
-    std::vector<RimSummaryPlot*> sumPlots;
-    summaryPlotColl->descendantsIncludingThisOfType(sumPlots);
-
-    return sumPlots;
 }
 

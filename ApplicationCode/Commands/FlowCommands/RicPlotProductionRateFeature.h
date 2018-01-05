@@ -21,12 +21,12 @@
 #include "cafCmdFeature.h"
 
 #include "RimFlowDiagSolution.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 class RimGridSummaryCase;
-class RimEclipseWell;
-class RimSummaryPlot;
+class RimSimWellInView;
 class RimSummaryCurve;
+class RimSummaryPlot;
 
 //==================================================================================================
 /// 
@@ -42,11 +42,11 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimGridSummaryCase*  gridSummaryCaseForWell(RimEclipseWell* well);
-    static bool                 isInjector(RimEclipseWell* well);
-    static RimSummaryCurve*     addSummaryCurve(RimSummaryPlot* plot, const RimEclipseWell* well,
+    static RimGridSummaryCase*  gridSummaryCaseForWell(RimSimWellInView* well);
+    static bool                 isInjector(RimSimWellInView* well);
+    static RimSummaryCurve*     addSummaryCurve(RimSummaryPlot* plot, const RimSimWellInView* well,
                                 RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                RimDefines::PlotAxis plotAxis, const cvf::Color3f& color);
+                                RiaDefines::PlotAxis plotAxis, const cvf::Color3f& color);
 };
 
 

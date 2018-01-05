@@ -85,6 +85,8 @@ public:
     QTableView*     tableView();
 
     void            handleModelSelectionChange();
+    void            updatePersistentEditors() const;
+
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName);
 

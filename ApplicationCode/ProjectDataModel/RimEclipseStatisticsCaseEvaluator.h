@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseStatisticsCase.h"
 
 #include <vector>
@@ -64,13 +64,13 @@ public:
 
     struct ResSpec 
     {
-        ResSpec() : m_resType(RimDefines::DYNAMIC_NATIVE), m_poroModel(RifReaderInterface::MATRIX_RESULTS) {}
-        ResSpec( RifReaderInterface::PorosityModelResultType poroModel,
-                 RimDefines::ResultCatType                   resType,
+        ResSpec() : m_resType(RiaDefines::DYNAMIC_NATIVE), m_poroModel(RiaDefines::MATRIX_MODEL) {}
+        ResSpec( RiaDefines::PorosityModelType poroModel,
+                 RiaDefines::ResultCatType                   resType,
                  QString                                     resVarName) : m_poroModel(poroModel), m_resType(resType), m_resVarName(resVarName) {}
 
-        RifReaderInterface::PorosityModelResultType m_poroModel;
-        RimDefines::ResultCatType                   m_resType;
+        RiaDefines::PorosityModelType m_poroModel;
+        RiaDefines::ResultCatType                   m_resType;
         QString                                     m_resVarName;
     };
 
@@ -79,8 +79,8 @@ public:
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
 private:
-    void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
-    void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);
+    void addNamedResult(RigCaseCellResultsData* cellResults, RiaDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
+    void buildSourceMetaData(RiaDefines::PorosityModelType poroModel, RiaDefines::ResultCatType resultType, const QString& resultName);
 
     enum StatisticsParamType { MIN, MAX, SUM, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
 

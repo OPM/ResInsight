@@ -20,44 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-#include <QDialog>
-#include <QPlainTextEdit>
-
-
-class RiuQPlainTextEdit : public QPlainTextEdit
-{
-    Q_OBJECT
-public:
-    explicit RiuQPlainTextEdit(QWidget *parent = 0) : QPlainTextEdit(parent) {}
-
-protected:
-    virtual void keyPressEvent(QKeyEvent *e) override;
-
-private slots:
-    void slotCopyContentToClipboard();
-    void slotSelectAll();
-
-};
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class RicTextWidget : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit RicTextWidget(QWidget* parent = 0);
-
-    void setText(const QString& text);
-
-private:
-    RiuQPlainTextEdit* m_textEdit;
-protected:
-    virtual void contextMenuEvent(QContextMenuEvent *) override;
-
-};
 
 
 //==================================================================================================

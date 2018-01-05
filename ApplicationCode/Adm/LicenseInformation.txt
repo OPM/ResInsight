@@ -1,5 +1,5 @@
 ===============================================================================
- Notice for ResInsight:
+ Notice for ResInsight
 ===============================================================================
    Copyright (C) Statoil ASA, Ceetron AS, Ceetron Solutions AS
    
@@ -16,7 +16,7 @@
    for more details.
   
 ===============================================================================
- Notice for Custom Visualization Core Library:
+ Notice for Custom Visualization Core Library
 ===============================================================================
    Custom Visualization Core library
    Copyright (C) Ceetron AS, Ceetron Solutions AS
@@ -34,7 +34,7 @@
    for more details. 
    
 ===============================================================================
- Notice for Ensemble based Reservoir Tool:
+ Notice for Ensemble based Reservoir Tool
 ===============================================================================
    Copyright (C) Statoil ASA, Norway. 
     
@@ -50,9 +50,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
    for more details. 
 
-
 ===============================================================================
- Notice for GLew :
+ Notice for GLew
 ===============================================================================
    The OpenGL Extension Wrangler Library
    Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
@@ -84,7 +83,7 @@
    THE POSSIBILITY OF SUCH DAMAGE.
 
 ===============================================================================
- Notice for the Font Droid Sans Regular:
+ Notice for the Font Droid Sans Regular
 ===============================================================================
    Copyright (c) Google Corporation
 
@@ -314,7 +313,6 @@ exceptions:
            [program/widget] is based in part on the work of
            the Qwt project (http://qwt.sf.net).
 
-
 ===============================================================================
  Notice for the NR libraries
 ===============================================================================
@@ -365,3 +363,104 @@ CRAVA is a software package for seismic inversion and conditioning of
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   Please contact gordos.kund@gmail.com with any questions on this license.
+
+===============================================================================
+ Notice for the C++ Mathematical Expression Toolkit Library
+===============================================================================
+
+  Author: Arash Partow (1999-2018)                               
+  URL: http://www.partow.net/programming/exprtk/index.html       
+                                                                
+  Copyright notice:                                              
+  Free use of the C++ Mathematical Expression Toolkit Library is 
+  permitted under the guidelines and in accordance with the most 
+  current version of the MIT License.                            
+  http://www.opensource.org/licenses/MIT                         
+                                          
+  Permission is hereby granted, free of charge, to any person obtaining a copy 
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights 
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+  copies of the Software, and to permit persons to whom the Software is 
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+  THE SOFTWARE.                                        
+
+
+===============================================================================
+ Notice for the Boost code
+===============================================================================
+
+  Boost Software License - Version 1.0 - August 17th, 2003
+
+  Permission is hereby granted, free of charge, to any person or organization
+  obtaining a copy of the software and accompanying documentation covered by
+  this license (the "Software") to use, reproduce, display, distribute,
+  execute, and transmit the Software, and to prepare derivative works of the
+  Software, and to permit third-parties to whom the Software is furnished to
+  do so, all subject to the following:
+
+  The copyright notices in the Software and this entire statement, including
+  the above license grant, this restriction and the following disclaimer,
+  must be included in all copies of the Software, in whole or in part, and
+  all derivative works of the Software, unless such copies or derivative
+  works are solely in the form of machine-executable object code generated by
+  a source language processor.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+  SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+  FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+
+===============================================================================
+ Notice for The Clipper Library
+===============================================================================
+
+  The Clipper Library (including Delphi, C++ & C# source code, other
+  accompanying code, examples and documentation), hereafter called 
+  "the Software", has been released under the following license, terms and
+  conditions:
+
+  Boost Software License - Version 1.0 - August 17th, 2003
+  http://www.boost.org/LICENSE_1_0.txt
+
+  Permission is hereby granted, free of charge, to any person or organization
+  obtaining a copy of the Software covered by this license to use, reproduce, 
+  display, distribute, execute, and transmit the Software, and to prepare 
+  derivative works of the Software, and to permit third-parties to whom the 
+  Software is furnished to do so, all subject to the following:
+
+  The copyright notices in the Software and this entire statement, including
+  the above license grant, this restriction and the following disclaimer,
+  must be included in all copies of the Software, in whole or in part, and
+  all derivative works of the Software, unless such copies or derivative
+  works are solely in the form of machine-executable object code generated by
+  a source language processor.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+  SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+  FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+
+===============================================================================
+ Notice for the Eigen library
+===============================================================================
+
+  This Source Code Form is subject to the terms of the Mozilla
+  Public License v. 2.0. If a copy of the MPL was not distributed
+  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.

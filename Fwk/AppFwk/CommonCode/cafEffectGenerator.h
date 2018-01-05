@@ -171,6 +171,7 @@ public:
     void                            setFaceCulling(FaceCulling faceCulling) { m_faceCulling = faceCulling; }
     void                            enableDepthWrite(bool enableWrite)      { m_enableDepthWrite = enableWrite; }
     void                            disableLighting(bool disable)           { m_disableLighting = disable; }
+    void                            discardTransparentFragments(bool discard) { m_discardTransparentFragments = discard; }
 
 public: 
     static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
@@ -195,6 +196,7 @@ private:
     FaceCulling                     m_faceCulling;
     bool                            m_enableDepthWrite;
     bool                            m_disableLighting;
+    bool                            m_discardTransparentFragments;
 };
 
 

@@ -27,7 +27,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -35,8 +35,6 @@
 
 #include <QAction>
 
-namespace caf
-{
 
 CAF_CMD_SOURCE_INIT(RicPasteEclipseViewsFeature, "RicPasteEclipseViewsFeature");
 
@@ -45,7 +43,7 @@ CAF_CMD_SOURCE_INIT(RicPasteEclipseViewsFeature, "RicPasteEclipseViewsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicPasteEclipseViewsFeature::isCommandEnabled()
 {
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     std::vector<caf::PdmPointer<RimEclipseView> > typedObjects;
@@ -56,7 +54,7 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
         return false;
     }
 
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
     if (gridCaseGroup) return false;
@@ -72,12 +70,12 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
 {
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimEclipseCase* eclipseCase = RicPasteFeatureImpl::findEclipseCase(destinationObject);
     assert(eclipseCase);
 
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     if (objectGroup.objects.size() == 0) return;
@@ -90,7 +88,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
     // Add cases to case group
     for (size_t i = 0; i < eclipseViews.size(); i++)
     {
-        RimEclipseView* rimReservoirView = dynamic_cast<RimEclipseView*>(eclipseViews[i]->xmlCapability()->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+        RimEclipseView* rimReservoirView = dynamic_cast<RimEclipseView*>(eclipseViews[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(rimReservoirView);
 
         QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
@@ -124,6 +122,3 @@ void RicPasteEclipseViewsFeature::setupActionLook(QAction* actionToSetup)
 
     RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
-
-
-} // end namespace caf

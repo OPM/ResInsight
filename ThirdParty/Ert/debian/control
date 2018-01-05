@@ -1,4 +1,4 @@
-Source: ert.ecl
+Source: ecl
 Priority: extra
 Maintainer: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
 Build-Depends: debhelper (>= 8.0.0), cmake, liblapack-dev, libquadmath0,
@@ -9,33 +9,23 @@ Homepage: http://ert.nr.no
 Vcs-Git: git://github.com/Ensembles/ert.git
 Vcs-Browser: https://github.com/Ensembles/ert
 
-Package: libert.ecl-dev
+Package: libecl-dev
 Section: libdevel
 Architecture: any
-Depends: libert.ecl1 (= ${binary:Version})
-Description: The Ensemble based Reservoir Tool -- Development files
- ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
- of reservoir models.
+Depends: libecl1 (= ${binary:Version}), libblas-dev, liblapack-dev
+Description: libecl Eclipse IO library -- Development files
+ libecl is a package for reading and writing the result files from the Eclipse reservoir simulator.
 
-Package: libert.ecl1
+Package: libecl1
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: The Ensemble based Reservoir Tool
- ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
- of reservoir models.
+Description: libecl Eclipse IO library
+ libecl is a package for reading and writing the result files from the Eclipse reservoir simulator.
 
-Package: python-ert.ecl
+Package: python-ecl
 Section: python
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libert.ecl1, python-cwrap
-Description: The Ensemble based Reservoir Tool - Python bindings
- ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
- of reservoir models.
-
-Package: python-cwrap
-Section: python
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Package to simplify ctypes based wrapping of C code.
- Package to simplify ctypes based wrapping of C code.
+Description: libecl Eclipse IO library - Python bindings
+ libecl is a package for reading and writing the result files from the Eclipse reservoir simulator.

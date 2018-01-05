@@ -21,17 +21,32 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RiaApplication.h"
+
+#include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "RiuMainPlotWindow.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
@@ -39,12 +54,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
-#include "RimFormationNamesCollection.h"
-#include "RimCase.h"
 
-
-namespace caf
-{
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,15 +69,15 @@ QString RicDeleteItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::redo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
+    caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        std::vector<PdmObjectHandle*> children;
+        std::vector<caf::PdmObjectHandle*> children;
         listField->childObjects(&children);
 
-        PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
+        caf::PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
         std::vector<caf::PdmObjectHandle*> referringObjects;
@@ -121,14 +131,46 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        // SimWell Fractures
+        RimSimWellInView* simWell;
+        parentObj->firstAncestorOrThisOfType(simWell);
+        if (view && simWell)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        RimFractureTemplateCollection* fracTemplateColl;
+        parentObj->firstAncestorOrThisOfType(fracTemplateColl);
+        if (fracTemplateColl)
+        {
+            RimProject* proj = nullptr;
+            parentObj->firstAncestorOrThisOfType(proj);
+            if (proj)
+            {
+                proj->createDisplayModelAndRedrawAllViews();
+            }
+        }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+
         // Well paths
+
+        RimWellPath* wellPath;
+        parentObj->firstAncestorOrThisOfType(wellPath);
+
+        if (wellPath)
+        {
+            wellPath->updateConnectedEditors();
+        }
 
         RimWellPathCollection* wellPathColl;
         parentObj->firstAncestorOrThisOfType(wellPathColl);
 
         if (wellPathColl)
         {
-            wellPathColl->scheduleGeometryRegenAndRedrawViews();
+            wellPathColl->scheduleRedrawAffectedViews();
+            wellPathColl->uiCapability()->updateConnectedEditors();
         }
 
         // Update due to deletion of curves (not tracks, handled separatly)
@@ -195,6 +237,23 @@ void RicDeleteItemExec::redo()
                 if (aCase) aCase->updateFormationNamesData();
             }
         }
+
+
+        RimSummaryPlotCollection* summaryPlotCollection = nullptr;
+        parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
+        if (summaryPlotCollection)
+        {
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
+
+        RimSummaryCrossPlotCollection* summaryCrossPlotCollection = nullptr;
+        parentObj->firstAncestorOrThisOfType(summaryCrossPlotCollection);
+        if (summaryCrossPlotCollection)
+        {
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
     }
 }
 
@@ -203,12 +262,12 @@ void RicDeleteItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::undo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
+    caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        PdmObjectHandle* obj = PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), PdmDefaultObjectFactory::instance());
+        caf::PdmObjectHandle* obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), caf::PdmDefaultObjectFactory::instance());
 
         listField->insertAt(m_commandData->m_indexToObject, obj);
 
@@ -224,7 +283,7 @@ void RicDeleteItemExec::undo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicDeleteItemExec::RicDeleteItemExec(NotificationCenter* notificationCenter)
+RicDeleteItemExec::RicDeleteItemExec(caf::NotificationCenter* notificationCenter)
     : CmdExecuteCommand(notificationCenter)
 {
     m_commandData = new RicDeleteItemExecData;
@@ -237,5 +296,3 @@ RicDeleteItemExecData* RicDeleteItemExec::commandData()
 {
     return m_commandData;
 }
-
-} // end namespace caf

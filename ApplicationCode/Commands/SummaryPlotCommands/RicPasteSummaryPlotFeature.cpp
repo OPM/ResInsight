@@ -27,7 +27,7 @@
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectGroup.h"
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -35,6 +35,34 @@
 
 
 CAF_CMD_SOURCE_INIT(RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection(RimSummaryPlot *sourcePlot)
+{
+    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
+
+    if (plotColl)
+    {
+        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(sourcePlot->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+        CVF_ASSERT(newSummaryPlot);
+
+        plotColl->summaryPlots.push_back(newSummaryPlot);
+
+        // Resolve references after object has been inserted into the data model
+        newSummaryPlot->resolveReferencesRecursively();
+        newSummaryPlot->initAfterReadRecursively();
+
+        QString nameOfCopy = QString("Copy of ") + newSummaryPlot->description();
+        newSummaryPlot->setDescription(nameOfCopy);
+
+        plotColl->updateConnectedEditors();
+
+        newSummaryPlot->loadDataAndUpdate();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -58,34 +86,11 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-
-    RimSummaryPlotCollection* plotColl = nullptr;
-    destinationObject->firstAncestorOrThisOfType(plotColl);
-    if (!plotColl)
-    {
-        return;
-    }
-
     std::vector<caf::PdmPointer<RimSummaryPlot> > sourceObjects = RicPasteSummaryPlotFeature::summaryPlots();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
-        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        CVF_ASSERT(newSummaryPlot);
-
-        plotColl->summaryPlots.push_back(newSummaryPlot);
-
-        // Resolve references after object has been inserted into the data model
-        newSummaryPlot->resolveReferencesRecursively();
-        newSummaryPlot->initAfterReadRecursively();
-
-        QString nameOfCopy = QString("Copy of ") + newSummaryPlot->description();
-        newSummaryPlot->setDescription(nameOfCopy);
-
-        plotColl->updateConnectedEditors();
-
-        newSummaryPlot->loadDataAndUpdate();
+        copyPlotAndAddToCollection(sourceObjects[i]);
     }
 }
 

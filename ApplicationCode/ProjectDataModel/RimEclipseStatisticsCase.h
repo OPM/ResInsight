@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RimEclipseCase.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -35,7 +35,7 @@ class RimIdenticalGridCaseGroup;
 class RimEclipseResultDefinition;
 class RimEclipseStatisticsCaseCollection;
 class RigMainGrid;
-class RigSingleWellResultsData;
+class RigSimWellData;
 
 
 //==================================================================================================
@@ -91,7 +91,7 @@ private:
     void updatePercentileUiVisibility();
 
 
-    void setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults);
+    void setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData);
 
     // Pdm system overrides
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
@@ -101,8 +101,8 @@ private:
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
     // Fields
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
-    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
+    caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
 
     caf::PdmField<QString>                                          m_selectionSummary;
 

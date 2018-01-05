@@ -231,7 +231,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false, ecl_type_create_from_type(ECL_FLOAT_TYPE));
         if (eclipseKeywordData)
         {
-            QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
+            QString newResultName = caseData->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeywords[i].keyword);
             if (readDataFromKeyword(eclipseKeywordData, caseData, newResultName))
             {
                 newResults[newResultName] = fileKeywords[i].keyword;
@@ -290,7 +290,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
         {
             mathingItemCount = true;
         }
-        if (itemCount == caseData->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount())
+        if (itemCount == caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount())
         {
             mathingItemCount = true;
         }
@@ -301,7 +301,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
     size_t resultIndex = RifEclipseInputFileTools::findOrCreateResult(resultName, caseData);
     if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclipseKeywordData, newPropertyData[0].data());
@@ -446,7 +446,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 {
     CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultName);
+    size_t resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -458,7 +458,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
         return false;
     }
 
-    std::vector< std::vector<double> >& resultData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
     if (resultData.size() == 0)
     {
         return false;
@@ -717,10 +717,10 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir)
 {
-    size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+    size_t resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(newResultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false);
+        resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, newResultName, false);
     }
 
     return resultIndex;
@@ -869,13 +869,27 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(co
 {
     QString upperCaseText = faceString.toUpper().trimmed();
 
-    if (upperCaseText == "X" || upperCaseText == "X+" || upperCaseText == "I" || upperCaseText == "I+") return cvf::StructGridInterface::POS_I;
-    if (upperCaseText == "Y" || upperCaseText == "Y+" || upperCaseText == "J" || upperCaseText == "J+") return cvf::StructGridInterface::POS_J;
-    if (upperCaseText == "Z" || upperCaseText == "Z+" || upperCaseText == "K" || upperCaseText == "K+") return cvf::StructGridInterface::POS_K;
+    if (upperCaseText.size() > 1)
+    {
+        QString firstTwoChars = upperCaseText.mid(0, 2);
+
+        if (firstTwoChars == "X+" || firstTwoChars == "I+") return cvf::StructGridInterface::POS_I;
+        if (firstTwoChars == "Y+" || firstTwoChars == "J+") return cvf::StructGridInterface::POS_J;
+        if (firstTwoChars == "Z+" || firstTwoChars == "K+") return cvf::StructGridInterface::POS_K;
     
-    if (upperCaseText == "X-" || upperCaseText == "I-") return cvf::StructGridInterface::NEG_I;
-    if (upperCaseText == "Y-" || upperCaseText == "J-") return cvf::StructGridInterface::NEG_J;
-    if (upperCaseText == "Z-" || upperCaseText == "K-") return cvf::StructGridInterface::NEG_K;
+        if (firstTwoChars == "X-" || firstTwoChars == "I-") return cvf::StructGridInterface::NEG_I;
+        if (firstTwoChars == "Y-" || firstTwoChars == "J-") return cvf::StructGridInterface::NEG_J;
+        if (firstTwoChars == "Z-" || firstTwoChars == "K-") return cvf::StructGridInterface::NEG_K;
+    }
+
+    if (upperCaseText.size() > 0)
+    {
+        QString firstChar = upperCaseText.mid(0, 1);
+
+        if (firstChar == "X" || firstChar == "I") return cvf::StructGridInterface::POS_I;
+        if (firstChar == "Y" || firstChar == "J") return cvf::StructGridInterface::POS_J;
+        if (firstChar == "Z" || firstChar == "K") return cvf::StructGridInterface::POS_K;
+    }
 
     return cvf::StructGridInterface::NO_FACE;
 }

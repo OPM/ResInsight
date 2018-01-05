@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 //
@@ -38,9 +38,8 @@ public:
 
     static void                     findSummaryFiles(const std::string& inputFile, std::string* headerFile, std::vector<std::string>* dataFiles);
     static bool                     hasSummaryFiles(const std::string& gridFileName);
-    static void                     dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary);
+    static void                     dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary);
 
 private:
     static void                     findSummaryHeaderFileInfo(const std::string& inputFile, std::string* headerFile, std::string* path, std::string* base, bool* isFormatted);
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses, RifEclipseSummaryAddress::SummaryVarCategory category);
 };

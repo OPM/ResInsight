@@ -56,13 +56,22 @@ public:
         SYMBOL_XCROSS
     };
 
+    enum CurveInterpolationEnum
+    {
+        INTERPOLATION_POINT_TO_POINT,
+        INTERPOLATION_STEP_LEFT,
+    };
+
+    typedef caf::AppEnum<CurveInterpolationEnum> CurveInterpolation;
+
 public:
     RimPlotCurve();
     virtual ~RimPlotCurve();
 
-    void                            loadDataAndUpdate();
+    void                            loadDataAndUpdate(bool updateParentPlot);
 
-    void                            setParentQwtPlot(QwtPlot* plot);
+    void                            setParentQwtPlotAndReplot(QwtPlot* plot);
+    void                            setParentQwtPlotNoReplot(QwtPlot* plot);
     void                            detachQwtCurve();
     QwtPlotCurve*                   qwtPlotCurve() const;
 
@@ -70,25 +79,34 @@ public:
     cvf::Color3f                    color() const { return m_curveColor; }
     void                            setLineStyle(LineStyleEnum lineStyle);
     void                            setSymbol(PointSymbolEnum symbolStyle);
+    PointSymbolEnum                 symbol();
+    void                            setSymbolSkipDinstance(float distance);
     void                            setLineThickness(int thickness);
+    void                            resetAppearance();
 
     bool                            isCurveVisible() const;
-    
-    void                            updateCurveName();
+    void                            setCurveVisiblity(bool visible);
+
+    void                            updateCurveNameAndUpdatePlotLegend();
+    void                            updateCurveNameNoLegendUpdate();
+
     QString                         curveName() const { return m_curveName; }
 
     void                            updateCurveVisibility();
-    void                            updateLegendVisibility();
+    void                            updateLegendEntryVisibilityAndPlotLegend();
+    void                            updateLegendEntryVisibilityNoPlotUpdate();
 
     void                            showLegend(bool show);
+
+    void                            setZOrder(double z);
 
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
-    virtual void                    onLoadDataAndUpdate() = 0;
+    virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
 
-    void                            updateCurvePresentation();
+    void                            updateCurvePresentation(bool updatePlotLegend);
     virtual void                    updateCurveAppearance();
 
     void                            updateOptionSensitivity();
@@ -120,6 +138,7 @@ protected:
 
     caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
     caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
+    caf::PdmField< CurveInterpolation >              m_curveInterpolation;
 };
 
 

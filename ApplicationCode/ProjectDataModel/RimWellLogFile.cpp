@@ -21,17 +21,40 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimTools.h"
+//#include "RimWellPltPlot.h"
+#include "RimWellPlotTools.h"
+
+#include "RiaDateStringParser.h"
 
 #include "RigWellLogFile.h"
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiDateEditor.h"
+
 #include <QStringList>
 #include <QFileInfo>
 #include <QMessageBox>
+#include "RiaQDateTimeTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
+
+namespace caf
+{
+    template<>
+    void caf::AppEnum< RimWellLogFile::WellFlowCondition>::setUp()
+    {
+        addItem(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir Volumes");
+        addItem(RimWellLogFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard Volumes");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QDateTime RimWellLogFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDateTime(QDate(1900, 1, 1));
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -45,6 +68,9 @@ RimWellLogFile::RimWellLogFile()
     m_wellName.uiCapability()->setUiHidden(true);
     m_wellName.xmlCapability()->setIOWritable(false);
 
+    CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
+    m_date.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitFieldNoDefault(&m_fileName, "FileName", "Filename",  "", "", "");
     m_fileName.uiCapability()->setUiReadOnly(true);
 
@@ -56,6 +82,12 @@ RimWellLogFile::RimWellLogFile()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogFileChannels", "",  "", "", "");
     m_wellLogChannelNames.uiCapability()->setUiHidden(true);
     m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_wellFlowCondition, "WellFlowCondition", caf::AppEnum<RimWellLogFile::WellFlowCondition>(RimWellLogFile::WELL_FLOW_COND_STANDARD), "Well Flow Rates", "", "", "");
+
+    CAF_PDM_InitField(&m_invalidDateMessage, "InvalidDateMessage", QString("Invalid or no date"), "", "", "", "");
+    m_invalidDateMessage.uiCapability()->setUiReadOnly(true);
+    m_invalidDateMessage.xmlCapability()->disableIO();
 
     m_wellLogDataFile = NULL;
 }
@@ -132,6 +164,25 @@ bool RimWellLogFile::readFile(QString* errorMessage)
 
     m_wellName = m_wellLogDataFile->wellName();
 
+    QDateTime date = RiaDateStringParser::parseDateString(m_wellLogDataFile->date());
+    m_lasFileHasValidDate = isDateValid(date);
+    if (m_lasFileHasValidDate)
+    {
+        m_date = date;
+    }
+    else if(!isDateValid(m_date()))
+    {
+        QMessageBox msgBox;
+
+        QString message = QString("The LAS-file '%1' contains no recognizable date. Please assign a date in the LAS-file property panel")
+                                .arg(m_name());
+        msgBox.setText(message);
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+
+        m_date = DEFAULT_DATE_TIME;
+    }
+
     m_wellLogChannelNames.deleteAllChildObjects();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
@@ -148,7 +199,7 @@ bool RimWellLogFile::readFile(QString* errorMessage)
     {
         if (wellPath->filepath().isEmpty())
         {
-            wellPath->name = m_wellName;
+            wellPath->setName(m_wellName);
         }
     }
 
@@ -161,4 +212,97 @@ bool RimWellLogFile::readFile(QString* errorMessage)
 QString RimWellLogFile::wellName() const
 {
     return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellLogFile::date() const
+{
+    return m_date;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
+{
+    std::vector<RimWellLogFileChannel*> channels;
+    for (const auto& channel : m_wellLogChannelNames)
+    {
+        channels.push_back(channel);
+    }
+    return channels;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogFile::hasFlowData() const
+{
+    return RimWellPlotTools::hasFlowData(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::setupBeforeSave()
+{
+    m_wellFlowCondition.xmlCapability()->setIOWritable(hasFlowData());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_fileName);
+    uiOrdering.add(&m_date);
+    m_date.uiCapability()->setUiReadOnly(m_lasFileHasValidDate);
+
+    auto timespec = m_date().timeSpec();
+
+    if (!isDateValid(m_date()))
+    {
+        uiOrdering.add(&m_invalidDateMessage);
+    }
+
+    if (hasFlowData())
+    {
+        uiOrdering.add(&m_wellFlowCondition);
+    }
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_date)
+    {
+        // Due to a possible bug in QDateEdit/PdmUiDateEditor, convert m_date to a QDateTime having UTC timespec
+        m_date = RiaQDateTimeTools::createUtcDateTime(m_date().date(), m_date().time());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*> (attribute);
+    if (attrib != nullptr)
+    {
+        attrib->dateFormat = RimTools::dateFormatString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogFile::isDateValid(const QDateTime dateTime)
+{
+    return dateTime.isValid() && dateTime != DEFAULT_DATE_TIME;
 }

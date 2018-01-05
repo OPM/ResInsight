@@ -29,6 +29,10 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPart.h"
+#include "RigFemPartGrid.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -37,8 +41,12 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
+
+#include "RiuSelectionManager.h"
 
 #include <QTcpSocket>
 
@@ -95,14 +103,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
 
         if (args.size() > 2)
         {
             QString prorosityModelString = args[2];
             if (prorosityModelString.toUpper() == "FRACTURE")
             {
-                porosityModel = RifReaderInterface::FRACTURE_RESULTS;
+                porosityModel = RiaDefines::FRACTURE_MODEL;
             }
         }
 
@@ -144,7 +152,7 @@ public:
         return true;
     }
 
-    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
+    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RiaDefines::PorosityModelType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
     {
         gridNumber.clear();
         cellI.clear();
@@ -412,7 +420,7 @@ public:
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -431,7 +439,7 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
@@ -499,7 +507,7 @@ public:
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -518,7 +526,7 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
@@ -538,3 +546,95 @@ public:
 
 static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(RiaGetTimeStepDays::commandName());
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetSelectedCells: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetSelectedCells"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    {
+        // findCaseFromArgs only returns RimEclipseCase, so geomech cases are not supported because of this.
+        // The rest of the function supports geomech cases, so using a findCaseFromArgs that supports geomech
+        // cases is the only change needed to add geomech support.
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        if (!rimCase) return true;
+
+        // Write data back to octave: column count, bytes per column, caseId, gridNumber, cellI, cellJ, cellK
+
+        std::array<std::vector<qint32>, 5> selectedCellInfo;
+        getSelectedCells(rimCase,
+                         selectedCellInfo[0],
+                         selectedCellInfo[1],
+                         selectedCellInfo[2],
+                         selectedCellInfo[3],
+                         selectedCellInfo[4]);
+
+        // First write column count
+        quint64 columnCount = 5;
+        socketStream << columnCount;
+
+        // then the byte-size of the size of one column
+        quint64 columnByteCount = (quint64)(selectedCellInfo[0].size()*sizeof(qint32));
+        socketStream << columnByteCount;
+
+        // Write back table data
+        for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
+        {
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)selectedCellInfo[tIdx].data(), columnByteCount);
+        }
+
+        return true;
+    }
+
+    static void getSelectedCells(const RimCase* reservoirCase,
+                                 std::vector<qint32>& caseNumber,
+                                 std::vector<qint32>& gridNumber,
+                                 std::vector<qint32>& cellI,
+                                 std::vector<qint32>& cellJ,
+                                 std::vector<qint32>& cellK)
+    {
+        std::vector<RiuSelectionItem*> items;
+        RiuSelectionManager::instance()->selectedItems(items);
+
+        for (const RiuSelectionItem* item : items)
+        {
+            size_t i, j, k;
+            size_t gridIndex;
+            int caseId;
+            if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+            {
+                const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
+
+                eclipseItem->m_view->eclipseCase()->eclipseCaseData()->grid(eclipseItem->m_gridIndex)->ijkFromCellIndex(eclipseItem->m_gridLocalCellIndex, &i, &j, &k);
+                gridIndex = eclipseItem->m_gridIndex;
+                caseId = eclipseItem->m_view->eclipseCase()->caseId;
+            }
+            else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
+            {
+                const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
+
+                geomechItem->m_view->geoMechCase()->geoMechData()->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                gridIndex = geomechItem->m_gridIndex;
+                caseId = geomechItem->m_view->geoMechCase()->caseId;
+            }
+            else
+            {
+                continue;
+            }
+
+            if (caseId == reservoirCase->caseId)
+            {
+                caseNumber.push_back(static_cast<int>(caseId));
+                gridNumber.push_back(static_cast<int>(gridIndex));
+                cellI.push_back(static_cast<int>(i + 1));
+                cellJ.push_back(static_cast<int>(j + 1));
+                cellK.push_back(static_cast<int>(k + 1));
+            }
+        }
+    }
+};
+
+static bool RiaGetSelectedCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCells>(RiaGetSelectedCells::commandName());

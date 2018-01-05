@@ -48,6 +48,8 @@ CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "WellFlowRateCurve");
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
     CAF_PDM_InitObject("Flow Rate Curve", "", "", "");
+    m_groupId = 0;
+    m_doFillCurve = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,17 +92,49 @@ QString RimWellFlowRateCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellFlowRateCurve::createCurveAutoName()
+void RimWellFlowRateCurve::setGroupId(int groupId)
 {
-    return m_tracerName;
+    m_groupId = groupId;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::onLoadDataAndUpdate()
+int RimWellFlowRateCurve::groupId() const
 {
-    RimWellLogCurve::updateCurvePresentation();
+    return m_groupId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::setDoFillCurve(bool doFill)
+{
+    m_doFillCurve = doFill;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellFlowRateCurve::doFillCurve() const
+{
+    return m_doFillCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellFlowRateCurve::createCurveAutoName()
+{
+    return m_curveAutoName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::onLoadDataAndUpdate(bool updateParentPlot)
+{
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     if (isCurveVisible())
     {
@@ -122,31 +156,50 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 {
     RimWellLogCurve::updateCurveAppearance();
 
+    bool isLastCurveInGroup = false;
+    {
+        RimWellLogTrack* wellLogTrack;
+        firstAncestorOrThisOfTypeAsserted(wellLogTrack);
+        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
+        const std::vector<RimWellFlowRateCurve*>& curveGroup  = stackedCurveGroups[this->m_groupId];
+        isLastCurveInGroup = (curveGroup.back() == this);
+    }
+
     if ( isUsingConnectionNumberDepthType() )
     {
         m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
     }
 
-    QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-    m_qwtPlotCurve->setBrush(QBrush( curveQColor));
+    if (m_doFillCurve || isLastCurveInGroup) // Fill the last curve in group with a transparent color to "tie" the group together
+    {
+        QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+        QColor fillColor = curveQColor;
+        QColor lineColor = curveQColor.darker();
 
-    QLinearGradient gradient; 
-    gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
-    gradient.setColorAt(0,curveQColor.darker(110));
-    gradient.setColorAt(0.15,curveQColor);
-    gradient.setColorAt(0.25,curveQColor);
-    gradient.setColorAt(0.4,curveQColor.darker(110));
-    gradient.setColorAt(0.6,curveQColor);
-    gradient.setColorAt(0.8,curveQColor.darker(110));
-    gradient.setColorAt(1,curveQColor);
-    m_qwtPlotCurve->setBrush(gradient);
+        if (!m_doFillCurve && isLastCurveInGroup) 
+        { 
+            fillColor = QColor(24, 16, 10, 50);
+            lineColor = curveQColor;
+        }
 
-    QPen curvePen = m_qwtPlotCurve->pen();
-    curvePen.setColor(curveQColor.darker());
-    m_qwtPlotCurve->setPen(curvePen);
-    m_qwtPlotCurve->setOrientation(Qt::Horizontal);
-    m_qwtPlotCurve->setBaseline(0.0);
-    m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+        QLinearGradient gradient;
+        gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
+        gradient.setColorAt(0, fillColor.darker(110));
+        gradient.setColorAt(0.15, fillColor);
+        gradient.setColorAt(0.25, fillColor);
+        gradient.setColorAt(0.4, fillColor.darker(110));
+        gradient.setColorAt(0.6, fillColor);
+        gradient.setColorAt(0.8, fillColor.darker(110));
+        gradient.setColorAt(1, fillColor);
+        m_qwtPlotCurve->setBrush(gradient);
+
+        QPen curvePen = m_qwtPlotCurve->pen();
+        curvePen.setColor(lineColor);
+        m_qwtPlotCurve->setPen(curvePen);
+        m_qwtPlotCurve->setOrientation(Qt::Horizontal);
+        m_qwtPlotCurve->setBaseline(0.0);
+        m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,24 +228,48 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     bool isFirstTrack =  (wellLogTrack == wellLogPlot->trackByIndex(0));
 
-    RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_NONE;
+    RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_NONE;
 
-    std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
-    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
-    std::vector<double> stackedValues(depthValues.size(), 0.0);
-     
-    std::vector<RimWellFlowRateCurve*> stackedCurves =  wellLogTrack->visibleStackedCurves();
-    double zPos = -0.1;
-    for ( RimWellFlowRateCurve * stCurve: stackedCurves )
+    std::vector<double> depthValues;
+    std::vector<double> stackedValues;
+    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices;
+    double zPos = -10000.0 + 100*groupId(); // Z-position of curve, to draw them in correct order hiding the things behind
+    // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting above the grid
     {
-        std::vector<double> values = stCurve->curveData()->xPlotValues();
-        for ( size_t i = 0; i < values.size(); ++i )
+        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
+
+        std::vector<RimWellFlowRateCurve*> stackedCurves;
+
+        if (stackedCurveGroups.count(groupId()) > 0)
         {
-            stackedValues[i] += values[i]; 
+            stackedCurves = stackedCurveGroups[groupId()];
         }
 
-        if ( stCurve == this ) break;
-        zPos -= 1.0;
+        std::vector<double> allDepthValues = m_curveData->measuredDepths();
+        std::vector<double> allStackedValues(allDepthValues.size());
+
+        for (RimWellFlowRateCurve * stCurve : stackedCurves)
+        {
+            std::vector<double> allValues = stCurve->curveData()->xValues();
+
+            for (size_t i = 0; i < allValues.size(); ++i)
+            {
+                if (allValues[i] != HUGE_VAL)
+                {
+                    allStackedValues[i] += allValues[i];
+                }
+            }
+
+            if (stCurve == this) break;
+            zPos -= 1.0;
+        }
+
+        RigWellLogCurveData tempCurveData;
+        tempCurveData.setValuesAndMD(allStackedValues, allDepthValues, RiaDefines::UNIT_NONE, false);
+
+        depthValues = tempCurveData.measuredDepthPlotValues(displayUnit);
+        stackedValues = tempCurveData.xPlotValues();
+        polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
     }
 
     // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
@@ -272,12 +349,12 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& tracerName, const std::vector<double>& depthValues, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& curveName, const std::vector<double>& depthValues, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
 
-    m_curveData->setValuesAndMD(flowRates, depthValues, RimDefines::UNIT_NONE, false);
+    m_curveData->setValuesAndMD(flowRates, depthValues, RiaDefines::UNIT_NONE, false);
 
-    m_tracerName = tracerName;
+    m_curveAutoName = curveName;
 }
 

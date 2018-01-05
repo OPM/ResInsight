@@ -20,107 +20,36 @@
 
 #include "RiaApplication.h"
 
-#include "RicSelectViewUI.h"
+#include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
-#include "RimFaultCollection.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimViewManipulator.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmUiPropertyViewDialog.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
 {
-    const QString lastUsedViewKey("lastUsedViewKey");
+    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(eclipseResultCase, "lastUsedWellAllocationView", "Show Contributing Wells in View");
 
-    RimEclipseView* defaultSelectedView = nullptr;
-    {
-        QString lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
-        RimEclipseView* lastUsedView = dynamic_cast<RimEclipseView*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
-        if (lastUsedView)
-        {
-            RimEclipseResultCase* lastUsedViewResultCase = nullptr;
-            lastUsedView->firstAncestorOrThisOfTypeAsserted(lastUsedViewResultCase);
-
-            if (lastUsedViewResultCase == eclipseResultCase)
-            {
-                defaultSelectedView = lastUsedView;
-            }
-        }
-
-        if (!defaultSelectedView)
-        {
-            RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-            if (activeView)
-            {
-                RimEclipseResultCase* activeViewResultCase = nullptr;
-                activeView->firstAncestorOrThisOfTypeAsserted(activeViewResultCase);
-
-                if (activeViewResultCase == eclipseResultCase)
-                {
-                    defaultSelectedView = activeView;
-                }
-                else
-                {
-                    if (eclipseResultCase->views().size() > 0)
-                    {
-                        defaultSelectedView = dynamic_cast<RimEclipseView*>(eclipseResultCase->views()[0]);
-                    }
-                }
-            }
-        }
-    }
-
-    RicSelectViewUI featureUi;
-    if (defaultSelectedView)
-    {
-        featureUi.setView(defaultSelectedView);
-    }
-    else
-    {
-        featureUi.setCase(eclipseResultCase);
-    }
-
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Show Contributing Wells in View", "");
-    propertyDialog.resize(QSize(400, 200));
-
-    if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
-
-    RimEclipseView* viewToManipulate = nullptr;
-    if (featureUi.createNewView())
-    {
-        RimEclipseView* createdView = eclipseResultCase->createAndAddReservoirView();
-        createdView->name = featureUi.newViewName();
-
-        // Must be run before buildViewItems, as wells are created in this function
-        createdView->loadDataAndUpdate();
-        eclipseResultCase->updateConnectedEditors();
-
-        viewToManipulate = createdView;
-    }
-    else
-    {
-        viewToManipulate = featureUi.selectedView();
-    }
-
-    CVF_ASSERT(viewToManipulate);
+   if (!viewToManipulate) return nullptr;
 
 
     RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(viewToManipulate, wellName, timeStep);
@@ -128,11 +57,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimE
     auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicShowMainWindowFeature");
     feature->actionTriggered(false);
 
-    RiuMainWindow::instance()->setExpanded(viewToManipulate, true);
-    RiuMainWindow::instance()->selectAsCurrentItem(viewToManipulate);
-
-    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
-    RiaApplication::instance()->setCacheDataObject(lastUsedViewKey, refFromProjectToView);
+    RicSelectOrCreateViewFeatureImpl::focusView(viewToManipulate);
 
     return viewToManipulate;
 }
@@ -144,9 +69,9 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 {
     CVF_ASSERT(viewToModify);
 
-    RimEclipseWell* selectedWell = nullptr;
+    RimSimWellInView* selectedWell = nullptr;
 
-    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
+    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
     {
         if (w->name() == wellName)
         {
@@ -176,7 +101,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     }
     
     viewToModify->setCurrentTimeStep(timeStep);
-    viewToModify->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
+    viewToModify->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
     viewToModify->cellResult()->setResultVariable("MaxFractionTracer");
     viewToModify->cellResult()->setFlowSolution(flowDiagSolution);
 
@@ -197,9 +122,9 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     viewToModify->cellResult()->loadDataAndUpdate();
     viewToModify->cellResult()->updateConnectedEditors();
     
-    std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->wellResults(), timeStep);
+    std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->simWellData(), timeStep);
 
-    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
+    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
     {
         if (std::find(tracerNames.begin(), tracerNames.end(), w->name()) != tracerNames.end()
             || selectedWell->name() == w->name())
@@ -231,7 +156,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 
     propertyFilterCollection->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setExpanded(propertyFilterCollection, true);
+    RiuMainWindow::instance()->setExpanded(propertyFilterCollection);
 
     viewToModify->faultCollection()->showFaultCollection = false;
     viewToModify->faultCollection()->updateConnectedEditors();
@@ -245,16 +170,16 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames(
     const RimFlowDiagSolution* flowDiagSolution,
-    const RigSingleWellResultsData* wellResults,
+    const RigSimWellData* simWellData,
     int timeStep)
 {
     std::vector<QString> tracerCellFractionValues;
 
-    if (flowDiagSolution && wellResults->hasWellResult(timeStep))
+    if (flowDiagSolution && simWellData->hasWellResult(timeStep))
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(timeStep);
+        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType(timeStep);
         if (   prodType == RigWellResultFrame::PRODUCER
             || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
         {

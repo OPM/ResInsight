@@ -1,0 +1,16 @@
+@startuml
+
+RigMainGrid *-- "1" RigNNCData
+
+RigEclipseCaseData *-- RigMainGrid
+
+
+RimCase *-- RimTimeStepFilter
+
+
+RimCase <|- RimEclipseCase
+RimEclipseCase <|- RimEclipseResultCase
+
+RimEclipseResultCase *- RigEclipseCaseData
+
+@enduml

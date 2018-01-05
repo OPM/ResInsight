@@ -64,11 +64,11 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "");
     obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
     obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
 
     // Set to hidden to avoid this item to been displayed as a child item
@@ -252,7 +252,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateRangeLabel()
 {
-    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         m_rangeLabelText = "Current Timestep";
     }
@@ -348,7 +348,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     clearCategories();
 
-    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         RimView* view;
         this->firstAncestorOrThisOfType(view);
@@ -372,24 +372,33 @@ void RimEclipsePropertyFilter::computeResultValueRange()
         size_t scalarIndex = resultDefinition->scalarResultIndex();
         if ( scalarIndex != cvf::UNDEFINED_SIZE_T )
         {
-            RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
+            RigCaseCellResultsData* results = resultDefinition->currentGridCellResults();
             if ( results )
             {
-                results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                results->minMaxCellScalarValues(scalarIndex, min, max);
 
                 if ( resultDefinition->hasCategoryResult() )
                 {
-                    if ( resultDefinition->resultType() != RimDefines::FORMATION_NAMES )
-                    {
-                        setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
-                    }
-                    else
+                    if ( resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
                     {
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData());
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames());
 
                         const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames()->formationNames();
                         setCategoryNames(fnVector);
+                    }
+                    else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+                    {
+                        std::vector<QString> ctNames;
+                        for (QString ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        {
+                            ctNames.push_back(ctName);
+                        }
+                        setCategoryNames(ctNames);
+                    }
+                    else
+                    {
+                        setCategoryValues(results->uniqueCellScalarValues(scalarIndex));
                     }
                 }
             }
@@ -414,7 +423,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     //
     // If the user manually has set a filter value, this value is left untouched
 
-    if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
+    if (!resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         return;
     }

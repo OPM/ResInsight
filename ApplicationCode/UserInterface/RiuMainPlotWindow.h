@@ -39,6 +39,7 @@ namespace caf
      class PdmObject;
      class PdmUiPropertyView;
      class PdmUiItem;
+     class PdmUiToolBarEditor;
 }
 
 //==================================================================================================
@@ -53,16 +54,17 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 public:
     RiuMainPlotWindow();
     
-    virtual QString     mainWindowName()            { return "RiuMainPlotWindow";  }
+    virtual QString     mainWindowName();
     
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
+    void                cleanUpTemporaryWidgets();
 
     void                removeViewer( QWidget* viewer ) override;
     void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
     void                setActiveViewer(QWidget* subWindow) override;
 
-    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
+    caf::PdmUiTreeView* projectTreeView();
 
     void                hideAllDockWindows();
 
@@ -70,7 +72,7 @@ public:
 
     void                setDefaultWindowSize();
 
-    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
 
@@ -81,13 +83,14 @@ public:
 
     void                addToTemporaryWidgets(QWidget* widget);
 
+    void                updateSummaryPlotToolBar();
+
 protected:
     virtual void        closeEvent(QCloseEvent* event);
 
 private:
     void                setPdmRoot(caf::PdmObject* pdmRoot);
 
-    void                createActions();
     void                createMenus();
     void                createToolBars();
     void                createDockPanels();
@@ -97,7 +100,6 @@ private:
     void                refreshToolbars();
     
     static QStringList  toolbarCommandIds(const QString& toolbarName = "");
-
 
 private slots:
 
@@ -114,16 +116,14 @@ private:
     QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
     QMdiArea*           m_mdiArea;
-    RiuViewer*          m_mainViewer;
     RimViewWindow*      m_activePlotViewWindow;
 
     QMenu*              m_windowMenu;
 
-    caf::PdmUiTreeView* m_projectTreeView;
-    
+    caf::PdmUiTreeView*         m_projectTreeView;
+    caf::PdmUiToolBarEditor*    m_summaryPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
-    caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
     bool                        m_blockSlotSubWindowActivated;

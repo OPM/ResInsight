@@ -20,148 +20,20 @@
 
 #include "RiaApplication.h"
 
+#include "RimProject.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuTextDialog.h"
 
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QBoxLayout>
-#include <QClipboard>
-#include <QMenu>
 
 
 CAF_CMD_SOURCE_INIT(RicShowPlotDataFeature, "RicShowPlotDataFeature");
-
-//--------------------------------------------------------------------------------------------------
-/// 
-/// 
-///  RiuQPlainTextEdit
-/// 
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuQPlainTextEdit::keyPressEvent(QKeyEvent *e)
-{
-    if ( e->key() == Qt::Key_C && e->modifiers() == Qt::ControlModifier )
-    {
-        slotCopyContentToClipboard();
-        e->setAccepted(true);
-    }
-    else
-    {
-        QPlainTextEdit::keyPressEvent(e);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuQPlainTextEdit::slotCopyContentToClipboard()
-{
-    QTextCursor cursor(this->textCursor());
-
-    QString textForClipboard;
-
-    QString selText = cursor.selectedText();
-    if (!selText.isEmpty())
-    {
-        QTextDocument doc;
-        doc.setPlainText(selText);
-
-        textForClipboard = doc.toPlainText();
-    }
-
-    if (textForClipboard.isEmpty())
-    {
-        textForClipboard = this->toPlainText();
-    }
-
-    if (!textForClipboard.isEmpty())
-    {
-        QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
-        {
-            clipboard->setText(textForClipboard);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuQPlainTextEdit::slotSelectAll()
-{
-    this->selectAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-/// 
-/// RicTextWidget
-/// 
-/// 
-//--------------------------------------------------------------------------------------------------
-RicTextWidget::RicTextWidget(QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-{
-    m_textEdit = new RiuQPlainTextEdit(this);
-    m_textEdit->setReadOnly(true);
-    m_textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
-
-    QFont font("Courier", 8);
-    m_textEdit->setFont(font);
-
-    m_textEdit->setContextMenuPolicy(Qt::NoContextMenu);
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_textEdit);
-    setLayout(layout);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::setText(const QString& text)
-{
-    m_textEdit->setPlainText(text);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::contextMenuEvent(QContextMenuEvent* event)
-{
-    QMenu menu;
-
-    {
-        QAction* actionToSetup = new QAction(this);
-
-        actionToSetup->setText("Copy");
-        actionToSetup->setIcon(QIcon(":/Copy.png"));
-        actionToSetup->setShortcuts(QKeySequence::Copy);
-
-        connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotCopyContentToClipboard()));
-
-        menu.addAction(actionToSetup);
-    }
-
-    {
-        QAction* actionToSetup = new QAction(this);
-
-        actionToSetup->setText("Select All");
-        actionToSetup->setShortcuts(QKeySequence::SelectAll);
-
-        connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotSelectAll()));
-
-        menu.addAction(actionToSetup);
-    }
-
-    menu.exec(event->globalPos());
-}
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -173,12 +45,21 @@ void RicTextWidget::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 bool RicShowPlotDataFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
-    if (selectedSummaryPlots.size() > 0) return true;
+    auto selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
+    if (selectedSummaryPlots.size() > 0)
+    {
+        for (auto c : selectedSummaryPlots)
+        {
+            if (dynamic_cast<RimSummaryCrossPlot*>(c))
+            {
+                return false;
+            }
+        }
 
-    std::vector<RimWellLogPlot*> wellLogPlots;
-    caf::SelectionManager::instance()->objectsByType(&wellLogPlots);
+        return true;
+    }
+
+    auto wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
     if (wellLogPlots.size() > 0) return true;
 
     return false;
@@ -191,11 +72,8 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
-
-    std::vector<RimWellLogPlot*> wellLogPlots;
-    caf::SelectionManager::instance()->objectsByType(&wellLogPlots);
+    std::vector<RimSummaryPlot*> selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
+    std::vector<RimWellLogPlot*> wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
 
     if (selectedSummaryPlots.size() == 0 && wellLogPlots.size() == 0)
     {
@@ -242,7 +120,7 @@ void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString&
     RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
-    RicTextWidget* textWiget = new RicTextWidget(plotwindow);
+    RiuTextDialog* textWiget = new RiuTextDialog();
     textWiget->setMinimumSize(400, 600);
 
     textWiget->setWindowTitle(title);
@@ -252,13 +130,3 @@ void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString&
 
     plotwindow->addToTemporaryWidgets(textWiget);
 }
-
-
-
-
-
-
-
-
-
-

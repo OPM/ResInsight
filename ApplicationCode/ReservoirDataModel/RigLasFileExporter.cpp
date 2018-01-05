@@ -20,7 +20,7 @@
 
 #include "RigWellLogCurveData.h"
 #include "RimCase.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
@@ -196,15 +196,15 @@ public:
 
         const RigWellLogCurveData* firstCurveData = curveDataForFirstCurve();
 
-        if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
+        if (firstCurveData->depthUnit() == RiaDefines::UNIT_METER)
         {
             lasFile->AddLog("DEPTH", "M", "Depth in meters", firstCurveData->measuredDepths());
         }
-        else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
+        else if (firstCurveData->depthUnit() == RiaDefines::UNIT_FEET)
         {
             lasFile->AddLog("DEPTH", "FT", "Depth in feet", firstCurveData->measuredDepths());
         }
-        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
             CVF_ASSERT(false);
             lasFile->AddLog("DEPTH", "", "Depth in Connection number", firstCurveData->measuredDepths());
@@ -223,15 +223,15 @@ public:
                     value += m_rkbDiff;
                 }
 
-                if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
+                if (firstCurveData->depthUnit() == RiaDefines::UNIT_METER)
                 {
                     lasFile->AddLog("TVDRKB", "M", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
                 }
-                else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
+                else if (firstCurveData->depthUnit() == RiaDefines::UNIT_FEET)
                 {
                     lasFile->AddLog("TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
                 }
-                else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+                else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
                 {
                     CVF_ASSERT(false);
                     lasFile->AddLog("TVDRKB", "", "", tvdrkbValues);
@@ -247,15 +247,15 @@ public:
         lasFile->setStartDepth(minDepth);
         lasFile->setStopDepth(maxDepth);
 
-        if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
+        if (firstCurveData->depthUnit() == RiaDefines::UNIT_METER)
         {
             lasFile->setDepthUnit("M");
         }
-        else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
+        else if (firstCurveData->depthUnit() == RiaDefines::UNIT_FEET)
         {
             lasFile->setDepthUnit("FT");
         }
-        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
             CVF_ASSERT(false);
         }
@@ -299,7 +299,7 @@ private:
     double m_rkbDiff;
     bool   m_exportTvdrkb;
 
-    RimDefines::DepthUnitType m_depthUnit;
+    RiaDefines::DepthUnitType m_depthUnit;
     std::vector<double> m_depthValues;
 
     std::vector<SingleChannelData> m_logCurveData;

@@ -23,12 +23,18 @@
 
 #include <vector>
 
+class QStringList;
+
 //==================================================================================================
 /// 
 //==================================================================================================
 class RicImportInputEclipseCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
+
 
 protected:
     // Overrides

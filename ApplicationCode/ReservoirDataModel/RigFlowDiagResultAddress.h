@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafAppEnum.h"
+
 #include <string>
 #include <set>
 
@@ -24,6 +26,7 @@
 #define RIG_FLD_CELL_FRACTION_RESNAME        "Fraction"
 #define RIG_FLD_MAX_FRACTION_TRACER_RESNAME  "MaxFractionTracer"
 #define RIG_FLD_COMMUNICATION_RESNAME        "Communication"
+#define RIG_NUM_FLOODED_PV                   "Water Flooded PV"
 
 #define RIG_FLOW_TOTAL_NAME "Total"
 #define RIG_FLOW_OIL_NAME "Oil"
@@ -37,11 +40,24 @@ class RigFlowDiagResultAddress
 {
 
 public:
-    RigFlowDiagResultAddress(const std::string& aVariableName, const std::set<std::string>& someSelectedTracerNames) 
-    : variableName(aVariableName), selectedTracerNames(someSelectedTracerNames) {}
+    enum PhaseSelection
+    {
+        PHASE_ALL = 0b111,
+        PHASE_OIL = 0b001,
+        PHASE_GAS = 0b010,
+        PHASE_WAT = 0b100,
+    };
 
-    RigFlowDiagResultAddress(const std::string& aVariableName, const std::string& tracerName)
-    : variableName(aVariableName)
+    typedef caf::AppEnum<PhaseSelection> PhaseSelectionEnum;
+
+    RigFlowDiagResultAddress(const std::string& aVariableName, PhaseSelection phaseSelection, const std::set<std::string>& someSelectedTracerNames) 
+    : variableName(aVariableName),
+      phaseSelection(phaseSelection),
+      selectedTracerNames(someSelectedTracerNames) {}
+
+    RigFlowDiagResultAddress(const std::string& aVariableName, PhaseSelection phaseSelection, const std::string& tracerName)
+    : variableName(aVariableName),
+      phaseSelection(phaseSelection)
     {
         selectedTracerNames.insert(tracerName);
     }
@@ -53,12 +69,17 @@ public:
 
     std::string           variableName;
     std::set<std::string> selectedTracerNames;
+    PhaseSelection        phaseSelection;
 
     bool operator< (const RigFlowDiagResultAddress& other) const
     {
         if ( selectedTracerNames != other.selectedTracerNames )
         {
             return selectedTracerNames < other.selectedTracerNames;
+        }
+        if (phaseSelection != other.phaseSelection)
+        {
+            return phaseSelection < other.phaseSelection;
         }
 
         return variableName < other.variableName;

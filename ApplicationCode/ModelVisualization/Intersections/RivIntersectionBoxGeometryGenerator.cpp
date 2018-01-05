@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox, const RivIntersectionHexGridInterface* grid)
+RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator(RimIntersectionBox* intersectionBox, const RivIntersectionHexGridInterface* grid)
     : m_intersectionBoxDefinition(intersectionBox),
     m_hexGrid(grid)
 {
@@ -69,7 +69,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::generateSurface(
 
     CVF_ASSERT(m_triangleVxes.notNull());
 
-    if (m_triangleVxes->size() == 0) return NULL;
+    if (m_triangleVxes->size() == 0) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setFromTriangleVertexArray(m_triangleVxes.p());
@@ -82,7 +82,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::generateSurface(
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::createMeshDrawable()
 {
-    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return NULL;
+    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray(m_cellBorderLineVxes.p());
@@ -227,7 +227,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimIntersectionBox* RivIntersectionBoxGeometryGenerator::intersectionBox() const
+RimIntersectionBox* RivIntersectionBoxGeometryGenerator::intersectionBox() const
 {
     return m_intersectionBoxDefinition;
 }

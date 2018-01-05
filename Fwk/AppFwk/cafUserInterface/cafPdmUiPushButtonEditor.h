@@ -42,22 +42,24 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QLabel>
+class QHBoxLayout;
 
 namespace caf 
 {
 
-//==================================================================================================
-/// The default editor for several PdmFields.
-//==================================================================================================
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    QIcon m_buttonIcon;
+    QIcon   m_buttonIcon;
     QString m_buttonText;
 };
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -66,6 +68,8 @@ class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
 public:
     PdmUiPushButtonEditor()          {} 
     virtual ~PdmUiPushButtonEditor() {} 
+
+    static void configureEditorForField(PdmFieldHandle* fieldHandle);
 
 protected:
     virtual QWidget*    createEditorWidget(QWidget * parent);
@@ -76,8 +80,9 @@ protected slots:
     void                slotClicked(bool checked);
 
 private:
-    QPointer<QPushButton> m_pushButton;
-    QPointer<QLabel>    m_label;
+    QPointer<QPushButton>   m_pushButton;
+    QPointer<QLabel>        m_label;
+    QPointer<QHBoxLayout>   m_buttonLayout;
 };
 
 

@@ -20,9 +20,12 @@ import sys
 import traceback
 import unittest
 import inspect
+import imp
 
 class ImportTestCase(unittest.TestCase):
     
+    def import_file(self, path):
+        return imp.load_source( "module", path)
     
     def import_module(self , module):
         mod = importlib.import_module( module )

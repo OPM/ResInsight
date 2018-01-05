@@ -58,6 +58,7 @@ class RimWellAllocationPlot;
 class RiuMainWindowBase;
 class RiuMainPlotWindow;
 class RiuRecentFileActionProvider;
+class RiaArgumentParser;
 
 namespace caf
 {
@@ -82,6 +83,12 @@ public:
         NAVIGATION_POLICY_RMS
     };
 
+    enum ProjectLoadAction
+    {
+        PLA_NONE = 0,
+        PLA_CALCULATE_STATISTICS = 1
+    };
+
 public:
     RiaApplication(int& argc, char** argv);
     ~RiaApplication();
@@ -90,7 +97,7 @@ public:
     int                     parseArgumentsAndRunUnitTestsIfRequested();
     bool                    parseArguments();
 
-    void                    executeRegressionTests(const QString& regressionTestPath);
+    void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
 
     void                    setActiveReservoirView(RimView*);
     RimView*                activeReservoirView();
@@ -99,6 +106,8 @@ public:
     RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
+    void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
 
     RimProject*         project(); 
 
@@ -113,16 +122,13 @@ public:
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
-    bool                openEclipseCaseFromFile(const QString& fileName);
-    bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
-    bool                addEclipseCases(const QStringList& fileNames);
-    bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
 
     bool                openOdbCaseFromFile(const QString& fileName);
 
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);
+    bool                loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
@@ -132,11 +138,11 @@ public:
     void                closeProject();
     
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+    void                addWellPathFormationsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
-    void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
-    void                runRegressionTest(const QString& testRootPath);
+    void                runRegressionTest(const QString& testRootPath, QStringList* testFilter = nullptr);
 
     void                processNonGuiEvents();
 
@@ -158,6 +164,7 @@ public:
     bool                launchProcess(const QString& program, const QStringList& arguments);
     bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
+    void                waitForProcess() const;
     
     RiaPreferences*     preferences();
     void                applyPreferences();
@@ -194,20 +201,16 @@ public:
     void                  addToRecentFiles(const QString& fileName);
     std::vector<QAction*> recentFileActions() const;
 
-private:
-    enum ProjectLoadAction
-    {
-        PLA_NONE = 0,
-        PLA_CALCULATE_STATISTICS = 1
-    };
+    void                setStartDir(const QString& startDir);
 
-    bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+    static std::vector<QString> readFileListFromTextFile(QString listFileName);
+
+    void                    clearViewsScheduledForUpdate();
+
+private:
 
     void                    onProjectOpenedOrClosed();
-    std::vector<QString>    readFileListFromTextFile(QString listFileName);
     void                    setWindowCaptionFromAppState();
-    
-    void                    clearViewsScheduledForUpdate();
 
     void                    createMainPlotWindow();
     void                    deleteMainPlotWindow();
@@ -221,15 +224,19 @@ private:
     void                    regressionTestConfigureProject();
     static QSize            regressionDefaultImageSize();
 
+    void                    setHelpText(const QString& helpText);
+
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();
+    void                slotRecalculateCompletionType();
 
     // Friend classes required to have access to slotUpdateScheduledDisplayModels
     // As snapshots are produced fast in sequence, the feature must have access to force redraw
     // of scheduled redraws
     friend class RimView;
     friend class RicExportMultipleSnapshotsFeature;
+    friend class RiaArgumentParser;
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
@@ -238,6 +245,8 @@ private:
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
+    std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
+    QTimer*                             m_recalculateCompletionTypeTimer;
 
     RiaSocketServer*                    m_socketServer;
 
@@ -263,6 +272,8 @@ private:
 
     QString                             m_helpText;
     bool                                m_runningRegressionTests;
+
+    bool                                m_runningWorkerProcess;
 
     RiuMainPlotWindow*                  m_mainPlotWindow;
     

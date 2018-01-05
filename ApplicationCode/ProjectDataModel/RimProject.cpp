@@ -21,36 +21,50 @@
 #include "RimProject.h"
 
 #include "RiaApplication.h"
+#include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
 #include "RimCalcScript.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
 #include "RimContextCommandBuilder.h"
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#include "RimFractureTemplate.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiSnapshotDefinition.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimRftPlotCollection.h"
+#include "RimPltPlotCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
 #include "RiuMainPlotWindow.h"
@@ -60,7 +74,7 @@
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeOrdering.h"
-
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cvfBoundingBox.h"
 
 #include <QDir>
@@ -100,10 +114,13 @@ RimProject::RimProject(void)
     viewLinkerCollection.uiCapability()->setUiHidden(true);
     viewLinkerCollection = new RimViewLinkerCollection;
 
-    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "");
+    calculationCollection = new RimSummaryCalculationCollection;
+
+    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "Command Objects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "MultiSnapshotDefinitions", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
     mainWindowTreeViewState.uiCapability()->setUiHidden(true);
@@ -120,6 +137,11 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
     m_showPlotWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_dialogData, "DialogData", "DialogData", "", "", "");
+    m_dialogData = new RimDialogData();
+    m_dialogData.uiCapability()->setUiHidden(true);
+    m_dialogData.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
@@ -179,6 +201,8 @@ void RimProject::close()
 
     multiSnapshotDefinitions.deleteAllChildObjects();
 
+    calculationCollection->deleteAllContainedObjects();
+
     delete viewLinkerCollection->viewLinker();
     viewLinkerCollection->viewLinker = NULL;
 
@@ -191,7 +215,6 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState = "";
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -390,6 +413,15 @@ QString RimProject::projectFileVersionString() const
     return m_projectFileVersionString;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimProject::isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const
+{
+    QString candidateProjectFileVersion = projectFileVersionString();
+
+    return !RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(candidateProjectFileVersion, otherProjectFileVersion);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -428,9 +460,14 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
-        if (oilField->summaryCaseCollection() != NULL) {
-            oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        if (oilField->summaryCaseMainCollection() != NULL) {
+            oilField->summaryCaseMainCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        CVF_ASSERT(oilField->fractureDefinitionCollection());
+        oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
 
@@ -517,20 +554,29 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
+std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 {
+    std::vector<RimSummaryCase*> sumCases;
+
     for (RimOilField* oilField: oilFields)
     {
         if(!oilField) continue;
-        RimSummaryCaseCollection* sumCaseColl = oilField->summaryCaseCollection();
-        if(sumCaseColl)
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if(sumCaseMainColl)
         {
-            for (size_t scIdx = 0; scIdx <  sumCaseColl->summaryCaseCount(); ++scIdx)
-            {
-                sumCases.push_back(sumCaseColl->summaryCase(scIdx));
-            }
+            std::vector<RimSummaryCase*> allSummaryCases = sumCaseMainColl->allSummaryCases();
+            sumCases.insert(sumCases.end(), allSummaryCases.begin(), allSummaryCases.end());
+        }
+
+        auto observedDataColl = oilField->observedDataCollection();
+        if (observedDataColl != nullptr && observedDataColl->allObservedData().size() > 0)
+        {
+            auto observedData = observedDataColl->allObservedData();
+            sumCases.insert(sumCases.end(), observedData.begin(), observedData.end());
         }
     }
+
+    return sumCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -616,10 +662,33 @@ void RimProject::createDisplayModelAndRedrawAllViews()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allOilFields(std::vector<RimOilField*>& oilFields) const
+{
+    oilFields.clear();
+    for (const auto& oilField : this->oilFields)
+    {
+        oilFields.push_back(oilField);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Currently there will be only one oil field in Resinsight, so return hardcoded first oil field
 /// from the RimOilField collection.
 //--------------------------------------------------------------------------------------------------
 RimOilField* RimProject::activeOilField()
+{
+    CVF_ASSERT(oilFields.size() == 1);
+  
+    return oilFields[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Currently there will be only one oil field in Resinsight, so return hardcoded first oil field
+/// from the RimOilField collection.
+//--------------------------------------------------------------------------------------------------
+const RimOilField * RimProject::activeOilField() const
 {
     CVF_ASSERT(oilFields.size() == 1);
   
@@ -677,63 +746,9 @@ void RimProject::computeUtmAreaOfInterest()
 //--------------------------------------------------------------------------------------------------
 void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 {
-    QStringList commandIds = RimContextCommandBuilder::commandsFromSelection();
+    caf::CmdFeatureMenuBuilder menuBuilder = RimContextCommandBuilder::commandsFromSelection();
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    for (int i = 0; i < commandIds.size(); i++)
-    {
-        if (commandIds[i] == "Separator")
-        {
-            contextMenu.addSeparator();
-        }
-        else if (commandIds[i] == "RicExecuteScriptForCasesFeature")
-        {
-            // Execute script on selection of cases
-             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
-             if (ruiMainWindow)
-             { 
-                std::vector<RimCase*> cases;
-                ruiMainWindow->selectedCases(cases);
-
-                if (cases.size() > 0)
-                {
-                    QMenu* executeMenu = contextMenu.addMenu("Execute script");
-
-                    RiaApplication* app = RiaApplication::instance();
-                    RimProject* proj = app->project();
-                    if (proj && proj->scriptCollection())
-                    {
-                        RimScriptCollection* rootScriptCollection = proj->scriptCollection();
-
-                        // Root script collection holds a list of subdirectories of user defined script folders
-                        for (size_t i = 0; i < rootScriptCollection->subDirectories.size(); i++)
-                        {
-                            RimScriptCollection* subDir = rootScriptCollection->subDirectories[i];
-
-                            if (subDir)
-                            {
-                                appendScriptItems(executeMenu, subDir);
-                            }
-                        }
-                    }
-
-                    contextMenu.addSeparator();
-                    contextMenu.addMenu(executeMenu);
-                }
-            }
-        }
-        else
-        {
-            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-            if (feature->canFeatureBeExecuted())
-            {
-                QAction* act = commandManager->action(commandIds[i]);
-                CVF_ASSERT(act);
-
-                contextMenu.addAction(act);
-            }
-        }
-    }
+    menuBuilder.appendToMenu(&contextMenu);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -755,36 +770,177 @@ bool RimProject::showPlotWindow() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
+void RimProject::reloadCompletionTypeResultsInAllViews()
 {
-    CVF_ASSERT(menu);
+    createDisplayModelAndRedrawAllViews();
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+}
 
-    QDir dir(scriptCollection->directory);
-    QMenu* subMenu = menu->addMenu(dir.dirName());
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDialogData* RimProject::dialogData() const
+{
+    return m_dialogData;
+}
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    CVF_ASSERT(commandManager);
-
-    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
-    CVF_ASSERT(executeScriptFeature);
-
-    for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimProject::eclipseCases() const
+{
+    std::vector<RimEclipseCase*> allCases;
+    for (const auto& oilField : oilFields)
     {
-        RimCalcScript* calcScript = scriptCollection->calcScripts[i];
-        QFileInfo fi(calcScript->absolutePath());
+        const auto& cases = oilField->analysisModels->cases;
+        allCases.insert(allCases.end(), cases.begin(), cases.end());
+    }
+    return allCases;
+}
 
-        QString menuText = fi.baseName();
-        QAction* scriptAction = subMenu->addAction(menuText, executeScriptFeature, SLOT(slotExecuteScriptForSelectedCases()));
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimProject::simulationWellNames() const
+{
+    std::set<QString> wellNames;
 
-        scriptAction->setData(QVariant(calcScript->absolutePath()));
+    for (RimOilField* oilField : oilFields)
+    {
+        auto analysisCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* eclCase : analysisCaseColl->cases())
+        {
+            const auto& eclData = eclCase->eclipseCaseData();
+            if (eclData == nullptr) continue;
+
+            const auto names = eclData->simulationWellNames();
+            wellNames.insert(names.begin(), names.end());
+        }
+    }
+    return std::vector<QString>(wellNames.begin(), wellNames.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimProject::wellPathFromSimWellName(const QString& simWellName, int branchIndex)
+{
+    std::vector<RimWellPath*> paths;
+    for (RimWellPath* const path : allWellPaths())
+    {
+        if (QString::compare(path->associatedSimulationWellName(), simWellName) == 0 &&
+            (branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex))
+        {
+            return path;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimProject::wellPathByName(const QString& wellPathName) const
+{
+    for (RimWellPath* const path : allWellPaths())
+    {
+        if (path->name() == wellPathName) return path;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimProject::allWellPaths() const
+{
+    std::vector<RimWellPath*> paths;
+    for (const auto& oilField : oilFields())
+    {
+        auto wellPathColl = oilField->wellPathCollection();
+        for (const auto& path : wellPathColl->wellPaths)
+        {
+            paths.push_back(path);
+        }
+    }
+    return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
+{
+    std::vector<RimGeoMechCase*> cases;
+
+    for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if (!oilField) continue;
+
+        RimGeoMechModels* geomModels = oilField->geoMechModels();
+        if (geomModels)
+        {
+            for (size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++)
+            {
+                cases.push_back(geomModels->cases[caseIdx]);
+            }
+        }
+    }
+    return cases;
+}
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFractureTemplateCollection*> RimProject::allFractureTemplateCollections() const
+{
+    std::vector<RimFractureTemplateCollection*> templColls;
+    std::vector<RimOilField*> oilFields;
+
+    allOilFields(oilFields);
+    for (RimOilField* oilField : oilFields)
+    {
+        templColls.push_back(oilField->fractureDefinitionCollection());
+    }
+    return templColls;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
+{
+    std::vector<RimFractureTemplate*> templates;
+    std::vector<RimOilField*> oilFields;
+
+    allOilFields(oilFields);
+    for (RimFractureTemplateCollection* templColl : allFractureTemplateCollections())
+    {
+        for (RimFractureTemplate* templ : templColl->fractureDefinitions)
+        {
+            templates.push_back(templ);
+        }
+    }
+    return templates;
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
+{
+    std::vector<RimView*> views = eclipseCase->views();
+
+    for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
+    {
+        views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
     }
 
-    for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
-    {
-        RimScriptCollection* subDir = scriptCollection->subDirectories[i];
-
-        appendScriptItems(subMenu, subDir);
-    }
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -797,22 +953,44 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->summaryCaseCollection())     uiTreeOrdering.add(oilField->summaryCaseCollection());
+            if (oilField->summaryCaseMainCollection())
+            {
+                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
+            }
+            if (oilField->observedDataCollection())
+            {
+                uiTreeOrdering.add( oilField->observedDataCollection() );
+            }
         }
 
         if (mainPlotCollection)
         {
-            if (mainPlotCollection->wellLogPlotCollection())
-            {
-                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
-            }
-            
-            if (mainPlotCollection->summaryPlotCollection())
+           if (mainPlotCollection->summaryPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
             }
 
-            if (mainPlotCollection->flowPlotCollection())
+           if (mainPlotCollection->summaryCrossPlotCollection())
+           {
+               uiTreeOrdering.add(mainPlotCollection->summaryCrossPlotCollection());
+           }
+
+           if (mainPlotCollection->wellLogPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            }
+
+           if (mainPlotCollection->rftPlotCollection())
+           {
+               uiTreeOrdering.add(mainPlotCollection->rftPlotCollection());
+           }
+           
+           if (mainPlotCollection->pltPlotCollection())
+           {
+               uiTreeOrdering.add(mainPlotCollection->pltPlotCollection());
+           }
+
+           if (mainPlotCollection->flowPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->flowPlotCollection());
             }
@@ -829,10 +1007,14 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
-            if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
-            if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
-            if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
+            if (oilField->analysisModels())                 uiTreeOrdering.add(oilField->analysisModels());
+            if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
+            if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
+            if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
 
         uiTreeOrdering.add(scriptCollection());

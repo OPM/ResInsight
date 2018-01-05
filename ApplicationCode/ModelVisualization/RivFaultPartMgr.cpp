@@ -29,8 +29,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault)
     :   m_grid(grid),
         m_rimFaultCollection(rimFaultCollection),
         m_rimFault(rimFault),
@@ -103,9 +103,8 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 {
     CVF_ASSERT(cellResultColors);
 
-    updateNNCColors(cellResultColors);
+    updateNNCColors(timeStepIndex, cellResultColors);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
@@ -182,7 +181,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-    updateNNCColors(cellResultColors);
+    updateNNCColors(timeStepIndex, cellResultColors);
 
     if (m_nativeFaultFaces.notNull())
     {
@@ -375,7 +374,7 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    updateNNCColors(NULL);
+    updateNNCColors(0, NULL);
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -452,10 +451,10 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
+            RimFaultInView* noConstRimFault = const_cast<RimFaultInView*>(m_rimFault);
             if (noConstRimFault)
             {
-                RimFaultCollection* parentObject;
+                RimFaultInViewCollection* parentObject;
                 noConstRimFault->firstAncestorOrThisOfType(parentObject);
                 if (parentObject)
                 {
@@ -605,7 +604,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
     if (!isShowingGrid )
     {
-        if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        if (m_rimFaultCollection->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING)
         {
             if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {
@@ -616,7 +615,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
                 return caf::FC_FRONT;
             }
         }
-        else if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        else if (m_rimFaultCollection->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING)
         {
             if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {
@@ -642,11 +641,13 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
+void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
     if (m_NNCFaces.isNull()) return;
 
     bool showNncsWithScalarMappedColor = false;
+
+    RimEclipseView* eclipseView = nullptr;
 
     if (cellResultColors)
     {
@@ -656,15 +657,25 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             showNncsWithScalarMappedColor = true;
         }
+        eclipseView = cellResultColors->reservoirView();
     }
 
     if (showNncsWithScalarMappedColor)
     {
         size_t scalarSetIndex = cellResultColors->scalarResultIndex();
+        RiaDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
-
-        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, scalarSetIndex);
+        
+        if (eclipseView)
+        {
+            RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+            if (eclipseCase)
+            {
+                size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex(timeStepIndex);
+                m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex, nativeTimeStepIndex);
+            }
+        }
 
         cvf::ref<cvf::Effect> nncEffect;
 
@@ -672,12 +683,14 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
+            if (eclipseView) nncEffgen.disableLighting(eclipseView->isLightingDisabled());
             nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_1);
+            if (eclipseView) nncEffgen.disableLighting(eclipseView->isLightingDisabled());
             nncEffect = nncEffgen.generateCachedEffect();
         }
 

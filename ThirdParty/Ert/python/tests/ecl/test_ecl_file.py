@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  Copyright (C) 2011  Statoil ASA, Norway.
 #
 #  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool.
@@ -14,6 +13,7 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
+import shutil
 import datetime
 import os.path
 import gc
@@ -22,8 +22,8 @@ from unittest import skipIf
 
 from ecl.ecl import EclFile, FortIO, EclKW , openFortIO , openEclFile
 from ecl.ecl import EclFileFlagEnum, EclDataType, EclFileEnum
-
-from ecl.test import ExtendedTestCase , TestAreaContext
+from ecl.util import CWDContext
+from ecl.test import ExtendedTestCase , TestAreaContext, PathContext
 
 def createFile( name , kw_list ):
     with openFortIO(name , mode = FortIO.WRITE_MODE) as f:
@@ -79,7 +79,84 @@ class EclFileTest(ExtendedTestCase):
                 self.assertTrue( ecl_file.has_kw("KW2"))
                 self.assertEqual(ecl_file[1], ecl_file[-1])
 
+    def test_ecl_index(self):
+        with TestAreaContext("python/ecl_file/context"):
+            kw1 = EclKW( "KW1" , 100 , EclDataType.ECL_INT)
+            kw2 = EclKW( "KW2" , 100 , EclDataType.ECL_FLOAT)
+            kw3 = EclKW( "KW3" , 100 , EclDataType.ECL_CHAR)
+            kw4 = EclKW( "KW4" , 100 , EclDataType.ECL_STRING(23))
+            with openFortIO("TEST" , mode = FortIO.WRITE_MODE) as f:
+                kw1.fwrite( f )
+                kw2.fwrite( f )
+                kw3.fwrite( f )
+                kw4.fwrite( f )
 
+            ecl_file = EclFile("TEST")
+            ecl_file.write_index("INDEX_FILE")
+            ecl_file.close()
+
+            ecl_file_index = EclFile("TEST", 0, "INDEX_FILE")
+            for kw in ["KW1","KW2","KW3","KW4"]:
+                self.assertIn( kw , ecl_file_index )
+
+            with self.assertRaises(IOError):
+                ecl_file.write_index("does-not-exist/INDEX")
+
+            os.mkdir("read-only")
+            os.chmod("read-only", 0o444)
+
+            with self.assertRaises(IOError):
+                ecl_file.write_index("read-only/INDEX")
+
+            with self.assertRaises(IOError):
+                ecl_file_index = EclFile("TEST", 0, "index_does_not_exist")
+
+            shutil.copyfile( "INDEX_FILE" , "INDEX_perm_denied")
+            os.chmod("INDEX_perm_denied", 0o000)
+            with self.assertRaises(IOError):
+                ecl_file_index = EclFile("TEST", 0, "INDEX_perm_denied")
+
+
+            os.mkdir("path")
+            shutil.copyfile("TEST" , "path/TEST")
+            ecl_file = EclFile("path/TEST")
+            ecl_file.write_index("path/index")
+
+            with CWDContext("path"):
+                ecl_file = EclFile("TEST" , 0 , "index")
+
+
+    def test_save_kw(self):
+        with TestAreaContext("python/ecl_file/save_kw"):
+            data = range(1000)
+            kw = EclKW("MY_KEY",  len(data), EclDataType.ECL_INT)
+            for index, val in enumerate(data):
+                kw[index] = val
+
+            clean_dump = "my_clean_file"
+            fortio = FortIO(clean_dump, FortIO.WRITE_MODE)
+            kw.fwrite(fortio)
+            fortio.close()
+
+            test_file = "my_dump_file"
+            fortio = FortIO(test_file, FortIO.WRITE_MODE)
+            kw.fwrite(fortio)
+            fortio.close()
+
+            self.assertFilesAreEqual(clean_dump, test_file)
+
+            ecl_file = EclFile(test_file, flags=EclFileFlagEnum.ECL_FILE_WRITABLE)
+            loaded_kw = ecl_file["MY_KEY"][0]
+            self.assertTrue(kw.equal(loaded_kw))
+
+            ecl_file.save_kw(loaded_kw)
+            ecl_file.close()
+
+            self.assertFilesAreEqual(clean_dump, test_file)
+
+            ecl_file = EclFile(test_file)
+            loaded_kw = ecl_file["MY_KEY"][0]
+            self.assertTrue(kw.equal(loaded_kw))
 
     def test_gc(self):
         kw1 = EclKW("KW1" , 100 , EclDataType.ECL_INT)
@@ -101,6 +178,15 @@ class EclFileTest(ExtendedTestCase):
             for kw1,kw2 in zip(kw_list,kw_list2):
                 self.assertEqual( kw1, kw2 )
 
+
+    def test_broken_file(self):
+        with TestAreaContext("test_broken_file"):
+            with open("CASE.FINIT", "w") as f:
+                f.write("This - is not a ECLISPE file\nsdlcblhcdbjlwhc\naschscbasjhcasc\nascasck c s s aiasic asc")
+
+
+            with self.assertRaises(IOError):
+                f = EclFile("CASE.FINIT")
 
 
     def test_block_view(self):

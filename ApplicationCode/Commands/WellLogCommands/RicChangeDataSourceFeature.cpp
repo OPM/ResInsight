@@ -38,6 +38,7 @@ CAF_CMD_SOURCE_INIT(RicChangeDataSourceFeature, "RicChangeDataSourceFeature");
 bool RicChangeDataSourceFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
     std::vector<RimWellLogExtractionCurve*> extrCurves = extractionCurves();
 
@@ -67,7 +68,7 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
             extractionCurve->setWellPath(featureUi.wellPathToApply);
             extractionCurve->setCase(featureUi.caseToApply);
 
-            extractionCurve->loadDataAndUpdate();
+            extractionCurve->loadDataAndUpdate(true);
         }
     }
 }

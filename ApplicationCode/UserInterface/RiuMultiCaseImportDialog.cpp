@@ -17,12 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuMultiCaseImportDialog.h"
-#include "ui_RiuMultiCaseImportDialog.h"
-#include <QFileSystemModel>
-#include <QFileDialog>
-#include <QStringListModel>
-#include <QFileIconProvider>
+
 #include "RiaApplication.h"
+
+#include "RiuTools.h"
+
+#include "ui_RiuMultiCaseImportDialog.h"
+
+#include <QFileDialog>
+#include <QFileIconProvider>
+#include <QFileSystemModel>
+#include <QStringListModel>
 
 class FileListModel: public QStringListModel
 {
@@ -76,7 +81,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMultiCaseImportDialog::RiuMultiCaseImportDialog(QWidget *parent /*= 0*/)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     ui = new Ui::RiuMultiCaseImportDialog;
     ui->setupUi(this);

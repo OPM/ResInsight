@@ -80,7 +80,11 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     try
     {
         int wellFormat = NRLib::Well::LAS;
+#ifdef _WINDOWS
         well = NRLib::Well::ReadWell(fileName.toStdString(), wellFormat);
+#else
+        well = NRLib::Well::ReadWell(fileName.toUtf8().data(), wellFormat);
+#endif
         if (!well)
         {
             return false;
@@ -114,6 +118,10 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
         if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH")
         {
             m_depthLogName = logName;
+        }
+        else if (logName.toUpper() == "TVDMSL")
+        {
+            m_tvdMslLogName = logName;
         }
     }
 
@@ -150,6 +158,15 @@ QString RigWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RigWellLogFile::date() const
+{
+    CVF_ASSERT(m_wellLogFile);
+    return QString::fromStdString(m_wellLogFile->GetDate());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList RigWellLogFile::wellLogChannelNames() const
 {
     return m_wellLogChannelNames;
@@ -161,6 +178,14 @@ QStringList RigWellLogFile::wellLogChannelNames() const
 std::vector<double> RigWellLogFile::depthValues() const
 {
     return values(m_depthLogName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogFile::tvdMslValues() const
+{
+    return values(m_tvdMslLogName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +233,7 @@ QString RigWellLogFile::depthUnitString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const
+QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit) const
 {
     QString unit;
 
@@ -222,15 +247,15 @@ QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelNa
     {
         if (displayDepthUnit != depthUnit())
         {
-            if (displayDepthUnit == RimDefines::UNIT_METER)
+            if (displayDepthUnit == RiaDefines::UNIT_METER)
             {
                 return "M";
             }
-            else if (displayDepthUnit == RimDefines::UNIT_FEET)
+            else if (displayDepthUnit == RiaDefines::UNIT_FEET)
             {
                 return "FT";
             }
-            else if (displayDepthUnit == RimDefines::UNIT_NONE)
+            else if (displayDepthUnit == RiaDefines::UNIT_NONE)
             {
                 CVF_ASSERT(false);
                 return "";
@@ -279,15 +304,15 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     lasFile.addWellInfo("WELL", curve->wellName().trimmed().toStdString());
     lasFile.addWellInfo("DATE", wellLogDate.toStdString());
 
-    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    if (curveData->depthUnit() == RiaDefines::UNIT_METER)
     {
         lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
     }
-    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    else if (curveData->depthUnit() == RiaDefines::UNIT_FEET)
     {
         lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
     }
-    else if (curveData->depthUnit() == RimDefines::UNIT_NONE)
+    else if (curveData->depthUnit() == RiaDefines::UNIT_NONE)
     {
         CVF_ASSERT(false);
         lasFile.AddLog("DEPTH", "", "Depth in connection number", curveData->measuredDepths());
@@ -308,15 +333,15 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     lasFile.setStartDepth(minDepth);
     lasFile.setStopDepth(maxDepth);
 
-    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    if (curveData->depthUnit() == RiaDefines::UNIT_METER)
     {
         lasFile.setDepthUnit("M");
     }
-    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    else if (curveData->depthUnit() == RiaDefines::UNIT_FEET)
     {
         lasFile.setDepthUnit("FT");
     }
-    else if ( curveData->depthUnit() == RimDefines::UNIT_NONE )
+    else if ( curveData->depthUnit() == RiaDefines::UNIT_NONE )
     {
         CVF_ASSERT(false);
         lasFile.setDepthUnit("");
@@ -333,13 +358,21 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::DepthUnitType RigWellLogFile::depthUnit() const
+bool RigWellLogFile::hasTvdChannel() const
 {
-    RimDefines::DepthUnitType unitType = RimDefines::UNIT_METER;
+    return !m_tvdMslLogName.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
+{
+    RiaDefines::DepthUnitType unitType = RiaDefines::UNIT_METER;
 
     if (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT")
     {
-        unitType = RimDefines::UNIT_FEET;
+        unitType = RiaDefines::UNIT_FEET;
     }
 
     return unitType;

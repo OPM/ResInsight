@@ -51,6 +51,7 @@ public:
     void                                        computeResultValueRange();
     
     void                                        updateActiveState();
+    bool                                        isActiveAndHasResult();
     
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

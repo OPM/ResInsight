@@ -40,7 +40,14 @@ public:
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
+    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth) const;
+    double                      wellPathAzimuthAngle(const cvf::Vec3d& position) const;
+    void                        twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const;
 
+    std::pair<std::vector<cvf::Vec3d>, std::vector<double> > 
+                                clippedPointSubset(double startMD, double endMD) const;
+
+    std::vector<cvf::Vec3d>     wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const;
 private:
     bool    m_hasDatumElevation;
     double  m_datumElevation;

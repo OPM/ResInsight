@@ -2,7 +2,11 @@
 #include "cafPdmField.h"
 
 #include "MainWindow.h"
+
+#include "CustomObjectEditor.h"
+#include "ManyGroups.h"
 #include "WidgetLayoutTest.h"
+#include "MenuItemProducer.h"
 
 #include <QDockWidget>
 #include <QTreeView>
@@ -31,6 +35,10 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
+#include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiItem.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 
 
@@ -57,7 +65,7 @@ public:
     {   
         CAF_PDM_InitObject("Small Demo Object", ":/images/win/filenew.png", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want" );
         CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString(""), "Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
@@ -69,10 +77,14 @@ public:
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3)) { std::cout << "Double is not 3 " << std::endl; }
     
-        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", " ", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
         m_multiSelectList.xmlCapability()->setIOReadable(false);
         m_multiSelectList.xmlCapability()->setIOWritable(false);
-        m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+
+        m_multiSelectList.v().push_back("First");
+        m_multiSelectList.v().push_back("Second");
+        m_multiSelectList.v().push_back("Third");
     }
 
 
@@ -101,9 +113,89 @@ public:
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        if (fieldNeedingOptions == &m_multiSelectList)
+        {
+            QString text;
+
+            text = "First";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Second";
+            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, QIcon(QString(":/images/win/textbold.png"))));
+
+            {
+                text = "Second_a";
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, true);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            {
+                text = "Second_b";
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, false, QIcon(QString(":/images/win/filenew.png")));
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            int additionalSubItems = 2;
+            for (auto i = 0; i < additionalSubItems; i++)
+            {
+                text = "Second_b_" + QString::number(i);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            static int s_additionalSubItems = 0;
+            if (m_toggleField())
+            {
+                s_additionalSubItems++;
+            }
+            for (auto i = 0; i < s_additionalSubItems; i++)
+            {
+                text = "Second_b_" + QString::number(i);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            text = "Third";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Fourth";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+        }
+
+        return options;
+
+    }
+
 private:
     double m_doubleMember;
 
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    {
+        uiOrdering.add(&m_doubleField);
+        uiOrdering.add(&m_intField);
+
+        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);
+
+        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
+        group->add(&m_textField);
+        group->add(&m_proxyDoubleField);
+    }
 };
 
 CAF_PDM_SOURCE_INIT(SmallDemoPdmObject, "SmallDemoPdmObject");
@@ -125,6 +217,7 @@ public:
         CAF_PDM_InitObject("Small Demo Object A", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_PDM_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
         CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
         CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number", "", "Enter some small number here","This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
@@ -137,6 +230,11 @@ public:
         m_proxyEnumMember = T2;
 
         m_testEnumField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
+        CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
+        m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+        CAF_PDM_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
+        m_highlightedEnum.uiCapability()->setUiHidden(true);
     }
 
     caf::PdmField<double>  m_doubleField;
@@ -151,8 +249,13 @@ public:
     TestEnumType m_proxyEnumMember;
 
 
+    // vector of app enum
+    caf::PdmField< std::vector< caf::AppEnum<TestEnumType> > > m_multipleAppEnum;
+    caf::PdmField< caf::AppEnum<TestEnumType> > m_highlightedEnum;
 
     caf::PdmField<bool>     m_toggleField;
+    caf::PdmField<bool>     m_pushButtonField;
+
     virtual caf::PdmFieldHandle* objectToggleField() 
     {
         return &m_toggleField;
@@ -164,13 +267,20 @@ public:
         {
             std::cout << "Toggle Field changed" << std::endl;
         }
+        else if (changedField == &m_highlightedEnum)
+        {
+            std::cout << "Highlight value " << m_highlightedEnum() <<  std::endl;
+        }
+        else if (changedField == &m_pushButtonField)
+        {
+            std::cout << "Push Button pressed " << std::endl;
+        }
     }
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
     {
         QList<caf::PdmOptionItemInfo> options;
        
-
         if (&m_ptrField == fieldNeedingOptions)
         {
             caf::PdmFieldHandle* field;
@@ -199,6 +309,13 @@ public:
                 }
             }
         }
+        else if (&m_multipleAppEnum == fieldNeedingOptions)
+        {
+            for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i), caf::AppEnum<TestEnumType>::fromIndex(i)));
+            }
+        }
 
         if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -213,6 +330,42 @@ public:
         return &m_textField;
     }
 
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    {
+        if (field == &m_multipleAppEnum)
+        {
+            caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->fieldToReceiveCurrentItemValue = &m_highlightedEnum;
+            }
+        }
+        else if (field == &m_proxyEnumField)
+        {
+            caf::PdmUiComboBoxEditorAttribute* attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->showPreviousAndNextButtons = true;
+            }
+        }
+    }
+
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    {
+        caf::PdmUiTableViewEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (attr)
+        {
+            attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");
+        }
+    }
 };
 
 CAF_PDM_SOURCE_INIT(SmallDemoPdmObjectA, "SmallDemoPdmObjectA");
@@ -262,6 +415,7 @@ public:
         m_longText.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
         m_longText.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+        m_menuItemProducer = new MenuItemProducer;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -345,6 +499,9 @@ public:
 
 
     caf::PdmField<bool>     m_toggleField;
+
+    MenuItemProducer* m_menuItemProducer;
+
     virtual caf::PdmFieldHandle* objectToggleField() 
     {
         return &m_toggleField;
@@ -358,6 +515,30 @@ public:
        }
     }
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void onEditorWidgetsCreated() override
+    {
+        for (auto e : m_longText.uiCapability()->connectedEditors())
+        {
+            caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
+            if (!textEditor) continue;
+
+            QWidget* containerWidget = textEditor->editorWidget();
+            if (!containerWidget) continue;
+
+            for (auto qObj : containerWidget->children())
+            {
+                QTextEdit* textEdit = dynamic_cast<QTextEdit*>(qObj);
+                if (textEdit)
+                {
+                    m_menuItemProducer->attachTextEdit(textEdit);
+                }
+            }
+        }
+    }
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");
@@ -371,14 +552,25 @@ MainWindow* MainWindow::sm_mainWindowInstance = NULL;
 //--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow()
 {
+    caf::PdmUiItem::enableExtraDebugText(true);
+
     // Initialize command framework
 
     // Register default command features (add/delete item in list)
  
+    QPixmap pix;
+    pix.load(":/images/curvePlot.png");
+
+    m_plotLabel = new QLabel(this);
+    m_plotLabel->setPixmap(pix.scaled(250, 100));
+
+    m_smallPlotLabel = new QLabel(this);
+    m_smallPlotLabel->setPixmap(pix.scaled(100, 50));
+
     createActions();
     createDockPanels();
-
     buildTestModel();
+
     setPdmRoot(m_testRoot);
 
     sm_mainWindowInstance = this;
@@ -406,6 +598,19 @@ void MainWindow::createDockPanels()
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget("CustomObjectEditor", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        m_customObjectEditor = new caf::CustomObjectEditor;
+        QWidget* w = m_customObjectEditor->getOrCreateWidget(this);
+        dockWidget->setWidget(w);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    }
+
 
     {
         QDockWidget* dockWidget = new QDockWidget("cafPropertyView", this);
@@ -465,7 +670,10 @@ void MainWindow::createDockPanels()
 void MainWindow::buildTestModel()
 {
     m_testRoot = new DemoPdmObjectGroup;
-    
+
+    ManyGroups* manyGroups = new ManyGroups;
+    m_testRoot->objects.push_back(manyGroups);
+
     DemoPdmObject* demoObject = new DemoPdmObject;
     m_testRoot->objects.push_back(demoObject);
 
@@ -533,6 +741,21 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     }
 
     connect(m_pdmUiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
+
+    // Wire up ManyGroups object
+    std::vector<ManyGroups*> obj;
+    pdmRoot->descendantsIncludingThisOfType(obj);
+    if (obj.size() == 1)
+    {
+        m_customObjectEditor->defineGridLayout(5, 4);
+        m_customObjectEditor->setPdmObject(obj[0]);
+
+        m_customObjectEditor->addBlankCell(0, 0);
+        m_customObjectEditor->addWidget(m_plotLabel, 0, 1, 1, 2);
+        m_customObjectEditor->addWidget(m_smallPlotLabel, 1, 2, 2, 1);
+
+        m_customObjectEditor->updateUi();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -544,6 +767,12 @@ MainWindow::~MainWindow()
     m_pdmUiTreeView2->setPdmItem(NULL);
     m_pdmUiPropertyView->showProperties(NULL);
     m_pdmUiTableView->setListField(NULL);
+
+    delete m_pdmUiTreeView;
+    delete m_pdmUiTreeView2;
+    delete m_pdmUiPropertyView;
+    delete m_pdmUiTableView;
+    delete m_customObjectEditor;
 }
 
 //--------------------------------------------------------------------------------------------------

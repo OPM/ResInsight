@@ -45,7 +45,14 @@ public:
     /// This is needed for the lookup regarding OptionValues
     static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return variantValue == variantValue2; 
+        if (variantValue.type() == QVariant::UserType)
+        {
+            return (variantValue.value<T>() == variantValue2.value<T>());
+        }
+        else
+        {
+            return variantValue == variantValue2;
+        }
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum

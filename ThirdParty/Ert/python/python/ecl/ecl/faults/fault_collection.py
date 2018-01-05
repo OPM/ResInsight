@@ -15,8 +15,9 @@
 #  for more details.
 import re
 
-from .fault import Fault
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclGrid
+from .fault import Fault
 
 comment_regexp = re.compile("--.*")
 
@@ -63,24 +64,24 @@ class FaultCollection(object):
         return iter(self.__fault_list)
 
 
-    def getGrid(self):
+    def get_grid(self):
         return self.__grid
 
 
-    def getFault(self, name):
+    def get_fault(self, name):
         return self[name]
 
 
-    def hasFault(self, fault_name):
+    def has_fault(self, fault_name):
         return fault_name in self
 
 
-    def addFault(self, fault):
+    def add_fault(self, fault):
         self.__fault_map[fault.getName()] = fault
         self.__fault_list.append(fault)
 
 
-    def splitLine(self, line):
+    def split_line(self, line):
         tmp = line.split()
         if not tmp[-1] == "/":
             raise ValueError("Line:%s does not end with /" % line)
@@ -101,7 +102,7 @@ class FaultCollection(object):
 
 
 
-    def loadFaults(self, grid, fileH):
+    def load_faults(self, grid, fileH):
         for line in fileH:
             line = comment_regexp.sub("", line)
             line = line.strip()
@@ -124,3 +125,11 @@ class FaultCollection(object):
             for line in fileH:
                 if line.startswith("FAULTS"):
                     self.loadFaults(grid, fileH)
+
+
+monkey_the_camel(FaultCollection, 'getGrid', FaultCollection.get_grid)
+monkey_the_camel(FaultCollection, 'getFault', FaultCollection.get_fault)
+monkey_the_camel(FaultCollection, 'hasFault', FaultCollection.has_fault)
+monkey_the_camel(FaultCollection, 'addFault', FaultCollection.add_fault)
+monkey_the_camel(FaultCollection, 'splitLine', FaultCollection.split_line)
+monkey_the_camel(FaultCollection, 'loadFaults', FaultCollection.load_faults)

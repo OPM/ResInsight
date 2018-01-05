@@ -1,5 +1,73 @@
+Version 2.2.0 September 2017 PR: 1 - 169
+Open PR: 108, 145
+
+Grid:
+
+ - Extracted implementation ecl_nnc_geometry [1, 66, 75, 78, 80, 109].
+ - Fix bug in cell_contains for mirrored grid [51, 53].
+ - Extract subgrid from grid [56].
+ - Expose mapaxes [63, 64].
+ - grid.get_lgr - numbered lookup [83]
+ - Added NUMRES values to EGRID header [125].
+
+Build & testing:
+
+ - Removed warnings - added pylint [4, 5, 6, 10, 11, 12]
+ - Accept any Python 2.7.x version [17, 18]
+ - Remove ERT testing & building [3, 19]
+ - Changes to Python/cmake machinery [25, 30, 31, 32, 49, 52, 62].
+ - Added cmake config file [33, 44, 45, 47].
+ - Only *one* library [54, 55, 58, 69, 73, 77, 91, 133]
+ - Removed stale binaries [59].
+ - Require cmake >= 2.8.12 [67].
+ - Fix build on OSX [87, 88, 95, 103].
+ - Fix broken behavior with internal test data [97].
+ - Travis - compile with -Werror [122, 123, 127, 130]
+ - Started to support Python3 syntax [150, 161]
+ - Add support for paralell builds on Travis [149]
+
+libecl now fully supports OSX. On Travis it is compiled with
+-Werror=all which should protect against future warnings.
+
+C++:
+
+ - Removed use of deignated initializers [7].
+ - Memory leak in EclFilename.cpp [14].
+ - Guarantee C linkage for ecl_data_type [65].
+ - New smspec overload [89].
+ - Use -std=c++0x if -std=c++11 is unavailable [118]
+ - Make all of (previous( libutil compile with C++ [162]
+
+Well:
+
+ - Get well rates from restart files [8,20].
+ - Test if file exists before load [111].
+ - Fix some warnings [169]
+
+Core:
+
+ - Support for variable length strings in binary eclipse files [13, 146].
+ - Renamed root package ert -> ecl [21]
+ - Load INTERSECT summary files with NAMES instead WGNAMES [34 - 39].
+ - Possible memory leak: [61]
+ - Refactored binary time search in __get_index_from_sim_time() [113]
+ - Possible to mark fortio writer as "failed" - will unlink on close [119].
+ - Allow keywords of more than 8 characters [120, 124].
+ - ecl_sum writer: Should write RESTART keyword [129, 131]
+ - Made EclVersion class [160]
+ - Functionality to dump an index file for binary files: [155, 159, 163, 166, 167]
+
+Misc:
+
+ - Added legacy pacakge ert/ [48, 99]
+ - Improved logging - adding enums for og levels [90, 140, 141]
+ - Refactored to use snake_case instead of CamelCase [144, 145]
+
+
+-----------------------------------------------------------------
+
 Version 2.1.0 February 2017  PR: 1150 - 1415
-Open PR: 1352, 1358, 1362 
+Open PR: 1352, 1358, 1362
 
 Queue system/workflows:
 

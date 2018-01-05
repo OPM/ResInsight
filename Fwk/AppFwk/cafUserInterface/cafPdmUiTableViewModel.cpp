@@ -42,10 +42,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
+#include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
+
+#include <QTableView>
+
+
 
 
 namespace caf
@@ -113,7 +118,7 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
     {
         if (orientation == Qt::Horizontal)
         {
-            PdmUiFieldHandle* uiFieldHandle = getField(createIndex(0, section))->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(createIndex(0, section));
             if (uiFieldHandle)
             {
                 return uiFieldHandle->uiName(m_currentConfigName);
@@ -147,8 +152,7 @@ Qt::ItemFlags PdmUiTableViewModel::flags(const QModelIndex &index) const
         flagMask = flagMask | Qt::ItemIsEditable;
     }
 
-    PdmFieldHandle* field = getField(index);
-    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(index);
     if (uiFieldHandle)
     {
         if (uiFieldHandle->isUiReadOnly(m_currentConfigName))
@@ -172,12 +176,14 @@ bool PdmUiTableViewModel::setData(const QModelIndex &index, const QVariant &valu
             SelectionManager::instance()->clear(SelectionManager::CURRENT);
 
             bool toggleOn = (value == Qt::Checked);
-            PdmFieldHandle* field = getField(index);
 
-            PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-            PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, toggleOn);
+            PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(index);
+            if (uiFieldHandle)
+            {
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, toggleOn);
 
-            return true;
+                return true;
+            }
         }
     }   
 
@@ -230,7 +236,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
 
                             if (index < options.size())
                             {
-                                displayText += options.at(index).optionUiText;
+                                displayText += options.at(index).optionUiText();
                             }
                         }
                     }
@@ -251,7 +257,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                     return "";
                 }
 
-                return valueOptions[listIndex].optionUiText;
+                return valueOptions[listIndex].optionUiText();
             }
 
             QVariant val;
@@ -328,31 +334,20 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
     m_pdmList = listField;
     m_currentConfigName = configName;
 
-    PdmUiOrdering configForFirstRow;
+    PdmUiOrdering configForFirstObject;
 
-    if (m_pdmList)
+    if (m_pdmList && m_pdmList->size() > 0)
     {
-        PdmUiOrdering dummy;
-
-        for (size_t i = 0; i < listField->size(); i++)
+        PdmObjectHandle* pdmObjHandle = m_pdmList->at(0);
+        PdmUiObjectHandle* uiObject = pdmObjHandle->uiCapability();
+        if (uiObject)
         {
-            PdmObjectHandle* pdmObjHandle = m_pdmList->at(i);
-            PdmUiObjectHandle* uiObject = uiObj(pdmObjHandle);
-            if (uiObject)
-            {
-                if (i == 0)
-                {
-                    uiObject->uiOrdering(configName, configForFirstRow);
-                }
-                else
-                {
-                    uiObject->uiOrdering(configName, dummy);
-                }
-            }
+            uiObject->uiOrdering(configName, configForFirstObject);
+            uiObject->objectEditorAttribute(m_currentConfigName, &m_attributes);
         }
     }
 
-    const std::vector<PdmUiItem*>& uiItems = configForFirstRow.uiItems();
+    const std::vector<PdmUiItem*>& uiItems = configForFirstObject.uiItems();
 
     // Set all fieldViews to be unvisited
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
@@ -543,6 +538,20 @@ void PdmUiTableViewModel::recreateTableItemEditors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmUiFieldHandle* PdmUiTableViewModel::getUiFieldHandle(const QModelIndex& index) const
+{
+    auto fieldHandle = getField(index);
+    if (fieldHandle)
+    {
+        return fieldHandle->uiCapability();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
 {
     if (m_pdmList && row < static_cast<int>(m_pdmList->size()))
@@ -558,9 +567,15 @@ PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTableViewModel::isRepresentingBoolean(const QModelIndex &index) const
 {
-    if (getField(index))
+    PdmFieldHandle* fieldHandle = getField(index);
+    if (fieldHandle)
     {
-        QVariant val = getField(index)->uiCapability()->uiValue();
+        if (m_attributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
+        {
+            return false;
+        }
+
+        QVariant val = fieldHandle->uiCapability()->uiValue();
         if (val.type() == QVariant::Bool)
         {
             return true;
@@ -568,6 +583,30 @@ bool PdmUiTableViewModel::isRepresentingBoolean(const QModelIndex &index) const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewModel::createPersistentPushButtonWidgets(QTableView* tableView)
+{
+    if (rowCount() > 0)
+    {
+        for (int col = 0; col < columnCount(); col++)
+        {
+            PdmFieldHandle* fieldHandle = getField(createIndex(0, col));
+            if (m_attributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
+            {
+                for (int row = 0; row < rowCount(); row++)
+                {
+                    QModelIndex mi = createIndex(row, col);
+
+                    tableView->setIndexWidget(mi, new TableViewPushButton(getField(mi)->uiCapability(), m_attributes.pushButtonText(fieldHandle->keyword())));
+                    tableView->openPersistentEditor(mi);
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -617,5 +656,31 @@ int PdmUiTableViewModel::getFieldIndex(PdmFieldHandle* field) const
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TableViewPushButton::TableViewPushButton(caf::PdmUiFieldHandle* field, const QString& text, QWidget* parent /*= 0*/)
+    : QPushButton(text, parent),
+    m_fieldHandle(field)
+{
+    connect(this, SIGNAL(pressed()), SLOT(slotPressed()));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TableViewPushButton::slotPressed()
+{
+    if (m_fieldHandle)
+    {
+        QVariant val = m_fieldHandle->uiValue();
+        if (val.type() == QVariant::Bool)
+        {
+            bool currentValue = val.toBool();
+            caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(m_fieldHandle, !currentValue);
+        }
+    }
+}
 
 } // end namespace caf

@@ -25,6 +25,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
@@ -78,18 +79,19 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     m_legendWidget = new RiuNightchartsWidget(this);
     new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
-    QStringList commandIds;
-    commandIds << "RicShowTotalAllocationDataFeature";
-    new RiuContextMenuLauncher(m_legendWidget, commandIds);
+    caf::CmdFeatureMenuBuilder menuBuilder;
+    menuBuilder << "RicShowTotalAllocationDataFeature";
+    new RiuContextMenuLauncher(m_legendWidget, menuBuilder);
 
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
     new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
-    new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
+    new RiuContextMenuLauncher(totalFlowAllocationWidget, menuBuilder);
 
-    rightColumnLayout->addWidget(totalFlowAllocationWidget);
+    rightColumnLayout->addWidget(totalFlowAllocationWidget, Qt::AlignTop);
+    rightColumnLayout->addWidget(m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
     rightColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
@@ -191,11 +193,11 @@ QSize RiuWellAllocationPlot::minimumSizeHint() const
 void RiuWellAllocationPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
-    commandIds << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicShowContributingWellsFromPlotFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {

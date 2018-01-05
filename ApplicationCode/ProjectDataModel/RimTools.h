@@ -20,15 +20,22 @@
 
 #pragma once
 
+#include "RimWellPath.h"
+
 #include <QList>
 #include <QString>
 
 #include <vector>
 
+class QDateTime;
+
 namespace caf {
     class PdmOptionItemInfo;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimTools
 {
 public:
@@ -37,5 +44,11 @@ public:
     static QString relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, bool* foundFile, std::vector<QString>* searchedPaths);
 
     static void wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options);
+    static void wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options);
+    static void wellPathWithFormations(std::vector<RimWellPath*>* wellPaths);
     static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
+
+    static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
+
+    static QString dateFormatString();
 };

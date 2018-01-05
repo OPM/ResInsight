@@ -19,12 +19,16 @@
 
 #include "RimSummaryCase.h"
 
+#include "cvfObject.h"
+
+
+class RifReaderEclipseSummary;
+
 //==================================================================================================
 //
 // 
 //
 //==================================================================================================
-
 class RimFileSummaryCase: public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
@@ -32,13 +36,15 @@ public:
     RimFileSummaryCase();
     virtual ~RimFileSummaryCase();
 
-    void                   setSummaryHeaderFilename(const QString& fileName);
     virtual QString        summaryHeaderFilename() const  override;
     virtual QString        caseName() override;
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
+    virtual void            createSummaryReaderInterface() override;
+    virtual RifSummaryReaderInterface* summaryReader() override;
+
+    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader(const QString& headerFileName);
+
 private:
+    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
 };
-
-
-

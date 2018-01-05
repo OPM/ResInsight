@@ -75,7 +75,7 @@ public:
     bool        isTreeItemEditWidgetActive() const;
 
     void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
-    void        selectAsCurrentItem(PdmUiItem* uiItem);
+    void        selectAsCurrentItem(const PdmUiItem* uiItem);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
     // QModelIndex access

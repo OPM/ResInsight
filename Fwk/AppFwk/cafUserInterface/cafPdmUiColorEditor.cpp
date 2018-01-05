@@ -46,12 +46,12 @@
 
 #include "cafFactory.h"
 
-#include <QLineEdit>
-#include <QLabel>
 #include <QColor>
-#include <QHBoxLayout>
-#include <QToolButton>
 #include <QColorDialog>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QToolButton>
 
 
 namespace caf
@@ -67,7 +67,6 @@ PdmUiColorEditor::PdmUiColorEditor()
     m_color = QColor::Invalid;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -75,17 +74,7 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     CAF_ASSERT(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
-
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
     if (uiObject)
@@ -96,7 +85,6 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
     QColor col = field()->uiValue().value<QColor>();
     setColor(col);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -135,7 +123,6 @@ QWidget* PdmUiColorEditor::createLabelWidget(QWidget * parent)
     return m_label;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +140,6 @@ void PdmUiColorEditor::colorSelectionClicked()
         setColor(newColor);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

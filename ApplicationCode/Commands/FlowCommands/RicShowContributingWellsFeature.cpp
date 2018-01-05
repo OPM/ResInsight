@@ -23,7 +23,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
+#include "RimSimWellInView.h"
 #include "RimViewManipulator.h"
 
 #include "RiuMainWindow.h"
@@ -40,11 +40,11 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFe
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
     if (collection.size() == 1)
     {
-        RimEclipseWell* well = collection[0];
+        RimSimWellInView* well = collection[0];
         RimEclipseView* eclipseView = nullptr;
         well->firstAncestorOrThisOfType(eclipseView);
 
@@ -77,12 +77,12 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
     CAF_ASSERT(collection.size() == 1);
 
-    RimEclipseWell* well = collection[0];
+    RimSimWellInView* well = collection[0];
     RimEclipseView* eclipseView = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseView);
 

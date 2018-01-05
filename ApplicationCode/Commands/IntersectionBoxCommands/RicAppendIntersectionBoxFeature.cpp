@@ -63,13 +63,9 @@ void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-        RimView* rimView = NULL;
-        coll->firstAncestorOrThisOfType(rimView);
-        if (rimView)
-        {
-            rimView->showGridCells(false);
-            rimView->scheduleCreateDisplayModelAndRedraw();
-        }
+        RimView* rimView = nullptr;
+        coll->firstAncestorOrThisOfTypeAsserted(rimView);
+        rimView->showGridCells(false);
     }
 }
 

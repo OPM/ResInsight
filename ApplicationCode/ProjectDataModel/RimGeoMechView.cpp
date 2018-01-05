@@ -103,7 +103,7 @@ RimGeoMechView::~RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::loadDataAndUpdate()
+void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress(7, "");
     progress.setNextProgressIncrement(5);
@@ -210,15 +210,10 @@ void RimGeoMechView::createDisplayModel()
 
    // Well path model
 
-   double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
 
    m_wellPathPipeVizModel->removeAllParts();
-   addWellPathsToModel(m_wellPathPipeVizModel.p(),
-                       cvf::Vec3d(0, 0, 0),
-                       characteristicCellSize,
-                       femBBox,
-                       scaleTransform());
+   addWellPathsToModel(m_wellPathPipeVizModel.p(), femBBox);
 
    m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -259,14 +254,32 @@ void RimGeoMechView::updateCurrentTimeStep()
             cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
             if (frameScene)
             {
-                // Grid model
-                cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
-                frameParts->setName("GridModel");
-                m_vizLogic->appendPartsToModel(m_currentTimeStep, frameParts.p());
-                frameParts->updateBoundingBoxesRecursive();
+                {
+                    // Grid model
+                    cvf::String name = "GridModel";
+                    this->removeModelByName(frameScene, name);
 
-                this->removeModelByName(frameScene, frameParts->name());
-                frameScene->addModel(frameParts.p());
+                    cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                    frameParts->setName(name);
+                    m_vizLogic->appendPartsToModel(m_currentTimeStep, frameParts.p());
+                    frameParts->updateBoundingBoxesRecursive();
+
+                    frameScene->addModel(frameParts.p());
+                }
+
+                // Well Paths
+                {
+                    cvf::String name = "WellPathMod";
+                    this->removeModelByName(frameScene, name);
+
+                    cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+                    wellPathModelBasicList->setName(name);
+
+                    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+                    addDynamicWellPathsToModel(wellPathModelBasicList.p(), femBBox);
+
+                    frameScene->addModel(wellPathModelBasicList.p());
+                }
             }
         }
 
@@ -283,6 +296,7 @@ void RimGeoMechView::updateCurrentTimeStep()
         {
             crossSectionCollection->applySingleColorEffect();
         }
+
     }
     else
     {
@@ -493,7 +507,7 @@ void RimGeoMechView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimGeoMechView::ownerCase()
+RimCase* RimGeoMechView::ownerCase() const
 {
     return m_geomechCase;
 }
@@ -559,9 +573,9 @@ const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep)
 {
-    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, m_currentTimeStep);
+    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------

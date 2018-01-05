@@ -20,10 +20,12 @@
 
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 
-#include <math.h>
-#include "RigStatisticsMath.h"
-#include "RigCaseCellResultsData.h"
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigStatisticsMath.h"
+#include "RigWeightedMeanCalc.h"
+
+#include <math.h>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -98,4 +100,18 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
     return m_caseData->timeStepCount(m_scalarResultIndex);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double &result)
+{
+    size_t mobPVResultIndex = m_caseData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+
+    const std::vector<double>& weights = m_caseData->cellScalarResults(mobPVResultIndex)[0];
+    const std::vector<double>& values  = m_caseData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+
+    const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
+
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, m_cellVisibilities.p(), true, actCellInfo, m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex), &result);
+}
 

@@ -18,16 +18,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicRangeFilterFeatureImpl.h"
+
 #include "RicRangeFilterNewExec.h"
+
+#include "RiaApplication.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimView.h"
+#include "RimViewController.h"
 
 #include "cafSelectionManager.h"
 
 #include <vector>
-#include "RimView.h"
-#include "RimViewController.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -66,7 +69,7 @@ RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollection()
 {
-    RimCellRangeFilterCollection* rangeFilterCollection = NULL;
+    RimCellRangeFilterCollection* rangeFilterCollection = nullptr;
     
     std::vector<RimCellRangeFilter*> selectedRangeFilter;
     caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
@@ -83,10 +86,13 @@ RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollecti
         selectedRangeFilter[0]->firstAncestorOrThisOfType(rangeFilterCollection);
     }
 
+    RimView* view = RiaApplication::instance()->activeReservoirView();
+    if (view)
+    {
+        rangeFilterCollection = view->rangeFilterCollection();
+    }
+    
     assert(rangeFilterCollection);
-
-    // TODO : When a menu is created in the 3D view, add code to find collection based on a RimView
-    // See RiuViewerCommands
 
     return rangeFilterCollection;
 }

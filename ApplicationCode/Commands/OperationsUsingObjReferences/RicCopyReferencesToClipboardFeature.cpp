@@ -28,6 +28,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftPlot.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
@@ -38,8 +39,6 @@
 #include <QClipboard>
 
 
-namespace caf
-{
 
 CAF_CMD_SOURCE_INIT(RicCopyReferencesToClipboardFeature, "RicCopyReferencesToClipboardFeature");
 
@@ -63,14 +62,14 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 
     std::vector<QString> referenceList;
 
-    std::vector<PdmObject*> selectedFormationNamesCollObjs;
+    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
 
-    for (PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
     {
         if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
         {
-            QString itemRef = PdmReferenceHelper::referenceFromRootToObject(SelectionManager::instance()->pdmRootObject(), pdmObject);
+            QString itemRef = caf::PdmReferenceHelper::referenceFromRootToObject(caf::SelectionManager::instance()->pdmRootObject(), pdmObject);
             
             referenceList.push_back(itemRef);
         }
@@ -96,16 +95,15 @@ void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup
     actionToSetup->setShortcuts(QKeySequence::Copy);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 {
-    std::vector<PdmObject*> selectedFormationNamesCollObjs;
+    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
 
-    for (PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
     {
         if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
         {
@@ -116,15 +114,15 @@ bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
     return false;
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(PdmObject* pdmObject)
+bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject* pdmObject)
 {
     RimWellAllocationPlot* wellAllocPlot = nullptr;
+    RimWellRftPlot* rftPlot = nullptr;
     pdmObject->firstAncestorOrThisOfType(wellAllocPlot);
+    pdmObject->firstAncestorOrThisOfType(rftPlot);
 
     if (dynamic_cast<RimGeoMechView*>(pdmObject))
     {
@@ -144,22 +142,16 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(PdmObject* pdm
     }
     else if (dynamic_cast<RimPlotCurve*>(pdmObject))
     {
-        return true;
-    }
-    else if (dynamic_cast<RimSummaryCurveFilter*>(pdmObject))
-    {
-        return true;
+        if(!rftPlot) return true;
     }
     else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
     {
-        if (!wellAllocPlot) return true;
+        if (!wellAllocPlot && !rftPlot) return true;
     }
     else if (dynamic_cast<RimWellLogPlot*>(pdmObject))
     {
-        if (!wellAllocPlot) return true;
+        if (!wellAllocPlot && !rftPlot) return true;
     }
 
     return false;
 }
-
-} // end namespace caf

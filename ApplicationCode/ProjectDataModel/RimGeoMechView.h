@@ -61,14 +61,12 @@ public:
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
-    virtual RimCase*                                    ownerCase();
-
-    virtual void                                        loadDataAndUpdate();
+    virtual RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
     RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
-    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const;
+    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const override;
 
     RimGeoMechPropertyFilterCollection*                 geoMechPropertyFilterCollection();
     const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
@@ -76,37 +74,39 @@ public:
 
     bool                                                isTimeStepDependentDataVisible();
 
-    virtual cvf::Transform*                             scaleTransform();
-    virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
+    virtual cvf::Transform*                             scaleTransform() override;
+    virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
     void                                                updateIconStateForFilterCollections();
 
-    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
 
     virtual bool                                        isUsingFormationNames() const override;
 
+    virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+
 protected:
-    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    
-    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
+    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                                        onLoadDataAndUpdate() override;
+
+    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
 
 private:
-    virtual void                                        createDisplayModel();
-    virtual void                                        updateDisplayModelVisibility();
-    virtual void                                        updateScaleTransform();
+    virtual void                                        createDisplayModel() override;
+    virtual void                                        updateDisplayModelVisibility() override;
+    virtual void                                        updateScaleTransform() override;
 
-    virtual void                                        clampCurrentTimestep();
+    virtual void                                        clampCurrentTimestep() override;
 
-    virtual void                                        updateCurrentTimeStep();
-    virtual void                                        updateStaticCellColors();
+    virtual void                                        updateCurrentTimeStep() override;
+    virtual void                                        updateStaticCellColors() override;
 
-    virtual void                                        resetLegendsInViewer();
+    virtual void                                        resetLegendsInViewer() override;
 
     void                                                updateLegends();
 
-    virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                        initAfterRead();
+    virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                        initAfterRead() override;
 
-    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 
 
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;

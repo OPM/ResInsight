@@ -18,8 +18,8 @@
 
 #include "RicEclipseWellFeatureImpl.h"
 
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimSimWellInView.h"
 
 #include "cafSelectionManager.h"
 
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellFeatureImpl::isAnyWellSelected()
 {
-    std::vector<RimEclipseWell*> selection = selectedWells();
+    std::vector<RimSimWellInView*> selection = selectedWells();
     if (selection.size() > 0)
     {
         return true;
@@ -42,9 +42,9 @@ bool RicEclipseWellFeatureImpl::isAnyWellSelected()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseWell*> RicEclipseWellFeatureImpl::selectedWells()
+std::vector<RimSimWellInView*> RicEclipseWellFeatureImpl::selectedWells()
 {
-    std::vector<RimEclipseWell*> selection;
+    std::vector<RimSimWellInView*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     return selection;
@@ -53,14 +53,14 @@ std::vector<RimEclipseWell*> RicEclipseWellFeatureImpl::selectedWells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
+RimSimWellInViewCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
 {
-    std::vector<RimEclipseWell*> selection = selectedWells();
+    std::vector<RimSimWellInView*> selection = selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* firstWell = selection[0];
+        RimSimWellInView* firstWell = selection[0];
 
-        RimEclipseWellCollection* wellCollection = nullptr;
+        RimSimWellInViewCollection* wellCollection = nullptr;
         firstWell->firstAncestorOrThisOfType(wellCollection);
 
         return wellCollection;

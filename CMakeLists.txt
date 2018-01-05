@@ -56,7 +56,8 @@ include (ResInsightVersion.cmake)
 # https://github.com/sakra/cotire
 ################################################################################
 
-option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
+option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
 if(RESINSIGHT_ENABLE_COTIRE)
     set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -79,25 +80,21 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
   endif()
 
+    message(FATAL_ERROR "TODO: Building using and external system installed ERT is broken.")
+
   list(APPEND ERT_INCLUDE_DIRS
     ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
   )
 
   list(APPEND ERT_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
   )
   
 else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
     SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
     # Remember original state
     set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -115,36 +112,23 @@ else()
     endif()
 
     if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+        add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert)
         add_subdirectory(ThirdParty/Ert)
     endif ()
 
-    list(APPEND ERT_INCLUDE_DIRS
-        ${ERT_INCLUDE_ROOT}/libecl/include/
-        ${ERT_INCLUDE_ROOT}/libert_util/include/
-        ${ERT_INCLUDE_ROOT}/libgeometry/include/
-        ${ERT_INCLUDE_ROOT}/libecl_well/include/
-        ${ERT_INCLUDE_ROOT}/libeclxx/include
-        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
+    if (MSVC)
+         # libecl : Disable some warnings  
+         set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    endif()
 
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
-    )
-
-    list(APPEND ERT_LIBRARIES
-	        ecl 
-	        eclxx
-	        ecl_well 
-	        ert_geometry 
-	        ert_util  
+    list(APPEND THIRD_PARTY_LIBRARIES
+        ecl 
     )
 
     if (MSVC)
       set_property(TARGET  
-          ${ERT_LIBRARIES}
-          ecl_lfs
+          ecl
 	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
@@ -153,6 +137,53 @@ else()
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
+
+################################################################################
+# HDF5
+################################################################################
+if(MSVC)
+    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
+endif()
+
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
+    if(MSVC)
+        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+        
+            include_directories(${RESINSIGHT_HDF5_DIR}/include)
+        
+	        list(APPEND EXTERNAL_LINK_LIBRARIES
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
+	        )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
+        else()
+	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+        endif()
+    else()
+        find_package(HDF5 COMPONENTS CXX)
+        if (HDF5_FOUND)
+	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+		    add_definitions(${HDF5_DEFINITIONS})
+		    include_directories(${HDF5_INCLUDE_DIRS})
+
+		    list(APPEND EXTERNAL_LINK_LIBRARIES
+		        ${HDF5_LIBRARIES}
+		    )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+        else()
+            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+        endif() # HDF5_FOUND
+    endif() # MSVC
+endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
 
 
 ################################################################################ 
@@ -197,7 +228,6 @@ list(APPEND THIRD_PARTY_LIBRARIES
     NRLib
 )
 
-
 ################################################################################
 # Qt
 ################################################################################
@@ -236,6 +266,41 @@ add_subdirectory(ThirdParty/nightcharts)
 list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
+
+################################################################################
+# C++ Mathematical Expression Parsing And Evaluation Library 
+################################################################################
+
+add_subdirectory(ThirdParty/expressionparser)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    expressionparser
+)
+
+################################################################################
+# Prototype feature Fractures
+################################################################################
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" ON)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+
+    ################################################################################
+    # Eigen
+    ################################################################################
+    include_directories(SYSTEM ThirdParty/Eigen-Subset)
+
+    ################################################################################
+    # clipper
+    ################################################################################
+
+    add_subdirectory(ThirdParty/clipper)
+
+    list(APPEND THIRD_PARTY_LIBRARIES
+        clipper
+    )
+
+endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES
 
 
 ################################################################################
@@ -351,7 +416,9 @@ set_property(TARGET
 set (RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
-option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
+option (RESINSIGHT_PRIVATE_INSTALL "Linux only: Install the libecl shared libraries along the executable" ON)
+mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
+
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     
@@ -364,19 +431,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         set(ERT_SHARED_LIB_FILES
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.3
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
@@ -412,60 +467,3 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   # then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
 
-################################################################################
-# Installation packaging
-################################################################################
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CPACK_GENERATOR TGZ)
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(CPACK_GENERATOR ZIP)
-endif()
-
-if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
-    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
-    
-    execute_process (COMMAND octave-config -v
-        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
-                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif ()
-
-# Handling of system name on Windows
-if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
-  if(CMAKE_CL_64)
-    set(CPACK_SYSTEM_NAME win64)
-  else()
-    set(CPACK_SYSTEM_NAME win32)
-  endif()
-endif()
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
-
-
-set(RESINSIGHT_PACKAGE_NAME "ResInsight")
-
-set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${STRPRODUCTVER}")
-
-if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_odb")
-endif()
-
-if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
-endif()
-
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
-else()
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
-endif()
-
-#message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
-set(CPACK_PACKAGE_FILE_NAME ${RESINSIGHT_PACKAGE_NAME})
-
-
-include (CPack)

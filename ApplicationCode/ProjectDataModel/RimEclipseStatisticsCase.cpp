@@ -24,15 +24,15 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -63,14 +63,10 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_calculateEditCommand,   "m_editingAllowed", "", "", "", "");
-    m_calculateEditCommand.xmlCapability()->setIOWritable(false);
-    m_calculateEditCommand.xmlCapability()->setIOReadable(false);
-    m_calculateEditCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_calculateEditCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_calculateEditCommand);
     m_calculateEditCommand = false;
 
-    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
+    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of Calculation Setup", "", "", "");
     m_selectionSummary.xmlCapability()->setIOWritable(false);
     m_selectionSummary.xmlCapability()->setIOReadable(false);
     m_selectionSummary.uiCapability()->setUiReadOnly(true);
@@ -109,7 +105,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitField(&m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "");
     CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
 
-    CAF_PDM_InitField(&m_wellDataSourceCase, "WellDataSourceCase", RimDefines::undefinedResultName(), "Well Data Source Case", "", "", "" );
+    CAF_PDM_InitField(&m_wellDataSourceCase, "WellDataSourceCase", RiaDefines::undefinedResultName(), "Well Data Source Case", "", "", "" );
 
     CAF_PDM_InitField(&m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value", "", "", "");
 
@@ -148,7 +144,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
     if (this->eclipseCaseData()) return true;
 
-    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
 
     CVF_ASSERT(parentStatisticsCaseCollection());
 
@@ -159,8 +155,8 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 
     eclipseCase->setMainGrid(mainGrid);
 
-    eclipseCase->setActiveCellInfo(RifReaderInterface::MATRIX_RESULTS, gridCaseGroup->unionOfActiveCells(RifReaderInterface::MATRIX_RESULTS));
-    eclipseCase->setActiveCellInfo(RifReaderInterface::FRACTURE_RESULTS, gridCaseGroup->unionOfActiveCells(RifReaderInterface::FRACTURE_RESULTS));
+    eclipseCase->setActiveCellInfo(RiaDefines::MATRIX_MODEL, gridCaseGroup->unionOfActiveCells(RiaDefines::MATRIX_MODEL));
+    eclipseCase->setActiveCellInfo(RiaDefines::FRACTURE_MODEL, gridCaseGroup->unionOfActiveCells(RiaDefines::FRACTURE_MODEL));
 
     this->setReservoirData( eclipseCase.p() );
 
@@ -218,15 +214,14 @@ void RimEclipseStatisticsCase::computeStatistics()
     getSourceCases(sourceCases);
 
     if (sourceCases.size() == 0
-        || !sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)
-        || !sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults())
+        || !sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL))
     {
         return;
     }
 
     // The first source has been read completely from disk, and contains grid and meta data
     // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount();
+    size_t timeStepCount = sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
     RimStatisticsConfig statisticsConfig;
 
@@ -248,42 +243,42 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     for(size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedDynamicProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, m_selectedDynamicProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::STATIC_NATIVE, m_selectedStaticProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, m_selectedStaticProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::GENERATED, m_selectedGeneratedProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::MATRIX_MODEL, RiaDefines::GENERATED, m_selectedGeneratedProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedInputProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::MATRIX_MODEL, RiaDefines::INPUT_PROPERTY, m_selectedInputProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedFractureDynamicProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::FRACTURE_MODEL, RiaDefines::DYNAMIC_NATIVE, m_selectedFractureDynamicProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::STATIC_NATIVE, m_selectedFractureStaticProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::FRACTURE_MODEL, RiaDefines::STATIC_NATIVE, m_selectedFractureStaticProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::GENERATED, m_selectedFractureGeneratedProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::FRACTURE_MODEL, RiaDefines::GENERATED, m_selectedFractureGeneratedProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedFractureInputProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RiaDefines::FRACTURE_MODEL, RiaDefines::INPUT_PROPERTY, m_selectedFractureInputProperties()[pIdx]));
     }
 
     RimEclipseStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup);
@@ -420,49 +415,49 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
 
     if (&m_selectedDynamicProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::DYNAMIC_NATIVE);
         return toOptionList(varList);
     } 
     else if (&m_selectedStaticProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
         return toOptionList(varList);
     } 
     else if (&m_selectedGeneratedProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::GENERATED);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::GENERATED);
         return toOptionList(varList);
     } 
     else if (&m_selectedInputProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::INPUT_PROPERTY);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::INPUT_PROPERTY);
         return toOptionList(varList);
     }
     else if (&m_selectedFractureDynamicProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::DYNAMIC_NATIVE);
         return toOptionList(varList);
     } 
     else if (&m_selectedFractureStaticProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
         return toOptionList(varList);
     } 
     else if (&m_selectedFractureGeneratedProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::GENERATED);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::GENERATED);
         return toOptionList(varList);
     } 
     else if (&m_selectedFractureInputProperties == fieldNeedingOptions)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::INPUT_PROPERTY);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::INPUT_PROPERTY);
         return toOptionList(varList);
     }
 
     else if (&m_wellDataSourceCase == fieldNeedingOptions)
     {
         QStringList sourceCaseNames;
-        sourceCaseNames += RimDefines::undefinedResultName();
+        sourceCaseNames += RiaDefines::undefinedResultName();
 
         for (size_t i = 0; i < caseGroup()->caseCollection()->reservoirs().size(); i++)
         {
@@ -512,13 +507,13 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
             // Propagate well info to statistics case
             if (sourceResultCase->eclipseCaseData())
             {
-                const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults = sourceResultCase->eclipseCaseData()->wellResults();
-                setWellResultsAndUpdateViews(sourceCaseWellResults);
+                const cvf::Collection<RigSimWellData>& sourceCaseSimWellData = sourceResultCase->eclipseCaseData()->wellResults();
+                setWellResultsAndUpdateViews(sourceCaseSimWellData);
             }
         }
         else
         {
-            cvf::Collection<RigSingleWellResultsData> sourceCaseWellResults;
+            cvf::Collection<RigSimWellData> sourceCaseWellResults;
             setWellResultsAndUpdateViews(sourceCaseWellResults);
         }
     }
@@ -527,9 +522,9 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
+void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData)
 {
-    this->eclipseCaseData()->setWellResults(sourceCaseWellResults);
+    this->eclipseCaseData()->setSimWellData(sourceCaseSimWellData);
     
     caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
 
@@ -636,17 +631,17 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
     m_resultType.uiCapability()->setUiHidden(isLocked);
-    m_porosityModel.uiCapability()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
+    m_porosityModel.uiCapability()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
 
-    m_selectedDynamicProperties.uiCapability()->setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedStaticProperties.uiCapability()->setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedGeneratedProperties.uiCapability()->setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedInputProperties.uiCapability()->setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedDynamicProperties.uiCapability()->setUiHidden(           isLocked || !(m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::DYNAMIC_NATIVE));
+    m_selectedStaticProperties.uiCapability()->setUiHidden(            isLocked || !(m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::STATIC_NATIVE));
+    m_selectedGeneratedProperties.uiCapability()->setUiHidden(         isLocked || !(m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::GENERATED));
+    m_selectedInputProperties.uiCapability()->setUiHidden(             isLocked || !(m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::INPUT_PROPERTY));
 
-    m_selectedFractureDynamicProperties.uiCapability()->setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedFractureStaticProperties.uiCapability()->setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedFractureInputProperties.uiCapability()->setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedFractureDynamicProperties.uiCapability()->setUiHidden(   isLocked || !(m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::DYNAMIC_NATIVE));
+    m_selectedFractureStaticProperties.uiCapability()->setUiHidden(    isLocked || !(m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::STATIC_NATIVE));
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden( isLocked || !(m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::GENERATED));
+    m_selectedFractureInputProperties.uiCapability()->setUiHidden(     isLocked || !(m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::INPUT_PROPERTY));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -668,8 +663,8 @@ void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
    if ( eclipseCaseData() 
-       && (    eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->resultCount()
-            || eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()))
+       && (    eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->resultCount()
+            || eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()))
    {
        return true;
    }
@@ -707,14 +702,14 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::clearComputedStatistics()
 {
-    if (eclipseCaseData() && eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS))
+    if (eclipseCaseData() && eclipseCaseData()->results(RiaDefines::MATRIX_MODEL))
     {
-        eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
+        eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->clearAllResults();
     }
 
-    if (eclipseCaseData() && eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS))
+    if (eclipseCaseData() && eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL))
     {
-        eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+        eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL)->clearAllResults();
     }
 
     updateConnectedEditorsAndReservoirViews();
@@ -750,28 +745,28 @@ void RimEclipseStatisticsCase::populateResultSelection()
 
     if (m_selectedDynamicProperties().size() == 0)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::DYNAMIC_NATIVE);
         if (varList.contains("SOIL"))     m_selectedDynamicProperties.v().push_back("SOIL");
         if (varList.contains("PRESSURE")) m_selectedDynamicProperties.v().push_back("PRESSURE");
     }
 
     if (m_selectedStaticProperties().size() == 0)
     {
-        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::MATRIX_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
         if (varList.contains("PERMX")) m_selectedStaticProperties.v().push_back("PERMX");
         if (varList.contains("PORO"))  m_selectedStaticProperties.v().push_back("PORO");
     }
 
     if (m_selectedFractureDynamicProperties().size() == 0)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::DYNAMIC_NATIVE);
         if (varList.contains("SOIL"))     m_selectedFractureDynamicProperties.v().push_back("SOIL");
         if (varList.contains("PRESSURE")) m_selectedFractureDynamicProperties.v().push_back("PRESSURE");
     }
 
     if (m_selectedFractureStaticProperties().size() == 0)
     {
-        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        QStringList varList = caseData->results(RiaDefines::FRACTURE_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
         if (varList.contains("PERMX")) m_selectedFractureStaticProperties.v().push_back("PERMX");
         if (varList.contains("PORO"))  m_selectedFractureStaticProperties.v().push_back("PORO");
     }

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include <QObject>
 #include <QStringList>
@@ -32,12 +33,12 @@ class QWidget;
 class RiuContextMenuLauncher : public QObject
 {
 public:
-    explicit RiuContextMenuLauncher(QWidget* widget, const QStringList& commandIds);
+    explicit RiuContextMenuLauncher(QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds);
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
-    QStringList m_commandIds;
+    caf::CmdFeatureMenuBuilder m_menuBuilder;
 };
 

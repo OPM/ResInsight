@@ -45,7 +45,7 @@ class RimIntersectionBox;
 class RivIntersectionBoxPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionBoxPartMgr(const RimIntersectionBox* intersectionBox);
+    explicit RivIntersectionBoxPartMgr(RimIntersectionBox* intersectionBox);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -60,7 +60,7 @@ private:
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
 private:
-    const RimIntersectionBox*   m_rimIntersectionBox;
+    RimIntersectionBox*         m_rimIntersectionBox;
 
     cvf::Color3f                m_defaultColor;
 

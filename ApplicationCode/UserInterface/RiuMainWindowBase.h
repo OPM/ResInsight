@@ -19,8 +19,12 @@
 #pragma once
 
 #include <QMainWindow>
+
 struct RimMdiWindowGeometry;
 
+//==================================================================================================
+///  
+//==================================================================================================
 class RiuMainWindowBase : public QMainWindow
 {
     Q_OBJECT
@@ -39,8 +43,7 @@ public:
     void            loadWinGeoAndDockToolBarLayout();
     void            saveWinGeoAndDockToolBarLayout();
     void            showWindow();
+
 private:
     QString         registryFolderName();
-
-
 };

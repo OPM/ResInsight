@@ -6,7 +6,7 @@ import ecl.ecl
 from cwrap import Prototype
 
 class WellPrototype(Prototype):
-    lib = ecl.load("libecl_well")
+    lib = ecl.load("libecl")
 
     def __init__(self, prototype, bind=True):
         super(WellPrototype, self).__init__(WellPrototype.lib, prototype, bind=bind)

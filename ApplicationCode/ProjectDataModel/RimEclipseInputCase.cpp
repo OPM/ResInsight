@@ -33,7 +33,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -42,6 +42,7 @@
 #include "cafProgressInfo.h"
 
 #include <QFileInfo>
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimEclipseInputCase, "RimInputReservoir");
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +54,20 @@ RimEclipseInputCase::RimEclipseInputCase()
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case File Name", "", "" ,"");
     m_gridFileName.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
-    m_additionalFileNames.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files", "", "", "");
+    m_additionalFiles.registerGetMethod(this, &RimEclipseInputCase::additionalFiles);
+    m_additionalFiles.uiCapability()->setUiReadOnly(true);
+    m_additionalFiles.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional Files", "", "" ,"");
+    m_additionalFilenames_OBSOLETE.uiCapability()->setUiReadOnly(true);
+    m_additionalFilenames_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_additionalFilenames_OBSOLETE.xmlCapability()->setIOWritable(false);
 }
 
 
@@ -74,16 +83,16 @@ RimEclipseInputCase::~RimEclipseInputCase()
 /// Open the supplied file set. If no grid data has been read, it will first find the possible 
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
+bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 {
-    if (fileNames.contains(RimDefines::mockModelBasicInputCase()))
+    if (fileNames.contains(RiaDefines::mockModelBasicInputCase()))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(fileNames[0]);
-        results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
-        eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
-        eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->computeDerivedData();
         
         QFileInfo gridFileName(fileNames[0]);
         QString caseName = gridFileName.completeBaseName();
@@ -91,12 +100,12 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         
         computeCachedData();
 
-        return;
+        return true;
     }
 
     if (this->eclipseCaseData() == NULL) 
     {
-        this->setReservoirData(new RigEclipseCaseData);
+        this->setReservoirData(new RigEclipseCaseData(this));
     }
 
     // First find and read the grid data 
@@ -104,54 +113,51 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
     {
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
-         for (int i = 0; i < fileNames.size(); i++)
-         {
-             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings->importFaults()))
-             {
-                 m_gridFileName = fileNames[i];
+        for (int i = 0; i < fileNames.size(); i++)
+        {
+            if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings()->importFaults()))
+            {
+                m_gridFileName = fileNames[i];
 
-                 QFileInfo gridFileName(fileNames[i]);
-                 QString caseName = gridFileName.completeBaseName();
+                QFileInfo gridFileName(fileNames[i]);
+                QString caseName = gridFileName.completeBaseName();
 
-                 this->caseUserDescription = caseName;
+                this->caseUserDescription = caseName;
 
-                 this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+                this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
 
-                 computeCachedData();
+                computeCachedData();
 
-                 break;
-             }
-         }
+                break;
+            }
+        }
     }
 
     if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        return ; // No grid present
+        return false; // No grid present
     }
 
-    // Then read the properties possibly in the grid file
-    QStringList filesToRead;
-    for (int i = 0; i < fileNames.size(); i++)
+    std::vector<QString> filesToRead;
+    for (const QString& filename : fileNames)
     {
-        size_t j;
-        bool exist = false;
-        for (j = 0; j < m_additionalFileNames().size(); j++)
+        bool exists = false;
+        for (const QString& currentFileName : additionalFiles())
         {
-            if (m_additionalFileNames()[j] == fileNames[i])
+            if (filename == currentFileName)
             {
-                exist = true;
+                exists = true;
+                break;
             }
         }
-
-        if (!exist)
+        if (!exists)
         {
-            filesToRead.push_back(fileNames[i]);
+            filesToRead.push_back(filename);
         }
     }
 
-    for (int i = 0; i < filesToRead.size(); i++)
+    for (const QString& propertyFileName : filesToRead)
     {
-        QString propertyFileName = filesToRead[i];
         std::map<QString, QString> readProperties = RifEclipseInputFileTools::readProperties(propertyFileName, this->eclipseCaseData());
 
         std::map<QString, QString>::iterator it;
@@ -164,12 +170,8 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
             inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
             m_inputPropertyCollection->inputProperties.push_back(inputProperty);
         }
-
-        if (propertyFileName != m_gridFileName)
-        {
-            m_additionalFileNames.v().push_back(propertyFileName);
-        }
     }
+    return true;
 }
 
 
@@ -183,17 +185,15 @@ bool RimEclipseInputCase::openEclipseGridFile()
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
-        if (m_gridFileName().contains(RimDefines::mockModelBasicInputCase()))
+        if (m_gridFileName().contains(RiaDefines::mockModelBasicInputCase()))
         {
             readerInterface = this->createMockModel(this->m_gridFileName());
         }
         else
         {
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
             readerInterface = new RifReaderEclipseInput;
-            readerInterface->setReaderSetting(prefs->readerSettings());
 
-            cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+            cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
                 return false;
@@ -205,8 +205,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
         CVF_ASSERT(this->eclipseCaseData());
         CVF_ASSERT(readerInterface.notNull());
 
-        results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
         
@@ -218,11 +218,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RimReservoirCellResultsStorage* matrixResults = results(RifReaderInterface::MATRIX_RESULTS);
-        RimReservoirCellResultsStorage* fractureResults = results(RifReaderInterface::FRACTURE_RESULTS);
-
-        matrixResults->computeDepthRelatedResults();
-        fractureResults->computeDepthRelatedResults();
+        results(RiaDefines::MATRIX_MODEL)->computeDepthRelatedResults();
+        results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
     }
 
     return true;
@@ -251,7 +248,11 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 
     // Then read the properties from all the files referenced by the InputReservoir
 
-    std::vector<QString> filenames = m_additionalFileNames;
+    std::vector<QString> filenames;
+    for (const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties())
+    {
+        filenames.push_back(inputProperty->fileName);
+    }
     filenames.push_back(m_gridFileName);
 
     size_t inputPropCount = this->m_inputPropertyCollection()->inputProperties.size();
@@ -313,7 +314,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         for (const QString fileKeyword : fileKeywordSet)
         {
             {
-                QString resultName = this->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeyword);
+                QString resultName = this->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeyword);
                 if (RifEclipseInputFileTools::readProperty(filenames[i], this->eclipseCaseData(), fileKeyword, resultName))
                 {
                     RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
@@ -343,10 +344,10 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelName)
 {
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(this);
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
-    if (modelName == RimDefines::mockModelBasicInputCase())
+    if (modelName == RiaDefines::mockModelBasicInputCase())
     {
         m_gridFileName = modelName;
 
@@ -392,7 +393,7 @@ void RimEclipseInputCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
     uiOrdering.add(&m_gridFileName);
-    uiOrdering.add(&m_additionalFileNames);
+    uiOrdering.add(&m_additionalFiles);
 
     auto group = uiOrdering.addNewGroup("Case Options");
     group->add(&activeFormationNames);
@@ -422,8 +423,37 @@ void RimEclipseInputCase::updateFilePathsFromProjectPath(const QString& newProje
 
     m_gridFileName = RimTools::relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 
-    for (size_t i = 0; i < m_additionalFileNames().size(); i++)
+    for (RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties())
     {
-        m_additionalFileNames.v()[i] = RimTools::relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        inputProperty->fileName = RimTools::relocateFile(inputProperty->fileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCase::updateAdditionalFileFolder(const QString& newFolder)
+{
+    QDir newDir(newFolder);
+    for (RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties())
+    {
+        if (inputProperty->fileName == m_gridFileName) continue;
+        QFileInfo oldFilePath(inputProperty->fileName);
+        QFileInfo newFilePath(newDir, oldFilePath.fileName());
+        inputProperty->fileName = newFilePath.absoluteFilePath();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseInputCase::additionalFiles() const
+{
+    std::vector<QString> additionalFiles;
+    for (const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties())
+    {
+        if (inputProperty->fileName == m_gridFileName) continue;
+        additionalFiles.push_back(inputProperty->fileName);
+    }
+    return additionalFiles;
 }

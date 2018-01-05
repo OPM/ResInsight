@@ -28,12 +28,12 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivPartPriority.h"
@@ -56,7 +56,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
@@ -81,7 +81,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    RimEclipseWell* well = m_rimWell;
+    RimSimWellInView* well = m_rimWell;
     
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
@@ -98,9 +98,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     
 
-    if (!well->wellResults()->hasWellResult(frameIndex)) return;
+    if (!well->simWellData()->hasWellResult(frameIndex)) return;
 
-    const RigWellResultFrame& wellResultFrame = well->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame(frameIndex);
 
     double pipeRadius = m_rimWell->pipeRadius();
 
@@ -235,7 +235,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         cvf::Color4f headColor(cvf::Color3::GRAY);
 
-        RimEclipseWellCollection* wellColl = nullptr;
+        RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
         {
             m_rimWell->firstAncestorOrThisOfType(wellColl);
@@ -331,7 +331,7 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
 
-    RimEclipseWellCollection* wellCollection = nullptr;
+    RimSimWellInViewCollection* wellCollection = nullptr;
     m_rimWell->firstAncestorOrThisOfType(wellCollection);
     if (!wellCollection) return;
 

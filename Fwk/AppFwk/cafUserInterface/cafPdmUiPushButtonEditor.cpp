@@ -46,6 +46,10 @@
 
 #include "cafFactory.h"
 
+#include <QBoxLayout>
+
+#include <cmath>
+
 
 
 namespace caf
@@ -62,22 +66,11 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_pushButton.isNull());
     CAF_ASSERT(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_pushButton->setCheckable(true);
-
-    //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_pushButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_pushButton->setToolTip(field()->uiToolTip(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiPushButtonEditorAttribute attributes;
     caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
@@ -108,6 +101,10 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
              m_pushButton->setText(variantFieldValue.toString());
         }
     }
+    
+    QSize defaultSize  = m_pushButton->sizeHint();
+    m_pushButton->setMinimumWidth(10*std::round(0.1*(defaultSize.width() + 10)));
+    m_buttonLayout->setAlignment(m_pushButton, Qt::AlignRight);
 
     if (variantFieldValue.type() == QVariant::Bool)
     {
@@ -115,15 +112,44 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiPushButtonEditor::configureEditorForField(PdmFieldHandle* fieldHandle)
+{
+    if (fieldHandle)
+    {
+        if (fieldHandle->xmlCapability())
+        {
+            fieldHandle->xmlCapability()->disableIO();
+        }
+
+        if (fieldHandle->uiCapability())
+        {
+            fieldHandle->uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+            fieldHandle->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiPushButtonEditor::createEditorWidget(QWidget * parent)
 {
-    m_pushButton = new QPushButton("", parent);
+    QWidget* containerWidget = new QWidget(parent);
+
+    m_pushButton = new QPushButton("", containerWidget);
     connect(m_pushButton, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
-    return m_pushButton;
+
+    m_buttonLayout = new QHBoxLayout(containerWidget);
+    m_buttonLayout->addWidget(m_pushButton);
+    m_buttonLayout->setMargin(0);
+    m_buttonLayout->setSpacing(0);
+
+    containerWidget->setLayout(m_buttonLayout);
+
+    return containerWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,14 +166,12 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::slotClicked(bool checked)
 {
-
     if (field() && dynamic_cast<PdmField<bool> *> (field()->fieldHandle()))
     {
         QVariant v;
         v = checked;
         this->setValueToField(v);
     }
-    
 }
 
 

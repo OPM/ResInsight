@@ -27,6 +27,7 @@ function(find_python_package_version package)
 endfunction()
 
 
+
 # If we find the correct module and new enough version, set PY_package, where
 # "package" is the given argument to the version we found else, display warning
 # and do not set any variables.
@@ -34,17 +35,22 @@ function(find_python_package package version python_prefix)
 
   if (CMAKE_PREFIX_PATH)
      set( ORG_PYTHONPATH $ENV{PYTHONPATH} )
+     set( CMAKE_PYTHONATH "")
+     set( sep "")
      foreach ( PREFIX_PATH ${CMAKE_PREFIX_PATH} )
-        set(THIS_PYTHONPATH "${PREFIX_PATH}/${python_prefix}")
-        set(ENV{PYTHONPATH} "${THIS_PYTHONPATH}:${ORG_PYTHONPATH}")
-        find_python_package_version(${package})
-        if (DEFINED PY_${package})
-           if (${PY_${package}_PATH} STREQUAL ${THIS_PYTHONPATH})
-              set(CTEST_PYTHONPATH "${PY_${package}_PATH}:${CTEST_PYTHONPATH}" PARENT_SCOPE)
-           endif()
-           break( )
-        endif()
+         set( CMAKE_PYTHONPATH "${CMAKE_PYTHONPATH}${sep}${PREFIX_PATH}/${python_prefix}")
+         set( sep ":")
      endforeach()
+
+     set(ENV{PYTHONPATH} "${CMAKE_PYTHONPATH}:${ORG_PYTHONPATH}")
+
+     find_python_package_version(${package})
+     if (DEFINED PY_${package})
+        STRING(FIND ${CMAKE_PYTHONPATH} ${PY_${package}_PATH} pos)
+        if (${pos} GREATER -1)
+           set(CTEST_PYTHONPATH "${PY_${package}_PATH}:${CMAKE_PYTHONPATH}" PARENT_SCOPE)
+        endif()
+     endif()
      set(ENV{PYTHONPATH} ${ORG_PYTHONPATH})
   else()
      find_python_package_version(${package})

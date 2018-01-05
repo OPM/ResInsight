@@ -29,7 +29,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseResultDefinition* resultDefinition, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, 
+                                                                    RimEclipseResultDefinition* resultDefinition, 
+                                                                    size_t gridIndex, 
+                                                                    size_t cellIndex, 
+                                                                    size_t timeStepCount)
 {
     std::vector<double> values;
 

@@ -18,14 +18,14 @@
 
 #include "RifEclipseSummaryTools.h"
 
+#include "RiaSummaryCurveAnalyzer.h"
 #include "RifReaderEclipseSummary.h"
+
+#include "cafAppEnum.h"
 
 #include "ert/ecl/ecl_util.h"
 
 #include <iostream>
-#include "cafAppEnum.h"
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -34,7 +34,6 @@ void RifEclipseSummaryTools::findSummaryHeaderFile(const std::string& inputFile,
 {
     findSummaryHeaderFileInfo(inputFile, headerFile, NULL, NULL, isFormatted);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -128,7 +127,7 @@ std::vector<std::string> RifEclipseSummaryTools::findSummaryDataFiles(const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary)
+void RifEclipseSummaryTools::dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary)
 {
     std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
 
@@ -136,7 +135,7 @@ void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipse
     {
         RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory(category);
 
-        std::vector<RifEclipseSummaryAddress> catAddresses = addressesForCategory(addresses, categoryEnum);
+        std::vector<RifEclipseSummaryAddress> catAddresses = RiaSummaryCurveAnalyzer::addressesForCategory(addresses, categoryEnum);
 
         if (catAddresses.size() > 0)
         {
@@ -192,20 +191,3 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const std::string& inputF
     util_safe_free(myPath);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress> RifEclipseSummaryTools::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses, RifEclipseSummaryAddress::SummaryVarCategory category)
-{
-    std::vector<RifEclipseSummaryAddress> filteredAddresses;
-
-    for (size_t i = 0; i < addresses.size(); i++)
-    {
-        if (addresses[i].category() == category)
-        {
-            filteredAddresses.push_back(addresses[i]);
-        }
-    }
-
-    return filteredAddresses;
-}

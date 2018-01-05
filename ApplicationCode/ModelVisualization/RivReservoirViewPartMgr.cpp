@@ -37,9 +37,9 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -424,7 +424,6 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
         cvf::ref<cvf::UByteArray> cellVisibility = m_propFilteredGeometryFrames[frameIndex]->cellVisibility(gIdx); 
         cvf::ref<cvf::UByteArray> rangeVisibility; 
         cvf::ref<cvf::UByteArray> fenceVisibility; 
-        cvf::cref<cvf::UByteArray> isWellCell = res->wellCellsInGrid(gIdx); 
 
         if (hasActiveRangeFilters && hasVisibleWellCells)
         {
@@ -903,8 +902,29 @@ void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geom
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex) const
+const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex)
 {
+    if (geometryType == PROPERTY_FILTERED)
+    {
+        if (timeStepIndex >= m_propFilteredGeometryFramesNeedsRegen.size() || m_propFilteredGeometryFramesNeedsRegen[timeStepIndex])
+        {
+            createPropertyFilteredNoneWellCellGeometry(timeStepIndex);
+        }
+    }
+    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        if (timeStepIndex >= m_propFilteredWellGeometryFramesNeedsRegen.size() || m_propFilteredWellGeometryFramesNeedsRegen[timeStepIndex])
+        {
+            createPropertyFilteredWellGeometry(timeStepIndex);
+        }
+    }
+    else
+    {
+        if (m_geometriesNeedsRegen[geometryType])
+        {
+            createGeometry(geometryType);
+        }
+    }
     RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
     return pmgr->cellVisibility(gridIndex).p();
 }

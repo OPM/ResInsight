@@ -37,9 +37,9 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
     CAF_PDM_InitObject("Eclipse Geometry Selection Item", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseCase,            "EclipseCase",            "Eclipse Case",             "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_gridIndex,              "GridIndex",              "m_gridIndex",              "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellIndex,              "CellIndex",              "m_cellIndex",              "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint, "LocalIntersectionPoint", "m_localIntersectionPoint", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_gridIndex,              "GridIndex",              "Grid Index",               "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellIndex,              "CellIndex",              "Cell Index",               "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint, "LocalIntersectionPoint", "local Intersection Point", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
 void RimEclipseGeometrySelectionItem::setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem)
 {
     m_gridIndex = selectionItem->m_gridIndex;
-    m_cellIndex = selectionItem->m_cellIndex;
+    m_cellIndex = selectionItem->m_gridLocalCellIndex;
     m_localIntersectionPoint = selectionItem->m_localIntersectionPoint;
 
     m_eclipseCase = selectionItem->m_view->eclipseCase();

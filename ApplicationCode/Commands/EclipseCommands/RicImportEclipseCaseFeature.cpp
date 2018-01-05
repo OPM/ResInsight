@@ -19,8 +19,12 @@
 
 #include "RicImportEclipseCaseFeature.h"
 
-#include "RimEclipseCaseCollection.h"
+#include "RiaImportEclipseCaseTools.h"
+
 #include "RiaApplication.h"
+
+#include "RimEclipseCaseCollection.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
@@ -57,7 +61,7 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
 
         if (!fileNames.isEmpty())
         {
-            if (app->openEclipseCaseFromFile(fileName))
+            if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(fileName))
             {
                 app->addToRecentFiles(fileName);
             }

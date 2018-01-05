@@ -50,6 +50,7 @@ class RimPropertyFilterCollection;
 class RimViewController;
 class RimViewLinker;
 class RiuViewer;
+class RimWellPathCollection;
 
 namespace cvf
 {
@@ -130,7 +131,7 @@ public:
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
    
-    void                                    showGridCells(bool enableHideGridCells);
+    void                                    showGridCells(bool enableGridCells);
     bool                                    isGridVisualizationMode() const;
 
     void                                    setScaleZAndUpdate(double scaleZ);
@@ -138,6 +139,7 @@ public:
     // Animation
     int                                     currentTimeStep() const { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);
+    void                                    setCurrentTimeStepAndUpdate(int frameIdx);
 
     void                                    updateCurrentTimeStepAndRedraw();
 
@@ -162,26 +164,29 @@ public:
 
     virtual void                            zoomAll() override;
 
-    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
+    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const;
 
     virtual QWidget*                        viewWidget() override;
     void                                    forceShowWindowOn();
 
 public:
-    virtual void                            loadDataAndUpdate() = 0;
     void                                    updateGridBoxData();
-    virtual RimCase*                        ownerCase() = 0;
+    void                                    updateAnnotationItems();
+    virtual RimCase*                        ownerCase() const = 0;
 
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
+
+    Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
+
 protected:
 
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                                                const cvf::Vec3d& displayModelOffset,  
-                                                                double characteristicCellSize, 
-                                                                const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                                                cvf::Transform* scaleTransform);
+                                                                const cvf::BoundingBox& wellPathClipBoundingBox);
+
+    void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
+                                                                       const cvf::BoundingBox& wellPathClipBoundingBox);
 
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 
@@ -201,7 +206,11 @@ protected:
     virtual cvf::Transform*                 scaleTransform() = 0;
 
     virtual void                            resetLegendsInViewer() = 0;
-    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
+    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
+
+    virtual void                            onLoadDataAndUpdate() = 0;
+
+    RimWellPathCollection*                  wellPathCollection();
 
     QPointer<RiuViewer>                     m_viewer;
 
@@ -214,10 +223,9 @@ protected:
     caf::PdmChildField<RimGridCollection*>              m_gridCollection;
     
     // Overridden PDM methods:
-    virtual void                            setupBeforeSave();
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            setupBeforeSave() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
 
     virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                            updateViewWidgetAfterCreation() override; 
@@ -234,7 +242,6 @@ private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
 
     friend class RiuViewer;
-    void                                    setCurrentTimeStepAndUpdate(int frameIdx);
     void                                    endAnimation();
 
 private:

@@ -25,9 +25,28 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include <map>
+
 #include "cvfStructGrid.h"
 
 #include "RigWellLogExtractionTools.h"
+#include "RigHexIntersectionTools.h"
+
+//==================================================================================================
+/// 
+//==================================================================================================
+struct WellPathCellIntersectionInfo
+{
+    size_t                             globCellIndex;
+    cvf::Vec3d                         startPoint;
+    cvf::Vec3d                         endPoint;
+    double                             startMD;
+    double                             endMD;
+    cvf::Vec3d                         intersectionLengthsInCellCS; 
+
+    cvf::StructGridInterface::FaceType intersectedCellFaceIn;
+    cvf::StructGridInterface::FaceType intersectedCellFaceOut;
+};
 
 class RigWellPath;
 
@@ -41,27 +60,38 @@ public:
     virtual ~RigWellLogExtractor();
 
     const std::vector<double>&  measuredDepth()     { return m_measuredDepth; }
-    const std::vector<double>&  trueVerticalDepth() {return m_trueVerticalDepth;}
+    const std::vector<double>&  trueVerticalDepth() { return m_trueVerticalDepth; }
+    const std::vector<size_t>&  intersectedCellsGlobIdx();
 
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
+    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
+
 protected:
-    void insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, 
-                                  cvf::Vec3d p1, double md1, cvf::Vec3d p2, double md2, 
-                                  std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > *uniqueIntersections);
+    static void                 insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections,
+                                                         cvf::Vec3d p1,
+                                                         double md1,
+                                                         cvf::Vec3d p2,
+                                                         double md2,
+                                                         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > *uniqueIntersections);
 
-    void populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > &uniqueIntersections);
-    void appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection);
+    void                        populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > &uniqueIntersections);
+    void                        appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection);
 
-    std::vector<double>         m_measuredDepth;
-    std::vector<double>         m_trueVerticalDepth;
-    
+    virtual  cvf::Vec3d         calculateLengthInCell(size_t cellIndex, 
+                                                      const cvf::Vec3d& startPoint, 
+                                                      const cvf::Vec3d& endPoint) const = 0;
+
     std::vector<cvf::Vec3d>     m_intersections;
-    std::vector<size_t>         m_intersectedCells;
+    std::vector<size_t>         m_intersectedCellsGlobIdx;
     std::vector<cvf::StructGridInterface::FaceType> 
                                 m_intersectedCellFaces;
 
     cvf::cref<RigWellPath>      m_wellPath;
+
+private:
+    std::vector<double>         m_measuredDepth;
+    std::vector<double>         m_trueVerticalDepth;
 
     std::string                 m_wellCaseErrorMsgName;
 };

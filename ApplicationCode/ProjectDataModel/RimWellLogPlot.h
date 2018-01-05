@@ -24,13 +24,15 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
 
 class RiuWellLogPlot;
 class RimWellLogTrack;
+class RimWellRftPlot;
+class RimWellPltPlot;
 
 
 //==================================================================================================
@@ -63,8 +65,8 @@ public:
     DepthTypeEnum                                   depthType() const;
     void                                            setDepthType(DepthTypeEnum depthType);
 
-    RimDefines::DepthUnitType                       depthUnit() const;
-    void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
+    RiaDefines::DepthUnitType                       depthUnit() const;
+    void                                            setDepthUnit(RiaDefines::DepthUnitType depthUnit);
 
 
     QString                                         depthPlotTitle() const;
@@ -82,7 +84,6 @@ public:
 
     RimWellLogTrack*                                trackByIndex(size_t index);
 
-    virtual void                                    loadDataAndUpdate() override;
     void                                            updateTracks();
     void                                            updateTrackNames();
 
@@ -101,13 +102,22 @@ public:
 
     QString                                         asciiDataForPlotExport() const;
 
+    RimWellRftPlot*                                 rftPlot() const;
+    bool                                            isRftPlotChild() const;
+    RimWellPltPlot*                                 pltPlot() const;
+    bool                                            isPltPlotChild() const;
+
+    void                                            uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering);
+    void                                            uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering);
+
 protected:
 
     // Overridden PDM methods
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void                                    onLoadDataAndUpdate() override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
@@ -130,7 +140,7 @@ private:
     caf::PdmField<QString>                          m_userName;
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
-    caf::PdmField< caf::AppEnum< RimDefines::DepthUnitType > >  m_depthUnit;
+    caf::PdmField< caf::AppEnum< RiaDefines::DepthUnitType > >  m_depthUnit;
     std::set<DepthTypeEnum>                         m_disabledDepthTypes;
 
     caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;

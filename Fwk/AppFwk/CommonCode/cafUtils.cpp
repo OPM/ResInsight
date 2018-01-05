@@ -241,4 +241,43 @@ bool Utils::fileExists(const QString& fileName)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Utils::fileExtension(const QString & fileName)
+{
+    QFileInfo fi(fileName);
+
+    return fi.suffix();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::isFolderWritable(const QString& folderName)
+{
+    // See platform issues here
+    // http://doc.qt.io/qt-4.8/qfile.html#platform-specific-issues
+
+    QFileInfo dir(folderName);
+    
+    return dir.isWritable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::isStringMatch(const QString& filterString, const QString& value)
+{
+    if (filterString.isEmpty()) return true;
+    if (filterString.trimmed() == "*")
+    {
+        if (!value.isEmpty()) return true;
+        else return false;
+    }
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    return searcher.exactMatch(value);
+}
+
 } // namespace caf

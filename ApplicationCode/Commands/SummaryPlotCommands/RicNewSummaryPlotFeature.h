@@ -20,8 +20,9 @@
 
 #include "cafCmdFeature.h"
 
-class RimSummaryCase;
 class RimSummaryPlotCollection;
+class RimSummaryCase;
+class RimSummaryPlot;
 
 //==================================================================================================
 /// 
@@ -30,13 +31,9 @@ class RicNewSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
-
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook(QAction* actionToSetup);
-
 };

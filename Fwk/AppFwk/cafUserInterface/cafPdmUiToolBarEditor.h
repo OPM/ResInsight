@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiEditorHandle.h"
@@ -47,35 +46,38 @@
 class QToolBar;
 class QMainWindow;
 
-namespace caf 
+namespace caf
 {
-    class PdmUiFieldEditorHandle;
-    class PdmUiItem;
-    class PdmFieldHandle;
+class PdmUiFieldEditorHandle;
+class PdmUiItem;
+class PdmFieldHandle;
 
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class PdmUiToolBarEditor : public PdmUiEditorHandle
 {
 public:
     PdmUiToolBarEditor(const QString& title, QMainWindow* mainWindow);
     ~PdmUiToolBarEditor();
 
+    bool isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const;
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
-
-protected:
-    virtual void configureAndUpdateUi(const QString& uiConfigName);
-
-private:
-    void    clear();
+    void clear();
+    
+    void show();
+    void hide();
 
 private:
-    QToolBar*   m_toolbar;
+    virtual void configureAndUpdateUi(const QString& uiConfigName) override;
 
-    std::vector<caf::PdmFieldHandle*>           m_fields;
-    std::map<QString, PdmUiFieldEditorHandle*>  m_fieldViews;
+private:
+    QPointer<QToolBar> m_toolbar;
 
-    QList<QAction*>                             m_actions;
+    std::vector<caf::PdmFieldHandle*>          m_fields;
+    std::map<QString, PdmUiFieldEditorHandle*> m_fieldViews;
+
+    QList<QAction*> m_actions;
 };
-
 
 } // end namespace caf

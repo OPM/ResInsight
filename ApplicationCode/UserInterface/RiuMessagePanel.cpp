@@ -70,6 +70,15 @@ void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg)
 
     m_textEdit->moveCursor(QTextCursor::End);
     m_textEdit->ensureCursorVisible();
+
+    if (messageLevel == RI_LL_ERROR || messageLevel == RI_LL_WARNING)
+    {
+        QDockWidget* parentDockWidget = dynamic_cast<QDockWidget*>(this->parent());
+        if (parentDockWidget && !parentDockWidget->isVisible())
+        {
+            parentDockWidget->toggleViewAction()->trigger();
+        }
+    }
 }
 
 
@@ -87,14 +96,23 @@ QSize RiuMessagePanel::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::slotShowContextMenu(const QPoint& pos)
 {
-    QMenu* menu = m_textEdit->createStandardContextMenu();
+    QMenu menu;
 
-    menu->addSeparator();
-    menu->addAction("Clear All &Messages", this, SLOT(slotClearMessages()));
+    // Reworked from implemenmtation in  QTextControl::createStandardContextMenu()
+    {
+        QAction* a = menu.addAction("&Copy", m_textEdit, SLOT(copy()), QKeySequence::Copy);
+        a->setEnabled(m_textEdit->textCursor().hasSelection());
+    }
+    {
+        menu.addSeparator();
+        QAction* a = menu.addAction("Select All", m_textEdit, SLOT(selectAll()), QKeySequence::SelectAll);
+        a->setEnabled(!m_textEdit->document()->isEmpty());
+    }
+
+    menu.addSeparator();
+    menu.addAction("Clear All &Messages", this, SLOT(slotClearMessages()));
     
-    menu->exec(m_textEdit->mapToGlobal(pos));
-
-    delete menu;
+    menu.exec(m_textEdit->mapToGlobal(pos));
 }
 
 

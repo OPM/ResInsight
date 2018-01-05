@@ -15,6 +15,7 @@
 #  for more details.
 
 from cwrap import BaseCClass
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclPrototype
 
 
@@ -40,11 +41,34 @@ class EclSMSPECNode(BaseCClass):
     _gen_key1           = EclPrototype("char* smspec_node_get_gen_key1( smspec_node )")
     _gen_key2           = EclPrototype("char* smspec_node_get_gen_key2( smspec_node )")
     _var_type           = EclPrototype("ecl_sum_var_type smspec_node_get_var_type( smspec_node )")
-    
-    
+    _cmp                = EclPrototype("int smspec_node_cmp( smspec_node , smspec_node)")
+
     def __init__(self):
         super(EclSMSPECNode, self).__init__(0) # null pointer
         raise NotImplementedError("Class can not be instantiated directly!")
+
+    def cmp(self, other):
+        if isinstance(other, EclSMSPECNode):
+            return self._cmp( other )
+        else:
+            raise TypeError("Other argument must be of type EclSMSPECNode")
+
+
+    def __lt__(self , other):
+        return self.cmp( other ) < 0
+
+
+    def __gt__(self , other):
+        return self.cmp( other ) > 0
+
+
+    def __eq__(self , other):
+        return self.cmp( other ) == 0
+
+
+    def __hash__(self , other):
+        return hash(self._gen_key1( ))
+
 
     @property
     def unit(self):
@@ -82,7 +106,7 @@ class EclSMSPECNode(BaseCClass):
     def num(self):
         return self.getNum( )
 
-    def getKey1(self):
+    def get_key1(self):
         """
         Returns the primary composite key, i.e. like 'WOPR:OPX' for this
         node.
@@ -90,7 +114,7 @@ class EclSMSPECNode(BaseCClass):
         return self._gen_key1( )
 
 
-    def getKey2(self):
+    def get_key2(self):
         """Returns the secondary composite key for this node.
 
         Most variables have only one composite key, but in particular
@@ -106,11 +130,11 @@ class EclSMSPECNode(BaseCClass):
         return self._gen_key2( )
 
 
-    def varType(self):
+    def var_type(self):
         return self._var_type( )
 
 
-    def getNum(self):
+    def get_num(self):
         """
         Returns the NUMS value for this keyword; or None.
 
@@ -129,7 +153,7 @@ class EclSMSPECNode(BaseCClass):
         else:
             return None
 
-    def isRate(self):
+    def is_rate(self):
         """
         Will check if the variable in question is a rate variable.
 
@@ -138,8 +162,8 @@ class EclSMSPECNode(BaseCClass):
         """
         return self._node_is_rate()
 
-        
-    def isTotal(self):
+
+    def is_total(self):
         """
         Will check if the node corresponds to a total quantity.
 
@@ -153,7 +177,7 @@ class EclSMSPECNode(BaseCClass):
         return self._node_is_total( )
 
 
-    def isHistorical(self):
+    def is_historical(self):
         """
         Checks if the key corresponds to a historical variable.
 
@@ -162,3 +186,11 @@ class EclSMSPECNode(BaseCClass):
         """
         return self._node_is_historical( )
 
+
+monkey_the_camel(EclSMSPECNode, 'getKey1', EclSMSPECNode.get_key1)
+monkey_the_camel(EclSMSPECNode, 'getKey2', EclSMSPECNode.get_key2)
+monkey_the_camel(EclSMSPECNode, 'varType', EclSMSPECNode.var_type)
+monkey_the_camel(EclSMSPECNode, 'getNum', EclSMSPECNode.get_num)
+monkey_the_camel(EclSMSPECNode, 'isRate', EclSMSPECNode.is_rate)
+monkey_the_camel(EclSMSPECNode, 'isTotal', EclSMSPECNode.is_total)
+monkey_the_camel(EclSMSPECNode, 'isHistorical', EclSMSPECNode.is_historical)

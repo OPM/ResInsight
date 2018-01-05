@@ -59,43 +59,50 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent *>(event);
 
-        caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
-        if (uiItem)
+        std::vector<caf::PdmUiItem*> uiItems;
+        caf::SelectionManager::instance()->selectedItems(uiItems);
+
+        if (uiItems.size() > 0)
         {
+            std::vector<caf::CmdFeature*> matches;
             if (keyEvent->matches(QKeySequence::Copy))
             {
-                QAction* actionToTrigger = caf::CmdFeatureManager::instance()->action("RicCopyReferencesToClipboardFeature");
-                assert(actionToTrigger);
-
-                actionToTrigger->trigger();
-
-                keyEvent->setAccepted(true);
-                return true;
+                matches.push_back(caf::CmdFeatureManager::instance()->getCommandFeature("RicCopyReferencesToClipboardFeature"));
+            }
+            else if (keyEvent->matches(QKeySequence::Cut))
+            {
+                matches.push_back(caf::CmdFeatureManager::instance()->getCommandFeature("RicCutReferencesToClipboardFeature"));
             }
             else if (keyEvent->matches(QKeySequence::Paste))
             {
-                std::vector<caf::CmdFeature*> matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Paste");
-
-                for (caf::CmdFeature* feature : matches)
+                if (uiItems.size() == 1)
                 {
-                    if (feature->canFeatureBeExecuted())
-                    {
-                        feature->actionTriggered(false);
+                    matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Paste");
+                }
+            }
 
-                        keyEvent->setAccepted(true);
-                        return true;
-                    }
+            for (caf::CmdFeature* feature : matches)
+            {
+                if (feature->canFeatureBeExecuted())
+                {
+                    feature->actionTriggered(false);
+
+                    keyEvent->setAccepted(true);
+                    return true;
                 }
             }
         }
 
         // Do not toggle state if currently editing a name in the tree view
         bool toggleStateForSelection = true;
-        if (RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
+        if (RiuMainWindow::instance()->projectTreeView() &&
+            RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
         {
             toggleStateForSelection = false;
         }
-        else if (RiaApplication::instance()->mainPlotWindow() && RiaApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
+        else if (RiaApplication::instance()->mainPlotWindow() && 
+                 RiaApplication::instance()->mainPlotWindow()->projectTreeView() &&
+                 RiaApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
         {
             toggleStateForSelection = false;
         }

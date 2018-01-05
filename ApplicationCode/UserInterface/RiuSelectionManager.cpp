@@ -21,12 +21,14 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimSimWellInView.h"
 #include "RimWellPath.h"
 
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "RiuSelectionChangedHandler.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -66,6 +68,7 @@ void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, i
 
     items = s;
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -155,7 +158,7 @@ void RiuSelectionManager::deleteAllItemsFromSelection(int role)
 RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex, cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint)
     :   m_view(view),
         m_gridIndex(gridIndex),
-        m_cellIndex(cellIndex),
+        m_gridLocalCellIndex(cellIndex),
         m_nncIndex(nncIndex),
         m_color(color),
         m_face(face),
@@ -219,11 +222,19 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimEclipseWell* simwell, 
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimSimWellInView* simwell, 
                                                   cvf::Vec3d m_domainCoord,
                                                   size_t m_branchIndex)
     : m_simWell(simwell),
     m_domainCoord(m_domainCoord),
     m_branchIndex(m_branchIndex)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuGeneralSelectionItem::RiuGeneralSelectionItem(caf::PdmObject* object)
+    : m_object(object)
 {
 }

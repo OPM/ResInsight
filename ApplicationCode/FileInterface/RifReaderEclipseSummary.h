@@ -19,46 +19,35 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include <string>
 #include <vector>
 #include <map>
 
-#include "cvfObject.h"
-
-
-class QDateTime;
-
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderEclipseSummary : public cvf::Object
+class RifReaderEclipseSummary : public RifSummaryReaderInterface
 {
 public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
-    void                                         close();
+    bool                                open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
 
-    bool                                         hasAddress(const RifEclipseSummaryAddress& resultAddress);
-    const std::vector<RifEclipseSummaryAddress>& allResultAddresses();
-    const std::vector<time_t>&                   timeSteps() const;
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values);
-    std::string                                  unitName(const RifEclipseSummaryAddress& resultAddress);
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    // TODO: Move this to a tools class with static members
-    static std::vector<QDateTime>                fromTimeT(const std::vector<time_t>& timeSteps);
-    
 private:
+    int                                 timeStepCount() const;
+    int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const;
+    void                                buildMetaData();
 
-    int                                          timeStepCount() const;
-    int                                          indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
-
-    void                                         buildMetaData();
 private:
     // Taken from ecl_sum.h
     typedef struct ecl_sum_struct    ecl_sum_type;
@@ -68,8 +57,6 @@ private:
     const ecl_smspec_type *     m_ecl_SmSpec;
     std::vector<time_t>         m_timeSteps;
 
-    std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
-
 };
 

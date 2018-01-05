@@ -26,6 +26,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
 	cafPdmXml
     ${QT_LIBRARIES}
+    ${THREAD_LIBRARY}
 )
 
 # Copy Qt Dlls

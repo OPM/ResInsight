@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
+  <file>images/curvePlot.png</file>
   <file>images/logo32.png</file>
   <file>images/mac/editcopy.png</file>
   <file>images/mac/editcut.png</file>

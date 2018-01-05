@@ -67,6 +67,11 @@ public:
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
                              double smallContribThreshold);
 
+    RigAccWellFlowCalculator(const std::vector <cvf::Vec3d> &         pipeBranchCLCoords,
+                             const std::vector <RigWellResultPoint> & pipeBranchCellIds,
+                             const std::vector <double> &             pipeBranchMeasuredDepths,
+                             bool totalFlowOnly);
+
     const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
     const std::vector<double>&                              tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
@@ -82,6 +87,8 @@ public:
     std::vector<std::pair<QString, double> >                totalTracerFractions() const;
 
 private:
+    void                                                    initializePipeBranchesMeasuredDepths();
+
     bool                                                    isConnectionFlowConsistent(const RigWellResultPoint &wellCell) const;
     bool                                                    isFlowRateConsistent(double flowRate) const;
 
@@ -107,13 +114,16 @@ private:
     std::vector<std::pair<QString, double> >                totalWellFlowPrTracer() const;
 
 
-    const std::vector< std::vector <cvf::Vec3d> >&          m_pipeBranchesCLCoords;
-    const std::vector< std::vector <RigWellResultPoint> >&  m_pipeBranchesCellIds;
+    std::vector< std::vector <cvf::Vec3d> >                 m_pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> >         m_pipeBranchesWellResultPoints;
+    std::vector< std::vector <double> >                     m_pipeBranchesMeasuredDepths;
+
     const std::map<QString, const std::vector<double>* >*   m_tracerCellFractionValues;
     RigEclCellIndexCalculator                               m_cellIndexCalculator;
     std::vector<QString>                                    m_tracerNames;
     double                                                  m_smallContributionsThreshold;
     bool                                                    m_isProducer;
+    bool                                                    m_useTotalWellPhaseRateOnly;
 
     struct BranchFlow
     {

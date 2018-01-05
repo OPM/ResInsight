@@ -54,6 +54,7 @@ public:
     virtual ~PdmChildArrayField();
 
     PdmChildArrayField&   operator() () { return *this; }
+    const PdmChildArrayField& operator() () const { return *this; }
 
     // Reimplementation of PdmPointersFieldHandle methods
   
@@ -75,7 +76,7 @@ public:
     size_t              count(const DataType* pointer) const;
 
     void                erase(size_t index);
-    size_t              index(DataType* pointer);
+    size_t              index(const DataType* pointer) const;
 
     typename std::vector< PdmPointer<DataType> >::iterator begin()        { return m_pointers.begin(); };
     typename std::vector< PdmPointer<DataType> >::iterator end()          { return m_pointers.end(); };
@@ -83,10 +84,12 @@ public:
     typename std::vector< PdmPointer<DataType> >::const_iterator begin() const        { return m_pointers.begin();    };
     typename std::vector< PdmPointer<DataType> >::const_iterator end()   const        { return m_pointers.end();      };
 
-    // Child objects
 
-    virtual void        childObjects(std::vector<PdmObjectHandle*>* objects);
-    virtual void        removeChildObject(PdmObjectHandle* object);
+    // Child objects
+    std::vector<DataType*>  childObjects() const;
+
+    virtual void            childObjects(std::vector<PdmObjectHandle*>* objects);
+    virtual void            removeChildObject(PdmObjectHandle* object);
 
 private: //To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN(PdmChildArrayField);

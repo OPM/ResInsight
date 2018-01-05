@@ -24,7 +24,7 @@
 #include "cafPdmPointer.h"
 
 class RimIntersectionCollection;
-class RimEclipseWell;
+class RimSimWellInView;
 
 
 //==================================================================================================
@@ -33,7 +33,7 @@ class RimEclipseWell;
 class RicNewSimWellIntersectionCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimEclipseWell* simWell);
+    RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimSimWellInView* simWell);
     virtual ~RicNewSimWellIntersectionCmd();
 
     virtual QString name();
@@ -42,7 +42,7 @@ public:
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
-    caf::PdmPointer<RimEclipseWell> m_simWell;
+    caf::PdmPointer<RimSimWellInView> m_simWell;
 };
 
 

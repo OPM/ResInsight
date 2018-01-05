@@ -42,7 +42,7 @@ class EclSumVector(object):
         self.report_only = report_only
 
         if report_only:
-            warnings.warn("The report_only flag to the EclSumVector will be removed" , DeprecationWarning)
+            warnings.warn("The report_only flag to the EclSumVector will be removed", DeprecationWarning)
 
         self.__dates = parent.get_dates(report_only)
         self.__days = parent.get_days(report_only)
@@ -59,13 +59,13 @@ class EclSumVector(object):
         return 'EclSumVector(key = %s, size = %d, unit = %s)' % (self.key, len(self), self.unit)
 
     @property
-    def unit( self ):
+    def unit(self):
         """
         The unit of this vector.
         """
         return self.parent.unit(self.key)
 
-    def assert_values( self ):
+    def assert_values(self):
         """
         This function will load and internalize all the values.
         """
@@ -73,7 +73,7 @@ class EclSumVector(object):
             self.__values = self.parent.get_values(self.key, self.report_only)
 
     @property
-    def values( self ):
+    def values(self):
         """
         All the summary values of the vector, as a numpy vector.
         """
@@ -81,14 +81,14 @@ class EclSumVector(object):
         return self.__values
 
     @property
-    def dates( self ):
+    def dates(self):
         """
         All the dates of the vector, list of datetime() instances.
         """
         return self.__dates
 
     @property
-    def days( self ):
+    def days(self):
         """
         The time in days as a numpy vector.
 
@@ -97,14 +97,14 @@ class EclSumVector(object):
         return self.__days
 
     @property
-    def mpl_dates( self ):
+    def mpl_dates(self):
         """
         All the dates as numpy vector of dates in matplotlib format.
         """
         return self.__mpl_dates
 
     @property
-    def mini_step( self ):
+    def mini_step(self):
         """
         All the ministeps of the vector.
 
@@ -118,14 +118,14 @@ class EclSumVector(object):
         return self.__mini_step
 
     @property
-    def report_step( self ):
+    def report_step(self):
         """
         All the report_step of the vector.
         """
         return self.__report_step
 
 
-    def __iget( self, index ):
+    def __iget(self, index):
         """
         Will return an EclSumNode for element @index; should be called
         through the [] operator, otherwise you can come across
@@ -165,7 +165,7 @@ class EclSumVector(object):
             if index < 0:
                 index += len(self.__values)
             if index < 0 or index > length:
-                raise KeyError("Invalid index:%d out of range [0:%d)" % ( index, length))
+                raise KeyError("Invalid index:%d out of range [0:%d)" % (index, length))
             else:
                 return self.__iget(index)
         elif isinstance(index, slice):
@@ -183,7 +183,7 @@ class EclSumVector(object):
         raise KeyError("Invalid index:%s - must have integer or slice." % index)
 
     @property
-    def first( self ):
+    def first(self):
         """
         Will return the first EclSumNode in this vector.
         """
@@ -191,7 +191,7 @@ class EclSumVector(object):
         return self.__iget(0)
 
     @property
-    def last( self ):
+    def last(self):
         """
         Will return the last EclSumNode in this vector.
         """
@@ -201,7 +201,7 @@ class EclSumVector(object):
         return self.__iget(index)
 
     @property
-    def last_value( self ):
+    def last_value(self):
         """
         Will return the last value in this vector.
         """
@@ -211,7 +211,7 @@ class EclSumVector(object):
         return self.__iget(index).value
 
 
-    def get_interp( self, days=None, date=None):
+    def get_interp(self, days=None, date=None):
         """
         Will lookup value interpolated to @days or @date.
 
@@ -220,8 +220,8 @@ class EclSumVector(object):
         should be Python datetime instance.
 
            vec = sum["WWCT:A-3"]
-           vec.get_interp( days = 100 )
-           vec.get_interp( date = datetime.date( year , month , day ))
+           vec.get_interp(days = 100)
+           vec.get_interp(date = datetime.date(year, month, day))
 
         This function will crash and burn if the time arguments are
         invalid; if in doubt you should check first.
@@ -229,7 +229,7 @@ class EclSumVector(object):
         return self.parent.get_interp(self.key, days, date)
 
 
-    def get_interp_vector( self, days_list=None, date_list=None):
+    def get_interp_vector(self, days_list=None, date_list=None):
         """
         Will return Python list of interpolated values.
 
@@ -238,7 +238,7 @@ class EclSumVector(object):
         return self.parent.get_interp_vector(self.key, days_list, date_list)
 
 
-    def get_from_report( self, report_step ):
+    def get_from_report(self, report_step):
         """
         Will lookup the value based on @report_step.
         """
@@ -246,7 +246,7 @@ class EclSumVector(object):
 
     #################################################################
 
-    def first_gt_index( self, limit ):
+    def first_gt_index(self, limit):
         """
         Locates first index where the value is above @limit.
 
@@ -260,12 +260,12 @@ class EclSumVector(object):
         else:
             raise Exception("Sorry - first_gt_index() can not be called for vectors with report_only=True")
 
-    def first_gt( self, limit ):
+    def first_gt(self, limit):
         """
         Locate the first EclSumNode where value is above @limit.
 
            vec = sum["WWCT:A-3"]
-           w = vec.first_gt( 0.50 )
+           w = vec.first_gt(0.50)
            print('Water cut above 0.50 in well A-3 at: %s' % w.date)
 
         Uses first_gt_index() internally and can not be called for
@@ -278,7 +278,7 @@ class EclSumVector(object):
         else:
             return None
 
-    def first_lt_index( self, limit ):
+    def first_lt_index(self, limit):
         """
         Locates first index where the value is below @limit.
 
@@ -291,7 +291,7 @@ class EclSumVector(object):
         else:
             raise Exception("Sorry - first_lt_index() can not be called for vectors with report_only=True")
 
-    def first_lt( self, limit ):
+    def first_lt(self, limit):
         """
         Locates first element where the value is below @limit.
 

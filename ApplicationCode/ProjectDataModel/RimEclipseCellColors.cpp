@@ -29,9 +29,9 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
 #include "RimLegendConfig.h"
+#include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -90,7 +90,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             changeLegendConfig(this->resultVariable());
         }
 
-        if (newValue != RimDefines::undefinedResultName())
+        if (newValue != RiaDefines::undefinedResultName())
         {
             if (m_reservoirView) m_reservoirView->hasUserRequestedAnimation = true;
         }
@@ -116,7 +116,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
-    if (resultVarNameOfNewLegend != RimDefines::ternarySaturationResultName())
+    if (resultVarNameOfNewLegend != RiaDefines::ternarySaturationResultName())
     {
         QString legendResultVariable;
 
@@ -185,7 +185,7 @@ void RimEclipseCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (this->resultVariable() == RimDefines::ternarySaturationResultName())
+    if (this->resultVariable() == RiaDefines::ternarySaturationResultName())
     {
         uiTreeOrdering.add(ternaryLegendConfig());
     }
@@ -273,7 +273,7 @@ public :
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 {
-    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (this->isFlowDiagOrInjectionFlooding())
     {
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;
@@ -316,7 +316,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
             int tracerIndex = 0;
             for (const auto& tracerName : tracerNames)
             {
-                RimEclipseWell* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                RimSimWellInView* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
                 cvf::Color3ub color(cvf::Color3::GRAY);
                 if (well) color = cvf::Color3ub(well->wellPipeColor());
 
@@ -344,8 +344,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
         CVF_ASSERT(eclipseCase);
         if (!eclipseCase) return;
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(this->porosityModel());
-        RigCaseCellResultsData* cellResultsData = eclipseCase->results(porosityModel);
+        RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
         CVF_ASSERT(cellResultsData);
 
         double globalMin, globalMax;
@@ -377,14 +376,30 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            if (this->resultType() != RimDefines::FORMATION_NAMES)
-            {
-                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
-            }
-            else
+            if (this->resultType() == RiaDefines::FORMATION_NAMES)
             {
                 const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
                 this->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+            else if (this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName())
+            {
+                std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
+                caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
+                caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
+                caf::AppEnum<RiaDefines::CompletionType> fracture(RiaDefines::FRACTURE);
+
+                categories.push_back(std::make_tuple(wellPath.uiText(),             static_cast<int>(wellPath.index()),             cvf::Color3::RED));
+                categories.push_back(std::make_tuple(fishbone.uiText(),             static_cast<int>(fishbone.index()),             cvf::Color3::DARK_GREEN));
+                categories.push_back(std::make_tuple(perforationInterval.uiText(),  static_cast<int>(perforationInterval.index()),  cvf::Color3::GREEN));
+                categories.push_back(std::make_tuple(fracture.uiText(),             static_cast<int>(fracture.index()),             cvf::Color3::YELLOW_GREEN));
+
+                legendConfig()->setCategoryItems(categories);
+            }
+            else
+            {
+                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
             }
         }
     }

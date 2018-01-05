@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafPdmPointer.h"
+#include "cafPdmObject.h"
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
@@ -28,17 +29,17 @@
 #include <vector>
 #include <assert.h>
 #include <array>
-#include "RimEclipseWell.h"
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
 class RimEclipseView;
+class RimGeoMechView;
+class RimSimWellInView;
+class RimWellPath;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
-class RimGeoMechView;
-class RimWellPath;
-class RivWellPathSourceInfo;
 class RivSimWellPipeSourceInfo;
+class RivWellPathSourceInfo;
 
 //==================================================================================================
 //
@@ -107,7 +108,8 @@ public:
         ECLIPSE_SELECTION_OBJECT,
         GEOMECH_SELECTION_OBJECT,
         WELLPATH_SELECTION_OBJECT,
-        SIMWELL_SELECTION_OBJECT    
+        SIMWELL_SELECTION_OBJECT,
+        GENERAL_SELECTION_OBJECT
     };
 
 public:
@@ -139,7 +141,7 @@ public:
 public:
     caf::PdmPointer<RimEclipseView> m_view;
     size_t m_gridIndex;
-    size_t m_cellIndex;
+    size_t m_gridLocalCellIndex;
     size_t m_nncIndex;
     cvf::Color3f m_color;
     cvf::StructGridInterface::FaceType m_face;
@@ -223,7 +225,7 @@ public:
 class RiuSimWellSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuSimWellSelectionItem(RimEclipseWell* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
+    explicit RiuSimWellSelectionItem(RimSimWellInView* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
 
 
     virtual ~RiuSimWellSelectionItem() {};
@@ -234,7 +236,29 @@ public:
     }
 
 public:
-    RimEclipseWell* m_simWell;
-    cvf::Vec3d      m_domainCoord;
-    size_t          m_branchIndex;
+    RimSimWellInView* m_simWell;
+    cvf::Vec3d        m_domainCoord;
+    size_t            m_branchIndex;
+};
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuGeneralSelectionItem : public RiuSelectionItem
+{
+public:
+    RiuGeneralSelectionItem(caf::PdmObject* object);
+
+    virtual ~RiuGeneralSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return GENERAL_SELECTION_OBJECT;
+    }
+
+public:
+    caf::PdmObject* m_object;
 };

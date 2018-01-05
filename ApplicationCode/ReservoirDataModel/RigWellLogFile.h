@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -46,15 +46,19 @@ public:
     bool open(const QString& fileName, QString* errorMessage);
 
     QString     wellName() const;
+    QString     date() const;
     QStringList wellLogChannelNames() const;
 
     std::vector<double> depthValues() const;
+    std::vector<double> tvdMslValues() const;
     std::vector<double> values(const QString& name) const;
 
-    QString wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const;
-    RimDefines::DepthUnitType depthUnit() const;
+    QString wellLogChannelUnitString(const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit) const;
+    RiaDefines::DepthUnitType depthUnit() const;
 
     static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
+
+    bool        hasTvdChannel() const;
 
 private:
     void    close();
@@ -63,4 +67,5 @@ private:
     NRLib::Well*    m_wellLogFile;
     QStringList     m_wellLogChannelNames;
     QString         m_depthLogName;
+    QString         m_tvdMslLogName;
 };

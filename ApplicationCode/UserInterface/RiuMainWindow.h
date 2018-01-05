@@ -43,6 +43,8 @@ class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuViewer;
+class RiuRelativePermeabilityPlotPanel;
+class RiuPvtPlotPanel;
 
 struct RimMdiWindowGeometry;
 
@@ -94,7 +96,7 @@ public:
 
     void            hideAllDockWindows();
 
-    void            selectAsCurrentItem(caf::PdmObject* object);
+    void            selectAsCurrentItem(const caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
@@ -102,7 +104,7 @@ public:
 
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
 
@@ -111,8 +113,10 @@ public:
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
-    RiuResultQwtPlot*   resultPlot();
-    RiuMessagePanel*    messagePanel();
+    RiuResultQwtPlot*                   resultPlot();
+    RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
+    RiuPvtPlotPanel*                    pvtPlotPanel();
+    RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();
 
@@ -167,8 +171,10 @@ private:
     RiuProcessMonitor*  m_processMonitor;
     QPointer<RiuMessagePanel>               m_messagePanel;
     
-    RiuResultQwtPlot*   m_resultQwtPlot;
-    
+    RiuResultQwtPlot*                   m_resultQwtPlot;
+    RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
+    RiuPvtPlotPanel*                    m_pvtPlotPanel;
+
     QMenu*              m_windowMenu;
 
 

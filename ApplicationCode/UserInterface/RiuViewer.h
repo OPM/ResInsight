@@ -78,6 +78,8 @@ public:
     void            updateGridBoxData();
     cvf::Model*     gridBoxModel() const;
 
+    void            updateAnnotationItems();
+
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
@@ -92,7 +94,6 @@ public:
     void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
 
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
-    caf::PdmObject* lastPickedObject() const;
 
     cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
 

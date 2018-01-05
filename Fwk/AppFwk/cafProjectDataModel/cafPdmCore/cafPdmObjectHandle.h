@@ -191,7 +191,10 @@ void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendant
 
         for (auto childObject : childObjects)
         {
-            childObject->descendantsIncludingThisOfType(descendants);
+            if (childObject)
+            {
+                childObject->descendantsIncludingThisOfType(descendants);
+            }
         }
     }
 }

@@ -161,7 +161,7 @@ void PdmChildArrayField<DataType*>::erase(size_t index)
 /// Get the index of the given object pointer
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-size_t PdmChildArrayField<DataType*>::index(DataType* pointer)
+size_t PdmChildArrayField<DataType*>::index(const DataType* pointer) const
 {
     for (size_t i = 0; i < m_pointers.size(); ++i)
     {
@@ -202,6 +202,25 @@ void PdmChildArrayField<DataType*>::removeChildObject(PdmObjectHandle* object)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
+{
+    std::vector<DataType*> objects;
+
+    for (DataType* p : m_pointers)
+    {
+        if (p != nullptr)
+        {
+            objects.push_back(p);
+        }
+    }
+
+    return objects;
 }
 
 //--------------------------------------------------------------------------------------------------

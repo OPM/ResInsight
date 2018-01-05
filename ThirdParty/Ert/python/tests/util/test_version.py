@@ -17,7 +17,7 @@ import os.path
 
 import ecl
 from ecl.test import ExtendedTestCase
-from ecl.util import Version
+from ecl.util import Version,EclVersion
 
 
 class VersionTest(ExtendedTestCase):
@@ -93,27 +93,18 @@ class VersionTest(ExtendedTestCase):
 
 
     def test_current(self):
-        current = Version.currentVersion()
+        current = EclVersion( )
         self.assertTrue(current > (0, 0, 0))
         pfx = 'Version(major='
         self.assertEqual(pfx, repr(current)[:len(pfx)])
 
-    def test_import(self):
-        from ecl import Version as globalVersion
-        v1 = globalVersion(1, 1, 2)
-        v2 = Version(1, 1, 2)
-
-        self.assertTrue(v1 == v2)
-        self.assertEqual(v1, v2)
-        self.assertEqual(repr(v1), repr(v2))
-
 
     def test_root_version(self):
-        cv = Version.currentVersion( )
+        cv = EclVersion( )
         self.assertEqual( ecl.__version__ , cv.versionString() )
 
 
     def test_root_path(self):
         self.assertTrue( os.path.isdir( os.path.join( ecl.root() , "ecl")))
         self.assertTrue( os.path.isfile( os.path.join( ecl.root() , "ecl", "__init__.py")))
-        
+

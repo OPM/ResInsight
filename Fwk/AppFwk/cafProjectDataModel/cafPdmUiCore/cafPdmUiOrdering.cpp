@@ -60,13 +60,25 @@ PdmUiOrdering::~PdmUiOrdering()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiGroup* PdmUiOrdering::addNewGroup(QString displayName)
+PdmUiGroup* PdmUiOrdering::addNewGroup(const QString& displayName)
 {
     PdmUiGroup* group = new PdmUiGroup;
     group->setUiName(displayName);
 
     m_createdGroups.push_back(group);
     m_ordering.push_back(group);
+
+    return group;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayName, const QString& keyword)
+{
+    PdmUiGroup* group = addNewGroup(displayName);
+
+    group->setKeyword(keyword);
 
     return group;
 }

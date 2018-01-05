@@ -42,9 +42,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import ctypes
 import warnings
+import numpy
 
-import  numpy
 from cwrap import CFILE, BaseCClass
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclDataType
 from ecl.ecl import EclTypeEnum, EclUtil, EclPrototype
 
@@ -90,70 +91,70 @@ class EclKW(BaseCClass):
     limit the operation to a part of the EclKW.
     """
 
-    int_kw_set = set( ["PVTNUM" , "FIPNUM" , "EQLNUM" , "FLUXNUM" , "MULTNUM" , "ACTNUM" , "SPECGRID" , "REGIONS"] )
+    int_kw_set = set(["PVTNUM", "FIPNUM", "EQLNUM", "FLUXNUM", "MULTNUM", "ACTNUM", "SPECGRID", "REGIONS"])
 
     TYPE_NAME          = "ecl_kw"
-    _alloc_new         = EclPrototype("void* ecl_kw_alloc_python( char* , int , ecl_data_type )", bind = False)
-    _fread_alloc       = EclPrototype("ecl_kw_obj ecl_kw_fread_alloc( fortio )" , bind = False)
-    _load_grdecl       = EclPrototype("ecl_kw_obj ecl_kw_fscanf_alloc_grdecl_dynamic_python( FILE , char* , bool , ecl_data_type )" , bind = False)
-    _fseek_grdecl      = EclPrototype("bool     ecl_kw_grdecl_fseek_kw(char* , bool , FILE )" , bind = False)
+    _alloc_new         = EclPrototype("void* ecl_kw_alloc_python(char*, int, ecl_data_type)", bind = False)
+    _fread_alloc       = EclPrototype("ecl_kw_obj ecl_kw_fread_alloc(fortio)", bind = False)
+    _load_grdecl       = EclPrototype("ecl_kw_obj ecl_kw_fscanf_alloc_grdecl_dynamic_python(FILE, char*, bool, ecl_data_type)", bind = False)
+    _fseek_grdecl      = EclPrototype("bool     ecl_kw_grdecl_fseek_kw(char*, bool, FILE)", bind = False)
 
-    _sub_copy          = EclPrototype("ecl_kw_obj ecl_kw_alloc_sub_copy( ecl_kw , char*, int , int)")
-    _copyc             = EclPrototype("ecl_kw_obj ecl_kw_alloc_copy( ecl_kw )")
-    _slice_copyc       = EclPrototype("ecl_kw_obj ecl_kw_alloc_slice_copy( ecl_kw , int , int , int )")
-    _fprintf_grdecl    = EclPrototype("void     ecl_kw_fprintf_grdecl( ecl_kw , FILE )")
-    _fprintf_data      = EclPrototype("void     ecl_kw_fprintf_data( ecl_kw , char* , FILE )")
+    _sub_copy          = EclPrototype("ecl_kw_obj ecl_kw_alloc_sub_copy(ecl_kw, char*, int, int)")
+    _copyc             = EclPrototype("ecl_kw_obj ecl_kw_alloc_copy(ecl_kw)")
+    _slice_copyc       = EclPrototype("ecl_kw_obj ecl_kw_alloc_slice_copy(ecl_kw, int, int, int)")
+    _fprintf_grdecl    = EclPrototype("void     ecl_kw_fprintf_grdecl(ecl_kw, FILE)")
+    _fprintf_data      = EclPrototype("void     ecl_kw_fprintf_data(ecl_kw, char*, FILE)")
 
-    _get_size          = EclPrototype("int      ecl_kw_get_size( ecl_kw )")
-    _get_fortio_size   = EclPrototype("size_t   ecl_kw_fortio_size( ecl_kw )")
-    _get_type          = EclPrototype("ecl_type_enum ecl_kw_get_type( ecl_kw )")
-    _iget_char_ptr     = EclPrototype("char*    ecl_kw_iget_char_ptr( ecl_kw , int )")
-    _iset_char_ptr     = EclPrototype("void     ecl_kw_iset_char_ptr( ecl_kw , int , char*)")
-    _iget_string_ptr   = EclPrototype("char*    ecl_kw_iget_string_ptr( ecl_kw , int )")
-    _iset_string_ptr   = EclPrototype("void     ecl_kw_iset_string_ptr( ecl_kw , int, char*)")
-    _iget_bool         = EclPrototype("bool     ecl_kw_iget_bool( ecl_kw , int)")
-    _iset_bool         = EclPrototype("bool     ecl_kw_iset_bool( ecl_kw , int, bool)")
-    _iget_int          = EclPrototype("int      ecl_kw_iget_int( ecl_kw , int )")
-    _iget_double       = EclPrototype("double   ecl_kw_iget_double( ecl_kw , int )")
-    _iget_float        = EclPrototype("float    ecl_kw_iget_float( ecl_kw , int)")
-    _float_ptr         = EclPrototype("float*   ecl_kw_get_float_ptr( ecl_kw )")
-    _int_ptr           = EclPrototype("int*     ecl_kw_get_int_ptr( ecl_kw )")
-    _double_ptr        = EclPrototype("double*  ecl_kw_get_double_ptr( ecl_kw )")
-    _free              = EclPrototype("void     ecl_kw_free( ecl_kw )")
-    _fwrite            = EclPrototype("void     ecl_kw_fwrite( ecl_kw , fortio )")
-    _get_header        = EclPrototype("char*    ecl_kw_get_header ( ecl_kw )")
-    _set_header        = EclPrototype("void     ecl_kw_set_header_name ( ecl_kw , char*)")
+    _get_size          = EclPrototype("int      ecl_kw_get_size(ecl_kw)")
+    _get_fortio_size   = EclPrototype("size_t   ecl_kw_fortio_size(ecl_kw)")
+    _get_type          = EclPrototype("ecl_type_enum ecl_kw_get_type(ecl_kw)")
+    _iget_char_ptr     = EclPrototype("char*    ecl_kw_iget_char_ptr(ecl_kw, int)")
+    _iset_char_ptr     = EclPrototype("void     ecl_kw_iset_char_ptr(ecl_kw, int, char*)")
+    _iget_string_ptr   = EclPrototype("char*    ecl_kw_iget_string_ptr(ecl_kw, int)")
+    _iset_string_ptr   = EclPrototype("void     ecl_kw_iset_string_ptr(ecl_kw, int, char*)")
+    _iget_bool         = EclPrototype("bool     ecl_kw_iget_bool(ecl_kw, int)")
+    _iset_bool         = EclPrototype("bool     ecl_kw_iset_bool(ecl_kw, int, bool)")
+    _iget_int          = EclPrototype("int      ecl_kw_iget_int(ecl_kw, int)")
+    _iget_double       = EclPrototype("double   ecl_kw_iget_double(ecl_kw, int)")
+    _iget_float        = EclPrototype("float    ecl_kw_iget_float(ecl_kw, int)")
+    _float_ptr         = EclPrototype("float*   ecl_kw_get_float_ptr(ecl_kw)")
+    _int_ptr           = EclPrototype("int*     ecl_kw_get_int_ptr(ecl_kw)")
+    _double_ptr        = EclPrototype("double*  ecl_kw_get_double_ptr(ecl_kw)")
+    _free              = EclPrototype("void     ecl_kw_free(ecl_kw)")
+    _fwrite            = EclPrototype("void     ecl_kw_fwrite(ecl_kw, fortio)")
+    _get_header        = EclPrototype("char*    ecl_kw_get_header (ecl_kw)")
+    _set_header        = EclPrototype("void     ecl_kw_set_header_name (ecl_kw, char*)")
     _get_data_type     = EclPrototype("ecl_data_type_obj ecl_kw_get_data_type_python(ecl_kw)");
 
-    _int_sum           = EclPrototype("int      ecl_kw_element_sum_int( ecl_kw )")
-    _float_sum         = EclPrototype("double   ecl_kw_element_sum_float( ecl_kw )")
-    _iadd              = EclPrototype("void     ecl_kw_inplace_add( ecl_kw , ecl_kw )")
-    _imul              = EclPrototype("void     ecl_kw_inplace_mul( ecl_kw , ecl_kw )")
-    _idiv              = EclPrototype("void     ecl_kw_inplace_div( ecl_kw , ecl_kw )")
-    _isub              = EclPrototype("void     ecl_kw_inplace_sub( ecl_kw , ecl_kw )")
-    _iabs              = EclPrototype("void     ecl_kw_inplace_abs( ecl_kw )")
-    _equal             = EclPrototype("bool     ecl_kw_equal( ecl_kw , ecl_kw )")
-    _equal_numeric     = EclPrototype("bool     ecl_kw_numeric_equal( ecl_kw , ecl_kw , double , double)")
+    _int_sum           = EclPrototype("int      ecl_kw_element_sum_int(ecl_kw)")
+    _float_sum         = EclPrototype("double   ecl_kw_element_sum_float(ecl_kw)")
+    _iadd              = EclPrototype("void     ecl_kw_inplace_add(ecl_kw, ecl_kw)")
+    _imul              = EclPrototype("void     ecl_kw_inplace_mul(ecl_kw, ecl_kw)")
+    _idiv              = EclPrototype("void     ecl_kw_inplace_div(ecl_kw, ecl_kw)")
+    _isub              = EclPrototype("void     ecl_kw_inplace_sub(ecl_kw, ecl_kw)")
+    _iabs              = EclPrototype("void     ecl_kw_inplace_abs(ecl_kw)")
+    _equal             = EclPrototype("bool     ecl_kw_equal(ecl_kw, ecl_kw)")
+    _equal_numeric     = EclPrototype("bool     ecl_kw_numeric_equal(ecl_kw, ecl_kw, double, double)")
 
-    _assert_binary     = EclPrototype("bool     ecl_kw_size_and_numeric_type_equal( ecl_kw , ecl_kw )")
-    _scale_int         = EclPrototype("void     ecl_kw_scale_int( ecl_kw , int )")
-    _scale_float       = EclPrototype("void     ecl_kw_scale_float_or_double( ecl_kw , double )")
-    _shift_int         = EclPrototype("void     ecl_kw_shift_int( ecl_kw , int )")
-    _shift_float       = EclPrototype("void     ecl_kw_shift_float_or_double( ecl_kw , double )")
-    _copy_data         = EclPrototype("void     ecl_kw_memcpy_data( ecl_kw , ecl_kw )")
-    _set_int           = EclPrototype("void     ecl_kw_scalar_set_int( ecl_kw , int )")
-    _set_float         = EclPrototype("void     ecl_kw_scalar_set_float_or_double( ecl_kw , double )")
+    _assert_binary     = EclPrototype("bool     ecl_kw_size_and_numeric_type_equal(ecl_kw, ecl_kw)")
+    _scale_int         = EclPrototype("void     ecl_kw_scale_int(ecl_kw, int)")
+    _scale_float       = EclPrototype("void     ecl_kw_scale_float_or_double(ecl_kw, double)")
+    _shift_int         = EclPrototype("void     ecl_kw_shift_int(ecl_kw, int)")
+    _shift_float       = EclPrototype("void     ecl_kw_shift_float_or_double(ecl_kw, double)")
+    _copy_data         = EclPrototype("void     ecl_kw_memcpy_data(ecl_kw, ecl_kw)")
+    _set_int           = EclPrototype("void     ecl_kw_scalar_set_int(ecl_kw, int)")
+    _set_float         = EclPrototype("void     ecl_kw_scalar_set_float_or_double(ecl_kw, double)")
 
-    _max_min_int       = EclPrototype("void     ecl_kw_max_min_int( ecl_kw , int* , int*)")
-    _max_min_float     = EclPrototype("void     ecl_kw_max_min_float( ecl_kw , float* , float*)")
-    _max_min_double    = EclPrototype("void     ecl_kw_max_min_double( ecl_kw , double* , double*)")
-    _fix_uninitialized = EclPrototype("void     ecl_kw_fix_uninitialized( ecl_kw ,int , int , int, int*)")
-    _first_different   = EclPrototype("int      ecl_kw_first_different( ecl_kw , ecl_kw , int , double, double)")
-    _resize            = EclPrototype("void     ecl_kw_resize( ecl_kw , int)")
+    _max_min_int       = EclPrototype("void     ecl_kw_max_min_int(ecl_kw, int*, int*)")
+    _max_min_float     = EclPrototype("void     ecl_kw_max_min_float(ecl_kw, float*, float*)")
+    _max_min_double    = EclPrototype("void     ecl_kw_max_min_double(ecl_kw, double*, double*)")
+    _fix_uninitialized = EclPrototype("void     ecl_kw_fix_uninitialized(ecl_kw,int, int, int, int*)")
+    _first_different   = EclPrototype("int      ecl_kw_first_different(ecl_kw, ecl_kw, int, double, double)")
+    _resize            = EclPrototype("void     ecl_kw_resize(ecl_kw, int)")
 
     @classmethod
     def createCReference(cls, c_ptr, parent=None):
-        ecl_kw = super(EclKW, cls).createCReference(c_ptr , parent = parent)
+        ecl_kw = super(EclKW, cls).createCReference(c_ptr, parent=parent)
         if ecl_kw is None:
             raise ValueError("Failed to create EclKW instance")
 
@@ -173,40 +174,40 @@ class EclKW(BaseCClass):
 
 
     @classmethod
-    def add_int_kw(cls , kw):
+    def add_int_kw(cls, kw):
         """Will add keyword @kw to the standard set of integer keywords."""
-        cls.int_kw_set.add( kw )
+        cls.int_kw_set.add(kw)
 
     @classmethod
-    def del_int_kw(cls , kw):
+    def del_int_kw(cls, kw):
         """Will remove keyword @kw from the standard set of integer keywords."""
-        cls.int_kw_set.discard( kw )
+        cls.int_kw_set.discard(kw)
 
     @classmethod
-    def intKeywords(cls):
+    def int_keywords(cls):
         """Will return the current set of integer keywords."""
         return cls.int_kw_set
 
 
-    def slice_copy( self , slice_range ):
-        (start , stop , step) = slice_range.indices( len(self) )
+    def slice_copy(self, slice_range):
+        (start, stop, step) = slice_range.indices(len(self))
         if stop > start:
-            return self._slice_copyc( start , stop , step)
+            return self._slice_copyc(start, stop, step)
         else:
             return None
 
 
-    def copy( self ):
+    def copy(self):
         """
         Will create a deep copy of the current kw instance.
         """
-        return self._copyc( )
+        return self._copyc()
 
 
 
 
     @classmethod
-    def read_grdecl( cls , fileH , kw , strict = True , ecl_type = None):
+    def read_grdecl(cls, fileH, kw, strict=True, ecl_type=None):
         """
         Function to load an EclKW instance from a grdecl formatted filehandle.
 
@@ -241,7 +242,7 @@ class EclKW(BaseCClass):
         1. The optional argument @ecl_type can be used to specify
            the type:
 
-           special_int_kw = EclKW.read_grdecl( fileH , 'INTKW' , ecl_type = ECL_INT )
+           special_int_kw = EclKW.read_grdecl(fileH, 'INTKW', ecl_type=ECL_INT)
 
            If ecl_type is different from ECL_INT or
            ECL_FLOAT a TypeError exception will be raised.
@@ -253,7 +254,7 @@ class EclKW(BaseCClass):
         2. If the keyword is included in the set built in set
            'int_kw_set' the type will be ECL_INT_TYPE.
 
-           pvtnum_kw = EclKW.read_grdecl( fileH , 'PVTNUM' )
+           pvtnum_kw = EclKW.read_grdecl(fileH, 'PVTNUM')
 
            Observe that (currently) no case conversions take place
            when checking the 'int_kw_set'. The current built in set is
@@ -261,9 +262,9 @@ class EclKW(BaseCClass):
 
 
         3. Otherwise the default is float, i.e. ECL_FLOAT.
-        
+
            EclKw reads grdecl with EclDataType
-           poro_kw = EclKW.read_grdecl( fileH , 'PORO')
+           poro_kw = EclKW.read_grdecl(fileH, 'PORO')
 
 
         Observe that since the grdecl files are quite weakly
@@ -276,13 +277,13 @@ class EclKW(BaseCClass):
         it finds in the file.
         """
 
-        cfile  = CFILE( fileH )
+        cfile  = CFILE(fileH)
         if kw:
             if len(kw) > 8:
                 raise TypeError("Sorry keyword:%s is too long, must be eight characters or less." % kw)
 
         if ecl_type is None:
-            if cls.int_kw_set.__contains__( kw ):
+            if cls.int_kw_set.__contains__(kw):
                 ecl_type = EclDataType.ECL_INT
             else:
                 ecl_type = EclDataType.ECL_FLOAT
@@ -292,14 +293,14 @@ class EclKW(BaseCClass):
         if not isinstance(ecl_type, EclDataType):
             raise TypeError("Expected EclDataType, was: %s" % type(ecl_type))
 
-        if not ecl_type in [EclDataType.ECL_FLOAT , EclDataType.ECL_INT]:
+        if not ecl_type in [EclDataType.ECL_FLOAT, EclDataType.ECL_INT]:
             raise ValueError("The type:%s is invalid when loading keyword:%s" % (ecl_type.type_name, kw))
 
-        return cls._load_grdecl( cfile , kw , strict , ecl_type )
+        return cls._load_grdecl(cfile, kw, strict, ecl_type)
 
 
     @classmethod
-    def fseek_grdecl( cls , fileH , kw , rewind = False):
+    def fseek_grdecl(cls, fileH, kw, rewind=False):
         """
         Will search through the open file and look for string @kw.
 
@@ -323,33 +324,33 @@ class EclKW(BaseCClass):
         true the function rewind to the beginning of the file and
         search from there after the initial search.
         """
-        cfile = CFILE( fileH )
-        return cls._fseek_grdecl( kw , rewind , cfile)
+        cfile = CFILE(fileH)
+        return cls._fseek_grdecl(kw, rewind, cfile)
 
 
     @classmethod
-    def fread( cls , fortio ):
+    def fread(cls, fortio):
         """
         Will read a new EclKW instance from the open FortIO file.
         """
-        return cls._fread_alloc( fortio )
+        return cls._fread_alloc(fortio)
 
 
     def free(self):
-        self._free( )
+        self._free()
 
     def __repr__(self):
         si = len(self)
         nm = self.getName()
-        mm = 'type = %s' % str(self.getEclType())
+        mm = 'type=%s' % str(self.getEclType())
         if self.isNumeric():
             mi, ma = self.getMinMax()
-            mm = 'min = %.2f, max = %.2f' % (mi,ma)
+            mm = 'min=%.2f, max=%.2f' % (mi,ma)
         ad = self._ad_str()
-        fmt = 'EclKW(size = %d, name = "%s", %s) %s'
+        fmt = 'EclKW(size=%d, name="%s", %s) %s'
         return fmt % (si,nm,mm,ad)
 
-    def __init__(self , name , size , data_type):
+    def __init__(self, name, size, data_type):
         """Creates a brand new EclKW instance.
 
         This method will create a grand spanking new EclKW
@@ -357,7 +358,7 @@ class EclKW(BaseCClass):
         datatype @data_type. Using this method you could create a SOIL
         keyword with:
 
-           soil_kw = EclKW( "SOIL" , 10000 , ECL_FLOAT_TYPE )
+           soil_kw = EclKW("SOIL", 10000, ECL_FLOAT_TYPE)
 
         """
         if len(name) > 8:
@@ -369,7 +370,7 @@ class EclKW(BaseCClass):
             raise TypeError("Expected an EclDataType, received: %s" %
                     type(data_type))
 
-        c_ptr = self._alloc_new( name , size , data_type )
+        c_ptr = self._alloc_new(name, size, data_type)
         super(EclKW, self).__init__(c_ptr)
         self.__private_init()
 
@@ -379,15 +380,15 @@ class EclKW(BaseCClass):
         self.data_ptr   = None
 
         if self.data_type.is_int():
-            self.data_ptr = self._int_ptr( )
+            self.data_ptr = self._int_ptr()
             self.dtype    = numpy.int32
             self.str_fmt  = "%8d"
         elif self.data_type.is_float():
-            self.data_ptr = self._float_ptr( )
+            self.data_ptr = self._float_ptr()
             self.dtype    = numpy.float32
             self.str_fmt  = "%13.4f"
         elif self.data_type.is_double():
-            self.data_ptr = self._double_ptr( )
+            self.data_ptr = self._double_ptr()
             self.dtype    = numpy.float64
             self.str_fmt  = "%13.4f"
         else:
@@ -404,8 +405,8 @@ class EclKW(BaseCClass):
                 self.str_fmt = "%" + str(self.data_type.element_size) + "s"
             else:
                 raise ValueError("Unknown EclDataType (%s)!" % self.data_type.type_name)
-    
-    def sub_copy(self , offset , count , new_header = None):
+
+    def sub_copy(self, offset, count, new_header=None):
         """
         Will create a new block copy of the src keyword.
 
@@ -417,53 +418,53 @@ class EclKW(BaseCClass):
         @count elements; a negative value of @count is interpreted as
         'the rest of the elements'
 
-           new1 = src.sub_copy(0 , 10, new_header = "NEW1")
-           new2 = src.sub_copy(10 , -1 , new_header = "NEW2")
+           new1 = src.sub_copy(0, 10, new_header="NEW1")
+           new2 = src.sub_copy(10, -1, new_header="NEW2")
 
         If the count or index arguments are in some way invalid the
         method will raise IndexError.
         """
         if offset < 0 or offset >= len(self):
-            raise IndexError("Offset:%d invalid - valid range:[0,%d)" % (offset , len(self)))
+            raise IndexError("Offset:%d invalid - valid range:[0,%d)" % (offset, len(self)))
 
         if offset + count > len(self):
             raise IndexError("Invalid value of (offset + count):%d" % (offset + count))
 
-        return self._sub_copy( new_header , offset , count )
+        return self._sub_copy(new_header, offset, count)
 
 
-    def isNumeric(self):
+    def is_numeric(self):
         """
         Will check if the keyword contains numeric data, i.e int, float or double.
         """
         return self.data_type.is_numeric()
 
-    def ecl_kw_instance( self ):
+    def ecl_kw_instance(self):
         return True
 
 
 
-    def __len__( self ):
+    def __len__(self):
         """
-        Returns the number of elements. Implements len( )
+        Returns the number of elements. Implements len()
         """
-        return self._get_size( )
+        return self._get_size()
 
 
-    def __deep_copy__(self , memo):
+    def __deep_copy__(self, memo):
         """
         Python special routine used to perform deep copy.
         """
-        ecl_kw = self.copy( )
+        ecl_kw = self.copy()
         return ecl_kw
 
 
-    def __getitem__(self, index ):
+    def __getitem__(self, index):
         """
         Function to support index based lookup: y = kw[index]
         """
-        if isinstance( index ,int ):
-            length = self.__len__()
+        if isinstance(index,int):
+            length = len(self)
             if index < 0:
                 # We allow one level of negative indexing
                 index += len(self)
@@ -475,24 +476,24 @@ class EclKW(BaseCClass):
                     return self.data_ptr[ index ]
                 else:
                     if self.data_type.is_bool():
-                        return self._iget_bool( index)
+                        return self._iget_bool(index)
                     elif self.data_type.is_char():
-                        return self._iget_char_ptr( index )
+                        return self._iget_char_ptr(index)
                     elif self.data_type.is_string():
-                        return self._iget_string_ptr( index )
+                        return self._iget_string_ptr(index)
                     else:
                         raise TypeError("Internal implementation error ...")
-        elif isinstance( index , slice):
-            return self.slice_copy( index )
+        elif isinstance(index, slice):
+            return self.slice_copy(index)
         else:
             raise TypeError("Index should be integer type")
 
 
-    def __setitem__(self, index ,value):
+    def __setitem__(self, index,value):
         """
         Function to support index based assignment: kw[index] = value
         """
-        if isinstance( index , int):
+        if isinstance(index, int):
             length = len(self)
             if index < 0:
                 # Will only wrap backwards once
@@ -505,15 +506,15 @@ class EclKW(BaseCClass):
                     self.data_ptr[ index ] = value
                 else:
                     if self.data_type.is_bool():
-                        self._iset_bool( index , value)
+                        self._iset_bool(index, value)
                     elif self.data_type.is_char():
-                        return self._iset_char_ptr( index , value)
+                        return self._iset_char_ptr(index, value)
                     elif self.data_type.is_string():
-                        return self._iset_string_ptr( index, value)
+                        return self._iset_string_ptr(index, value)
                     else:
                         raise SystemError("Internal implementation error ...")
-        elif isinstance( index , slice):
-            (start , stop , step) = index.indices( len(self) )
+        elif isinstance(index, slice):
+            (start, stop, step) = index.indices(len(self))
             index = start
             while index < stop:
                 self[index] = value
@@ -525,14 +526,14 @@ class EclKW(BaseCClass):
     #################################################################
 
 
-    def __IMUL__(self , factor , mul = True):
+    def __IMUL__(self, factor, mul=True):
         if self.isNumeric():
-            if hasattr( factor , "ecl_kw_instance"):
-                if self.assert_binary( factor ):
+            if hasattr(factor, "ecl_kw_instance"):
+                if self.assert_binary(factor):
                     if mul:
-                        self._imul( factor )
+                        self._imul(factor)
                     else:
-                        self._idiv( factor )
+                        self._idiv(factor)
                 else:
                     raise TypeError("Type mismatch")
             else:
@@ -540,13 +541,13 @@ class EclKW(BaseCClass):
                     factor = 1.0 / factor
 
                 if self.data_type.is_int():
-                    if isinstance( factor , int ):
-                        self._scale_int( factor )
+                    if isinstance(factor, int):
+                        self._scale_int(factor)
                     else:
                         raise TypeError("Type mismatch")
                 else:
-                    if isinstance( factor , int ) or isinstance( factor , float):
-                        self._scale_float( factor )
+                    if isinstance(factor, int) or isinstance(factor, float):
+                        self._scale_float(factor)
                     else:
                         raise TypeError("Only muliplication with scalar supported")
         else:
@@ -555,14 +556,14 @@ class EclKW(BaseCClass):
         return self
 
 
-    def __IADD__(self , delta , add = True):
+    def __IADD__(self, delta, add=True):
         if self.isNumeric():
             if type(self) == type(delta):
-                if self.assert_binary( delta):
+                if self.assert_binary(delta):
                     if add:
-                        self._iadd(delta )
+                        self._iadd(delta)
                     else:
-                        self._isub( delta )
+                        self._isub(delta)
                 else:
                     raise TypeError("Type / size mismatch")
             else:
@@ -572,13 +573,13 @@ class EclKW(BaseCClass):
                     sign = -1
 
                 if self.data_type.is_int():
-                    if isinstance( delta , int ):
-                        self._shift_int( delta * sign)
+                    if isinstance(delta, int):
+                        self._shift_int(delta * sign)
                     else:
                         raise TypeError("Type mismatch")
                 else:
-                    if isinstance( delta , int ) or isinstance( delta , float):
-                        self._shift_float( delta * sign ) # Will call the _float() or _double() function in the C layer.
+                    if isinstance(delta, int) or isinstance(delta, float):
+                        self._shift_float(delta * sign) # Will call the _float() or _double() function in the C layer.
                     else:
                         raise TypeError("Type mismatch")
         else:
@@ -586,17 +587,17 @@ class EclKW(BaseCClass):
 
         return self
 
-    def __iadd__(self , delta):
-        return self.__IADD__(delta , True )
+    def __iadd__(self, delta):
+        return self.__IADD__(delta, True)
 
-    def __isub__(self , delta):
-        return self.__IADD__(delta , False )
+    def __isub__(self, delta):
+        return self.__IADD__(delta, False)
 
-    def __imul__(self , delta):
-        return self.__IMUL__(delta , True )
+    def __imul__(self, delta):
+        return self.__IMUL__(delta, True)
 
-    def __idiv__(self , delta):
-        return self.__IMUL__(delta , False )
+    def __idiv__(self, delta):
+        return self.__IMUL__(delta, False)
 
 
     #################################################################
@@ -604,78 +605,81 @@ class EclKW(BaseCClass):
     def __abs__(self):
         if self.isNumeric():
             copy = self.copy()
-            copy._iabs( )
+            copy._iabs()
             return copy
         else:
             raise TypeError("The __abs__() function is only implemented for numeric types")
 
 
 
-    def __add__(self , delta):
+    def __add__(self, delta):
         copy = self.copy()
         copy += delta
         return copy
 
     def __radd__(self, delta):
-        return self.__add__( delta )
+        return self.__add__(delta)
 
-    def __sub__(self , delta):
+    def __sub__(self, delta):
         copy  = self.copy()
         copy -= delta
         return copy
 
-    def __rsub__( self , delta):
-        return self.__sub__( delta ) * -1
+    def __rsub__(self, delta):
+        return self.__sub__(delta) * -1
 
-    def __mul__(self , factor):
+    def __mul__(self, factor):
         copy  = self.copy()
         copy *= factor
         return copy
 
-    def __rmul__(self , factor):
-        return self.__mul__( factor )
+    def __rmul__(self, factor):
+        return self.__mul__(factor)
 
-    def __div__(self , factor):
+    def __div__(self, factor):
         copy = self.copy()
         copy /= factor
         return copy
 
     # No __rdiv__()
 
-    def sum(self):
+    def sum(self, mask = None, force_active = False):
         """
         Will calculate the sum of all the elements in the keyword.
 
         String: Raise ValueError exception.
         Bool:   The number of true values
         """
-        if self.data_type.is_int():
-            return self._int_sum( )
-        elif self.data_type.is_float():
-            return self._float_sum( )
-        elif self.data_type.is_double():
-            return self._float_sum( )
-        elif self.data_type.is_bool():
-            sum = 0
-            for elm in self:
-                if elm:
-                    sum += 1
-            return sum
-        else:
-            raise ValueError('The keyword "%s" is of string type - sum is not implemented' % self.getName())
+        if mask is None:
+            if self.data_type.is_int():
+                return self._int_sum()
+            elif self.data_type.is_float():
+                return self._float_sum()
+            elif self.data_type.is_double():
+                return self._float_sum()
+            elif self.data_type.is_bool():
+                sum = 0
+                for elm in self:
+                    if elm:
+                        sum += 1
+                return sum
+            else:
+                raise ValueError('The keyword "%s" is of string type - sum is not implemented' % self.getName())
+
+        return mask.sum_kw(self, force_active)
 
 
 
-    def assert_binary( self , other ):
+    def assert_binary(self, other):
         """
         Utility function to assert that keywords @self and @other can
         be combined.
         """
-        return self._assert_binary( other )
+        return self._assert_binary(other)
 
     #################################################################
 
-    def assign(self , value , mask = None , force_active = False):
+    def assign(self, value, mask=None, force_active=False):
         """
         Assign a value to current kw instance.
 
@@ -684,7 +688,7 @@ class EclKW(BaseCClass):
         another EclKW instance. To set all elements of a keyword to
         1.0:
 
-            kw.assign( 1.0 )
+            kw.assign(1.0)
 
         The numerical type of @value must be compatible with the
         current keyword. The optional @mask argument should be an
@@ -694,14 +698,14 @@ class EclKW(BaseCClass):
         value 88 to those cells:
 
             grid = ecl.EclGrid("ECLIPSE.EGRID")
-            reg  = ecl.EclRegion( grid , false )
+            reg  = ecl.EclRegion(grid, false)
             init = ecl.EclFile("ECLIPSE.INIT")
 
             poro = init["PORO"][0]
             eqlnum = init["EQLNUM"][0]
-            reg.select_below( poro , 0.10 )
+            reg.select_below(poro, 0.10)
 
-            eqlnum.assign( 88 , mask = reg )
+            eqlnum.assign(88, mask = reg)
 
         The EclRegion instance has two equivalent sets of selected
         indices; one consisting of active indices and one consisting
@@ -715,70 +719,70 @@ class EclKW(BaseCClass):
         """
         if self.isNumeric():
             if type(value) == type(self):
-                if mask:
-                    mask.copy_kw( self , value , force_active)
+                if mask is not None:
+                    mask.copy_kw(self, value, force_active)
                 else:
-                    if self.assert_binary( value ):
-                        self._copy_data( value)
+                    if self.assert_binary(value):
+                        self._copy_data(value)
                     else:
                         raise TypeError("Type / size mismatch")
             else:
-                if mask:
-                    mask.set_kw( self , value , force_active )
+                if mask is not None:
+                    mask.set_kw(self, value, force_active)
                 else:
                     if self.data_type.is_int():
-                        if isinstance( value , int ):
-                            self._set_int( value )
+                        if isinstance(value, int):
+                            self._set_int(value)
                         else:
                             raise TypeError("Type mismatch")
                     else:
-                        if isinstance( value , int ) or isinstance( value, float):
-                            self._set_float( value )
+                        if isinstance(value, int) or isinstance(value, float):
+                            self._set_float(value)
                         else:
                             raise TypeError("Only muliplication with scalar supported")
 
 
-    def add( self , other , mask = None , force_active = False):
+    def add(self, other, mask=None, force_active=False):
         """
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
-            mask.iadd_kw( self , other , force_active )
+        if mask is not None:
+            mask.iadd_kw(self, other, force_active)
         else:
-            return self.__iadd__( other )
+            return self.__iadd__(other)
 
-    def sub(self , other , mask = None , force_active = False):
+    def sub(self, other, mask=None, force_active=False):
         """
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
-            mask.isub_kw(  self , other , force_active )
+        if mask is not None:
+            mask.isub_kw(self, other, force_active)
         else:
-            return self.__isub__( other )
+            return self.__isub__(other)
 
-    def mul(self , other , mask = None , force_active = False):
+    def mul(self, other, mask=None, force_active=False):
         """
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
-            mask.imul_kw(  self , other , force_active )
+        if mask is not None:
+            mask.imul_kw(self, other, force_active)
         else:
-            return self.__imul__( other )
+            return self.__imul__(other)
 
-    def div(self , other , mask = None , force_active = False):
+    def div(self, other, mask=None, force_active=False):
         """
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
-            mask.idiv_kw( self , other , force_active )
+        if mask is not None:
+            mask.idiv_kw(self, other, force_active)
         else:
-            return self.__idiv__( other )
+            return self.__idiv__(other)
 
-    def apply( self , func , arg = None , mask = None , force_active = False):
+    def apply(self, func, arg=None, mask=None, force_active=False):
         """
         Will apply the function @func on the keyword - inplace.
 
@@ -787,58 +791,58 @@ class EclKW(BaseCClass):
         optionally you can supply a second argument with the @arg
         attribute:
 
-          def cutoff( x , limit):
+          def cutoff(x, limit):
               if x > limit:
                  return x
               else:
                  return 0
 
 
-          kw.apply( math.sin )
-          kw.apply( cutoff , arg = 0.10 )
+          kw.apply(math.sin)
+          kw.apply(cutoff, arg=0.10)
 
 
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
-            active_list = mask.kw_index_list( self , force_active )
+        if mask is not None:
+            active_list = mask.kw_index_list(self, force_active)
             if arg:
                 for index in active_list:
-                    self.data_ptr[index] = func( self.data_ptr[index] , arg)
+                    self.data_ptr[index] = func(self.data_ptr[index], arg)
             else:
                 for index in active_list:
-                    self.data_ptr[index] = func( self.data_ptr[index] )
+                    self.data_ptr[index] = func(self.data_ptr[index])
         else:
             if arg:
                 for i in range(len(self)):
-                    self.data_ptr[i] = func( self.data_ptr[i] , arg)
+                    self.data_ptr[i] = func(self.data_ptr[i], arg)
             else:
                 for i in range(len(self)):
-                    self.data_ptr[i] = func( self.data_ptr[i] )
+                    self.data_ptr[i] = func(self.data_ptr[i])
 
 
-    def equal(self , other):
+    def equal(self, other):
         """
         Will check if the two keywords are (exactly) equal.
 
         The check is based on the content of the keywords, and not
         pointer comparison.
         """
-        if isinstance(other , EclKW):
-            return self._equal( other )
+        if isinstance(other, EclKW):
+            return self._equal(other)
         else:
             raise TypeError("Can only compare with another EclKW")
 
 
-    def __eq__(self , other):
-        return self.equal( other )
+    def __eq__(self, other):
+        return self.equal(other)
 
     def __hash__(self):
-        return hash(self._get_header( ))
+        return hash(self._get_header())
 
 
-    def equal_numeric(self , other , epsilon = 1e-6, abs_epsilon = None , rel_epsilon = None):
+    def equal_numeric(self, other, epsilon=1e-6, abs_epsilon=None, rel_epsilon=None):
         """Will check if two numerical keywords are ~nearly equal.
 
 
@@ -849,53 +853,61 @@ class EclKW(BaseCClass):
         ignored in the test.
 
         """
-        if isinstance(other , EclKW):
+        if isinstance(other, EclKW):
             if abs_epsilon is None:
                 abs_epsilon = epsilon
 
             if rel_epsilon is None:
                 rel_epsilon = epsilon
 
-            return self._equal_numeric( other , abs_epsilon , rel_epsilon )
+            return self._equal_numeric(other, abs_epsilon, rel_epsilon)
         else:
             raise TypeError("Can only compare with another EclKW")
 
 
     #################################################################
 
-    def deep_copy( self ):
-        ecl_kw = self.__deep_copy__( {} )
+    def deep_copy(self):
+        ecl_kw = self.__deep_copy__({})
         return ecl_kw
 
-    def fortIOSize(self):
+    def fort_io_size(self):
         """
         The number of bytes this keyword would occupy in a BINARY file.
         """
-        return self._get_fortio_size( )
+        return self._get_fortio_size()
 
-    def setName( self , name ):
+    def set_name(self, name):
         if len(name) > 8:
             raise ValueError("Sorry: the name property must be max 8 characters long :-(")
-        self._set_header( name )
+        self._set_header(name)
 
-    def getName(self):
-        n = self._get_header( )
+    @property
+    def name(self):
+        n = self._get_header()
         return str(n) if n else ''
 
-    def resize(self , new_size):
+    @name.setter
+    def name(self, value):
+        self.set_name(value)
+
+    def get_name(self):
+        return self.name
+
+    def resize(self, new_size):
         """
         Will set the new size of the kw to @new_size.
         """
         if new_size >= 0:
-            self._resize( new_size )
+            self._resize(new_size)
 
         # Iteration is based on a pointer to the underlying storage,
-        # that will generally by reset by the resize( ) call; i.e. we
+        # that will generally by reset by the resize() call; i.e. we
         # need to call the __private_init() method again.
         self.__private_init()
 
 
-    def getMinMax(self):
+    def get_min_max(self):
         """
         Will return a touple (min,max) for numerical types.
 
@@ -905,50 +917,50 @@ class EclKW(BaseCClass):
         if self.data_type.is_float():
             min_ = ctypes.c_float()
             max_ = ctypes.c_float()
-            self._max_min_float( ctypes.byref( max_ ) , ctypes.byref( min_ ))
+            self._max_min_float(ctypes.byref(max_), ctypes.byref(min_))
         elif self.data_type.is_double():
             min_ = ctypes.c_double()
             max_ = ctypes.c_double()
-            self._max_min_double( ctypes.byref( max_ ) , ctypes.byref( min_ ))
+            self._max_min_double(ctypes.byref(max_), ctypes.byref(min_))
         elif self.data_type.is_int():
             min_ = ctypes.c_int()
             max_ = ctypes.c_int()
-            self._max_min_int( ctypes.byref( max_ ) , ctypes.byref( min_ ))
+            self._max_min_int(ctypes.byref(max_), ctypes.byref(min_))
         else:
             raise TypeError("min_max property not defined for keywords of type: %s" % self.type)
-        return (min_.value , max_.value)
+        return (min_.value, max_.value)
 
 
-    def getMax( self ):
+    def get_max(self):
         mm = self.getMinMax()
         return mm[1]
 
 
-    def getMin( self ):
+    def get_min(self):
         mm = self.getMinMax()
         return mm[0]
 
     @property
-    def type( self ):
+    def type(self):
         return self.getEclType()
 
     @property
-    def data_type( self ):
+    def data_type(self):
         return self._get_data_type()
 
     @property
-    def type_name( self ):
+    def type_name(self):
         return self.data_type.type_name
 
-    def typeName( self ):
+    def type_name(self):
         return self.data_type.type_name
 
-    def getEclType(self):
+    def get_ecl_type(self):
         warnings.warn("EclTypeEnum is deprecated. " +
             "You should instead provide an EclDataType",
             DeprecationWarning)
 
-        return self._get_type( )
+        return self._get_type()
 
 
 
@@ -966,14 +978,14 @@ class EclKW(BaseCClass):
         return a
 
 
-    def str_data( self , width , index1 , index2 , fmt):
+    def str_data(self, width, index1, index2, fmt):
         """
         Helper function for str() method.
         """
         data = []
         s = ""
         for index in range(index1, index2):
-            data.append( self[index] )
+            data.append(self[index])
         for index in range(len(data)):
             s += fmt % data[ index ]
             if index % width == (width - 1):
@@ -981,7 +993,7 @@ class EclKW(BaseCClass):
         return s
 
 
-    def str(self , width = 5 , max_lines = 10 , fmt = None):
+    def str(self, width=5, max_lines=10, fmt=None):
         """
         Return string representation of kw for pretty printing.
 
@@ -999,18 +1011,18 @@ class EclKW(BaseCClass):
         the elements. The implementation of the builtin method
         __str__() is based on this method.
         """
-        s = "%-8s %8d %-4s\n" % (self.getName() , len(self) , self.typeName())
+        s = "%-8s %8d %-4s\n" % (self.getName(), len(self), self.typeName())
         lines = len(self) // width
         if not fmt:
             fmt = self.str_fmt + " "
 
         if max_lines is None or lines <= max_lines:
-            s += self.str_data( width , 0 , len(self) , fmt)
+            s += self.str_data(width, 0, len(self), fmt)
         else:
             s1 = width * max_lines // 2
-            s += self.str_data( width  , 0 , s1 , fmt)
+            s += self.str_data(width , 0, s1, fmt)
             s += "   ....   \n"
-            s += self.str_data( width  , len(self) - s1 , len(self) , fmt)
+            s += self.str_data(width , len(self) - s1, len(self), fmt)
 
         return s
 
@@ -1018,10 +1030,10 @@ class EclKW(BaseCClass):
         """
         Return string representation - see method str().
         """
-        return self.str( width = 5 , max_lines = 10)
+        return self.str(width=5, max_lines=10)
 
 
-    def numpyView(self):
+    def numpy_view(self):
         """Will return a numpy view to the underlying data.
 
         The data in this numpy array is *shared* with the EclKW
@@ -1039,25 +1051,25 @@ class EclKW(BaseCClass):
             raise ValueError("Invalid type - numpy array only valid for int/float/double")
 
         ap = ctypes.cast(self.data_ptr, ctypes.POINTER(ct * len(self)))
-        return numpy.frombuffer(ap.contents, dtype = self.dtype)
+        return numpy.frombuffer(ap.contents, dtype=self.dtype)
 
 
-    def numpyCopy(self):
+    def numpy_copy(self):
         """Will return a numpy array which contains a copy of the EclKW data.
 
         The numpy array has a separate copy of the data, so that
         changes to either the numpy array or the EclKW will *not* be
         reflected in the other datastructure. This is in contrast to
-        the EclKW.numpyView( ) method where the underlying data is
+        the EclKW.numpyView() method where the underlying data is
         shared.
         """
-        view = self.numpyView( )
-        return numpy.copy( view )
+        view = self.numpyView()
+        return numpy.copy(view)
 
-    def fwrite( self , fortio ):
-        self._fwrite( fortio )
+    def fwrite(self, fortio):
+        self._fwrite(fortio)
 
-    def write_grdecl( self , file ):
+    def write_grdecl(self, file):
         """
         Will write keyword in GRDECL format.
 
@@ -1067,24 +1079,24 @@ class EclKW(BaseCClass):
         existing GRDECL file, set all poro values below 0.05 to 0.00
         and write back an updated GRDECL file.
 
-            poro = ecl.EclKW.read_grdecl( open("poro1.grdecl" , "r") , "PORO" )
-            grid = ecl.EclGrid( "ECLIPSE.EGRID" )
-            reg  = ecl.EclRegion( grid , False )
+            poro = ecl.EclKW.read_grdecl(open("poro1.grdecl", "r"), "PORO")
+            grid = ecl.EclGrid("ECLIPSE.EGRID")
+            reg  = ecl.EclRegion(grid, False)
 
-            reg.select_below( poro , 0.05 )
-            poro.assign( 0.0 , mask = reg )
+            reg.select_below(poro, 0.05)
+            poro.assign(0.0, mask=reg)
 
-            fileH = open( "poro2.grdecl" , "w")
-            poro.write_grdecl( fileH )
+            fileH = open("poro2.grdecl", "w")
+            poro.write_grdecl(fileH)
             fileH.close()
 
         """
-        cfile = CFILE( file )
-        self._fprintf_grdecl( cfile )
+        cfile = CFILE(file)
+        self._fprintf_grdecl(cfile)
 
 
 
-    def fprintf_data( self , file , fmt = None):
+    def fprintf_data(self, file, fmt=None):
         """
         Will print the keyword data formatted to file.
 
@@ -1102,36 +1114,36 @@ class EclKW(BaseCClass):
         """
         if fmt is None:
             fmt = self.str_fmt + "\n"
-        cfile = CFILE( file )
-        self._fprintf_data( fmt , cfile )
+        cfile = CFILE(file)
+        self._fprintf_data(fmt, cfile)
 
 
-    def fixUninitialized(self , grid):
+    def fix_uninitialized(self, grid):
         """
         Special case function for region code.
         """
-        dims = grid.getDims( )
-        actnum = grid.exportACTNUM( )
-        self._fix_uninitialized( dims[0] , dims[1], dims[2] , actnum.getDataPtr() )
+        dims = grid.getDims()
+        actnum = grid.exportACTNUM()
+        self._fix_uninitialized(dims[0], dims[1], dims[2], actnum.getDataPtr())
 
 
-    def getDataPtr(self):
+    def get_data_ptr(self):
         if self.data_type.is_int():
-            return self._int_ptr( )
+            return self._int_ptr()
         elif self.data_type.is_float():
-            return self._float_ptr( )
+            return self._float_ptr()
         elif self.data_type.is_double():
-            return self._double_ptr( )
+            return self._double_ptr()
         else:
             raise ValueError("Only numeric types can export data pointer")
 
 
-    def firstDifferent(self , other , offset = 0 , epsilon = 0 , abs_epsilon = None , rel_epsilon = None):
+    def first_different(self, other, offset=0, epsilon=0, abs_epsilon=None, rel_epsilon=None):
         if len(self) != len(other):
             raise ValueError("Keywords must have equal size")
 
         if offset >= len(self):
-            raise IndexError("Offset:%d invalid - size:%d" % (offset , len(self)))
+            raise IndexError("Offset:%d invalid - size:%d" % (offset, len(self)))
 
         if self.getEclType() != other.getEclType():
             raise TypeError("The two keywords have different type")
@@ -1142,4 +1154,20 @@ class EclKW(BaseCClass):
         if rel_epsilon is None:
             rel_epsilon = epsilon
 
-        return self._first_different( other , offset , abs_epsilon , rel_epsilon )
+        return self._first_different(other, offset, abs_epsilon, rel_epsilon)
+
+monkey_the_camel(EclKW, 'intKeywords', EclKW.int_keywords, classmethod)
+monkey_the_camel(EclKW, 'isNumeric', EclKW.is_numeric)
+monkey_the_camel(EclKW, 'fortIOSize', EclKW.fort_io_size)
+monkey_the_camel(EclKW, 'setName', EclKW.set_name)
+monkey_the_camel(EclKW, 'getName', EclKW.get_name)
+monkey_the_camel(EclKW, 'getMinMax', EclKW.get_min_max)
+monkey_the_camel(EclKW, 'getMax', EclKW.get_max)
+monkey_the_camel(EclKW, 'getMin', EclKW.get_min)
+monkey_the_camel(EclKW, 'typeName', EclKW.type_name)
+monkey_the_camel(EclKW, 'getEclType', EclKW.get_ecl_type)
+monkey_the_camel(EclKW, 'numpyView', EclKW.numpy_view)
+monkey_the_camel(EclKW, 'numpyCopy', EclKW.numpy_copy)
+monkey_the_camel(EclKW, 'fixUninitialized', EclKW.fix_uninitialized)
+monkey_the_camel(EclKW, 'getDataPtr', EclKW.get_data_ptr)
+monkey_the_camel(EclKW, 'firstDifferent', EclKW.first_different)

@@ -20,6 +20,8 @@
 
 #include <examples/exampleSetup.hpp>
 
+#include <opm/utility/ECLCaseUtilities.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -213,42 +215,6 @@ namespace {
         return max;
     }
 
-    std::vector<int>
-    availableReportSteps(const example::FilePaths& paths)
-    {
-        using FilePtr = ::ERT::
-            ert_unique_ptr<ecl_file_type, ecl_file_close>;
-
-        const auto rsspec_fn = example::
-            deriveFileName(paths.grid, { ".RSSPEC", ".FRSSPEC" });
-
-        // Read-only, keep open between requests
-        const auto open_flags = 0;
-
-        auto rsspec = FilePtr{
-            ecl_file_open(rsspec_fn.generic_string().c_str(), open_flags)
-        };
-
-        auto* globView = ecl_file_get_global_view(rsspec.get());
-
-        const auto* ITIME_kw = "ITIME";
-        const auto n = ecl_file_view_get_num_named_kw(globView, ITIME_kw);
-
-        auto steps = std::vector<int>(n);
-
-        for (auto i = 0*n; i < n; ++i) {
-            const auto* itime =
-                ecl_file_view_iget_named_kw(globView, ITIME_kw, i);
-
-            const auto* itime_data =
-                static_cast<const int*>(ecl_kw_iget_ptr(itime, 0));
-
-            steps[i] = itime_data[0];
-        }
-
-        return steps;
-    }
-
     ErrorTolerance
     testTolerances(const ::Opm::ParameterGroup& param)
     {
@@ -278,8 +244,8 @@ namespace {
 
     ReferenceToF
     loadReference(const ::Opm::ParameterGroup& param,
-                  const int                               step,
-                  const int                               nDigits)
+                  const int                    step,
+                  const int                    nDigits)
     {
         namespace fs = boost::filesystem;
 
@@ -431,7 +397,7 @@ try {
     auto setup = example::Setup(argc, argv);
 
     const auto tol   = testTolerances(setup.param);
-    const auto steps = availableReportSteps(setup.file_paths);
+    const auto steps = setup.result_set.reportStepIDs();
 
     const auto E  = sampleDifferences(std::move(setup), steps);
     const auto ok =

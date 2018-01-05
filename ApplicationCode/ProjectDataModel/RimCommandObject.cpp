@@ -60,7 +60,7 @@ RimCommandExecuteScript::RimCommandExecuteScript()
 {
     CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
 
-    CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "ScriptText", "", "" ,"");
+    CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "Script Text", "", "" ,"");
     scriptText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&isEnabled,         "IsEnabled",      true, "Enabled ", "", "", "");

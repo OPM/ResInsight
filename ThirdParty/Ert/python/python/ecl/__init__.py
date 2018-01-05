@@ -118,7 +118,7 @@ def load(name):
     return cwrapload(name, path=ecl_lib_path, so_version=ert_so_version)
 
 
-from .util import Version
+from .util import EclVersion
 from .util import updateAbortSignals
 
 updateAbortSignals( )

@@ -46,32 +46,36 @@ public:
     RimGeoMechCase(void);
     virtual ~RimGeoMechCase(void);
     
-    void                                    setFileName(const QString& fileName) {m_caseFileName = fileName;}
-    QString                                 caseFileName() const  {return m_caseFileName();}
+    void                                    setFileName(const QString& fileName);
+    QString                                 caseFileName() const;
     bool                                    openGeoMechCase(std::string* errorMessage);
 
-    RigGeoMechCaseData*                     geoMechData() { return m_geoMechCaseData.p(); }
-    const RigGeoMechCaseData*               geoMechData() const { return m_geoMechCaseData.p(); }
+    RigGeoMechCaseData*                     geoMechData();
+    const RigGeoMechCaseData*               geoMechData() const;
 
     RimGeoMechView*                         createAndAddReservoirView();
 
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
     virtual std::vector<RimView*>           views();
 
-    virtual QStringList                     timeStepStrings();
-    virtual QString                         timeStepName(int frameIdx);
+    virtual std::vector<QDateTime>          timeStepDates() const override;
+    virtual QStringList                     timeStepStrings() const override;
+    virtual QString                         timeStepName(int frameIdx) const override;
 
     virtual cvf::BoundingBox                activeCellsBoundingBox() const;
     virtual cvf::BoundingBox                allCellsBoundingBox() const;
 
+    virtual double                          characteristicCellSize() const override;
+
+    virtual void                            setFormationNames(RimFormationNames* formationNames) override;
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
-    static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
-
-
 
 private:
+    static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
+
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
@@ -85,6 +89,4 @@ private:
     caf::PdmField<QString>                  m_caseFileName;
     caf::PdmField<double>                   m_cohesion;
     caf::PdmField<double>                   m_frictionAngleDeg;
-protected:
-
 };

@@ -28,26 +28,20 @@ class RimWellLogPlotCollection;
 class RimWellLogPlot;
 class RimWellLogFileChannel;
 
-namespace caf 
-{
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAddWellLogToPlotFeature : public CmdFeature
+class RicAddWellLogToPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
 
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     std::vector<RimWellLogFileChannel*> selectedWellLogs();
 };
-
-
-
-} // end namespace caf

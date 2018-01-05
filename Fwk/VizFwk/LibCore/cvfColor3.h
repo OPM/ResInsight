@@ -135,10 +135,13 @@ public:
 
     static Color3f  fromByteColor(ubyte r, ubyte g, ubyte b);
 
+    friend bool operator < (const Color3f& color1, const Color3f& color2);
+
 private:
     float m_rgb[3];
 };
 
+bool operator < (const Color3f& color1, const Color3f& color2);
 
 
 //==================================================================================================

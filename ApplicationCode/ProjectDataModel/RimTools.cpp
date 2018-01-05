@@ -34,6 +34,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QDateTime>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -242,6 +243,44 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    std::vector<RimWellPath*> wellPaths;
+    RimTools::wellPathWithFormations(&wellPaths);
+
+    QIcon wellIcon(":/Well.png");
+    for (RimWellPath* wellPath : wellPaths)
+    {
+        options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    {
+        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+
+        for (RimWellPath* wellPath : allWellPaths)
+        {
+            if (wellPath->hasFormations())
+            {
+                wellPaths->push_back(wellPath);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
     CVF_ASSERT(options);
@@ -258,4 +297,58 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
             options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& dates)
+{
+    bool hasHoursAndMinutesInTimesteps = false;
+    bool hasSecondsInTimesteps = false;
+    bool hasMillisecondsInTimesteps = false;
+
+    for (size_t i = 0; i < dates.size(); i++)
+    {
+        if (dates[i].time().msec() != 0.0)
+        {
+            hasMillisecondsInTimesteps = true;
+            hasSecondsInTimesteps = true;
+            hasHoursAndMinutesInTimesteps = true;
+            break;
+        }
+        else if (dates[i].time().second() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+            hasSecondsInTimesteps = true;
+        }
+        else if (dates[i].time().hour() != 0.0 || dates[i].time().minute() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+        }
+    }
+
+    QString formatString = dateFormatString();
+    if (hasHoursAndMinutesInTimesteps)
+    {
+        formatString += " - hh:mm";
+        if (hasSecondsInTimesteps)
+        {
+            formatString += ":ss";
+            if (hasMillisecondsInTimesteps)
+            {
+                formatString += ".zzz";
+            }
+        }
+    }
+
+    return formatString;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTools::dateFormatString()
+{
+    return "dd.MMM yyyy";
 }

@@ -26,25 +26,28 @@
 #include "RigFlowDiagResults.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"
+#include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellAllocationPlotLegend.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
 #include "RiuWellLogTrack.h"
+#include "RimWellLogFile.h"
+#include "RimWellPlotTools.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -77,6 +80,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
+    CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
+                    "Compute branches based on how simulation well cells are organized", "");
+
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
 
@@ -89,7 +95,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
+    m_accumulatedWellFlowPlot->setDepthUnit(RiaDefines::UNIT_NONE);
     m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
     m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
     m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
@@ -101,6 +107,10 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_wellAllocationPlotLegend, "WellAllocLegend", "Legend", "", "", "");
     m_wellAllocationPlotLegend.uiCapability()->setUiHidden(true);
     m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
+
+    CAF_PDM_InitFieldNoDefault(&m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions", "", "", "");
+    m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiHidden(true);
+    m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
     this->setAsPlotMdiWindow();
 }
@@ -114,6 +124,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
     
     delete m_accumulatedWellFlowPlot();
     delete m_totalWellAllocationPlot();
+    delete m_tofAccumulatedPhaseFractionsPlot();
 
     deleteViewWidget();
 }
@@ -121,7 +132,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
+void RimWellAllocationPlot::setFromSimulationWell(RimSimWellInView* simWell)
 {
     RimEclipseView* eclView;
     simWell->firstAncestorOrThisOfType(eclView);
@@ -129,7 +140,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
     simWell->firstAncestorOrThisOfType(eclCase);
 
     m_case = eclCase;
-    m_wellName = simWell->wellResults()->m_wellName;
+    m_wellName = simWell->simWellData()->m_wellName;
     m_timeStep = eclView->currentTimeStep();
 
     // Use the active flow diag solutions, or the first one as default
@@ -139,7 +150,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
-    loadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,9 +192,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!m_case) return;
 
-    const RigSingleWellResultsData* wellResults = m_case->eclipseCaseData()->findWellResult(m_wellName);
+    const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData(m_wellName);
 
-    if (!wellResults) return;
+    if (!simWellData) return;
    
    // Set up the Accumulated Well Flow Calculator
 
@@ -191,14 +202,14 @@ void RimWellAllocationPlot::updateFromWell()
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->eclipseCaseData(),
-                                                                                    wellResults,
+                                                                                    simWellData,
                                                                                     m_timeStep,
-                                                                                    true,
+                                                                                    m_branchDetection,
                                                                                     true,
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
 
-    std::map<QString, const std::vector<double>* > tracerFractionCellValues = findRelevantTracerCellFractions(wellResults);
+    std::map<QString, const std::vector<double>* > tracerFractionCellValues = findRelevantTracerCellFractions(simWellData);
 
     std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
 
@@ -207,9 +218,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     if ( tracerFractionCellValues.size() )
     {
-        bool isProducer = (    wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER 
-                            || wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
-        RigEclCellIndexCalculator cellIdxCalc(m_case->eclipseCaseData()->mainGrid(), m_case->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        bool isProducer = (    simWellData->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER 
+                            || simWellData->wellProductionType(m_timeStep) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
+        RigEclCellIndexCalculator cellIdxCalc(m_case->eclipseCaseData()->mainGrid(), m_case->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL));
         wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
                                                         pipeBranchesCellIds,
                                                         tracerFractionCellValues,
@@ -242,6 +253,7 @@ void RimWellAllocationPlot::updateFromWell()
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
         plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
+        plotTrack->setFormationBranchIndex((int)brIdx);
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
@@ -311,21 +323,25 @@ void RimWellAllocationPlot::updateFromWell()
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
+
+    m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
+    m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
+
     if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults)
+std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findRelevantTracerCellFractions(const RigSimWellData* simWellData)
 {
     std::map<QString, const std::vector<double> *> tracerCellFractionValues;
 
-    if ( m_flowDiagSolution && wellResults->hasWellResult(m_timeStep) )
+    if ( m_flowDiagSolution && simWellData->hasWellResult(m_timeStep) )
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(m_timeStep);
+        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType(m_timeStep);
         if (    prodType == RigWellResultFrame::PRODUCER 
              || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         {
@@ -341,7 +357,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
         {
             if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
             {
-                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, tracerName.toStdString());
                 const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
                 if (tracerCellFractions) tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
@@ -356,21 +372,26 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
-    RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
+    RiaEclipseUnitTools::UnitSystem unitSet = m_case->eclipseCaseData()->unitsType();
+    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR :  
+                                                                       RimWellLogFile::WELL_FLOW_COND_STANDARD;
 
+    QString axisTitle = RimWellPlotTools::flowPlotAxisTitle(condition, unitSet);
+    plotTrack->setXAxisTitle(axisTitle);
 
+ #if 0
     if (m_flowDiagSolution) 
     {
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[m<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Brl/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:
@@ -384,13 +405,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Liquid BBL/day], [Gas BOE/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:
@@ -399,6 +420,9 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         }
         plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
     }
+#endif
+    
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,7 +447,7 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
 
     plotTrack->addCurve(curve);
 
-    curve->loadDataAndUpdate();
+    curve->loadDataAndUpdate(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,13 +479,13 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep(const QString& wellName
 
     if (eclipseResultCase)
     {
-        const RigSingleWellResultsData* wellResults = eclipseResultCase->eclipseCaseData()->findWellResult(wellName);
+        const RigSimWellData* simWellData = eclipseResultCase->eclipseCaseData()->findSimWellData(wellName);
 
-        if (wellResults)
+        if (simWellData)
         {
-            if (wellResults->hasWellResult(timeStep))
+            if (simWellData->hasWellResult(timeStep))
             {
-                const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(timeStep);
+                const RigWellResultFrame& wellResultFrame = simWellData->wellResultFrame(timeStep);
 
                 RigWellResultFrame::WellProductionType prodType = wellResultFrame.m_productionType;
 
@@ -521,6 +545,14 @@ RimWellLogPlot* RimWellAllocationPlot::accumulatedWellFlowPlot()
 RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 {
     return m_totalWellAllocationPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTofAccumulatedPhaseFractionsPlot * RimWellAllocationPlot::tofAccumulatedPhaseFractionsPlot()
+{
+    return m_tofAccumulatedPhaseFractionsPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,16 +711,17 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         if (!sortedWellNames.size()) m_wellName = "";
         else if ( sortedWellNames.count(m_wellName()) == 0 ){ m_wellName = *sortedWellNames.begin();}
 
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
     else if (   changedField == &m_wellName
              || changedField == &m_timeStep
              || changedField == &m_flowDiagSolution
              || changedField == &m_groupSmallContributions
              || changedField == &m_smallContributionsThreshold
-             || changedField == &m_flowType )
+             || changedField == &m_flowType
+             || changedField == &m_branchDetection)
     {
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
 }
 
@@ -700,11 +733,11 @@ std::set<QString> RimWellAllocationPlot::findSortedWellNames()
     std::set<QString> sortedWellNames;
     if ( m_case && m_case->eclipseCaseData() )
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
+        const cvf::Collection<RigSimWellData>& simWellData = m_case->eclipseCaseData()->wellResults();
 
-        for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
+        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
-            sortedWellNames.insert(wellRes[wIdx]->m_wellName);
+            sortedWellNames.insert(simWellData[wIdx]->m_wellName);
         }
     }
 
@@ -739,6 +772,7 @@ void RimWellAllocationPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     dataGroup.add(&m_case);
     dataGroup.add(&m_timeStep);
     dataGroup.add(&m_wellName);
+    dataGroup.add(&m_branchDetection);
 
     caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup("Options");
     optionGroup.add(&m_flowDiagSolution);
@@ -769,11 +803,12 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::loadDataAndUpdate()
+void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();
     m_accumulatedWellFlowPlot->loadDataAndUpdate();
+    updateFormationNamesData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -795,5 +830,17 @@ cvf::Color3f RimWellAllocationPlot::getTracerColor(const QString& tracerName)
     if (tracerName == RIG_FLOW_GAS_NAME)   return cvf::Color3f::DARK_RED;
     if (tracerName == RIG_FLOW_WATER_NAME) return cvf::Color3f::BLUE;
     return cvf::Color3f::DARK_GRAY;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateFormationNamesData() const
+{
+    for (size_t i = 0; i < m_accumulatedWellFlowPlot->trackCount(); ++i)
+    {
+        RimWellLogTrack* track = m_accumulatedWellFlowPlot->trackByIndex(i);
+        track->setAndUpdateSimWellFormationNamesData(m_case, m_wellName);
+    }
 }
 

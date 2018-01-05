@@ -72,10 +72,14 @@ class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiTreeViewEditorAttribute()
     {
+        currentObject = nullptr;
     }
 
 public:
     QStringList columnHeaders;
+
+    /// This object is set as current item in the tree view in configureAndUpdateUi()
+    caf::PdmObjectHandle* currentObject;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +101,7 @@ public:
     QTreeView*          treeView();
     bool                isTreeItemEditWidgetActive() const;
 
-    void                selectAsCurrentItem(PdmUiItem* uiItem);
+    void                selectAsCurrentItem(const PdmUiItem* uiItem);
     void                selectedUiItems(std::vector<PdmUiItem*>& objects);
     void                setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
 
@@ -123,8 +127,6 @@ private slots:
     void                slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 private:
-    void                uiItemsFromModelIndexList(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
-    
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void                updateSelectionManager();
@@ -137,8 +139,6 @@ private:
 
     PdmUiTreeViewWidget*            m_treeView;
     PdmUiTreeViewModel*             m_treeViewModel;
-
-    PdmUiTreeViewEditorAttribute    m_editorAttributes;
 
     bool                            m_useDefaultContextMenu;
     bool                            m_updateSelectionManager;

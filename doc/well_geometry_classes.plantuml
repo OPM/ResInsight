@@ -1,0 +1,54 @@
+@startuml
+
+class RimView
+class RimOilField
+class RimEclipseCaseCollection
+class RimCase
+class RimWellPath
+class RimWellPathCollection
+
+RimProject *--> RimOilField
+
+RimOilField *--> RimWellPathCollection
+RimOilField *--> RimEclipseCaseCollection
+RimEclipseCaseCollection *--> "n" RimEclipseCase
+
+RimWellPathCollection *--> "n" RimWellPath
+RimSimWellInViewCollection *--> "n" RimSimWellInView
+
+
+RimView <|-- RimEclipseView
+
+RimCase <|-- RimEclipseCase 
+
+RimEclipseCase *--> "n" RimEclipseView
+
+RimEclipseView *-> RimSimWellInViewCollection
+
+
+
+class RigWellPath {
+    std::vector<cvf::Vec3d>     m_wellPathPoints;
+    std::vector<double>         m_measuredDepths;
+}
+
+class RimWellPath {
+	Represents reference to a file containing points along a curve
+	for the center line of the physical well path
+}
+RimWellPath *-> RigWellPath
+
+
+class RimSimWellInView {
+	Represents a collection of cubes the simulation
+	well passes through
+}
+
+class RigSimulationWellCenterLineCalculator {
+	Can compute a RigWellPath based on a RigSimWellData
+}
+
+RigSimulationWellCenterLineCalculator ...> RigWellPath
+RigSimulationWellCenterLineCalculator ...> RigSimWellData
+
+@enduml

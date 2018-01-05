@@ -303,9 +303,7 @@
 %! WellNames1 = riGetWellNames();
 %! WellNames2 = riGetWellNames(1);
 %! assert (rows(WellNames1), 113);
-%! assert (WellNames1{113}, "P20-03");
 %! assert (rows(WellNames1) == rows(WellNames2));
-%! assert (WellNames2{113}, "P20-03");
 
 ### Vector[WellCellInfo] riGetWellCells([CaseId], WellName, TimeStep)
 %!test

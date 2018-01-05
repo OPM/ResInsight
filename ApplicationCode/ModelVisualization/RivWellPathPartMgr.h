@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 #include "cvfBoundingBox.h"
+#include "cvfCollection.h"
 
 namespace cvf
 {
@@ -33,9 +34,19 @@ namespace cvf
     class ScalarMapper;
 }
 
+namespace caf
+{
+    class DisplayCoordTransform;
+}
+
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
+class RivFishbonesSubsPartMgr;
+class RimWellPathCollection;
+class RimEclipseView;
+
+class QDateTime;
 
 class RivWellPathPartMgr : public cvf::Object
 {
@@ -43,23 +54,50 @@ public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
-    void                                    setScaleTransform(cvf::Transform * scaleTransform);
+    void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                   double characteristicCellSize,
+                                                                   const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                   const RimEclipseView& eclView);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
-    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                    const QDateTime& timeStamp,
+                                                                    double characteristicCellSize, 
+                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
-    size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
+    size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
+
+private:
+    void                          appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
+                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                 double characteristicCellSize);
+
+    void                          appendImportedFishbonesToModel(cvf::ModelBasicList* model,
+                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                 double characteristicCellSize);
+
+    void                          appendPerforationsToModel(const QDateTime& currentViewDate,
+                                                            cvf::ModelBasicList* model,
+                                                            const caf::DisplayCoordTransform* displayCoordTransform,
+                                                            double characteristicCellSize);
+
+
+    void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                     double characteristicCellSize,
+                                                     const cvf::BoundingBox& wellPathClipBoundingBox);
+
+    void                          clearAllBranchData();
+    inline RimWellPathCollection* wellPathCollection();
+    inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
-    cvf::ref<cvf::Transform>                m_scaleTransform; 
-    bool                                    m_needsTransformUpdate;
-
-    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
-    void                                    clearAllBranchData();
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
@@ -75,4 +113,5 @@ private:
     cvf::ref<cvf::ScalarMapper>             m_scalarMapper;
     cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
     cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
+
 };

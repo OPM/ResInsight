@@ -23,18 +23,18 @@
 #include "cvfObject.h"
 #include "cafPdmPointer.h"
 
-class RimEclipseWell;
+class RimSimWellInView;
 
 class RivSimWellPipeSourceInfo : public cvf::Object
 {
 public:
-    RivSimWellPipeSourceInfo(RimEclipseWell* eclipseWell, size_t branchIndex);
+    RivSimWellPipeSourceInfo(RimSimWellInView* eclipseWell, size_t branchIndex);
 
-    RimEclipseWell* well() const;
+    RimSimWellInView* well() const;
 
-    size_t branchIndex() const; 
+    size_t branchIndex() const;
 
 private:    
-    caf::PdmPointer<RimEclipseWell> m_eclipseWell;
+    caf::PdmPointer<RimSimWellInView> m_simWell;
     size_t m_branchIndex;
 };

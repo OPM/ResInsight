@@ -161,20 +161,8 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     if (!m_label.isNull())
     {
-        QIcon ic = field()->uiIcon(uiConfigName);
-        if (!ic.isNull())
-        {
-            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-        }
-        else
-        {
-            m_label->setText(field()->uiName(uiConfigName));
-        }
-
-        m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-        m_label->setToolTip(field()->uiToolTip(uiConfigName));
+        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
     }
-
 
     if (!m_lineEdit.isNull())
     {
@@ -235,7 +223,11 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
             int enumValue = field()->uiValue().toInt();
-            m_lineEdit->setText(enumNames[enumValue].optionUiText);
+
+            if (enumValue < enumNames.size() && enumValue > -1)
+            {
+                m_lineEdit->setText(enumNames[enumValue].optionUiText());
+            }
         }
         else
         {

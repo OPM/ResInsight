@@ -20,9 +20,10 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
+#include "RiaPorosityModel.h"
 
 #include "RimCase.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -36,6 +37,7 @@
 class QString;
 
 class RigEclipseCaseData;
+class RigCaseCellResultsData;
 class RigGridBase;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
@@ -72,12 +74,16 @@ public:
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
-    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
+    const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
+
+    RimReservoirCellResultsStorage*             resultsStorage(RiaDefines::PorosityModelType porosityModel);
+    const RimReservoirCellResultsStorage*       resultsStorage(RiaDefines::PorosityModelType porosityModel) const;
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
-    void                                        removeResult(const QString& resultName);
+    void                                        recalculateCompletionTypeAndRedrawAllViews();
 
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }
@@ -86,9 +92,9 @@ public:
     RimCaseCollection*                          parentCaseCollection();
                                                      
     virtual std::vector<RimView*>               views();
-    virtual QStringList                         timeStepStrings();
-    virtual QString                             timeStepName(int frameIdx);
-    std::vector<QDateTime>                      timeStepDates();
+    virtual QStringList                         timeStepStrings() const override;
+    virtual QString                             timeStepName(int frameIdx) const override;
+    virtual std::vector<QDateTime>              timeStepDates() const override;
 
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
@@ -98,8 +104,10 @@ public:
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
-    // Overridden methods from PdmObject
-public:
+
+    virtual double                              characteristicCellSize() const override;
+
+    virtual void                                setFormationNames(RimFormationNames* formationNames) override;
 
 protected:
     virtual void                                initAfterRead();
@@ -113,16 +121,17 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
+    void                                        createTimeStepFormatString();
 
 private:
-    caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
-    caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;
-
     std::map<QString , cvf::Color3f>            m_wellToColorMap;
     caf::PdmField<QString >                     m_filesContainingFaultsSemColSeparated;
 
+
+    caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
+    caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
     // Obsolete fields
 protected:

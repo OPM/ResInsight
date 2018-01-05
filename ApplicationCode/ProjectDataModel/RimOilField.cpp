@@ -21,10 +21,19 @@
 #include "RimOilField.h"
 
 #include "RimEclipseCaseCollection.h"
-#include "RimWellPathCollection.h"
-#include "RimGeoMechModels.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+#include "RimGeoMechModels.h"
+#include "RimObservedData.h"
+#include "RimObservedDataCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimWellPathCollection.h"
+
 
 CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
 //--------------------------------------------------------------------------------------------------
@@ -37,12 +46,24 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&summaryCaseCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    CAF_PDM_InitFieldNoDefault(&fractureDefinitionCollection, "FractureDefinitionCollection", "Defenition of Fractures", "", "", "");
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+    CAF_PDM_InitFieldNoDefault(&summaryCaseMainCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
+    CAF_PDM_InitFieldNoDefault(&observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "");
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    fractureDefinitionCollection = new RimFractureTemplateCollection();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
-    summaryCaseCollection = new RimSummaryCaseCollection();
+    summaryCaseMainCollection = new RimSummaryCaseMainCollection();
+    observedDataCollection = new RimObservedDataCollection();
+    formationNamesCollection = new RimFormationNamesCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,9 +72,83 @@ RimOilField::RimOilField(void)
 RimOilField::~RimOilField(void)
 {
     if (wellPathCollection()) delete wellPathCollection();
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    if (fractureDefinitionCollection()) delete fractureDefinitionCollection();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     if (geoMechModels()) delete geoMechModels();
     if (analysisModels()) delete analysisModels();
-    if (summaryCaseCollection()) delete summaryCaseCollection();
+    if (summaryCaseMainCollection()) delete summaryCaseMainCollection();
     if (formationNamesCollection()) delete formationNamesCollection();
+    if (observedDataCollection()) delete observedDataCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimOilField::uniqueShortNameForCase(RimSummaryCase* summaryCase)
+{
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimSummaryCase*> allCases = summaryCaseMainCollection->allSummaryCases();
+    std::vector<RimSummaryCase*> observedDataCases = observedDataCollection->allObservedData();
+    
+    for (auto observedData : observedDataCases)
+    {
+        allCases.push_back(dynamic_cast<RimSummaryCase*>(observedData));
+    }
+    
+    for (RimSummaryCase* sumCase : allCases)
+    {
+        if (sumCase && sumCase != summaryCase)
+        {
+            allAutoShortNames.insert(sumCase->shortName());
+        }
+    }
+
+    bool foundUnique = false;
+
+    QString caseName = summaryCase->caseName();
+    QString shortName;
+
+    if (caseName.size() > 2)
+    {
+        QString candidate;
+        candidate += caseName[0];
+
+        for (int i = 1; i < caseName.size(); ++i)
+        {
+            if (allAutoShortNames.count(candidate + caseName[i]) == 0)
+            {
+                shortName = candidate + caseName[i];
+                foundUnique = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        shortName = caseName.left(2);
+        if (allAutoShortNames.count(shortName) == 0)
+        {
+            foundUnique = true;
+        }
+    }
+
+    QString candidate = shortName;
+    int autoNumber = 0;
+
+    while (!foundUnique)
+    {
+        candidate = shortName + QString::number(autoNumber++);
+        if (allAutoShortNames.count(candidate) == 0)
+        {
+            shortName = candidate;
+            foundUnique = true;
+        }
+    }
+
+    return shortName;
 }
 

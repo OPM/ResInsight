@@ -21,6 +21,7 @@
 
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
+#include "RimView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -100,6 +101,12 @@ void RicAppendIntersectionFeatureCmd::redo()
     RimIntersection* intersection = new RimIntersection();
     intersection->name = QString("Intersection");
     m_intersectionCollection->appendIntersection(intersection);
+
+    RimView* view = nullptr;
+    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);
+
+    //Enable display of grid cells, to be able to show generated property filter
+    view->showGridCells(false);
 }
 
 //--------------------------------------------------------------------------------------------------

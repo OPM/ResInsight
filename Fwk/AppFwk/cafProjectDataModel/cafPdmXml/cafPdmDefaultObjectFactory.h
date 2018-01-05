@@ -44,6 +44,7 @@
 #include <QString>
 
 #include <map>
+#include <vector>
 
 namespace caf
 {
@@ -83,6 +84,8 @@ public:
             return false;  // never hit;
         }
     }
+
+    std::vector<QString> classKeywords() const;
 
 private:
     PdmDefaultObjectFactory()  {}

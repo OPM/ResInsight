@@ -26,6 +26,7 @@ class RifReaderInterface;
 class RigMainGrid;
 class RimFlowDiagSolution;
 class RigFlowDiagSolverInterface;
+class RifReaderEclipseRft;
 
 //==================================================================================================
 //
@@ -42,8 +43,13 @@ public:
 
     void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
+    void                        setSourSimFileName(const QString& fileName);
+    bool                        hasSourSimFile();
 
     virtual bool                openEclipseGridFile();
+
+    bool                        importGridAndResultMetaData(bool showTimeStepFilter);
+
     virtual void                reloadEclipseGridFile();
     bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
@@ -57,6 +63,17 @@ public:
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
+    RifReaderEclipseRft*        rftReader();
+
+    QString                     caseName() const { return m_caseName; }
+
+protected:
+    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+private:
+    void                        loadAndUpdateSourSimData();
+
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
@@ -66,14 +83,19 @@ private:
 
     cvf::ref<RigFlowDiagSolverInterface>        m_flowDagSolverInterface;
 
+    cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
+
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
+    caf::PdmField<QString>      m_sourSimFileName;
 
+    QString                     m_caseName;
 
     // Obsolete field
     caf::PdmField<QString>      caseDirectory; 
 
     bool                        m_gridAndWellDataIsReadFromFile;
     bool                        m_activeCellInfoIsReadFromFile;
+
 };

@@ -22,10 +22,10 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -184,8 +184,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
     CVF_ASSERT(rigCaseData);
 
-    RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
-    mainCase->results(poroModel)->cellResults()->createPlaceholderResultEntries();
+    RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
+    mainCase->results(poroModel)->createPlaceholderResultEntries();
 
 
     // Action A : Read active cell info
@@ -217,8 +217,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
-        if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->storedResultsCount() > 0 ||
-            rimReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->storedResultsCount() > 0)
+        if (rimReservoir->resultsStorage(RiaDefines::MATRIX_MODEL)->storedResultsCount() > 0 ||
+            rimReservoir->resultsStorage(RiaDefines::FRACTURE_MODEL)->storedResultsCount() > 0)
         {
             foundResultsInCache = true;
             break;
@@ -236,43 +236,41 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
 
-        std::vector<QDateTime> timeStepDates = rigCaseData->results(poroModel)->timeStepDates(0);
-        std::vector<double> daysSinceSimulationStart = rigCaseData->results(poroModel)->daysSinceSimulationStart(0);
-        std::vector<int> reportStepNumbers =  rigCaseData->results(poroModel)->reportStepNumbers(0);
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
-        const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
+        const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {
             RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
             if (!rimReservoir) continue; // Input reservoir
 
-            RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->results(poroModel);
+            RigCaseCellResultsData* cellResultsStorage = rimReservoir->results(poroModel);
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
-                RimDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
+                RiaDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
                 QString resultName = resultInfos[resIdx].m_resultName;
                 bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
                 bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
 
-                size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
+                size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->cellResults()->addEmptyScalarResult(resultType, resultName, needsToBeStored);
+                    size_t scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
-                    if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
+                    if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 
-                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates, daysSinceSimulationStart, reportStepNumbers);
+                    cellResultsStorage->setTimeStepInfos(scalarResultIndex, timeStepInfos);
 
-                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
-                    dataValues.resize(timeStepDates.size());
+                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(scalarResultIndex);
+                    dataValues.resize(timeStepInfos.size());
                 }
             }
 
-            cellResultsStorage->cellResults()->createPlaceholderResultEntries();
+            cellResultsStorage->createPlaceholderResultEntries();
         }
     }
 
@@ -332,7 +330,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->isActive(reservoirCellIndex))
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -340,7 +338,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->isActive(reservoirCellIndex))
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -424,20 +422,20 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        if (rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::MATRIX_MODEL))
         {
-            rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->clearAllResults();
         }
-        if (rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::FRACTURE_MODEL))
         {
-            rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->clearAllResults();
         }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {
             RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
-            rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
-            rimReservoirView->cellEdgeResult()->setResultVariable(RimDefines::undefinedResultName());
+            rimReservoirView->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
+            rimReservoirView->cellEdgeResult()->setResultVariable(RiaDefines::undefinedResultName());
             rimReservoirView->loadDataAndUpdate();
         }
     }
@@ -474,9 +472,9 @@ bool RimIdenticalGridCaseGroup::contains(RimEclipseCase* reservoir) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType)
+RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RiaDefines::PorosityModelType porosityType)
 {
-    if (porosityType == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityType == RiaDefines::MATRIX_MODEL)
     {
         return m_unionOfMatrixActiveCells.p();
     }

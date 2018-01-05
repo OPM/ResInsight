@@ -19,14 +19,16 @@
 
 #include "RivSimWellPipeSourceInfo.h"
 
-#include "RimEclipseWell.h"
+#include "RimEclipseView.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimSimWellInView.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimEclipseWell* eclipseWell, size_t branchIndex)
-    : m_eclipseWell(eclipseWell),
+RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimSimWellInView* simWell, size_t branchIndex)
+    : m_simWell(simWell),
     m_branchIndex(branchIndex)
 {
 }
@@ -34,9 +36,9 @@ RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimEclipseWell* eclipseWell, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell* RivSimWellPipeSourceInfo::well() const
+RimSimWellInView* RivSimWellPipeSourceInfo::well() const
 {
-    return m_eclipseWell.p();
+    return m_simWell.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,3 +48,4 @@ size_t RivSimWellPipeSourceInfo::branchIndex() const
 {
     return m_branchIndex;
 }
+

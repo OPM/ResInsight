@@ -54,10 +54,10 @@ RimEclipseInputProperty::RimEclipseInputProperty()
 {
     CAF_PDM_InitObject("Input Property", ":/EclipseInput48x48.png", "", "");
     
-    CAF_PDM_InitField(&resultName, "ResultName",  QString(), "Result name", "", "" ,"");
+    CAF_PDM_InitField(&resultName, "ResultName",  QString(), "Result Name", "", "" ,"");
     CAF_PDM_InitField(&eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword", "", "" ,"");
     CAF_PDM_InitField(&fileName, "FileName", QString(), "Filename", "", "" ,"");
-    CAF_PDM_InitField(&resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data state", "", "", "");
+    CAF_PDM_InitField(&resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data State", "", "", "");
 
     resolvedState.uiCapability()->setUiReadOnly(true);
     resolvedState.xmlCapability()->setIOReadable(false); 
@@ -91,19 +91,19 @@ void RimEclipseInputProperty::fieldChangedByUi(const caf::PdmFieldHandle* change
             QString oldName = oldValue.toString();
             QString newName = newValue.toString();
 
-            RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+            RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
             if (matrixResults)
             {
-                if (matrixResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                if (matrixResults->updateResultName(RiaDefines::INPUT_PROPERTY, oldName, newName))
                 {
                     anyNameUpdated = true;
                 }
             }
 
-            RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL);
             if (fracResults)
             {
-                if (fracResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                if (fracResults->updateResultName(RiaDefines::INPUT_PROPERTY, oldName, newName))
                 {
                     anyNameUpdated = true;
                 }

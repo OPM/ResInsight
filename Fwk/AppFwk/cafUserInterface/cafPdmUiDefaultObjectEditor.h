@@ -37,66 +37,37 @@
 
 #pragma once
 
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiWidgetBasedObjectEditor.h"
 
-#include <map>
-
-#include <QGroupBox>
 #include <QPointer>
-#include <QString>
-#include <QWidget>
-#include "QMinimizePanel.h"
 
 class QGridLayout;
+class QString;
 
 namespace caf 
 {
+
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiGroup;
 
 
-class PdmUiFieldEditorHelper
-{
-public:
-    static PdmUiFieldEditorHandle* fieldEditorForField(PdmUiFieldHandle* fieldHandle, const QString& uiConfigName);
-};
-
-
 //==================================================================================================
-/// The default editor for PdmObjects. Manages the field editors in a gridlayout vertically
+/// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
 //==================================================================================================
-
-class PdmUiDefaultObjectEditor : public PdmUiObjectEditorHandle
+class PdmUiDefaultObjectEditor : public PdmUiWidgetBasedObjectEditor
 {
     Q_OBJECT
 public:
     PdmUiDefaultObjectEditor();
     ~PdmUiDefaultObjectEditor();
 
-protected:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        configureAndUpdateUi(const QString& uiConfigName) override;
-    virtual void        cleanupBeforeSettingPdmObject() override;
-
-protected slots:
-    void                groupBoxExpandedStateToggled(bool isExpanded);
-
 private:
-    void                recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
-    bool                isUiGroupExpanded(const PdmUiGroup* uiGroup);
-    void                recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
+    virtual QWidget* createWidget(QWidget* parent) override;
+    virtual void     recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
+                                                                  const QString& uiConfigName) override;
 
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
-    std::map<QString, QPointer<QMinimizePanel> >        m_groupBoxes;
-    std::map<QString, QPointer<QMinimizePanel> >        m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
-
-    QPointer<QWidget>                                   m_mainWidget;
-    QPointer<QGridLayout>                               m_layout;
-
-    std::map<QString, std::map<QString, bool> >         m_objectKeywordGroupUiNameExpandedState; 
 };
-
 
 
 } // end namespace caf

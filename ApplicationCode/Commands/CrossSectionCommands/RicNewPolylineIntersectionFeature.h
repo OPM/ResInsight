@@ -24,10 +24,6 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 class RimIntersectionCollection;
 
 
@@ -40,9 +36,9 @@ public:
     explicit RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
     virtual ~RicNewPolylineIntersectionFeatureCmd();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    virtual QString name() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
@@ -53,7 +49,7 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewPolylineIntersectionFeature : public caf::CmdFeature, public RicViewerEventInterface
+class RicNewPolylineIntersectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -61,12 +57,9 @@ public:
     RicNewPolylineIntersectionFeature();
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
-
-    virtual bool handleEvent(cvf::Object* eventObject);
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
 
 

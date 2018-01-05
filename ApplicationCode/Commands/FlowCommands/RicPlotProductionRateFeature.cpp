@@ -24,21 +24,21 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"
 
-#include "RigSingleWellResultsData.h"
-#include "RigSummaryCaseData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSimWellInView.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
+#include "RiaSummaryTools.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -54,10 +54,10 @@ CAF_CMD_SOURCE_INIT(RicPlotProductionRateFeature, "RicPlotProductionRateFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicPlotProductionRateFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
-    for (RimEclipseWell* well : collection)
+    for (RimSimWellInView* well : collection)
     {
         RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell(well);
         if (gridSummaryCase)
@@ -77,21 +77,17 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CAF_ASSERT(project);
 
-    RimSummaryCaseCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return;
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CAF_ASSERT(mainPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CAF_ASSERT(summaryPlotColl);
-
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
     RimSummaryPlot* summaryPlotToSelect = nullptr;
 
-    for (RimEclipseWell* well : collection)
+    for (RimSimWellInView* well : collection)
     {
         RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell(well);
         if (!gridSummaryCase) continue;
@@ -103,17 +99,14 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             description = "Well Injection Rates : ";
         }
 
-        RimSummaryPlot* plot = new RimSummaryPlot();
-        summaryPlotColl->summaryPlots().push_back(plot);
-
         description += well->name();
-        plot->setDescription(description);
+        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(description);
 
         if (isInjector(well))
         {
             // Left Axis
 
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
             
             {
                 // Note : The parameter "WOIR" is probably never-existing, but we check for existence before creating curve
@@ -141,7 +134,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         {
             // Left Axis
 
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
             
             {
                 // Oil
@@ -169,7 +162,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         // Right Axis
 
         {
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_RIGHT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_RIGHT;
 
             {
                 QString parameterName = "WTHP";
@@ -196,7 +189,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);
-            mainPlotWindow->setExpanded(summaryPlotToSelect, true);
+            mainPlotWindow->setExpanded(summaryPlotToSelect);
 
             mainPlotWindow->tileWindows();
         }
@@ -215,12 +208,12 @@ void RicPlotProductionRateFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEclipseWell* well)
+RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimSimWellInView* well)
 {
     RimProject* project = RiaApplication::instance()->project();
     if (!project) return nullptr;
 
-    RimSummaryCaseCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return nullptr;
 
     RimEclipseResultCase* eclCase = nullptr;
@@ -240,9 +233,9 @@ RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEcli
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
+bool RicPlotProductionRateFeature::isInjector(RimSimWellInView* well)
 {
-    RigSingleWellResultsData* wRes = well->wellResults();
+    RigSimWellData* wRes = well->simWellData();
     if (wRes)
     {
         RimView* rimView = nullptr;
@@ -269,9 +262,9 @@ bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimEclipseWell* well,
+RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimSimWellInView* well,
                                                     RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                                    RimDefines::PlotAxis plotAxis, const cvf::Color3f& color)
+                                                    RiaDefines::PlotAxis plotAxis, const cvf::Color3f& color)
 {
     CVF_ASSERT(plot);
     CVF_ASSERT(gridSummaryCase);
@@ -287,20 +280,21 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         "",
         -1,
         -1,
+        -1,
         -1);
 
-    if (!gridSummaryCase->caseData()->summaryReader()->hasAddress(addr))
+    if (!gridSummaryCase->summaryReader()->hasAddress(addr))
     {
         return nullptr;
     }
 
     RimSummaryCurve* newCurve = new RimSummaryCurve();
-    plot->addCurve(newCurve);
+    plot->addCurveAndUpdate(newCurve);
 
-    newCurve->setSummaryCase(gridSummaryCase);
-    newCurve->setSummaryAddress(addr);
+    newCurve->setSummaryCaseY(gridSummaryCase);
+    newCurve->setSummaryAddressY(addr);
     newCurve->setColor(color);
-    newCurve->setYAxis(plotAxis);
+    newCurve->setLeftOrRightAxisY(plotAxis);
 
     return newCurve;
 }

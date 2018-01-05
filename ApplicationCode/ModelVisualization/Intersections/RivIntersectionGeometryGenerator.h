@@ -46,7 +46,7 @@ namespace cvf
 class RivIntersectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivIntersectionGeometryGenerator(const RimIntersection* crossSection,
+    RivIntersectionGeometryGenerator(RimIntersection* crossSection,
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivIntersectionHexGridInterface* grid );
@@ -70,7 +70,7 @@ public:
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
     const cvf::Vec3fArray*                           triangleVxes() const;
 
-    const RimIntersection* crossSection() const;
+    RimIntersection*            crossSection() const;
 
 private:
     void                        calculateArrays();
@@ -88,6 +88,6 @@ private:
     std::vector<size_t>         m_triangleToCellIdxMap;
     std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
 
-    const RimIntersection*      m_crossSection;
+    RimIntersection*            m_crossSection;
 };
 

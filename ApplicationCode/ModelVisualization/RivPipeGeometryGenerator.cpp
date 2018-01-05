@@ -21,6 +21,8 @@
 
 #include "RivPipeGeometryGenerator.h"
 
+#include "RivObjectSourceInfo.h"
+
 #include "cafEffectGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfPlane.h"
@@ -36,7 +38,7 @@ RivPipeGeometryGenerator::RivPipeGeometryGenerator()
     m_crossSectionNodeCount = 8;
     m_minimumBendAngle = 80.0;
     m_bendScalingFactor = 0.00001;
-    m_firstSegmentIndex = 0;
+    m_firstVisibleSegmentIndex = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,16 +592,59 @@ void RivPipeGeometryGenerator::clearComputedData()
 //--------------------------------------------------------------------------------------------------
 size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIndex) const
 {
-    size_t filteredIndex = triangleIndex / (m_crossSectionNodeCount * 2);
+    size_t segIndex = triangleIndex / (m_crossSectionNodeCount * 2);
 
-    return filteredIndex + m_firstSegmentIndex;
+    CVF_ASSERT(segIndex < m_filteredPipeSegmentToResult.size());
+    size_t resultIndex = m_filteredPipeSegmentToResult[segIndex];
+
+    return resultIndex + m_firstVisibleSegmentIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Well pipes are clipped, set index to first segment in visible well path
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::setFirstSegmentIndex(size_t segmentIndex)
+void RivPipeGeometryGenerator::setFirstVisibleSegmentIndex(size_t segmentIndex)
 {
-    m_firstSegmentIndex = segmentIndex;
+    m_firstVisibleSegmentIndex = segmentIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius)
+{
+    setRadius(radius);
+    setCrossSectionVertexCount(12);
+
+    cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray(centerCoords);
+    setPipeCenterCoords(cvfCoords.p());
+
+    cvf::ref<cvf::DrawableGeo> surfaceGeo = createPipeSurface();
+    if (surfaceGeo.notNull())
+    {
+        cvf::Part* part = new cvf::Part;
+        part->setDrawable(surfaceGeo.p());
+
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        part->setEffect(eff.p());
+
+        destinationParts->push_back(part);
+    }
+
+    cvf::ref<cvf::DrawableGeo> centerLineGeo = createCenterLine();
+    if (centerLineGeo.notNull())
+    {
+        cvf::Part* part = new cvf::Part;
+        part->setDrawable(centerLineGeo.p());
+
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        part->setEffect(eff.p());
+
+        destinationParts->push_back(part);
+    }
 }
 

@@ -27,11 +27,14 @@
 #include "cvfObject.h"
 
 #include "cvfVector2.h"
+#include <cmath>
+#include <memory>
 
 class RimEclipseView;
 class RimGeoMechView;
 class RimView;
 class RigStatisticsDataCache;
+class RicGridStatisticsDialog;
 
 //==================================================================================================
 ///  
@@ -40,6 +43,24 @@ class RigStatisticsDataCache;
 class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+    class HistogramData
+    {
+    public:
+        HistogramData() : min(HUGE_VAL), max(HUGE_VAL), p10(HUGE_VAL), p90(HUGE_VAL), mean(HUGE_VAL), weightedMean(HUGE_VAL), sum(0.0), histogram(nullptr) {}
+
+        double min;
+        double max;
+        double p10;
+        double p90;
+        double mean;
+        double sum;
+        double weightedMean;
+        const std::vector<size_t>* histogram;
+
+        bool isValid() { return histogram && histogram->size() > 0 && min != HUGE_VAL && max != HUGE_VAL; }
+    };
+
 public:
     Rim3dOverlayInfoConfig();
     virtual ~Rim3dOverlayInfoConfig();
@@ -48,7 +69,15 @@ public:
 
     void setReservoirView(RimView* ownerView);
 
-    void                                        setPosition(cvf::Vec2ui position);
+    void setPosition(cvf::Vec2ui position);
+
+    HistogramData                               histogramData();
+    QString                                     timeStepText();
+    QString                                     caseInfoText();
+    QString                                     resultInfoText(const HistogramData& histData, bool showVolumeWeightedMean);
+
+    void                                        showStatisticsInfoDialog(bool raise = true);
+    QImage                                      statisticsDialogScreenShotImage();
 
     enum StatisticsTimeRangeType
     {
@@ -69,14 +98,23 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
+
+    QString                                     timeStepText(RimEclipseView* eclipseView);
+    QString                                     timeStepText(RimGeoMechView* geoMechView);
+    HistogramData                               histogramData(RimEclipseView* eclipseView);
+    HistogramData                               histogramData(RimGeoMechView* geoMechView);
+    QString                                     caseInfoText(RimEclipseView* eclipseView);
+    QString                                     caseInfoText(RimGeoMechView* geoMechView);
+    QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean);
+    QString                                     resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView);
 
     caf::PdmField<bool>                         active;
     caf::PdmField<bool>                         showAnimProgress;
     caf::PdmField<bool>                         showCaseInfo;
     caf::PdmField<bool>                         showResultInfo;
+    caf::PdmField<bool>                         showVolumeWeightedMean;
     caf::PdmField<bool>                         showHistogram;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
@@ -88,7 +126,9 @@ private:
     
     void updateVisCellStatsIfNeeded();
     void displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep);
+    bool hasInvalidStatisticsCombination();
     bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
 
+    std::unique_ptr<RicGridStatisticsDialog>    m_gridStatisticsDialog;
 };

@@ -28,6 +28,7 @@
 #include "RimScriptCollection.h"
 
 #include "RiuMainWindow.h"
+#include "RiuTools.h"
 
 #include "cafUtils.h"
 
@@ -85,7 +86,13 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
     }
 
     bool ok;
-    fullPathFilenameNewScript = QInputDialog::getText(NULL, "Specify new script file", "File name", QLineEdit::Normal, fullPathFilenameNewScript, &ok);
+    fullPathFilenameNewScript = QInputDialog::getText(NULL,
+                                                      "Specify new script file", 
+                                                      "File name", 
+                                                      QLineEdit::Normal, 
+                                                      fullPathFilenameNewScript, 
+                                                      &ok,
+                                                      RiuTools::defaultDialogFlags());
 
     if (ok && !fullPathFilenameNewScript.isEmpty())
     {

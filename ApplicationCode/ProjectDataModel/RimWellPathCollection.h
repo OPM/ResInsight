@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,17 +30,27 @@
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
+#include "cafPdmChildField.h"
 
 #include "cvfObject.h"
 
-#include <QString>
-
-class RivWellPathCollectionPartMgr;
-class RifWellPathAsciiFileReader;
-class RimWellPath;
-class RimProject;
+class RifWellPathImporter;
 class RigWellPath;
+class RimEclipseView;
+class RimProject;
+class RimWellLogFile;
+class RimWellPath;
+class RifWellPathFormationsImporter;
+class QString;
 
+namespace cvf {
+class ModelBasicList;
+class BoundingBox;
+}
+
+namespace caf {
+class DisplayCoordTransform;
+}
 
 //==================================================================================================
 ///  
@@ -74,61 +86,55 @@ public:
     caf::PdmField<int>                  wellPathClipZDistance;
 
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
-    
    
-    RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
-
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
     
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
 
-    RifWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
-    
+    RimWellPath*                        newestAddedWellPath();
+
+    void                                readWellPathFormationFiles();
+    void                                reloadAllWellPathFormations();
+
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
-    void                                addWellLogs(const QStringList& filePaths);
+    RimWellPath*                        tryFindMatchingWellPath(const QString& wellName) const;
+    void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
+    RimWellLogFile*                     addWellLogs(const QStringList& filePaths);
+    void                                addWellPathFormations(const QStringList& filePaths);
 
+    void                                scheduleRedrawAffectedViews();
 
-    void                                scheduleGeometryRegenAndRedrawViews();
+    void                                appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                         double                            characteristicCellSize, 
+                                                                         const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                         const caf::DisplayCoordTransform* displayCoordTransform);
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    void                                appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                         const RimEclipseView& eclView);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+    void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                          const QDateTime&                  timeStamp,
+                                                                          double                            characteristicCellSize, 
+                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual caf::PdmFieldHandle*        objectToggleField() override;
 
     void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
-    cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
+    RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
 
-    RifWellPathAsciiFileReader*         m_asciiFileReader;
-};
-
-
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RifWellPathAsciiFileReader
-{
-public:
-    struct WellData
-    {
-        QString                 m_name;
-        cvf::ref<RigWellPath>   m_wellPathGeometry;
-    };
-
-    WellData readWellData(QString filePath, int indexInFile);
-    size_t   wellDataCount(QString filePath);
-
-    void    clear();
-    void    removeFilePath(const QString& filePath);
-
-private:
-    void readAllWellData(QString filePath);
-
-    std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;
+    RifWellPathImporter*                m_wellPathImporter;
+    RifWellPathFormationsImporter*      m_wellPathFormationsImporter;
+    caf::PdmPointer<RimWellPath>        m_newestAddedWellPath;
 };

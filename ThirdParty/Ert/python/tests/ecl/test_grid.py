@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-#  Copyright (C) 2014  Statoil ASA, Norway. 
-#   
+#  Copyright (C) 2014  Statoil ASA, Norway.
+#
 #  The file 'test_grid.py' is part of ERT - Ensemble based Reservoir Tool.
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 import os.path
 from unittest import skipIf
@@ -49,21 +49,21 @@ CORNER_HOME = {
 
 def createVolumeTestGridBase(dim, dV, offset=1):
     return [
-            GridGen.createGrid(dim, dV, offset=0),
-            GridGen.createGrid(dim, dV, offset=offset),
-            GridGen.createGrid(dim, dV, offset=offset, irregular_offset=True),
-            GridGen.createGrid(dim, dV, offset=offset, concave=True),
-            GridGen.createGrid(dim, dV, offset=offset, irregular=True),
-            GridGen.createGrid(dim, dV, offset=offset, concave=True, irregular=True),
-            GridGen.createGrid(dim, dV, offset=offset, irregular_offset=True, concave=True),
-            GridGen.createGrid(dim, dV, offset=0, faults=True),
-            GridGen.createGrid(dim, dV, offset=offset, faults=True),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), scale=2),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), scale=0.5),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), translation=(50,50,0)),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), rotate=True),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), misalign=True),
-            GridGen.createGrid(dim, dV, offset=offset, escape_origo_shift=(100, 100, 0),
+            GridGen.create_grid(dim, dV, offset=0),
+            GridGen.create_grid(dim, dV, offset=offset),
+            GridGen.create_grid(dim, dV, offset=offset, irregular_offset=True),
+            GridGen.create_grid(dim, dV, offset=offset, concave=True),
+            GridGen.create_grid(dim, dV, offset=offset, irregular=True),
+            GridGen.create_grid(dim, dV, offset=offset, concave=True, irregular=True),
+            GridGen.create_grid(dim, dV, offset=offset, irregular_offset=True, concave=True),
+            GridGen.create_grid(dim, dV, offset=0, faults=True),
+            GridGen.create_grid(dim, dV, offset=offset, faults=True),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), scale=2),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), scale=0.5),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), translation=(50,50,0)),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), rotate=True),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), misalign=True),
+            GridGen.create_grid(dim, dV, offset=offset, escape_origo_shift=(100, 100, 0),
                 irregular_offset=True, concave=True, irregular=True,
                 scale=1.5, translation=(5,5,0), rotate=True,
                 misalign=True)
@@ -71,11 +71,11 @@ def createVolumeTestGridBase(dim, dV, offset=1):
 
 def createContainmentTestBase():
     return [
-            (3,  GridGen.createGrid((6,6,6), (1,1,1), offset=1)),
-            (10, GridGen.createGrid((3,3,3), (1,1,1), offset=1, concave=True)),
-            (4,  GridGen.createGrid((10,10,1), (1,1,1), offset=0., misalign=True)),
+            (3,  GridGen.create_grid((6,6,6), (1,1,1), offset=1)),
+            (10, GridGen.create_grid((3,3,3), (1,1,1), offset=1, concave=True)),
+            (4,  GridGen.create_grid((10,10,1), (1,1,1), offset=0., misalign=True)),
             (3,
-                GridGen.createGrid((6,6,6), (1,1,1), offset=0.,
+                GridGen.create_grid((6,6,6), (1,1,1), offset=0.,
                     escape_origo_shift=(100, 100, 0),
                     irregular_offset=True, concave=True, irregular=True,
                     scale=1.5, translation=(5,5,0),
@@ -110,7 +110,7 @@ def createWrapperGrid(grid):
                 for i, pos in enumerate(corner_pos)
               ]
 
-    return GridGen.createSingleCellGrid(corners)
+    return GridGen.create_single_cell_grid(corners)
 
 def average(points):
     p = reduce(lambda a,b: (a[0]+b[0], a[1]+b[1], a[2]+b[2]), points)
@@ -120,7 +120,7 @@ def average(points):
 # external test data. Tests involving Statoil test data are in the
 # test_grid_statoil module.
 class GridTest(ExtendedTestCase):
-    
+
     def test_oom_grid(self):
         nx = 2000
         ny = 2000
@@ -130,7 +130,7 @@ class GridTest(ExtendedTestCase):
             grid = GridGen.createRectangular( (nx,ny,nz), (1,1,1))
 
 
-    
+
     def test_posXYEdge(self):
         nx = 10
         ny = 11
@@ -139,43 +139,66 @@ class GridTest(ExtendedTestCase):
         self.assertEqual( grid.findCellCornerXY(nx,0,0) , nx)
         self.assertEqual( grid.findCellCornerXY(0 , ny , 0) , (nx + 1 ) * ny )
         self.assertEqual( grid.findCellCornerXY(nx,ny,0) , (nx + 1 ) * (ny + 1) - 1)
-        
+
         self.assertEqual( grid.findCellCornerXY(0.25,0,0)  , 0 )
         self.assertEqual( grid.findCellCornerXY(0,0.25,0)  , 0 )
-    
+
         self.assertEqual( grid.findCellCornerXY(nx - 0.25,0,0)  , nx )
         self.assertEqual( grid.findCellCornerXY(nx , 0.25,0)  , nx )
-    
+
         self.assertEqual( grid.findCellCornerXY(0 , ny - 0.25, 0) , (nx + 1 ) * ny )
         self.assertEqual( grid.findCellCornerXY(0.25 , ny , 0) , (nx + 1 ) * ny )
-    
+
         self.assertEqual( grid.findCellCornerXY(nx -0.25 ,ny,0) , (nx + 1 ) * (ny + 1) - 1)
         self.assertEqual( grid.findCellCornerXY(nx , ny - 0.25,0) , (nx + 1 ) * (ny + 1) - 1)
-    
-    
+
+
     def test_dims(self):
         grid = GridGen.createRectangular( (10,20,30) , (1,1,1) )
         self.assertEqual( grid.getNX() , 10 )
         self.assertEqual( grid.getNY() , 20 )
         self.assertEqual( grid.getNZ() , 30 )
         self.assertEqual( grid.getGlobalSize() , 30*10*20 )
-    
+
         self.assertEqual( grid.getDims() , (10,20,30,6000) )
-        
-    
-    
+
     def test_create(self):
         with self.assertRaises(ValueError):
             grid = GridGen.createRectangular( (10,20,30) , (1,1,1) , actnum = [0,1,1,2])
-            
+
         with self.assertRaises(ValueError):
             grid = GridGen.createRectangular( (10,20,30) , (1,1,1) , actnum = IntVector(initial_size = 10))
-    
+        grid = GridGen.createRectangular( (10,20,30) , (1,1,1) ) # actnum=None -> all active
+        self.assertEqual( grid.getNumActive( ) , 30*20*10)
         actnum = IntVector(default_value = 1 , initial_size = 6000)
         actnum[0] = 0
         actnum[1] = 0
         grid = GridGen.createRectangular( (10,20,30) , (1,1,1) , actnum = actnum)
         self.assertEqual( grid.getNumActive( ) , 30*20*10 - 2)
+
+    def test_all_iters(self):
+        fk = self.createTestPath('local/ECLIPSE/faarikaal/faarikaal1.EGRID')
+        grid = EclGrid(fk)
+        cell = grid[3455]
+        self.assertEqual(3455, cell.global_index)
+        cell = grid[(4,1,82)]
+        self.assertEqual(3455, cell.global_index)
+        self.assertEqual(grid.cell(global_index=3455),
+                         grid.cell(active_index=2000))
+        self.assertEqual(grid.cell(global_index=3455),
+                         grid.cell(i=4, j=1, k=82))
+
+        na = grid.get_num_active()
+        self.assertEqual(na, 4160)
+        cnt = 0
+        for c in grid.cells(active=True):
+            cnt += 1
+            self.assertTrue(c.active)
+        self.assertEqual(cnt, 4160)
+
+        cnt = len([c for c in grid.cells()])
+        self.assertEqual(cnt, len(grid))
+
 
     def test_repr_and_name(self):
         grid = GridGen.createRectangular((2,2,2), (10,10,10), actnum=[0,0,0,0,1,1,1,1])
@@ -196,101 +219,101 @@ class GridTest(ExtendedTestCase):
         grid = GridGen.createRectangular( (10,20,30) , (1,1,1) )
         with self.assertRaises(IndexError):
             grid.getNodePos(-1,0,0)
-    
+
         with self.assertRaises(IndexError):
             grid.getNodePos(11,0,0)
-    
+
         p0 = grid.getNodePos(0,0,0)
         self.assertEqual( p0 , (0,0,0))
-    
+
         p7 = grid.getNodePos(10,20,30)
         self.assertEqual( p7 , (10,20,30))
-    
-    
+
+
     def test_truncated_file(self):
         grid = GridGen.createRectangular( (10,20,30) , (1,1,1) )
         with TestAreaContext("python/ecl_grid/truncated"):
             grid.save_EGRID( "TEST.EGRID")
-    
+
             size = os.path.getsize( "TEST.EGRID")
             with open("TEST.EGRID" , "r+") as f:
                 f.truncate( size / 2 )
-    
+
             with self.assertRaises(IOError):
                 EclGrid("TEST.EGRID")
-    
+
     def test_posXY1(self):
         nx = 4
         ny = 1
         nz = 1
         grid = GridGen.createRectangular( (nx,ny,nz) , (1,1,1) )
-        (i,j) = grid.findCellXY( 0.5 , 0.5, 0 )   
+        (i,j) = grid.findCellXY( 0.5 , 0.5, 0 )
         self.assertEqual(i , 0)
         self.assertEqual(j , 0)
-    
-        (i,j) = grid.findCellXY( 3.5 , 0.5, 0 )   
+
+        (i,j) = grid.findCellXY( 3.5 , 0.5, 0 )
         self.assertEqual(i , 3)
         self.assertEqual(j , 0)
-    
-    
+
+
     def test_init_ACTNUM(self):
         nx = 10
         ny = 23
         nz = 7
         grid = GridGen.createRectangular( (nx,ny,nz) , (1,1,1) )
         actnum = grid.exportACTNUM()
-        
+
         self.assertEqual( len(actnum) , nx*ny*nz )
         self.assertEqual( actnum[0] , 1 )
         self.assertEqual( actnum[nx*ny*nz - 1] , 1 )
-        
+
         actnum_kw = grid.exportACTNUMKw( )
         self.assertEqual(len(actnum_kw) , len(actnum))
         for a1,a2 in zip(actnum, actnum_kw):
             self.assertEqual(a1, a2)
-    
-    
+
+
     def test_posXY(self):
         nx = 10
         ny = 23
         nz = 7
         grid = GridGen.createRectangular( (nx,ny,nz) , (1,1,1) )
         with self.assertRaises(IndexError):
-            grid.findCellXY( 1 , 1, -1 )   
-    
+            grid.findCellXY( 1 , 1, -1 )
+
         with self.assertRaises(IndexError):
-            grid.findCellXY( 1 , 1, nz + 1 )   
-    
+            grid.findCellXY( 1 , 1, nz + 1 )
+
         with self.assertRaises(ValueError):
             grid.findCellXY(15 , 78 , 2)
-        
-            
+
+
         i,j = grid.findCellXY( 1.5 , 1.5 , 2 )
         self.assertEqual(i , 1)
         self.assertEqual(j , 1)
-    
-    
+
+
         for i in range(nx):
             for j in range(ny):
                 p = grid.findCellXY(i + 0.5 , j+ 0.5 , 0)
                 self.assertEqual( p[0] , i )
                 self.assertEqual( p[1] , j )
-        
+
         c = grid.findCellCornerXY( 0.10 , 0.10 , 0 )
         self.assertEqual(c , 0)
-        
+
         c = grid.findCellCornerXY( 0.90 , 0.90 , 0 )
         self.assertEqual( c , (nx + 1) + 1 )
-    
+
         c = grid.findCellCornerXY( 0.10 , 0.90 , 0 )
         self.assertEqual( c , (nx + 1) )
-    
+
         c = grid.findCellCornerXY( 0.90 , 0.90 , 0 )
         self.assertEqual( c , (nx + 1) + 1 )
-    
+
         c = grid.findCellCornerXY( 0.90 , 0.10 , 0 )
         self.assertEqual( c , 1 )
-        
+
     def test_compressed_copy(self):
         nx = 10
         ny = 10
@@ -299,19 +322,19 @@ class GridTest(ExtendedTestCase):
         kw1 = EclKW("KW" , 1001 , EclDataType.ECL_INT )
         with self.assertRaises(ValueError):
             cp = grid.compressedKWCopy( kw1 )
-    
-    
+
+
     def test_dxdydz(self):
         nx = 10
         ny = 10
         nz = 10
         grid = GridGen.createRectangular( (nx,ny,nz) , (2,3,4) )
-    
+
         (dx,dy,dz) = grid.getCellDims( active_index = 0 )
         self.assertEqual( dx , 2 )
         self.assertEqual( dy , 3 )
         self.assertEqual( dz , 4 )
-        
+
     def test_numpy3D(self):
         nx = 10
         ny = 7
@@ -329,11 +352,20 @@ class GridTest(ExtendedTestCase):
         actnum[1] = 1
         actnum[2] = 1
         actnum[3] = 1
-        
+
         grid = GridGen.createRectangular( (nx,ny,nz) , (1,1,1), actnum = actnum)
         self.assertEqual( len(grid) , nx*ny*nz )
         self.assertEqual( grid.getNumActive( ) , 4 )
 
+    def test_export(self):
+        dims = (3, 3, 3)
+        coord = GridGen.create_coord(dims, (1,1,1))
+        zcorn = GridGen.create_zcorn(dims, (1,1,1), offset=0)
+
+        grid = EclGrid.create(dims, zcorn, coord, None)
+
+        self.assertEqual(zcorn, grid.export_zcorn())
+        self.assertEqual(coord, grid.export_coord())
 
     def test_output_units(self):
         n = 10
@@ -348,12 +380,12 @@ class GridTest(ExtendedTestCase):
             g2 = EclGrid("CASE.EGRID")
             self.assertFloatEqual( g2.cell_volume( global_index = 0 ) , 3.28084*3.28084*3.28084)
 
-            
+
             grid.save_EGRID( "CASE.EGRID" )
             f = EclFile("CASE.EGRID")
             g = f["GRIDUNIT"][0]
             self.assertEqual( g[0].strip( ) , "METRES" )
-            
+
             grid.save_EGRID( "CASE.EGRID" , output_unit = EclUnitTypeEnum.ECL_LAB_UNITS)
             f = EclFile("CASE.EGRID")
             g = f["GRIDUNIT"][0]
@@ -389,11 +421,13 @@ class GridTest(ExtendedTestCase):
                             for i in range(grid.getGlobalSize())
                         ].count(True)
 
-                self.assertTrue(hits in [0, 1])
+                self.assertIn(hits, [0, 1])
 
+                expected = 1 if wgrid.cell_contains(x, y, z, 0) else 0
                 self.assertEqual(
-                        1 if wgrid.cell_contains(x, y, z, 0) else 0,
-                        hits
+                        expected,
+                        hits,
+                        'Expected %d for (%g,%g,%g), got %d' % (expected, x, y, z, hits)
                         )
 
     def test_cell_corner_containment(self):
@@ -445,7 +479,7 @@ class GridTest(ExtendedTestCase):
             (20, 20, 20)
             ]
 
-        grid = GridGen.createSingleCellGrid(points)
+        grid = GridGen.create_single_cell_grid(points)
 
         assertPoint = lambda p : self.assertTrue(
                 grid.cell_contains(p[0], p[1], p[2], 0)
@@ -505,7 +539,7 @@ class GridTest(ExtendedTestCase):
             (25, 25, 25)
             ]
 
-        grid = GridGen.createSingleCellGrid(points)
+        grid = GridGen.create_single_cell_grid(points)
 
         assertPoint = lambda p : self.assertTrue(
                 grid.cell_contains(p[0], p[1], p[2], 0)

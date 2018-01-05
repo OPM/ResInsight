@@ -88,10 +88,10 @@ public:
                                                                     const QString& faultIncludeFileAbsolutePathPrefix);
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
+    static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
 
 private:
     static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName);
-    static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
     static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
 
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);

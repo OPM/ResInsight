@@ -19,10 +19,10 @@
 
 #include "RicNewSimWellIntersectionFeature.h"
 
+#include "RimEclipseView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseWell.h"
+#include "RimSimWellInView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -46,17 +46,17 @@ bool RicNewSimWellIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimEclipseWell* eclWell = collection[0];
+    RimSimWellInView* simWell = collection[0];
     
     RimEclipseView* eclView = NULL;
-    eclWell->firstAncestorOrThisOfType(eclView);
+    simWell->firstAncestorOrThisOfType(eclView);
     CVF_ASSERT(eclView);
 
-    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection, eclWell);
+    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection, simWell);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -72,7 +72,7 @@ void RicNewSimWellIntersectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimEclipseWell* simWell)
+RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimSimWellInView* simWell)
     : CmdExecuteCommand(NULL),
     m_intersectionCollection(intersectionCollection),
     m_simWell(simWell)

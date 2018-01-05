@@ -61,10 +61,11 @@ public:
 public:
     RimSummaryTimeAxisProperties();
 
-    caf::PdmField<int>          fontSize;
+    caf::PdmField<int>          titleFontSize;
     caf::PdmField<QString>      title;
     caf::PdmField<bool>         showTitle;
     caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
+    caf::PdmField<int>          valuesFontSize;
 
     TimeModeType                            timeMode() const              { return m_timeMode(); }
     void                                    setTimeMode(TimeModeType val) { m_timeMode = val; }

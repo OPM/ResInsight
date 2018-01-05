@@ -23,6 +23,7 @@
 
 class RimWellLogCurve;
 class RimWellAllocationPlot;
+class RimWellRftPlot;
 
 //==================================================================================================
 /// 
@@ -33,4 +34,5 @@ public:
     static cvf::Color3f curveColorFromTable(size_t index);
     static std::vector<RimWellLogCurve*> selectedWellLogCurves();
     static RimWellAllocationPlot* parentWellAllocationPlot();
+    static RimWellRftPlot* parentWellRftPlot();
 };

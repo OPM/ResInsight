@@ -28,10 +28,13 @@ queried for the corresponding list of indices.
 import ctypes
 
 from cwrap import BaseCClass
+
+from ecl.util import monkey_the_camel
+from ecl.util import IntVector
+
 from ecl.ecl.faults import Layer
 from ecl.ecl import EclKW, EclDataType, EclPrototype
 from ecl.geo import CPolyline
-from ecl.util import IntVector
 
 
 def select_method(select):
@@ -86,6 +89,10 @@ class EclRegion(BaseCClass):
     _scale_kw_int               = EclPrototype("void ecl_region_scale_kw_int( ecl_region , ecl_kw , int, bool) ")
     _scale_kw_float             = EclPrototype("void ecl_region_scale_kw_float( ecl_region , ecl_kw , float, bool ) ")
     _scale_kw_double            = EclPrototype("void ecl_region_scale_kw_double( ecl_region , ecl_kw , double , bool) ")
+    _sum_kw_int                 = EclPrototype("int ecl_region_sum_kw_int( ecl_region , ecl_kw , bool) ")
+    _sum_kw_float               = EclPrototype("float ecl_region_sum_kw_float( ecl_region , ecl_kw , bool ) ")
+    _sum_kw_double              = EclPrototype("double ecl_region_sum_kw_double( ecl_region , ecl_kw , bool) ")
+    _sum_kw_bool                = EclPrototype("int ecl_region_sum_kw_int( ecl_region , ecl_kw , bool) ")
 
     _free                       = EclPrototype("void ecl_region_free( ecl_region )")
     _reset                      = EclPrototype("void ecl_region_reset( ecl_region )")
@@ -199,13 +206,10 @@ class EclRegion(BaseCClass):
         return self._alloc_copy( )
 
 
-    def __zero__(self):
-        global_list = self.getGlobalList()
-        if len(global_list) > 0:
-            return True
-        else:
-            return False
-
+    def __nonzero__(self):
+        global_list = self.get_global_list()
+        return len(global_list) > 0
+    
 
     def __iand__(self , other):
         """
@@ -804,7 +808,7 @@ class EclRegion(BaseCClass):
 
 
     @select_method
-    def selectTrue( self , ecl_kw , intersect = False):
+    def select_true( self , ecl_kw , intersect = False):
         """
         Assume that input ecl_kw is a boolean mask.
         """
@@ -812,7 +816,7 @@ class EclRegion(BaseCClass):
 
 
     @select_method
-    def selectFalse( self , ecl_kw , intersect = False):
+    def select_false( self , ecl_kw , intersect = False):
         """
         Assume that input ecl_kw is a boolean mask.
         """
@@ -820,7 +824,7 @@ class EclRegion(BaseCClass):
 
 
     @select_method
-    def selectFromLayer(self , layer , k , value, intersect = False):
+    def select_from_layer(self , layer , k , value, intersect = False):
         """Will select all the cells in in @layer with value @value - at
         vertical coordinate @k.
 
@@ -941,6 +945,21 @@ class EclRegion(BaseCClass):
                                                 EclDataType.ECL_DOUBLE : self._set_kw_double} , force_active)
 
 
+    def sum_kw(self, kw, force_active = False):
+        data_type = kw.data_type
+        if data_type == EclDataType.ECL_FLOAT:
+            return self._sum_kw_float( kw, force_active )
+
+        if data_type == EclDataType.ECL_INT:
+            return self._sum_kw_int( kw, force_active )
+
+        if data_type == EclDataType.ECL_DOUBLE:
+            return self._sum_kw_double( kw, force_active )
+
+        if data_type == EclDataType.ECL_BOOL:
+            return self._sum_kw_bool( kw, force_active )
+
+        raise ValueError("sum_kw only supported for; INT/FLOAT/DOUBLE/BOOL")
 
 
     #################################################################
@@ -952,7 +971,15 @@ class EclRegion(BaseCClass):
         return True
 
 
-    def getActiveList(self):
+    def active_size(self):
+        return len(self._get_active_list())
+
+
+    def global_size(self):
+        return len(self._get_global_list())
+
+
+    def get_active_list(self):
         """
         IntVector instance with active indices in the region.
         """
@@ -961,7 +988,7 @@ class EclRegion(BaseCClass):
         return active_list
 
 
-    def getGlobalList(self):
+    def get_global_list(self):
         """
         IntVector instance with global indices in the region.
         """
@@ -970,7 +997,7 @@ class EclRegion(BaseCClass):
         return global_list
 
 
-    def getIJKList(self):
+    def get_ijk_list(self):
         """
         WIll return a Python list of (ij,k) tuples for the region.
         """
@@ -1007,9 +1034,21 @@ class EclRegion(BaseCClass):
         index_list = IntVector.createCReference( c_ptr, self )
         return index_list
 
-    def getName(self):
+    @property
+    def name(self):
+        return self._get_name()
+
+    def get_name(self):
         return self._get_name( )
 
-
-    def setName(self , name):
+    def set_name(self , name):
         self._set_name( name )
+
+monkey_the_camel(EclRegion, 'selectTrue', EclRegion.select_true)
+monkey_the_camel(EclRegion, 'selectFalse', EclRegion.select_false)
+monkey_the_camel(EclRegion, 'selectFromLayer', EclRegion.select_from_layer)
+monkey_the_camel(EclRegion, 'getActiveList', EclRegion.get_active_list)
+monkey_the_camel(EclRegion, 'getGlobalList', EclRegion.get_global_list)
+monkey_the_camel(EclRegion, 'getIJKList', EclRegion.get_ijk_list)
+monkey_the_camel(EclRegion, 'getName', EclRegion.get_name)
+monkey_the_camel(EclRegion, 'setName', EclRegion.set_name)

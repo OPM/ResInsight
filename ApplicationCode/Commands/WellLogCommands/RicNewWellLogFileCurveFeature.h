@@ -23,12 +23,6 @@
 
 #include <vector>
 
-class RimWellLogTrack;
-class RimWellLogFileCurve;
-class RimWellPath;
-class RimWellLogFileChannel;
-
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -36,19 +30,11 @@ class RicNewWellLogFileCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static RimWellLogFileCurve* addCurve(RimWellLogTrack* plotTrack);
-
-    static void addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
-
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-   RimWellLogTrack* selectedWellLogPlotTrack() const;
-   RimWellPath*         selectedWellPathWithLogFile() const;
-   bool                 wellLogFilesAvailable() const;
+   bool wellLogFilesAvailable() const;
 };

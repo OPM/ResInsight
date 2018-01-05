@@ -20,9 +20,15 @@
 
 #include "RifEclipseOutputFileTools.h"
 
+#include "RifEclipseRestartFilesetAccess.h"
+#include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RiaQDateTimeTools.h"
+
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"
 #include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
+#include "ert/ecl/ecl_nnc_data.h"
 
 #include "cafProgressInfo.h"
 
@@ -119,7 +125,10 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 {
     if (!ecl_file) return;
 
-    CVF_ASSERT(timeSteps);
+    CVF_ASSERT(timeSteps && daysSinceSimulationStart);
+
+    timeSteps->clear();
+    daysSinceSimulationStart->clear();
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
@@ -142,6 +151,8 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         }
     }
 
+    std::set<QDateTime> existingTimesteps;
+
     for (int i = 0; i < numINTEHEAD; i++)
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
@@ -151,21 +162,15 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         int year = 0;
         getDayMonthYear(kwINTEHEAD, &day, &month, &year);
 
-        QDateTime reportDateTime(QDate(year, month, day));
+        QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(QDate(year, month, day));
         CVF_ASSERT(reportDateTime.isValid());
 
         double dayValue = dayValues[i];
         double dayFraction = dayValue - cvf::Math::floor(dayValue);
-        int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
-        int seconds = milliseconds % 1000;
-        milliseconds -= seconds * 1000;
-        QTime time(0, 0);
-        time = time.addSecs(seconds);
-        time = time.addMSecs(milliseconds);
+        double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
-        reportDateTime.setTime(time);
-
-        if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
+        reportDateTime = reportDateTime.addMSecs(milliseconds);
+        if (existingTimesteps.insert(reportDateTime).second)
         {
             timeSteps->push_back(reportDateTime);
             daysSinceSimulationStart->push_back(dayValue);
@@ -335,6 +340,123 @@ int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
     }
 
     return unitsType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicResultAccess(const QString& fileName)
+{
+    QStringList filesWithSameBaseName;
+    RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &filesWithSameBaseName);
+
+    cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
+
+    // Look for unified restart file
+    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType(filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
+    if (unrstFileName.size() > 0)
+    {
+        resultsAccess = new RifEclipseUnifiedRestartFileAccess();
+        resultsAccess->setRestartFiles(QStringList(unrstFileName));
+    }
+    else
+    {
+        // Look for set of restart files (one file per time step)
+        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType(filesWithSameBaseName, ECL_RESTART_FILE);
+        if (restartFiles.size() > 0)
+        {
+            resultsAccess = new RifEclipseRestartFilesetAccess();
+            resultsAccess->setRestartFiles(restartFiles);
+        }
+    }
+
+    return resultsAccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFileName)
+{
+    QFileInfo fi(resultFileName);
+
+    QString indexFileName = fi.path() + "/" + fi.completeBaseName() + ".RESINSIGHT_IDX";
+
+    return indexFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(ecl_file_type* ecl_file)
+{
+    std::set<RiaDefines::PhaseType> phaseTypes;
+
+    if (ecl_file)
+    {
+        const ecl_kw_type* intehead = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+        if (intehead)
+        {
+            int phases = ecl_kw_iget_int(intehead, INTEHEAD_PHASE_INDEX);
+
+            if (phases & ECL_OIL_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::OIL_PHASE);
+            }
+
+            if (phases & ECL_GAS_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::GAS_PHASE);
+            }
+
+            if (phases & ECL_WATER_PHASE)
+            {
+                phaseTypes.insert(RiaDefines::WATER_PHASE);
+            }
+        }
+    }
+
+    return phaseTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
+                                                    ecl_file_view_type* summaryView,
+                                                    std::vector<double>* waterFlux, 
+                                                    std::vector<double>* oilFlux, 
+                                                    std::vector<double>* gasFlux)
+{
+    ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(grid);
+    if (nnc_geo)
+    {
+        ecl_nnc_data_type* waterFluxData = ecl_nnc_data_alloc_wat_flux(grid, nnc_geo, summaryView);
+        if (waterFluxData)
+        {
+            const double* waterFluxValues = ecl_nnc_data_get_values(waterFluxData);
+            waterFlux->insert(waterFlux->end(), &waterFluxValues[0], &waterFluxValues[ecl_nnc_data_get_size(waterFluxData)]);
+            ecl_nnc_data_free(waterFluxData);
+        }
+
+        ecl_nnc_data_type* oilFluxData = ecl_nnc_data_alloc_oil_flux(grid, nnc_geo, summaryView);
+        if (oilFluxData)
+        {
+            const double* oilFluxValues = ecl_nnc_data_get_values(oilFluxData);
+            oilFlux->insert(oilFlux->end(), &oilFluxValues[0], &oilFluxValues[ecl_nnc_data_get_size(oilFluxData)]);
+            ecl_nnc_data_free(oilFluxData);
+        }
+
+        ecl_nnc_data_type* gasFluxData = ecl_nnc_data_alloc_gas_flux(grid, nnc_geo, summaryView);
+        if (gasFluxData)
+        {
+            const double* gasFluxValues = ecl_nnc_data_get_values(gasFluxData);
+            gasFlux->insert(gasFlux->end(), &gasFluxValues[0], &gasFluxValues[ecl_nnc_data_get_size(gasFluxData)]);
+            ecl_nnc_data_free(gasFluxData);
+        }
+
+        ecl_nnc_geometry_free(nnc_geo);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

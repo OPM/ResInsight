@@ -23,6 +23,7 @@ set( QOBJECT_HEADERS
     cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDateEditor.h
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
@@ -44,6 +45,10 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
+    cafPdmUiTreeSelectionEditor.h
+    cafPdmUiTreeSelectionQModel.h
+    cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiDoubleValueEditor.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -64,6 +69,8 @@ set( PROJECT_FILES
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.cpp
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDateEditor.cpp
+    cafPdmUiDateEditor.h
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiDragDropInterface.h
@@ -83,6 +90,12 @@ set( PROJECT_FILES
     cafPdmUiToolBarEditor.h
     cafPdmUiToolButtonEditor.cpp
     cafPdmUiToolButtonEditor.h
+    cafPdmUiTreeSelectionEditor.h
+    cafPdmUiTreeSelectionEditor.cpp
+    cafPdmUiTreeSelectionQModel.h
+    cafPdmUiTreeSelectionQModel.cpp
+    cafPdmUiFieldEditorHelper.h
+    cafPdmUiFieldEditorHelper.cpp
 
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
@@ -115,6 +128,11 @@ set( PROJECT_FILES
     cafPdmUiPropertyView.h
     cafPdmUiPropertyViewDialog.cpp
     cafPdmUiPropertyViewDialog.h
+    cafPdmUiWidgetBasedObjectEditor.cpp
+    cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiDoubleValueEditor.cpp
+    cafPdmUiDoubleValueEditor.h
+
 
     # div
     cafAboutDialog.cpp
@@ -125,6 +143,8 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
+    cafQTreeViewStateSerializer.h
+    cafQTreeViewStateSerializer.cpp
 )
 
 add_library( ${PROJECT_NAME}

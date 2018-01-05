@@ -52,6 +52,14 @@ RimViewWindow::~RimViewWindow(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimViewWindow::loadDataAndUpdate()
+{
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::removeMdiWindowFromMdiArea()
 {
     if ( m_windowController() ) m_windowController->removeWindowFromMDI();
@@ -143,7 +151,7 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
     {
         if (m_showWindow)
         {
-            loadDataAndUpdate();
+            onLoadDataAndUpdate();
         }
         else
         {

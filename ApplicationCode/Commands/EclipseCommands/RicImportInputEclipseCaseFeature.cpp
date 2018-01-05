@@ -19,16 +19,73 @@
 
 #include "RicImportInputEclipseCaseFeature.h"
 
-#include "RimEclipseCaseCollection.h"
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPorosityModel.h"
+
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
-  
+
 #include <QAction>
 #include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT(RicImportInputEclipseCaseFeature, "RicImportInputEclipseCaseFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
+{
+    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
+
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* project = app->project();
+
+    project->assignCaseIdToCase(rimInputReservoir);
+
+    bool gridImportSuccess = rimInputReservoir->openDataFileSet(fileNames);
+    if (!gridImportSuccess)
+    {
+        RiaLogging::error("Failed to import grid");
+        return false;
+    }
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if (analysisModels == nullptr) return false;
+
+    analysisModels->cases.push_back(rimInputReservoir);
+
+    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
+
+    riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
+    riv->hasUserRequestedAnimation = true;
+
+    riv->loadDataAndUpdate();
+
+    if (!riv->cellResult()->hasResult())
+    {
+        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
+    }
+
+    analysisModels->updateConnectedEditors();
+
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
+
+    if (fileNames.size() == 1)
+    {
+        app->addToRecentFiles(fileNames[0]);
+    }
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -52,8 +109,7 @@ void RicImportInputEclipseCaseFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
 
-    app->openInputEclipseCaseFromFileNames(fileNames);
-
+    RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(fileNames);
 }
 
 //--------------------------------------------------------------------------------------------------

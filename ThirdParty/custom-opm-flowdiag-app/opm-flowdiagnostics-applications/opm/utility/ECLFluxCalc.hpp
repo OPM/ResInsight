@@ -22,23 +22,41 @@
 
 #include <opm/utility/ECLGraph.hpp>
 #include <opm/utility/ECLPhaseIndex.hpp>
+#include <opm/utility/ECLPvtGas.hpp>
+#include <opm/utility/ECLPvtOil.hpp>
+#include <opm/utility/ECLPvtWater.hpp>
+#include <opm/utility/ECLRegionMapping.hpp>
 #include <opm/utility/ECLSaturationFunc.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace Opm
 {
     class ECLRestartData;
+    class ECLInitFileData;
 
     /// Class for computing connection fluxes in the absence of flux output.
     class ECLFluxCalc
     {
     public:
-        /// Construct from ECLGraph.
+        /// Construct from ECLGraph and Run Initialization Data.
         ///
-        /// \param[in] graph Connectivity data, as well as providing a means to read data from the restart file.
-        explicit ECLFluxCalc(const ECLGraph&     graph,
-                             ECLSaturationFunc&& satfunc);
+        /// \param[in] graph Connectivity data, as well as providing a means
+        ///    to read data from the restart file.
+        ///
+        /// \param[in] init ECLIPSE result set static initialization data
+        ///    ("INIT" file).
+        ///
+        /// \param[in] grav Gravity constant (9.80665 m/s^2 at Tellus equator).
+        ///
+        /// \param[in] useEPS Whether or not to include effects of
+        ///    saturation function end-point scaling if activated in the
+        ///    result set.
+        ECLFluxCalc(const ECLGraph&        graph,
+                    const ECLInitFileData& init,
+                    const double           grav,
+                    const bool             useEPS);
 
         /// Retrive phase flux on all connections defined by \code
         /// graph.neighbours() \endcode.
@@ -59,16 +77,79 @@ namespace Opm
         struct DynamicData
         {
             std::vector<double> pressure;
-            std::vector<double> relperm;
+            std::vector<double> mobility;
+            std::vector<double> density;
         };
 
         double singleFlux(const int connection,
                           const DynamicData& dyn_data) const;
 
+        DynamicData phaseProperties(const ECLRestartData& rstrt,
+                                    const ECLPhaseIndex   phase) const;
+
+        DynamicData gasPVT(const ECLRestartData& rstrt,
+                           DynamicData&&         dyn_data) const;
+
+        DynamicData oilPVT(const ECLRestartData& rstrt,
+                           DynamicData&&         dyn_data) const;
+
+        DynamicData watPVT(DynamicData&& dyn_data) const;
+
+        void computePhaseMobility(const int                  regID,
+                                  const std::vector<double>& mu,
+                                  DynamicData&               dyn_data) const;
+
+        template <typename T>
+        std::vector<T>
+        gatherRegionSubset(const int             reg,
+                           const std::vector<T>& x) const
+        {
+            auto y = std::vector<T>{};
+
+            if (x.empty()) {
+                return y;
+            }
+
+            for (const auto& ix : this->rmap_.getRegionIndices(reg)) {
+                y.push_back(x[ix]);
+            }
+
+            return y;
+        }
+
+        template <typename T>
+        void scatterRegionResults(const int             reg,
+                                  const std::vector<T>& x_reg,
+                                  std::vector<T>&       x) const
+        {
+            auto i = static_cast<decltype(x_reg.size())>(0);
+
+            for (const auto& ix : this->rmap_.getRegionIndices(reg)) {
+                x[ix] = x_reg[i++];
+            }
+        }
+
+        template <class RegOp>
+        void regionLoop(RegOp&& regOp) const
+        {
+            for (const auto& regID : this->rmap_.activeRegions()) {
+                regOp(regID);
+            }
+        }
+
         const ECLGraph& graph_;
         ECLSaturationFunc satfunc_;
+        ECLRegionMapping rmap_;
         std::vector<int> neighbours_;
         std::vector<double> transmissibility_;
+        std::vector<double> gravDz_;
+
+        bool disgas_{false};
+        bool vapoil_{false};
+
+        std::unique_ptr<ECLPVT::Gas> pvtGas_;
+        std::unique_ptr<ECLPVT::Oil> pvtOil_;
+        std::unique_ptr<ECLPVT::Water> pvtWat_;
     };
 
 } // namespace Opm

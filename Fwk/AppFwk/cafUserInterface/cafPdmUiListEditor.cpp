@@ -162,19 +162,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_label.isNull());
     CAF_ASSERT(m_listView->selectionModel());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        QString uiName = field()->uiName(uiConfigName);
-        m_label->setText(uiName);
-    }
-
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_listView->setToolTip(field()->uiToolTip(uiConfigName));
@@ -185,6 +173,10 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (options.size() > 0 || field()->isUiReadOnly(uiConfigName))
     {
         m_isEditOperationsAvailable = false;
+    }
+    else
+    {
+        m_isEditOperationsAvailable = true;
     }
 
     PdmUiListEditorAttribute attributes;

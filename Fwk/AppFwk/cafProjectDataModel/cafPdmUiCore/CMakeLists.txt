@@ -41,13 +41,13 @@ set( PROJECT_FILES
     cafPdmUiTreeOrdering.cpp
     cafPdmUiTreeOrdering.h
     cafUiTreeItem.h
+    cafPdmUiGroup.cpp
+    cafPdmUiGroup.h
 
     cafSelectionManager.cpp
     cafSelectionManager.h
-
-
+    cafSelectionManagerTools.h
 )
-
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}

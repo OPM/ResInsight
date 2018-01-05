@@ -86,6 +86,7 @@ class EclPrototype(Prototype):
 
 ECL_LIB = ecl.load("libecl")
 
+from .cell import Cell
 from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclUnitTypeEnum , EclUtil
 from .ecl_type import EclTypeEnum, EclDataType
 from .ecl_sum_var_type import EclSumVarType

@@ -53,29 +53,17 @@ public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
     ~RiuViewerCommands();
 
-    void setOwnerView(RimView * owner);
+    void            setOwnerView(RimView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
-
-    caf::PdmObject* currentPickedObject() const;
-
-private slots:
-    void            slotRangeFilterI();
-    void            slotRangeFilterJ();
-    void            slotRangeFilterK();
-    void            slotHideFault();
-    void            slotAddEclipsePropertyFilter();
-    void            slotAddGeoMechPropertyFilter();
-    void            slotHideIntersection();
 
 private:
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Vec3d* globalIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
@@ -86,7 +74,6 @@ private:
     cvf::Vec3d  m_currentPickPositionInDomainCoords;
 
     caf::PdmPointer<RimView> m_reservoirView;
-    caf::PdmPointer<caf::PdmObject> m_currentPickedObject;
 
     QPointer<RiuViewer> m_viewer;
 

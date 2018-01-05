@@ -18,15 +18,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigEclipseWellLogExtractor.h"
-#include <map>
+
 #include "RigEclipseCaseData.h"
-#include "RigWellPath.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
+#include "RigWellLogExtractionTools.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
-#include "RigWellLogExtractionTools.h"
-#include "RigMainGrid.h"
+#include <map>
 
 //==================================================================================================
 /// 
@@ -85,7 +88,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             hexCorners[7] = nodeCoords[cornerIndices[7]];
 
             //int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
-            RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            RigHexIntersectionTools::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
         }
 
         if (!isCellFaceNormalsOut)
@@ -124,12 +127,13 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 
     for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
     {
-        size_t cellIdx = m_intersectedCells[cpIdx];
+        size_t cellIdx = m_intersectedCellsGlobIdx[cpIdx];
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
         (*values)[cpIdx] = resultAccessor->cellFaceScalarGlobIdx(cellIdx, cellFace);
     }
    
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -141,4 +145,14 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
     return closeCells;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell(size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint) const
+{
+    std::array<cvf::Vec3d, 8> hexCorners;
+    m_caseData->mainGrid()->cellCornerVertices(cellIndex, hexCorners.data());
+
+    return RigWellPathIntersectionTools::calculateLengthInCell(hexCorners, startPoint, endPoint); 
+}
 

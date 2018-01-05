@@ -24,7 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 /* rand example: guess the number */
 #include <stdio.h>
@@ -250,7 +250,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
     addFaults(eclipseCase);
 
     // Set all cells active
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
     activeCellInfo->setReservoirCellCount(eclipseCase->mainGrid()->globalCellArray().size());
     for (size_t i = 0; i < eclipseCase->mainGrid()->globalCellArray().size(); i++)
     {
@@ -372,12 +372,12 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
 
     cvf::Vec3st dim = grid->gridPointDimensions();
 
-    cvf::Collection<RigSingleWellResultsData> wells;
+    cvf::Collection<RigSimWellData> wells;
 
     int wellIdx;
     for (wellIdx = 0; wellIdx < 1; wellIdx++)
     {
-        cvf::ref<RigSingleWellResultsData> wellCellsTimeHistory = new RigSingleWellResultsData;
+        cvf::ref<RigSimWellData> wellCellsTimeHistory = new RigSimWellData;
         wellCellsTimeHistory->m_wellName = QString("Well %1").arg(wellIdx);
 
         wellCellsTimeHistory->m_wellCellsTimeSteps.resize(m_timeStepCount);
@@ -474,7 +474,7 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
         wells.push_back(wellCellsTimeHistory.p());
     }
 
-    eclipseCase->setWellResults(wells);
+    eclipseCase->setSimWellData(wells);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
         addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
     }
 
-    std::vector<double>& tranVals = grid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+    std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameCombTrans());
     for (size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx)
     {
         tranVals[cIdx] = 0.2;

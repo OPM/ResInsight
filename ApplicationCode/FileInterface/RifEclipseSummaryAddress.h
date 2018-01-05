@@ -18,6 +18,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 //==================================================================================================
 //
@@ -44,19 +45,35 @@ public:
         SUMMARY_WELL_COMPLETION_LGR,
         SUMMARY_WELL_SEGMENT,       
         SUMMARY_BLOCK,              
-        SUMMARY_BLOCK_LGR,          
+        SUMMARY_BLOCK_LGR,
+        SUMMARY_CALCULATED,
+        SUMMARY_IMPORTED
+    };
+
+    enum SummaryIdentifierType
+    {
+        INPUT_REGION_NUMBER,
+        INPUT_REGION_2_REGION,
+        INPUT_WELL_NAME,
+        INPUT_WELL_GROUP_NAME,
+        INPUT_CELL_IJK,
+        INPUT_LGR_NAME,
+        INPUT_SEGMENT_NUMBER,
+        INPUT_AQUIFER_NUMBER,
+        INPUT_VECTOR_NAME,
     };
 
 public:
 
-    RifEclipseSummaryAddress():
+    RifEclipseSummaryAddress() :
         m_variableCategory(RifEclipseSummaryAddress::SUMMARY_INVALID),
         m_regionNumber(-1),
         m_regionNumber2(-1),
         m_wellSegmentNumber(-1),
         m_cellI(-1),
         m_cellJ(-1),
-        m_cellK(-1)
+        m_cellK(-1),
+        m_aquiferNumber(-1)
     {
     }
     
@@ -70,7 +87,8 @@ public:
                              const std::string& lgrName,
                              int                cellI,
                              int                cellJ,
-                             int                cellK): 
+                             int                cellK,
+                             int                aquiferNumber): 
         m_variableCategory(category),
         m_quantityName(quantityName),
         m_regionNumber(regionNumber),
@@ -81,35 +99,55 @@ public:
         m_lgrName(lgrName),
         m_cellI(cellI),
         m_cellJ(cellJ),
-        m_cellK(cellK)
+        m_cellK(cellK),
+        m_aquiferNumber(aquiferNumber)
     {
     }
 
+    RifEclipseSummaryAddress(SummaryVarCategory category,
+                             std::map<SummaryIdentifierType, std::string>& identifiers);
+    
     // Static specialized creation methods
 
     static RifEclipseSummaryAddress fieldVarAddress(const std::string& fieldVarName);
+    static RifEclipseSummaryAddress calculatedCurveAddress(const std::string& curveName);
+    static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
 
     // Access methods
 
-    SummaryVarCategory  category() const {  return m_variableCategory; }
-    const std::string&  quantityName() const {  return m_quantityName; }
+    SummaryVarCategory  category() const            { return m_variableCategory; }
+    const std::string&  quantityName() const        { return m_quantityName; }
 
-    int                 regionNumber() const  { return m_regionNumber; }
-    int                 regionNumber2() const { return m_regionNumber2; }
+    int                 regionNumber() const        { return m_regionNumber; }
+    int                 regionNumber2() const       { return m_regionNumber2; }
 
-    const std::string&  wellGroupName() const { return m_wellGroupName; }
-    const std::string&  wellName() const      { return m_wellName; }
-    int                 wellSegmentNumber() const { return m_wellSegmentNumber; }
-    const std::string&  lgrName() const       { return m_lgrName; }
-    int                 cellI() const         { return m_cellI; }
-    int                 cellJ() const         { return m_cellJ; }
-    int                 cellK() const         { return m_cellK; }
+    const std::string&  wellGroupName() const       { return m_wellGroupName; }
+    const std::string&  wellName() const            { return m_wellName; }
+    int                 wellSegmentNumber() const   { return m_wellSegmentNumber; }
+    const std::string&  lgrName() const             { return m_lgrName; }
+    int                 cellI() const               { return m_cellI; }
+    int                 cellJ() const               { return m_cellJ; }
+    int                 cellK() const               { return m_cellK; }
+    int                 aquiferNumber() const       { return m_aquiferNumber; }
 
     // Derived properties
 
-    std::string         uiText() const;
+    std::string     uiText() const;
+    std::string     uiText(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput) const;
+
+    bool            isValid() const;
+    void            setQuantityName(const std::string& quantity)        { m_quantityName = quantity; }
+    void            setWellName(const std::string& wellName)            { m_wellName = wellName; }
+    void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
+    void            setRegion(int region)                               { m_regionNumber = region; }
+    void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = aquiferNumber; }
 
 private:
+
+    std::string                 formatUiTextIJK() const;
+    std::tuple<int, int, int>   ijkTupleFromUiText(const std::string &s);
+    std::string                 formatUiTextRegionToRegion() const;
+    std::pair<int, int>         regionToRegionPairFromUiText(const std::string &s);
 
     SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;
@@ -122,6 +160,7 @@ private:
     int                 m_cellI;
     int                 m_cellJ;
     int                 m_cellK;
+    int                 m_aquiferNumber;
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);

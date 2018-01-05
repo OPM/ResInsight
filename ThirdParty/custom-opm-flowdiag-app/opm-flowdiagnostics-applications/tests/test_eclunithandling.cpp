@@ -28,7 +28,7 @@
 
 #define NVERBOSE
 
-#define BOOST_TEST_MODULE TEST_ASSEMBLED_CONNECTIONS
+#define BOOST_TEST_MODULE TEST_UNIT_HANDLING
 
 #include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
@@ -56,6 +56,22 @@ BOOST_AUTO_TEST_CASE (Metric)
 {
     auto M = ::Opm::ECLUnits::createUnitSystem(1);
 
+    // Density (kilogram/cubic(metres))
+    {
+        const auto scale  = M->density();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Depth (metres)
+    {
+        const auto scale  = M->depth();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
     // Pressure (bars)
     {
         const auto scale  = M->pressure();
@@ -80,6 +96,22 @@ BOOST_AUTO_TEST_CASE (Metric)
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
 
+    // Surface Volume, Gas (sm3)
+    {
+        const auto scale  = M->surfaceVolumeGas();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Surface Volume, Liquid (sm3)
+    {
+        const auto scale  = M->surfaceVolumeLiquid();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
     // Time (day)
     {
         const auto scale  = M->time();
@@ -95,11 +127,51 @@ BOOST_AUTO_TEST_CASE (Metric)
 
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
+
+    // Viscosity (cP)
+    {
+        const auto scale  = M->viscosity();
+        const auto expect = 1.0e-3;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Dissolved Gas-Oil Ratio (Sm^3/Sm^3)
+    {
+        const auto scale  = M->dissolvedGasOilRat();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Vaporised Oil-Gas Ratio (Sm^3/Sm^3)
+    {
+        const auto scale  = M->vaporisedOilGasRat();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (Field)
 {
     auto F = ::Opm::ECLUnits::createUnitSystem(2);
+
+    // Density (pound/cubic(feet))
+    {
+        const auto scale  = F->density();
+        const auto expect = 1.601846337396014e+01;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Depth (feet)
+    {
+        const auto scale  = F->depth();
+        const auto expect = 0.3048; // 12 * 2.54
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 
     // Pressure (psi)
     {
@@ -125,6 +197,22 @@ BOOST_AUTO_TEST_CASE (Field)
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
 
+    // Surface Volume, Gas (Mscf)
+    {
+        const auto scale  = F->surfaceVolumeGas();
+        const auto expect = 2.831684659200000e+01;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Surface Volume, Liquid (stb)
+    {
+        const auto scale  = F->surfaceVolumeLiquid();
+        const auto expect = 1.589872949280001e-01;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
     // Time (day)
     {
         const auto scale  = F->time();
@@ -140,11 +228,51 @@ BOOST_AUTO_TEST_CASE (Field)
 
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
+
+    // Viscosity (cP)
+    {
+        const auto scale  = F->viscosity();
+        const auto expect = 1.0e-3;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Dissolved Gas-Oil Ratio (Mscf/stb)
+    {
+        const auto scale  = F->dissolvedGasOilRat();
+        const auto expect = 1.781076066790352e+02;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Vaporised Oil-Gas Ratio (stb/Mscf)
+    {
+        const auto scale  = F->vaporisedOilGasRat();
+        const auto expect = 5.614583333333335e-03;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (Lab)
 {
     auto L = ::Opm::ECLUnits::createUnitSystem(3);
+
+    // Density (gram/cubic(centi*meter))
+    {
+        const auto scale  = L->density();
+        const auto expect = 1.0e3;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Depth (cm)
+    {
+        const auto scale  = L->depth();
+        const auto expect = 0.01;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 
     // Pressure (atm)
     {
@@ -170,6 +298,22 @@ BOOST_AUTO_TEST_CASE (Lab)
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
 
+    // Surface Volume, Gas (s(cm)^3)
+    {
+        const auto scale  = L->surfaceVolumeGas();
+        const auto expect = 1.0e-06;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Surface Volume, Liquid (s(cm)^3)
+    {
+        const auto scale  = L->surfaceVolumeLiquid();
+        const auto expect = 1.0e-06;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
     // Time (hour)
     {
         const auto scale  = L->time();
@@ -185,11 +329,51 @@ BOOST_AUTO_TEST_CASE (Lab)
 
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
+
+    // Viscosity (cP)
+    {
+        const auto scale  = L->viscosity();
+        const auto expect = 1.0e-3;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Dissolved Gas-Oil Ratio (s(cm)^3/s(cm)^3)
+    {
+        const auto scale  = L->dissolvedGasOilRat();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Vaporised Oil-Gas Ratio (s(cm)^3/s(cm)^3)
+    {
+        const auto scale  = L->vaporisedOilGasRat();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (PVT_M)
 {
     auto P = ::Opm::ECLUnits::createUnitSystem(4);
+
+    // Density (kilogram/cubic(meter))
+    {
+        const auto scale  = P->density();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Depth (metres)
+    {
+        const auto scale  = P->depth();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
 
     // Pressure (atm)
     {
@@ -215,6 +399,22 @@ BOOST_AUTO_TEST_CASE (PVT_M)
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }
 
+    // Surface Volume, Gas (sm^3)
+    {
+        const auto scale  = P->surfaceVolumeGas();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Surface Volume, Liquid (sm^3)
+    {
+        const auto scale  = P->surfaceVolumeLiquid();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
     // Time (day)
     {
         const auto scale  = P->time();
@@ -227,6 +427,30 @@ BOOST_AUTO_TEST_CASE (PVT_M)
     {
         const auto scale  = P->transmissibility();
         const auto expect = 1.142272299439830e-13;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Viscosity (cP)
+    {
+        const auto scale  = P->viscosity();
+        const auto expect = 1.0e-3;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Dissolved Gas-Oil Ratio (sm^3/sm^3)
+    {
+        const auto scale  = P->dissolvedGasOilRat();
+        const auto expect = 1.0;
+
+        BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
+    }
+
+    // Vaporised Oil-Gas Ratio (sm^3/sm^3)
+    {
+        const auto scale  = P->vaporisedOilGasRat();
+        const auto expect = 1.0;
 
         BOOST_CHECK_CLOSE(scale, expect, 1.0e-10);
     }

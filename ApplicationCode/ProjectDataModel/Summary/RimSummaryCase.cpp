@@ -18,14 +18,17 @@
 
 #include "RimSummaryCase.h"
 
-#include "RigSummaryCaseData.h"
-#include "RimEclipseCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RiaSummaryTools.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryPlotCollection.h"
+
+#include "cvfAssert.h"
 
 #include <QFileInfo>
-#include "RimProject.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
 
@@ -41,6 +44,8 @@ RimSummaryCase::RimSummaryCase()
 
     CAF_PDM_InitFieldNoDefault(&m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly(true);
+
+    m_isObservedData = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,18 +59,28 @@ RimSummaryCase::~RimSummaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::loadCase()
+QString RimSummaryCase::summaryHeaderFilename() const
 {
-    if (m_summaryCaseData.isNull()) m_summaryCaseData = new RigSummaryCaseData(this->summaryHeaderFilename());
+    return m_summaryHeaderFilename();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigSummaryCaseData* RimSummaryCase::caseData()
+void RimSummaryCase::setSummaryHeaderFileName(const QString& fileName)
 {
-    return m_summaryCaseData.p();
+    m_summaryHeaderFilename = fileName;
+
+    this->updateAutoShortName();
+    this->updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::isObservedData()
+{
+    return m_isObservedData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,12 +97,7 @@ void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateTreeItemName();
     }
 
-    RimProject* proj = NULL;
-    this->firstAncestorOrThisOfType(proj);
-    
-    RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
 
     updateOptionSensitivity();
@@ -137,16 +147,16 @@ void RimSummaryCase::updateAutoShortName()
 {
     if(m_useAutoShortName)
     {
-        RimSummaryCaseCollection* summaryCaseCollection = NULL;
-        this->firstAncestorOrThisOfType(summaryCaseCollection);
-        CVF_ASSERT(summaryCaseCollection);
+        RimOilField* oilField = NULL;
+        this->firstAncestorOrThisOfType(oilField);
+        CVF_ASSERT(oilField);
 
-        m_shortName =  summaryCaseCollection->uniqueShortNameForCase(this);
-        updateTreeItemName();
+        m_shortName = oilField->uniqueShortNameForCase(this);
     }
     else if (m_shortName() == QString("Display Name"))
     {
         m_shortName =  caseName();
-        updateTreeItemName();
     }
+    
+    updateTreeItemName();
 }

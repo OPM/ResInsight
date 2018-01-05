@@ -296,6 +296,9 @@ TEST(BaseTest, PdmChildArrayField)
     ihd1->m_childArrayField.childObjects(&objects);
     EXPECT_EQ(size_t(3), objects.size());
 
+    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    EXPECT_EQ(size_t(3), typedObjects.size());
+
     // set()
     ihd1->m_childArrayField.set(1, NULL);
     EXPECT_TRUE(NULL == ihd1->m_childArrayField[1]);
@@ -509,11 +512,10 @@ TEST(BaseTest, PdmPtrField)
     EXPECT_EQ(ihd2, accessedIhd);
     accessedIhd = ihd1->m_ptrField.value(); 
     EXPECT_EQ(ihd2, accessedIhd);
-    accessedIhd = ihd1->m_ptrField.v();
 
     caf::PdmPointer<InheritedDemoObj> accessedPdmPtr;
     EXPECT_EQ(ihd2, accessedIhd);
-    accessedPdmPtr = ihd1->m_ptrField.v();
+    accessedPdmPtr = ihd1->m_ptrField();
     EXPECT_EQ(ihd2, accessedPdmPtr.p());
     accessedPdmPtr = ihd1->m_ptrField();
     EXPECT_EQ(ihd2, accessedPdmPtr.p());

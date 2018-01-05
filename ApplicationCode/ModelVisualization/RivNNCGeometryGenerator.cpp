@@ -145,15 +145,31 @@ void RivNNCGeometryGenerator::computeArrays()
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const
+void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
+                                                 const cvf::ScalarMapper* mapper,
+                                                 RiaDefines::ResultCatType resultType,
+                                                 size_t scalarResultIndex,
+                                                 size_t nativeTimeStepIndex) const
 {
     size_t numVertices = m_vertices->size();
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
-   
-    const std::vector<double>* nncResultVals = m_nncData->connectionScalarResult(scalarResultIndex);
-    if (!nncResultVals)
+    const std::vector<double>* nncResultVals = nullptr;
+    if (resultType == RiaDefines::STATIC_NATIVE)
+    {
+        nncResultVals = m_nncData->staticConnectionScalarResult(scalarResultIndex);
+    }
+    else if (resultType == RiaDefines::DYNAMIC_NATIVE)
+    {
+        nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
+    }
+    else if (resultType == RiaDefines::GENERATED)
+    {
+        nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
+    }
+
+    if (!nncResultVals || nncResultVals->size() == 0)
     {
         textureCoords->setAll(cvf::Vec2f(0.0f, 1.0f));
         return;

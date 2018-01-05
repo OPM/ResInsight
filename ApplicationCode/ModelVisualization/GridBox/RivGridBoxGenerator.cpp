@@ -21,6 +21,7 @@
 #include "RivGridBoxGenerator.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 
 #include "RivPartPriority.h"
 #include "RivPatchGenerator.h"
@@ -739,13 +740,13 @@ void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgrou
     float gridG = 0.0;
     float gridB = 0.0;
 
-    if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
+    if (RiaColorTools::isBrightnessAboveThreshold(backgroundColor))
     {
         gridR = backgroundColor.r() - (backgroundColor.r() * adjustmentFactor);
         gridG = backgroundColor.g() - (backgroundColor.g() * adjustmentFactor);
         gridB = backgroundColor.b() - (backgroundColor.b() * adjustmentFactor);
 
-        m_gridLegendColor = cvf::Color3f::fromByteColor(10, 10, 10);
+        m_gridLegendColor = RiaColorTools::darkContrastColor();
     }
     else
     {
@@ -753,7 +754,7 @@ void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgrou
         gridG = backgroundColor.g() + (1.0 - backgroundColor.g()) * adjustmentFactor;
         gridB = backgroundColor.b() + (1.0 - backgroundColor.b()) * adjustmentFactor;
 
-        m_gridLegendColor = cvf::Color3f::WHITE;
+        m_gridLegendColor = RiaColorTools::brightContrastColor();
     }
 
     m_gridColor.set(gridR, gridG, gridB);

@@ -28,7 +28,10 @@
 
 
 class RimWellLogPlotCollection;
+class RimRftPlotCollection;
+class RimPltPlotCollection;
 class RimSummaryPlotCollection;
+class RimSummaryCrossPlotCollection;
 class RimSummaryPlot;
 class RifReaderEclipseSummary;
 class RimEclipseResultCase;
@@ -46,22 +49,30 @@ public:
     RimMainPlotCollection();
     virtual ~RimMainPlotCollection();
 
-    RimWellLogPlotCollection*   wellLogPlotCollection();
-    RimSummaryPlotCollection*   summaryPlotCollection();
-    RimFlowPlotCollection*      flowPlotCollection();
+    RimWellLogPlotCollection*       wellLogPlotCollection();
+    RimRftPlotCollection*           rftPlotCollection();
+    RimPltPlotCollection*           pltPlotCollection();
+    RimSummaryPlotCollection*       summaryPlotCollection();
+    RimSummaryCrossPlotCollection*  summaryCrossPlotCollection();
+    RimFlowPlotCollection*          flowPlotCollection();
 
-    void                        deleteAllContainedObjects();
-    void                        updateCurrentTimeStepInPlots();
+    void                            deleteAllContainedObjects();
+    void                            updateCurrentTimeStepInPlots();
+    void                            updatePlotsWithFormations();
 
-protected:
+private:
 
     // Overridden PDM methods
     virtual caf::PdmFieldHandle* objectToggleField();
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
-    caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection;
-    caf::PdmChildField<RimFlowPlotCollection*>    m_flowPlotCollection;
+private:
+    caf::PdmChildField<RimWellLogPlotCollection*>       m_wellLogPlotCollection;
+    caf::PdmChildField<RimRftPlotCollection*>           m_rftPlotCollection;
+    caf::PdmChildField<RimPltPlotCollection*>           m_pltPlotCollection;
+    caf::PdmChildField<RimSummaryPlotCollection*>       m_summaryPlotCollection;
+    caf::PdmChildField<RimSummaryCrossPlotCollection*>  m_summaryCrossPlotCollection;
+    caf::PdmChildField<RimFlowPlotCollection*>          m_flowPlotCollection;
 
-    caf::PdmField<bool>                           show;
+    caf::PdmField<bool> m_show;
 };

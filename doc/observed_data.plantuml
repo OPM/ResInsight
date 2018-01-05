@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+
+RifSummaryReaderInterface <|- RifReaderEclipseSummary
+RifSummaryReaderInterface <|- RifColumnBasedAsciiData
+RifSummaryReaderInterface <|- RifColumnBasedUserData
+RifSummaryReaderInterface <|- RifKeywordVectorUserData
+
+RifColumnBasedAsciiData *-- "N" RifColumnBasedAsciiDataParser
+RifColumnBasedUserData *-- "1" RifColumnBasedUserDataParser
+RifKeywordVectorUserData *-- "1" RifKeywordVectorUserDataParser
+
+RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimGridSummaryCase
+RimSummaryCase <|-- RimObservedData
+
+RimObservedData <|-- RimObservedEclipseUserData
+RimObservedData <|-- RimAsciiColumnBasedData
+
+RimObservedEclipseUserData *--> RifSummaryReaderInterface
+
+RimAsciiColumnBasedData *--> RifColumnBasedAsciiData
+RimFileSummaryCase *--> RifReaderEclipseSummary
+RimGridSummaryCase *--> RifReaderEclipseSummary
+
+
+@enduml

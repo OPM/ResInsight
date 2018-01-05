@@ -20,8 +20,8 @@
 
 #include <vector>
 
-class RimEclipseWell;
-class RimEclipseWellCollection;
+class RimSimWellInViewCollection;
+class RimSimWellInView;
 
 //==================================================================================================
 /// 
@@ -29,7 +29,7 @@ class RimEclipseWellCollection;
 class RicEclipseWellFeatureImpl 
 {
 public:
-    static bool                         isAnyWellSelected();
-    static std::vector<RimEclipseWell*> selectedWells();
-    static RimEclipseWellCollection*    wellCollectionFromSelection();
+    static bool                           isAnyWellSelected();
+    static std::vector<RimSimWellInView*> selectedWells();
+    static RimSimWellInViewCollection*      wellCollectionFromSelection();
 };

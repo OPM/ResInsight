@@ -19,147 +19,30 @@
 
 #include <opm/utility/ECLPropTable.hpp>
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
 #include <exception>
-#include <iterator>
 #include <stdexcept>
-#include <utility>
 
 Opm::SatFuncInterpolant::SingleTable::
 SingleTable(ElmIt               xBegin,
             ElmIt               xEnd,
+            const ConvertUnits& convert,
             std::vector<ElmIt>& colIt)
+    : interp_(Extrap{}, xBegin, xEnd, colIt,
+              convert.indep, convert.column)
 {
-    // There must be at least one dependent variable/result variable.
-    assert (colIt.size() >= 1);
-
-    const auto nRows = std::distance(xBegin, xEnd);
-
-    this->x_.reserve(nRows);
-    this->y_.reserve(nRows * colIt.size());
-
-    auto keyValid = [](const double xi)
-    {
-        // Indep. variable values <= -1.0e20 or >= 1.0e20 signal "unused"
-        // table nodes (rows).  These nodes are in the table to fill out the
-        // allocated size if one particular sub-table does not use all
-        // nodes.  The magic value 1.0e20 is documented in the Fileformats
-        // Reference Manual.
-        return std::abs(xi) < 1.0e20;
-    };
-
-    while (xBegin != xEnd) {
-        // Extract relevant portion of the table.  Preallocated rows that
-        // are not actually part of the result set (i.e., those that are set
-        // to a sentinel value) are discarded.
-        if (keyValid(*xBegin)) {
-            this->x_.push_back(*xBegin);
-
-            for (auto ci : colIt) {
-                // Store 'y_' with column index cycling most rapidly.
-                this->y_.push_back(*ci);
-            }
-        }
-
-        // -------------------------------------------------------------
-        // Advance iterators.
-
-        // 1) Independent variable.
-        ++xBegin;
-
-        // 2) Dependent/result/columns.
-        for (auto& ci : colIt) {
-            ++ci;
-        }
-    }
-
-    // Dispose of any excess capacity.
-    if (this->x_.size() < static_cast<decltype(this->x_.size())>(nRows)) {
-        this->x_.shrink_to_fit();
-        this->y_.shrink_to_fit();
-    }
-
-    if (this->x_.size() < 2) {
-        // Table has no interval that supports interpolation.  Either just a
-        // single node or no nodes at all.  We can't do anything useful
-        // here, so don't pretend that this is okay.
-
-        throw std::invalid_argument {
-            "No Interpolation Intervals of Non-Zero Size"
-        };
-    }
-}
-
-double
-Opm::SatFuncInterpolant::SingleTable::
-y(const ECLPropTableRawData::SizeType nCols,
-  const ECLPropTableRawData::SizeType row,
-  const ResultColumn&                 c) const
-{
-    assert (row * nCols < this->y_.size());
-    assert (c.i < nCols);
-
-    // Recall: 'y_' stored with column index cycling the most rapidly (row
-    // major ordering).
-    return this->y_[row*nCols + c.i];
 }
 
 std::vector<double>
 Opm::SatFuncInterpolant::SingleTable::
-interpolate(const ECLPropTableRawData::SizeType nCols,
-            const ResultColumn&                 c,
-            const std::vector<double>&          x) const
+interpolate(const ResultColumn&        c,
+            const std::vector<double>& x) const
 {
     auto y = std::vector<double>{};  y.reserve(x.size());
 
-    auto yval = [nCols, c, this]
-        (const ECLPropTableRawData::SizeType i)
-    {
-        return this->y(nCols, i, c);
-    };
-
-    const auto yfirst =
-        yval(ECLPropTableRawData::SizeType{ 0 });
-
-    const auto ylast =
-        yval(ECLPropTableRawData::SizeType{ this->x_.size() - 1 });
-
     for (const auto& xi : x) {
-        y.push_back(0.0);
-        auto& yi = y.back();
+        const auto pt = this->interp_.classifyPoint(xi);
 
-        if (! (xi > this->x_.front())) {
-            // Constant extrapolation to the left of range.
-            yi = yfirst;
-        }
-        else if (! (xi < this->x_.back())) {
-            // Constant extrapolation to the right of range.
-            yi = ylast;
-        }
-        else {
-            // Somewhere in [min(x_), max(x_)].  Primary key (indep. var) is
-            // sorted range.  Recall: lower_bound() returns insertion point,
-            // which translates to the *upper* (right-hand) end-point of the
-            // interval in this context.
-            auto b = std::begin(this->x_);
-            auto p = std::lower_bound(b, std::end(this->x_), xi);
-
-            assert ((p != b) && "Logic Error Left End-Point");
-            assert ((p != std::end(this->x_)) &&
-                    "Logic Error Right End-Point");
-
-            // p = lower_bound() => left == i-1, right == i-0.
-            const auto i     = p - b;
-            const auto left  = i - 1;
-            const auto right = i - 0;
-
-            const auto xl = this->x_[left];
-            const auto t  = (xi - xl) / (this->x_[right] - xl);
-
-            yi = (1.0 - t)*yval(left) + t*yval(right);
-        }
+        y.push_back(this->interp_.evaluate(c.i, pt));
     }
 
     return y;
@@ -168,13 +51,12 @@ interpolate(const ECLPropTableRawData::SizeType nCols,
 double
 Opm::SatFuncInterpolant::SingleTable::connateSat() const
 {
-    return this->x_.front();
+    return this->interp_.independentVariable().front();
 }
 
 double
 Opm::SatFuncInterpolant::SingleTable::
-criticalSat(const ECLPropTableRawData::SizeType nCols,
-            const ResultColumn&                 c) const
+criticalSat(const ResultColumn& c) const
 {
     // Note: Relative permeability functions are presented as non-decreasing
     // functions of the corresponding phase saturation.  The internal table
@@ -184,11 +66,13 @@ criticalSat(const ECLPropTableRawData::SizeType nCols,
     // linear scan from row=0 to row=n-1 irrespective of the input format of
     // the current saturation function.
 
-    const auto nRows = this->x_.size();
+    const auto y = this->interp_.resultVariable(c.i);
+
+    const auto nRows = y.size();
 
     auto row = 0 * nRows;
     for (; row < nRows; ++row) {
-        if (this->y(nCols, row, c) > 0.0) { break; }
+        if (y[row] > 0.0) { break; }
     }
 
     if (row == 0) {
@@ -197,52 +81,48 @@ criticalSat(const ECLPropTableRawData::SizeType nCols,
         };
     }
 
-    return this->x_[row - 1];
+    return this->interp_.independentVariable()[row - 1];
 }
 
 double
 Opm::SatFuncInterpolant::SingleTable::maximumSat() const
 {
-    return this->x_.back();
+    return this->interp_.independentVariable().back();
+}
+
+const std::vector<double>&
+Opm::SatFuncInterpolant::SingleTable::saturationPoints() const
+{
+    return this->interp_.independentVariable();
 }
 
 // =====================================================================
 
-Opm::SatFuncInterpolant::SatFuncInterpolant(const ECLPropTableRawData& raw)
+Opm::SatFuncInterpolant::SatFuncInterpolant(const ECLPropTableRawData& raw,
+                                            const ConvertUnits&        convert)
     : nResCols_(raw.numCols - 1)
 {
+    using ElmIt = ::Opm::ECLPropTableRawData::ElementIterator;
+
+    if (raw.numPrimary != 1) {
+        throw std::invalid_argument {
+            "Saturation Interpolant Does Not Support Multiple Sub-Tables"
+        };
+    }
+
     if (raw.numCols < 2) {
         throw std::invalid_argument {
             "Malformed Property Table"
         };
     }
 
-    this->table_.reserve(raw.numTables);
-
-    // Table format: numRows*numTables values of first column (indep. var)
-    // followed by numCols-1 dependent variable (function value result)
-    // columns of numRows*numTables values each, one column at a time.
-    const auto colStride = raw.numRows * raw.numTables;
-
-    // Position column iterators (independent variable and results
-    // respectively) at beginning of each pertinent table column.
-    auto xBegin = std::begin(raw.data);
-    auto colIt  = std::vector<decltype(xBegin)>{ xBegin + colStride };
-    for (auto col = 0*raw.numCols + 1; col < raw.numCols - 1; ++col) {
-        colIt.push_back(colIt.back() + colStride);
-    }
-
-    for (auto t = 0*raw.numTables;
-              t <   raw.numTables;
-         ++t, xBegin += raw.numRows)
+    this->table_ = MakeInterpolants<SingleTable>::fromRawData(raw,
+        [&convert](ElmIt xBegin, ElmIt xEnd, std::vector<ElmIt>& colIt)
     {
-        auto xEnd = xBegin + raw.numRows;
-
-        // Note: The SingleTable ctor advances each 'colIt' across numRows
-        // entries.  That is a bit of a layering violation, but helps in the
-        // implementation of this loop.
-        this->table_.push_back(SingleTable(xBegin, xEnd, colIt));
-    }
+        // Note: this constructor needs to advance each 'colIt' across
+        // distance(xBegin, xEnd) entries.
+        return SingleTable(xBegin, xEnd, convert, colIt);
+    });
 }
 
 std::vector<double>
@@ -262,7 +142,7 @@ Opm::SatFuncInterpolant::interpolate(const InTable&             t,
         };
     }
 
-    return this->table_[t.i].interpolate(this->nResCols_, c, x);
+    return this->table_[t.i].interpolate(c, x);
 }
 
 std::vector<double>
@@ -285,7 +165,7 @@ Opm::SatFuncInterpolant::criticalSat(const ResultColumn& c) const
     scrit.reserve(this->table_.size());
 
     for (const auto& t : this->table_) {
-        scrit.push_back(t.criticalSat(this->nResCols_, c));
+        scrit.push_back(t.criticalSat(c));
     }
 
     return scrit;
@@ -302,4 +182,16 @@ Opm::SatFuncInterpolant::maximumSat() const
     }
 
     return smax;
+}
+
+const std::vector<double>&
+Opm::SatFuncInterpolant::saturationPoints(const InTable& t) const
+{
+    if (t.i >= this->table_.size()) {
+        throw std::invalid_argument {
+            "Invalid Table ID"
+        };
+    }
+
+    return this->table_[t.i].saturationPoints();
 }

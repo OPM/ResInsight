@@ -21,12 +21,12 @@
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RiuViewer.h"
 
@@ -49,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellSpheresPartMgr::RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivWellSpheresPartMgr::RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
@@ -76,7 +76,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
     CVF_ASSERT(mainGrid);
 
-    RigSingleWellResultsData* rigWellResult = m_rimWell->wellResults();
+    RigSimWellData* rigWellResult = m_rimWell->simWellData();
     if (!rigWellResult) return;
 
     if (!rigWellResult->hasWellResult(frameIndex)) return;
@@ -195,7 +195,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
 
     cvf::Color3f cellColor(cvf::Color3f::GRAY);
 
-    RimEclipseWellCollection* wellColl = nullptr;
+    RimSimWellInViewCollection* wellColl = nullptr;
     if (m_rimWell)
     {
         m_rimWell->firstAncestorOrThisOfType(wellColl);

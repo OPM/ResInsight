@@ -8,9 +8,14 @@ set(CPP_SOURCES
     riSetActiveCellProperty.cpp
     riGetActiveCellInfo.cpp
     riGetMainGridDimensions.cpp
+    riGetNNCConnections.cpp
+    riGetNNCPropertyNames.cpp
     riGetCurrentCase.cpp
     riGetCaseGroups.cpp
+    riGetDynamicNNCValues.cpp
+    riGetStaticNNCValues.cpp
     riGetSelectedCases.cpp
+    riGetSelectedCells.cpp
     riGetCases.cpp
     riGetTimeStepDates.cpp
     riGetTimeStepDays.cpp
@@ -22,10 +27,12 @@ set(CPP_SOURCES
     riGetActiveCellCorners.cpp
     riGetGridProperty.cpp
     riSetGridProperty.cpp
+    riGetGridPropertyForSelectedCells.cpp
     riGetPropertyNames.cpp
     riGetWellNames.cpp
     riGetWellStatus.cpp
     riGetWellCells.cpp
+    riSetNNCProperty.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -37,7 +44,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (QT_LIBRARY_POSTFIX 4)
 
     if (CMAKE_CL_64)
-        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Set 32-bit MSVC compiler environment while while running mkoctfile" OFF)
+        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Windows Only: Set 32-bit MSVC compiler environment while running mkoctfile" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
     endif()
 endif()
 
@@ -82,7 +90,7 @@ else()
 endif()
 
 
-set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of Qt to use when compiling Octave plugins. Must be compatible with octave runtime. (Use the Qt embedded in Octave)( The qmake.exe itself is not used, only the path to the directory.)")
+set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Windows Only: Set this equal to RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE")
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 
@@ -172,9 +180,14 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetNNCConnections.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetNNCPropertyNames.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetDynamicNNCValues.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetStaticNNCValues.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCells.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCases.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDates.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDays.oct"
@@ -186,10 +199,12 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridPropertyForSelectedCells.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetNNCProperty.oct"
       SOURCES
       ${CPP_SOURCES}
       riSettings.h 

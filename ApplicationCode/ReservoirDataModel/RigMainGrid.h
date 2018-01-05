@@ -51,6 +51,9 @@ public:
     std::vector<RigCell>&                   globalCellArray() {return m_cells;}
     const std::vector<RigCell>&             globalCellArray() const {return m_cells;}
 
+    const RigCell&                          cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const;
+    size_t                                  reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const;
+
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
     RigGridBase*                            gridByIndex(size_t localGridIndex);
@@ -68,6 +71,7 @@ public:
     bool                                    isFaceNormalsOutwards() const;
 
     void                                    computeCachedData();
+    void                                    initAllSubGridsParentGridPointer();
 
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
@@ -78,7 +82,6 @@ public:
 
     cvf::BoundingBox                        boundingBox() const;
 private:
-    void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();
     bool                                    hasFaultWithName(const QString& name) const;

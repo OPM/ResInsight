@@ -48,9 +48,11 @@ namespace FlowDiagnostics
     {
     public:
         /// Initialize solver with a given flow graph (a weighted,
-        /// directed asyclic graph) containing the out-fluxes from
+        /// directed acyclic graph) containing the out-fluxes from
         /// each cell, the reverse graph (with in-fluxes from each
-        /// cell), pore volumes and inflow sources (positive).
+        /// cell), pore volumes and all (positive) inflow sources. If
+        /// there are multiple inflow sources for a single cell, they
+        /// should be added before passing to this function.
         TracerTofSolver(const AssembledConnections& graph,
                         const AssembledConnections& reverse_graph,
                         const std::vector<double>& pore_volumes,
@@ -69,10 +71,11 @@ namespace FlowDiagnostics
 
         /// Compute a local solution tracer and time-of-flight solution.
         ///
-        /// Local means that only cells downwind from he startset are considered.
-        /// The solution is therefore potentially sparse.
-        /// TODO: not implemented!
-        LocalSolution solveLocal(const CellSet& startset);
+        /// Local means that only cells downwind from he startset are
+        /// considered. The solution is therefore potentially sparse.
+        /// The startset must contain the (nonnegative) source term for
+        /// each start cell.
+        LocalSolution solveLocal(const CellSetValues& startset);
 
     private:
 
@@ -84,6 +87,7 @@ namespace FlowDiagnostics
         const std::vector<double> influx_;
         const std::vector<double> outflux_;
         std::vector<double> source_term_;
+        std::vector<double> local_source_term_;
         std::vector<char> is_start_; // char to avoid the nasty vector<bool> specialization
         std::vector<int> sequence_;
         std::vector<int> component_starts_;
@@ -92,8 +96,9 @@ namespace FlowDiagnostics
         int num_multicell_ = 0;
         int max_size_multicell_ = 0;
         int max_iter_multicell_ = 0;
-        const double gauss_seidel_tol_ = 1e-3;
         const double max_tof_ = 200.0 * 365.0 * 24.0 * 60.0 * 60.0; // 200 years.
+        const double gauss_seidel_tof_tol_ = max_tof_ / 1e12;
+        const double gauss_seidel_tracer_tol_ = 1e-9;
 
         // --------------  Private helper class --------------
 
@@ -109,13 +114,17 @@ namespace FlowDiagnostics
 
         void prepareForSolve();
 
-        void setupStartArray(const CellSet& startset);
+        void setupStartArray(const CellSetValues& startset);
 
         void setupStartArrayFromSource();
 
         void computeOrdering();
 
-        void computeLocalOrdering(const CellSet& startset);
+        void computeLocalOrdering(const CellSetValues& startset);
+
+        void setupLocalSource(const CellSetValues& startset);
+
+        void cleanupLocalSource(const CellSetValues& startset);
 
         void solve();
 

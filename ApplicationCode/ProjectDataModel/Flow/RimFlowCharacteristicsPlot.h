@@ -21,6 +21,8 @@
 
 #include "RimViewWindow.h"
 
+#include "RigFlowDiagResults.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -29,6 +31,7 @@
 
 class RimFlowDiagSolution;
 class RimEclipseResultCase;
+class RimEclipseView;
 
 class RiuFlowCharacteristicsPlot;
 
@@ -62,22 +65,25 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+    void                                            viewGeometryUpdated();
 
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
-        SELECT_AVAILABLE
+        SELECTED,
     };
+
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    loadDataAndUpdate() override;
     virtual QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
+    virtual void                                    onLoadDataAndUpdate() override;
 
 private:
 
@@ -86,7 +92,19 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+    caf::PdmField<std::vector<int> >                m_selectedTimeStepsUi;
+    caf::PdmField<bool>                             m_applyTimeSteps;
     caf::PdmField<bool>                             m_showLegend;
+    caf::PdmField<double>                           m_maxPvFraction;
+
+    caf::PdmField<RigFlowDiagResults::CellFilterEnum> m_cellFilter;
+    caf::PdmPtrField<RimEclipseView*>               m_cellFilterView;
+    caf::PdmField<QString>                          m_tracerFilter;
+    caf::PdmField< std::vector<QString> >           m_selectedTracerNames;
+    caf::PdmField<bool>                             m_showRegion;
+
+    caf::PdmField<double>                           m_minCommunication;
+    caf::PdmField<int>                              m_maxTof;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
 

@@ -24,6 +24,7 @@ set( PROJECT_FILES
 	cafUserInterface_UnitTests.cpp 
 	
 	cafPdmUiTreeViewModelTest.cpp 
+	cafPdmUiTreeSelectionQModelTest.cpp 
 
 	gtest/gtest-all.cpp
 )
@@ -44,6 +45,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmXml
     cafUserInterface
     ${QT_LIBRARIES}
+    ${THREAD_LIBRARY}
 )
 
 # Copy Qt Dlls

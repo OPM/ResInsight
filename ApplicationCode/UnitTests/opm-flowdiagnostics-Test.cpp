@@ -39,7 +39,7 @@ TEST(opm_flowdiagnostics_test, basic_construction)
         std::cout.precision(16);
         for ( double t : tof )
         {
-            std::cout << t << '\n';
+            // std::cout << t << '\n';
         }
     }
     catch ( const std::exception& e )

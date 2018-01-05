@@ -17,13 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "cvfObject.h"
-#include "cafPdmPtrField.h"
+#include "cafPdmObject.h"
 
-class RigSummaryCaseData;
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 //
@@ -38,29 +35,32 @@ public:
     RimSummaryCase();
     virtual ~RimSummaryCase();
     
-    virtual QString     summaryHeaderFilename() const = 0; 
+    virtual QString     summaryHeaderFilename() const; 
     virtual QString     caseName() = 0; 
     QString             shortName() const;
 
     void                updateAutoShortName();
     void                updateOptionSensitivity();
 
-    void                loadCase();
-    RigSummaryCaseData* caseData();
+    virtual void        createSummaryReaderInterface() = 0;
+    virtual RifSummaryReaderInterface* summaryReader() = 0;
+    virtual QString     errorMessagesFromReader()               { return QString(); }
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
 
+    void                setSummaryHeaderFileName(const QString& fileName);
+
+    bool                isObservedData();
+
 protected:
+    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                updateTreeItemName();
 
-    caf::PdmField<QString>  m_shortName;
-    caf::PdmField<bool>     m_useAutoShortName;
-    caf::PdmField<QString>  m_summaryHeaderFilename;
-
-    cvf::ref<RigSummaryCaseData> m_summaryCaseData;
+    caf::PdmField<QString>          m_shortName;
+    caf::PdmField<bool>             m_useAutoShortName;
+    caf::PdmField<QString>          m_summaryHeaderFilename;
+    bool                            m_isObservedData;
 
 private:
-    // Overridden PDM methods
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void        initAfterRead() override;
 };

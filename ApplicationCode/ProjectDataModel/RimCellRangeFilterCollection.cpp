@@ -20,21 +20,14 @@
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RigFemPart.h"
-#include "RigFemPartCollection.h"
-#include "RigFemPartGrid.h"
-#include "RigGeoMechCaseData.h"
-#include "RigMainGrid.h"
-
 #include "RimCellRangeFilter.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
+#include "RimView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"
+
+#include "cvfStructGridGeometryGenerator.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
@@ -104,35 +97,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
-{
-    RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView && eclipseView->mainGrid())
-    {
-
-        return eclipseView->mainGrid();
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
-{
-    RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView)
-    {
-        return eclipseView->currentActiveCellInfo();
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     updateIconState();
@@ -171,14 +135,6 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
-{
-    return dynamic_cast<RimEclipseView*>(baseView());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
     if (!isActive()) return false; 
@@ -212,89 +168,6 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const cvf::StructGridInterface* RimCellRangeFilterCollection::gridByIndex(int gridIndex) const
-{
-    RigMainGrid* mnGrid = mainGrid();
-    RigFemPartCollection* femPartColl = this->femPartColl();
-
-    if (mnGrid)
-    {
-        RigGridBase* grid = mnGrid->gridByIndex(gridIndex);
-
-        CVF_ASSERT(grid);
-
-        return grid;
-    }
-    else if (femPartColl)
-    {
-        if (gridIndex < femPartColl->partCount())
-            return femPartColl->part(gridIndex)->structGrid();
-        else 
-            return NULL;
-    }
-    
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RimCellRangeFilterCollection::gridCount() const
-{
-    RigMainGrid* mnGrid = mainGrid();
-    RigFemPartCollection* femPartColl = this->femPartColl();
-
-    if (mnGrid)
-    {
-        return (int)mnGrid->gridCount();
-    }
-    else if (femPartColl)
-    {
-        return femPartColl->partCount();
-    }
-
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimCellRangeFilterCollection::gridName(int gridIndex) const
-{
-    RigMainGrid* mnGrid = mainGrid();
-    RigFemPartCollection* femPartColl = this->femPartColl();
-
-    if (mnGrid)
-    {
-        return mnGrid->gridByIndex(gridIndex)->gridName().c_str();
-    }
-    else if (femPartColl)
-    {
-        return QString::number(gridIndex);
-    }
-
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigFemPartCollection* RimCellRangeFilterCollection::femPartColl() const
-{
-    RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(baseView());
-    if (geoView &&
-        geoView->geoMechCase() &&
-        geoView->geoMechCase()->geoMechData() )
-    {
-        return geoView->geoMechCase()->geoMechData()->femParts();
-    }
-
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

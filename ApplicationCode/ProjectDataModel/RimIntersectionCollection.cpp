@@ -19,9 +19,9 @@
 
 #include "RimIntersectionCollection.h"
 
-#include "RimEclipseWell.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimSimWellInView.h"
 #include "RimView.h"
 
 #include "RiuMainWindow.h"
@@ -191,7 +191,7 @@ void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(const RimEclipseWell* eclipseWell) const
+bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(const RimSimWellInView* simWell) const
 {
     if (!isActive) return false;
 
@@ -199,7 +199,7 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(const Rim
     {
         if (cs->isActive &&
             cs->type() == RimIntersection::CS_SIMULATION_WELL &&
-            cs->simulationWell() == eclipseWell)
+            cs->simulationWell() == simWell)
         {
             return true;
         }

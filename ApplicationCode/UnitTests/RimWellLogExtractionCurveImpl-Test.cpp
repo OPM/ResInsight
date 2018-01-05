@@ -3,6 +3,7 @@
 #include "RigCurveDataTools.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <numeric>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -18,8 +19,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
     values.push_back(3.0);
     values.push_back(HUGE_VAL);
 
-    std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RigCurveDataTools::calculateIntervalsOfValidValues(values, &valuesIntervals, false);
+    auto valuesIntervals = RigCurveDataTools::calculateIntervalsOfValidValues(values, false);
 
     EXPECT_EQ(1, static_cast<int>(valuesIntervals.size()));
     EXPECT_EQ(2, static_cast<int>(valuesIntervals[0].first));
@@ -42,8 +42,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector
     values.push_back(3.0);
     values.push_back(HUGE_VAL);
 
-    std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RigCurveDataTools::calculateIntervalsOfValidValues(values, &valuesIntervals, false);
+    auto valuesIntervals = RigCurveDataTools::calculateIntervalsOfValidValues(values, false);
 
     EXPECT_EQ(2, static_cast<int>(valuesIntervals.size()));
     EXPECT_EQ(2, static_cast<int>(valuesIntervals[0].first));
@@ -51,3 +50,4 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector
     EXPECT_EQ(5, static_cast<int>(valuesIntervals[1].first));
     EXPECT_EQ(6, static_cast<int>(valuesIntervals[1].second));
 }
+

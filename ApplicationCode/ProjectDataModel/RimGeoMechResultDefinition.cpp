@@ -25,7 +25,7 @@
 #include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -277,7 +277,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (curve)
             {
-                curve->loadDataAndUpdate();
+                curve->loadDataAndUpdate(true);
             }
         }
     }

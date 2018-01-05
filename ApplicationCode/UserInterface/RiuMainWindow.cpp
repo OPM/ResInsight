@@ -28,12 +28,11 @@
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "RimTreeViewStateSerializer.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimView.h"
 
 #include "RiuDragDrop.h"
@@ -47,6 +46,8 @@
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuPvtPlotPanel.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -55,8 +56,13 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
+
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicShowSummaryCurveCalculatorFeature.h"
 
 #include "cvfTimer.h"
 
@@ -95,6 +101,8 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 RiuMainWindow::RiuMainWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
+    m_relPermPlotPanel(NULL),
+    m_pvtPlotPanel(NULL),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -166,6 +174,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
     setResultInfo("");
 
     m_resultQwtPlot->deleteAllCurves();
+    if (m_relPermPlotPanel) m_relPermPlotPanel->clearPlot();
+    if (m_pvtPlotPanel) m_pvtPlotPanel->clearPlot();
 
     if (m_pdmUiPropertyView)
     {
@@ -181,6 +191,14 @@ void RiuMainWindow::cleanupGuiCaseClose()
         }
     }
     m_processMonitor->startMonitorWorkProcess(NULL);
+
+    RicEditSummaryPlotFeature* editSumCurves = dynamic_cast<RicEditSummaryPlotFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicEditSummaryPlotFeature"));
+    if (editSumCurves)
+    {
+        editSumCurves->closeDialogAndResetTargetPlot();
+    }
+
+    RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,26 +349,34 @@ void RiuMainWindow::createMenus()
     fileMenu->addAction(cmdFeatureMgr->action("RicOpenLastUsedFileFeature"));
     fileMenu->addSeparator();
 
+
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
     importMenu->addSeparator();
     #endif
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
+
+    importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
     importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     exportMenu->addAction(m_snapshotAllViewsToFile);
     exportMenu->addAction(cmdFeatureMgr->action("RicExportMultipleSnapshotsFeature"));
+    exportMenu->addSeparator();
+    exportMenu->addAction(cmdFeatureMgr->action("RicSaveEclipseInputActiveVisibleCellsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
@@ -560,6 +586,10 @@ void RiuMainWindow::createDockPanels()
     }
 */
 
+    QDockWidget* resultPlotDock = nullptr;
+    QDockWidget* relPermPlotDock = nullptr;
+    QDockWidget* pvtPlotDock = nullptr;
+
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
         dockWidget->setObjectName("dockWidget");
@@ -600,8 +630,31 @@ void RiuMainWindow::createDockPanels()
         dockPanel->setWidget(m_resultQwtPlot);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        resultPlotDock = dockPanel;
     }
  
+    {
+        QDockWidget* dockPanel = new QDockWidget("Relative Permeability Plot", this);
+        dockPanel->setObjectName("dockRelativePermeabilityPlotPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel(dockPanel);
+        dockPanel->setWidget(m_relPermPlotPanel);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        relPermPlotDock = dockPanel;
+    }
+
+    {
+        QDockWidget* dockPanel = new QDockWidget("PVT Plot", this);
+        dockPanel->setObjectName("dockPvtPlotPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_pvtPlotPanel = new RiuPvtPlotPanel(dockPanel);
+        dockPanel->setWidget(m_pvtPlotPanel);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        pvtPlotDock = dockPanel;
+    }
+
     {
         QDockWidget* dockWidget = new QDockWidget("Messages", this);
         dockWidget->setObjectName("dockMessages");
@@ -613,6 +666,10 @@ void RiuMainWindow::createDockPanels()
 
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+
+    // Tabify docks
+    tabifyDockWidget(pvtPlotDock, relPermPlotDock);
+    tabifyDockWidget(relPermPlotDock, resultPlotDock);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -823,6 +880,22 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuRelativePermeabilityPlotPanel* RiuMainWindow::relativePermeabilityPlotPanel()
+{
+    return m_relPermPlotPanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuPvtPlotPanel* RiuMainWindow::pvtPlotPanel()
+{
+    return m_pvtPlotPanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1222,8 +1295,8 @@ void RiuMainWindow::selectedObjectsChanged()
             if (selectedReservoirView->viewer())
             {
                 setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                isActiveViewChanged = true;
             }
-            isActiveViewChanged = true;
         }
 
         if (isActiveViewChanged)
@@ -1271,7 +1344,7 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 
     // Save images in snapshot catalog relative to project directory
     QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
-    app->saveSnapshotForAllViews(absolutePathToSnapshotDir);
+    RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1306,9 +1379,9 @@ void RiuMainWindow::hideAllDockWindows()
 
     if (1)
     {
-        gridFileNames += RimDefines::mockModelBasicWithResults();
-        gridFileNames += RimDefines::mockModelBasicWithResults();
-        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RiaDefines::mockModelBasicWithResults();
+        gridFileNames += RiaDefines::mockModelBasicWithResults();
+        gridFileNames += RiaDefines::mockModelBasicWithResults();
     }
     else
     {
@@ -1444,13 +1517,13 @@ void RiuMainWindow::restoreTreeViewState()
         if (!stateString.isEmpty())
         {
             m_projectTreeView->treeView()->collapseAll();
-            RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
         QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
@@ -1484,7 +1557,7 @@ void RiuMainWindow::showProcessMonitorDockPanel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
+void RiuMainWindow::selectAsCurrentItem(const caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
 }
@@ -1574,7 +1647,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
-    regressionTestDialog.resize(QSize(600, 200));
+    regressionTestDialog.resize(QSize(600, 300));
 
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
@@ -1584,7 +1657,10 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         QString currentApplicationPath = QDir::currentPath();
 
         QDir::setCurrent(regTestConfig.applicationWorkingFolder);
-        app->executeRegressionTests(regTestConfig.regressionTestFolder);
+
+        QStringList testFilter = regTestConfig.testFilter().split(";", QString::SkipEmptyParts);
+
+        app->executeRegressionTests(regTestConfig.regressionTestFolder, &testFilter);
 
         QDir::setCurrent(currentApplicationPath);
     }

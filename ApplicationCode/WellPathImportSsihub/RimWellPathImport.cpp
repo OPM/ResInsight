@@ -57,7 +57,7 @@ RimWellPathImport::RimWellPathImport()
     CAF_PDM_InitField(&wellTypePlans,        "WellTypePlans",          true,   "Plans", "", "", "");
  
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
-    CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm filter",   "", "", "");
+    CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter",   "", "", "");
 
     CAF_PDM_InitField(&north, "UtmNorth", 0.0,    "North", "", "", "");
     CAF_PDM_InitField(&south, "UtmSouth", 0.0,    "South", "", "", "");

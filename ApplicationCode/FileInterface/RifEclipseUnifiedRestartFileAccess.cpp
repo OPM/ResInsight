@@ -19,12 +19,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseUnifiedRestartFileAccess.h"
+
+#include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+
 #include "RifEclipseOutputFileTools.h"
+#include "RifReaderSettings.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
+#include "ert/ecl/ecl_nnc_data.h"
 
-#include <QDebug>
+#include "cafUtils.h"
+
+#include <QFileInfo>
+// #include "cvfTrace.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -61,12 +72,113 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 {
     if (!m_ecl_file)
     {
-        m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        QString indexFileName = RifEclipseOutputFileTools::createIndexFileName(m_filename);
+
+        if (useResultIndexFile())
+        {
+            if (caf::Utils::fileExists(indexFileName))
+            {
+                QFileInfo indexFileInfo(indexFileName);
+                QFileInfo resultFileInfo(m_filename);
+
+                if (resultFileInfo.lastModified() < indexFileInfo.lastModified())
+                {
+                    m_ecl_file = ecl_file_fast_open(m_filename.toAscii().data(), indexFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+                    if (!m_ecl_file)
+                    {
+                        RiaLogging::error(QString("Failed to open file %1 using index file.").arg(m_filename));
+                        RiaLogging::info(QString("Will try to open file without index file."));
+                    }
+                    else
+                    {
+                        RiaLogging::info(QString("Imported file %1 using index file.").arg(m_filename));
+                    }
+                }
+            }
+        }
+
+        if (!m_ecl_file)
+        {
+            m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+            if (!m_ecl_file)
+            {
+                RiaLogging::error(QString("Failed to open file %1").arg(m_filename));
+            }
+            else
+            {
+                if (useResultIndexFile())
+                {
+                    QFileInfo fi(indexFileName);
+                    QString resultPath = fi.absolutePath();
+                    if (caf::Utils::isFolderWritable(resultPath))
+                    {
+                        bool success = ecl_file_write_index(m_ecl_file, indexFileName.toAscii().data());
+
+                        if (success)
+                        {
+                            RiaLogging::info(QString("Exported index file to %1 ").arg(indexFileName));
+                        }
+                        else
+                        {
+                            RiaLogging::info(QString("Failed to exported index file to %1 ").arg(indexFileName));
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     if (!m_ecl_file) return false;
 
+    m_availablePhases = RifEclipseOutputFileTools::findAvailablePhases(m_ecl_file);
+
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
+{
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    const RifReaderSettings* readerSettings = prefs->readerSettings();
+
+    return readerSettings->useResultIndexFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseUnifiedRestartFileAccess::extractTimestepsFromEclipse()
+{
+    m_timeSteps.clear();
+    m_daysSinceSimulationStart.clear();
+    m_reportNr.clear();
+
+    if ( openFile() )
+    {
+        RifEclipseOutputFileTools::timeSteps(m_ecl_file, &m_timeSteps, &m_daysSinceSimulationStart);
+
+        // Taken from well_info_add_UNRST_wells
+
+        int num_blocks = ecl_file_get_num_named_kw(m_ecl_file, SEQNUM_KW);
+        int block_nr;
+        for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+            ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
+            {                                                                                               //
+                ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
+                {                                                                                           //  is not changed as a side
+                    const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);       //  effect.
+                    int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                          //
+
+                    m_reportNr.push_back(report_nr);
+                }                                                                                           //
+            }                                                                                               //
+            ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
+        }
+
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +186,8 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::close()
 {
+    m_timeSteps.clear();
+    m_daysSinceSimulationStart.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,16 +195,12 @@ void RifEclipseUnifiedRestartFileAccess::close()
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 {
-    if (!openFile())
+    if (m_timeSteps.size() == 0)
     {
-        return 0;
+        extractTimestepsFromEclipse();
     }
-    std::vector<QDateTime> timeSteps;
-    std::vector<double> daysSinceSimulationStart;
-
-    this->timeSteps(&timeSteps, &daysSinceSimulationStart);
-
-    return timeSteps.size();
+   
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,10 +208,13 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
 {
-    if (openFile())
+    if ( m_timeSteps.size() == 0 )
     {
-        RifEclipseOutputFileTools::timeSteps(m_ecl_file, timeSteps, daysSinceSimulationStart);
+        extractTimestepsFromEclipse();
     }
+
+    *timeSteps = m_timeSteps;
+    *daysSinceSimulationStart = m_daysSinceSimulationStart;
 }
 
 
@@ -153,13 +266,38 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseUnifiedRestartFileAccess::dynamicNNCResults(const ecl_grid_type* grid, size_t timeStep, std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux)
+{
+    if (timeStep > timeStepCount())
+    {
+        return false;
+    }
+
+    if (!openFile())
+    {
+        return false;
+
+    }
+
+    ecl_file_view_type* summaryView = ecl_file_get_restart_view(m_ecl_file, static_cast<int>(timeStep), 0, 0, 0);
+    
+    RifEclipseOutputFileTools::transferNncFluxData(grid, summaryView, waterFlux, oilFlux, gasFlux);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info, bool importCompleteMswData)
 {
     if (!well_info) return;
 
     if (openFile())
     {
+       // cvf::Trace::show("well_info_add_UNRST_wells Start"); // Use for profiling
         well_info_add_UNRST_wells(well_info, m_ecl_file, importCompleteMswData);
+       // cvf::Trace::show("well_info_add_UNRST_wells End");   // Use for profiling
     }
 }
 
@@ -169,7 +307,6 @@ void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info,
 void RifEclipseUnifiedRestartFileAccess::setRestartFiles(const QStringList& fileSet)
 {
     m_filename = fileSet[0];
-   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,28 +322,21 @@ int RifEclipseUnifiedRestartFileAccess::readUnitsType()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::PhaseType> RifEclipseUnifiedRestartFileAccess::availablePhases() const
+{
+    return m_availablePhases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<int> RifEclipseUnifiedRestartFileAccess::reportNumbers()
 {
-    std::vector<int> reportNr;
-
-    // Taken from well_info_add_UNRST_wells
-
-    int num_blocks = ecl_file_get_num_named_kw(m_ecl_file, SEQNUM_KW);
-    int block_nr;
-    for (block_nr = 0; block_nr < num_blocks; block_nr++) {
-        ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
-        {                                                                                               //
-            ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
-            {                                                                                             //  is not changed as a side
-                const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);          //  effect.
-                int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                           //
-
-                reportNr.push_back(report_nr);
-            }                                                                                             //
-        }                                                                                               //
-        ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
+    if (m_timeSteps.size() ==  0)
+    {
+        extractTimestepsFromEclipse();
     }
 
-    return reportNr;
+    return m_reportNr;
 }
 

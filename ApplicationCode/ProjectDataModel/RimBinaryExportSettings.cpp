@@ -29,10 +29,10 @@ RimBinaryExportSettings::RimBinaryExportSettings()
 {
     CAF_PDM_InitObject("RimBinaryExportSettings", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export Filename", "", "", "");
     fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "EclipseKeyword", "Eclipse Keyword", "", "", "");
-    CAF_PDM_InitField(&undefinedValue, "UndefinedValue", 0.0, "Undefined value", "", "", "");
+    CAF_PDM_InitField(&undefinedValue, "UndefinedValue", 0.0, "Undefined Value", "", "", "");
 
 }
 

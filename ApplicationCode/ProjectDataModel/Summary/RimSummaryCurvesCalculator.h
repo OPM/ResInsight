@@ -22,9 +22,9 @@
 #include <vector>
 #include <set>
 
+class RimAsciiDataCurve;
 class RimSummaryCurve;
-class RimSummaryCurveFilter;
-class RimSummaryYAxisProperties;
+class RimSummaryAxisProperties;
 
 class RiuSummaryQwtPlot;
 
@@ -33,19 +33,23 @@ class QwtPlotCurve;
 class RimSummaryPlotYAxisFormatter
 {
 public:
-    RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
-        const std::vector<RimSummaryCurve*>& curves,
+    RimSummaryPlotYAxisFormatter(RimSummaryAxisProperties* axisProperties,
+        const std::vector<RimSummaryCurve*>& summaryCurves,
+        const std::vector<RimAsciiDataCurve*>& asciiCurves,
         const std::set<QString>& timeHistoryCurveQuantities);
 
     void    applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot);
 
 private:
     QString autoAxisTitle() const;
+    
+    static std::string shortCalculationName(const std::string& calculationName);
 
 private:
-    RimSummaryYAxisProperties*          m_axisProperties;
-    const std::vector<RimSummaryCurve*> m_singleCurves;
-    const std::set<QString>             m_timeHistoryCurveQuantities;
+    RimSummaryAxisProperties*             m_axisProperties;
+    const std::vector<RimSummaryCurve*>   m_summaryCurves;
+    const std::vector<RimAsciiDataCurve*> m_asciiDataCurves;
+    const std::set<QString>               m_timeHistoryCurveQuantities;
 };
 
 

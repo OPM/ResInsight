@@ -59,24 +59,15 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
     CAF_PDM_InitFieldNoDefault(&applyLocalMinMax,   "m_applyLocalMinMax", "", "", "", "");
-    applyLocalMinMax.xmlCapability()->setIOWritable(false);
-    applyLocalMinMax.xmlCapability()->setIOReadable(false);
-    applyLocalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyLocalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&applyLocalMinMax);
     applyLocalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyGlobalMinMax,   "m_applyGlobalMinMax", "", "", "", "");
-    applyGlobalMinMax.xmlCapability()->setIOWritable(false);
-    applyGlobalMinMax.xmlCapability()->setIOReadable(false);
-    applyGlobalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyGlobalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&applyGlobalMinMax);
     applyGlobalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyFullRangeMinMax,   "m_applyFullRangeMinMax", "", "", "", "");
-    applyFullRangeMinMax.xmlCapability()->setIOWritable(false);
-    applyFullRangeMinMax.xmlCapability()->setIOReadable(false);
-    applyFullRangeMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyFullRangeMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    caf::PdmUiPushButtonEditor::configureEditorForField(&applyFullRangeMinMax);
     applyFullRangeMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&ternaryRangeSummary,        "ternaryRangeSummary", "Range summary", "", "", "");

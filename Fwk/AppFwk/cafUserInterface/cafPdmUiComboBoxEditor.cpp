@@ -43,6 +43,7 @@
 
 #include "cafFactory.h"
 
+#include <QApplication>
 #include <QComboBox>
 #include <QLabel>
 #include <QWheelEvent>
@@ -60,16 +61,15 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     if (!m_label.isNull())
     {
-        QIcon ic = field()->uiIcon(uiConfigName);
-        if (!ic.isNull())
-        {
-            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-        }
-        else
-        {
-            m_label->setText(field()->uiName(uiConfigName));
-        }
-        m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    }
+
+    // Handle attributes
+    PdmUiComboBoxEditorAttribute attributes;
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
     }
 
     if (!m_comboBox.isNull())
@@ -86,7 +86,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             for (int i = 0; i < options.size(); i++)
             {
-                m_comboBox->addItem(options[i].icon, options[i].optionUiText);
+                m_comboBox->addItem(options[i].icon(), options[i].optionUiText());
             }
             m_comboBox->setCurrentIndex(field()->uiValue().toInt());
         }
@@ -95,7 +95,80 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_comboBox->addItem(field()->uiValue().toString());
             m_comboBox->setCurrentIndex(0);
         }
+
+        if (attributes.adjustWidthToContents)
+        {
+            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        }
+
         m_comboBox->blockSignals(false);
+    }
+
+    if (attributes.showPreviousAndNextButtons)
+    {
+        if (m_previousItemButton.isNull())
+        {
+            m_previousItemButton = new QToolButton(m_placeholder);
+            connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
+
+            m_previousItemButton->setToolTip("Previous");
+        }
+
+        if (m_nextItemButton.isNull())
+        {
+            m_nextItemButton = new QToolButton(m_placeholder);
+            connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
+
+            m_nextItemButton->setToolTip("Next");
+        }
+
+        m_layout->insertWidget(1, m_previousItemButton);
+        m_layout->insertWidget(2, m_nextItemButton);
+
+        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0)
+        {
+            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp).pixmap(16, 16, QIcon::Disabled));
+            m_previousItemButton->setIcon(disabledIcon);
+        }
+        else
+        {
+            m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+        }
+
+        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1)
+        {
+            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown).pixmap(16, 16, QIcon::Disabled));
+            m_nextItemButton->setIcon(disabledIcon);
+        }
+        else
+        {
+            m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+        }
+
+        // Update button texts
+        if (!attributes.nextButtonText.isEmpty())
+        {
+            m_nextItemButton->setToolTip(attributes.nextButtonText);
+        }
+
+        if (!attributes.prevButtonText.isEmpty())
+        {
+            m_previousItemButton->setToolTip(attributes.prevButtonText);
+        }
+    }
+    else
+    {
+        if (m_previousItemButton)
+        {
+            m_layout->removeWidget(m_previousItemButton);
+            m_previousItemButton->deleteLater();
+        }
+
+        if (m_nextItemButton)
+        {
+            m_layout->removeWidget(m_nextItemButton);
+            m_nextItemButton->deleteLater();
+        }
     }
 }
 
@@ -157,9 +230,16 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
     m_comboBox = new CustomQComboBox(parent);
     m_comboBox->setFocusPolicy(Qt::StrongFocus);
 
+    m_placeholder = new QWidget(parent);
+
+    m_layout = new QHBoxLayout(m_placeholder);
+    m_layout->setContentsMargins(0,0,0,0);
+    m_layout->setSpacing(0);
+    m_layout->addWidget(m_comboBox);
+
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(slotIndexActivated(int)));
 
-    return m_comboBox;
+    return m_placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +263,30 @@ void PdmUiComboBoxEditor::slotIndexActivated(int index)
     this->setValueToField(uintValue);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotNextButtonPressed()
+{
+    int indexCandidate = m_comboBox->currentIndex() + 1;
 
+    if (indexCandidate < m_comboBox->count())
+    {
+        slotIndexActivated(indexCandidate);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotPreviousButtonPressed()
+{
+    int indexCandidate = m_comboBox->currentIndex() - 1;
+
+    if (indexCandidate > -1 && indexCandidate < m_comboBox->count())
+    {
+        slotIndexActivated(indexCandidate);
+    }
+}
 
 } // end namespace caf

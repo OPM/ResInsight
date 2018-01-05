@@ -21,10 +21,9 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -190,7 +189,7 @@ void RimTotalWellAllocationPlot::clearSlices()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTotalWellAllocationPlot::loadDataAndUpdate()
+void RimTotalWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 

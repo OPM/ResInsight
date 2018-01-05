@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -39,24 +39,25 @@ public:
 
     void                                      setValuesAndMD(const std::vector<double>& xValues, 
                                                              const std::vector<double>& measuredDepths,
-                                                             RimDefines::DepthUnitType depthUnit,
+                                                             RiaDefines::DepthUnitType depthUnit,
                                                              bool isExtractionCurve);
 
     void                                      setValuesWithTVD(const std::vector<double>& xValues, 
                                                                const std::vector<double>& measuredDepths, 
                                                                const std::vector<double>& tvDepths,
-                                                               RimDefines::DepthUnitType depthUnit);
+                                                               RiaDefines::DepthUnitType depthUnit,
+                                                               bool isExtractionCurve);
 
     const std::vector<double>&                xValues() const;
     const std::vector<double>&                measuredDepths() const;
     const std::vector<double>&                tvDepths() const;
     bool                                      calculateMDRange(double* minMD, double* maxMD) const;
 
-    RimDefines::DepthUnitType                 depthUnit() const;
+    RiaDefines::DepthUnitType                 depthUnit() const;
 
     std::vector<double>                       xPlotValues() const;
-    std::vector<double>                       trueDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const;
-    std::vector<double>                       measuredDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const;
+    std::vector<double>                       trueDepthPlotValues(RiaDefines::DepthUnitType destinationDepthUnit) const;
+    std::vector<double>                       measuredDepthPlotValues(RiaDefines::DepthUnitType destinationDepthUnit) const;
     std::vector< std::pair<size_t, size_t> >  polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData>             calculateResampledCurveData(double newMeasuredDepthStepSize) const;
@@ -68,7 +69,7 @@ private:
                                                                         size_t startIdx, size_t stopIdx, 
                                                                         std::vector< std::pair<size_t, size_t> >* intervals);
 
-    std::vector<double>                       convertDepthValues(RimDefines::DepthUnitType destinationDepthUnit, const std::vector<double>& originalValues) const;
+    std::vector<double>                       convertDepthValues(RiaDefines::DepthUnitType destinationDepthUnit, const std::vector<double>& originalValues) const;
 
     static std::vector<double>                convertFromMeterToFeet(const std::vector<double>& valuesInMeter);
     static std::vector<double>                convertFromFeetToMeter(const std::vector<double>& valuesInFeet);
@@ -81,6 +82,6 @@ private:
 
     std::vector< std::pair<size_t, size_t> >  m_intervalsOfContinousValidValues;
     
-    RimDefines::DepthUnitType                 m_depthUnit;
+    RiaDefines::DepthUnitType                 m_depthUnit;
 };
 

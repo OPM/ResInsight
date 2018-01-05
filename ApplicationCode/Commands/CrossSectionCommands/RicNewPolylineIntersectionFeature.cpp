@@ -31,7 +31,6 @@
 #include "RiuViewer.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -74,50 +73,7 @@ void RicNewPolylineIntersectionFeature::onActionTriggered(bool isChecked)
 void RicNewPolylineIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Polyline Intersection");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
-{
-    std::vector<RimIntersection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() == 1)
-    {
-        RicViewerEventObject* polylineUiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
-        if (polylineUiEvent)
-        {
-            RimIntersection* intersection = selection[0];
-
-            RimView* rimView = nullptr;
-            intersection->firstAncestorOrThisOfType(rimView);
-            CVF_ASSERT(rimView);
-
-            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(polylineUiEvent->globalIntersectionPoint);
-
-            if (intersection->inputPolyLineFromViewerEnabled())
-            {
-                intersection->appendPointToPolyLine(domainCoord);
-
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-            else if (intersection->inputExtrusionPointsFromViewerEnabled())
-            {
-
-                intersection->appendPointToExtrusionDirection(domainCoord);
-
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-        }
-    }
-
-    return false;
+    actionToSetup->setText("Polyline Intersection");
 }
 
 //--------------------------------------------------------------------------------------------------

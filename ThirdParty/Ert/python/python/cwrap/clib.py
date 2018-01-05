@@ -14,20 +14,6 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 """Convenience module for loading shared library.
-
-Observe that to ensure that all libraries are loaded through the same
-code path, all required libraries should be loaded explicitly through
-the use of import statements; i.e. the ecl.geo package requires the
-libert_util librarary, to ensure that the correct version of the
-libert_util.so library file is loaded we should manually load that
-first as:
-
-   import ecl.util
-   GEO_LIB = ecl.load("libert_geometry")
-
-Otherwise the standard operating system dependency resolve code will
-be invoked when loading libert_geometry, and that could in principle
-lead to loading a different version of libert_util.so
 """
 
 import platform

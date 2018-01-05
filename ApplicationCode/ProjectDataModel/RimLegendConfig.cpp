@@ -27,6 +27,11 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimStimPlanColors.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
@@ -75,6 +80,7 @@ namespace caf {
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
         addItem(RimLegendConfig::CATEGORY,       "CATEGORY",        "Category colors");
         addItem(RimLegendConfig::ANGULAR,        "ANGULAR",         "Full color cyclic");
+        addItem(RimLegendConfig::STIMPLAN,       "STIMPLAN",        "StimPlan colors");
         setDefault(RimLegendConfig::NORMAL);
     }
 }
@@ -118,15 +124,15 @@ RimLegendConfig::RimLegendConfig()
         m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
-    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
-    CAF_PDM_InitField(&m_precision, "Precision", 4, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
+    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.","");
+    CAF_PDM_InitField(&m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Number format", "", "","");
 
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
-    CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
-    CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
-    CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
+    CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range Type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Max value of the legend", "");
+    CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Min value of the legend (if mapping is logarithmic only positive values are valid)", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
     resultVariableName.uiCapability()->setUiHidden(true);
 
@@ -198,6 +204,17 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         view->updateCurrentTimeStepAndRedraw();
     }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
+    // Update stim plan templates if relevant
+    RimStimPlanColors* stimPlanColors;
+    firstAncestorOrThisOfType(stimPlanColors);
+    if (stimPlanColors)
+    {
+        stimPlanColors->updateStimPlanTemplates();
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,6 +731,9 @@ cvf::Color3ubArray RimLegendConfig::colorArrayFromColorType(ColorRangesType colo
     case RimLegendConfig::ANGULAR:
         return RiaColorTables::angularPaletteColors().color3ubArray();
         break;
+    case RimLegendConfig::STIMPLAN:
+        return RiaColorTables::stimPlanPaletteColors().color3ubArray();
+        break;
     default:
         break;
     }
@@ -748,6 +768,13 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
+    bool hasStimPlanParent = false;
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    RimStimPlanColors* stimPlanColors = nullptr;
+    this->firstAncestorOrThisOfType(stimPlanColors);
+    if (stimPlanColors) hasStimPlanParent = true;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     bool isCategoryResult = false;
     {
@@ -800,6 +827,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         rangeTypes.push_back(WHITE_BLACK);
         rangeTypes.push_back(BLACK_WHITE);
         rangeTypes.push_back(ANGULAR);
+        if (hasStimPlanParent) rangeTypes.push_back(STIMPLAN);
 
         if (isCategoryResult)
         {
@@ -813,10 +841,14 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_rangeMode)
     {
-        if (!m_isAllTimeStepsRangeDisabled) {
+        if (!m_isAllTimeStepsRangeDisabled)
+        {
             options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         }
-        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        if (!hasStimPlanParent)
+        {
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        }
         options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
     }
  

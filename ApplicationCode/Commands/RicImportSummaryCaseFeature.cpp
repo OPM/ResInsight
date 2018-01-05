@@ -26,9 +26,10 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
@@ -62,15 +63,13 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     RimProject* proj = app->project();
 
-    RimSummaryCaseCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return;
 
     for (auto f : fileNames)
     {
         RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(f);
     }
-
-    app->getOrCreateAndShowMainPlotWindow();
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
@@ -97,22 +96,20 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
-    RimSummaryCaseCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
-    newSumCase->loadCase();
+    RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
+    sumCaseColl->updateAllRequiredEditors();
 
-
-    if (app->preferences()->autoCreatePlotsOnImport())
+    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow)
     {
-        RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-        RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+        mainPlotWindow->selectAsCurrentItem(sumCase);
 
-        RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
-
-    sumCaseColl->updateConnectedEditors();
+    
     app->addToRecentFiles(fileName);
 
     return true;

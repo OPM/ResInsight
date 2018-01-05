@@ -20,24 +20,34 @@
 
 #include "RigEclipseCaseData.h"
 
+#include "RiaApplication.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellPath.h"
+
+#include "RimFlowPlotCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData::RigEclipseCaseData()
+RigEclipseCaseData::RigEclipseCaseData(RimEclipseCase* ownerCase)
 {
     m_mainGrid = new RigMainGrid();
+    m_ownerCase = ownerCase;
 
-    m_matrixModelResults = new RigCaseCellResultsData(m_mainGrid.p());
-    m_fractureModelResults = new RigCaseCellResultsData(m_mainGrid.p());
+    m_matrixModelResults = new RigCaseCellResultsData(this);
+    m_fractureModelResults = new RigCaseCellResultsData(this);
 
     m_activeCellInfo = new RigActiveCellInfo;
     m_fractureActiveCellInfo = new RigActiveCellInfo;
@@ -45,7 +55,7 @@ RigEclipseCaseData::RigEclipseCaseData()
     m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
     m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
 
-    m_unitsType = UNITS_METRIC;
+    m_unitsType = RiaEclipseUnitTools::UNITS_METRIC;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,34 +212,18 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
 
     // Fill arrays with data
     size_t wIdx;
-    for (wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    for (wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
     {
         size_t tIdx;
-        for (tIdx = 0; tIdx < m_wellResults[wIdx]->m_wellCellsTimeSteps.size(); ++tIdx)
+        for (tIdx = 0; tIdx < m_simWellData[wIdx]->m_wellCellsTimeSteps.size(); ++tIdx)
         {
-            RigWellResultFrame& wellCells =  m_wellResults[wIdx]->m_wellCellsTimeSteps[tIdx];
-
-            // Well head
-            {
-                size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
-                size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
-
-                if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
-                {
-                    size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
-                    if (m_activeCellInfo->isActive(reservoirCellIndex) 
-                        || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
-                    {
-                        m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                        m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
-                    }
-                }
-            }
+            RigWellResultFrame& wellCells =  m_simWellData[wIdx]->m_wellCellsTimeSteps[tIdx];
 
             // Well result branches
             for (size_t sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
             {
                 RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[sIdx];
+
                 size_t cdIdx;
                 for (cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx)
                 {
@@ -253,9 +247,9 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResultsData>& data)
+void RigEclipseCaseData::setSimWellData(const cvf::Collection<RigSimWellData>& data)
 {
-    m_wellResults = data;
+    m_simWellData = data;
     m_wellCellsInGrid.clear();
     m_gridCellToResultWellIndex.clear();
 
@@ -266,11 +260,31 @@ void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigSingleWellResultsData* RigEclipseCaseData::findWellResult(QString wellName) const
+std::set<QString> RigEclipseCaseData::findSortedWellNames() const
 {
-    for (size_t wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    std::set<QString> sortedWellNames;
+
+    const cvf::Collection<RigSimWellData>& simWellData = wellResults();
+
+    for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
     {
-        if (m_wellResults[wIdx]->m_wellName == wellName) return m_wellResults[wIdx].p();
+        sortedWellNames.insert(simWellData[wIdx]->m_wellName);
+    }
+
+    return sortedWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigSimWellData* RigEclipseCaseData::findSimWellData(QString wellName) const
+{
+    for (size_t wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
+    {
+        if (m_simWellData[wIdx]->m_wellName == wellName)
+        {
+            return m_simWellData[wIdx].p();
+        }
     }
 
     return nullptr;
@@ -318,7 +332,9 @@ const RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigEclipseCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const
+bool RigEclipseCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, 
+                                              const RigWellResultPoint& sourceWellCellResult, 
+                                              const RigWellResultPoint& otherWellCellResult) const
 {
     size_t gridIndex = sourceWellCellResult.m_gridIndex;
     size_t gridCellIndex = sourceWellCellResult.m_gridCellIndex;
@@ -434,9 +450,81 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel)
+std::vector<QString> RigEclipseCaseData::simulationWellNames() const
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    std::vector<QString> wellNames;
+    for (const auto& wellResult : wellResults())
+    {
+        wellNames.push_back(wellResult->m_wellName);
+    }
+    return wellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
+{
+    const auto wellNames = simulationWellNames();
+    return std::find(wellNames.begin(), wellNames.end(), simWellName) != wellNames.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName,
+                                                                           bool           includeAllCellCenters,
+                                                                           bool           useAutoDetectionOfBranches)
+{
+    std::vector<const RigWellPath*> branches;
+
+    if (simWellName.isEmpty() || simWellName.toUpper() == "NONE")
+    {
+        return branches;
+    }
+
+    const RigSimWellData* simWellData = findSimWellData(simWellName);
+    if (!simWellData) return branches;
+
+    std::tuple<QString, bool, bool> simWellSeachItem =
+        std::make_tuple(simWellName, includeAllCellCenters, useAutoDetectionOfBranches);
+
+    if (m_simWellBranchCache.find(simWellSeachItem) == m_simWellBranchCache.end())
+    {
+        std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+        std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(
+            this, simWellData, -1, useAutoDetectionOfBranches, includeAllCellCenters, pipeBranchesCLCoords, pipeBranchesCellIds);
+
+        m_simWellBranchCache.insert(std::make_pair(simWellSeachItem, cvf::Collection<RigWellPath>()));
+
+        for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
+        {
+            auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]);
+
+            cvf::ref<RigWellPath> newWellPath = new RigWellPath();
+            newWellPath->m_measuredDepths     = wellMdCalculator.measuredDepths();
+            newWellPath->m_wellPathPoints     = wellMdCalculator.wellPathPoints();
+
+            m_simWellBranchCache[simWellSeachItem].push_back(newWellPath.p());
+        }
+    }
+
+    for (const auto& branch : m_simWellBranchCache[simWellSeachItem])
+    {
+        branches.push_back(branch.p());
+    }
+
+    return branches;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel)
+{
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -447,9 +535,9 @@ RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::Porosi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const
+const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -460,9 +548,9 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo)
+void RigEclipseCaseData::setActiveCellInfo(RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         m_activeCellInfo = activeCellInfo;
         m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
@@ -537,8 +625,8 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
     m_activeFormationNamesData  = activeFormationNames;
 
     size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
-    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
-                                                                  "Active Formation Names", 
+    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RiaDefines::FORMATION_NAMES, 
+                                                                  RiaDefines::activeFormationNamesResultName(), 
                                                                   false, 
                                                                   totalGlobCellCount);
 
@@ -591,6 +679,14 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
         }
     }
 
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            project->mainPlotCollection->updatePlotsWithFormations();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,9 +700,9 @@ RigFormationNames* RigEclipseCaseData::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }
@@ -617,14 +713,34 @@ RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::Porosity
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+const RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }
 
     return m_fractureModelResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigEclipseCaseData::resultValues(RiaDefines::PorosityModelType porosityModel,
+                                                            RiaDefines::ResultCatType type, 
+                                                            const QString& resultName, 
+                                                            size_t timeStepIndex)
+{
+    RigCaseCellResultsData* gridCellResults = this->results(porosityModel);
+    size_t scalarResultIndex = gridCellResults->findOrLoadScalarResult(type, resultName);
+
+    const std::vector<double>* swatResults = nullptr;
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        swatResults = &(gridCellResults->cellScalarResults(scalarResultIndex, timeStepIndex));
+    }
+
+    return swatResults;
 }
 
 /*

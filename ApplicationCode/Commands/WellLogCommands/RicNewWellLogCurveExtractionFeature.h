@@ -21,12 +21,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseWell;
-class RimView;
-class RimWellLogExtractionCurve;
-class RimWellLogTrack;
-class RimWellPath;
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -34,19 +28,10 @@ class RicNewWellLogCurveExtractionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static RimWellLogExtractionCurve* addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimEclipseWell* simWell, int branchIndex);
-
-
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
-
 private:
-    RimWellLogTrack*    selectedWellLogPlotTrack() const;
-    RimWellPath*            selectedWellPath() const;
-    RimEclipseWell*         selectedSimulationWell(int * branchIndex) const;
-    bool                    caseAvailable() const;
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
+
+    static bool  caseAvailable();
 };

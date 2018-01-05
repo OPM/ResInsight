@@ -68,13 +68,21 @@ CmdFeature::~CmdFeature()
 //--------------------------------------------------------------------------------------------------
 QAction* CmdFeature::action()
 {
-    return this->action(QString(""));
+    return this->actionWithCustomText(QString(""));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::action(QString customText)
+QAction* CmdFeature::actionWithCustomText(const QString& customText)
+{
+    return actionWithUserData(customText, QVariant());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QAction* CmdFeature::actionWithUserData(const QString& customText, const QVariant& userData)
 {
     QAction* action = NULL;
 
@@ -88,8 +96,14 @@ QAction* CmdFeature::action(QString customText)
     else
     {
         action = new QAction(this);
+
         connect(action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
         m_customTextToActionMap[customText]= action;
+    }
+
+    if (!userData.isNull())
+    {
+        action->setData(userData);
     }
 
     this->setupActionLook(action);
@@ -168,6 +182,18 @@ bool CmdFeature::isCommandChecked()
 void CmdFeature::disableModelChangeContribution()
 {
     m_triggerModelChange = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns action user data.
+/// May be called from onActionTriggered only
+//--------------------------------------------------------------------------------------------------
+const QVariant CmdFeature::userData() const
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    CAF_ASSERT(action);
+
+    return action->data();
 }
 
 } // end namespace caf

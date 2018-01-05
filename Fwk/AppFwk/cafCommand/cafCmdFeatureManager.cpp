@@ -108,7 +108,21 @@ QAction* CmdFeatureManager::action(const QString& commandId, const QString& cust
 {
     std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
 
-    QAction* act = featurePair.first->action(customActionText);
+    QAction* act = featurePair.first->actionWithCustomText(customActionText);
+    m_actionToFeatureIdxMap[act] = featurePair.second;
+
+    return act;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Get action for the specified command, with custom action text 
+/// The action is owned by the PdmCommandItemManager
+//--------------------------------------------------------------------------------------------------
+QAction* CmdFeatureManager::actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData)
+{
+    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
+
+    QAction* act = featurePair.first->actionWithUserData(customActionText, userData);
     m_actionToFeatureIdxMap[act] = featurePair.second;
 
     return act;

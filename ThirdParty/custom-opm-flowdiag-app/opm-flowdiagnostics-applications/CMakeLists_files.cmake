@@ -21,41 +21,67 @@
 #                             the library needs it.
 
 list (APPEND MAIN_SOURCE_FILES
+        opm/utility/ECLCaseUtilities.cpp
         opm/utility/ECLEndPointScaling.cpp
         opm/utility/ECLFluxCalc.cpp
         opm/utility/ECLGraph.cpp
+        opm/utility/ECLPropertyUnitConversion.cpp
         opm/utility/ECLPropTable.cpp
+        opm/utility/ECLPvtCommon.cpp
+        opm/utility/ECLPvtCurveCollection.cpp
+        opm/utility/ECLPvtGas.cpp
+        opm/utility/ECLPvtOil.cpp
+        opm/utility/ECLPvtWater.cpp
+        opm/utility/ECLRegionMapping.cpp
         opm/utility/ECLResultData.cpp
         opm/utility/ECLSaturationFunc.cpp
+        opm/utility/ECLTableInterpolation1D.cpp
         opm/utility/ECLUnitHandling.cpp
         opm/utility/ECLWellSolution.cpp
         )
 
 list (APPEND TEST_SOURCE_FILES
         tests/test_eclendpointscaling.cpp
+        tests/test_eclpropertyunitconversion.cpp
         tests/test_eclproptable.cpp
+        tests/test_eclpvtcommon.cpp
+        tests/test_eclregionmapping.cpp
+        tests/test_eclsimple1dinterpolant.cpp
         tests/test_eclunithandling.cpp
         )
 
 list (APPEND EXAMPLE_SOURCE_FILES
         examples/computeFlowStorageCurve.cpp
         examples/computeLocalSolutions.cpp
+        examples/computePhaseFluxes.cpp
         examples/computeToFandTracers.cpp
         examples/computeTracers.cpp
+        examples/dynamicCellProperty.cpp
         examples/extractFromRestart.cpp
+        examples/extractPropCurves.cpp
         tests/runAcceptanceTest.cpp
         tests/runLinearisedCellDataTest.cpp
         tests/runTransTest.cpp
         )
 
 list (APPEND PUBLIC_HEADER_FILES
+        opm/utility/ECLCaseUtilities.hpp
         opm/utility/ECLEndPointScaling.hpp
         opm/utility/ECLFluxCalc.hpp
         opm/utility/ECLGraph.hpp
         opm/utility/ECLPhaseIndex.hpp
+        opm/utility/ECLPiecewiseLinearInterpolant.hpp
+        opm/utility/ECLPropertyUnitConversion.hpp
         opm/utility/ECLPropTable.hpp
+        opm/utility/ECLPvtCommon.hpp
+        opm/utility/ECLPvtCurveCollection.hpp
+        opm/utility/ECLPvtGas.hpp
+        opm/utility/ECLPvtOil.hpp
+        opm/utility/ECLPvtWater.hpp
+        opm/utility/ECLRegionMapping.hpp
         opm/utility/ECLResultData.hpp
         opm/utility/ECLSaturationFunc.hpp
+        opm/utility/ECLTableInterpolation1D.hpp
         opm/utility/ECLUnitHandling.hpp
         opm/utility/ECLWellSolution.hpp
         )

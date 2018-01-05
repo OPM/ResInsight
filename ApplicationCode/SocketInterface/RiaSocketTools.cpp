@@ -35,9 +35,9 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "cvfTimer.h"
 

@@ -40,8 +40,10 @@ public:
     caf::PdmField<bool> importNNCs;
     caf::PdmField<bool> importAdvancedMswData;
     caf::PdmField<QString> faultIncludeFileAbsolutePathPrefix;
+    caf::PdmField<bool> useResultIndexFile;
+    caf::PdmField<bool> skipWellData;
 
-protected:
+private:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

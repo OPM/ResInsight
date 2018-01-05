@@ -20,7 +20,8 @@ public:
     PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
     virtual ~PdmUiObjectHandle() { }
 
-    PdmObjectHandle*        objectHandle() { return m_owner; }
+    PdmObjectHandle*        objectHandle()       { return m_owner; }
+    const PdmObjectHandle*  objectHandle() const { return m_owner; }
 
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
@@ -56,8 +57,12 @@ public: // Virtual
     virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
 
     /// Method to re-implement to supply option values for a specific field
-    virtual QList<PdmOptionItemInfo>
+    virtual QList<caf::PdmOptionItemInfo>
         calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
+
+    /// Override used to attach application defined slots to caf created widgets
+    /// All field editor widgets are supposed to be created when this function is called
+    virtual void            onEditorWidgetsCreated() {}
 
 protected:
     /// Override to customize the order and grouping of the Gui.

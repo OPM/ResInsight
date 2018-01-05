@@ -43,7 +43,7 @@ void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMech
 
     if (newView)
     {
-        RiuMainWindow::instance()->setExpanded(newView, true);
+        RiuMainWindow::instance()->setExpanded(newView);
     }
 }
 

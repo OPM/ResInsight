@@ -25,6 +25,8 @@
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 #include "cvfBase.h"
 #include "cvfAssert.h"
 #include "cvfColor3.h"
@@ -66,7 +68,7 @@ void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& cu
 {
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
-    plotCurve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues, false);
+    plotCurve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);
     plotCurve->setTitle(curveName);
 
     plotCurve->setPen(QPen(QColor(curveColor.rByte(), curveColor.gByte(), curveColor.bByte())));
@@ -130,11 +132,11 @@ QSize RiuResultQwtPlot::minimumSizeHint() const
 void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
-    QStringList commandIds;
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
-    commandIds << "RicNewGridTimeHistoryCurveFeature";
+    menuBuilder << "RicNewGridTimeHistoryCurveFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    menuBuilder.appendToMenu(&menu);
 
     if (menu.actions().size() > 0)
     {

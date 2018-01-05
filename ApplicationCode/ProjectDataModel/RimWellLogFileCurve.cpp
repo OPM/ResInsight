@@ -20,6 +20,7 @@
 #include "RimWellLogFileCurve.h"
 
 #include "RigWellLogCurveData.h"
+#include "RigWellPath.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -29,9 +30,11 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellRftPlot.h"
+#include "RimWellPlotTools.h"
 
-#include "RiuWellLogTrack.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuWellLogTrack.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -39,6 +42,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QMessageBox>
+#include <QFileInfo>
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFileCurve, "WellLogFileCurve");
@@ -55,7 +59,9 @@ RimWellLogFileCurve::RimWellLogFileCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
-    m_wellPath = NULL;
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
+
+    m_wellPath = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,9 +74,9 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::onLoadDataAndUpdate()
+void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    RimWellLogCurve::updateCurvePresentation();
+    this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     if (isCurveVisible())
     {
@@ -80,47 +86,86 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
-        if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        if (m_wellPath && m_wellLogFile)
         {
-            if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
+            RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
+            if (wellLogFile)
             {
-                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves is not yet supported, and the LAS curve will be hidden in this mode.\n\n");
-                tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD warning\"";
-            
-                QMessageBox::warning(NULL, "LAS curve without TVD", tmp);
-            }
-        }
-        else if (m_wellPath)
-        {
-            RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
-            if (logFileInfo)
-            {
-                RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
-                if (wellLogFile)
-                {
-                    std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
-                    std::vector<double> depthValues = wellLogFile->depthValues();
+                std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
+                std::vector<double> measuredDepthValues = wellLogFile->depthValues();
 
-                    if (values.size() == depthValues.size())
+                if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+                {
+                    bool canUseTvd = false;
+                    if (wellLogFile->hasTvdChannel())
                     {
-                        m_curveData->setValuesAndMD(values, depthValues, wellLogFile->depthUnit(), false);
+                        std::vector<double> tvdMslValues = wellLogFile->tvdMslValues();
+
+                        if (values.size() == measuredDepthValues.size() && values.size() == tvdMslValues.size())
+                        {
+                            m_curveData->setValuesWithTVD(values, measuredDepthValues, tvdMslValues, wellLogFile->depthUnit(), false);
+                            canUseTvd = true;
+                        }
+                    }
+
+                    if (!canUseTvd)
+                    {
+                        RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+                        if (rigWellPath)
+                        {
+                            std::vector<double> trueVerticeldepthValues;
+
+                            for (double measuredDepthValue : measuredDepthValues)
+                            {
+                                trueVerticeldepthValues.push_back(-rigWellPath->interpolatedPointAlongWellPath(measuredDepthValue).z());
+                            }
+                            if (values.size() == trueVerticeldepthValues.size() && values.size() == measuredDepthValues.size())
+                            {
+                                m_curveData->setValuesWithTVD(values, measuredDepthValues, trueVerticeldepthValues, wellLogFile->depthUnit(), false);
+                                canUseTvd = true;
+                            }
+                        }
+                    }
+
+                    if (!canUseTvd)
+                    {
+                        if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
+                        {
+                            QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves is not possible without a well log path, and the LAS curve will be hidden in this mode.\n\n");
+                            tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD warning\"";
+
+                            QMessageBox::warning(nullptr, "LAS curve without TVD", tmp);
+                        }
                     }
                 }
-
-                if (m_isUsingAutoName)
+                else
                 {
-                    m_qwtPlotCurve->setTitle(createCurveAutoName());
+                    if (values.size() == measuredDepthValues.size())
+                    {
+                        m_curveData->setValuesAndMD(values, measuredDepthValues, wellLogFile->depthUnit(), false);
+                    }
                 }
+            }
+
+            if (m_isUsingAutoName)
+            {
+                m_qwtPlotCurve->setTitle(createCurveAutoName());
             }
         }
 
-        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
         if (wellLogPlot)
         {
             displayUnit = wellLogPlot->depthUnit();
         }
-
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        {
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        }
+        else
+        {
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        }
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         updateZoomInParentPlot();
@@ -140,9 +185,25 @@ void RimWellLogFileCurve::setWellPath(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellLogFileCurve::wellPath() const
+{
+    return m_wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::setWellLogChannelName(const QString& name)
 {
     m_wellLogChannnelName = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurve::setWellLogFile(RimWellLogFile* wellLogFile)
+{
+    m_wellLogFile = wellLogFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,13 +215,16 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
-
+    else if (changedField == &m_wellLogFile)
+    {
+        this->loadDataAndUpdate(true);
+    }
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
@@ -173,6 +237,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_wellPath);
+    curveDataGroup->add(&m_wellLogFile);
     curveDataGroup->add(&m_wellLogChannnelName);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
@@ -212,7 +277,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
                 // Only include well paths coming from a well log file
-                if (wellPaths[i]->m_wellLogFile())
+                if (wellPaths[i]->wellLogFiles().size() > 0)
                 {
                     options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), wellPaths[i]));
                 }
@@ -229,14 +294,13 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
     {
         if (m_wellPath())
         {
-            RimWellLogFile* wellLogFile = m_wellPath->m_wellLogFile();
-            if (wellLogFile)
+            if (m_wellLogFile)
             {
-                const caf::PdmChildArrayField<RimWellLogFileChannel*>* fileLogs = wellLogFile->wellLogChannelNames();
+                std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
-                for (size_t i = 0; i < fileLogs->size(); i++)
+                for (size_t i = 0; i < fileLogs.size(); i++)
                 {
-                    QString wellLogChannelName = (*fileLogs)[i]->name();
+                    QString wellLogChannelName = fileLogs[i]->name();
                     options.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
                 }
             }
@@ -248,7 +312,40 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
         }
     }
 
+    if ( fieldNeedingOptions == &m_wellLogFile )
+    {
+        if ( m_wellPath() && m_wellPath->wellLogFiles().size() > 0 )
+        {
+            for ( RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles() )
+            {
+                QFileInfo fileInfo(wellLogFile->fileName());
+                options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
+            }
+        }
+    }
+
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurve::initAfterRead()
+{
+    if (m_wellPath->wellLogFiles().size() == 1)
+    {
+        m_wellLogFile = m_wellPath->wellLogFiles().front();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogFileCurve::isRftPlotChild() const
+{
+    RimWellRftPlot* rftPlot;
+    firstAncestorOrThisOfType(rftPlot);
+    return rftPlot != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,32 +353,49 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::createCurveAutoName()
 {
+    QStringList name;
+    QString unit;
+    bool channelNameAvailable = false;
+
     if (m_wellPath)
     {
-        QString txt;
+        name.push_back(wellName());
+        name.push_back("LAS");
 
-        txt += wellName();
-        txt += " : ";
-        txt += m_wellLogChannnelName;
-
-        RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
-        RigWellLogFile* wellLogFile = logFileInfo ? logFileInfo->wellLogFile() : NULL;
-        if (wellLogFile)
+        if (!m_wellLogChannnelName().isEmpty())
         {
-            RimWellLogPlot* wellLogPlot;
-            firstAncestorOrThisOfType(wellLogPlot);
-            CVF_ASSERT(wellLogPlot);
-
-            QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());
-            if (!unitName.isEmpty())
-            {
-                txt += QString(" [%1]").arg(unitName);
-            }
+            name.push_back(m_wellLogChannnelName);
+            channelNameAvailable = true;
         }
 
-        return txt;
+        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+
+        if (wellLogFile)
+        {
+            if (channelNameAvailable)
+            {
+                RimWellLogPlot* wellLogPlot;
+                firstAncestorOrThisOfType(wellLogPlot);
+                CVF_ASSERT(wellLogPlot);
+                QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());
+
+                if (!unitName.isEmpty())
+                {
+                    name.back() += QString(" [%1]").arg(unitName);
+                }
+            }
+
+            QString date = wellLogFile->date();
+            if (!date.isEmpty())
+            {
+                name.push_back(wellLogFile->date());
+            }
+
+        }
+
+        return name.join(", ");
     }
-    
+
     return "Empty curve";
 }
 
@@ -291,6 +405,14 @@ QString RimWellLogFileCurve::createCurveAutoName()
 QString RimWellLogFileCurve::wellLogChannelName() const
 {
     return m_wellLogChannnelName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogFile* RimWellLogFileCurve::wellLogFile() const
+{
+    return m_wellLogFile();
 }
 
 //--------------------------------------------------------------------------------------------------

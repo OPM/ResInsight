@@ -23,6 +23,10 @@
 
 #include <cstddef>
 #include <vector>
+#include <utility>
+#include <set>
+
+class QDateTime;
 
 
 //==================================================================================================
@@ -31,14 +35,16 @@
 class RigCurveDataTools
 {
 public:
-    static void calculateIntervalsOfValidValues(const std::vector<double>& values, 
-                                                std::vector< std::pair<size_t, size_t> >* intervals,
-                                                bool removeNegativeValues);
+    typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
+
+public:
+    static CurveIntervals calculateIntervalsOfValidValues(const std::vector<double>& values,
+                                                          bool includePositiveValuesOnly);
 
     template <typename T>
     static void getValuesByIntervals(const std::vector<T>& values,
-        const std::vector< std::pair<size_t, size_t> >& intervals,
-        std::vector<T>* filteredValues)
+                                     const CurveIntervals& intervals,
+                                     std::vector<T>* filteredValues)
     {
         CVF_ASSERT(filteredValues);
 
@@ -51,6 +57,11 @@ public:
         }
     }
 
-    static void computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                std::vector< std::pair<size_t, size_t> >* filteredIntervals);
+    static std::vector<std::pair<size_t, size_t>> computePolyLineStartStopIndices(const CurveIntervals& intervals);
+
+public:
+    // Helper methods, available as public to be able to access from unit tests
+
+    static bool isValidValue(double value, bool allowPositiveValuesOnly);
 };
+

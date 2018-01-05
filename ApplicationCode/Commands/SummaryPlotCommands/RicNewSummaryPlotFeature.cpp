@@ -20,21 +20,22 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
+#include "RicEditSummaryPlotFeature.h"
+#include "RicSummaryCurveCreator.h"
+#include "RicSummaryCurveCreatorDialog.h"
+
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainPlotWindow.h"
 
+#include "cvfAssert.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
-
-#include "cvfAssert.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
@@ -44,7 +45,17 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimSummaryPlotCollection* sumPlotColl = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
+    }
+
+    if (sumPlotColl) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,30 +66,18 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
-
-    RimSummaryCase* summaryCase = nullptr;
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    if (selection.size() == 1)
+    if (!dialog->isVisible())
     {
-        summaryCase = selection[0];
+        dialog->show();
     }
     else
     {
-        std::vector<RimSummaryCase*> cases;
-        project->allSummaryCases(cases);
-        if (cases.size() > 0)
-        {
-            summaryCase = cases[0];
-        }
+        dialog->raise();
     }
 
-    createNewSummaryPlot(summaryPlotColl, summaryCase);
+    dialog->updateFromSummaryPlot(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,32 +89,3 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
-{
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->summaryPlots().push_back(plot);
-
-    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots.size()));
-
-    RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
-
-    if (summaryCase)
-    {
-        newCurveFilter->createCurves(summaryCase, RiaApplication::instance()->preferences()->defaultCurveFilter());
-    }
-
-    plot->addCurveFilter(newCurveFilter);
-
-    summaryPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(newCurveFilter);
-        mainPlotWindow->setExpanded(newCurveFilter, true);
-    }
-}

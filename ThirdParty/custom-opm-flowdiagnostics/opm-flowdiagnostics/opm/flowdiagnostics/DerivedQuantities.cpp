@@ -226,23 +226,19 @@ namespace FlowDiagnostics
 
         // Helper for injectorProducerPairFlux().
         double pairFlux(const CellSetValues& tracer,
-                        const CellSet& well_cells,
                         const CellSetValues& inflow_flux,
                         const bool require_inflow)
         {
             double flux = 0.0;
-            for (const int cell : well_cells) {
+            for (const auto inflow : inflow_flux) {
+                const int cell = inflow.first;
                 const auto tracer_iter = tracer.find(cell);
                 if (tracer_iter != tracer.end()) {
                     // Tracer present in cell.
-                    const auto source_iter = inflow_flux.find(cell);
-                    if (source_iter != inflow_flux.end()) {
-                        // Cell has source term.
-                        const double source = source_iter->second;
-                        if ((source > 0.0) == require_inflow) {
-                            // Source term has correct sign.
-                            flux += source * tracer_iter->second;
-                        }
+                    const double source = inflow.second;
+                    if ((source > 0.0) == require_inflow) {
+                        // Source term has correct sign.
+                        flux += source * tracer_iter->second;
                     }
                 }
             }
@@ -268,14 +264,22 @@ namespace FlowDiagnostics
     std::pair<double, double>
     injectorProducerPairFlux(const Toolbox::Forward& injector_solution,
                              const Toolbox::Reverse& producer_solution,
-                             const CellSet& injector_cells,
-                             const CellSet& producer_cells,
-                             const CellSetValues& inflow_flux)
+                             const CellSetID& injector,
+                             const CellSetID& producer,
+                             const std::map<CellSetID, CellSetValues>& inflow_flux)
     {
-        const auto& inj_tracer = injector_solution.fd.concentration(injector_cells.id());
-        const auto& prod_tracer = producer_solution.fd.concentration(producer_cells.id());
-        const double inj_flux = pairFlux(prod_tracer, injector_cells, inflow_flux, true);
-        const double prod_flux = pairFlux(inj_tracer, producer_cells, inflow_flux, false);
+        const auto& inj_tracer = injector_solution.fd.concentration(injector);
+        const auto& prod_tracer = producer_solution.fd.concentration(producer);
+        const auto inj_set_iter = inflow_flux.find(injector);
+        if (inj_set_iter == inflow_flux.end()) {
+            throw std::runtime_error("injectorProducerPairFlux(): Could not find requeste injector set in inflow fluxes.");
+        }
+        const auto prod_set_iter = inflow_flux.find(producer);
+        if (prod_set_iter == inflow_flux.end()) {
+            throw std::runtime_error("injectorProducerPairFlux(): Could not find requested producer set in inflow fluxes.");
+        }
+        const double inj_flux = pairFlux(prod_tracer, inj_set_iter->second, true);
+        const double prod_flux = pairFlux(inj_tracer, prod_set_iter->second, false);
         return { inj_flux, prod_flux };
     }
 

@@ -19,14 +19,21 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
+#include "RimPltPlotCollection.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimViewWindow.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
-#include "RimFlowCharacteristicsPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
 
@@ -37,21 +44,33 @@ RimMainPlotCollection::RimMainPlotCollection()
 {
     CAF_PDM_InitObject("Plots", "", "", "");
 
-    CAF_PDM_InitField(&show, "Show", true, "Show 2D Plot Window", "", "", "");
-    show.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_show, "Show", true, "Show 2D Plot Window", "", "", "");
+    m_show.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogPlotCollection, "WellLogPlotCollection", "",  "", "", "");
     m_wellLogPlotCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_rftPlotCollection, "RftPlotCollection", "", "", "", "");
+    m_rftPlotCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_pltPlotCollection, "PltPlotCollection", "", "", "", "");
+    m_pltPlotCollection.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "");
     m_summaryPlotCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "");
+    m_summaryCrossPlotCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "");
     m_flowPlotCollection.uiCapability()->setUiHidden(true);
 
-    m_wellLogPlotCollection = new RimWellLogPlotCollection();
-    m_summaryPlotCollection = new RimSummaryPlotCollection();
-    m_flowPlotCollection    = new RimFlowPlotCollection();
+    m_wellLogPlotCollection         = new RimWellLogPlotCollection();
+    m_rftPlotCollection             = new RimRftPlotCollection();
+    m_pltPlotCollection             = new RimPltPlotCollection();
+    m_summaryPlotCollection         = new RimSummaryPlotCollection();
+    m_summaryCrossPlotCollection    = new RimSummaryCrossPlotCollection();
+    m_flowPlotCollection            = new RimFlowPlotCollection();
 
 }
 
@@ -60,9 +79,12 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
-    if (m_wellLogPlotCollection())  delete m_wellLogPlotCollection();
-    if (m_summaryPlotCollection())  delete m_summaryPlotCollection();
-    if (m_flowPlotCollection())     delete m_flowPlotCollection();
+    if (m_wellLogPlotCollection())          delete m_wellLogPlotCollection();
+    if (m_rftPlotCollection())              delete m_rftPlotCollection();
+    if (m_pltPlotCollection())              delete m_pltPlotCollection();
+    if (m_summaryPlotCollection())          delete m_summaryPlotCollection();
+    if (m_summaryCrossPlotCollection())     delete m_summaryCrossPlotCollection();
+    if (m_flowPlotCollection())             delete m_flowPlotCollection();
 
 }
 
@@ -79,7 +101,7 @@ void RimMainPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 {
-    return &show;
+    return &m_show;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,9 +115,33 @@ RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
+{
+    return m_rftPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
+{
+    return m_pltPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
 {
     return m_summaryPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection()
+{
+    return m_summaryCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +158,10 @@ RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
+    m_rftPlotCollection()->deleteAllPlots();
+    m_pltPlotCollection()->deleteAllPlots();
     m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
+    m_summaryCrossPlotCollection()->deleteAllChildObjects();
 
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
 }
@@ -124,5 +173,40 @@ void RimMainPlotCollection::deleteAllContainedObjects()
 void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 {
     m_flowPlotCollection()->defaultFlowCharacteristicsPlot()->updateCurrentTimeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::updatePlotsWithFormations()
+{
+    if (m_wellLogPlotCollection)
+    {
+        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        {
+            wellLogPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_pltPlotCollection)
+    {
+        for (RimWellPltPlot* pltPlot : m_pltPlotCollection->pltPlots())
+        {
+            pltPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_rftPlotCollection)
+    {
+        for (RimWellRftPlot* rftPlot : m_rftPlotCollection->rftPlots())
+        {
+            rftPlot->loadDataAndUpdate();
+        }
+    }
+
+    if (m_flowPlotCollection)
+    {
+        m_flowPlotCollection->loadDataAndUpdate();
+    }
 }
 

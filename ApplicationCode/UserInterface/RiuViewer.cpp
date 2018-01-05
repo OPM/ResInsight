@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaColorTools.h"
 
 #include "RimCase.h"
 #include "RimProject.h"
@@ -30,6 +31,7 @@
 #include "RimViewLinker.h"
 
 #include "RivGridBoxGenerator.h"
+#include "RivTernarySaturationOverlayItem.h"
 
 #include "RiuCadNavigation.h"
 #include "RiuGeoQuestNavigation.h"
@@ -761,8 +763,6 @@ void RiuViewer::updateGridBoxData()
         }
 
         m_gridBoxGenerator->createGridBoxParts();
-
-        updateTextAndTickMarkColorForOverlayItems();
     }
 }
 
@@ -772,6 +772,14 @@ void RiuViewer::updateGridBoxData()
 cvf::Model* RiuViewer::gridBoxModel() const
 {
     return m_gridBoxGenerator->model();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateAnnotationItems()
+{
+    updateTextAndTickMarkColorForOverlayItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -790,16 +798,6 @@ cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
     CVF_ASSERT(m_viewerCommands);
 
     return m_viewerCommands->lastPickPositionInDomainCoords();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiuViewer::lastPickedObject() const
-{
-    CVF_ASSERT(m_viewerCommands);
-
-    return m_viewerCommands->currentPickedObject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -869,6 +867,12 @@ void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
         categoryLegend->setColor(contrastColor);
         categoryLegend->setLineColor(contrastColor);
     }
+
+    RivTernarySaturationOverlayItem* ternaryItem = dynamic_cast<RivTernarySaturationOverlayItem*>(legend);
+    if (ternaryItem)
+    {
+        ternaryItem->setAxisLabelsColor(contrastColor);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -899,15 +903,11 @@ void RiuViewer::updateAxisCrossTextColor()
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RiuViewer::computeContrastColor() const
 {
-    cvf::Color3f contrastColor = cvf::Color3f::WHITE;
+    cvf::Color3f contrastColor = RiaColorTools::brightContrastColor();
 
     if (m_rimView.notNull())
     {
-        cvf::Color3f backgroundColor = m_rimView->backgroundColor;
-        if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
-        {
-            contrastColor = cvf::Color3f::BLACK;
-        }
+        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor);
     }
     
     return contrastColor;

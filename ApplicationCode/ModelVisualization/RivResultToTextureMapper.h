@@ -32,32 +32,14 @@
 class RivResultToTextureMapper : public cvf::Object
 {
 public:
-    RivResultToTextureMapper(const cvf::ScalarMapper* scalarMapper, 
+    explicit RivResultToTextureMapper(const cvf::ScalarMapper* scalarMapper, 
         const RigPipeInCellEvaluator* pipeInCellEvaluator) 
         : m_scalarMapper(scalarMapper), m_pipeInCellEvaluator(pipeInCellEvaluator)
     {}
-    
-    cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const
-    {
-        cvf::Vec2f texCoord(0,0);
 
-       if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
-        {
-            texCoord[1] = 1.0f;
-            return texCoord;
-        }
-
-        texCoord = m_scalarMapper->mapToTextureCoord(resultValue);
+    virtual cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const = 0;
   
-        if (!m_pipeInCellEvaluator->isWellPipeInCell(cellIndex))
-        {
-            texCoord[1] = 0; // Set the Y texture coordinate to the opaque line in the texture
-        }
-
-        return texCoord;
-    }
-  
-private:
+protected:
     cvf::cref<cvf::ScalarMapper>      m_scalarMapper;
     cvf::cref<RigPipeInCellEvaluator> m_pipeInCellEvaluator;
 };

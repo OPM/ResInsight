@@ -63,8 +63,8 @@ public:
     virtual ~CmdFeatureManager();
 
     QAction* action(const QString& commandId);
-    QAction* action(const QString& commandId, const QString& actionText);
-
+    QAction* action(const QString& commandId, const QString& customActionText);
+    QAction* actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData);
     void refreshStates(const QStringList& commandIdList = QStringList());
     void refreshEnabledState(const QStringList& commandIdList = QStringList());
     void refreshCheckedState(const QStringList& commandIdList = QStringList());

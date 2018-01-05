@@ -5,11 +5,9 @@ The ert packages
    :maxdepth: 1
 
    util/index.rst
-   config/index.rst
    eclipse/index.rst
    well/index.rst
    geometry/index.rst
-   enkf/index.rst
 
 
 Currently only the package targeted at working with Eclipse files,

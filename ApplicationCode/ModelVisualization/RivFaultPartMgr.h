@@ -35,10 +35,10 @@ namespace cvf
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-class RimFaultCollection;
+class RimFaultInViewCollection;
 class RigGridBase;
-class RimFaultCollection;
-class RimFault;
+class RimFaultInViewCollection;
+class RimFaultInView;
 class RivFaultGeometryGenerator;
 class RivNNCGeometryGenerator;
 
@@ -51,7 +51,7 @@ class RivNNCGeometryGenerator;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
@@ -70,7 +70,7 @@ private:
     void generatePartGeometry();
     void updatePartEffect();
 
-    void updateNNCColors(RimEclipseCellColors* cellResultColors);
+    void updateNNCColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
     caf::FaceCulling faceCullingMode() const;
     
@@ -79,8 +79,8 @@ private:
     static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
 private:
     cvf::cref<RigGridBase>      m_grid;
-    const RimFault*             m_rimFault;
-    const RimFaultCollection*   m_rimFaultCollection;
+    const RimFaultInView*             m_rimFault;
+    const RimFaultInViewCollection*   m_rimFaultCollection;
 
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;

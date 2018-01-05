@@ -41,6 +41,15 @@ PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership) 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmXmlFieldHandle::disableIO()
+{
+    setIOReadable(false);
+    setIOWritable(false);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the classKeyword of the child class type, if this field is supposed to contain pointers 
 /// to PdmObjectHandle derived onbjects. 
 /// Returns empty string if the field is not containig some PdmObjectHandle type

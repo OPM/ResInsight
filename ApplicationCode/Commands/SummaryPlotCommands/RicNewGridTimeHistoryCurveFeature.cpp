@@ -19,9 +19,11 @@
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
+#include "RicWellLogTools.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimEclipseCellColors.h"
@@ -30,9 +32,7 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -67,7 +67,7 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 
     plot->addGridTimeHistoryCurve(newCurve);
 
-    newCurve->loadDataAndUpdate();
+    newCurve->loadDataAndUpdate(true);
 
     plot->updateConnectedEditors();
 
@@ -81,14 +81,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
     const QString lastUsedSummaryPlotKey("lastUsedSummaryPlotKey");
 
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
@@ -127,10 +120,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     RimSummaryPlot* summaryPlot = nullptr;
     if (featureUi.isCreateNewPlotChecked())
     {
-        RimSummaryPlot* plot = new RimSummaryPlot();
-        summaryPlotColl->summaryPlots().push_back(plot);
-
-        plot->setDescription(featureUi.newPlotName());
+        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot(featureUi.newPlotName());
 
         summaryPlotColl->updateConnectedEditors();
 
@@ -211,6 +201,8 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 //--------------------------------------------------------------------------------------------------
 bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
 {
+    if (RicWellLogTools::isWellPathOrSimWellSelectedInView()) return false;
+
     std::vector<RiuSelectionItem*> items;
     RiuSelectionManager::instance()->selectedItems(items);
 
@@ -219,7 +211,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
         const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(items[0]);
         if (eclSelectionItem)
         {
-            if (eclSelectionItem->m_view->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+            if (eclSelectionItem->m_view->cellResult()->isFlowDiagOrInjectionFlooding() && eclSelectionItem->m_view->cellResult()->resultVariable() != RIG_NUM_FLOODED_PV)
             {
                 return false;
             }

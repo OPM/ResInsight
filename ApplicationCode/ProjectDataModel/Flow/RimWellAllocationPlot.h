@@ -27,15 +27,16 @@
 
 #include <QPointer>
 
+class RigSimWellData;
 class RimEclipseResultCase;
-class RimEclipseWell;
 class RimFlowDiagSolution;
+class RimSimWellInView;
+class RimTofAccumulatedPhaseFractionsPlot;
 class RimTotalWellAllocationPlot;
 class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
-class RiuWellAllocationPlot;
 class RimWellLogTrack;
-class RigSingleWellResultsData;
+class RiuWellAllocationPlot;
 
 namespace cvf {
     class Color3f;
@@ -60,18 +61,17 @@ public:
     RimWellAllocationPlot();
     virtual ~RimWellAllocationPlot();
 
-    void                                            setFromSimulationWell(RimEclipseWell* simWell);
+    void                                            setFromSimulationWell(RimSimWellInView* simWell);
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
-
-    virtual void                                    loadDataAndUpdate() override;
 
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
+    RimTofAccumulatedPhaseFractionsPlot*            tofAccumulatedPhaseFractionsPlot();
     caf::PdmObject*                                 plotLegend();
     RimEclipseResultCase*                           rimCase();
     int                                             timeStep();
@@ -94,11 +94,12 @@ protected:
 
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    onLoadDataAndUpdate() override;
 
 private:
     void                                            updateFromWell();
 
-    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults);
+    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSimWellData* simWellData);
 
     void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
 
@@ -117,9 +118,13 @@ private:
 
     cvf::Color3f                                    getTracerColor(const QString& tracerName);
 
+    void                                            updateFormationNamesData() const;
+
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
+
+    caf::PdmField<bool>                             m_branchDetection;
 
     caf::PdmPtrField<RimEclipseResultCase*>         m_case;
     caf::PdmField<QString>                          m_wellName;
@@ -134,4 +139,5 @@ private:
     caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
     caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
     caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
+    caf::PdmChildField<RimTofAccumulatedPhaseFractionsPlot*> m_tofAccumulatedPhaseFractionsPlot;
 };

@@ -18,17 +18,7 @@
 
 #include "RimSummaryPlotCollection.h"
 
-#include "RifEclipseSummaryTools.h"
-#include "RifReaderEclipseSummary.h"
-
-#include "RimEclipseResultCase.h"
 #include "RimSummaryPlot.h"
-#include "RimProject.h"
-
-#include "RiuProjectPropertyView.h"
-
-#include <QDockWidget>
-#include "RiuMainWindow.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlotCollection, "SummaryPlotCollection");
@@ -42,7 +32,6 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 
     CAF_PDM_InitFieldNoDefault(&summaryPlots, "SummaryPlots", "Summary Plots",  "", "", "");
     summaryPlots.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,72 +40,30 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 RimSummaryPlotCollection::~RimSummaryPlotCollection()
 {
     summaryPlots.deleteAllChildObjects();
-
-    for (auto it = m_summaryFileReaders.begin(); it != m_summaryFileReaders.end(); it++)
-    {
-        delete it->second;
-    }
-    m_summaryFileReaders.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename)
+RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 {
-    auto it = m_summaryFileReaders.find(eclipseCaseFilePathBasename);
-    if (it != m_summaryFileReaders.end())
-    {
-        return it->second;
-    }
-    else
-    {
-        return createSummaryFileReader(eclipseCaseFilePathBasename);
-    }
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle(true);
+    summaryPlots.push_back(plot);
+
+    return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase)
+RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot(const QString& name)
 {
-    if (!eclipseCase) return NULL;
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    summaryPlots.push_back(plot);
+    plot->setDescription(name);
 
-    QString caseName = eclipseCase->gridFileName();
-    QString caseNameWithNoExtension = caseName.remove(".egrid", Qt::CaseInsensitive);
-
-    QString caseNameAbsPath = caseNameWithNoExtension.replace("/", "\\");
-
-    return this->getOrCreateSummaryFileReader(caseNameAbsPath);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const QString& eclipseCaseFilePathBasename)
-{
-    std::string headerFile;
-    bool isFormatted = false;
-    RifEclipseSummaryTools::findSummaryHeaderFile(eclipseCaseFilePathBasename.toStdString(), &headerFile, &isFormatted);
-    
-    if (headerFile.empty()) return nullptr;
-
-    std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(eclipseCaseFilePathBasename.toStdString());
-
-    if (!dataFiles.size()) return nullptr;
-
-    RifReaderEclipseSummary* reader = new RifReaderEclipseSummary;
-    if (!reader->open(headerFile, dataFiles))
-    {
-        delete reader;
-
-        return nullptr;
-    }
-    else
-    {
-        m_summaryFileReaders.insert(std::make_pair(eclipseCaseFilePathBasename, reader));
-        return reader;
-    }
+    return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +74,20 @@ void RimSummaryPlotCollection::updateSummaryNameHasChanged()
     for (RimSummaryPlot* plot : summaryPlots)
     {
         plot->updateCaseNameHasChanged();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const
+{
+    for (RimSummaryPlot* plot : summaryPlots())
+    {
+        QIcon icon = plot->uiCapability()->uiIcon();
+        QString displayName = plot->description();
+
+        optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));
     }
 }
 

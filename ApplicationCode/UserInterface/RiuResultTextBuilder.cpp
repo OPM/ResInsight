@@ -25,7 +25,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -340,7 +340,7 @@ QString RiuResultTextBuilder::nncResultText()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT(nncData);
 
-            if (nncData)
+            if (nncData && m_nncIndex < nncData->connections().size())
             {
                 const RigConnection& conn = nncData->connections()[m_nncIndex];
                 cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
@@ -348,8 +348,21 @@ QString RiuResultTextBuilder::nncResultText()
                 if (m_reservoirView->currentFaultResultColors())
                 {
                     size_t scalarResultIdx = m_reservoirView->currentFaultResultColors()->scalarResultIndex();
-                    const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
-                    if (nncValues)
+                    RiaDefines::ResultCatType resultType = m_reservoirView->currentFaultResultColors()->resultType();
+                    const std::vector<double>* nncValues = nullptr;
+                    if (resultType == RiaDefines::STATIC_NATIVE)
+                    {
+                        nncValues = nncData->staticConnectionScalarResult(scalarResultIdx);
+                    }
+                    else if (resultType == RiaDefines::DYNAMIC_NATIVE)
+                    {
+                        if (m_reservoirView.notNull() && m_reservoirView->eclipseCase())
+                        {
+                            size_t nativeTimeStep = m_reservoirView->eclipseCase()->uiToNativeTimeStepIndex(m_timeStepIndex);
+                            nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx, nativeTimeStep);
+                        }
+                    }
+                    if (nncValues && (m_nncIndex < nncValues->size()))
                     {
                         QString resultVar = m_reservoirView->currentFaultResultColors()->resultVariableUiName();
                         double scalarValue = (*nncValues)[m_nncIndex];
@@ -374,15 +387,15 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         return;
     }
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
+    RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
     if (resultColors->isTernarySaturationSelected())
     {
-        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
+        RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         if (gridCellResults)
         {
-            size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-            size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-            size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+            size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+            size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
             cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, soilScalarSetIndex);
             cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, sgasScalarSetIndex);
@@ -407,13 +420,11 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
     }
     else if (resultColors->hasResult())
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
-
         if (resultColors->hasStaticResult())
         {
-            if (resultColors->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+            if (resultColors->resultVariable().compare(RiaDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedTransmissibilityResultName());
+                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedTransmissibilityResultName());
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
@@ -427,9 +438,9 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
 
                 return;
             }
-            else if (resultColors->resultVariable().compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+            else if (resultColors->resultVariable().compare(RiaDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> multResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedMultResultName());
+                cvf::ref<RigResultAccessor> multResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedMultResultName());
                 {
                     double scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("MULTX : %1\n").arg(scalarValue));
@@ -449,9 +460,9 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
 
                 return;
             }
-            else if (resultColors->resultVariable().compare(RimDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
+            else if (resultColors->resultVariable().compare(RiaDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiTranResultName());
+                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiTranResultName());
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riTran X : %1\n").arg(scalarValue));
@@ -465,9 +476,9 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             
                 return;
             }
-            else if (resultColors->resultVariable().compare(RimDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
+            else if (resultColors->resultVariable().compare(RiaDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiMultResultName());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiMultResultName());
                 {
                     double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riMult X : %1\n").arg(scalarValue));
@@ -481,9 +492,9 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
 
                 return;
             }
-            else if (resultColors->resultVariable().compare(RimDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
+            else if (resultColors->resultVariable().compare(RiaDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiAreaNormTranResultName());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiAreaNormTranResultName());
                 {
                     double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riTransByArea X : %1\n").arg(scalarValue));
@@ -539,7 +550,7 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
                     adjustedTimeStep = 0;
                 }
 
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_reservoirView->cellResult()->porosityModel());
+                RiaDefines::PorosityModelType porosityModel = m_reservoirView->cellResult()->porosityModel();
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->eclipseCaseData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
                 if (resultAccessor.notNull())
                 {
@@ -574,7 +585,7 @@ QString RiuResultTextBuilder::nncDetails()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT(nncData);
 
-            if (nncData)
+            if (nncData && m_nncIndex < nncData->connections().size())
             {
                 text += "-- NNC details --\n";
                 {
@@ -659,14 +670,14 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
 
         if (resultColors->isTernarySaturationSelected())
         {
-            RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
+            RigCaseCellResultsData* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
             if (gridCellResults)
             {
-                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
+                RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
 
                 cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, soilScalarSetIndex);
                 cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, sgasScalarSetIndex);
@@ -731,10 +742,10 @@ QString RiuResultTextBuilder::wellResultText()
     if (m_reservoirView->eclipseCase() &&
         m_reservoirView->eclipseCase()->eclipseCaseData() )
     {
-        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoirView->eclipseCase()->eclipseCaseData()->wellResults();
-        for (size_t i = 0; i < wellResults.size(); i++)
+        cvf::Collection<RigSimWellData> simWellData = m_reservoirView->eclipseCase()->eclipseCaseData()->wellResults();
+        for (size_t i = 0; i < simWellData.size(); i++)
         {
-            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
+            RigSimWellData* singleWellResultData = simWellData.at(i);
 
             if (!singleWellResultData->hasWellResult(m_timeStepIndex))
             {

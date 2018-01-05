@@ -57,6 +57,9 @@ public:
 
     const std::vector<int>&                 uniqueCellScalarValues();
     const std::vector<int>&                 uniqueCellScalarValues(size_t timeStepIndex);
+    
+    void                                    mobileVolumeWeightedMean(double& mean);
+    void                                    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
 
 private:
     void                                    computeHistogramStatisticsIfNeeded();
@@ -70,18 +73,20 @@ private:
     {
         StatisticsValues()
         {
-            m_minValue                  = HUGE_VAL;
-            m_maxValue                  = -HUGE_VAL;
-            m_isMaxMinCalculated        = false;
-            m_meanValue                 = HUGE_VAL;
-            m_isMeanCalculated          = false;
-            m_posClosestToZero          = HUGE_VAL;
-            m_negClosestToZero          = -HUGE_VAL;
-            m_isClosestToZeroCalculated = false;
-            m_p10                       = HUGE_VAL;
-            m_p90                       = HUGE_VAL;
-            m_valueSum                  = 0.0;
-            m_isValueSumCalculated      = false;
+            m_minValue                       = HUGE_VAL;
+            m_maxValue                       = -HUGE_VAL;
+            m_isMaxMinCalculated             = false;
+            m_meanValue                      = HUGE_VAL;
+            m_isMeanCalculated               = false;
+            m_posClosestToZero               = HUGE_VAL;
+            m_negClosestToZero               = -HUGE_VAL;
+            m_isClosestToZeroCalculated      = false;
+            m_p10                            = HUGE_VAL;
+            m_p90                            = HUGE_VAL;
+            m_valueSum                       = 0.0;
+            m_isValueSumCalculated           = false;
+            m_volumeWeightedMean             = HUGE_VAL;
+            m_isVolumeWeightedMeanCalculated = false;
         }
 
         double              m_minValue;
@@ -100,6 +105,9 @@ private:
 
         double              m_valueSum;
         bool                m_isValueSumCalculated;
+
+        double              m_volumeWeightedMean;
+        bool                m_isVolumeWeightedMeanCalculated;
 
         std::vector<size_t> m_histogram;
         std::vector<int>    m_uniqueValues;
