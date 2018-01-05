@@ -120,7 +120,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                    if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
+                    if (changedField == &azimuthAngle && (fabs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
                     {
                         fracture->azimuth = azimuthAngle;
                     }
@@ -152,15 +152,15 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         {
             if (fracture->fractureTemplate() == this)
             {
-                if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
+                if (changedField == &perforationLength && (fabs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
                 {
                     fracture->perforationLength = perforationLength;
                 }
-                if (changedField == &perforationEfficiency && (abs(oldValue.toDouble() - fracture->perforationEfficiency()) < 1e-5))
+                if (changedField == &perforationEfficiency && (fabs(oldValue.toDouble() - fracture->perforationEfficiency()) < 1e-5))
                 {
                     fracture->perforationEfficiency = perforationEfficiency;
                 }
-                if (changedField == &wellDiameter && (abs(oldValue.toDouble() - fracture->wellDiameter()) < 1e-5))
+                if (changedField == &wellDiameter && (fabs(oldValue.toDouble() - fracture->wellDiameter()) < 1e-5))
                 {
                     fracture->wellDiameter = wellDiameter;
                 }

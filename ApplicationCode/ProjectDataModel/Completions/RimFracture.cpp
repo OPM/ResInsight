@@ -213,7 +213,7 @@ cvf::Vec3d RimFracture::fracturePosition() const
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellFractureAzimuthDiff() const
 {
-    double wellDifference = abs(wellAzimuthAtFracturePosition() - azimuth);
+    double wellDifference = fabs(wellAzimuthAtFracturePosition() - azimuth);
     return wellDifference;
 }
 

@@ -461,7 +461,7 @@ bool RigStimPlanFractureDefinition::timeStepExisist(double timeStepValueToCheck)
 {
     for (double timeStep : m_timeSteps)
     {
-        if (abs(timeStepValueToCheck - timeStep) < 1e-5) return true;
+        if (fabs(timeStepValueToCheck - timeStep) < 1e-5) return true;
     }
     return false;
 }
@@ -487,7 +487,7 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
     size_t index = 0;
     while (index < m_timeSteps.size())
     {
-        if (abs(m_timeSteps[index] - timeStepValue) < 1e-4)
+        if (fabs(m_timeSteps[index] - timeStepValue) < 1e-4)
         {
             return index;
         }
