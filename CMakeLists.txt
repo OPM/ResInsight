@@ -56,7 +56,8 @@ include (ResInsightVersion.cmake)
 # https://github.com/sakra/cotire
 ################################################################################
 
-option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
+option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
 if(RESINSIGHT_ENABLE_COTIRE)
     set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -142,10 +143,12 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 # HDF5
 ################################################################################
 if(MSVC)
-    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
+    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
 endif()
 
 option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
@@ -413,7 +416,9 @@ set_property(TARGET
 set (RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
-option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
+option (RESINSIGHT_PRIVATE_INSTALL "Linux only: Install the libecl shared libraries along the executable" ON)
+mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
+
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     

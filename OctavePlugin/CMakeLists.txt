@@ -44,7 +44,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (QT_LIBRARY_POSTFIX 4)
 
     if (CMAKE_CL_64)
-        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Set 32-bit MSVC compiler environment while while running mkoctfile" OFF)
+        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Windows Only: Set 32-bit MSVC compiler environment while running mkoctfile" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
     endif()
 endif()
 
@@ -89,7 +90,7 @@ else()
 endif()
 
 
-set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of Qt to use when compiling Octave plugins. Must be compatible with octave runtime. (Use the Qt embedded in Octave)( The qmake.exe itself is not used, only the path to the directory.)")
+set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Windows Only: Set this equal to RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE")
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 

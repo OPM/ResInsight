@@ -169,7 +169,7 @@ add_subdirectory(ResultStatisticsCache)
 #
 # Odb api
 #
-set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Path to the ODB api from Simulia")
+set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models")
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "") 
 	add_definitions(-DUSE_ODB_API)
 	add_subdirectory(GeoMech/OdbReader)
