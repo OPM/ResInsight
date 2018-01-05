@@ -260,15 +260,17 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_showFormations || changedField == &m_formationSource)
     {
-        bool validWellPathChosen = false;
-        std::vector<RimWellPath*> wellPaths;
-        RimTools::wellPathWithFormations(&wellPaths);
-        for (RimWellPath* wellPath : wellPaths)
+        if (changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER)
         {
-            if (wellPath == m_formationWellPathForSourceCase)
+            std::vector<RimWellPath*> wellPaths;
+            RimTools::wellPathWithFormations(&wellPaths);
+            for (RimWellPath* wellPath : wellPaths)
             {
-                m_formationWellPathForSourceWellPath = m_formationWellPathForSourceCase();
-                break;
+                if (wellPath == m_formationWellPathForSourceCase)
+                {
+                    m_formationWellPathForSourceWellPath = m_formationWellPathForSourceCase();
+                    break;
+                }
             }
         }
 
@@ -284,8 +286,8 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         else
         {
             RimWellPltPlot* pltPlot(nullptr);
-
             firstAncestorOrThisOfType(pltPlot);
+
             if (pltPlot)
             {
                 pltPlot->updateConnectedEditors();
@@ -362,7 +364,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
     if (fieldNeedingOptions == &m_formationWellPathForSourceCase)
     {
         RimTools::wellPathOptionItems(&options);
-
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
     else if (fieldNeedingOptions == &m_formationWellPathForSourceWellPath)

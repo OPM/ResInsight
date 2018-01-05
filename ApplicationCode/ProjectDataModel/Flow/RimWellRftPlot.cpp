@@ -242,7 +242,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 
         RimCase* formationNamesCase = m_wellLogPlot->trackByIndex(0)->formationNamesCase();
 
-        if ( !formationNamesCase )
+        if (!formationNamesCase)
         {
             /// Set default case. Todo : Use the first of the selected cases in the plot
             std::vector<RimCase*> cases;
