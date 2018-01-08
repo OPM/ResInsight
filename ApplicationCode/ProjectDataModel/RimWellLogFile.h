@@ -72,6 +72,8 @@ public:
 
     RimWellLogFile::WellFlowCondition    wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
+    void                                 updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
 private:
     virtual void                         setupBeforeSave() override;
     virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

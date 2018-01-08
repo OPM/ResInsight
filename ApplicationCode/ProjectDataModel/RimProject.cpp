@@ -52,6 +52,8 @@
 #include "RimMultiSnapshotDefinition.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
+#include "RimPltPlotCollection.h"
+#include "RimRftPlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -59,12 +61,11 @@
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimRftPlotCollection.h"
-#include "RimPltPlotCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
-#include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
 #include "RiuMainPlotWindow.h"
@@ -470,6 +471,15 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
+    {
+        std::vector<RimWellLogFile*> rimWellLogFiles;
+        this->descendantsIncludingThisOfType(rimWellLogFiles);
+
+        for (auto rimWellLogFile : rimWellLogFiles)
+        {
+            rimWellLogFile->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+    }
 
     wellPathImport->updateFilePaths();
 }
