@@ -449,6 +449,11 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         cases[i]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
 
+    for (RimSummaryCase* summaryCase : allSummaryCases())
+    {
+        summaryCase->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+    }
+
     // Update path to well path file cache
     for(RimOilField* oilField: oilFields)
     {
