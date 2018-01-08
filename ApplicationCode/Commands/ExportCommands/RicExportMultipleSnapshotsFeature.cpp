@@ -238,8 +238,9 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
         if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
         {
             QString fileName = viewCaseResultString + "_" + timeStepString;
+            fileName.replace(" ", "_");
+
             QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-            absoluteFileName.replace(" ", "_");
 
             RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
         }
@@ -274,9 +275,9 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
                 }
 
                 rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
+                fileName.replace(" ", "_");
              
                 QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-                absoluteFileName.replace(" ", "_");
 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
             }
