@@ -45,6 +45,7 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
     addItem(RIG_ELEMENT_NODAL_FACE, "ELEMENT_NODAL_FACE", "Element Nodal On Face");
     addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
+    addItem(RIG_ELEMENT, "ELEMENT", "Element");
     setDefault(RIG_NODAL);
 }
 }
