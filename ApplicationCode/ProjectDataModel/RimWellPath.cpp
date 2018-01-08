@@ -621,6 +621,18 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     {
         filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, nullptr, nullptr);
     }
+
+    {
+        bool                 foundFile = false;
+        std::vector<QString> searchedPaths;
+
+        QString fileNameCandidate = RimTools::relocateFile(m_wellPathFormationFilePath, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        if (foundFile)
+        {
+            m_wellPathFormationFilePath = fileNameCandidate;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
