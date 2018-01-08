@@ -192,6 +192,7 @@ void RiuMainPlotWindow::createMenus()
     importMenu->addSeparator();
 #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     importMenu->addSeparator();
 #endif
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
