@@ -70,11 +70,11 @@ private:
     // Overridden PDM methods
 
     virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                            bool * useOptionsOnly);
+                                                                            bool * useOptionsOnly) override;
     virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                                        const QVariant& oldValue, 
-                                                                       const QVariant& newValue);
-    virtual void                                      initAfterRead();
+                                                                       const QVariant& newValue) override;
+    virtual void                                      initAfterRead() override;
 
     // Metadata and option build tools
 
