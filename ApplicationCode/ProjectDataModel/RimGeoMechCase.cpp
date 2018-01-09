@@ -60,6 +60,7 @@ RimGeoMechCase::RimGeoMechCase(void)
     CAF_PDM_InitField(&m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "");
     CAF_PDM_InitField(&m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -470,10 +471,12 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
    uiOrdering.add(&caseId);
    uiOrdering.add(&m_caseFileName);
 
-   auto group = uiOrdering.addNewGroup("Case Options");
-   group->add(&activeFormationNames);
-   group->add(&m_cohesion);
-   group->add(&m_frictionAngleDeg);
+   caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup("Case Options");
+   caseGroup->add(&activeFormationNames);
+   caseGroup->add(&m_cohesion);
+   caseGroup->add(&m_frictionAngleDeg);
 
+   caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
+   elmPropGroup->add(&m_elementPropertyFileNames);
 }
 

@@ -89,4 +89,5 @@ private:
     caf::PdmField<QString>                  m_caseFileName;
     caf::PdmField<double>                   m_cohesion;
     caf::PdmField<double>                   m_frictionAngleDeg;
+    caf::PdmField<std::vector<QString> >    m_elementPropertyFileNames;
 };
