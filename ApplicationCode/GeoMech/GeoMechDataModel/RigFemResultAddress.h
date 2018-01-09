@@ -66,7 +66,8 @@ public:
                             || resultPosType == RIG_ELEMENT_NODAL 
                             || resultPosType == RIG_INTEGRATION_POINT
                             || resultPosType == RIG_ELEMENT_NODAL_FACE
-                            || resultPosType == RIG_FORMATION_NAMES;
+                            || resultPosType == RIG_FORMATION_NAMES
+                            || resultPosType == RIG_ELEMENT;
         bool isFieldValid = fieldName != "";
 
         return isTypeValid && isFieldValid;

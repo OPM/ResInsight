@@ -92,8 +92,6 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
-
-    m_caseName = "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,9 +572,9 @@ void RimEclipseResultCase::initAfterRead()
     // Convert from old (9.0.2) way of storing the case file
     if (caseFileName().isEmpty())
     {
-        if (!this->caseName().isEmpty() && !caseDirectory().isEmpty())
+        if (!this->m_caseName_OBSOLETE().isEmpty() && !caseDirectory().isEmpty())
         {
-            caseFileName = QDir::fromNativeSeparators(caseDirectory()) + "/" + caseName() + ".EGRID";
+            caseFileName = QDir::fromNativeSeparators(caseDirectory()) + "/" + m_caseName_OBSOLETE() + ".EGRID";
         }
     }
 }
