@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimSummaryPlot.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"

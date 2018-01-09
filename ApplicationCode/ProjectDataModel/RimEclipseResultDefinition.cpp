@@ -35,7 +35,7 @@
 #include "RimFlowDiagSolution.h"
 #include "RimPlotCurve.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinker.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimWellLogExtractionCurve.h"
@@ -377,7 +377,7 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadDataAndUpdate()
 {
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     loadResult();
@@ -737,7 +737,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     {
         size_t timeStep = 0;
 
-        RimView* rimView = nullptr;
+        Rim3dView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

@@ -145,7 +145,7 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     updateLabelText();
     updateLegend();
 
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     if (view)

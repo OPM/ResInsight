@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinker.h"
 
 CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi");
@@ -40,11 +40,11 @@ RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<RimView*>& allViews)
+void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<Rim3dView*>& allViews)
 {
     m_allViews = allViews;
 
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
     // Set Active view as master view
     for (size_t i = 0; i < allViews.size(); i++)
@@ -65,7 +65,7 @@ void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<RimView*>& allView
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RicLinkVisibleViewsFeatureUi::masterView()
+Rim3dView* RicLinkVisibleViewsFeatureUi::masterView()
 {
     return m_masterView;
 }
@@ -79,7 +79,7 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
 
     if (fieldNeedingOptions == &m_masterView)
     {
-        for (RimView* v : m_allViews)
+        for (Rim3dView* v : m_allViews)
         {
             RimCase* rimCase = nullptr;
             v->firstAncestorOrThisOfType(rimCase);

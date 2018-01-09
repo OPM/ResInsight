@@ -70,12 +70,12 @@ namespace caf
 ///  
 ///  
 //==================================================================================================
-class RimView : public RimViewWindow
+class Rim3dView : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimView(void);
-    virtual ~RimView(void);
+    Rim3dView(void);
+    virtual ~Rim3dView(void);
 
     // 3D Viewer
     RiuViewer*                              viewer();

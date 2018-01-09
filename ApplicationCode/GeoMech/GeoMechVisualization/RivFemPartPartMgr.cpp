@@ -299,7 +299,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             }
         }
 
-        RimView* view = NULL;
+        Rim3dView* view = NULL;
         cellResultColors->firstAncestorOrThisOfType(view);
         CVF_ASSERT(view);
 

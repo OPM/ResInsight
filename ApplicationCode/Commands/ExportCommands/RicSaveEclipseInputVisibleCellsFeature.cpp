@@ -30,7 +30,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -174,7 +174,7 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook(QAction* acti
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
     return dynamic_cast<RimEclipseView*>(activeView);
 }

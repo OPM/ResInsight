@@ -306,7 +306,7 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
     if (!hasSourSimFile())
     {
         // Deselect SourSimRL cell results
-        for (RimView* view : views())
+        for (Rim3dView* view : views())
         {
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
             if (eclipseView != nullptr)

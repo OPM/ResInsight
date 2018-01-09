@@ -20,7 +20,7 @@
 #include "RicTogglePerspectiveViewFeature.h"
 
 #include "RiuViewer.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
 

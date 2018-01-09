@@ -94,7 +94,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
     {
         modifiedView->createDisplayModelAndRedraw();
 
-        std::vector<RimView*> viewsToUpdate;
+        std::vector<Rim3dView*> viewsToUpdate;
         viewsToUpdate.push_back(modifiedView);
 
         RimViewManipulator::applySourceViewCameraOnDestinationViews(eclipseView, viewsToUpdate);

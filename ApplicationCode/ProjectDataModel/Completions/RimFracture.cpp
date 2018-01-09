@@ -47,7 +47,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanColors.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RivWellFracturePartMgr.h"
 
@@ -80,7 +80,7 @@ void setDefaultFractureColorResult()
 
     for (RimEclipseCase* const eclCase : proj->eclipseCases())
     {
-        for (RimView* const view : eclCase->views())
+        for (Rim3dView* const view : eclCase->views())
         {
             std::vector<RimStimPlanColors*> fractureColors;
             view->descendantsIncludingThisOfType(fractureColors);
@@ -183,7 +183,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &dip ||
         changedField == &tilt)
     {
-        RimView* rimView = nullptr;
+        Rim3dView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

@@ -36,7 +36,7 @@
 #include "RimGeoMechView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuExportMultipleSnapshotsWidget.h"
 #include "RiuViewer.h"
@@ -79,7 +79,7 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
 
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
         if (activeView && proj->multiSnapshotDefinitions.size() == 0)
         {
             dlg.addSnapshotItemFromActiveView();
@@ -116,7 +116,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
     {
         if (!msd->isActive()) continue;
 
-        RimView* sourceView = msd->view();
+        Rim3dView* sourceView = msd->view();
         if (!sourceView) continue;
         if (!sourceView->viewer()) continue;
         
@@ -178,7 +178,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportViewVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicExportMultipleSnapshotsFeature::exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     if (msd->selectedEclipseResults().size() > 0)
     {
@@ -206,7 +206,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariations(RimView* rimView, R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     RimCase* rimCase = rimView->ownerCase();
     CVF_ASSERT(rimCase);
@@ -293,7 +293,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
+QString RicExportMultipleSnapshotsFeature::resultName(Rim3dView* rimView)
 {
     if (dynamic_cast<RimEclipseView*>(rimView))
     {

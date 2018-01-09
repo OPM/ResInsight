@@ -267,7 +267,7 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfTypeAsserted(rimView);
 
     bool isPropertyFilterControlled = false;
@@ -350,7 +350,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     if (resultDefinition->isFlowDiagOrInjectionFlooding())
     {
-        RimView* view;
+        Rim3dView* view;
         this->firstAncestorOrThisOfType(view);
 
         int timeStep = 0;
@@ -446,7 +446,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 
     clearCategories();
 
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(view);
 
     int timeStep = view->currentTimeStep();

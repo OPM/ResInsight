@@ -23,7 +23,7 @@
 #include <vector>
 
 class RimSimWellInView;
-class RimView;
+class Rim3dView;
 class RimWellLogExtractionCurve;
 class RimWellLogFileChannel;
 class RimWellLogFileCurve;
@@ -45,7 +45,7 @@ public:
     static void                       addWellLogChannelsToPlotTrack(RimWellLogTrack*                           plotTrack,
                                                                     const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
     static RimWellPath*               selectedWellPathWithLogFile();
-    static RimWellLogExtractionCurve* addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath,
+    static RimWellLogExtractionCurve* addExtractionCurve(RimWellLogTrack* plotTrack, Rim3dView* view, RimWellPath* wellPath,
                                                          const RimSimWellInView* simWell, int branchIndex,
                                                          bool useBranchDetection);
     static RimWellLogRftCurve*        addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell);

@@ -490,7 +490,7 @@ cvf::Transform* RimGeoMechView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimView::fieldChangedByUi(changedField, oldValue, newValue);
+    Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
 //--------------------------------------------------------------------------------------------------

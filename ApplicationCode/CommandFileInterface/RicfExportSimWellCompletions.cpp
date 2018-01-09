@@ -91,7 +91,7 @@ void RicfExportSimWellCompletions::execute()
 
     // FIXME : Select correct view?
     RimEclipseView* view;
-    for (RimView* v : exportSettings->caseToApply->views())
+    for (Rim3dView* v : exportSettings->caseToApply->views())
     {
         view = dynamic_cast<RimEclipseView*>(v);
         if (view) break;

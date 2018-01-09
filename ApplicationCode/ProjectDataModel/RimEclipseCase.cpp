@@ -266,7 +266,7 @@ void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
 {
     results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
-    for (RimView* view : views())
+    for (Rim3dView* view : views())
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
         if (eclipseView)
@@ -329,8 +329,8 @@ void RimEclipseCase::updateFormationNamesData()
         {
             rigEclipseCase->setActiveFormationNames(nullptr);
         }
-        std::vector<RimView*> views = this->views();
-        for(RimView* view : views)
+        std::vector<Rim3dView*> views = this->views();
+        for(Rim3dView* view : views)
         {
             RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
 
@@ -655,9 +655,9 @@ bool RimEclipseCase::openReserviorCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimView*> RimEclipseCase::views()
+std::vector<Rim3dView*> RimEclipseCase::views()
 {
-    std::vector<RimView*> views;
+    std::vector<Rim3dView*> views;
     for (size_t vIdx = 0; vIdx < reservoirViews.size(); ++vIdx)
     {
         views.push_back(reservoirViews[vIdx]);

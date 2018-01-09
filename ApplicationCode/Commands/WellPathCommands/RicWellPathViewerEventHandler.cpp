@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
@@ -56,7 +56,7 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(uiEvent->firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
-            RimView* rimView = RiaApplication::instance()->activeReservoirView();
+            Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
             if (!rimView) return false;
 
             cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();

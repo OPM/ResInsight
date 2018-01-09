@@ -21,7 +21,7 @@
 #include <QString>
 
 class RimViewWindow;
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 /// 
@@ -32,6 +32,6 @@ public:
     static QString generateSnapshotFileName(RimViewWindow* viewWindow);
 
 private:
-    static QString generateSnapshotFilenameForRimView(RimView* rimView);
-    static QString resultName(RimView* rimView);
+    static QString generateSnapshotFilenameForRimView(Rim3dView* rimView);
+    static QString resultName(Rim3dView* rimView);
 };

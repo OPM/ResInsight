@@ -29,7 +29,7 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafPdmPointer.h"
 
@@ -92,7 +92,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     {
         options.push_back(caf::PdmOptionItemInfo("None", nullptr));
 
-        std::vector<RimView*> views; 
+        std::vector<Rim3dView*> views; 
 
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
@@ -100,13 +100,13 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
         for (RimCase* rimCase : cases)
         {
-            for (RimView* rimView : rimCase->views())
+            for (Rim3dView* rimView : rimCase->views())
             {
                 views.push_back(rimView);
             }
         }
 
-        for (RimView* view : views)
+        for (Rim3dView* view : views)
         {
             QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
             options.push_back(caf::PdmOptionItemInfo(caseAndView, view));

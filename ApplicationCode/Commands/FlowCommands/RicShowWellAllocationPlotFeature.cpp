@@ -25,7 +25,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellAllocationPlot.h"
 
 #include "RiuMainPlotWindow.h"
@@ -57,7 +57,7 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 
     if (wellPathCollection.empty()) return false;
     
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     if (!eclView) return false;
@@ -91,7 +91,7 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
     }
     else if (wellPathCollection.size() > 0)
     {
-        RimView* view = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
         if (!view) return;
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
         if (!eclView) return;

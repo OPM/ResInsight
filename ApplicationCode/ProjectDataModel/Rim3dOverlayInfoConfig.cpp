@@ -47,7 +47,7 @@
 #include "RimGeoMechView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimTools.h"
 
 #include "RiuViewer.h"
@@ -729,7 +729,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
+void Rim3dOverlayInfoConfig::setReservoirView(Rim3dView* ownerReservoirView)
 {
     m_viewDef = ownerReservoirView;
 }

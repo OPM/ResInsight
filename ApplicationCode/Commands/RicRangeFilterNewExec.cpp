@@ -23,7 +23,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 
@@ -77,7 +77,7 @@ void RicRangeFilterNewExec::redo()
 
         RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
         
-        RimView* view = nullptr;
+        Rim3dView* view = nullptr;
         m_cellRangeFilterCollection->firstAncestorOrThisOfTypeAsserted(view);
 
         //Enable display of grid cells, to be able to show generated range filter

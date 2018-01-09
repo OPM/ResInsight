@@ -125,7 +125,7 @@ RiuViewerCommands::~RiuViewerCommands()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::setOwnerView(RimView * owner)
+void RiuViewerCommands::setOwnerView(Rim3dView * owner)
 {
     m_reservoirView = owner;
 }
@@ -160,7 +160,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
         CVF_ASSERT(activeView);
 
         cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();

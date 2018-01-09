@@ -37,7 +37,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RiaSummaryTools.h"
 
 #include "RiuMainPlotWindow.h"
@@ -238,7 +238,7 @@ bool RicPlotProductionRateFeature::isInjector(RimSimWellInView* well)
     RigSimWellData* wRes = well->simWellData();
     if (wRes)
     {
-        RimView* rimView = nullptr;
+        Rim3dView* rimView = nullptr;
         well->firstAncestorOrThisOfTypeAsserted(rimView);
 
         int currentTimeStep = rimView->currentTimeStep();

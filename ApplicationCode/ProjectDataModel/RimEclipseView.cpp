@@ -215,7 +215,7 @@ void RimEclipseView::setVisibleGridPartsWatertight()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimView::fieldChangedByUi(changedField, oldValue, newValue);
+    Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &showInvalidCells)
     {
@@ -1449,7 +1449,7 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimView::defineUiOrdering(uiConfigName, uiOrdering);
+    Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
     cellGroup->add(&showMainGrid);

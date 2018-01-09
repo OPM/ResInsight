@@ -91,7 +91,7 @@ public:
 
     RimCaseCollection*                          parentCaseCollection();
                                                      
-    virtual std::vector<RimView*>               views();
+    virtual std::vector<Rim3dView*>               views();
     virtual QStringList                         timeStepStrings() const override;
     virtual QString                             timeStepName(int frameIdx) const override;
     virtual std::vector<QDateTime>              timeStepDates() const override;

@@ -50,7 +50,7 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 {
-    RimView * activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
 
     if (activeView)
     {

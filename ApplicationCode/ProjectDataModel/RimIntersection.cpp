@@ -32,7 +32,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
@@ -845,7 +845,7 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_crossSectionPartMgr = nullptr;
 
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {

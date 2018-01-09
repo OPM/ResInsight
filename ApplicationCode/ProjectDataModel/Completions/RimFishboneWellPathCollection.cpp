@@ -22,7 +22,7 @@
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigWellPath.h"
 

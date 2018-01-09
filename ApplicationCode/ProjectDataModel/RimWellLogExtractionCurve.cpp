@@ -183,7 +183,7 @@ RimCase* RimWellLogExtractionCurve::rimCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
+void RimWellLogExtractionCurve::setPropertiesFromView(Rim3dView* view)
 {
     m_case = view ? view->ownerCase() : NULL;
 

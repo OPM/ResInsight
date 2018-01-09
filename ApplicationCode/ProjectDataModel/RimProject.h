@@ -47,7 +47,7 @@ class RimObservedData;
 class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
-class RimView;
+class Rim3dView;
 class RimViewLinker;
 class RimViewLinkerCollection;
 class RimWellPath;
@@ -106,8 +106,8 @@ public:
 
     std::vector<RimSummaryCase*>    allSummaryCases() const;
     
-    void            allNotLinkedViews(std::vector<RimView*>& views);
-    void            allVisibleViews(std::vector<RimView*>& views);
+    void            allNotLinkedViews(std::vector<Rim3dView*>& views);
+    void            allVisibleViews(std::vector<Rim3dView*>& views);
 
     void            createDisplayModelAndRedrawAllViews(); 
 

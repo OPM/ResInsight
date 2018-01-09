@@ -21,7 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimCase.h"
 
 #include "RiuViewer.h"
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimView* sourceView, std::vector<RimView*>& destinationViews)
+void RimViewManipulator::applySourceViewCameraOnDestinationViews(Rim3dView* sourceView, std::vector<Rim3dView*>& destinationViews)
 {
     bool setPointOfInterest = false;
     cvf::Vec3d sourceCamUp;
@@ -72,7 +72,7 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimView* source
         sourceSceneBB.transform(trans);
     }
 
-    for (RimView* destinationView : destinationViews)
+    for (Rim3dView* destinationView : destinationViews)
     {
         if (!destinationView) continue;
 

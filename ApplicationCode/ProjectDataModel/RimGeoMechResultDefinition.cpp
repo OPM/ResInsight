@@ -212,7 +212,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);

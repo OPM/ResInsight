@@ -24,7 +24,7 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -60,7 +60,7 @@ bool RicNewPolylineIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
    
     RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(activeView->crossSectionCollection);

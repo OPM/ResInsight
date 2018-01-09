@@ -28,7 +28,7 @@ class RigWellPath;
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimView;
+class Rim3dView;
 class RimWellPath;
 
 //==================================================================================================
@@ -52,7 +52,7 @@ public:
     void            setCase(RimCase* rimCase);
     RimCase*        rimCase() const;
 
-    void            setPropertiesFromView(RimView* view);
+    void            setPropertiesFromView(Rim3dView* view);
 
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;

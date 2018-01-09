@@ -147,7 +147,7 @@ void RimCellRangeFilter::setDefaultValues()
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
     RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
     
@@ -246,7 +246,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     this->firstAncestorOrThisOfTypeAsserted(rimCase);
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid(rimCase);
 
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
     RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
 
@@ -332,7 +332,7 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilter::isRangeFilterControlled() const
 {
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfTypeAsserted(rimView);
 
     bool isRangeFilterControlled = false;

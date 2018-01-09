@@ -23,7 +23,7 @@
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void RicEclipsePropertyFilterNewExec::redo()
 { 
     RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(m_propertyFilterCollection);
 
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     m_propertyFilterCollection->firstAncestorOrThisOfTypeAsserted(view);
 
     //Enable display of grid cells, to be able to show generated property filter

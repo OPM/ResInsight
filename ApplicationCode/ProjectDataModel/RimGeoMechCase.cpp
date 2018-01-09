@@ -194,9 +194,9 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimView*> RimGeoMechCase::views()
+std::vector<Rim3dView*> RimGeoMechCase::views()
 {
-    std::vector<RimView*> views;
+    std::vector<Rim3dView*> views;
     for (size_t vIdx = 0; vIdx < geoMechViews.size(); ++vIdx)
     {
         views.push_back(geoMechViews[vIdx]);
@@ -360,8 +360,8 @@ void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             rigCaseData->femPartResults()->setCalculationParameters(m_cohesion(), cvf::Math::toRadians(m_frictionAngleDeg()));
         }
 
-        std::vector<RimView*> views = this->views();
-        for ( RimView* view : views )
+        std::vector<Rim3dView*> views = this->views();
+        for ( Rim3dView* view : views )
         {
             if ( view  ) // Todo: only those using the variable actively
             {
@@ -388,8 +388,8 @@ void RimGeoMechCase::updateFormationNamesData()
             rigCaseData->femPartResults()->setActiveFormationNames(nullptr);
         }
 
-        std::vector<RimView*> views = this->views();
-        for(RimView* view : views)
+        std::vector<Rim3dView*> views = this->views();
+        for(Rim3dView* view : views)
         {
             RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(view);
 

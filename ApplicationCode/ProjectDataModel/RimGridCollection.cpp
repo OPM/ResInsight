@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGridCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGridCollection, "GridCollection");
@@ -57,7 +57,7 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (changedField == &isActive)
     {
-        RimView* rimView = NULL;
+        Rim3dView* rimView = NULL;
         this->firstAncestorOrThisOfType(rimView);
         CVF_ASSERT(rimView);
 

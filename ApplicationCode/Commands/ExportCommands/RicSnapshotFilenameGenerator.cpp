@@ -19,7 +19,7 @@
 #include "RicSnapshotFilenameGenerator.h"
 
 #include "RimViewWindow.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
@@ -35,7 +35,7 @@
 QString RicSnapshotFilenameGenerator::generateSnapshotFileName(RimViewWindow* viewWindow)
 {
     {
-        RimView* view = dynamic_cast<RimView*>(viewWindow);
+        Rim3dView* view = dynamic_cast<Rim3dView*>(viewWindow);
         if (view != nullptr)
         {
             return generateSnapshotFilenameForRimView(view);
@@ -59,7 +59,7 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFileName(RimViewWindow* vi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(RimView* rimView)
+QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(Rim3dView* rimView)
 {
     QStringList timeSteps = rimView->ownerCase()->timeStepStrings();
     int timeStep = rimView->currentTimeStep();
@@ -79,7 +79,7 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(RimView
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicSnapshotFilenameGenerator::resultName(RimView * rimView)
+QString RicSnapshotFilenameGenerator::resultName(Rim3dView * rimView)
 {
     if (dynamic_cast<RimEclipseView*>(rimView))
     {

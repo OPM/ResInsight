@@ -30,7 +30,7 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtP
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();

@@ -32,7 +32,7 @@
 
 class RimEclipseView;
 class RimGeoMechView;
-class RimView;
+class Rim3dView;
 class RigStatisticsDataCache;
 class RicGridStatisticsDialog;
 
@@ -67,7 +67,7 @@ public:
 
     void update3DInfo();
 
-    void setReservoirView(RimView* ownerView);
+    void setReservoirView(Rim3dView* ownerView);
 
     void setPosition(cvf::Vec2ui position);
 
@@ -120,7 +120,7 @@ private:
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;
 
-    caf::PdmPointer<RimView>                    m_viewDef;
+    caf::PdmPointer<Rim3dView>                    m_viewDef;
 
     cvf::Vec2ui                                 m_position;
     

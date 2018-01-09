@@ -24,7 +24,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 
@@ -97,11 +97,11 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
         RimCase* cas = projectCases[i];
         if (!cas) continue;
 
-        std::vector<RimView*> views = cas->views();
+        std::vector<Rim3dView*> views = cas->views();
 
         for (size_t j = 0; j < views.size(); j++)
         {
-            RimView* riv = views[j];
+            Rim3dView* riv = views[j];
 
             if (riv && riv->viewer())
             {

@@ -18,7 +18,7 @@
 
 #include "RicIntersectionViewerEventHandler.h"
 #include "RimIntersection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -49,7 +49,7 @@ bool RicIntersectionViewerEventHandler::handleEvent(cvf::Object* eventObject)
         {
             RimIntersection* intersection = selection[0];
 
-            RimView* rimView = nullptr;
+            Rim3dView* rimView = nullptr;
             intersection->firstAncestorOrThisOfType(rimView);
             CVF_ASSERT(rimView);
 

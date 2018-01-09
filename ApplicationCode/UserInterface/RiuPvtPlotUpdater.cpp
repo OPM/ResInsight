@@ -28,7 +28,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigCaseCellResultsData.h"
 
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
 
@@ -91,7 +91,7 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged(const RiuSelectionItem* selecti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotUpdater::updateOnTimeStepChanged(RimView* changedView)
+void RiuPvtPlotUpdater::updateOnTimeStepChanged(Rim3dView* changedView)
 {
     if (!m_targetPlotPanel || !m_targetPlotPanel->isVisible())
     {

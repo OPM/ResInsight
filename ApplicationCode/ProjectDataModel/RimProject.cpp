@@ -58,7 +58,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -597,12 +597,12 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
+void RimProject::allNotLinkedViews(std::vector<Rim3dView*>& views)
 {
     std::vector<RimCase*> cases;
     allCases(cases);
 
-    std::vector<RimView*> alreadyLinkedViews;
+    std::vector<Rim3dView*> alreadyLinkedViews;
     if (viewLinkerCollection->viewLinker())
     {
         viewLinkerCollection->viewLinker()->allViews(alreadyLinkedViews);
@@ -613,7 +613,7 @@ void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
         RimCase* rimCase = cases[caseIdx];
         if (!rimCase) continue;
 
-        std::vector<RimView*> caseViews = rimCase->views();
+        std::vector<Rim3dView*> caseViews = rimCase->views();
         for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
         {
             bool isLinked = false;
@@ -635,7 +635,7 @@ void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleViews(std::vector<RimView*>& views)
+void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
 {
     std::vector<RimCase*> cases;
     allCases(cases);
@@ -645,7 +645,7 @@ void RimProject::allVisibleViews(std::vector<RimView*>& views)
         RimCase* rimCase = cases[caseIdx];
         if (!rimCase) continue;
 
-        std::vector<RimView*> caseViews = rimCase->views();
+        std::vector<Rim3dView*> caseViews = rimCase->views();
         for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
         {
             if (caseViews[viewIdx] && caseViews[viewIdx]->viewer())
@@ -667,7 +667,7 @@ void RimProject::createDisplayModelAndRedrawAllViews()
     {
         RimCase* rimCase = cases[caseIdx];
         if (rimCase == NULL) continue;
-        std::vector<RimView*> views = rimCase->views();
+        std::vector<Rim3dView*> views = rimCase->views();
 
         for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
         {
@@ -948,7 +948,7 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
 {
-    std::vector<RimView*> views = eclipseCase->views();
+    std::vector<Rim3dView*> views = eclipseCase->views();
 
     for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
     {

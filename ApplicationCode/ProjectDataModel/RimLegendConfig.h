@@ -46,7 +46,7 @@ namespace caf
     class CategoryMapper;
 }
 
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 ///  

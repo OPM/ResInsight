@@ -557,14 +557,14 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
             CVF_ASSERT(cas);
 
             caseProgress.setProgressDescription(cas->caseUserDescription());
-            std::vector<RimView*> views = cas->views();
+            std::vector<Rim3dView*> views = cas->views();
             { // To delete the view progress before incrementing the caseProgress
                 caf::ProgressInfo viewProgress(views.size(), "Creating Views");
 
                 size_t j;
                 for ( j = 0; j < views.size(); j++ )
                 {
-                    RimView* riv = views[j];
+                    Rim3dView* riv = views[j];
                     CVF_ASSERT(riv);
 
                     viewProgress.setProgressDescription(riv->name());
@@ -1152,7 +1152,7 @@ void RiaApplication::createInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimView* RiaApplication::activeReservoirView() const
+const Rim3dView* RiaApplication::activeReservoirView() const
 {
     return m_activeReservoirView;
 }
@@ -1160,7 +1160,7 @@ const RimView* RiaApplication::activeReservoirView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimView* RiaApplication::activeReservoirView()
+Rim3dView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
 }
@@ -1187,7 +1187,7 @@ RimViewWindow* RiaApplication::activePlotWindow() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveReservoirView(RimView* rv)
+void RiaApplication::setActiveReservoirView(Rim3dView* rv)
 {
     m_activeReservoirView = rv;
 }
@@ -1765,7 +1765,7 @@ void RiaApplication::applyPreferences()
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
 
-        std::vector<RimView*> visibleViews;
+        std::vector<Rim3dView*> visibleViews;
         this->project()->allVisibleViews(visibleViews);
 
         for (auto view : visibleViews)
@@ -2312,7 +2312,7 @@ QString RiaApplication::commandLineParameterHelp() const
 /// Schedule a creation of the Display model and redraw of the reservoir view
 /// The redraw will happen as soon as the event loop is entered
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate)
+void RiaApplication::scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate)
 {
     m_resViewsToUpdate.push_back(resViewToUpdate);
 
@@ -2375,8 +2375,8 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
     // Compress to remove duplicates
     // and update dependent views after independent views
 
-    std::set<RimView*> independent3DViewsToUpdate;
-    std::set<RimView*> dependent3DViewsToUpdate;
+    std::set<Rim3dView*> independent3DViewsToUpdate;
+    std::set<Rim3dView*> dependent3DViewsToUpdate;
 
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
@@ -2388,7 +2388,7 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
             independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
     }
    
-    for (std::set<RimView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
+    for (std::set<Rim3dView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
     {
         if (*it)
         {
@@ -2396,7 +2396,7 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
         }
     }
 
-    for (std::set<RimView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
+    for (std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
     {
         if (*it)
         {
@@ -2414,7 +2414,7 @@ void RiaApplication::slotRecalculateCompletionType()
 {
     std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
 
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     QModelIndex mi = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
 
     for (RimEclipseCase* eclipseCase : uniqueCases)
@@ -2551,11 +2551,11 @@ void RiaApplication::regressionTestConfigureProject()
         RimCase* cas = projectCases[i];
         if (!cas) continue;
 
-        std::vector<RimView*> views = cas->views();
+        std::vector<Rim3dView*> views = cas->views();
 
         for (size_t j = 0; j < views.size(); j++)
         {
-            RimView* riv = views[j];
+            Rim3dView* riv = views[j];
 
             if (riv && riv->viewer())
             {

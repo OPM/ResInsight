@@ -20,7 +20,7 @@
 #include "RimGeoMechCellColors.h"
 
 #include "RimLegendConfig.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -51,7 +51,7 @@ RimGeoMechCellColors::~RimGeoMechCellColors(void)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateIconState()
 {
-    RimView* rimView = NULL;
+    Rim3dView* rimView = NULL;
     this->firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 

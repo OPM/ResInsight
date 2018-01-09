@@ -22,7 +22,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 
@@ -156,7 +156,7 @@ void RimIntersectionCollection::appendIntersection(RimIntersection* intersection
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 
-    RimView* rimView = NULL;
+    Rim3dView* rimView = NULL;
     firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
@@ -179,7 +179,7 @@ void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 {
     if (changedField == &isActive)
     {
-        RimView* rimView = NULL;
+        Rim3dView* rimView = NULL;
         firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

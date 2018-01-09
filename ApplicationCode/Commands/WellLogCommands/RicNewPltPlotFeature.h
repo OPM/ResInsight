@@ -22,7 +22,7 @@
 #include "cafCmdFeature.h"
 
 class RimSimWellInView;
-class RimView;
+class Rim3dView;
 class RimWellLogExtractionCurve;
 class RimWellLogTrack;
 class RimWellPath;

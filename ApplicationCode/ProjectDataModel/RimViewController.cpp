@@ -39,7 +39,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
@@ -101,7 +101,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
     if (fieldNeedingOptions == &m_managedView)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimView*> views;
+        std::vector<Rim3dView*> views;
         proj->allNotLinkedViews(views);
 
         // Add currently linked view to list
@@ -114,7 +114,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         this->firstAncestorOrThisOfType(viewLinker);
         CVF_ASSERT(viewLinker);
 
-        for (RimView* view : views)
+        for (Rim3dView* view : views)
         {
             if (view != viewLinker->masterView())
             {
@@ -212,7 +212,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     else if (changedField == &m_managedView)
     {
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
-        RimView* previousManagedView = dynamic_cast<RimView*>(prevValue);
+        Rim3dView* previousManagedView = dynamic_cast<Rim3dView*>(prevValue);
         RimViewController::removeOverrides(previousManagedView);
 
         setManagedView(m_managedView());
@@ -232,7 +232,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimViewController::managedEclipseView() const
 {
-    RimView* rimView = m_managedView;
+    Rim3dView* rimView = m_managedView;
 
     return dynamic_cast<RimEclipseView*>(rimView);
 }
@@ -242,7 +242,7 @@ RimEclipseView* RimViewController::managedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimViewController::managedGeoView() const
 {
-    RimView* rimView = m_managedView;
+    Rim3dView* rimView = m_managedView;
 
     return dynamic_cast<RimGeoMechView*>(rimView);
 }
@@ -254,7 +254,7 @@ void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
     
-    RimView* masterView = viewLinker->masterView();
+    Rim3dView* masterView = viewLinker->masterView();
 
     CVF_ASSERT(masterView);
     
@@ -343,7 +343,7 @@ void RimViewController::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::removeOverrides(RimView* view)
+void RimViewController::removeOverrides(Rim3dView* view)
 {
     if (view)
     {
@@ -362,7 +362,7 @@ void RimViewController::removeOverrides(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    RimView* mainView = nullptr;
+    Rim3dView* mainView = nullptr;
     
     {
         RimViewLinker* linkedViews = nullptr;
@@ -448,7 +448,7 @@ void RimViewController::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::managedView() const
+Rim3dView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -456,7 +456,7 @@ RimView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::setManagedView(RimView* view)
+void RimViewController::setManagedView(Rim3dView* view)
 {
     m_managedView = view;
 
@@ -644,7 +644,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::masterView() const
+Rim3dView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -1041,7 +1041,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::askUserToRestoreOriginalRangeFilterCollection(const QString& viewName)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
     QMessageBox msgBox(activeView->viewer()->layoutWidget());
     msgBox.setIcon(QMessageBox::Question);

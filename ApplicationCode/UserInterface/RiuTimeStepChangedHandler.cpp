@@ -23,7 +23,7 @@
 #include "RiuPvtPlotPanel.h"
 #include "RiuPvtPlotUpdater.h"
 
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cvfBase.h"
 #include "cvfTrace.h"
@@ -60,7 +60,7 @@ RiuTimeStepChangedHandler* RiuTimeStepChangedHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeStepChangedHandler::handleTimeStepChanged(RimView* changedView) const
+void RiuTimeStepChangedHandler::handleTimeStepChanged(Rim3dView* changedView) const
 {
     //cvf::Trace::show("handleTimeStepChanged()  viewName: %s   timeStep:%d", changedView->name().toLatin1().data(), changedView->currentTimeStep());
     //cvf::DebugTimer tim("handleTimeStepChanged()");

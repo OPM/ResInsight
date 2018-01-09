@@ -22,7 +22,7 @@
 
 #include "RimCase.h"
 #include "RimTools.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafPdmUiFilePathEditor.h"
 

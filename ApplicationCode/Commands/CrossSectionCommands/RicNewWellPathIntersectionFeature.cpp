@@ -24,7 +24,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -56,7 +56,7 @@ bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     std::vector<RimWellPath*> collection;

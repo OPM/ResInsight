@@ -33,7 +33,7 @@
 #include "RimSimWellInView.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -95,7 +95,7 @@ void RicDeleteItemExec::redo()
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();
         
-        RimView* view = NULL;
+        Rim3dView* view = NULL;
         parentObj->firstAncestorOrThisOfType(view);
 
         // Range Filters

@@ -28,7 +28,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 
 #include "RivCellSetEnum.h"

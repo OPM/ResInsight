@@ -28,7 +28,7 @@
 
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPltPlot.h"
 #include "RimWellLogPlot.h"

@@ -30,7 +30,7 @@
 #include "RiuInterfaceToViewWindow.h"
 
 class RicCommandFeature;
-class RimView;
+class Rim3dView;
 class RiuSimpleHistogramWidget;
 class RiuViewerCommands;
 class RivGridBoxGenerator;
@@ -64,8 +64,8 @@ public:
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
-    void            setOwnerReservoirView(RimView * owner);
-    RimView*        ownerReservoirView();
+    void            setOwnerReservoirView(Rim3dView * owner);
+    Rim3dView*        ownerReservoirView();
     RimViewWindow*  ownerViewWindow() const override;
     void            setEnableMask(unsigned int mask);
 
@@ -141,7 +141,7 @@ private:
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
-    caf::PdmPointer<RimView>    m_rimView;
+    caf::PdmPointer<Rim3dView>    m_rimView;
     QPoint                      m_lastMousePressPosition;
 
     RiuViewerCommands*          m_viewerCommands;

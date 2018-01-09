@@ -22,7 +22,7 @@
 #include "RicSaveEclipseResultAsInputPropertyExec.h"
 
 #include "RimEclipseCellColors.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafSelectionManager.h"
 #include "cafCmdExecCommandManager.h"

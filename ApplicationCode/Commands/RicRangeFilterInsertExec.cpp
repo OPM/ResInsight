@@ -21,7 +21,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RiuMainWindow.h"
 
 

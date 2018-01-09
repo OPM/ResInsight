@@ -27,7 +27,7 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFemPartResultsCollection.h"
@@ -83,7 +83,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     
     if (!cases.empty())
     {
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
         RimCase* ownerCase = activeView->ownerCase();
 
         if (ownerCase)

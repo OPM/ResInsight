@@ -29,7 +29,7 @@ class RicViewerEventInterface;
 class RimEclipseView;
 class RimGeoMechView;
 class RimIntersection;
-class RimView;
+class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;
 class RivIntersectionSourceInfo;
@@ -53,7 +53,7 @@ public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
     ~RiuViewerCommands();
 
-    void            setOwnerView(RimView * owner);
+    void            setOwnerView(Rim3dView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
@@ -73,7 +73,7 @@ private:
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
     cvf::Vec3d  m_currentPickPositionInDomainCoords;
 
-    caf::PdmPointer<RimView> m_reservoirView;
+    caf::PdmPointer<Rim3dView> m_reservoirView;
 
     QPointer<RiuViewer> m_viewer;
 

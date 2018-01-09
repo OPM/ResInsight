@@ -193,7 +193,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     bool isPropertyFilterControlled = false;
 
-    RimView* rimView = NULL;
+    Rim3dView* rimView = NULL;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
     if (rimView)

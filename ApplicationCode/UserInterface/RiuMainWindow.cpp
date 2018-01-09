@@ -33,7 +33,7 @@
 #include "RimGeoMechView.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
@@ -751,7 +751,7 @@ void RiuMainWindow::refreshAnimationActions()
     int currentTimeStepIndex = 0;
 
     bool enableAnimControls = false;
-    RimView * activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView && 
         activeView->viewer() &&
         activeView->viewer()->frameCount())
@@ -1078,7 +1078,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     // Find the activated 3D view
     
-    RimView* activatedView = NULL;
+    Rim3dView* activatedView = NULL;
 
     std::vector<RimCase*> allCases;
     proj->allCases(allCases);
@@ -1088,12 +1088,12 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
         RimCase* reservoirCase = allCases[caseIdx];
         if (reservoirCase == NULL) continue;
 
-        std::vector<RimView*> views = reservoirCase->views();
+        std::vector<Rim3dView*> views = reservoirCase->views();
 
         size_t viewIdx;
         for (viewIdx = 0; viewIdx < views.size(); viewIdx++)
         {
-            RimView* riv = views[viewIdx];
+            Rim3dView* riv = views[viewIdx];
 
             if (riv &&
                 riv->viewer() &&
@@ -1107,7 +1107,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     }
 
     {
-        RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
         RiaApplication::instance()->setActiveReservoirView(activatedView);
 
         if (previousActiveReservoirView != activatedView)
@@ -1282,7 +1282,7 @@ void RiuMainWindow::selectedObjectsChanged()
         if (!firstSelectedObject) return;
 
         // First check if we are within a RimView
-        RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+        Rim3dView* selectedReservoirView = dynamic_cast<Rim3dView*>(firstSelectedObject);
         if (!selectedReservoirView)
         {
             firstSelectedObject->firstAncestorOrThisOfType(selectedReservoirView);
@@ -1452,7 +1452,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshDrawStyleActions()
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     bool enable = view != NULL;
 
     m_drawStyleLinesAction->setEnabled(enable);
@@ -1500,7 +1500,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotDisableLightingAction(bool disable)
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (view)
     {
         view->disableLighting(disable);

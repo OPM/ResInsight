@@ -27,7 +27,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigCaseCellResultsData.h"
 
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
 
@@ -91,7 +91,7 @@ void RiuRelativePermeabilityPlotUpdater::updateOnSelectionChanged(const RiuSelec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged(RimView* changedView)
+void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged(Rim3dView* changedView)
 {
     if (!m_targetPlotPanel || !m_targetPlotPanel->isVisible())
     {

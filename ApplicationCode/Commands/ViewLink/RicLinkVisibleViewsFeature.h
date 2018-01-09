@@ -23,7 +23,7 @@
 
 #include <vector>
 
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 /// 
@@ -33,7 +33,7 @@ class RicLinkVisibleViewsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void linkViews(std::vector<RimView*> &views);
+    static void linkViews(std::vector<Rim3dView*> &views);
 
 protected:
     // Overrides
@@ -44,6 +44,6 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup);
 
 private:
-    void findNotLinkedVisibleViews(std::vector<RimView*> &views);
-    void allLinkedViews(std::vector<RimView*>& views);
+    void findNotLinkedVisibleViews(std::vector<Rim3dView*> &views);
+    void allLinkedViews(std::vector<Rim3dView*>& views);
 };

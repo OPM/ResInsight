@@ -25,7 +25,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 
 #include "cafSelectionManager.h"
@@ -40,7 +40,7 @@ bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
     RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
     if (!rangeFilterCollection) return false;
 
-    RimView* view;
+    Rim3dView* view;
     rangeFilterCollection->firstAncestorOrThisOfType(view);
     if (view)
     {
@@ -86,7 +86,7 @@ RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollecti
         selectedRangeFilter[0]->firstAncestorOrThisOfType(rangeFilterCollection);
     }
 
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (view)
     {
         rangeFilterCollection = view->rangeFilterCollection();

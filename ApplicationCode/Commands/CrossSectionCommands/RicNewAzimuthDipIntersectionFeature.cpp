@@ -23,7 +23,7 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -61,7 +61,7 @@ bool RicNewAzimuthDipIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
    
     RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection);

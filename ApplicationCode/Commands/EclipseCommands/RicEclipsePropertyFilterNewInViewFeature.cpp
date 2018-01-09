@@ -26,7 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafCmdExecCommandManager.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterNewInViewFeature, "RicEclipsePropert
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
@@ -64,7 +64,7 @@ bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewInViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return;
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     if (!eclView) return;

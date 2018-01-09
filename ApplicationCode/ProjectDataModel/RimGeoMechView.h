@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -51,7 +51,7 @@ namespace cvf {
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechView : public RimView
+class RimGeoMechView : public Rim3dView
 {
     CAF_PDM_HEADER_INIT;
 

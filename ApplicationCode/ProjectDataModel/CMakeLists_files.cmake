@@ -59,7 +59,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimViewWindow.h
-${CEE_CURRENT_LIST_DIR}RimView.h
+${CEE_CURRENT_LIST_DIR}Rim3dView.h
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimViewController.h
@@ -160,7 +160,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewWindow.cpp
-${CEE_CURRENT_LIST_DIR}RimView.cpp
+${CEE_CURRENT_LIST_DIR}Rim3dView.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewController.cpp

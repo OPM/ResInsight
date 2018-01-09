@@ -254,7 +254,7 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
     CVF_ASSERT(elmVisibilities != NULL);
     CVF_ASSERT(femPart != NULL);
 
-    RimView* masterView = masterViewLink->ownerViewLinker()->masterView();
+    Rim3dView* masterView = masterViewLink->ownerViewLinker()->masterView();
     cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
 
     int elmCount = femPart->elementCount();

@@ -46,12 +46,12 @@ public:
     ~RicGridStatisticsDialog();
 
     void                    setLabel(const QString& labelText);
-    void                    updateFromRimView(RimView* rimView);
+    void                    updateFromRimView(Rim3dView* rimView);
     QImage                  screenShotImage();
 
 private:
-    void                    setInfoText(RimView* eclipseView);
-    void                    setHistogramData(RimView* eclipseView);
+    void                    setInfoText(Rim3dView* eclipseView);
+    void                    setHistogramData(Rim3dView* eclipseView);
 
 private:
     void                    createAndConnectToolbarActions();
@@ -74,5 +74,5 @@ private:
     QwtPlot*                            m_aggregatedPlot;
     QDialogButtonBox*                   m_buttons;
 
-    caf::PdmPointer<RimView>            m_currentRimView;
+    caf::PdmPointer<Rim3dView>            m_currentRimView;
 };

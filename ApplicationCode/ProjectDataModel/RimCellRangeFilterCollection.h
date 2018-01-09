@@ -22,7 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
-class RimView;
+class Rim3dView;
 class RimCellRangeFilter;
 
 namespace cvf {
@@ -58,5 +58,5 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:
-    RimView*                        baseView() const;
+    Rim3dView*                        baseView() const;
 };

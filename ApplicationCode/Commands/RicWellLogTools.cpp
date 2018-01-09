@@ -24,7 +24,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
@@ -173,7 +173,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex, bool useBranchDetection)
+RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, Rim3dView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex, bool useBranchDetection)
 {
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();

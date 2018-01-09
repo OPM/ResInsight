@@ -33,7 +33,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
 
-#include "RimView.h"
+#include "Rim3dView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
@@ -81,7 +81,7 @@ enum PartRenderMaskEnum
 ///  
 ///  
 //==================================================================================================
-class RimEclipseView : public RimView
+class RimEclipseView : public Rim3dView
 {
     CAF_PDM_HEADER_INIT;
 public:

@@ -191,7 +191,7 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     updateLegend();
 
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     if (view)

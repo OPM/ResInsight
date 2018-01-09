@@ -27,7 +27,7 @@
 #include "RimFracture.h"
 #include "RimFractureExportSettings.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"

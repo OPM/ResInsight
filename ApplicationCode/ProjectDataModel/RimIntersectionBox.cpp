@@ -20,7 +20,7 @@
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "IntersectionBoxCommands/RicBoxManipulatorEventHandler.h"
 
@@ -318,7 +318,7 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         if (m_boxManipulator)
         {
-            RimView* rimView = nullptr;
+            Rim3dView* rimView = nullptr;
             this->firstAncestorOrThisOfType(rimView);
 
             if (rimView)
@@ -345,7 +345,7 @@ void RimIntersectionBox::updateBoxManipulatorGeometry()
 {
     if (m_boxManipulator.isNull()) return;
 
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     if (!rimView) return;
 
@@ -470,7 +470,7 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotScheduleRedraw()
 {
-    RimView* rimView = NULL;
+    Rim3dView* rimView = NULL;
     this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
@@ -483,7 +483,7 @@ void RimIntersectionBox::slotScheduleRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size)
 {
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
 
     if (rimView)
@@ -654,7 +654,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
 //--------------------------------------------------------------------------------------------------
 RiuViewer* RimIntersectionBox::viewer()
 {
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
 
     RiuViewer* riuViewer = nullptr;

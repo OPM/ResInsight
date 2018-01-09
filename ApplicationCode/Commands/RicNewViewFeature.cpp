@@ -23,7 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 #include "RiaLogging.h"
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicNewViewFeature, "RicNewViewFeature");
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
-    RimView* newView = createReservoirView(eclipseCase, geomCase);
+    Rim3dView* newView = createReservoirView(eclipseCase, geomCase);
 
     if (newView)
     {
@@ -89,9 +89,9 @@ void RicNewViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
+Rim3dView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
-    RimView* insertedView = NULL;
+    Rim3dView* insertedView = NULL;
 
     if (eclipseCase)
     {

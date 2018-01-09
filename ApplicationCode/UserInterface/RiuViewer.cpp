@@ -26,7 +26,7 @@
 
 #include "RimCase.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -321,7 +321,7 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setOwnerReservoirView(RimView * owner)
+void RiuViewer::setOwnerReservoirView(Rim3dView * owner)
 {
     m_rimView = owner;
     m_viewerCommands->setOwnerView(owner);
@@ -645,7 +645,7 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RiuViewer::ownerReservoirView()
+Rim3dView* RiuViewer::ownerReservoirView()
 {
     return m_rimView;
 }
@@ -746,7 +746,7 @@ void RiuViewer::updateGridBoxData()
 {
     if (ownerReservoirView() && ownerReservoirView()->ownerCase())
     {
-        RimView* rimView = ownerReservoirView();
+        Rim3dView* rimView = ownerReservoirView();
         RimCase* rimCase = rimView->ownerCase();
 
         m_gridBoxGenerator->setScaleZ(rimView->scaleZ);

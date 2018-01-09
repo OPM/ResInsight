@@ -531,7 +531,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
-        if (dynamic_cast<RimView*>(uiItem))
+        if (dynamic_cast<Rim3dView*>(uiItem))
         {
             menuBuilder << "Separator";
             menuBuilder << "RicLinkVisibleViewsFeature";

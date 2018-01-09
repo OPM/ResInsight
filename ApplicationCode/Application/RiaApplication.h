@@ -50,7 +50,7 @@ class RimEclipseCase;
 class RimEclipseView;
 class RimProject;
 class RimSummaryPlot;
-class RimView;
+class Rim3dView;
 class RimViewWindow;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
@@ -99,13 +99,13 @@ public:
 
     void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
 
-    void                    setActiveReservoirView(RimView*);
-    RimView*                activeReservoirView();
-    const RimView*          activeReservoirView() const;
+    void                    setActiveReservoirView(Rim3dView*);
+    Rim3dView*                activeReservoirView();
+    const Rim3dView*          activeReservoirView() const;
 
     RimViewWindow*          activePlotWindow() const;
 
-    void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
+    void                scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate);
     void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
     void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
 
@@ -234,16 +234,16 @@ private slots:
     // Friend classes required to have access to slotUpdateScheduledDisplayModels
     // As snapshots are produced fast in sequence, the feature must have access to force redraw
     // of scheduled redraws
-    friend class RimView;
+    friend class Rim3dView;
     friend class RicExportMultipleSnapshotsFeature;
     friend class RiaArgumentParser;
 
 private:
-    caf::PdmPointer<RimView>            m_activeReservoirView;
+    caf::PdmPointer<Rim3dView>            m_activeReservoirView;
 
     caf::PdmPointer<RimProject>         m_project;
 
-    std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
+    std::vector<caf::PdmPointer<Rim3dView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
     std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
     QTimer*                             m_recalculateCompletionTypeTimer;
