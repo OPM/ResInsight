@@ -40,7 +40,7 @@ ${CEE_CURRENT_LIST_DIR}FixedWidthDataParser-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeCurveHistoryMerger-Test.cpp
 ${CEE_CURRENT_LIST_DIR}ListKeywordsForObjectsAndFields-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools-Test.cpp
-${CEE_CURRENT_LIST_DIR}RicElementPropertyTableReader-Test.cpp
+${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
