@@ -176,6 +176,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicImportElementPropertyFeature";
+            menuBuilder << "Separator";
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
