@@ -41,42 +41,52 @@ static QStringList splitLineAndTrim(const QString& line, const QString& separato
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QString& fileName)
+RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QString& fileName)
 {
-    ElementPropertyMetadata metadata;
-    QFile*                  file = openFile(fileName);
+    RifElementPropertyMetadata  metadata;
+    QFile*                      file = nullptr;
 
-    if (file)
+    try
     {
-        QTextStream     stream(file);
-        bool            metadataBlockFound = false;
-        int             maxLinesToRead = 50;
-        int             lineNo = 0;
+        file = openFile(fileName);
 
-        while (lineNo < maxLinesToRead)
+        if (file)
         {
-            QString line = stream.readLine();
-            lineNo++;
+            QTextStream     stream(file);
+            bool            metadataBlockFound = false;
+            int             maxLinesToRead = 50;
+            int             lineNo = 0;
 
-            if (line.toUpper().startsWith("*DISTRIBUTION TABLE"))
+            while (lineNo < maxLinesToRead)
             {
-                metadataBlockFound = true;
-                continue;
+                QString line = stream.readLine();
+                lineNo++;
+
+                if (line.toUpper().startsWith("*DISTRIBUTION TABLE"))
+                {
+                    metadataBlockFound = true;
+                    continue;
+                }
+
+                if (!metadataBlockFound) continue;
+
+                QStringList cols = splitLineAndTrim(line, ",");
+
+                metadata.fileName = fileName;
+                for (QString s : cols)
+                {
+                    metadata.dataColumns.push_back(s);
+                }
+                break;
             }
 
-            if (!metadataBlockFound) continue;
-
-            QStringList cols = splitLineAndTrim(line, ",");
-
-            metadata.fileName = fileName;
-            for (QString s : cols)
-            {
-                metadata.dataColumns.push_back(s);
-            }
-            break;
+            closeFile(file);
         }
-
+    }
+    catch(...)
+    {
         closeFile(file);
+        throw;
     }
 
     return metadata;
@@ -85,72 +95,82 @@ ElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifElementPropertyTableReader::readData(const ElementPropertyMetadata *metadata, ElementPropertyTable *table)
+void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table)
 {
     CVF_ASSERT(metadata && table);
 
-    QFile*  file = openFile(metadata->fileName);
     int     expectedColumnCount = (int)metadata->dataColumns.size() + 1;
+    QFile*  file = nullptr;
 
-    if (file && expectedColumnCount > 0)
+    try
     {
-        QTextStream     stream(file);
-        bool            dataBlockFound = false;
-        int             lineNo = 0;
+        file = openFile(metadata->fileName);
 
-        // Init data vectors
-        table->elementIds.clear();
-        table->data = std::vector<std::vector<float>>(metadata->dataColumns.size());
-
-        while (!stream.atEnd())
+        if (file && expectedColumnCount > 0)
         {
-            QString     line = stream.readLine();
-            QStringList cols = splitLineAndTrim(line, ",");
-            lineNo++;
+            QTextStream     stream(file);
+            bool            dataBlockFound = false;
+            int             lineNo = 0;
 
-            if (!dataBlockFound)
+            // Init data vectors
+            table->elementIds.clear();
+            table->data = std::vector<std::vector<float>>(metadata->dataColumns.size());
+
+            while (!stream.atEnd())
             {
-                if (!line.startsWith("*") && cols.size() == expectedColumnCount) dataBlockFound = true;
-                else continue;
-            }
+                QString     line = stream.readLine();
+                QStringList cols = splitLineAndTrim(line, ",");
+                lineNo++;
 
-            if (cols.size() != expectedColumnCount)
-            {
-                throw FileParseException(QString("Number of columns mismatch at %1:%2").arg(metadata->fileName).arg(lineNo));
-            }
-
-            for (int c = 0; c < expectedColumnCount; c++)
-            {
-                bool parseOk;
-
-                if (c == 0)
+                if (!dataBlockFound)
                 {
-                    // Remove elementId column prefix
-                    QStringList parts = cols[0].split(".");
-
-                    int elementId = parts.last().toInt(&parseOk);
-                    if (!parseOk)
-                    {
-                        throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
-                    }
-                    table->elementIds.push_back(elementId);
+                    if (!line.startsWith("*") && cols.size() == expectedColumnCount) dataBlockFound = true;
+                    else continue;
                 }
-                else
+
+                if (cols.size() != expectedColumnCount)
                 {
-                    float value = cols[c].toFloat(&parseOk);
-                    if (!parseOk)
+                    throw FileParseException(QString("Number of columns mismatch at %1:%2").arg(metadata->fileName).arg(lineNo));
+                }
+
+                for (int c = 0; c < expectedColumnCount; c++)
+                {
+                    bool parseOk;
+
+                    if (c == 0)
                     {
-                        throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
+                        // Remove elementId column prefix
+                        QStringList parts = cols[0].split(".");
+
+                        int elementId = parts.last().toInt(&parseOk);
+                        if (!parseOk)
+                        {
+                            throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
+                        }
+                        table->elementIds.push_back(elementId);
                     }
-                    table->data[c - 1].push_back(value);
+                    else
+                    {
+                        float value = cols[c].toFloat(&parseOk);
+                        if (!parseOk)
+                        {
+                            throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
+                        }
+                        table->data[c - 1].push_back(value);
+                    }
                 }
             }
+
+            table->hasData = true;
         }
 
-        table->hasData = true;
+        closeFile(file);
     }
-
-    closeFile(file);
+    catch (...)
+    {
+        closeFile(file);
+        throw;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

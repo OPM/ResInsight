@@ -29,8 +29,8 @@
 
 #include <QString>
 
-class ElementPropertyTable;
-class ElementPropertyMetadata;
+class RifElementPropertyTable;
+class RifElementPropertyMetadata;
 
 //==================================================================================================
 ///
@@ -38,8 +38,8 @@ class ElementPropertyMetadata;
 class RifElementPropertyTableReader : cvf::Object
 {
 public:
-    static ElementPropertyMetadata  readMetadata(const QString& filePath);
-    static void                     readData(const ElementPropertyMetadata *metadata, ElementPropertyTable *table);
+    static RifElementPropertyMetadata   readMetadata(const QString& filePath);
+    static void                         readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table);
 };
 
 //==================================================================================================
@@ -55,7 +55,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class ElementPropertyMetadata
+class RifElementPropertyMetadata
 {
 public:
     QString                 fileName;
@@ -66,12 +66,12 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class ElementPropertyTable
+class RifElementPropertyTable
 {
 public:
-    ElementPropertyTable() : hasData(false) {}
+    RifElementPropertyTable() : hasData(false) {}
 
-    ElementPropertyMetadata         metadata;
+    RifElementPropertyMetadata      metadata;
     bool                            hasData;
     std::vector<int>                elementIds;
     std::vector<std::vector<float>> data;
