@@ -4,6 +4,10 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
     set(CEE_CURRENT_LIST_DIR  ${CMAKE_CURRENT_LIST_DIR}/)
 endif()
 
+CONFIGURE_FILE( ${CEE_CURRENT_LIST_DIR}RiaTestDataDirectory.h.cmake
+				${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
+)
+
 set (SOURCE_GROUP_HEADER_FILES
 )
 
