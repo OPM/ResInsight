@@ -92,8 +92,6 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
-
-    m_caseName = "";
 }
 
 //--------------------------------------------------------------------------------------------------

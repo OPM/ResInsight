@@ -258,7 +258,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
 
     if (m_eclipseResultCase)
     {
-        name.push_back(m_eclipseResultCase->caseName());
+        name.push_back(m_eclipseResultCase->caseUserDescription());
     }
     if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
     { 
