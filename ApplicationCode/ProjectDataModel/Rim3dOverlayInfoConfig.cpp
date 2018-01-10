@@ -597,7 +597,10 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
             case RIG_INTEGRATION_POINT:
                 resultPos = "Integration point";
                 break;
-
+            
+            case RIG_ELEMENT:
+                resultPos = "Element";
+                break;
             default:
                 break;
             }

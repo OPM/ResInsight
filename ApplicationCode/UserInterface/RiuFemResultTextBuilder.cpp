@@ -244,8 +244,11 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                     int nodeIdx = elmentConn[lNodeIdx];
                     if (resultDefinition->resultPositionType() == RIG_NODAL)
                     {
-
                         scalarValue = scalarResults[nodeIdx];
+                    }
+                    else if (resultDefinition->resultPositionType() == RIG_ELEMENT)
+                    {
+                        scalarValue = cellIndex;
                     }
                     else
                     {

@@ -311,6 +311,7 @@ void RimGeoMechPropertyFilter::updateFilterName()
             case RIG_NODAL: posName = "N"; break;
             case RIG_ELEMENT_NODAL: posName = "EN"; break;
             case RIG_INTEGRATION_POINT: posName = "IP"; break;
+            case RIG_ELEMENT: posName = "E"; break;
         }
 
         QString fieldUiName = resultDefinition->resultFieldUiName();
