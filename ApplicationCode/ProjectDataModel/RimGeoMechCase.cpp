@@ -320,6 +320,22 @@ void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::addElementPropertyFiles(const std::vector<QString>& fileNames)
+{
+    for (const QString& fileName : fileNames)
+    {
+        m_elementPropertyFileNames.v().push_back(fileName);
+    }
+    this->updateConnectedEditors();
+    if (m_geoMechCaseData.notNull())
+    {
+        geoMechData()->femPartResults()->addElementPropertyFiles(fileNames);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;

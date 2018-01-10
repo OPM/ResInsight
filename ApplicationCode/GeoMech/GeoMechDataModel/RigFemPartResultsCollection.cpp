@@ -19,6 +19,7 @@
 
 #include "RigFemPartResultsCollection.h"
 
+#include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
 
 #ifdef USE_ODB_API 
@@ -57,10 +58,12 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection)
+RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection* femPartCollection)
 {
     CVF_ASSERT(readerInterface);
+    CVF_ASSERT(elementPropertyReader);
     m_readerInterface = readerInterface;
+    m_elementPropertyReader = elementPropertyReader;
     m_femParts = femPartCollection;
 
     m_femPartResults.resize(m_femParts->partCount());
@@ -121,6 +124,17 @@ RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::addElementPropertyFiles(const std::vector<QString>& filenames)
+{
+    for (const QString filename : filenames)
+    {
+        m_elementPropertyReader->addFile(filename.toStdString());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::setCalculationParameters(double cohesion, double frictionAngleRad)
 {
     m_cohesion = cohesion;
@@ -133,7 +147,6 @@ void RigFemPartResultsCollection::setCalculationParameters(double cohesion, doub
     this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
     this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
     this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +167,20 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 
     frames = calculateDerivedResult(partIndex, resVarAddr);
     if (frames) return frames;
+
+    if (resVarAddr.resultPosType == RIG_ELEMENT)
+    {
+        std::map<std::string, std::vector<float>> elementProperties = m_elementPropertyReader->readAllElementPropertiesInFileContainingField(resVarAddr.fieldName);
+        
+        std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
+        for (auto elem : elementProperties)
+        {
+            RigFemScalarResultFrames* currentFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+            currentFrames->frameData(0).swap(elem.second);
+        }
+
+        return m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+    }
 
     // We need to read the data as bulk fields, and populate the correct scalar caches 
 
@@ -384,7 +411,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("TPQV");
             fieldCompNames["ST"].push_back("FAULTMOB");
             fieldCompNames["ST"].push_back("PCRIT");
-
+        }
+        else if (resPos == RIG_ELEMENT)
+        {
+            fieldCompNames = m_elementPropertyReader->scalarElementFields();
         }
     }
 

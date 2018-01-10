@@ -23,16 +23,21 @@
 
 #include "cvfCollection.h"
 #include "cvfObject.h"
+
+#include <QString>
+
 #include <map>
 #include <vector>
 
 class RifGeoMechReaderInterface;
+class RifElementPropertyReader;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+
 namespace caf
 {
     class ProgressInfo;
@@ -41,11 +46,14 @@ namespace caf
 class RigFemPartResultsCollection: public cvf::Object
 {
 public:
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection);
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection();
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
+
+    void                                             addElementPropertyFiles(const std::vector<QString>& filename);
+
     void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
     double                                           parameterCohesion() const { return m_cohesion;}
     double                                           parameterFrictionAngleRad() const { return m_frictionAngleRad; }
@@ -104,6 +112,7 @@ private:
 
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
+    cvf::ref<RifElementPropertyReader>               m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>                  m_femParts;
     cvf::ref<RigFormationNames>                      m_activeFormationNamesData;
 

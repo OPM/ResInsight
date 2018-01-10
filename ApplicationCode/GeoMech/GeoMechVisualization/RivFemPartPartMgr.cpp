@@ -259,7 +259,9 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmFaceNodeIdx());
         }
-
+        
+        if (!vxToResultMapping) return;
+        
         vxCount = static_cast<int>(vxToResultMapping->size());
         m_surfaceFacesTextureCoords->resize(vxCount);
 

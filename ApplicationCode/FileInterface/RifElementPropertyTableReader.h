@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RigWellPathFormations.h"
-
 #include <map>
 #include <utility>
 #include <vector>

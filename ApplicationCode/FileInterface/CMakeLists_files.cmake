@@ -41,6 +41,8 @@ ${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.h
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader.h
+${CEE_CURRENT_LIST_DIR}RifElementPropertyReader.h
+
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
 )
@@ -86,6 +88,7 @@ ${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader.cpp
+${CEE_CURRENT_LIST_DIR}RifElementPropertyReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp

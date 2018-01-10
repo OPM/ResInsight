@@ -20,13 +20,19 @@
 
 #include "RiaApplication.h"
 
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
+
 #include <QAction>
 #include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT(RicImportElementPropertyFeature, "RicImportElementPropertyFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicImportElementPropertyFeature::isCommandEnabled()
 {
@@ -34,32 +40,43 @@ bool RicImportElementPropertyFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
 
-    QString defaultDir = app->lastUsedDialogDirectory("ELM_PROPS");
-    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Element Property Table", defaultDir, "Property Table (*.inp)");
-    
+    QString     defaultDir = app->lastUsedDialogDirectory("ELM_PROPS");
+    QStringList fileNames =
+        QFileDialog::getOpenFileNames(NULL, "Import Element Property Table", defaultDir, "Property Table (*.inp)");
+
     if (fileNames.size())
     {
         defaultDir = QFileInfo(fileNames.last()).absolutePath();
     }
 
+    std::vector<QString> fileNamesStd;
+    for (QString filename : fileNames)
+    {
+        fileNamesStd.push_back(filename);
+    }
+
     app->setLastUsedDialogDirectory("ELM_PROPS", defaultDir);
 
-    for (int i = 0; i < fileNames.size(); i++)
-    {
-        QString fileName = fileNames[i];
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return;
+    
+    RimGeoMechView* activeGmv = dynamic_cast<RimGeoMechView*>(activeView);
+    if (!activeGmv) return;
 
-        //TODO
+    if (activeGmv->geoMechCase())
+    {
+        activeGmv->geoMechCase()->addElementPropertyFiles(fileNamesStd);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::setupActionLook(QAction* actionToSetup)
 {

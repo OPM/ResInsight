@@ -56,7 +56,7 @@ public:
     RimGeoMechView*                         createAndAddReservoirView();
 
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
-    virtual std::vector<Rim3dView*>           views();
+    virtual std::vector<Rim3dView*>         views();
 
     virtual std::vector<QDateTime>          timeStepDates() const override;
     virtual QStringList                     timeStepStrings() const override;
@@ -68,6 +68,8 @@ public:
     virtual double                          characteristicCellSize() const override;
 
     virtual void                            setFormationNames(RimFormationNames* formationNames) override;
+
+    void                                    addElementPropertyFiles(const std::vector<QString>& filenames);
 
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;

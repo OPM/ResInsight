@@ -31,6 +31,7 @@ class RifGeoMechReaderInterface;
 class RigFemPartCollection;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
+class RifElementPropertyReader;
 
 class RigGeoMechCaseData: public cvf::Object
 {
@@ -47,8 +48,9 @@ public:
     const RigFemPartResultsCollection*   femPartResults() const;
 
 private:
-    std::string                          m_geoMechCaseFileName;
-    cvf::ref<RigFemPartCollection>        m_femParts;
-    cvf::ref<RigFemPartResultsCollection> m_femPartResultsColl;
-    cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
+    std::string                                  m_geoMechCaseFileName;
+    cvf::ref<RigFemPartCollection>               m_femParts;
+    cvf::ref<RigFemPartResultsCollection>        m_femPartResultsColl;
+    cvf::ref<RifGeoMechReaderInterface>          m_readerInterface;
+    cvf::ref<RifElementPropertyReader>           m_elementPropertyReader;
 };
