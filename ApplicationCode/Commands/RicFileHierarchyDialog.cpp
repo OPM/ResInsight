@@ -265,7 +265,14 @@ QStringList prefixStrings(const QStringList& strings, const QString& prefix)
     QStringList prefixedStrings;
     for (auto string : strings)
     {
-        prefixedStrings.append(prefix + string);
+        if (!string.startsWith(prefix))
+        {
+            prefixedStrings.append(prefix + string);
+        }
+        else
+        {
+            prefixedStrings.append(string);
+        }
     }
     return prefixedStrings;
 }
