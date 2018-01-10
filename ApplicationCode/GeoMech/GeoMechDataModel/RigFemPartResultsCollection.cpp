@@ -175,7 +175,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
         std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
         for (auto elem : elementProperties)
         {
-            RigFemScalarResultFrames* currentFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+            RigFemResultAddress addressForElement(RIG_ELEMENT, elem.first, "");
+            RigFemScalarResultFrames* currentFrames = m_femPartResults[partIndex]->createScalarResult(addressForElement);
+            currentFrames->enableAsSingleFrameResult();
             currentFrames->frameData(0).swap(elem.second);
         }
 
@@ -2174,6 +2176,10 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
             else if (resultPosition == RIG_ELEMENT_NODAL_FACE)
             {
                 m_resultIndexToClosestResult = -1;   
+            }
+            else if (resultPosition == RIG_ELEMENT)
+            {
+                m_resultIndexToClosestResult = elementIndex;
             }
             else
             {

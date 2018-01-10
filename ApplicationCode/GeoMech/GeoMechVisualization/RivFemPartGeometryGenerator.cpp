@@ -175,6 +175,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToNodeIdx.clear();
     m_quadVerticesToGlobalElmNodeIdx.clear();
     m_quadVerticesToGlobalElmFaceNodeIdx.clear();
+    m_quadVerticesToGlobalElmIdx.clear();
     trianglesToElements.clear();
     trianglesToElementFaces.clear();
 
@@ -183,6 +184,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     vertices.reserve(estimatedQuadVxCount);
     m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
     m_quadVerticesToGlobalElmNodeIdx.reserve(estimatedQuadVxCount);
+    m_quadVerticesToGlobalElmIdx.reserve(estimatedQuadVxCount);
     trianglesToElements.reserve(estimatedQuadVxCount/2);
     trianglesToElementFaces.reserve(estimatedQuadVxCount/2);
 
@@ -257,6 +259,11 @@ void RivFemPartGeometryGenerator::computeArrays()
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 1);
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 2);
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 3);
+
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
 
                        trianglesToElements.push_back(elmIdx);
                        trianglesToElements.push_back(elmIdx);
