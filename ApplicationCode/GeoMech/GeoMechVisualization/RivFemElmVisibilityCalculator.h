@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "cvfBase.h"
 #include "cvfArray.h"
+
+#include "RimCellFilter.h"
 
 namespace cvf
 {
@@ -42,6 +45,11 @@ public:
                                           int timeStepIndex,
                                           const cvf::UByteArray* rangeFilterVisibility,
                                           RimGeoMechPropertyFilterCollection* propFilterColl);
+
+    static void evaluateAndSetCellVisibiliy(double scalarValue, double lowerBound, double upperBound,
+                                            const RimCellFilter::FilterModeType filterType, 
+                                            cvf::UByteArray* cellVisibility, int cellIndex);
+
 
     static void computeOverriddenCellVisibility(cvf::UByteArray* elmVisibilities, 
                                                 const RigFemPart* femPart , 
