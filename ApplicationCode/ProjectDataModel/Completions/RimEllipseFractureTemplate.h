@@ -64,6 +64,7 @@ public:
     
     const RigFractureGrid*          fractureGrid() const;
 
+    void setDefaultValuesFromUnit();
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 

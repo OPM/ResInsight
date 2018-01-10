@@ -51,14 +51,14 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     
     if (fracDefColl)
     {
-        RimEllipseFractureTemplate* fractureDef = new RimEllipseFractureTemplate();
-        fracDefColl->fractureDefinitions.push_back(fractureDef);
-        fractureDef->name = "Ellipse Fracture Template";
-        fractureDef->fractureTemplateUnit = fracDefColl->defaultUnitsForFracTemplates();
-        fractureDef->setDefaultWellDiameterFromUnit();
+        RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
+        fracDefColl->fractureDefinitions.push_back(ellipseFractureTemplate);
+        ellipseFractureTemplate->name = "Ellipse Fracture Template";
+        ellipseFractureTemplate->fractureTemplateUnit = fracDefColl->defaultUnitsForFracTemplates();
+        ellipseFractureTemplate->setDefaultValuesFromUnit();
 
         fracDefColl->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
+        RiuMainWindow::instance()->selectAsCurrentItem(ellipseFractureTemplate);
     }
 }
 

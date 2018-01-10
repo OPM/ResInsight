@@ -47,15 +47,14 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Halflength X<sub>f</sub>", "", "", "");
-    CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
-    CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
+    CAF_PDM_InitField(&halfLength,  "HalfLength",       0.0f,   "Halflength X<sub>f</sub>", "", "", "");
+    CAF_PDM_InitField(&height,      "Height",           0.0f,   "Height", "", "", "");
+    CAF_PDM_InitField(&width,       "Width",            0.0f,   "Width", "", "", "");
 
-    CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
+    CAF_PDM_InitField(&permeability,"Permeability",     0.0f,   "Permeability [mD]", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
     setupFractureGridCells();
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +273,29 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 const RigFractureGrid* RimEllipseFractureTemplate::fractureGrid() const
 {
     return m_fractureGrid.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
+{
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        width        = 0.5f;
+        permeability = 800000.0f;
+        halfLength   = 300.0f;
+        height       = 225.0f;
+    }
+    else
+    {
+        width        = 0.01f;
+        permeability = 1000000.0f;
+        halfLength   = 100.0f;
+        height       = 75.0f;
+    }
+
+    this->setDefaultWellDiameterFromUnit();
 }
 
 //--------------------------------------------------------------------------------------------------
