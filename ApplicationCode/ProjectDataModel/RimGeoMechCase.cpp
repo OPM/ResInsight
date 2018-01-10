@@ -157,19 +157,24 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
     {
         // If opening failed, release all data
         // Also, several places is checked for this data to validate availability of data
-        m_geoMechCaseData = NULL;
+        m_geoMechCaseData = nullptr;
+        return false;
+    }
+    
+    if (activeFormationNames())
+    {
+        m_geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
     }
     else
     {
-        if ( activeFormationNames() )
-        {
-            m_geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
-        }
-        else
-        {
-            m_geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
-        }
+        m_geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
     }
+
+    if (m_geoMechCaseData.notNull())
+    {
+        geoMechData()->femPartResults()->addElementPropertyFiles(m_elementPropertyFileNames);
+    }
+
     return fileOpenSuccess;
 }
 
@@ -184,6 +189,11 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
     // Update filename and folder paths when opening project from a different file location
     m_caseFileName = RimTools::relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     
+    for (QString& fileName : m_elementPropertyFileNames.v())
+    {
+        fileName = RimTools::relocateFile(fileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    }
+
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
        qDebug() << searchedPaths[i];
@@ -326,7 +336,9 @@ void RimGeoMechCase::addElementPropertyFiles(const std::vector<QString>& fileNam
     {
         m_elementPropertyFileNames.v().push_back(fileName);
     }
+    
     this->updateConnectedEditors();
+    
     if (m_geoMechCaseData.notNull())
     {
         geoMechData()->femPartResults()->addElementPropertyFiles(fileNames);

@@ -179,7 +179,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
             currentFrames->frameData(0).swap(elem.second);
         }
 
-        return m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+        frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+        if (frames)
+        {
+            return frames;
+        }
+        else
+        {
+            return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+        }
     }
 
     // We need to read the data as bulk fields, and populate the correct scalar caches 
