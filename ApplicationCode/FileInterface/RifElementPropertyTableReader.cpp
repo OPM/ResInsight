@@ -124,7 +124,7 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
 
                 if (!dataBlockFound)
                 {
-                    if (!line.startsWith("*") && cols.size() == expectedColumnCount) dataBlockFound = true;
+                    if (!line.startsWith("*") && !line.startsWith(",") && cols.size() == expectedColumnCount) dataBlockFound = true;
                     else continue;
                 }
 
