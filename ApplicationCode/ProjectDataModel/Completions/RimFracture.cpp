@@ -104,6 +104,7 @@ RimFracture::RimFracture(void)
 
     CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "");
     m_anchorPosition.uiCapability()->setUiHidden(true);
+    m_anchorPosition.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position", "", "", "");
     m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
