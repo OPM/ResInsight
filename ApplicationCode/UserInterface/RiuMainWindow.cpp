@@ -362,6 +362,7 @@ void RiuMainWindow::createMenus()
     importMenu->addSeparator();
     #endif
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
 
     importMenu->addSeparator();

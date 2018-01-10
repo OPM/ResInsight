@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportSummaryCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportObservedDataFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportObservedDataInMenuFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
@@ -61,10 +62,13 @@ ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadSummaryCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicReloadSummaryCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.h
 ${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicFileHierarchyDialog.h
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
@@ -118,6 +122,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportElementPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportSummaryCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportObservedDataFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportObservedDataInMenuFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.cpp
@@ -140,6 +145,8 @@ ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicFileHierarchyDialog.cpp
 )
 
 
@@ -169,6 +176,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 list(APPEND QT_MOC_HEADERS
 ${CEE_CURRENT_LIST_DIR}RicGridStatisticsDialog.h
+${CEE_CURRENT_LIST_DIR}RicFileHierarchyDialog.h
 )
 
 source_group( "CommandFeature" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

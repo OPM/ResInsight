@@ -187,6 +187,7 @@ void RiuMainPlotWindow::createMenus()
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
