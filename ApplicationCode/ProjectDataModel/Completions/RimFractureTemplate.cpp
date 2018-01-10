@@ -61,7 +61,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFractureTemplate, "RimFractureTemplate");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplate::RimFractureTemplate(void)
+RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
@@ -226,7 +226,7 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 {
     if (field == &perforationEfficiency)
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_minimum = 0;

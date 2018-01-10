@@ -45,8 +45,8 @@ class RimFractureTemplate : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureTemplate(void);
-    virtual ~RimFractureTemplate(void);
+    RimFractureTemplate();
+    virtual ~RimFractureTemplate();
     
     caf::PdmField<QString>   name;
     caf::PdmField<float>     azimuthAngle;
@@ -91,7 +91,7 @@ protected:
 
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 

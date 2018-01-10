@@ -46,15 +46,7 @@ public:
     RimEllipseFractureTemplate(void);
     virtual ~RimEllipseFractureTemplate(void);
     
-    caf::PdmField<float>     halfLength;
-    caf::PdmField<float>     height;
-
-    caf::PdmField<float>     width;
-    caf::PdmField<float>     permeability;
-    
     void                            loadDataAndUpdate();
-
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
     void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                      std::vector<cvf::uint>* polygonIndices, 
@@ -64,11 +56,20 @@ public:
     
     const RigFractureGrid*          fractureGrid() const;
 
-    void setDefaultValuesFromUnit();
+    void                            setDefaultValuesFromUnit();
+
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    void                             setupFractureGridCells();
-    cvf::ref<RigFractureGrid>        m_fractureGrid;
+    void                            setupFractureGridCells();
+
+private:
+    cvf::ref<RigFractureGrid>   m_fractureGrid;
+
+    caf::PdmField<float>        m_halfLength;
+    caf::PdmField<float>        m_height;
+    caf::PdmField<float>        m_width;
+    caf::PdmField<float>        m_permeability;
 };
