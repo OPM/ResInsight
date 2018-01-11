@@ -604,8 +604,14 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
             default:
                 break;
             }
-
-            infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+            if (compName == "")
+            {
+                infoText += QString("<b>Cell result:</b> %1, %2").arg(resultPos).arg(fieldName);
+            }
+            else
+            {
+                infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+            }
 
             infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
