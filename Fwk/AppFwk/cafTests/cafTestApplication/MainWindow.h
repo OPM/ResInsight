@@ -5,6 +5,7 @@
 #include <QItemSelection>
 
 class DemoPdmObject;
+class DemoPdmObjectGroup;
 class QTreeView;
 class QUndoView;
 class QLabel;
@@ -33,10 +34,7 @@ public:
 
 private:
     void createActions();
-    void createMenus();
-    void createToolBars();
     void createDockPanels();
-
 
     void buildTestModel();
     void releaseTestData();
@@ -49,6 +47,8 @@ private slots:
     void slotSimpleSelectionChanged();
     void slotShowTableView();
 
+    void slotLoadProject();
+    void slotSaveProject();
 
 private:
     static MainWindow* sm_mainWindowInstance;
@@ -60,7 +60,7 @@ private:
     caf::PdmUiTreeView*         m_pdmUiTreeView2;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
     caf::PdmUiTableView*        m_pdmUiTableView;
-    caf::PdmObjectCollection*   m_testRoot;
+    DemoPdmObjectGroup*         m_testRoot;
 
     caf::CustomObjectEditor*    m_customObjectEditor;
 

@@ -8,11 +8,6 @@
 #include "WidgetLayoutTest.h"
 #include "MenuItemProducer.h"
 
-#include <QDockWidget>
-#include <QTreeView>
-#include <QAction>
-#include <QMenuBar>
-#include <QUndoView>
 
 
 #include "cafAppEnum.h"
@@ -23,35 +18,47 @@
 #include "cafCmdFeatureManager.h"
 #endif 
 
+#include "cafFilePath.h"
+#include "cafPdmDocument.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyView.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
-#include "cafPdmUiTreeSelectionEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiItem.h"
-#include "cafPdmUiComboBoxEditor.h"
+
+#include <QAction>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QTreeView>
+#include <QUndoView>
 
 
-
-class DemoPdmObjectGroup : public caf::PdmObjectCollection
+class DemoPdmObjectGroup : public caf::PdmDocument
 {
     CAF_PDM_HEADER_INIT;
 public:
 
     DemoPdmObjectGroup() 
     {
+        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+
         objects.uiCapability()->setUiHidden(true);
-        
     }
+
+public:
+    caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
@@ -73,6 +80,11 @@ public:
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
         CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+        
+        CAF_PDM_InitField(&m_fileName,      "FileName", caf::FilePath("filename"), "File Name", "", "", "");
+        
+        CAF_PDM_InitFieldNoDefault(&m_fileNameList,  "FileNameList", "File Name List", "", "", "");
+        m_fileNameList.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3)) { std::cout << "Double is not 3 " << std::endl; }
@@ -92,10 +104,12 @@ public:
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
     caf::PdmProxyValueField<double> m_proxyDoubleField;
+    caf::PdmField<caf::FilePath> m_fileName;
+    caf::PdmField<std::vector<caf::FilePath>> m_fileNameList;
 
     caf::PdmField<std::vector<QString> > m_multiSelectList;
 
-
+    
     caf::PdmField<bool>     m_toggleField;
     virtual caf::PdmFieldHandle* objectToggleField() 
     {
@@ -712,10 +726,8 @@ void MainWindow::buildTestModel()
 void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 {
     caf::PdmUiObjectHandle* uiObject = uiObj(pdmRoot);
-    if (uiObject)
-    {
-        m_pdmUiTreeView->setPdmItem(uiObject);
-    }
+    
+    m_pdmUiTreeView->setPdmItem(uiObject);
 
     connect(m_pdmUiTreeView, SIGNAL(selectionChanged()), SLOT(slotSimpleSelectionChanged()));
 
@@ -723,7 +735,11 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     // Hack, because we know that pdmRoot is a PdmObjectGroup ...
 
     std::vector<caf::PdmFieldHandle*> fields;
-    pdmRoot->fields(fields);
+    if (pdmRoot)
+    {
+        pdmRoot->fields(fields);
+    }
+
     if (fields.size())
     {
         caf::PdmFieldHandle* field = fields[0];
@@ -735,27 +751,37 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
         }
     }
 
-    if (uiObject)
-    {
-        m_pdmUiTreeView2->setPdmItem(uiObject);
-    }
+    m_pdmUiTreeView2->setPdmItem(uiObject);
 
     connect(m_pdmUiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
 
     // Wire up ManyGroups object
     std::vector<ManyGroups*> obj;
-    pdmRoot->descendantsIncludingThisOfType(obj);
+    if (pdmRoot)
+    {
+        pdmRoot->descendantsIncludingThisOfType(obj);
+    }
+
+    m_customObjectEditor->removeWidget(m_plotLabel);
+    m_customObjectEditor->removeWidget(m_smallPlotLabel);
+
     if (obj.size() == 1)
     {
-        m_customObjectEditor->defineGridLayout(5, 4);
         m_customObjectEditor->setPdmObject(obj[0]);
+
+        m_customObjectEditor->defineGridLayout(5, 4);
 
         m_customObjectEditor->addBlankCell(0, 0);
         m_customObjectEditor->addWidget(m_plotLabel, 0, 1, 1, 2);
         m_customObjectEditor->addWidget(m_smallPlotLabel, 1, 2, 2, 1);
-
-        m_customObjectEditor->updateUi();
     }
+    else
+    {
+        m_customObjectEditor->setPdmObject(nullptr);
+    }
+
+
+    m_customObjectEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -800,21 +826,32 @@ MainWindow* MainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::createActions()
 {
-    // Create actions
-    QAction* editInsert     = new QAction("&Insert", this);
-    QAction* editRemove     = new QAction("&Remove", this);
-    QAction* editRemoveAll  = new QAction("Remove all", this);
+    {
+        QAction* loadAction     = new QAction("Load Project", this);
+        QAction* saveAction     = new QAction("Save Project", this);
 
-    connect(editInsert, SIGNAL(triggered()), SLOT(slotInsert()));
-    connect(editRemove, SIGNAL(triggered()), SLOT(slotRemove()));
-    connect(editRemoveAll, SIGNAL(triggered()), SLOT(slotRemoveAll()));
+        connect(loadAction, SIGNAL(triggered()), SLOT(slotLoadProject()));
+        connect(saveAction, SIGNAL(triggered()), SLOT(slotSaveProject()));
 
+        QMenu* menu = menuBar()->addMenu("&File");
+        menu->addAction(loadAction);
+        menu->addAction(saveAction);
+    }
 
-    // Create menus
-    QMenu* editMenu = menuBar()->addMenu("&Edit");
-    editMenu->addAction(editInsert);
-    editMenu->addAction(editRemove);
-    editMenu->addAction(editRemoveAll);
+    {
+        QAction* editInsert     = new QAction("&Insert", this);
+        QAction* editRemove     = new QAction("&Remove", this);
+        QAction* editRemoveAll  = new QAction("Remove all", this);
+
+        connect(editInsert, SIGNAL(triggered()), SLOT(slotInsert()));
+        connect(editRemove, SIGNAL(triggered()), SLOT(slotRemove()));
+        connect(editRemoveAll, SIGNAL(triggered()), SLOT(slotRemoveAll()));
+
+        QMenu* menu = menuBar()->addMenu("&Edit");
+        menu->addAction(editInsert);
+        menu->addAction(editRemove);
+        menu->addAction(editRemoveAll);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -942,5 +979,39 @@ void MainWindow::slotShowTableView()
     if (listField)
     {
         listField->uiCapability()->updateConnectedEditors();
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void MainWindow::slotLoadProject()
+{
+    QString fileName = QFileDialog::getOpenFileName(nullptr, tr("Open Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)");
+    if (!fileName.isEmpty())
+    {
+        setPdmRoot(nullptr);
+        releaseTestData();
+
+        m_testRoot = new DemoPdmObjectGroup;
+        m_testRoot->fileName = fileName;
+        m_testRoot->readFile();
+
+        setPdmRoot(m_testRoot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void MainWindow::slotSaveProject()
+{
+    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save Project File"), "test.proj", "Project Files (*.proj);;All files(*.*)");
+    if (!fileName.isEmpty())
+    {
+        m_testRoot->fileName = fileName;
+        m_testRoot->writeFile();
     }
 }
