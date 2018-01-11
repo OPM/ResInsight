@@ -39,12 +39,15 @@ set( PROJECT_FILES
     cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
     cafPdmValueField.h
+    cafInternalPdmValueFieldSpecializations.h 
 
     cafNotificationCenter.cpp
     cafNotificationCenter.h
 
     cafTristate.cpp
     cafTristate.h
+    cafFilePath.cpp
+    cafFilePath.h
 )
 
 
