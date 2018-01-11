@@ -160,31 +160,24 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
 
         RigFemResultAddress      resVarAddress = cellResultColors->resultAddress();
 
-        const std::vector<RivIntersectionVertexWeights> &vertexWeights = m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
-        const cvf::ScalarMapper* mapper                    = cellResultColors->legendConfig()->scalarMapper();
+        const cvf::ScalarMapper* mapper                                 = cellResultColors->legendConfig()->scalarMapper();
         
-        if (!(resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE) )
+        if (resVarAddress.resultPosType == RIG_ELEMENT)
         {
-            // Do a "Hack" to show elm nodal and not nodal POR results
-            if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" ) resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+            const std::vector<float>& resultValues          = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+            const std::vector<size_t>& triangleToCellIdx    = m_intersectionBoxGenerator->triangleToCellIndex();
 
-            const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
-            RigFemPart* femPart                                = caseData->femParts()->part(0);
-            bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
-
-            RivIntersectionPartMgr::calculateGeoMechTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
-                                                                  vertexWeights,
-                                                                  resultValues,
-                                                                  isElementNodalResult,
-                                                                  femPart,
-                                                                  mapper);
+            RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+                                                                              resultValues,
+                                                                              triangleToCellIdx,
+                                                                              mapper);
         }
-        else
+        else if (resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
         {
             // Special direction sensitive result calculation
             const cvf::Vec3fArray* triangelVxes = m_intersectionBoxGenerator->triangleVxes();
 
-            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
+            if (resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc")
             {
                 RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
                                                                          triangelVxes,
@@ -193,14 +186,33 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
             }
             else
             {
+                const std::vector<RivIntersectionVertexWeights> &vertexWeights  = m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
+        
                 RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
-                                                                          triangelVxes,
-                                                                          vertexWeights,
-                                                                          caseData,
-                                                                          resVarAddress,
-                                                                          (int)timeStepIndex,
-                                                                          mapper);
+                                                                              triangelVxes,
+                                                                              vertexWeights,
+                                                                              caseData,
+                                                                              resVarAddress,
+                                                                              (int)timeStepIndex,
+                                                                              mapper);
             }
+        }
+        else
+        {
+            // Do a "Hack" to show elm nodal and not nodal POR results
+            if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
+            const std::vector<float>& resultValues                         = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+            RigFemPart* femPart                                            = caseData->femParts()->part(0);
+            bool isElementNodalResult                                      = !(resVarAddress.resultPosType == RIG_NODAL);
+            const std::vector<RivIntersectionVertexWeights> &vertexWeights = m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
+
+            RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+                                                                                        vertexWeights,
+                                                                                        resultValues,
+                                                                                        isElementNodalResult,
+                                                                                        femPart,
+                                                                                        mapper);
         }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_intersectionBoxFaces.p(), 

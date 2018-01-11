@@ -112,6 +112,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
     for (size_t i = 0; i < propFilterColl->propertyFilters().size(); i++)
     {
         RimGeoMechPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
+
         if (!propertyFilter->isActiveAndHasResult()) continue;
 
         const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
@@ -173,7 +174,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 if (!(*cellVisibility)[cellIndex]) continue;
 
                 double scalarValue = resVals[cellIndex];
-                evaluateAndSetCellVisibiliy(scalarValue, lowerBound, upperBound, filterType, cellVisibility, cellIndex);
+                evaluateAndSetCellVisibiliy(cellIndex, scalarValue, lowerBound, upperBound, filterType, cellVisibility);
             }
         }
         else if (resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
@@ -186,7 +187,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 for (int fpIdx = 0; fpIdx < 24; ++fpIdx)
                 {
                     double scalarValue = resVals[cellIndex * 24 + fpIdx];
-                    evaluateAndSetCellVisibiliy(scalarValue, lowerBound, upperBound, filterType, cellVisibility, cellIndex);
+                    evaluateAndSetCellVisibiliy(cellIndex, scalarValue, lowerBound, upperBound, filterType, cellVisibility);
                 }
             }
          }
@@ -214,7 +215,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                     }
 
                     double scalarValue = resVals[resultValueIndex];
-                    evaluateAndSetCellVisibiliy(scalarValue, lowerBound, upperBound, filterType, cellVisibility, cellIndex);
+                    evaluateAndSetCellVisibiliy(cellIndex, scalarValue, lowerBound, upperBound, filterType, cellVisibility);
                 }
             }
         }
@@ -224,7 +225,12 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFemElmVisibilityCalculator::evaluateAndSetCellVisibiliy(double scalarValue, double lowerBound, double upperBound, const RimCellFilter::FilterModeType filterType, cvf::UByteArray* cellVisibility, int cellIndex)
+void RivFemElmVisibilityCalculator::evaluateAndSetCellVisibiliy(int cellIndex,
+                                                                double scalarValue, 
+                                                                double lowerBound, 
+                                                                double upperBound, 
+                                                                const RimCellFilter::FilterModeType filterType, 
+                                                                cvf::UByteArray* cellVisibility)
 {
     if (lowerBound <= scalarValue && scalarValue <= upperBound)
     {

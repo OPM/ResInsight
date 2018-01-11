@@ -80,12 +80,17 @@ public:
                                                    const RigResultAccessor* resultAccessor, 
                                                    const cvf::ScalarMapper* mapper);
 
-    static void calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
-                                              const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
-                                              const std::vector<float> &resultValues, 
-                                              bool isElementNodalResult, 
-                                              const RigFemPart* femPart, 
-                                              const cvf::ScalarMapper* mapper);
+    static void calculateNodeOrElementNodeBasedGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                                    const std::vector<RivIntersectionVertexWeights> &vertexWeights,
+                                                                    const std::vector<float> &resultValues,
+                                                                    bool isElementNodalResult,
+                                                                    const RigFemPart* femPart,
+                                                                    const cvf::ScalarMapper* mapper);
+
+    static void calculateElementBasedGeoMechTextureCoords(cvf::Vec2fArray* textureCoords,
+                                                          const std::vector<float> &resultValues,
+                                                          const std::vector<size_t>& triangleToCellIdx,
+                                                          const cvf::ScalarMapper* mapper);
 
     static void calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
                                                       const cvf::Vec3fArray* triangelVertices,

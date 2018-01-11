@@ -46,15 +46,16 @@ public:
                                           const cvf::UByteArray* rangeFilterVisibility,
                                           RimGeoMechPropertyFilterCollection* propFilterColl);
 
-    static void evaluateAndSetCellVisibiliy(double scalarValue, double lowerBound, double upperBound,
+    static void evaluateAndSetCellVisibiliy(int cellIndex,
+                                            double scalarValue, 
+                                            double lowerBound, 
+                                            double upperBound,
                                             const RimCellFilter::FilterModeType filterType, 
-                                            cvf::UByteArray* cellVisibility, int cellIndex);
-
+                                            cvf::UByteArray* cellVisibility);
 
     static void computeOverriddenCellVisibility(cvf::UByteArray* elmVisibilities, 
                                                 const RigFemPart* femPart , 
                                                 RimViewController* masterViewLink);
-
 };
 
 
