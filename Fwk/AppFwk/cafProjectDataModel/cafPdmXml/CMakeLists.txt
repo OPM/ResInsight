@@ -14,12 +14,15 @@ include_directories (
 set( PROJECT_FILES
 	cafInternalPdmFieldIoHelper.cpp
 	cafInternalPdmFieldIoHelper.h
+	cafInternalPdmFilePathStreamOperators.cpp
+	cafInternalPdmFilePathStreamOperators.h
 	cafInternalPdmStreamOperators.cpp
 	cafInternalPdmStreamOperators.h
 	cafInternalPdmXmlFieldCapability.h
 	cafInternalPdmXmlFieldCapability.inl
 	cafInternalPdmXmlFieldReaderWriter.cpp
 	cafInternalPdmXmlFieldReaderWriter.h
+
 	cafPdmXmlFieldHandle.cpp
 	cafPdmXmlFieldHandle.h
 	cafPdmXmlObjectHandle.cpp
