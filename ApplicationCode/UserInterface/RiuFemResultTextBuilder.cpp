@@ -248,7 +248,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                     }
                     else if (resultDefinition->resultPositionType() == RIG_ELEMENT)
                     {
-                        scalarValue = cellIndex;
+                        scalarValue = scalarResults[cellIndex];
                     }
                     else
                     {
