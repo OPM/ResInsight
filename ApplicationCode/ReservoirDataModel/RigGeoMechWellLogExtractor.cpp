@@ -70,6 +70,12 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 
         if (!(elmType == HEX8  || elmType == HEX8P)) continue;
 
+        if (convResAddr.resultPosType == RIG_ELEMENT)
+        {
+            (*values)[cpIdx] = resultValues[elmIdx];
+            continue;
+        }
+
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
 
         int faceNodeCount = 0;
