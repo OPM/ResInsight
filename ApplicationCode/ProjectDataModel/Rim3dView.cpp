@@ -95,11 +95,11 @@ Rim3dView::Rim3dView(void)
 
     CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
 
-    CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
-    cameraPosition.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
+    m_cameraPosition.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitField(&cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "");
-    cameraPointOfInterest.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "");
+    m_cameraPointOfInterest.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
 
@@ -107,7 +107,7 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
+    CAF_PDM_InitField(&m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "");
     maximumFrameRate.uiCapability()->setUiHidden(true);
@@ -219,6 +219,13 @@ QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
     m_viewer = new RiuViewer(glFormat, NULL);
     m_viewer->setOwnerReservoirView(this);
 
+    cvf::String xLabel;
+    cvf::String yLabel;
+    cvf::String zLabel;
+
+    this->axisLabels(&xLabel, &yLabel, &zLabel);
+    m_viewer->setAxisLabels(xLabel, yLabel, zLabel);
+
     return m_viewer->layoutWidget();
 }
 
@@ -235,8 +242,8 @@ void Rim3dView::updateViewWidgetAfterCreation()
     m_viewer->updateNavigationPolicy();
     m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
 
-    m_viewer->mainCamera()->setViewMatrix(cameraPosition);
-    m_viewer->setPointOfInterest(cameraPointOfInterest());
+    m_viewer->mainCamera()->setViewMatrix(m_cameraPosition);
+    m_viewer->setPointOfInterest(m_cameraPointOfInterest());
     m_viewer->enableParallelProjection(!isPerspectiveView());
 
     m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
@@ -289,7 +296,7 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(&name);
-    viewGroup->add(&backgroundColor);
+    viewGroup->add(&m_backgroundColor);
     viewGroup->add(&showGridBox);
     viewGroup->add(&isPerspectiveView);
     viewGroup->add(&m_disableLighting);
@@ -353,6 +360,14 @@ void Rim3dView::setCurrentTimeStepAndUpdate(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString Rim3dView::timeStepName(int frameIdx) const
+{
+    return this->ownerCase()->timeStepName(frameIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::setCurrentTimeStep(int frameIndex)
 {
     const int oldTimeStep = m_currentTimeStep;
@@ -399,11 +414,11 @@ void Rim3dView::createDisplayModelAndRedraw()
         createHighlightAndGridBoxDisplayModel();
         updateDisplayModelVisibility();
 
-        if (cameraPosition().isIdentity())
+        if (m_cameraPosition().isIdentity())
         {
             setDefaultView();
-            cameraPosition = m_viewer->mainCamera()->viewMatrix();
-            cameraPointOfInterest = m_viewer->pointOfInterest();
+            m_cameraPosition = m_viewer->mainCamera()->viewMatrix();
+            m_cameraPointOfInterest = m_viewer->pointOfInterest();
         }
     }
 
@@ -453,8 +468,8 @@ void Rim3dView::setupBeforeSave()
     if (m_viewer)
     {
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
-        cameraPosition = m_viewer->mainCamera()->viewMatrix();
-        cameraPointOfInterest = m_viewer->pointOfInterest();
+        m_cameraPosition = m_viewer->mainCamera()->viewMatrix();
+        m_cameraPointOfInterest = m_viewer->pointOfInterest();
     }
 }
 
@@ -702,7 +717,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
             }
         }
     }
-    else if (changedField == &backgroundColor)
+    else if (changedField == &m_backgroundColor)
     {
         if (m_viewer != nullptr)
         {
@@ -961,9 +976,14 @@ void Rim3dView::removeModelByName(cvf::Scene* scene, const cvf::String& modelNam
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateGridBoxData()
 {
-    if (m_viewer)
+    if (m_viewer && ownerCase())
     {
-        m_viewer->updateGridBoxData();
+        m_viewer->updateGridBoxData(scaleZ(), 
+                                    ownerCase()->displayModelOffset(),
+                                    backgroundColor(), 
+                                    showActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox() 
+                                                          : ownerCase()->allCellsBoundingBox()
+                                    );
     }
 }
 
@@ -1005,7 +1025,6 @@ void Rim3dView::createHighlightAndGridBoxDisplayModelWithRedraw()
 void Rim3dView::createHighlightAndGridBoxDisplayModel()
 {
     m_viewer->removeStaticModel(m_highlightVizModel.p());
-    m_viewer->removeStaticModel(m_viewer->gridBoxModel());
 
     m_highlightVizModel->removeAllParts();
 
@@ -1022,10 +1041,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
         m_viewer->addStaticModelOnce(m_highlightVizModel.p());
     }
 
-    if (showGridBox)
-    {
-        m_viewer->addStaticModelOnce(m_viewer->gridBoxModel());
-    }
+    m_viewer->showGridBox(showGridBox());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1089,5 +1105,21 @@ QWidget* Rim3dView::viewWidget()
 void Rim3dView::forceShowWindowOn()
 {
     m_showWindow.setValueWithFieldChanged(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::handleMdiWindowClosed()
+{
+    RimViewWindow::handleMdiWindowClosed();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
+{
+    RimViewWindow::setMdiWindowGeometry(windowGeometry);
 }
 

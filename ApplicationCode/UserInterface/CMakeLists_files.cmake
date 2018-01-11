@@ -43,6 +43,7 @@ ${CEE_CURRENT_LIST_DIR}RiuTofAccumulatedPhaseFractionsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuToolTipMenu.h
 ${CEE_CURRENT_LIST_DIR}RiuTreeViewEventFilter.h
 ${CEE_CURRENT_LIST_DIR}RiuViewer.h
+${CEE_CURRENT_LIST_DIR}RiuViewerToViewInterface.h
 ${CEE_CURRENT_LIST_DIR}RiuViewerCommands.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h

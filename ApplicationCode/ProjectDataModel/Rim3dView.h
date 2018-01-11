@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "RiuViewerToViewInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -70,7 +71,7 @@ namespace caf
 ///  
 ///  
 //==================================================================================================
-class Rim3dView : public RimViewWindow
+class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -82,11 +83,10 @@ public:
 
     caf::PdmField<QString>                  name;
     caf::PdmField<double>                   scaleZ;
-
-    caf::PdmField<cvf::Mat4d>               cameraPosition;
-    caf::PdmField<cvf::Vec3d>               cameraPointOfInterest;
+    void                                    setCameraPosition(const cvf::Mat4d& cameraPosition)               { m_cameraPosition = cameraPosition; }
+    void                                    setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest) { m_cameraPointOfInterest = cameraPointOfInterest;}
     caf::PdmField<bool>                     isPerspectiveView;
-    caf::PdmField< cvf::Color3f >           backgroundColor;
+    cvf::Color3f                            backgroundColor() const { return m_backgroundColor();} 
 
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
@@ -140,6 +140,7 @@ public:
     int                                     currentTimeStep() const { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);
     void                                    setCurrentTimeStepAndUpdate(int frameIdx);
+    QString                                 timeStepName(int frameIdx) const override;
 
     void                                    updateCurrentTimeStepAndRedraw();
 
@@ -168,6 +169,8 @@ public:
 
     virtual QWidget*                        viewWidget() override;
     void                                    forceShowWindowOn();
+
+
 
 public:
     void                                    updateGridBoxData();
@@ -243,10 +246,21 @@ private:
 
     friend class RiuViewer;
     void                                    endAnimation();
+    caf::PdmObjectHandle*                   implementingPdmObject()  { return this; }
+    virtual void                            handleMdiWindowClosed() override;
+    virtual void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
+    caf::PdmField<cvf::Mat4d>               m_cameraPosition;
+    caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;
+    caf::PdmField< cvf::Color3f >           m_backgroundColor;
+
+
+
+
+
 };
 
 

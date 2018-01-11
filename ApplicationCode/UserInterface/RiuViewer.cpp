@@ -186,9 +186,10 @@ RiuViewer::~RiuViewer()
     {
         m_rimView->handleMdiWindowClosed();
 
-        m_rimView->cameraPosition = m_mainCamera->viewMatrix();
-        m_rimView->cameraPointOfInterest = pointOfInterest();
+        m_rimView->setCameraPosition(m_mainCamera->viewMatrix());
+        m_rimView->setCameraPointOfInterest( pointOfInterest());
     }
+
     delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
@@ -297,7 +298,7 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateTimeStep(m_rimView, frameIndex);
+            viewLinker->updateTimeStep(dynamic_cast<Rim3dView*>(m_rimView.p()), frameIndex);
         }
     }
 }
@@ -321,17 +322,11 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setOwnerReservoirView(Rim3dView * owner)
+void RiuViewer::setOwnerReservoirView(RiuViewerToViewInterface * owner)
 {
     m_rimView = owner;
-    m_viewerCommands->setOwnerView(owner);
 
-    cvf::String xLabel;
-    cvf::String yLabel;
-    cvf::String zLabel;
-
-    m_rimView->axisLabels(&xLabel, &yLabel, &zLabel);
-    setAxisLabels(xLabel, yLabel, zLabel);
+    m_viewerCommands->setOwnerView(dynamic_cast<Rim3dView*>(owner));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +362,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 
     if (showAnimBar && m_showAnimProgress)
     {
-        QString stepName = m_rimView->ownerCase()->timeStepName(currentFrameIndex());
+        QString stepName = m_rimView->timeStepName(currentFrameIndex());
         m_animationProgress->setFormat("Time Step: %v/%m " + stepName);
         m_animationProgress->setMinimum(0);
         m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
@@ -466,6 +461,19 @@ void RiuViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 {
     m_histogramWidget->setPercentiles(pmin, pmax);
     m_histogramWidget->setMean(mean);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showGridBox(bool enable)
+{
+    this->removeStaticModel(m_gridBoxGenerator->model());
+
+    if (enable)
+    {
+        this->addStaticModelOnce(m_gridBoxGenerator->model());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,7 +630,7 @@ void RiuViewer::navigationPolicyUpdate()
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateCamera(m_rimView);
+            viewLinker->updateCamera(dynamic_cast<Rim3dView*>(m_rimView.p()));
         }
     }
 }
@@ -645,7 +653,20 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dView* RiuViewer::ownerReservoirView()
+void RiuViewer::showAxisCross(bool enable)
+{
+    m_mainRendering->removeOverlayItem(m_axisCross.p());
+
+    if (enable)
+    {
+        m_mainRendering->addOverlayItem(m_axisCross.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuViewerToViewInterface* RiuViewer::ownerReservoirView()
 {
     return m_rimView;
 }
@@ -655,7 +676,7 @@ Rim3dView* RiuViewer::ownerReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuViewer::ownerViewWindow() const
 {
-    return m_rimView;
+    return dynamic_cast<RimViewWindow*>( m_rimView.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -719,7 +740,7 @@ void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
                 cvf::ref<caf::DisplayCoordTransform> trans = m_rimView->displayCoordTransform();
                 cvf::Vec3d domainCoord = trans->transformToDomainCoord(displayCoord);
 
-                viewLinker->updateCursorPosition(m_rimView, domainCoord);
+                viewLinker->updateCursorPosition(dynamic_cast<Rim3dView*>(m_rimView.p()) , domainCoord);
             }
         }
     }
@@ -735,43 +756,24 @@ void RiuViewer::leaveEvent(QEvent *)
     if (m_rimView && m_rimView->assosiatedViewLinker())
     {
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
-        viewLinker->updateCursorPosition(m_rimView, cvf::Vec3d::UNDEFINED);
+        viewLinker->updateCursorPosition(dynamic_cast<Rim3dView*>(m_rimView.p()), cvf::Vec3d::UNDEFINED);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateGridBoxData()
+void RiuViewer::updateGridBoxData(double scaleZ, 
+                                  const cvf::Vec3d& displayModelOffset,
+                                  const cvf::Color3f&  backgroundColor,
+                                  const cvf::BoundingBox& domainCoordBoundingBox)
 {
-    if (ownerReservoirView() && ownerReservoirView()->ownerCase())
-    {
-        Rim3dView* rimView = ownerReservoirView();
-        RimCase* rimCase = rimView->ownerCase();
+    m_gridBoxGenerator->setScaleZ(scaleZ);
+    m_gridBoxGenerator->setDisplayModelOffset(displayModelOffset);
+    m_gridBoxGenerator->updateFromBackgroundColor(backgroundColor);
+    m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(domainCoordBoundingBox);
 
-        m_gridBoxGenerator->setScaleZ(rimView->scaleZ);
-        m_gridBoxGenerator->setDisplayModelOffset(rimCase->displayModelOffset());
-        m_gridBoxGenerator->updateFromBackgroundColor(rimView->backgroundColor);
-
-        if (rimView->showActiveCellsOnly())
-        {
-            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->activeCellsBoundingBox());
-        }
-        else
-        {
-            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->allCellsBoundingBox());
-        }
-
-        m_gridBoxGenerator->createGridBoxParts();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Model* RiuViewer::gridBoxModel() const
-{
-    return m_gridBoxGenerator->model();
+    m_gridBoxGenerator->createGridBoxParts();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -907,7 +909,7 @@ cvf::Color3f RiuViewer::computeContrastColor() const
 
     if (m_rimView.notNull())
     {
-        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor);
+        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor());
     }
     
     return contrastColor;
