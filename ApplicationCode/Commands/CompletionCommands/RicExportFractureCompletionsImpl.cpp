@@ -319,7 +319,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                                             fractureWellCell.cellSizeZ(),
                                                                                                             intersection.vlength,
                                                                                                             intersection.hlength,
-                                                                                                            fracture->perforationEfficiency,
+                                                                                                            fracture->perforationEfficiency(),
                                                                                                             fracTemplate->skinFactor(),
                                                                                                             cDarcyInCorrectUnit);
                     }

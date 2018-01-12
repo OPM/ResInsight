@@ -121,16 +121,16 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                    if (changedField == &azimuthAngle && (fabs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
+                    if (changedField == &azimuthAngle && (fabs(oldValue.toDouble() - fracture->m_azimuth()) < 1e-5))
                     {
-                        fracture->azimuth = azimuthAngle;
+                        fracture->m_azimuth = azimuthAngle;
                     }
 
                     if (changedField == &orientationType)
                     {
                         if (newValue == AZIMUTH)
                         {
-                            fracture->azimuth = azimuthAngle;
+                            fracture->m_azimuth = azimuthAngle;
                         }
                         else fracture->updateAzimuthBasedOnWellAzimuthAngle();
                     }
@@ -153,17 +153,17 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         {
             if (fracture->fractureTemplate() == this)
             {
-                if (changedField == &perforationLength && (fabs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
+                if (changedField == &perforationLength && (fabs(oldValue.toDouble() - fracture->m_perforationLength()) < 1e-5))
                 {
-                    fracture->perforationLength = perforationLength;
+                    fracture->m_perforationLength = perforationLength;
                 }
-                if (changedField == &perforationEfficiency && (fabs(oldValue.toDouble() - fracture->perforationEfficiency()) < 1e-5))
+                if (changedField == &perforationEfficiency && (fabs(oldValue.toDouble() - fracture->m_perforationEfficiency()) < 1e-5))
                 {
-                    fracture->perforationEfficiency = perforationEfficiency;
+                    fracture->m_perforationEfficiency = perforationEfficiency;
                 }
-                if (changedField == &wellDiameter && (fabs(oldValue.toDouble() - fracture->wellDiameter()) < 1e-5))
+                if (changedField == &wellDiameter && (fabs(oldValue.toDouble() - fracture->m_wellDiameter()) < 1e-5))
                 {
-                    fracture->wellDiameter = wellDiameter;
+                    fracture->m_wellDiameter = wellDiameter;
                 }
             }
         }

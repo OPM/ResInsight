@@ -90,12 +90,12 @@ void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
 
         if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH )
         {
-            azimuth = simWellAzimuth;
+            m_azimuth = simWellAzimuth;
         }
         else if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
-            else azimuth = simWellAzimuth - 90;
+            if (simWellAzimuth + 90 < 360) m_azimuth = simWellAzimuth + 90;
+            else m_azimuth = simWellAzimuth - 90;
         }
     }
 }
@@ -201,20 +201,20 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_location);
     locationGroup->add(&m_branchIndex);
-    locationGroup->add(&azimuth);
+    locationGroup->add(&m_azimuth);
     locationGroup->add(&m_uiWellPathAzimuth);
     locationGroup->add(&m_uiWellFractureAzimuthDiff);
     locationGroup->add(&m_wellFractureAzimuthAngleWarning);
-    locationGroup->add(&dip);
-    locationGroup->add(&tilt);
+    locationGroup->add(&m_dip);
+    locationGroup->add(&m_tilt);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_fractureUnit);
     propertyGroup->add(&m_fractureTemplate);
-    propertyGroup->add(&stimPlanTimeIndexToPlot);
-    propertyGroup->add(&perforationLength);
-    propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellDiameter);
+    propertyGroup->add(&m_stimPlanTimeIndexToPlot);
+    propertyGroup->add(&m_perforationLength);
+    propertyGroup->add(&m_perforationEfficiency);
+    propertyGroup->add(&m_wellDiameter);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);

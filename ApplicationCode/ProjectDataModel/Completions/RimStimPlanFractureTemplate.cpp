@@ -113,7 +113,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                    fracture->stimPlanTimeIndexToPlot = m_activeTimeStepIndex;
+                    fracture->setStimPlanTimeIndexToPlot(m_activeTimeStepIndex);
                 }
             }
             proj->createDisplayModelAndRedrawAllViews();

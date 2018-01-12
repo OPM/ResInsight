@@ -55,16 +55,11 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
-    caf::PdmField<double>           azimuth;
-    caf::PdmField<double>           perforationLength;
-    caf::PdmField<double>           perforationEfficiency;
-    caf::PdmField<double>           wellDiameter;
-
-    caf::PdmField<double>           dip;
-    caf::PdmField<double>           tilt;
-
-    caf::PdmField<int>              stimPlanTimeIndexToPlot;
-
+    double                          perforationLength() const;
+    double                          perforationEfficiency() const;
+    
+    int                             stimPlanTimeIndexToPlot() const;
+    void                            setStimPlanTimeIndexToPlot(int timeIndex);
 
     double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     cvf::Vec3d                      anchorPosition() const ;
@@ -96,6 +91,8 @@ public:
     
     virtual void                    loadDataAndUpdate() = 0;
     
+    friend class RimFractureTemplate;
+
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -115,13 +112,19 @@ protected:
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
 
-    caf::PdmProxyValueField<QString>                m_uiWellPathAzimuth; 
-    caf::PdmProxyValueField<QString>                m_uiWellFractureAzimuthDiff; 
-    caf::PdmField<QString>                          m_wellFractureAzimuthAngleWarning;
+    caf::PdmProxyValueField<QString> m_uiWellPathAzimuth;
+    caf::PdmProxyValueField<QString> m_uiWellFractureAzimuthDiff;
+    caf::PdmField<QString>           m_wellFractureAzimuthAngleWarning;
 
+    caf::PdmField<double>            m_dip;
+    caf::PdmField<double>            m_tilt;
+    caf::PdmField<double>            m_azimuth;
+    caf::PdmField<double>            m_perforationLength;
+    caf::PdmField<double>            m_perforationEfficiency;
+    caf::PdmField<double>            m_wellDiameter;
+    caf::PdmField<int>               m_stimPlanTimeIndexToPlot;
 
 private:
-    caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
-
-    cvf::ref<RivWellFracturePartMgr>                m_fracturePartMgr;
+    caf::PdmField<cvf::Vec3d>        m_anchorPosition;
+    cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
 };
