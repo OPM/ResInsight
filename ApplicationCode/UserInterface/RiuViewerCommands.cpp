@@ -315,7 +315,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                if (firstPartTriangleIndex != cvf::UNDEFINED_SIZE_T)
+                if (firstPartTriangleIndex != cvf::UNDEFINED_UINT)
                 {
                     double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
                     cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
