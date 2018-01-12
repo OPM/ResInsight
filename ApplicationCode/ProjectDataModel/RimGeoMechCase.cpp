@@ -61,6 +61,9 @@ RimGeoMechCase::RimGeoMechCase(void)
     CAF_PDM_InitField(&m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
 
     CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNameUiSelection, "ElementPropertyFileNameSelection", "", "", "", "");
+    m_elementPropertyFileNameUiSelection.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +175,12 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 
     if (m_geoMechCaseData.notNull())
     {
-        geoMechData()->femPartResults()->addElementPropertyFiles(m_elementPropertyFileNames);
+        std::vector<QString> fileNames;
+        for (const caf::FilePath& fileName : m_elementPropertyFileNames.v())
+        {
+            fileNames.push_back(fileName.path());
+        }
+        geoMechData()->femPartResults()->addElementPropertyFiles(fileNames);
     }
 
     return fileOpenSuccess;
@@ -189,9 +197,9 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
     // Update filename and folder paths when opening project from a different file location
     m_caseFileName = RimTools::relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     
-    for (QString& fileName : m_elementPropertyFileNames.v())
+    for (caf::FilePath& fileName : m_elementPropertyFileNames.v())
     {
-        fileName = RimTools::relocateFile(fileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        fileName = RimTools::relocateFile(fileName.path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     }
 
 #if 0 // Output the search path for debugging
@@ -330,15 +338,15 @@ void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::addElementPropertyFiles(const std::vector<QString>& fileNames)
+void RimGeoMechCase::addElementPropertyFiles(const std::vector<caf::FilePath>& fileNames)
 {
     std::vector<QString> newFileNames;
 
-    for (const QString& newFileNameToPossiblyAdd : fileNames)
+    for (const caf::FilePath& newFileNameToPossiblyAdd : fileNames)
     {
         bool fileAlreadyAdded = false;
 
-        for (const QString& existingFileName : m_elementPropertyFileNames.v())
+        for (const caf::FilePath& existingFileName : m_elementPropertyFileNames())
         {
             if (existingFileName == newFileNameToPossiblyAdd)
             {
@@ -348,7 +356,7 @@ void RimGeoMechCase::addElementPropertyFiles(const std::vector<QString>& fileNam
         }
         if (!fileAlreadyAdded)
         {
-            newFileNames.push_back(newFileNameToPossiblyAdd);
+            newFileNames.push_back(newFileNameToPossiblyAdd.path());
             m_elementPropertyFileNames.v().push_back(newFileNameToPossiblyAdd);
         }
     }
@@ -521,6 +529,23 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
    caseGroup->add(&m_frictionAngleDeg);
 
    caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
-   elmPropGroup->add(&m_elementPropertyFileNames);
+   elmPropGroup->add(&m_elementPropertyFileNameUiSelection);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_elementPropertyFileNameUiSelection)
+    {
+        for (const caf::FilePath& fileName : m_elementPropertyFileNames.v())
+        {
+            options.push_back(caf::PdmOptionItemInfo(fileName.path(), fileName.path() , true, QIcon()));
+        }
+    }
+
+    return options;
+}

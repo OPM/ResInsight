@@ -55,10 +55,10 @@ void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
         defaultDir = QFileInfo(fileNames.last()).absolutePath();
     }
 
-    std::vector<QString> fileNamesStd;
+    std::vector<caf::FilePath> filePaths;
     for (QString filename : fileNames)
     {
-        fileNamesStd.push_back(filename);
+        filePaths.push_back(caf::FilePath(filename));
     }
 
     app->setLastUsedDialogDirectory("ELM_PROPS", defaultDir);
@@ -71,7 +71,7 @@ void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
 
     if (activeGmv->geoMechCase())
     {
-        activeGmv->geoMechCase()->addElementPropertyFiles(fileNamesStd);
+        activeGmv->geoMechCase()->addElementPropertyFiles(filePaths);
     }
 }
 

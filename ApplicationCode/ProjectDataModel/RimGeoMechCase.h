@@ -21,6 +21,7 @@
 
 #include "RimCase.h"
 
+#include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -69,7 +70,7 @@ public:
 
     virtual void                            setFormationNames(RimFormationNames* formationNames) override;
 
-    void                                    addElementPropertyFiles(const std::vector<QString>& filenames);
+    void                                    addElementPropertyFiles(const std::vector<caf::FilePath>& filenames);
 
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
@@ -80,16 +81,20 @@ private:
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual void                            updateFormationNamesData() override;
 
-    virtual void                            initAfterRead();
+    virtual void                            initAfterRead() override;
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 
 private:
-    cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
-    caf::PdmField<QString>                  m_caseFileName;
-    caf::PdmField<double>                   m_cohesion;
-    caf::PdmField<double>                   m_frictionAngleDeg;
-    caf::PdmField<std::vector<QString> >    m_elementPropertyFileNames;
+    cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
+    caf::PdmField<QString>                    m_caseFileName;
+    caf::PdmField<double>                     m_cohesion;
+    caf::PdmField<double>                     m_frictionAngleDeg;
+    caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;
+    caf::PdmField<std::vector<QString> >      m_elementPropertyFileNameUiSelection;
+    caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
+    caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
 };
