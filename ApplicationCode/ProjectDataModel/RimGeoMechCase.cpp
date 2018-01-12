@@ -40,9 +40,11 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechPropertyFilter.h"
 
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafUtils.h"
 
 #include <QFile>
+#include <QIcon>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
 //--------------------------------------------------------------------------------------------------
@@ -62,8 +64,14 @@ RimGeoMechCase::RimGeoMechCase(void)
 
     CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNameUiSelection, "ElementPropertyFileNameSelection", "", "", "", "");
-    m_elementPropertyFileNameUiSelection.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNameIndexUiSelection, "ElementPropertyFileNameIndexUiSelection", "", "", "", "");
+    m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField(&m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_closeElementPropertyFileCommand);
+
+    CAF_PDM_InitField(&m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_reloadElementPropertyFileCommand);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -422,6 +430,12 @@ void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
+    else if (changedField == &m_closeElementPropertyFileCommand)
+    {
+        m_closeElementPropertyFileCommand = false;
+        closeSelectedElementPropertyFiles();
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,6 +528,33 @@ QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int number
     return "";
 }
 
+struct descendingComparator
+{
+    template<class T>
+    bool operator()(T const &a, T const &b) const { return a > b; }
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::closeSelectedElementPropertyFiles()
+{
+    std::sort(m_elementPropertyFileNameIndexUiSelection.v().begin(), m_elementPropertyFileNameIndexUiSelection.v().end(), descendingComparator());
+
+    std::vector<QString> filesToClose;
+
+    for (size_t idx : m_elementPropertyFileNameIndexUiSelection.v())
+    {
+        filesToClose.push_back(m_elementPropertyFileNames.v().at(idx).path());
+        m_elementPropertyFileNames.v().erase(m_elementPropertyFileNames.v().begin() + idx);
+    }
+    m_elementPropertyFileNameIndexUiSelection.v().clear();
+
+    if (m_geoMechCaseData.notNull())
+    {
+        geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
+    }
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -529,7 +570,19 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
    caseGroup->add(&m_frictionAngleDeg);
 
    caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
-   elmPropGroup->add(&m_elementPropertyFileNameUiSelection);
+   elmPropGroup->add(&m_elementPropertyFileNameIndexUiSelection);
+   elmPropGroup->add(&m_closeElementPropertyFileCommand);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_closeElementPropertyFileCommand)
+    {
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute)->m_buttonText = "Close Case(s)";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -539,11 +592,11 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::P
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_elementPropertyFileNameUiSelection)
+    if (fieldNeedingOptions == &m_elementPropertyFileNameIndexUiSelection)
     {
-        for (const caf::FilePath& fileName : m_elementPropertyFileNames.v())
+        for (size_t i = 0; i < m_elementPropertyFileNames.v().size(); i++)
         {
-            options.push_back(caf::PdmOptionItemInfo(fileName.path(), fileName.path() , true, QIcon()));
+            options.push_back(caf::PdmOptionItemInfo(m_elementPropertyFileNames.v().at(i).path(), (int)i, true, QIcon()));
         }
     }
 

@@ -52,7 +52,8 @@ public:
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
 
-    void                                             addElementPropertyFiles(const std::vector<QString>& filename);
+    void                                             addElementPropertyFiles(const std::vector<QString>& filenames);
+    void                                             removeElementPropertyFiles(const std::vector<QString>& filenames);
 
     void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
     double                                           parameterCohesion() const { return m_cohesion;}

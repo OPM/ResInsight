@@ -48,6 +48,24 @@ void RifElementPropertyReader::addFile(const std::string& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifElementPropertyReader::removeFile(const std::string& fileName)
+{
+    std::map<std::string, RifElementPropertyMetadata> tempMetaData;
+
+    for (std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData)
+    {
+        if (metaData.second.fileName.toStdString() != fileName)
+        {
+            tempMetaData[metaData.first] = metaData.second;
+        }
+    }
+    
+    m_fieldsMetaData.swap(tempMetaData);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalarElementFields()

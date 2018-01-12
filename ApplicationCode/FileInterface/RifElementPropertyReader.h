@@ -40,6 +40,7 @@ public:
     virtual ~RifElementPropertyReader();
 
     void addFile(const std::string& fileName);
+    void removeFile(const std::string& fileName);
 
     std::map<std::string, std::vector<std::string>> scalarElementFields();
 

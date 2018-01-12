@@ -81,6 +81,7 @@ private:
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual void                            updateFormationNamesData() override;
@@ -88,13 +89,14 @@ private:
     virtual void                            initAfterRead() override;
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 
+    void                                    closeSelectedElementPropertyFiles();
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
     caf::PdmField<QString>                    m_caseFileName;
     caf::PdmField<double>                     m_cohesion;
     caf::PdmField<double>                     m_frictionAngleDeg;
     caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;
-    caf::PdmField<std::vector<QString> >      m_elementPropertyFileNameUiSelection;
+    caf::PdmField<std::vector<int> >          m_elementPropertyFileNameIndexUiSelection;
     caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
     caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
 };

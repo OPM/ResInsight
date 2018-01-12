@@ -135,6 +135,17 @@ void RigFemPartResultsCollection::addElementPropertyFiles(const std::vector<QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::removeElementPropertyFiles(const std::vector<QString>& filenames)
+{
+    for (const QString filename : filenames)
+    {
+        m_elementPropertyReader->removeFile(filename.toStdString());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::setCalculationParameters(double cohesion, double frictionAngleRad)
 {
     m_cohesion = cohesion;
