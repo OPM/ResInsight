@@ -276,7 +276,7 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
     this->triangleGeometry(&triangleIndices, &nodeCoordVec);
 
     cvf::BoundingBox fractureBBox;
-    for (cvf::Vec3f nodeCoord : nodeCoordVec) fractureBBox.add(nodeCoord);
+    for (const auto& nodeCoord : nodeCoordVec) fractureBBox.add(nodeCoord);
   
     return fractureBBox;
 }
