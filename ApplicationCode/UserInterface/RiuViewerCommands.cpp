@@ -86,6 +86,7 @@
 #include <QMouseEvent>
 #include <QStatusBar>
 #include <array>
+#include "RimPerforationInterval.h"
 
 
 
@@ -149,14 +150,33 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
 
     const cvf::Part* firstHitPart = nullptr;
-    const cvf::Part* nncFirstHitPart = nullptr;
 
     m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
     cvf::HitItemCollection hitItems;
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
-        extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &nncFirstHitPart, nullptr);
+        std::vector<std::pair<const cvf::Part*, cvf::uint>> partAndTriangleIndexPairs;
+        extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint,
+                                &partAndTriangleIndexPairs, nullptr, nullptr);
+
+        for (const auto& partTringleIndex : partAndTriangleIndexPairs)
+        {
+            if (!firstHitPart)
+            {
+                auto part = partTringleIndex.first;
+                const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
+                if (objectSourceInfo && dynamic_cast<RimPerforationInterval*>(objectSourceInfo->object()))
+                { 
+                    // Skip picking on perforation interval, display well path context menu
+                    continue;
+                }
+
+                firstHitPart = part;
+                firstPartTriangleIndex = partTringleIndex.second;
+                break;
+            }
+        }
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
@@ -295,10 +315,13 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
-                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
-                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
-                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                if (firstPartTriangleIndex != cvf::UNDEFINED_SIZE_T)
+                {
+                    double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
+                    cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
+                    RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
+                    RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                }
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
@@ -634,33 +657,6 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Perform picking and return the index of the face that was hit, if a drawable geo was hit
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hitItems, 
-                                        cvf::Vec3d* localIntersectionPoint,
-                                        cvf::Vec3d* globalIntersectionPoint,
-                                        const cvf::Part** firstPart, uint* firstPartFaceHit, 
-                                        const cvf::Part** nncPart, uint* nncPartFaceHit)
-{
-    std::vector<std::pair<const cvf::Part*, cvf::uint>> partAndTriangleIndexPairs;
-    extractIntersectionData(hitItems, localIntersectionPoint, globalIntersectionPoint,
-                            &partAndTriangleIndexPairs, nncPart, nncPartFaceHit);
-
-    if (!partAndTriangleIndexPairs.empty())
-    {
-        if (firstPart)
-        {
-            *firstPart = partAndTriangleIndexPairs.front().first;
-        }
-
-        if (firstPartFaceHit)
-        {
-            *firstPartFaceHit = partAndTriangleIndexPairs.front().second;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hitItems, 
@@ -705,7 +701,10 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
                 // Hit items are ordered by distance from eye
                 if (diff.lengthSquared() < pickDepthThresholdSquared)
                 {
-                    *nncPart = const_cast<cvf::Part*>(pickedPartCandidate);
+                    if (nncPart)
+                    {
+                        *nncPart = pickedPartCandidate;
+                    }
 
                     const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItemCandidate->detail());
                     if (detail && nncPartFaceHit)
@@ -724,7 +723,7 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
             firstNonNncPartIndex = i;
         }
 
-        if (firstNonNncPartIndex != cvf::UNDEFINED_SIZE_T && *nncPart)
+        if (firstNonNncPartIndex != cvf::UNDEFINED_SIZE_T && nncPart && *nncPart)
         {
             break;
         }
