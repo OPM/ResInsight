@@ -91,7 +91,7 @@ std::map<std::string, std::vector<float>>
             fieldAndData[currentFieldFromFile] = table.data[i];
         }
     }
-    else if (elementIdsFromFile.size() > m_elementIdxToId.size())
+    else if (elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size())
     {
         RifElementPropertyReader::outputWarningAboutWrongFileData();
         return fieldAndData;
