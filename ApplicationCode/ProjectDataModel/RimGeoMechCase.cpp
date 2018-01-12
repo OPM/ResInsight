@@ -332,16 +332,32 @@ void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::addElementPropertyFiles(const std::vector<QString>& fileNames)
 {
-    for (const QString& fileName : fileNames)
+    std::vector<QString> newFileNames;
+
+    for (const QString& newFileNameToPossiblyAdd : fileNames)
     {
-        m_elementPropertyFileNames.v().push_back(fileName);
+        bool fileAlreadyAdded = false;
+
+        for (const QString& existingFileName : m_elementPropertyFileNames.v())
+        {
+            if (existingFileName == newFileNameToPossiblyAdd)
+            {
+                fileAlreadyAdded = true;
+                break;
+            }
+        }
+        if (!fileAlreadyAdded)
+        {
+            newFileNames.push_back(newFileNameToPossiblyAdd);
+            m_elementPropertyFileNames.v().push_back(newFileNameToPossiblyAdd);
+        }
     }
     
     this->updateConnectedEditors();
     
     if (m_geoMechCaseData.notNull())
     {
-        geoMechData()->femPartResults()->addElementPropertyFiles(fileNames);
+        geoMechData()->femPartResults()->addElementPropertyFiles(newFileNames);
     }
 }
 
