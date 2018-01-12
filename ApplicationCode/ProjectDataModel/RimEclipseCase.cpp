@@ -45,6 +45,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
@@ -223,8 +224,23 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
     RimEclipseView* rimEclipseView = new RimEclipseView();
     rimEclipseView->setEclipseCase(this);
-    rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
-    rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
+
+    // Set default values
+    {
+        rimEclipseView->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
+
+        if (RiaApplication::instance()->preferences()->loadAndShowSoil)
+        {
+            rimEclipseView->cellResult()->setResultVariable("SOIL");
+        }
+
+        rimEclipseView->hasUserRequestedAnimation = true;
+
+        rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
+        rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
+    
+        rimEclipseView->stimPlanColors()->setDefaultResultNameForStimPlan();
+    }
 
     caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
 

@@ -110,15 +110,6 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
 
-    // Select SOIL as default result variable
-    riv->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
-
-    if (app->preferences()->loadAndShowSoil)
-    {
-        riv->cellResult()->setResultVariable("SOIL");
-    }
-    riv->hasUserRequestedAnimation = true;
-
     riv->loadDataAndUpdate();
 
     // Add a corresponding summary case if it exists

@@ -66,7 +66,6 @@ bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const Q
     RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
     riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
-    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
