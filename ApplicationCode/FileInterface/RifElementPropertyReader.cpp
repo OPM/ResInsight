@@ -20,12 +20,15 @@
 
 #include "cvfAssert.h"
 
+#include <cmath>
+
+#include <QMessageBox>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyReader::RifElementPropertyReader() {}
+RifElementPropertyReader::RifElementPropertyReader(const std::vector<int>& elementIdxToId) : m_elementIdxToId(elementIdxToId) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,7 +43,7 @@ void RifElementPropertyReader::addFile(const std::string& fileName)
     RifElementPropertyMetadata metaData = RifElementPropertyTableReader::readMetadata(QString::fromStdString(fileName));
     for (QString field : metaData.dataColumns)
     {
-        m_fields[field.toStdString()] = metaData;
+        m_fieldsMetaData[field.toStdString()] = metaData;
     }
 }
 
@@ -51,7 +54,8 @@ std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalar
 {
     std::map<std::string, std::vector<std::string>> fields;
 
-    for (std::map<std::string, RifElementPropertyMetadata>::iterator field = m_fields.begin(); field != m_fields.end(); field++)
+    for (std::map<std::string, RifElementPropertyMetadata>::iterator field = m_fieldsMetaData.begin();
+         field != m_fieldsMetaData.end(); field++)
     {
         fields[field->first];
     }
@@ -66,16 +70,100 @@ std::map<std::string, std::vector<float>>
     RifElementPropertyReader::readAllElementPropertiesInFileContainingField(const std::string& fieldName)
 {
     RifElementPropertyTable table;
-    RifElementPropertyTableReader::readData(&m_fields[fieldName], &table);
+    RifElementPropertyTableReader::readData(&m_fieldsMetaData[fieldName], &table);
 
-    CVF_ASSERT(m_fields[fieldName].dataColumns.size() == table.data.size());
-
-    std::map<std::string, std::vector<float>> fieldAndData;
+    CVF_ASSERT(m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size());
 
     for (size_t i = 0; i < table.data.size(); i++)
     {
-        fieldAndData[m_fields[fieldName].dataColumns[i].toStdString()].swap(table.data[i]);
+        CVF_ASSERT(table.data[i].size() == table.elementIds.size());
+    }
+
+    std::map<std::string, std::vector<float>> fieldAndData;
+
+    const std::vector<int>& elementIdsFromFile = table.elementIds;
+
+    if (elementIdsFromFile == m_elementIdxToId)
+    {
+        for (size_t i = 0; i < table.data.size(); i++)
+        {
+            const std::string& currentFieldFromFile  = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
+            fieldAndData[currentFieldFromFile] = table.data[i];
+        }
+    }
+    else if (elementIdsFromFile.size() > m_elementIdxToId.size())
+    {
+        RifElementPropertyReader::outputWarningAboutWrongFileData();
+        return fieldAndData;
+    }
+    else
+    {
+        if (m_elementIdToIdx.size() == 0)
+        {
+            makeElementIdToIdxMap();
+        }
+
+        std::vector<int> fileIdxToElementIdx;
+        fileIdxToElementIdx.reserve(elementIdsFromFile.size());
+
+        for (size_t i = 0; i < elementIdsFromFile.size(); i++)
+        {
+            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find(elementIdsFromFile[i]);
+            if (it == m_elementIdToIdx.end())
+            {
+                RifElementPropertyReader::outputWarningAboutWrongFileData();
+                return fieldAndData;
+            }
+
+            fileIdxToElementIdx.push_back(it->second);
+        }
+
+        for (size_t i = 0; i < table.data.size(); i++)
+        {
+            std::string currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
+
+            const std::vector<float>& currentColumn = table.data[i];
+
+            std::vector<float> tempResult(m_elementIdToIdx.size(), HUGE_VAL);
+
+            for (size_t j = 0; j < currentColumn.size(); j++)
+            {
+                tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
+            }
+
+            fieldAndData[currentFieldFromFile].swap(tempResult);
+        }
     }
 
     return fieldAndData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifElementPropertyReader::makeElementIdToIdxMap()
+{
+    m_elementIdToIdx.reserve(m_elementIdxToId.size());
+
+    for (size_t i = 0; i < m_elementIdxToId.size(); i++)
+    {
+        m_elementIdToIdx[m_elementIdxToId[i]] = (int)i;
+    }
+
+    std::vector<int> tempVectorForDeletion;
+    m_elementIdxToId.swap(tempVectorForDeletion);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifElementPropertyReader::outputWarningAboutWrongFileData()
+{
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    QString warningText;
+    warningText = QString("The chosen result property does not fit the model");
+    msgBox.setText(warningText);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }

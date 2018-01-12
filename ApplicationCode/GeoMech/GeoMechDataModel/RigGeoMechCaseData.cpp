@@ -97,8 +97,6 @@ bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
     m_readerInterface = new RifOdbReader;
 #endif
 
-    m_elementPropertyReader = new RifElementPropertyReader;
-
     if (m_readerInterface.notNull() && m_readerInterface->openFile(m_geoMechCaseFileName, errorMessage))
     {
         m_femParts = new RigFemPartCollection();
@@ -110,6 +108,7 @@ bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
             progress.incrementProgress();
             progress.setProgressDescription("Calculating element neighbors");
 
+            m_elementPropertyReader = new RifElementPropertyReader(m_femParts->part(0)->elementIdxToId());
             // Initialize results containers
             m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p());
 

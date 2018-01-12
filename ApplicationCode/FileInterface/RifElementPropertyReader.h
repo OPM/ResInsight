@@ -26,6 +26,7 @@
 
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 //==================================================================================================
@@ -35,7 +36,7 @@
 class RifElementPropertyReader : public cvf::Object
 {
 public:
-    RifElementPropertyReader();
+    RifElementPropertyReader(const std::vector<int>& elementIdxToId);
     virtual ~RifElementPropertyReader();
 
     void addFile(const std::string& fileName);
@@ -45,5 +46,11 @@ public:
     std::map<std::string, std::vector<float>> readAllElementPropertiesInFileContainingField(const std::string& fieldName);
 
 private:
-    std::map<std::string, RifElementPropertyMetadata> m_fields;
+    void makeElementIdToIdxMap();
+    static void outputWarningAboutWrongFileData();
+
+private:
+    std::map<std::string, RifElementPropertyMetadata> m_fieldsMetaData;
+    std::vector<int> m_elementIdxToId;
+    std::unordered_map<int, int> m_elementIdToIdx;
 };
