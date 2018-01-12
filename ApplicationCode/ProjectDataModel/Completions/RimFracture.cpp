@@ -170,14 +170,6 @@ double RimFracture::perforationEfficiency() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimFracture::stimPlanTimeIndexToPlot() const
-{
-    return m_stimPlanTimeIndexToPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFracture::setStimPlanTimeIndexToPlot(int timeIndex)
 {
     m_stimPlanTimeIndexToPlot = timeIndex;

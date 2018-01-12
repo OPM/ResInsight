@@ -58,7 +58,6 @@ public:
     double                          perforationLength() const;
     double                          perforationEfficiency() const;
     
-    int                             stimPlanTimeIndexToPlot() const;
     void                            setStimPlanTimeIndexToPlot(int timeIndex);
 
     double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
