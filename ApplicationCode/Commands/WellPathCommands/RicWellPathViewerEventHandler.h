@@ -30,6 +30,6 @@ class RicWellPathViewerEventHandler : public RicViewerEventInterface
 public:
     static RicWellPathViewerEventHandler* instance();
 
-    virtual bool handleEvent(cvf::Object* eventObject);
+    virtual bool handleEvent(const RicViewerEventObject& eventObject);
 };
 

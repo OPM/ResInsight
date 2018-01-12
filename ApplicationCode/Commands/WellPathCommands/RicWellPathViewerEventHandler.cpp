@@ -26,6 +26,7 @@
 
 #include "RiuMainWindow.h"
 
+#include "RivObjectSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -46,43 +47,67 @@ RicWellPathViewerEventHandler* RicWellPathViewerEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
+bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& eventObject)
 {
-    RicViewerEventObject* uiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
-    if (!uiEvent) return false;
+    if (eventObject.m_partAndTriangleIndexPairs.empty()) return false;
 
-    if (uiEvent->firstHitPart && uiEvent->firstHitPart->sourceInfo())
+    const caf::PdmObject* objectToSelect = nullptr;
+
+    cvf::uint wellPathTriangleIndex = cvf::UNDEFINED_UINT;
+    const RivWellPathSourceInfo* wellPathSourceInfo = nullptr;
+    for (const auto & partAndTriangleIndexPair : eventObject.m_partAndTriangleIndexPairs)
     {
-        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(uiEvent->firstHitPart->sourceInfo());
-        if (wellPathSourceInfo)
+        const cvf::Part* part = partAndTriangleIndexPair.first;
+        
+        const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
+        if (!objectToSelect && sourceInfo)
         {
-            Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
-            if (!rimView) return false;
-
-            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(uiEvent->globalIntersectionPoint);
-
-            double measuredDepth = wellPathSourceInfo->measuredDepth(uiEvent->firstPartTriangleIndex, domainCoord);
-
-            // NOTE: This computation was used to find the location for a fracture when clicking on a well path
-            // It turned out that the computation was a bit inaccurate
-            // Consider to use code in RigSimulationWellCoordsAndMD instead
-            cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(uiEvent->firstPartTriangleIndex, domainCoord);
-
-            QString wellPathText;
-            wellPathText += QString("Well path name : %1\n").arg(wellPathSourceInfo->wellPath()->name());
-            wellPathText += QString("Measured depth : %1\n").arg(measuredDepth);
-
-            QString formattedText;
-            formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", trueVerticalDepth.x(), trueVerticalDepth.y(), -trueVerticalDepth.z());
-            wellPathText += formattedText;
-
-            RiuMainWindow::instance()->setResultInfo(wellPathText);
-
-            RiuMainWindow::instance()->selectAsCurrentItem(wellPathSourceInfo->wellPath());
-
-            return true;
+            objectToSelect = sourceInfo->object();
         }
+
+        if (part && part->sourceInfo() && dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
+        {
+            wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
+            wellPathTriangleIndex = partAndTriangleIndexPair.second;
+            break;
+        }
+    }
+
+    if (wellPathSourceInfo)
+    {
+        Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
+        if (!rimView) return false;
+
+        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+        cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_globalIntersectionPoint);
+
+        double measuredDepth = wellPathSourceInfo->measuredDepth(wellPathTriangleIndex, domainCoord);
+
+        // NOTE: This computation was used to find the location for a fracture when clicking on a well path
+        // It turned out that the computation was a bit inaccurate
+        // Consider to use code in RigSimulationWellCoordsAndMD instead
+        cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(wellPathTriangleIndex, domainCoord);
+
+        QString wellPathText;
+        wellPathText += QString("Well path name : %1\n").arg(wellPathSourceInfo->wellPath()->name());
+        wellPathText += QString("Measured depth : %1\n").arg(measuredDepth);
+
+        QString formattedText;
+        formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", trueVerticalDepth.x(), trueVerticalDepth.y(), -trueVerticalDepth.z());
+        wellPathText += formattedText;
+
+        RiuMainWindow::instance()->setResultInfo(wellPathText);
+
+        if (objectToSelect)
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
+        }
+        else
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem(wellPathSourceInfo->wellPath());
+        }
+
+        return true;
     }
 
     return false;

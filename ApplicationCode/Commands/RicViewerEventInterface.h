@@ -25,29 +25,28 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-namespace cvf {
-    class Part;
-}
+namespace cvf { 
+    class Part; 
+} 
+
+
+class RicViewerEventObject
+{
+public:
+    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, const std::vector<std::pair<const cvf::Part*, cvf::uint>>& partAndTriangleIndexPairs)
+        : m_globalIntersectionPoint(globalIntersectionPoint),
+        m_partAndTriangleIndexPairs(partAndTriangleIndexPairs)
+    {
+    }
+
+    cvf::Vec3d  m_globalIntersectionPoint;
+    std::vector<std::pair<const cvf::Part*, cvf::uint>> m_partAndTriangleIndexPairs;
+};
+
 
 class RicViewerEventInterface
 {
 public:
-    virtual bool handleEvent(cvf::Object* eventObject) = 0;
-};
-
-
-class RicViewerEventObject : public cvf::Object
-{
-public:
-    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, cvf::Part* firstHitPart,  cvf::uint firstPartTriangleIndex)
-        : globalIntersectionPoint(globalIntersectionPoint),
-        firstHitPart(firstHitPart),
-        firstPartTriangleIndex(firstPartTriangleIndex)
-    {
-    }
-
-    cvf::Vec3d  globalIntersectionPoint;
-    cvf::Part*  firstHitPart;
-    cvf::uint   firstPartTriangleIndex;
+    virtual bool handleEvent(const RicViewerEventObject& eventObject) = 0;
 };
 
