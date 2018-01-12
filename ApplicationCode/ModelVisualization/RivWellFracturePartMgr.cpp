@@ -93,7 +93,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
             displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
         }
 
-        if (triangleIndices.size() == 0 || displayCoords.size() == 0)
+        if (triangleIndices.empty() || displayCoords.empty())
         {
             return nullptr;
         }
@@ -135,9 +135,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanSurfacePart(const RimE
     std::vector<cvf::uint> triangleIndices;
     m_rimFracture->triangleGeometry(&triangleIndices, &nodeCoords);
 
-    if (triangleIndices.size() == 0 || nodeCoords.size() == 0)
+    if (triangleIndices.empty() || nodeCoords.empty())
     {
-        return NULL;
+        return nullptr;
     }
 
     // Transforms the node coordinates for display
@@ -198,7 +198,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanSurfacePart(const RimE
             }
         }
 
-        if (triIndicesToInclude.size() == 0)
+        if (triIndicesToInclude.empty())
         {
             return nullptr;
         }
@@ -437,14 +437,14 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
         {
             const RigFractureCell& stimPlanCell = stimPlanCells[cIdx];
             std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
-            for (cvf::Vec3d cellCorner : stimPlanCellPolygon)
+            for (const cvf::Vec3d& cellCorner : stimPlanCellPolygon)
             {
                 stimPlanMeshVertices.push_back(static_cast<cvf::Vec3f>(cellCorner));
             }
         }
     }
 
-    if (stimPlanMeshVertices.size() == 0)
+    if (stimPlanMeshVertices.empty())
     {
         return nullptr;
     }
