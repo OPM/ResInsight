@@ -43,6 +43,7 @@ class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
 class RigMainGrid;
 
+
 //==================================================================================================
 ///  
 ///  
@@ -52,6 +53,13 @@ class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterf
      CAF_PDM_HEADER_INIT;
 
 public:
+    enum StimPlanResultColorType
+    {
+        INTERPOLATED,
+        SINGLE_ELEMENT_COLOR
+    };
+
+public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
@@ -59,6 +67,7 @@ public:
     double                          perforationEfficiency() const;
     
     void                            setStimPlanTimeIndexToPlot(int timeIndex);
+    StimPlanResultColorType         stimPlanResultColorType() const;
 
     double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     cvf::Vec3d                      anchorPosition() const ;
@@ -123,7 +132,10 @@ protected:
     caf::PdmField<double>            m_wellDiameter;
     caf::PdmField<int>               m_stimPlanTimeIndexToPlot;
 
+    caf::PdmField<caf::AppEnum<StimPlanResultColorType>> m_stimPlanCellVizMode;
+
 private:
     caf::PdmField<cvf::Vec3d>        m_anchorPosition;
+
     cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
 };

@@ -212,6 +212,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     propertyGroup->add(&m_fractureUnit);
     propertyGroup->add(&m_fractureTemplate);
     propertyGroup->add(&m_stimPlanTimeIndexToPlot);
+    propertyGroup->add(&m_stimPlanCellVizMode);
     propertyGroup->add(&m_perforationLength);
     propertyGroup->add(&m_perforationEfficiency);
     propertyGroup->add(&m_wellDiameter);

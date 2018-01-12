@@ -177,6 +177,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     propertyGroup->add(&m_fractureUnit);
     propertyGroup->add(&m_fractureTemplate);
     propertyGroup->add(&m_stimPlanTimeIndexToPlot);
+    propertyGroup->add(&m_stimPlanCellVizMode);
     propertyGroup->add(&m_perforationLength);
     propertyGroup->add(&m_perforationEfficiency);
     propertyGroup->add(&m_wellDiameter);

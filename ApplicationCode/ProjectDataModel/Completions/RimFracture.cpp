@@ -70,6 +70,19 @@
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
+namespace caf {
+
+template<>
+void caf::AppEnum< RimFracture::StimPlanResultColorType >::setUp()
+{
+    addItem(RimFracture::INTERPOLATED,          "INTERPOLATED",         "Interpolated");
+    addItem(RimFracture::SINGLE_ELEMENT_COLOR,  "SINGLE_ELEMENT_COLOR", "Single Element Cell");
+
+    setDefault(RimFracture::INTERPOLATED);
+}
+
+} // End namespace caf
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -141,6 +154,8 @@ RimFracture::RimFracture(void)
     m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
     m_wellFractureAzimuthAngleWarning.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "StimPlan Visualization mode",   "", "", "");
+
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
 
@@ -178,6 +193,14 @@ void RimFracture::setStimPlanTimeIndexToPlot(int timeIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFracture::StimPlanResultColorType RimFracture::stimPlanResultColorType() const
+{
+    return m_stimPlanCellVizMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid* mainGrid)
 {
     std::vector<size_t> cellindecies;
@@ -204,6 +227,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     if (changedField == &m_azimuth || 
         changedField == &m_fractureTemplate ||
         changedField == &m_stimPlanTimeIndexToPlot ||
+        changedField == &m_stimPlanCellVizMode ||
         changedField == this->objectToggleField() ||
         changedField == &m_dip ||
         changedField == &m_tilt)
@@ -495,11 +519,14 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
+            m_stimPlanCellVizMode.uiCapability()->setUiHidden(false);
+
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly(true);
         }
         else
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
+            m_stimPlanCellVizMode.uiCapability()->setUiHidden(true);
         }
     }
     else
