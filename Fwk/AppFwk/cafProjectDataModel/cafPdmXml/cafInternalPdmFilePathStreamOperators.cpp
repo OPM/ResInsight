@@ -7,9 +7,25 @@
 //--------------------------------------------------------------------------------------------------
 QTextStream& operator<<(QTextStream& str, const std::vector<caf::FilePath>& filePathObjects)
 {
+    QStringList trimmedEntries;
+
     for (const auto& filePath : filePathObjects)
     {
-        str << filePath << ";";
+        QString text = filePath.path().trimmed();
+
+        if (text.isEmpty()) continue;
+
+        trimmedEntries.push_back(text);
+    }
+
+    for (const auto& s : trimmedEntries)
+    {
+        str << s;
+
+        if (s != trimmedEntries.back())
+        {
+            str << ";";
+        }
     }
 
     return str;
@@ -28,13 +44,20 @@ QTextStream& operator>>(QTextStream& str, std::vector<caf::FilePath>& filePathOb
         QChar singleChar;
         str >> singleChar;
 
-        stringSeparatedBySemicolon += singleChar;
+        if (!singleChar.isNull())
+        {
+            stringSeparatedBySemicolon += singleChar;
+        }
     }
 
     QStringList splitBySemicolon = stringSeparatedBySemicolon.split(";");
-    for (const auto& s : splitBySemicolon )
+    for (const auto& s : splitBySemicolon)
     {
-        filePathObjects.push_back(s);
+        QString trimmed = s.trimmed();
+        if (!trimmed.isEmpty())
+        {
+            filePathObjects.push_back(trimmed);
+        }
     }
 
     return str;
