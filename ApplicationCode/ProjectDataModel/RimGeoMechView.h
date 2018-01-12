@@ -51,7 +51,7 @@ namespace cvf {
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechView : public Rim3dView
+class RimGeoMechView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
 

@@ -634,11 +634,6 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         if (scaleZ < 1) scaleZ = 1;
 
         this->updateGridBoxData();
-        
-        // Regenerate well paths
-        RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
-        RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-        
         crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)
@@ -1124,3 +1119,291 @@ void Rim3dView::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
     RimViewWindow::setMdiWindowGeometry(windowGeometry);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimGridView, "GenericGridView"); // Do not use. Abstract class 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGridView::RimGridView()
+{
+#if 0
+    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
+    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
+    m_rangeFilterCollection = new RimCellRangeFilterCollection();
+
+    CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
+    m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
+    m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
+    m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
+    crossSectionCollection.uiCapability()->setUiHidden(true);
+    crossSectionCollection = new RimIntersectionCollection();
+
+    CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
+    m_gridCollection.uiCapability()->setUiHidden(true);
+    m_gridCollection = new RimGridCollection();
+
+    m_previousGridModeMeshLinesWasFaults = false;
+
+    CAF_PDM_InitFieldNoDefault(&m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
+    m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
+    m_overlayInfoConfig->setReservoirView(this);
+    m_overlayInfoConfig.uiCapability()->setUiHidden(true);
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGridView::~RimGridView(void)
+{
+#if 0
+    delete this->m_overlayInfoConfig();
+
+    delete m_rangeFilterCollection;
+    delete m_overrideRangeFilterCollection;
+    delete crossSectionCollection;
+    delete m_gridCollection;
+    #endif
+}
+#if 0
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::showGridCells(bool enableGridCells)
+{
+    if (!enableGridCells)
+    {
+        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(FAULTS_MESH);
+    }
+    else
+    {
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
+    }
+
+    m_gridCollection->isActive = enableGridCells;
+    m_gridCollection->updateConnectedEditors();
+    m_gridCollection->updateUiIconFromState(enableGridCells);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+// Surf: No Fault Surf
+//  Mesh -------------
+//    No F  F     G
+// Fault F  F     G
+//  Mesh G  G     G
+//
+//--------------------------------------------------------------------------------------------------
+bool RimGridView::isGridVisualizationMode() const
+{
+    return (   this->surfaceMode() == SURFACE 
+            || this->meshMode()    == FULL_MESH);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+   if (changedField == &scaleZ)
+   {
+       crossSectionCollection->updateIntersectionBoxGeometry();
+   }
+
+   Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
+{
+    if (m_currentReservoirCellVisibility.isNull())
+    {
+        m_currentReservoirCellVisibility = new cvf::UByteArray;
+        this->calculateCurrentTotalCellVisibility(m_currentReservoirCellVisibility.p(), m_currentTimeStep());
+    }
+
+    return m_currentReservoirCellVisibility;
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCellRangeFilterCollection* RimGridView::rangeFilterCollection()
+{
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection)
+    {
+        return m_overrideRangeFilterCollection;
+    }
+    else
+    {
+        return m_rangeFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimCellRangeFilterCollection* RimGridView::rangeFilterCollection() const
+{
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection)
+    {
+        return m_overrideRangeFilterCollection;
+    }
+    else
+    {
+        return m_rangeFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::hasOverridenRangeFilterCollection()
+{
+    return m_overrideRangeFilterCollection() != NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc)
+{
+    if (m_overrideRangeFilterCollection()) delete m_overrideRangeFilterCollection();
+
+    m_overrideRangeFilterCollection = rfc;
+    this->scheduleGeometryRegen(RANGE_FILTERED);
+    this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+    this->scheduleCreateDisplayModelAndRedraw();
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::replaceRangeFilterCollectionWithOverride()
+{
+    RimCellRangeFilterCollection* overrideRfc = m_overrideRangeFilterCollection;
+    CVF_ASSERT(overrideRfc);
+
+    RimCellRangeFilterCollection* currentRfc = m_rangeFilterCollection;
+    if (currentRfc)
+    {
+        delete currentRfc;
+    }
+
+    // Must call removeChildObject() to make sure the object has no parent
+    // No parent is required when assigning a object into a field
+    m_overrideRangeFilterCollection.removeChildObject(overrideRfc);
+
+    m_rangeFilterCollection = overrideRfc;
+
+    this->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewController* RimGridView::viewController() const
+{
+    RimViewController* viewController = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    this->objectsWithReferringPtrFields(reffingObjs);
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewController = dynamic_cast<RimViewController*>(reffingObjs[i]);
+        if (viewController) break;
+    }
+
+    return viewController;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGridView::isMasterView() const
+{
+    RimViewLinker* viewLinker = this->assosiatedViewLinker();
+    if (viewLinker && this == viewLinker->masterView())
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimGridView::assosiatedViewLinker() const
+{
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
+    if (!viewLinker)
+    {
+        RimViewController* viewController = this->viewController();
+        if (viewController)
+        {
+            viewLinker = viewController->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
+{
+    return m_overlayInfoConfig;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::selectOverlayInfoConfig()
+{
+    RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridView::removeModelByName(cvf::Scene* scene, const cvf::String& modelName)
+{
+    std::vector<cvf::Model*> modelsToBeRemoved;
+    for (cvf::uint i = 0; i < scene->modelCount(); i++)
+    {
+        if (scene->model(i)->name() == modelName)
+        {
+            modelsToBeRemoved.push_back(scene->model(i));
+        }
+    }
+
+    for (size_t i = 0; i < modelsToBeRemoved.size(); i++)
+    {
+        scene->removeModel(modelsToBeRemoved[i]);
+    }
+}
+
+#endif

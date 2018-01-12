@@ -81,7 +81,7 @@ enum PartRenderMaskEnum
 ///  
 ///  
 //==================================================================================================
-class RimEclipseView : public Rim3dView
+class RimEclipseView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
 public:

@@ -243,5 +243,58 @@ private:
 
 };
 
+class RimGridView : public Rim3dView
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimGridView();
+    virtual ~RimGridView(void);
+#if 0
 
+    caf::PdmChildField<RimIntersectionCollection*>   crossSectionCollection;
+    
+    void                                    showGridCells(bool enableGridCells);
+    bool                                    isGridVisualizationMode() const;
 
+    cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
+
+    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
+    RimCellRangeFilterCollection*              rangeFilterCollection();
+    const RimCellRangeFilterCollection*        rangeFilterCollection() const;
+
+    bool                                    hasOverridenRangeFilterCollection();
+    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+    void                                    replaceRangeFilterCollectionWithOverride();
+
+    RimViewController*                      viewController() const override;
+    bool                                    isMasterView() const;
+    RimViewLinker*                          assosiatedViewLinker() const override;
+
+    Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
+protected:
+    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
+
+    virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
+    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
+
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    virtual void                            selectOverlayInfoConfig() override;
+
+protected: // Fields
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
+
+    caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
+
+    caf::PdmChildField<RimGridCollection*>            m_gridCollection;
+
+protected:
+    cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
+
+private:
+    RimViewLinker*                                    viewLinkerIfMasterView() const;
+    bool                                              m_previousGridModeMeshLinesWasFaults;
+
+#endif
+};
