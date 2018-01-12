@@ -306,12 +306,12 @@ void RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords(cvf::Vec2
     {
         cvf::Vec2f* rawPtr = textureCoords->ptr();
 
-        for (int triangleIdx = 0; triangleIdx < triangleToCellIdx.size(); triangleIdx++)
+        for (size_t triangleIdx = 0; triangleIdx < triangleToCellIdx.size(); triangleIdx++)
         {
             size_t resIdx = triangleToCellIdx[triangleIdx];
             float resValue = resultValues[resIdx];
 
-            int triangleVxIdx = triangleIdx * 3;
+            size_t triangleVxIdx = triangleIdx * 3;
             
             if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
             {
