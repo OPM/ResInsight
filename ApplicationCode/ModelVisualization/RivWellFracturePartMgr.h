@@ -32,6 +32,7 @@ namespace cvf
      class ModelBasicList;
      class DrawableGeo;
      class Part;
+     class Color3f;
 }
 
 namespace caf
@@ -58,7 +59,11 @@ public:
 
 private:
     cvf::ref<cvf::Part>                 createEllipseSurfacePart(const RimEclipseView& activeView);
-    cvf::ref<cvf::Part>                 createStimPlanSurfacePart(const RimEclipseView& activeView);
+    cvf::ref<cvf::Part>                 createStimPlanColorInterpolatedSurfacePart(const RimEclipseView& activeView);
+
+    cvf::ref<cvf::Part>                 createSingleColorSurfacePart(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords, const cvf::Color3f& color);
+
+    cvf::ref<cvf::Part>                 createStimPlanElementColorSurfacePart(const RimEclipseView& activeView);
 
     cvf::ref<cvf::Part>                 createContainmentMaskPart(const RimEclipseView& activeView);
 
