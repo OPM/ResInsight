@@ -239,7 +239,9 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
         rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
     
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         rimEclipseView->stimPlanColors()->setDefaultResultNameForStimPlan();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
