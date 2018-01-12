@@ -19,6 +19,7 @@
 #include "RicExportMultipleSnapshotsFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RicSnapshotViewToFileFeature.h"
 
@@ -229,7 +230,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(Rim3dView* 
             // Force update of scheduled display models modifying the time step
             // This is required due to visualization structures updated by the update functions,
             // and this is not triggered by changing time step only
-            RiaApplication::instance()->slotUpdateScheduledDisplayModels();
+            RiaViewRedrawScheduler::instance()->slotUpdateScheduledDisplayModels();
 
             viewer->setCurrentFrame(i);
             viewer->animationControl()->setCurrentFrameOnly(i);

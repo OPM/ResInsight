@@ -105,10 +105,6 @@ public:
 
     RimViewWindow*          activePlotWindow() const;
 
-    void                scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate);
-    void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
-
     RimProject*         project(); 
 
     void                createMockModel();
@@ -205,7 +201,6 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-    void                    clearViewsScheduledForUpdate();
 
 private:
 
@@ -224,29 +219,19 @@ private:
     void                    regressionTestConfigureProject();
     static QSize            regressionDefaultImageSize();
 
+    friend RiaArgumentParser;
     void                    setHelpText(const QString& helpText);
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void                slotUpdateScheduledDisplayModels();
-    void                slotRecalculateCompletionType();
 
-    // Friend classes required to have access to slotUpdateScheduledDisplayModels
-    // As snapshots are produced fast in sequence, the feature must have access to force redraw
-    // of scheduled redraws
-    friend class Rim3dView;
-    friend class RicExportMultipleSnapshotsFeature;
-    friend class RiaArgumentParser;
+ 
 
 private:
     caf::PdmPointer<Rim3dView>            m_activeReservoirView;
 
     caf::PdmPointer<RimProject>         m_project;
 
-    std::vector<caf::PdmPointer<Rim3dView> > m_resViewsToUpdate;
-    QTimer*                             m_resViewUpdateTimer;
-    std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
-    QTimer*                             m_recalculateCompletionTypeTimer;
 
     RiaSocketServer*                    m_socketServer;
 

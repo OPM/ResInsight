@@ -182,21 +182,6 @@ protected:
 
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-    
-    // Overridden PdmObject methods:
-    
-    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
-    virtual void                            setupBeforeSave() override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
-    // Overridden ViewWindow methods:
-    
-    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                            updateViewWidgetAfterCreation() override; 
-    virtual void                            updateMdiWindowTitle() override;
-    virtual void                            deleteViewWidget() override;
-    virtual QWidget*                        viewWidget() override;
 
 protected: // Fields
     caf::PdmField<int>                                m_currentTimeStep;
@@ -218,6 +203,23 @@ protected:
 
 private:
     RimViewLinker*                                    viewLinkerIfMasterView() const;
+
+    // Overridden PdmObject methods:
+
+    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
+    virtual void                            setupBeforeSave() override;
+protected:
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    // Overridden ViewWindow methods:
+
+    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                            updateViewWidgetAfterCreation() override; 
+    virtual void                            updateMdiWindowTitle() override;
+    virtual void                            deleteViewWidget() override;
+    virtual QWidget*                        viewWidget() override;
 
     // Implementation of RiuViewerToViewInterface
 

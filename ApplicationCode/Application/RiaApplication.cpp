@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
@@ -29,7 +30,7 @@
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
-#include "RiaArgumentParser.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RigGridManager.h"
 #include "RigEclipseCaseData.h"
@@ -226,9 +227,6 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
-
-    m_resViewUpdateTimer = nullptr;
-    m_recalculateCompletionTypeTimer = nullptr;
 
     m_runningRegressionTests = false;
 
@@ -970,7 +968,7 @@ void RiaApplication::closeProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
-    clearViewsScheduledForUpdate();
+    RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
     terminateProcess();
 
@@ -2224,21 +2222,6 @@ cvf::Font* RiaApplication::customFont()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::clearViewsScheduledForUpdate()
-{
-    if (m_resViewUpdateTimer)
-    {
-        while (m_resViewUpdateTimer->isActive())
-        {
-            QCoreApplication::processEvents();
-        }
-    }
-    m_resViewsToUpdate.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimProject* RiaApplication::project()
 {
     return m_project;
@@ -2308,136 +2291,6 @@ QString RiaApplication::commandLineParameterHelp() const
     */
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Schedule a creation of the Display model and redraw of the reservoir view
-/// The redraw will happen as soon as the event loop is entered
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate)
-{
-    m_resViewsToUpdate.push_back(resViewToUpdate);
-
-    if (!m_resViewUpdateTimer) 
-    {
-        m_resViewUpdateTimer = new QTimer(this);
-        connect(m_resViewUpdateTimer, SIGNAL(timeout()), this, SLOT(slotUpdateScheduledDisplayModels()));
-    }
-
-    if (!m_resViewUpdateTimer->isActive())
-    {
-        m_resViewUpdateTimer->setSingleShot(true);
-        m_resViewUpdateTimer->start(0);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawAllViews()
-{
-    for (RimEclipseCase* eclipseCase : project()->activeOilField()->analysisModels->cases())
-    {
-        m_eclipseCasesToRecalculate.push_back(eclipseCase);
-    }
-
-    if (!m_recalculateCompletionTypeTimer)
-    {
-        m_recalculateCompletionTypeTimer = new QTimer(this);
-        m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
-    }
-
-    m_recalculateCompletionTypeTimer->start(1500);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
-{
-    m_eclipseCasesToRecalculate.push_back(eclipseCase);
-
-
-    if (!m_recalculateCompletionTypeTimer)
-    {
-        m_recalculateCompletionTypeTimer = new QTimer(this);
-        m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
-    }
-
-    m_recalculateCompletionTypeTimer->start(500);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::slotUpdateScheduledDisplayModels()
-{
-    // Compress to remove duplicates
-    // and update dependent views after independent views
-
-    std::set<Rim3dView*> independent3DViewsToUpdate;
-    std::set<Rim3dView*> dependent3DViewsToUpdate;
-
-    for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
-    {
-        if (!m_resViewsToUpdate[i]) continue;
-
-        if (m_resViewsToUpdate[i]->viewController())
-            dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
-        else
-            independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
-    }
-   
-    for (std::set<Rim3dView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
-    {
-        if (*it)
-        {
-            (*it)->createDisplayModelAndRedraw();
-        }
-    }
-
-    for (std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
-    {
-        if (*it)
-        {
-            (*it)->createDisplayModelAndRedraw();
-        }
-    }
-
-    m_resViewsToUpdate.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::slotRecalculateCompletionType()
-{
-    std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
-
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    QModelIndex mi = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
-
-    for (RimEclipseCase* eclipseCase : uniqueCases)
-    {
-        eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
-    }
-
-    m_eclipseCasesToRecalculate.clear();
-
-    // Recalculation of completion type causes active view to be set to potentially a different view
-    // Also current index in project tree is changed. Restore both to initial state.
-
-    if (activeView && activeView->viewer())
-    {
-        RiaApplication::instance()->setActiveReservoirView(activeView);
-        RiuMainWindow::instance()->setActiveViewer(activeView->viewer()->layoutWidget());
-    }
-
-    if (mi.isValid())
-    {
-        RiuMainWindow::instance()->projectTreeView()->treeView()->setCurrentIndex(mi);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

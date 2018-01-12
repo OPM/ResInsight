@@ -80,6 +80,7 @@
 
 #include <QDir>
 #include <QMenu>
+#include "RiaCompletionTypeCalculationScheduler.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -788,7 +789,7 @@ bool RimProject::showPlotWindow() const
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
     createDisplayModelAndRedrawAllViews();
-    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -955,7 +956,7 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclip
         views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
     }
 
-    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------

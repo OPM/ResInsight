@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
@@ -317,7 +318,7 @@ QImage Rim3dView::snapshotWindowContent()
     if (m_viewer)
     {
         // Force update of scheduled display models before snapshotting
-        RiaApplication::instance()->slotUpdateScheduledDisplayModels();
+        RiaViewRedrawScheduler::instance()->slotUpdateScheduledDisplayModels();
 
         m_viewer->repaint();
 
@@ -332,7 +333,7 @@ QImage Rim3dView::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::scheduleCreateDisplayModelAndRedraw()
 {
-    RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
+    RiaViewRedrawScheduler::instance()->scheduleDisplayModelUpdateAndRedraw(this);
     if (this->isMasterView())
     {
         RimViewLinker* viewLinker = this->assosiatedViewLinker();

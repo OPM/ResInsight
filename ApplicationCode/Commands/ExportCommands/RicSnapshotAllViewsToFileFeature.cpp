@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -110,7 +111,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
                 RiuViewer* viewer = riv->viewer();
                 mainWnd->setActiveViewer(viewer->layoutWidget());
 
-                RiaApplication::instance()->clearViewsScheduledForUpdate();
+                RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
                 //riv->updateCurrentTimeStepAndRedraw();
                 riv->createDisplayModelAndRedraw();
