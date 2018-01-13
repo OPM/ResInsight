@@ -137,9 +137,23 @@ void RigFemPartResultsCollection::addElementPropertyFiles(const std::vector<QStr
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::removeElementPropertyFiles(const std::vector<QString>& filenames)
 {
+    std::vector<RigFemResultAddress> addressesToRemove;
+
     for (const QString filename : filenames)
     {
+        std::vector<std::string> fields = m_elementPropertyReader->fieldsInFile(filename.toStdString());
+        
+        for (std::string field : fields)
+        {
+            addressesToRemove.push_back(RigFemResultAddress(RIG_ELEMENT, field, ""));
+        }
+
         m_elementPropertyReader->removeFile(filename.toStdString());
+    }
+
+    for (const RigFemResultAddress& address : addressesToRemove)
+    {
+        this->deleteResult(address);
     }
 }
 

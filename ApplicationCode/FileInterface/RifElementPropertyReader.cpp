@@ -48,7 +48,7 @@ void RifElementPropertyReader::addFile(const std::string& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::removeFile(const std::string& fileName)
 {
@@ -61,18 +61,18 @@ void RifElementPropertyReader::removeFile(const std::string& fileName)
             tempMetaData[metaData.first] = metaData.second;
         }
     }
-    
+
     m_fieldsMetaData.swap(tempMetaData);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalarElementFields()
+std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalarElementFields() const
 {
     std::map<std::string, std::vector<std::string>> fields;
 
-    for (std::map<std::string, RifElementPropertyMetadata>::iterator field = m_fieldsMetaData.begin();
+    for (std::map<std::string, RifElementPropertyMetadata>::const_iterator field = m_fieldsMetaData.begin();
          field != m_fieldsMetaData.end(); field++)
     {
         fields[field->first];
@@ -105,8 +105,8 @@ std::map<std::string, std::vector<float>>
     {
         for (size_t i = 0; i < table.data.size(); i++)
         {
-            const std::string& currentFieldFromFile  = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            fieldAndData[currentFieldFromFile] = table.data[i];
+            const std::string& currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
+            fieldAndData[currentFieldFromFile]      = table.data[i];
         }
     }
     else if (elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size())
@@ -157,6 +157,27 @@ std::map<std::string, std::vector<float>>
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifElementPropertyReader::fieldsInFile(const std::string& fileName) const
+{
+    std::vector<std::string> fields;
+
+    for (std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData)
+    {
+        if (metaData.second.fileName.toStdString() == fileName)
+        {
+            for (const QString& column : metaData.second.dataColumns)
+            {
+                fields.push_back(column.toStdString());
+            }
+        }
+    }
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::makeElementIdToIdxMap()
@@ -173,7 +194,7 @@ void RifElementPropertyReader::makeElementIdToIdxMap()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::outputWarningAboutWrongFileData()
 {
