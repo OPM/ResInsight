@@ -90,6 +90,8 @@ private:
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 
     void                                    closeSelectedElementPropertyFiles();
+    void                                    reloadSelectedElementPropertyFiles();
+
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
     caf::PdmField<QString>                    m_caseFileName;

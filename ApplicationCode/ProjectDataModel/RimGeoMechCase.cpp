@@ -430,6 +430,12 @@ void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
+    else if (changedField == &m_reloadElementPropertyFileCommand)
+    {
+        m_reloadElementPropertyFileCommand = false;
+        reloadSelectedElementPropertyFiles();
+        updateConnectedEditors();
+    }
     else if (changedField == &m_closeElementPropertyFileCommand)
     {
         m_closeElementPropertyFileCommand = false;
@@ -548,6 +554,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
         filesToClose.push_back(m_elementPropertyFileNames.v().at(idx).path());
         m_elementPropertyFileNames.v().erase(m_elementPropertyFileNames.v().begin() + idx);
     }
+
     m_elementPropertyFileNameIndexUiSelection.v().clear();
 
     if (m_geoMechCaseData.notNull())
@@ -555,6 +562,33 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
         geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::reloadSelectedElementPropertyFiles()
+{
+    std::vector<QString> filesToReload;
+
+    for (size_t idx : m_elementPropertyFileNameIndexUiSelection.v())
+    {
+        filesToReload.push_back(m_elementPropertyFileNames.v().at(idx).path());
+    }
+
+    m_elementPropertyFileNameIndexUiSelection.v().clear();
+
+    if (m_geoMechCaseData.notNull())
+    {
+        geoMechData()->femPartResults()->removeElementPropertyFiles(filesToReload);
+        geoMechData()->femPartResults()->addElementPropertyFiles(filesToReload);
+    }
+    
+    for (auto view : views())
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -571,6 +605,7 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
    caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
    elmPropGroup->add(&m_elementPropertyFileNameIndexUiSelection);
+   elmPropGroup->add(&m_reloadElementPropertyFileCommand);
    elmPropGroup->add(&m_closeElementPropertyFileCommand);
 }
 
@@ -579,6 +614,10 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
+    if (field == &m_reloadElementPropertyFileCommand)
+    {
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute)->m_buttonText = "Reload Case(s)";
+    }
     if (field == &m_closeElementPropertyFileCommand)
     {
         dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute)->m_buttonText = "Close Case(s)";
