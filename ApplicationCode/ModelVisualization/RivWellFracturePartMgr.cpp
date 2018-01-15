@@ -270,6 +270,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
     RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
     CVF_ASSERT(stimPlanFracTemplate);
 
+    if (!stimPlanFracTemplate->fractureGrid()) return nullptr;
+
     auto displayCoordTransform = activeView.displayCoordTransform();
     if (displayCoordTransform.isNull()) return nullptr;
 
@@ -543,6 +545,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     //Should probably be moved, since it now is called twice in some cases... 
     stimPlanFracTemplate->updateFractureGrid();
 
+    if (!stimPlanFracTemplate->fractureGrid()) return nullptr;
 
     auto displayCoordTransform = activeView.displayCoordTransform();
     if (displayCoordTransform.isNull()) return nullptr;

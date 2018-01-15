@@ -182,6 +182,7 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
 void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid* mainGrid, const RimFracture* fracture, std::vector<double>& values)
 {
     if (!fracture->fractureTemplate()) return;
+    if (!fracture->fractureTemplate()->fractureGrid()) return;
 
     for (const RigFractureCell& fractureCell : fracture->fractureTemplate()->fractureGrid()->fractureCells())
     {

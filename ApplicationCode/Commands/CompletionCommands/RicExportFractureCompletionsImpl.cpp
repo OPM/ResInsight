@@ -145,8 +145,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         if (!fracTemplate) continue;
 
-        bool useFiniteConductivityInFracture = (fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
         const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
+        if (!fractureGrid) continue;
+
+        bool useFiniteConductivityInFracture = (fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
 
         //If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture
         if (useFiniteConductivityInFracture)
@@ -278,21 +280,24 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 || fracture->fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
             {
                 const RigFractureGrid* fracGrid = fracture->fractureTemplate()->fractureGrid();
-                std::pair<size_t, size_t>  wellCellIJ = fracGrid->fractureCellAtWellCenter();
-                size_t wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
+                if (fracGrid)
+                {
+                    std::pair<size_t, size_t>  wellCellIJ = fracGrid->fractureCellAtWellCenter();
+                    size_t wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
 
-                const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
+                    const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
 
-                double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
-                                                                                                         wellCell.cellSizeX(),
-                                                                                                         wellCell.cellSizeZ(),
-                                                                                                         fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
-                                                                                                         fracTemplate->skinFactor(),
-                                                                                                         cDarcyInCorrectUnit);
+                    double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
+                                                                                                             wellCell.cellSizeX(),
+                                                                                                             wellCell.cellSizeZ(),
+                                                                                                             fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
+                                                                                                             fracTemplate->skinFactor(),
+                                                                                                             cDarcyInCorrectUnit);
 
-                    transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
-                                                               { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
-                                                               radialTrans);
+                        transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                                   { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
+                                                                   radialTrans);
+                }
             }
             else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
