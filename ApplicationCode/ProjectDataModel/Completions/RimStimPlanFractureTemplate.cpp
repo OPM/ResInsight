@@ -120,18 +120,18 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
     }
 
+    if (&m_conductivityScalingFactor == changedField)
+    {
+        loadDataAndUpdate();
+    }
 
     if (&m_wellPathDepthAtFracture == changedField 
         || &m_borderPolygonResultName == changedField 
         || &m_activeTimeStepIndex == changedField 
         || &m_showStimPlanMesh == changedField
-        || &m_conductivityScalingFactor == changedField)
+        || &m_conductivityScalingFactor == changedField
+        || &m_stimPlanFileName == changedField)
     {
-        if (&m_conductivityScalingFactor == changedField)
-        {
-            loadDataAndUpdate();
-        }
-
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
