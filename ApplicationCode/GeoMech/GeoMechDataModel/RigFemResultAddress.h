@@ -98,6 +98,19 @@ public:
         }
  
         return (componentName <  other.componentName);
+  }
+
+    bool operator== (const RigFemResultAddress& other) const 
+    {
+        if ( resultPosType != other.resultPosType
+            || fieldName != other.fieldName
+            || componentName != other.componentName
+            || timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx)
+        {
+            return false;
+        }
+
+        return true;
     }
 };
 

@@ -557,19 +557,31 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
 
     m_elementPropertyFileNameIndexUiSelection.v().clear();
 
+    std::vector<RigFemResultAddress> addressesToDelete;
+
     if (m_geoMechCaseData.notNull())
     {
-        geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
+         addressesToDelete = geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
     }
 
     for (RimGeoMechView* view : geoMechViews())
     {
-        view->cellResult()->setResultAddress(RigFemResultAddress());
-        for (RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters())
+        for (RigFemResultAddress address : addressesToDelete)
         {
-            propertyFilter->resultDefinition().p()->setResultAddress(RigFemResultAddress());
+            if (address == view->cellResultResultDefinition()->resultAddress())
+            {
+                view->cellResult()->setResultAddress(RigFemResultAddress());
+            }
+
+            for (RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters())
+            {
+                if (address == propertyFilter->resultDefinition->resultAddress())
+                {
+                    propertyFilter->resultDefinition->setResultAddress(RigFemResultAddress());
+                }
+            }
         }
-        
+
         view->loadDataAndUpdate();
     }
 }
