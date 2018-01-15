@@ -582,10 +582,10 @@ void RimGeoMechCase::reloadSelectedElementPropertyFiles()
         geoMechData()->femPartResults()->removeElementPropertyFiles(filesToReload);
         geoMechData()->femPartResults()->addElementPropertyFiles(filesToReload);
     }
-    
-    for (auto view : views())
+
+    for (RimGeoMechView* view : geoMechViews())
     {
-        view->scheduleCreateDisplayModelAndRedraw();
+        view->loadDataAndUpdate();
     }
 }
 
