@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicNewSliceRangeFilterFeature, "RicNewSliceRangeFilterFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewSliceRangeFilterFeature::isCommandEnabled()
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    RimGridView* view = RiaApplication::instance()->activeGridView();
     if (!view) return false;
     
     RimViewController* vc = view->viewController();
@@ -57,7 +57,7 @@ void RicNewSliceRangeFilterFeature::onActionTriggered(bool isChecked)
 
     if (!userData.isNull() && userData.type() == QVariant::List)
     {
-        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+        RimGridView* view = RiaApplication::instance()->activeGridView();
         RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
 
         RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);

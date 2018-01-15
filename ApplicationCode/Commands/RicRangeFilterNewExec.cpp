@@ -77,7 +77,7 @@ void RicRangeFilterNewExec::redo()
 
         RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
         
-        Rim3dView* view = nullptr;
+        RimGridView* view = nullptr;
         m_cellRangeFilterCollection->firstAncestorOrThisOfTypeAsserted(view);
 
         //Enable display of grid cells, to be able to show generated range filter

@@ -1430,8 +1430,9 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
 void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
-
-    RiaApplication::instance()->activeReservoirView()->showGridCells(!hideGridCells);
+   
+    RimGridView* rigv = RiaApplication::instance()->activeGridView();
+    if (rigv) rigv->showGridCells(!hideGridCells);
 }
 
 

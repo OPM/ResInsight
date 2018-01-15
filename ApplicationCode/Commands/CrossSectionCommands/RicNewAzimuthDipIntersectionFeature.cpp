@@ -61,7 +61,7 @@ bool RicNewAzimuthDipIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
    
     RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection);

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2018-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -54,41 +53,40 @@ class RimWellPathCollection;
 
 namespace cvf
 {
-    class BoundingBox;
-    class ModelBasicList;
-    class Scene;
-    class String;
-    class Transform;
-    class Part;
+class BoundingBox;
+class ModelBasicList;
+class Scene;
+class String;
+class Transform;
+class Part;
 }
 
 namespace caf
 {
-    class DisplayCoordTransform;
+class DisplayCoordTransform;
 }
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface
+class Rim2dIntersectionView : public RimViewWindow, public RiuViewerToViewInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
-    Rim3dView(void);
-    virtual ~Rim3dView(void);
+    Rim2dIntersectionView(void);
+    virtual ~Rim2dIntersectionView(void);
 
     // Public fields: 
 
     caf::PdmField<QString>                  name;
     caf::PdmField<double>                   scaleZ;
-    caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
     // Draw style 
 
     enum MeshModeType    { FULL_MESH, FAULTS_MESH, NO_MESH    };
-    enum SurfaceModeType { SURFACE,   FAULTS,      NO_SURFACE };
+    enum SurfaceModeType { SURFACE,   NO_SURFACE };
 
     caf::PdmField< caf::AppEnum< MeshModeType > >    meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > > surfaceMode;
@@ -104,6 +102,7 @@ public:
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
 
+    void                                    showGridCells(bool enableGridCells);
     bool                                    isGridVisualizationMode() const;
 
     void                                    setScaleZAndUpdate(double scaleZ);
@@ -124,15 +123,13 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
-    void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
-    void                                    updateGridBoxData();
+    void                                    createHighlightDisplayModelWithRedraw();
     void                                    updateAnnotationItems();
-
-    bool                                    isMasterView() const;
 
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const override;
 
     virtual RimCase*                        ownerCase() const = 0;
+    //Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
 
 protected:
 
@@ -145,29 +142,42 @@ protected:
     void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
                                                                        const cvf::BoundingBox& wellPathClipBoundingBox);
 
-    void                                    createHighlightAndGridBoxDisplayModel();
+    void                                    createHighlightDisplayModel();
 
     // Abstract methods to implement in subclasses
 
-    virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
-
     virtual void                            createDisplayModel() = 0;
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
-    
+
     virtual void                            updateDisplayModelVisibility() = 0;
     virtual void                            clampCurrentTimestep() = 0;
 
     virtual void                            updateCurrentTimeStep() = 0;
-    virtual void                            onTimeStepChanged() = 0;
     virtual void                            updateStaticCellColors() = 0;
- 
+
     virtual void                            updateScaleTransform() = 0;
     virtual cvf::Transform*                 scaleTransform() = 0;
 
     virtual void                            resetLegendsInViewer() = 0;
 
+    // Overridden PdmObject methods:
+
+    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
+    virtual void                            setupBeforeSave() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    // Overridden ViewWindow methods:
+
+    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                            updateViewWidgetAfterCreation() override; 
+    virtual void                            updateMdiWindowTitle() override;
+    virtual void                            deleteViewWidget() override;
+    virtual QWidget*                        viewWidget() override;
+
 protected: // Fields
     caf::PdmField<int>                                m_currentTimeStep;
+    //caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
 
 protected: 
     QPointer<RiuViewer>                               m_viewer;
@@ -177,23 +187,6 @@ protected:
     cvf::ref<cvf::ModelBasicList>                     m_highlightVizModel;
 
 private:
-    // Overridden PdmObject methods:
-
-    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
-    virtual void                            setupBeforeSave() override;
-protected:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
-private:
-    // Overridden ViewWindow methods:
-
-    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                            updateViewWidgetAfterCreation() override; 
-    virtual void                            updateMdiWindowTitle() override;
-    virtual void                            deleteViewWidget() override;
-    virtual QWidget*                        viewWidget() override;
-
     // Implementation of RiuViewerToViewInterface
 
     virtual cvf::Color3f                    backgroundColor() const override { return m_backgroundColor();} 
@@ -204,67 +197,15 @@ private:
     virtual caf::PdmObjectHandle*           implementingPdmObject() override  { return this; }
     virtual void                            handleMdiWindowClosed() override;
     virtual void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
+    virtual void                            selectOverlayInfoConfig() override;
 
 private:
+    bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
     caf::PdmField<cvf::Mat4d>               m_cameraPosition;
     caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;
     caf::PdmField< cvf::Color3f >           m_backgroundColor;
-    caf::PdmField<bool>                     showGridBox;
-
 };
 
-class RimGridView : public Rim3dView
-{
-    CAF_PDM_HEADER_INIT;
-public:
-    RimGridView();
-    virtual ~RimGridView(void);
-#if 1
 
-    caf::PdmChildField<RimIntersectionCollection*>   crossSectionCollection;
 
-    void                                    showGridCells(bool enableGridCells);
-
-    cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
-
-    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
-    RimCellRangeFilterCollection*              rangeFilterCollection();
-    const RimCellRangeFilterCollection*        rangeFilterCollection() const;
-
-    bool                                    hasOverridenRangeFilterCollection();
-    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
-    void                                    replaceRangeFilterCollectionWithOverride();
-
-    RimViewController*                      viewController() const override;
-    RimViewLinker*                          assosiatedViewLinker() const override;
-
-    Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
-protected:
-    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
-
-    virtual void                            onTimeStepChanged() override;
-
-    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-    virtual void                            selectOverlayInfoConfig() override;
-
-protected: // Fields
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
-
-    caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
-    caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
-
-    caf::PdmChildField<RimGridCollection*>            m_gridCollection;
-
-protected:
-    cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
-
-private:
-    RimViewLinker*                                    viewLinkerIfMasterView() const;
-    bool                                              m_previousGridModeMeshLinesWasFaults;
-
-#endif
-};

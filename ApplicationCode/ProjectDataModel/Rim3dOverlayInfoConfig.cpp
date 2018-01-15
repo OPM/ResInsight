@@ -738,7 +738,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::setReservoirView(Rim3dView* ownerReservoirView)
+void Rim3dOverlayInfoConfig::setReservoirView(RimGridView* ownerReservoirView)
 {
     m_viewDef = ownerReservoirView;
 }

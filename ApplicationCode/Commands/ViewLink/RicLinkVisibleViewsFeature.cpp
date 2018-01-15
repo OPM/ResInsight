@@ -47,16 +47,23 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 {
     RimProject* proj = RiaApplication::instance()->project();
     std::vector<Rim3dView*> visibleViews;
-    std::vector<Rim3dView*> linkedviews;
+    std::vector<RimGridView*> linkedviews;
+    std::vector<RimGridView*> visibleGridViews;
 
     proj->allVisibleViews(visibleViews);
+    for (Rim3dView* view : visibleViews)
+    {
+        RimGridView* gridView = dynamic_cast<RimGridView*>(view);
+        if (gridView) visibleGridViews.push_back(gridView);
+    }
+
     if (proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker()) 
     {
         proj->viewLinkerCollection()->viewLinker()->allViews(linkedviews);
     }
 
 
-    if (visibleViews.size() >= 2 && (linkedviews.size() < visibleViews.size())) return true;
+    if (visibleGridViews.size() >= 2 && (linkedviews.size() < visibleGridViews.size())) return true;
 
     return false;
 }
@@ -66,7 +73,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<Rim3dView*> views;
+    std::vector<RimGridView*> views;
     findNotLinkedVisibleViews(views);
 
     linkViews(views);
@@ -85,7 +92,7 @@ void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<Rim3dView*>& views)
+void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimGridView*>& views)
 {
     RimProject* proj = RiaApplication::instance()->project();
     if (proj->viewLinkerCollection()->viewLinker())
@@ -97,15 +104,15 @@ void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<Rim3dView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<Rim3dView*> &views)
+void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimGridView*> &views)
 {
     RimProject* proj = RiaApplication::instance()->project();
 
-    std::vector<Rim3dView*> alreadyLinkedViews;
+    std::vector<RimGridView*> alreadyLinkedViews;
     allLinkedViews(alreadyLinkedViews);
 
-    std::vector<Rim3dView*> visibleViews;
-    proj->allVisibleViews(visibleViews);
+    std::vector<RimGridView*> visibleViews;
+    proj->allVisibleGridViews(visibleViews);
 
     for (size_t i = 0; i < visibleViews.size(); i++)
     {
@@ -128,7 +135,7 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<Rim3dView
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::linkViews(std::vector<Rim3dView*>& views)
+void RicLinkVisibleViewsFeature::linkViews(std::vector<RimGridView*>& views)
 {
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
@@ -149,7 +156,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<Rim3dView*>& views)
         propertyDialog.setWindowIcon(QIcon(":/chain.png"));
         if (propertyDialog.exec() != QDialog::Accepted) return;
 
-        Rim3dView* masterView = featureUi.masterView();
+        RimGridView* masterView = featureUi.masterView();
         viewLinker = new RimViewLinker;
         proj->viewLinkerCollection()->viewLinker = viewLinker;
         viewLinker->setMasterView(masterView);
@@ -157,7 +164,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<Rim3dView*>& views)
 
     for (size_t i = 0; i < views.size(); i++)
     {
-        Rim3dView* rimView = views[i];
+        RimGridView* rimView = views[i];
         if (rimView == viewLinker->masterView()) continue;
 
         viewLinker->addDependentView(rimView);

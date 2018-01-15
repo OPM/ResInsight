@@ -101,7 +101,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
     if (fieldNeedingOptions == &m_managedView)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<Rim3dView*> views;
+        std::vector<RimGridView*> views;
         proj->allNotLinkedViews(views);
 
         // Add currently linked view to list
@@ -114,7 +114,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         this->firstAncestorOrThisOfType(viewLinker);
         CVF_ASSERT(viewLinker);
 
-        for (Rim3dView* view : views)
+        for (RimGridView* view : views)
         {
             if (view != viewLinker->masterView())
             {
@@ -212,7 +212,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     else if (changedField == &m_managedView)
     {
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
-        Rim3dView* previousManagedView = dynamic_cast<Rim3dView*>(prevValue);
+        RimGridView* previousManagedView = dynamic_cast<RimGridView*>(prevValue);
         RimViewController::removeOverrides(previousManagedView);
 
         setManagedView(m_managedView());
@@ -232,7 +232,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimViewController::managedEclipseView() const
 {
-    Rim3dView* rimView = m_managedView;
+    RimGridView* rimView = m_managedView;
 
     return dynamic_cast<RimEclipseView*>(rimView);
 }
@@ -242,7 +242,7 @@ RimEclipseView* RimViewController::managedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimViewController::managedGeoView() const
 {
-    Rim3dView* rimView = m_managedView;
+    RimGridView* rimView = m_managedView;
 
     return dynamic_cast<RimGeoMechView*>(rimView);
 }
@@ -254,7 +254,7 @@ void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
     
-    Rim3dView* masterView = viewLinker->masterView();
+    RimGridView* masterView = viewLinker->masterView();
 
     CVF_ASSERT(masterView);
     
@@ -343,7 +343,7 @@ void RimViewController::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::removeOverrides(Rim3dView* view)
+void RimViewController::removeOverrides(RimGridView* view)
 {
     if (view)
     {
@@ -362,7 +362,7 @@ void RimViewController::removeOverrides(Rim3dView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    Rim3dView* mainView = nullptr;
+    RimGridView* mainView = nullptr;
     
     {
         RimViewLinker* linkedViews = nullptr;
@@ -448,7 +448,7 @@ void RimViewController::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dView* RimViewController::managedView() const
+RimGridView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -456,7 +456,7 @@ Rim3dView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::setManagedView(Rim3dView* view)
+void RimViewController::setManagedView(RimGridView* view)
 {
     m_managedView = view;
 
@@ -644,7 +644,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dView* RimViewController::masterView() const
+RimGridView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -1041,7 +1041,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::askUserToRestoreOriginalRangeFilterCollection(const QString& viewName)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     QMessageBox msgBox(activeView->viewer()->layoutWidget());
     msgBox.setIcon(QMessageBox::Question);

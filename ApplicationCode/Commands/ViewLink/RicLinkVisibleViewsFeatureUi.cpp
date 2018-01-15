@@ -40,11 +40,11 @@ RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<Rim3dView*>& allViews)
+void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<RimGridView*>& allViews)
 {
     m_allViews = allViews;
 
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     // Set Active view as master view
     for (size_t i = 0; i < allViews.size(); i++)
@@ -65,7 +65,7 @@ void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<Rim3dView*>& allVi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dView* RicLinkVisibleViewsFeatureUi::masterView()
+RimGridView* RicLinkVisibleViewsFeatureUi::masterView()
 {
     return m_masterView;
 }
@@ -73,13 +73,14 @@ Rim3dView* RicLinkVisibleViewsFeatureUi::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                                  bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_masterView)
     {
-        for (Rim3dView* v : m_allViews)
+        for (RimGridView* v : m_allViews)
         {
             RimCase* rimCase = nullptr;
             v->firstAncestorOrThisOfType(rimCase);

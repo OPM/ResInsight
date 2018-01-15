@@ -598,12 +598,12 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allNotLinkedViews(std::vector<Rim3dView*>& views)
+void RimProject::allNotLinkedViews(std::vector<RimGridView*>& views)
 {
     std::vector<RimCase*> cases;
     allCases(cases);
 
-    std::vector<Rim3dView*> alreadyLinkedViews;
+    std::vector<RimGridView*> alreadyLinkedViews;
     if (viewLinkerCollection->viewLinker())
     {
         viewLinkerCollection->viewLinker()->allViews(alreadyLinkedViews);
@@ -617,17 +617,21 @@ void RimProject::allNotLinkedViews(std::vector<Rim3dView*>& views)
         std::vector<Rim3dView*> caseViews = rimCase->views();
         for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
         {
+            RimGridView* gridView = dynamic_cast<RimGridView*>(caseViews[viewIdx]);
+            
+            if (!gridView) continue;
+
             bool isLinked = false;
             for (size_t lnIdx = 0; lnIdx < alreadyLinkedViews.size(); lnIdx++)
             {
-                if (caseViews[viewIdx] == alreadyLinkedViews[lnIdx])
+                if (gridView == alreadyLinkedViews[lnIdx])
                 {
                     isLinked = true;
                 }
             }
             if (!isLinked)
             {
-                views.push_back(caseViews[viewIdx]);
+                views.push_back(gridView);
             }
         }
     }
@@ -654,6 +658,20 @@ void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
                 views.push_back(caseViews[viewIdx]);
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views)
+{
+    std::vector<Rim3dView*> visibleViews;
+    this->allVisibleViews(visibleViews);
+    for ( Rim3dView* view : visibleViews )
+    {
+        RimGridView* gridView = dynamic_cast<RimGridView*>(view);
+        if ( gridView ) views.push_back(gridView);
     }
 }
 

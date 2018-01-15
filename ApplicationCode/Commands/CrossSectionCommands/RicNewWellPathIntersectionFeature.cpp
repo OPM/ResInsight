@@ -56,7 +56,7 @@ bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
     std::vector<RimWellPath*> collection;

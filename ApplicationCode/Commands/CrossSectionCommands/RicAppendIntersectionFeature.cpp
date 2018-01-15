@@ -102,7 +102,7 @@ void RicAppendIntersectionFeatureCmd::redo()
     intersection->name = QString("Intersection");
     m_intersectionCollection->appendIntersection(intersection);
 
-    Rim3dView* view = nullptr;
+    RimGridView* view = nullptr;
     m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);
 
     //Enable display of grid cells, to be able to show generated property filter

@@ -40,7 +40,7 @@ bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
     RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
     if (!rangeFilterCollection) return false;
 
-    Rim3dView* view;
+    RimGridView* view;
     rangeFilterCollection->firstAncestorOrThisOfType(view);
     if (view)
     {
@@ -86,7 +86,7 @@ RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollecti
         selectedRangeFilter[0]->firstAncestorOrThisOfType(rangeFilterCollection);
     }
 
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    RimGridView* view = RiaApplication::instance()->activeGridView();
     if (view)
     {
         rangeFilterCollection = view->rangeFilterCollection();

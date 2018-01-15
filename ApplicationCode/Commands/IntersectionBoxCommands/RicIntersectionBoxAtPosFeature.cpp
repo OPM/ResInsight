@@ -50,7 +50,7 @@ bool RicIntersectionBoxAtPosFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxAtPosFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (activeView)
     {
         RimIntersectionCollection* coll = activeView->crossSectionCollection();
@@ -67,7 +67,7 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered(bool isChecked)
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-        Rim3dView* rimView = NULL;
+        RimGridView* rimView = NULL;
         coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

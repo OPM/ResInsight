@@ -48,6 +48,7 @@ class RigEclipseCaseData;
 class RimCommandObject;
 class RimEclipseCase;
 class RimEclipseView;
+class RimGridView;
 class RimProject;
 class RimSummaryPlot;
 class Rim3dView;
@@ -102,6 +103,7 @@ public:
     void                    setActiveReservoirView(Rim3dView*);
     Rim3dView*                activeReservoirView();
     const Rim3dView*          activeReservoirView() const;
+    RimGridView*              activeGridView();
 
     RimViewWindow*          activePlotWindow() const;
 

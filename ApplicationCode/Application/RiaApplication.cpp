@@ -570,7 +570,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                     riv->loadDataAndUpdate();
                     this->setActiveReservoirView(riv);
 
-                    riv->rangeFilterCollection()->updateIconState();
+                    RimGridView* rigv = dynamic_cast<RimGridView*>(riv);
+                    if (rigv) rigv->rangeFilterCollection()->updateIconState();
 
                     viewProgress.incrementProgress();
                 }
@@ -1161,6 +1162,14 @@ const Rim3dView* RiaApplication::activeReservoirView() const
 Rim3dView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGridView* RiaApplication::activeGridView()
+{
+    return dynamic_cast<RimGridView*>( m_activeReservoirView.p());
 }
 
 //--------------------------------------------------------------------------------------------------

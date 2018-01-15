@@ -50,7 +50,7 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (activeView)
     {
         RimIntersectionCollection* coll = activeView->crossSectionCollection();
@@ -67,7 +67,7 @@ void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-        Rim3dView* rimView = NULL;
+        RimGridView* rimView = NULL;
         coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

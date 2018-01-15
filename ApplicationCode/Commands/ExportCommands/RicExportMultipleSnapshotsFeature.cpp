@@ -207,7 +207,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariations(Rim3dView* rimView,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     RimCase* rimCase = rimView->ownerCase();
     CVF_ASSERT(rimCase);

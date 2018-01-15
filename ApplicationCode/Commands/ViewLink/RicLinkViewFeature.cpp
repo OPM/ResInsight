@@ -71,10 +71,10 @@ bool RicLinkViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkViewFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
-    std::vector<Rim3dView*> views;
+    std::vector<RimGridView*> views;
     views.push_back(activeView);
 
     RicLinkVisibleViewsFeature::linkViews(views);

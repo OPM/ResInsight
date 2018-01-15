@@ -36,7 +36,7 @@ namespace cvf
 
 class RimViewController;
 class RiuViewer;
-class Rim3dView;
+class RimGridView;
 class RimCellRangeFilter;
 
 //==================================================================================================
@@ -53,18 +53,18 @@ public:
     
     bool                                    isActive() const;
 
-    void                                    setMasterView(Rim3dView* view);
-    Rim3dView*                                masterView() const;
+    void                                    setMasterView(RimGridView* view);
+    RimGridView*                                masterView() const;
 
-    void                                    addDependentView(Rim3dView* view);
+    void                                    addDependentView(RimGridView* view);
     void                                    updateDependentViews();
     void                                    removeViewController(RimViewController* viewController);
 
     void                                    updateOverrides();
 
-    void                                    updateCamera(Rim3dView* sourceView);
-    void                                    updateTimeStep(Rim3dView* sourceView, int timeStep);
-    void                                    updateScaleZ(Rim3dView* sourceView, double scaleZ);
+    void                                    updateCamera(RimGridView* sourceView);
+    void                                    updateTimeStep(RimGridView* sourceView, int timeStep);
+    void                                    updateScaleZ(RimGridView* sourceView, double scaleZ);
 
     void                                    updateCellResult();
 
@@ -74,32 +74,32 @@ public:
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void                                    allViews(std::vector<Rim3dView*>& views) const;
+    void                                    allViews(std::vector<RimGridView*>& views) const;
 
     void                                    updateUiNameAndIcon();
 
     void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
 
     static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
-    static void                             findNameAndIconFromView(QString* name, QIcon* icon, Rim3dView* view);
+    static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view);
 
-    void                                    updateCursorPosition(const Rim3dView* sourceView, const cvf::Vec3d& domainCoord);
+    void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
 
 public:
-    static QString                          displayNameForView(Rim3dView* view);
+    static QString                          displayNameForView(RimGridView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual void                            initAfterRead();
 
 private:
-    void                                    allViewsForCameraSync(const Rim3dView* source, std::vector<Rim3dView*>& views) const;
+    void                                    allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const;
     
     void                                    removeOverrides();
 
 private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
-    caf::PdmPtrField<Rim3dView*>                    m_masterView;
+    caf::PdmPtrField<RimGridView*>                    m_masterView;
     caf::PdmField<QString>                        m_name;
     QIcon                                         m_originalIcon;
 };

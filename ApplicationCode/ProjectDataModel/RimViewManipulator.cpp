@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewManipulator::applySourceViewCameraOnDestinationViews(Rim3dView* sourceView, std::vector<Rim3dView*>& destinationViews)
+void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimGridView* sourceView, std::vector<RimGridView*>& destinationViews)
 {
     bool setPointOfInterest = false;
     cvf::Vec3d sourceCamUp;
@@ -72,7 +72,7 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews(Rim3dView* sour
         sourceSceneBB.transform(trans);
     }
 
-    for (Rim3dView* destinationView : destinationViews)
+    for (RimGridView* destinationView : destinationViews)
     {
         if (!destinationView) continue;
 

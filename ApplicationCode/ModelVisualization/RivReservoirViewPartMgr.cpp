@@ -604,7 +604,7 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
     
     CVF_ASSERT(masterViewLink);
 
-    Rim3dView* masterView = masterViewLink->ownerViewLinker()->masterView();
+    RimGridView* masterView = masterViewLink->ownerViewLinker()->masterView();
 
     // get cell visibility
     #if 1

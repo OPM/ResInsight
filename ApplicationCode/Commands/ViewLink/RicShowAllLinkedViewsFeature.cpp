@@ -58,7 +58,7 @@ void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
 
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        std::vector<Rim3dView*> views;
+        std::vector<RimGridView*> views;
         linkedViews[i]->allViews(views);
 
         for (size_t j = 0; j < views.size(); j++)

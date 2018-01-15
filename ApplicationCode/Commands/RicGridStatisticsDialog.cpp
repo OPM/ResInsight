@@ -115,7 +115,7 @@ void RicGridStatisticsDialog::setLabel(const QString& labelText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::updateFromRimView(Rim3dView* rimView)
+void RicGridStatisticsDialog::updateFromRimView(RimGridView* rimView)
 {
     m_currentRimView = rimView;
     setInfoText(m_currentRimView);
@@ -134,7 +134,7 @@ QImage RicGridStatisticsDialog::screenShotImage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setInfoText(Rim3dView* view)
+void RicGridStatisticsDialog::setInfoText(RimGridView* view)
 {
     Rim3dOverlayInfoConfig* overlayInfo = view->overlayInfoConfig();
     if (view && overlayInfo)
@@ -151,7 +151,7 @@ void RicGridStatisticsDialog::setInfoText(Rim3dView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setHistogramData(Rim3dView* view)
+void RicGridStatisticsDialog::setHistogramData(RimGridView* view)
 {
     deletePlotItems(m_historgramPlot);
     deletePlotItems(m_aggregatedPlot);

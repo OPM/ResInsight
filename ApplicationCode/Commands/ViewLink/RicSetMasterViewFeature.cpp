@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicSetMasterViewFeature, "RicSetMasterViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicSetMasterViewFeature::isCommandEnabled()
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return false;
 
     RimProject* proj = RiaApplication::instance()->project();
@@ -62,7 +62,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
     RimProject* proj = RiaApplication::instance()->project();
@@ -70,7 +70,7 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 
     viewLinker->applyRangeFilterCollectionByUserChoice();
 
-    Rim3dView* previousMasterView = viewLinker->masterView();
+    RimGridView* previousMasterView = viewLinker->masterView();
 
     viewLinker->setMasterView(activeView);
     viewLinker->updateDependentViews();
