@@ -641,7 +641,7 @@ std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView)
 {
-    if (!m_rimFracture->isChecked()) return;
+    if (!m_rimFracture->isChecked() || !eclView.stimPlanColors->isChecked()) return;
 
     cvf::ref<cvf::Part> surfacePart;
     cvf::ref<cvf::Part> stimPlanMeshPart;
