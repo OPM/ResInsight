@@ -68,14 +68,14 @@ void RifElementPropertyReader::removeFile(const std::string& fileName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalarElementFields() const
+std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 {
-    std::map<std::string, std::vector<std::string>> fields;
+    std::vector<std::string> fields;
 
     for (std::map<std::string, RifElementPropertyMetadata>::const_iterator field = m_fieldsMetaData.begin();
          field != m_fieldsMetaData.end(); field++)
     {
-        fields[field->first];
+        fields.push_back(field->first);
     }
 
     return fields;

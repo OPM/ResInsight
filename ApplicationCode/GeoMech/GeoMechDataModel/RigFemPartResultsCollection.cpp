@@ -451,7 +451,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         }
         else if (resPos == RIG_ELEMENT)
         {
-            fieldCompNames = m_elementPropertyReader->scalarElementFields();
+            for (const std::string& field : m_elementPropertyReader->scalarElementFields())
+            {
+                fieldCompNames[field];
+            }
         }
     }
 

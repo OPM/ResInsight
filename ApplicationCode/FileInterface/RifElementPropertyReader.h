@@ -42,7 +42,7 @@ public:
     void addFile(const std::string& fileName);
     void removeFile(const std::string& fileName);
 
-    std::map<std::string, std::vector<std::string>> scalarElementFields() const;
+    std::vector<std::string> scalarElementFields() const;
 
     std::map<std::string, std::vector<float>> readAllElementPropertiesInFileContainingField(const std::string& fieldName);
 

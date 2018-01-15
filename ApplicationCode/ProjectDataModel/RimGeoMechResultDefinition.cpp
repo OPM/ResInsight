@@ -139,6 +139,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         if (&m_resultVariableUiField == fieldNeedingOptions)
         {
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
+
             QStringList uiVarNames;
             QStringList varNames;
             bool isNeedingTimeLapseStrings =  m_isTimeLapseResultUiField() && (m_resultPositionTypeUiField() != RIG_FORMATION_NAMES);
@@ -435,6 +436,8 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     if (resultFieldName == "S") newName =  "NativeAbaqus Stress";
     if (resultFieldName == "NE") newName =  "E"; // Make NE and NS appear as E and SE
     if (resultFieldName == "POR-Bar") newName =  "POR"; // POR-Bar appear as POR
+    if (resultFieldName == "MODULUS") newName = "Young's Modulus";
+    if (resultFieldName == "RATIO") newName = "Poisson's Ratio";
 
     if (isTimeLapseResultList) newName += "_D" + QString::number(baseFrameIdx);
 
