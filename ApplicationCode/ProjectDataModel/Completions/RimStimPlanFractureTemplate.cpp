@@ -191,6 +191,8 @@ void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath(const QString& 
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 {
+    if (m_stimPlanFractureDefinitionData.isNull()) return;
+
     setDepthOfWellPathAtFracture();
     RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(m_wellPathDepthAtFracture));
     m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
@@ -332,10 +334,14 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimStimPlanFractureTemplate::timeSteps() 
+std::vector<double> RimStimPlanFractureTemplate::timeSteps()
 {
-    if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
-    return m_stimPlanFractureDefinitionData->timeSteps();
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        return m_stimPlanFractureDefinitionData->timeSteps();
+    }
+
+    return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +373,12 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    }
+
+    return std::vector<std::vector<double>>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,7 +386,12 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanFractureTemplate::fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
-   return m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, timeStepIndex);
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        return m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, timeStepIndex);
+    }
+
+   return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,9 +421,14 @@ const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::updateFractureGrid()
 {
-    m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_activeTimeStepIndex,
-                                                                          fractureTemplateUnit,
-                                                                          m_wellPathDepthAtFracture);
+    m_fractureGrid = nullptr;
+
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_activeTimeStepIndex,
+                                                                              fractureTemplateUnit,
+                                                                              m_wellPathDepthAtFracture);
+    }
 }
 
 
@@ -425,12 +446,14 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
         loadDataAndUpdate();
     }
 
-    m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
-                                                                     neededUnit,
-                                                                     name,
-                                                                     nodeCoords,
-                                                                     triangleIndices);
-    return;
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
+                                                                         neededUnit,
+                                                                         name,
+                                                                         nodeCoords,
+                                                                         triangleIndices);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,12 +465,17 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEc
     QString parameterName = m_borderPolygonResultName;
     QString parameterUnit = getUnitForStimPlanParameter(parameterName);
   
-    return m_stimPlanFractureDefinitionData->createFractureBorderPolygon(parameterName,
-                                                                         parameterUnit,
-                                                                         m_activeTimeStepIndex,
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        return m_stimPlanFractureDefinitionData->createFractureBorderPolygon(parameterName,
+                                                                             parameterUnit,
+                                                                          m_activeTimeStepIndex,
                                                                          m_wellPathDepthAtFracture,
                                                                          neededUnit,
                                                                          name);
+    }
+
+    return std::vector<cvf::Vec3f>();
 }
 
 

@@ -76,7 +76,7 @@ public:
 
     // Result Access
 
-    const std::vector<double>&              timeSteps();
+    std::vector<double>                     timeSteps();
     std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
     std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
