@@ -87,6 +87,13 @@ std::map<std::string, std::vector<std::string>> RifElementPropertyReader::scalar
 std::map<std::string, std::vector<float>>
     RifElementPropertyReader::readAllElementPropertiesInFileContainingField(const std::string& fieldName)
 {
+    std::map<std::string, std::vector<float>> fieldAndData;
+
+    if (m_fieldsMetaData.find(fieldName) == m_fieldsMetaData.end())
+    {
+        return fieldAndData;
+    }
+    
     RifElementPropertyTable table;
     RifElementPropertyTableReader::readData(&m_fieldsMetaData[fieldName], &table);
 
@@ -96,8 +103,6 @@ std::map<std::string, std::vector<float>>
     {
         CVF_ASSERT(table.data[i].size() == table.elementIds.size());
     }
-
-    std::map<std::string, std::vector<float>> fieldAndData;
 
     const std::vector<int>& elementIdsFromFile = table.elementIds;
 

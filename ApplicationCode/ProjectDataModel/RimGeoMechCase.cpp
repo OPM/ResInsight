@@ -561,6 +561,17 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
     {
         geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
     }
+
+    for (RimGeoMechView* view : geoMechViews())
+    {
+        view->cellResult()->setResultAddress(RigFemResultAddress());
+        for (RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters())
+        {
+            propertyFilter->resultDefinition().p()->setResultAddress(RigFemResultAddress());
+        }
+        
+        view->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

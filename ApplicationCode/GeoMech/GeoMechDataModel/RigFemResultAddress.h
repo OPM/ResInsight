@@ -29,6 +29,13 @@
 class RigFemResultAddress
 {
 public:
+    RigFemResultAddress()
+    {
+        resultPosType = RIG_NODAL;
+        fieldName = "";
+        componentName = "";
+    }
+
     RigFemResultAddress(RigFemResultPosEnum resPosType,
                         const std::string& aFieldName,
                         const std::string& aComponentName)

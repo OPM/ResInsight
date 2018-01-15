@@ -48,9 +48,9 @@ void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
 
     QString     defaultDir = app->lastUsedDialogDirectory("ELM_PROPS");
     QStringList fileNames =
-        QFileDialog::getOpenFileNames(NULL, "Import Element Property Table", defaultDir, "Property Table (*.inp)");
+        QFileDialog::getOpenFileNames(nullptr, "Import Element Property Table", defaultDir, "Property Table (*.inp)");
 
-    if (fileNames.size())
+    if (!fileNames.empty())
     {
         defaultDir = QFileInfo(fileNames.last()).absolutePath();
     }
