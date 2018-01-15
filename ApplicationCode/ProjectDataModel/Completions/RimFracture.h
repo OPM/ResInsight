@@ -55,7 +55,7 @@ class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterf
 public:
     enum StimPlanResultColorType
     {
-        INTERPOLATED,
+        COLOR_INTERPOLATION,
         SINGLE_ELEMENT_COLOR
     };
 

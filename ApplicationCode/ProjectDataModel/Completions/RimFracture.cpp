@@ -75,10 +75,10 @@ namespace caf {
 template<>
 void caf::AppEnum< RimFracture::StimPlanResultColorType >::setUp()
 {
-    addItem(RimFracture::INTERPOLATED,          "INTERPOLATED",         "Interpolated");
-    addItem(RimFracture::SINGLE_ELEMENT_COLOR,  "SINGLE_ELEMENT_COLOR", "Single Element Cell");
+    addItem(RimFracture::COLOR_INTERPOLATION,   "COLOR_INTERPOLATION",  "On");
+    addItem(RimFracture::SINGLE_ELEMENT_COLOR,  "SINGLE_ELEMENT_COLOR", "Off");
 
-    setDefault(RimFracture::INTERPOLATED);
+    setDefault(RimFracture::COLOR_INTERPOLATION);
 }
 
 } // End namespace caf
@@ -154,7 +154,7 @@ RimFracture::RimFracture(void)
     m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
     m_wellFractureAzimuthAngleWarning.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "StimPlan Visualization mode",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "StimPlan Color Interpolation",   "", "", "");
 
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
