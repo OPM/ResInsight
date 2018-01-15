@@ -57,6 +57,7 @@ public:
     const RigFractureGrid*          fractureGrid() const;
 
     void                            setDefaultValuesFromUnit();
+    double                          conductivity() const;
 
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

@@ -218,17 +218,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
             cellPolygon.push_back(cvf::Vec3d(X2, Y2, 0.0));
             cellPolygon.push_back(cvf::Vec3d(X1, Y2, 0.0));
             
-            double cond = cvf::UNDEFINED_DOUBLE;
-            if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
-            {
-                //Conductivity should be md-m, width is in m
-                cond = m_permeability * m_width;
-            }
-            else if(fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
-            {
-                //Conductivity should be md-ft, but width is in inches 
-                cond = m_permeability * RiaEclipseUnitTools::inchToFeet(m_width);
-            }
+            double cond = conductivity();
 
             std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon(fractureTemplateUnit());
             std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
@@ -296,6 +286,25 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
     }
 
     this->setDefaultWellDiameterFromUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::conductivity() const
+{
+    double cond = cvf::UNDEFINED_DOUBLE;
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        //Conductivity should be md-m, width is in m
+        cond = m_permeability * m_width;
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        //Conductivity should be md-ft, but width is in inches 
+        cond = m_permeability * RiaEclipseUnitTools::inchToFeet(m_width);
+    }
+    return cond;
 }
 
 //--------------------------------------------------------------------------------------------------
