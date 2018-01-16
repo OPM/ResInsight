@@ -72,10 +72,9 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 {
     std::vector<std::string> fields;
 
-    for (std::map<std::string, RifElementPropertyMetadata>::const_iterator field = m_fieldsMetaData.begin();
-         field != m_fieldsMetaData.end(); field++)
+    for (const std::pair<std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData)
     {
-        fields.push_back(field->first);
+        fields.push_back(field.first);
     }
 
     return fields;
@@ -111,7 +110,23 @@ std::map<std::string, std::vector<float>>
         for (size_t i = 0; i < table.data.size(); i++)
         {
             const std::string& currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            fieldAndData[currentFieldFromFile]      = table.data[i];
+            
+            if (currentFieldFromFile == "MODULUS")
+            {
+                const std::vector<float>& currentColumn = table.data[i];
+                std::vector<float> tempResult(currentColumn.size(), 0);
+
+                for (float resultItem : currentColumn)
+                {
+                    tempResult[i] = resultItem * 0.000000001;
+                }
+
+                fieldAndData[currentFieldFromFile].swap(tempResult);
+            }
+            else
+            {
+                fieldAndData[currentFieldFromFile] = table.data[i];
+            }
         }
     }
     else if (elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size())
@@ -121,7 +136,7 @@ std::map<std::string, std::vector<float>>
     }
     else
     {
-        if (m_elementIdToIdx.size() == 0)
+        if (m_elementIdToIdx.empty())
         {
             makeElementIdToIdxMap();
         }
@@ -129,9 +144,9 @@ std::map<std::string, std::vector<float>>
         std::vector<int> fileIdxToElementIdx;
         fileIdxToElementIdx.reserve(elementIdsFromFile.size());
 
-        for (size_t i = 0; i < elementIdsFromFile.size(); i++)
+        for (int elementId : elementIdsFromFile)
         {
-            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find(elementIdsFromFile[i]);
+            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find(elementId);
             if (it == m_elementIdToIdx.end())
             {
                 RifElementPropertyReader::outputWarningAboutWrongFileData();
@@ -144,14 +159,24 @@ std::map<std::string, std::vector<float>>
         for (size_t i = 0; i < table.data.size(); i++)
         {
             std::string currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-
+            
             const std::vector<float>& currentColumn = table.data[i];
 
             std::vector<float> tempResult(m_elementIdToIdx.size(), HUGE_VAL);
 
-            for (size_t j = 0; j < currentColumn.size(); j++)
+            if (currentFieldFromFile == "MODULUS")
             {
-                tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
+                for (size_t j = 0; j < currentColumn.size(); j++)
+                {
+                    tempResult[fileIdxToElementIdx[j]] = currentColumn[j] * 0.000000001;
+                }
+            }
+            else
+            {
+                for (size_t j = 0; j < currentColumn.size(); j++)
+                {
+                    tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
+                }
             }
 
             fieldAndData[currentFieldFromFile].swap(tempResult);
