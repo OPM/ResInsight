@@ -58,7 +58,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
