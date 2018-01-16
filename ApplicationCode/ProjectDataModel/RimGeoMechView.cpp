@@ -443,6 +443,11 @@ void RimGeoMechView::updateLegends()
         legendTitle += " [Bar]";
     }
 
+    if (cellResult->resultFieldName() == "MODULUS")
+    {
+        legendTitle += " [GPa]";
+    }
+
     cellResult()->legendConfig->setTitle(legendTitle);
 }
 
