@@ -33,7 +33,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
 
-#include "Rim3dView.h"
+#include "RimGridView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;

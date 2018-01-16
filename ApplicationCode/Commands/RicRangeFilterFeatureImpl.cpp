@@ -25,7 +25,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 
 #include "cafSelectionManager.h"

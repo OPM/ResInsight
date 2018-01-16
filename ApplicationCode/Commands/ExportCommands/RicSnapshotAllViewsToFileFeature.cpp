@@ -25,7 +25,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 

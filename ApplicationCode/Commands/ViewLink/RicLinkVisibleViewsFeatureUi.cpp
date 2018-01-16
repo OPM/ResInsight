@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewLinker.h"
 
 CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi");

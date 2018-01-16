@@ -24,7 +24,7 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"

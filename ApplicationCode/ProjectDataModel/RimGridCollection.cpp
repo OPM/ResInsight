@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGridCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGridCollection, "GridCollection");

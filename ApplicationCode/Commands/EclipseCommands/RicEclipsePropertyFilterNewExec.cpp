@@ -23,7 +23,7 @@
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 
 
 //--------------------------------------------------------------------------------------------------

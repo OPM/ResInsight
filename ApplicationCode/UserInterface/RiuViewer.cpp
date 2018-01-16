@@ -26,7 +26,7 @@
 
 #include "RimCase.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 

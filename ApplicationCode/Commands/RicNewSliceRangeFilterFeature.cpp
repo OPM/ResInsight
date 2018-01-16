@@ -23,7 +23,7 @@
 #include "RicRangeFilterFeatureImpl.h"
 #include "RicRangeFilterNewExec.h"
 
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 
 #include "cafCmdExecCommandManager.h"

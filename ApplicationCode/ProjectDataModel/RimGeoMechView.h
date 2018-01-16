@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Rim3dView.h"
+#include "RimGridView.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"

@@ -21,7 +21,7 @@
 #include "RimCase.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RiuMainWindow.h"
 
 #include "cafCmdExecCommandManager.h"

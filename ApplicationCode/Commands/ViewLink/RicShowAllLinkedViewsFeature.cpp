@@ -20,7 +20,7 @@
 #include "RicShowAllLinkedViewsFeature.h"
 
 #include "RimViewController.h"
-#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimViewLinker.h"
 
 #include "cafSelectionManager.h"
