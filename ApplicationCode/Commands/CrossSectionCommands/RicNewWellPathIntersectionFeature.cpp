@@ -65,7 +65,7 @@ void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 
     RimWellPath* wellPath = collection[0];
     
-    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection, wellPath);
+    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection(), wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 

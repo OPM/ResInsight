@@ -56,7 +56,7 @@ void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
     simWell->firstAncestorOrThisOfType(eclView);
     CVF_ASSERT(eclView);
 
-    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection, simWell);
+    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection(), simWell);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 

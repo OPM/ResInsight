@@ -425,7 +425,7 @@ void RimEclipseView::createDisplayModel()
     // Cross sections
 
     m_crossSectionVizModel->removeAllParts();
-    crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
+    m_crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
     m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
 
@@ -654,11 +654,11 @@ void RimEclipseView::updateCurrentTimeStep()
 
     if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
-        crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+        m_crossSectionCollection->updateCellResultColor(m_currentTimeStep);
     }
     else
     {
-        crossSectionCollection->applySingleColorEffect();
+        m_crossSectionCollection->applySingleColorEffect();
     }
 
     if (m_viewer)
@@ -1474,7 +1474,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
-    uiTreeOrdering.add(crossSectionCollection());
+    uiTreeOrdering.add(m_crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());

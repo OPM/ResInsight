@@ -64,7 +64,7 @@ void RicNewAzimuthDipIntersectionFeature::onActionTriggered(bool isChecked)
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
    
-    RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection);
+    RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection());
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 

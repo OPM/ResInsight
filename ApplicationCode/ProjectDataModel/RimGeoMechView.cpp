@@ -221,7 +221,7 @@ void RimGeoMechView::createDisplayModel()
    // Cross sections
 
    m_crossSectionVizModel->removeAllParts();
-   crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
+   m_crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -234,7 +234,7 @@ void RimGeoMechView::createDisplayModel()
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
-       crossSectionCollection->applySingleColorEffect();
+       m_crossSectionCollection->applySingleColorEffect();
 
        m_overlayInfoConfig()->update3DInfo();
    }
@@ -290,18 +290,18 @@ void RimGeoMechView::updateCurrentTimeStep()
 
         if (this->cellResult()->hasResult())
         {
-            crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+            m_crossSectionCollection->updateCellResultColor(m_currentTimeStep);
         }
         else
         {
-            crossSectionCollection->applySingleColorEffect();
+            m_crossSectionCollection->applySingleColorEffect();
         }
 
     }
     else
     {
         m_vizLogic->updateStaticCellColors(-1);
-        crossSectionCollection->applySingleColorEffect();
+        m_crossSectionCollection->applySingleColorEffect();
 
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -650,7 +650,7 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 
     uiTreeOrdering.add(cellResult());
 
-    uiTreeOrdering.add(crossSectionCollection());
+    uiTreeOrdering.add(m_crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());

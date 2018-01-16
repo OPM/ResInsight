@@ -135,7 +135,6 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
 
 protected:
-
     void                                    setDefaultView();
 
     RimWellPathCollection*                  wellPathCollection();
@@ -167,14 +166,14 @@ protected:
     virtual void                            resetLegendsInViewer() = 0;
 
 protected: // Fields
-    caf::PdmField<int>                                m_currentTimeStep;
+    caf::PdmField<int>                      m_currentTimeStep;
 
 protected: 
-    QPointer<RiuViewer>                               m_viewer;
+    QPointer<RiuViewer>                     m_viewer;
 
-    cvf::ref<cvf::ModelBasicList>                     m_wellPathPipeVizModel;
-    cvf::ref<cvf::ModelBasicList>                     m_crossSectionVizModel;
-    cvf::ref<cvf::ModelBasicList>                     m_highlightVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_wellPathPipeVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_crossSectionVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_highlightVizModel;
 
 private:
     // Overridden PdmObject methods:
@@ -220,43 +219,40 @@ class RimGridView : public Rim3dView
 public:
     RimGridView();
     virtual ~RimGridView(void);
-#if 1
 
-    caf::PdmChildField<RimIntersectionCollection*>   crossSectionCollection;
+    void                                              showGridCells(bool enableGridCells);
+                                                      
+    Rim3dOverlayInfoConfig*                           overlayInfoConfig() const;
+                                                      
+    cvf::ref<cvf::UByteArray>                         currentTotalCellVisibility();
 
-    void                                    showGridCells(bool enableGridCells);
-
-    cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
-
-    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
-    RimCellRangeFilterCollection*              rangeFilterCollection();
-    const RimCellRangeFilterCollection*        rangeFilterCollection() const;
-
-    bool                                    hasOverridenRangeFilterCollection();
-    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
-    void                                    replaceRangeFilterCollectionWithOverride();
-
-    RimViewController*                      viewController() const override;
-    RimViewLinker*                          assosiatedViewLinker() const override;
-
-    Rim3dOverlayInfoConfig*                 overlayInfoConfig() const;
-protected:
-    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
-
-    virtual void                            onTimeStepChanged() override;
-
-    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-    virtual void                            selectOverlayInfoConfig() override;
+    RimIntersectionCollection*                        crossSectionCollection() const;
+                                                      
+    virtual const RimPropertyFilterCollection*        propertyFilterCollection() const = 0;
+    RimCellRangeFilterCollection*                     rangeFilterCollection();
+    const RimCellRangeFilterCollection*               rangeFilterCollection() const;
+                                                      
+    bool                                              hasOverridenRangeFilterCollection();
+    void                                              setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+    void                                              replaceRangeFilterCollectionWithOverride();
+                                                      
+    RimViewController*                                viewController() const override;
+    RimViewLinker*                                    assosiatedViewLinker() const override;
+                                                      
+protected:                                            
+    static void                                       removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
+                                                      
+    virtual void                                      onTimeStepChanged() override;
+    virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
+    virtual void                                      selectOverlayInfoConfig() override;
+                                                      
+    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected: // Fields
+    caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;
     caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
-
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
-
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
 
 protected:
@@ -265,6 +261,4 @@ protected:
 private:
     RimViewLinker*                                    viewLinkerIfMasterView() const;
     bool                                              m_previousGridModeMeshLinesWasFaults;
-
-#endif
 };

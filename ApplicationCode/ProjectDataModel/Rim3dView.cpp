@@ -873,9 +873,9 @@ RimGridView::RimGridView()
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
-    crossSectionCollection.uiCapability()->setUiHidden(true);
-    crossSectionCollection = new RimIntersectionCollection();
+    CAF_PDM_InitFieldNoDefault(&m_crossSectionCollection, "CrossSections", "Intersections", "", "", "");
+    m_crossSectionCollection.uiCapability()->setUiHidden(true);
+    m_crossSectionCollection = new RimIntersectionCollection();
 
     CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
     m_gridCollection.uiCapability()->setUiHidden(true);
@@ -918,7 +918,7 @@ RimGridView::~RimGridView(void)
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
-    delete crossSectionCollection;
+    delete m_crossSectionCollection;
     delete m_gridCollection;
 }
 
@@ -956,6 +956,14 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
     }
 
     return m_currentReservoirCellVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIntersectionCollection* RimGridView::crossSectionCollection() const
+{
+    return m_crossSectionCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1114,7 +1122,7 @@ void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 {
     if ( changedField == &scaleZ )
     {
-        crossSectionCollection->updateIntersectionBoxGeometry();
+        m_crossSectionCollection->updateIntersectionBoxGeometry();
     }
 
     Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
