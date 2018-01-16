@@ -11,8 +11,6 @@
 #include <vector>
 
 
-static const QString TEST_DATA_DIRECTORY = QString("%1/RimRelocatePath/").arg(TEST_DATA_DIR);
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -47,7 +45,7 @@ void fieldByType(caf::PdmObjectHandle* object, std::vector< caf::PdmField<T>* >*
 //--------------------------------------------------------------------------------------------------
 TEST(RimRelocatePathTest, findPathsInProjectFile)
 {
-    QString fileName = TEST_DATA_DIRECTORY + "RelocatePath.rsp";
+    QString fileName = QString("%1/RimRelocatePath/RelocatePath.rsp").arg(TEST_DATA_DIR);
 
     if (fileName.isEmpty()) return;
 
