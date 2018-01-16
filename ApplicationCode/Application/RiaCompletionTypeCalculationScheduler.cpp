@@ -1,49 +1,50 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaCompletionTypeCalculationScheduler.h"
+#include "RiaApplication.h"
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RiaApplication.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-
-#include <QTimer>
-#include <set>
-#include "QAbstractItemModel"
 #include "RiuMainWindow.h"
-#include "cafPdmUiTreeView.h"
-#include <QTreeView>
-#include "Rim3dView.h"
 #include "RiuViewer.h"
 
+#include "cafPdmUiTreeView.h"
+
+#include <QTimer>
+#include <QTreeView>
+
+#include <set>
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaCompletionTypeCalculationScheduler* RiaCompletionTypeCalculationScheduler::instance()
 {
-    static RiaCompletionTypeCalculationScheduler theInstance; 
-    
+    static RiaCompletionTypeCalculationScheduler theInstance;
+
     return &theInstance;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
@@ -63,12 +64,11 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
 {
     m_eclipseCasesToRecalculate.push_back(eclipseCase);
-
 
     if (!m_recalculateCompletionTypeTimer)
     {
@@ -81,14 +81,14 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 {
     std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
 
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    QModelIndex mi = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
+    Rim3dView*  activeView = RiaApplication::instance()->activeReservoirView();
+    QModelIndex mi         = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
 
     for (RimEclipseCase* eclipseCase : uniqueCases)
     {
@@ -113,7 +113,7 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaCompletionTypeCalculationScheduler::~RiaCompletionTypeCalculationScheduler()
 {
