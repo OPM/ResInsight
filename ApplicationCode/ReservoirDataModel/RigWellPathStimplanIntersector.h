@@ -29,6 +29,9 @@ class RimFracture;
 class RigWellPathStimplanIntersectorTester;
 
 
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
 class RigWellPathStimplanIntersector
 {
 public:
@@ -40,9 +43,9 @@ public:
         int endpointCount;
     };
 
-    RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture * rimFracture);
+    RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture);
 
-    const std::map<size_t, WellCellIntersection >& intersections() { return m_stimPlanCellIdxToIntersectionInfoMap; }
+    const std::map<size_t, WellCellIntersection >& intersections() const;
 
 private:
     friend class RigWellPathStimplanIntersectorTester;
@@ -57,6 +60,9 @@ private:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
 class RigWellPathStimplanIntersectorTester
 {
 public:

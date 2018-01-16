@@ -35,7 +35,10 @@
 #include <cmath>
 
 
-RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture* rimFracture)
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
+RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture)
 {
     std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->wellPathPointsIncludingInterpolatedIntersectionPoint(rimFracture->fractureMD());
     cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
@@ -53,13 +56,19 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
     double perforationLength = rimFracture->perforationLength();
 
     calculate(fractureXf, wellPathPoints, wellRadius, perforationLength, stpCellPolygons, m_stimPlanCellIdxToIntersectionInfoMap);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, RigWellPathStimplanIntersector::RigWellPathStimplanIntersector::WellCellIntersection >& RigWellPathStimplanIntersector::intersections() const
+{
+    return m_stimPlanCellIdxToIntersectionInfoMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///  Todo: Use only the perforated parts of the well path
 //--------------------------------------------------------------------------------------------------
-
 void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf, 
                                                const std::vector<cvf::Vec3d>& wellPathPointsOrg, 
                                                double wellRadius, 
@@ -178,7 +187,7 @@ void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf,
             currentIntersectingWpPart.push_back(part.back());
         }
 
-        if ( currentIntersectingWpPart.size() )
+        if ( !currentIntersectingWpPart.empty() )
         {
             intersectingWellPathParts.push_back(currentIntersectingWpPart);
         }
@@ -197,7 +206,7 @@ void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf,
                                                             RigCellGeometryTools::USE_HUGEVAL);
             for ( const auto& wellPathPartInCell: wellPathPartsInPolygon )
             {
-                if ( wellPathPartInCell.size() )
+                if ( !wellPathPartInCell.empty() )
                 {
                     int endpointCount = 0;
                     if ( wellPathPartInCell.front().z() != HUGE_VAL ) ++endpointCount;
