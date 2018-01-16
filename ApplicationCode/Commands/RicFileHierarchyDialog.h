@@ -26,6 +26,7 @@
 
 class QLabel;
 class QLineEdit;
+class QTextEdit;
 class QDialogButtonBox;
 class QPushButton;
 class QMainWindow;
@@ -44,29 +45,35 @@ public:
 
     QStringList         files() const;
     QString             rootDir() const;
+    QString             pathFilter() const;
+    QString             fileNameFilter() const;
+    QStringList         fileExtensions() const;
+    bool                cancelPressed() const;
+
+    void                appendToFileList(const QString& fileName);
 
     static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = 0,
-                                                         const QString &caption = QString(),
-                                                         const QString &dir = QString(),
-                                                         const QString &fileNameFilter = QString(),
-                                                         const QStringList &fileExtensions = QStringList());
+                                                         const QString& caption = QString(),
+                                                         const QString& dir = QString(),
+                                                         const QString& pathFilter = QString(),
+                                                         const QString& fileNameFilter = QString(),
+                                                         const QStringList& fileExtensions = QStringList());
 
 private:
-    static QStringList  findMatchingFiles(const QString &rootDir,
-                                          const QString& pathFilter,
-                                          const QString &fileNameFilter,
-                                          const QStringList &fileExtensions);
+    static QStringList  findMatchingFiles(RicFileHierarchyDialog& dialog);
 
-    static QStringList  findFilesRecursive(const QString &dir,
-                                           const QString &fileNameFilter,
-                                           const QStringList &fileExtensions);
+    static QStringList  findFilesRecursive(const QString& currentDir,
+                                           RicFileHierarchyDialog& dialog);
 
-    static QStringList  createNameFilterList(const QString &fileNameFilter,
-                                             const QStringList &fileExtensions);
+    static QStringList  createNameFilterList(const QString& fileNameFilter,
+                                             const QStringList& fileExtensions);
 
-    static QStringList  filterByPathFilter(const QStringList& files, const QString& pathFilter);
+    static bool         pathFilterMatch(const QString& file, const QString& pathFilter);
+
+    void                updateEffectiveFilter();
 
 private slots:
+    void slotFilterChanged(const QString& text);
     void slotDialogOkClicked();
     void slotDialogCancelClicked();
     void slotBrowseButtonClicked();
@@ -81,12 +88,19 @@ private:
 
     QLabel*                             m_fileFilterLabel;
     QLineEdit*                          m_fileFilter;
-
     QLabel*                             m_fileExtension;
+
+    QLabel*                             m_effectiveFilterLabel;
+    QLabel*                             m_effectiveFilter;
+
+    QLabel*                             m_fileListLabel;
+    QTextEdit*                          m_fileList;
 
     QDialogButtonBox*                   m_buttons;
 
     QStringList                         m_files;
+
+    bool                                m_cancelPressed;
 };
 
 
@@ -96,9 +110,16 @@ private:
 class RicFileHierarchyDialogResult
 {
 public:
-    RicFileHierarchyDialogResult(bool ok, const QStringList& files, const QString& rootDir) :
-        ok(ok), files(files), rootDir(rootDir) {}
+    RicFileHierarchyDialogResult(bool ok, 
+                                 const QStringList& files, 
+                                 const QString& rootDir,
+                                 const QString& pathFilter,
+                                 const QString& fileNameFilter) :
+        ok(ok), files(files), rootDir(rootDir), pathFilter(pathFilter), fileNameFilter(fileNameFilter) {}
+
     bool            ok;
     QStringList     files;
     QString         rootDir;
+    QString         pathFilter;
+    QString         fileNameFilter;
 };
