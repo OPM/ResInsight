@@ -46,6 +46,7 @@
 #include "cvfViewport.h"
 
 #include <QDateTime>
+#include <climits>
 
 
 namespace caf {
