@@ -215,35 +215,41 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<double> > RigWellPath::clippedPoi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigWellPath::wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const
+std::vector<cvf::Vec3d> RigWellPath::wellPathPointsIncludingInterpolatedIntersectionPoint(double intersectionMeasuredDepth) const
 {
     std::vector<cvf::Vec3d> points;
     if (m_measuredDepths.empty()) return points;
 
-    cvf::Vec3d fractureWellPathPpoint = interpolatedPointAlongWellPath(fractureIntersectionMD);
+    cvf::Vec3d interpolatedWellPathPoint = interpolatedPointAlongWellPath(intersectionMeasuredDepth);
 
-    for (size_t i = 0; i < m_measuredDepths.size()-1; i++)
+    for (size_t i = 0; i < m_measuredDepths.size() - 1; i++)
     {
-        if (m_measuredDepths[i] < fractureIntersectionMD)
+        if (m_measuredDepths[i] == intersectionMeasuredDepth)
         {
             points.push_back(m_wellPathPoints[i]);
-            if (m_measuredDepths[i + 1] > fractureIntersectionMD)
+        }
+        else if (m_measuredDepths[i] < intersectionMeasuredDepth)
+        {
+            points.push_back(m_wellPathPoints[i]);
+            if (m_measuredDepths[i + 1] > intersectionMeasuredDepth)
             {
-                points.push_back(fractureWellPathPpoint);
+                points.push_back(interpolatedWellPathPoint);
             }
         }
-        else if (m_measuredDepths[i] < fractureIntersectionMD)
+        else if (m_measuredDepths[i] > intersectionMeasuredDepth)
         {
             if (i == 0)
             {
-                points.push_back(fractureWellPathPpoint);
+                points.push_back(interpolatedWellPathPoint);
             }
-            points.push_back(m_wellPathPoints[i]);
+            else
+            {
+                points.push_back(m_wellPathPoints[i]);
+            }
         }
     }
     points.push_back(m_wellPathPoints.back());
 
     return points;
-
 }
 

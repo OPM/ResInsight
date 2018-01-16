@@ -47,7 +47,8 @@ public:
     std::pair<std::vector<cvf::Vec3d>, std::vector<double> > 
                                 clippedPointSubset(double startMD, double endMD) const;
 
-    std::vector<cvf::Vec3d>     wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const;
+    std::vector<cvf::Vec3d>     wellPathPointsIncludingInterpolatedIntersectionPoint(double intersectionMeasuredDepth) const;
+
 private:
     bool    m_hasDatumElevation;
     double  m_datumElevation;
