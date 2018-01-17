@@ -252,9 +252,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
 
         std::vector<cvf::Vec3f> displayCoords;
 
-        for (size_t i = 0; i < nodeCoords.size(); i++)
+        for (const auto& nodeCoord : nodeCoords)
         {
-            cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
+            cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoord);
             cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
             displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
         }
@@ -307,13 +307,12 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     }
 
     // Transforms the node coordinates for display
-    for (size_t i = 0; i < nodeCoords.size(); i++)
+    for (auto& nodeCoord : nodeCoords)
     {
-        cvf::Vec3d doubleCoord(nodeCoords[i]);
+        cvf::Vec3d doubleCoord(nodeCoord);
         doubleCoord = displayCoordTransform->transformToDisplayCoord(doubleCoord);
-        nodeCoords[i] = cvf::Vec3f(doubleCoord);
+        nodeCoord = cvf::Vec3f(doubleCoord);
     }
-
 
     RimLegendConfig* legendConfig = nullptr;
     if (activeView.stimPlanColors() && activeView.stimPlanColors()->isChecked())
