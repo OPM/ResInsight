@@ -74,16 +74,6 @@ private:
                                                                          cvf::Mat4d m, 
                                                                          const caf::DisplayCoordTransform& displayCoordTransform);
 
-    static bool                         stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, 
-                                                                   double xMin, 
-                                                                   double xMax, 
-                                                                   double yMin, 
-                                                                   double yMax, 
-                                                                   float polygonXmin, 
-                                                                   float polygonXmax, 
-                                                                   float polygonYmin, 
-                                                                   float polygonYmax);
-
     static cvf::ref<cvf::DrawableGeo>   buildDrawableGeoFromTriangles(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
