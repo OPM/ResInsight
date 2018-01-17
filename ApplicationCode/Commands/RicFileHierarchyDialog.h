@@ -51,6 +51,7 @@ public:
     bool                cancelPressed() const;
 
     void                appendToFileList(const QString& fileName);
+    void                clearFileList();
     void                updateStatus();
 
     static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = 0,
@@ -74,8 +75,11 @@ private:
 
     void        updateEffectiveFilter();
 
+    void        setOkButtonEnabled(bool enabled);
+
 private slots:
     void slotFilterChanged(const QString& text);
+    void slotFindOrCancelButtonClicked();
     void slotDialogOkClicked();
     void slotDialogCancelClicked();
     void slotBrowseButtonClicked();
@@ -98,6 +102,7 @@ private:
     QLabel*                             m_fileListLabel;
     QTextEdit*                          m_fileList;
 
+    QPushButton*                        m_findOrCancelButton;
     QDialogButtonBox*                   m_buttons;
 
     QStringList                         m_files;

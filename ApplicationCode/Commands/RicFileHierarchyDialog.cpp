@@ -39,10 +39,16 @@
 #include <QToolBar>
 #include <QAction>
 #include <QFileDialog>
+#include <QGroupBox>
 
 #include <vector>
 #include <time.h>
 #include <thread>
+
+
+#define FIND_BUTTON_FIND_TEXT       "Find"
+#define FIND_BUTTON_CANCEL_TEXT     "Cancel"
+#define NO_FILES_FOUND_TEXT         "No files found"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -74,14 +80,16 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_effectiveFilter   = new QLabel();
     m_fileListLabel     = new QLabel();
     m_fileList          = new QTextEdit();
+    m_findOrCancelButton = new QPushButton();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    // Connect to close button signal
+    // Connect to signals
     connect(m_rootDir, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
     connect(m_pathFilter, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
     connect(m_fileFilter, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
 
+    connect(m_findOrCancelButton, SIGNAL(clicked()), this, SLOT(slotFindOrCancelButtonClicked()));
     connect(m_buttons, SIGNAL(accepted()), this, SLOT(slotDialogOkClicked()));
     connect(m_buttons, SIGNAL(rejected()), this, SLOT(slotDialogCancelClicked()));
     connect(m_browseButton, SIGNAL(clicked()), this, SLOT(slotBrowseButtonClicked()));
@@ -91,29 +99,42 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_pathFilterLabel->setText("Path pattern");
     m_fileFilterLabel->setText("File pattern");
     m_effectiveFilterLabel->setText("Effective filter");
+    m_effectiveFilter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_fileListLabel->setText("Files found");
     m_fileList->setLineWrapMode(QTextEdit::NoWrap);
+    m_fileListLabel->setVisible(false);
+    m_fileList->setVisible(false);
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
+    m_findOrCancelButton->setText("Find");
+    m_findOrCancelButton->setFixedWidth(75);
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
-    QGridLayout* gridLayout = new QGridLayout();
-    gridLayout->addWidget(m_rootDirLabel, 0, 0);
-    gridLayout->addWidget(m_rootDir, 0, 1);
-    gridLayout->addWidget(m_browseButton, 0, 2);
-    gridLayout->addWidget(m_pathFilterLabel, 1, 0);
-    gridLayout->addWidget(m_pathFilter, 1, 1);
-    gridLayout->addWidget(m_fileFilterLabel, 2, 0);
-    gridLayout->addWidget(m_fileFilter, 2, 1);
-    gridLayout->addWidget(m_fileExtension, 2, 2);
-    gridLayout->addWidget(m_effectiveFilterLabel, 3, 0);
-    gridLayout->addWidget(m_effectiveFilter, 3, 1);
-    gridLayout->addWidget(m_fileListLabel, 4, 0);
-    gridLayout->addWidget(m_fileList, 4, 1);
+    QGroupBox* inputGroup = new QGroupBox("Filter");
+    QGridLayout* inputGridLayout = new QGridLayout();
+    inputGridLayout->addWidget(m_rootDirLabel, 0, 0);
+    inputGridLayout->addWidget(m_rootDir, 0, 1);
+    inputGridLayout->addWidget(m_browseButton, 0, 2);
+    inputGridLayout->addWidget(m_pathFilterLabel, 1, 0);
+    inputGridLayout->addWidget(m_pathFilter, 1, 1);
+    inputGridLayout->addWidget(m_fileFilterLabel, 2, 0);
+    inputGridLayout->addWidget(m_fileFilter, 2, 1);
+    inputGridLayout->addWidget(m_fileExtension, 2, 2);
+    inputGroup->setLayout(inputGridLayout);
 
-    dialogLayout->addLayout(gridLayout);
+    QGroupBox* outputGroup = new QGroupBox("Files");
+    QGridLayout* outputGridLayout = new QGridLayout();
+    outputGridLayout->addWidget(m_effectiveFilterLabel, 0, 0);
+    outputGridLayout->addWidget(m_effectiveFilter, 0, 1);
+    outputGridLayout->addWidget(m_findOrCancelButton, 0, 2);
+    outputGridLayout->addWidget(m_fileListLabel, 1, 0);
+    outputGridLayout->addWidget(m_fileList, 1, 1, 1, 2);
+    outputGroup->setLayout(outputGridLayout);
+
+    dialogLayout->addWidget(inputGroup);
+    dialogLayout->addWidget(outputGroup);
     dialogLayout->addWidget(m_buttons);
 
     setLayout(dialogLayout);
@@ -185,10 +206,20 @@ bool RicFileHierarchyDialog::cancelPressed() const
 void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
     QString text = m_fileList->toPlainText();
-    if (text.startsWith("Working .")) m_fileList->setText("");
+    if (text.startsWith("Working .")) clearFileList();
 
     m_fileList->append(fileName);
     QApplication::processEvents();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::clearFileList()
+{
+    m_files.clear();
+    m_fileList->setText("");
+    setOkButtonEnabled(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,8 +262,9 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::getOpenFileNames(QWidget *p
  
     dialog.updateEffectiveFilter();
     dialog.m_fileList->setText("");
+    dialog.setOkButtonEnabled(false);
 
-    dialog.resize(600, 250);
+    dialog.resize(600, 150);
     dialog.exec();
 
     return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, dialog.files(), dialog.rootDir(), dialog.pathFilter(), dialog.fileNameFilter());
@@ -368,9 +400,58 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::setOkButtonEnabled(bool enabled)
+{
+    m_buttons->button(QDialogButtonBox::Ok)->setEnabled(enabled);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 {
+    clearFileList();
     updateEffectiveFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
+{
+    if (m_findOrCancelButton->text() == FIND_BUTTON_FIND_TEXT)
+    {
+        clearFileList();
+
+        if (!m_fileList->isVisible())
+        {
+            m_fileListLabel->setVisible(true);
+            m_fileList->setVisible(true);
+            resize(600, 350);
+        }
+
+        m_findOrCancelButton->setText(FIND_BUTTON_CANCEL_TEXT);
+
+        m_cancelPressed = false;
+        m_files = findMatchingFiles();
+
+        m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);
+
+        if (m_cancelPressed)
+        {
+            clearFileList();
+        }
+        else if(m_files.isEmpty())
+        {
+            m_fileList->setText(NO_FILES_FOUND_TEXT);
+        }
+
+        setOkButtonEnabled(!m_files.isEmpty());
+    }
+    else
+    {
+        m_cancelPressed = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,8 +459,6 @@ void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::slotDialogOkClicked()
 {
-    m_cancelPressed = false;
-    m_files = findMatchingFiles();
     accept();
 }
 
