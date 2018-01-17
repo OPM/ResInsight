@@ -51,6 +51,7 @@ public:
     bool                cancelPressed() const;
 
     void                appendToFileList(const QString& fileName);
+    void                updateStatus();
 
     static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = 0,
                                                          const QString& caption = QString(),
@@ -60,17 +61,18 @@ public:
                                                          const QStringList& fileExtensions = QStringList());
 
 private:
-    static QStringList  findMatchingFiles(RicFileHierarchyDialog& dialog);
+    QStringList findMatchingFiles();
 
-    static QStringList  findFilesRecursive(const QString& currentDir,
-                                           RicFileHierarchyDialog& dialog);
+    QStringList buildDirectoryListRecursive(const QString& currentDir);
 
-    static QStringList  createNameFilterList(const QString& fileNameFilter,
-                                             const QStringList& fileExtensions);
+    QStringList findFilesInDirs(const QStringList& dirs);
 
-    static bool         pathFilterMatch(const QString& file, const QString& pathFilter);
+    QStringList createNameFilterList(const QString& fileNameFilter,
+                                     const QStringList& fileExtensions);
 
-    void                updateEffectiveFilter();
+    bool        pathFilterMatch(const QString& dir);
+
+    void        updateEffectiveFilter();
 
 private slots:
     void slotFilterChanged(const QString& text);
