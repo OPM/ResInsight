@@ -23,6 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -32,6 +33,7 @@
 class Rim3dView;
 class RimFormationNames;
 class RimTimeStepFilter;
+class Rim2dIntersectionView;
 
 namespace cvf {
     class BoundingBox;
@@ -49,7 +51,7 @@ public:
 
     caf::PdmPtrField<RimFormationNames*>        activeFormationNames;
 
-    virtual std::vector<Rim3dView*>               views() = 0;
+    std::vector<Rim3dView*>                     views() const;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
@@ -71,11 +73,17 @@ public:
 
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual std::vector<Rim3dView*>             allSpecialViews() const = 0;
+
 private:
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 
 protected:
     caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;
+    caf::PdmChildArrayField<Rim2dIntersectionView*> m_intersectionViews;
+
+private: 
+    bool m_isInActiveDestruction; 
 };
 
 

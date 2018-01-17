@@ -57,7 +57,6 @@ public:
     RimGeoMechView*                         createAndAddReservoirView();
 
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
-    virtual std::vector<Rim3dView*>         views() override;
 
     virtual std::vector<QDateTime>          timeStepDates() const override;
     virtual QStringList                     timeStepStrings() const override;
@@ -91,6 +90,7 @@ private:
 
     void                                    closeSelectedElementPropertyFiles();
     void                                    reloadSelectedElementPropertyFiles();
+    virtual std::vector<Rim3dView*>         allSpecialViews() const override;
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;

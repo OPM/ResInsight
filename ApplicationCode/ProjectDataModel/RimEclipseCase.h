@@ -91,7 +91,6 @@ public:
 
     RimCaseCollection*                          parentCaseCollection();
                                                      
-    virtual std::vector<Rim3dView*>               views();
     virtual QStringList                         timeStepStrings() const override;
     virtual QString                             timeStepName(int frameIdx) const override;
     virtual std::vector<QDateTime>              timeStepDates() const override;
@@ -122,6 +121,7 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
+    virtual std::vector<Rim3dView*>             allSpecialViews() const override;
 
 private:
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;

@@ -221,7 +221,7 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<Rim3dView*> RimGeoMechCase::views()
+std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
     for (size_t vIdx = 0; vIdx < geoMechViews.size(); ++vIdx)

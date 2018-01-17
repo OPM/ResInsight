@@ -28,6 +28,8 @@
 
 #include "cafPdmObjectFactory.h"
 
+#include "Rim2dIntersectionView.h"
+
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 
@@ -35,7 +37,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase::RimCase()
+RimCase::RimCase() : m_isInActiveDestruction(false)
 {
     CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
 
@@ -48,6 +50,11 @@ RimCase::RimCase()
     m_timeStepFilter.uiCapability()->setUiHidden(true);
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_timeStepFilter = new RimTimeStepFilter;
+
+    CAF_PDM_InitFieldNoDefault(&m_intersectionViews, "IntersectionViews", "Intersection Views", ":/CrossSections16x16.png", "", "");
+    m_intersectionViews.uiCapability()->setUiTreeHidden(true);
+    //m_intersectionViews.push_back(new Rim2dIntersectionView());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +62,23 @@ RimCase::RimCase()
 //--------------------------------------------------------------------------------------------------
 RimCase::~RimCase()
 {
+    m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<Rim3dView*> RimCase::views() const
+{
+    if (m_isInActiveDestruction) return std::vector<Rim3dView*>();
+
+    std::vector<Rim3dView*> allViews = this->allSpecialViews();
+    for (auto view: m_intersectionViews)
+    {
+        allViews.push_back(view);
+    }
+
+    return allViews;
 }
 
 //--------------------------------------------------------------------------------------------------

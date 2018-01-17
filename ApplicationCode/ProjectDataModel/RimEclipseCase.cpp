@@ -673,13 +673,14 @@ bool RimEclipseCase::openReserviorCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<Rim3dView*> RimEclipseCase::views()
+std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
     for (size_t vIdx = 0; vIdx < reservoirViews.size(); ++vIdx)
     {
         views.push_back(reservoirViews[vIdx]);
     }
+ 
     return views;
 }
 
