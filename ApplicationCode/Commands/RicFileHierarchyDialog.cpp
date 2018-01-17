@@ -49,6 +49,9 @@
 #define FIND_BUTTON_FIND_TEXT       "Find"
 #define FIND_BUTTON_CANCEL_TEXT     "Cancel"
 #define NO_FILES_FOUND_TEXT         "No files found"
+#define WORKING_TEXT_1              "Working ."
+#define WORKING_TEXT_2              "Working .."
+#define WORKING_TEXT_3              "Working ..."
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -206,7 +209,7 @@ bool RicFileHierarchyDialog::cancelPressed() const
 void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
     QString text = m_fileList->toPlainText();
-    if (text.startsWith("Working .")) clearFileList();
+    if (text.startsWith(WORKING_TEXT_1)) clearFileList();
 
     m_fileList->append(fileName);
     QApplication::processEvents();
@@ -234,10 +237,10 @@ void RicFileHierarchyDialog::updateStatus()
     lastStatusUpdate = now;
 
     QString currStatus = m_fileList->toPlainText();
-    if      (currStatus == "") m_fileList->setText("Working .");
-    else if (currStatus == "Working .") m_fileList->setText("Working ..");
-    else if (currStatus == "Working ..") m_fileList->setText("Working ...");
-    else if (currStatus == "Working ...") m_fileList->setText("Working .");
+    if      (currStatus == "") m_fileList->setText(WORKING_TEXT_1);
+    else if (currStatus == WORKING_TEXT_1) m_fileList->setText(WORKING_TEXT_2);
+    else if (currStatus == WORKING_TEXT_2) m_fileList->setText(WORKING_TEXT_3);
+    else if (currStatus == WORKING_TEXT_3) m_fileList->setText(WORKING_TEXT_1);
 }
 
 //--------------------------------------------------------------------------------------------------
