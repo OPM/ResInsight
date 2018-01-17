@@ -28,6 +28,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicNewIntersectionViewFeature, "RicNewIntersectionViewFeature");
 
@@ -36,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicNewIntersectionViewFeature, "RicNewIntersectionViewFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewIntersectionViewFeature::isCommandEnabled()
 {
-    std::vector<RimIntersection*> objects = selectedIntersections();
+    std::set<RimIntersection*> objects = selectedIntersections();
 
     return !objects.empty();
 }
@@ -46,7 +47,7 @@ bool RicNewIntersectionViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimIntersection*> intersections = selectedIntersections();
+    std::set<RimIntersection*> intersections = selectedIntersections();
 
     Rim2dIntersectionView* objectToSelect = nullptr;
 
@@ -58,6 +59,14 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
         intersection->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
+            if (intersection->direction() != RimIntersection::CS_VERTICAL)
+            {
+                QString text = QString("Intersection '%1' is not a vertical intersection. The intersection view supports"
+                                       "only vertical intersections.").arg(intersection->name());
+
+                QMessageBox::warning(RiuMainWindow::instance(), "New Intersection View", text);
+            }
+
             Rim2dIntersectionView* intersectionView = rimCase->createAndAddIntersectionView(intersection);
             intersectionView->loadDataAndUpdate();
 
@@ -85,9 +94,9 @@ void RicNewIntersectionViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections()
+std::set<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections()
 {
-    std::vector<RimIntersection*> objects = caf::selectedObjectsByType<RimIntersection*>();
+    std::set<RimIntersection*> objects;
 
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
     RiuSelectionItem*    selItem       = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
@@ -98,7 +107,19 @@ std::vector<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersectio
         RimIntersection* intersection = dynamic_cast<RimIntersection*>(generalSelectionItem->m_object);
         if (intersection)
         {
-            objects.push_back(intersection);
+            objects.insert(intersection);
+
+            // Return only the intersection the user clicked on
+
+            return objects;
+        }
+    }
+
+    {
+        std::vector<RimIntersection*> selectedObjects = caf::selectedObjectsByType<RimIntersection*>();
+        for (auto obj : selectedObjects)
+        {
+            objects.insert(obj);
         }
     }
 

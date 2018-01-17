@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-#include <vector>
+#include <set>
 
 class RimIntersection;
 
@@ -37,5 +37,5 @@ protected:
     void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static std::vector<RimIntersection*> selectedIntersections();
+    static std::set<RimIntersection*> selectedIntersections();
 };
