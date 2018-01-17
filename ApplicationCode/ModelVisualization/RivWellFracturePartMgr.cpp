@@ -16,31 +16,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivWellFracturePartMgr.h"
-
 #include "RiaApplication.h"
 
-#include "RigFractureGrid.h"
-#include "RigMainGrid.h"
-#include "RigHexIntersectionTools.h"
 #include "RigCellGeometryTools.h"
-
 #include "RigFractureCell.h"
+#include "RigFractureGrid.h"
+#include "RigHexIntersectionTools.h"
+#include "RigMainGrid.h"
+
+#include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
+#include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimWellPathCollection.h"
 
 #include "RivFaultGeometryGenerator.h"
-#include "RivPartPriority.h"
 #include "RivObjectSourceInfo.h"
+#include "RivPartPriority.h"
+#include "RivWellFracturePartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 
+#include "cvfAssert.h"
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
@@ -48,11 +51,10 @@
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
-#include "cvfScalarMapperContinuousLinear.h"
 #include "cvfRenderStateDepth.h"
-#include "cvfAssert.h"
+#include "cvfScalarMapperContinuousLinear.h"
+#include "cvfTransform.h"
 
-#include <array>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -643,57 +645,120 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 {
     if (!m_rimFracture->isChecked() || !eclView.stimPlanColors->isChecked()) return;
 
-    cvf::ref<cvf::Part> surfacePart;
-    cvf::ref<cvf::Part> stimPlanMeshPart;
-    cvf::ref<cvf::Part> containmentMaskPart;
+    if (!m_rimFracture->fractureTemplate()) return;
 
+    double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
 
+    cvf::Collection<cvf::Part> parts;
     RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
-    if (m_rimFracture->fractureTemplate())
+
+    if (stimPlanFracTemplate)
     {
-        // StimPlan
-        if (stimPlanFracTemplate)
+        if (m_rimFracture->stimPlanResultColorType() == RimFracture::SINGLE_ELEMENT_COLOR)
         {
-            if (m_rimFracture->stimPlanResultColorType() == RimFracture::SINGLE_ELEMENT_COLOR)
-            {
-                surfacePart = createStimPlanElementColorSurfacePart(eclView);
-            }
-            else
-            {
-                surfacePart = createStimPlanColorInterpolatedSurfacePart(eclView);
-            }
-
-            if (stimPlanFracTemplate->showStimPlanMesh())
-            {
-                stimPlanMeshPart = createStimPlanMeshPart(eclView);
-            }
+            auto part = createStimPlanElementColorSurfacePart(eclView);
+            if (part.notNull()) parts.push_back(part.p());
         }
-        // Ellipse
-        else 
+        else
         {
-            surfacePart = createEllipseSurfacePart(eclView);
+            auto part = createStimPlanColorInterpolatedSurfacePart(eclView);
+            if (part.notNull()) parts.push_back(part.p());
         }
 
-        if (m_rimFracture->fractureTemplate()->fractureContainment()->isEnabled())
+        if (stimPlanFracTemplate->showStimPlanMesh())
         {
-            containmentMaskPart = createContainmentMaskPart(eclView);
+            auto part = createStimPlanMeshPart(eclView);
+            if (part.notNull()) parts.push_back(part.p());
+        }
+    }
+    else 
+    {
+        auto part = createEllipseSurfacePart(eclView);
+        if (part.notNull()) parts.push_back(part.p());
+    }
+
+    double offsetDistanceToCenterLine = 1.0;
+    {
+        RimWellPathCollection* wellPathColl = nullptr;
+        m_rimFracture->firstAncestorOrThisOfType(wellPathColl);
+        if (wellPathColl)
+        {
+            offsetDistanceToCenterLine = wellPathColl->wellPathRadiusScaleFactor() * characteristicCellSize;
+        }
+
+        RimSimWellInView* simWell = nullptr;
+        m_rimFracture->firstAncestorOrThisOfType(simWell);
+        if (simWell)
+        {
+            offsetDistanceToCenterLine = simWell->pipeRadius();
         }
     }
 
 
-    if (surfacePart.notNull())
+    // Make sure the distance is slightly smaller than the pipe radius to make the pipe is visible through the fracture
+    offsetDistanceToCenterLine *= 0.7;
+
+    auto fractureMatrix = m_rimFracture->transformMatrix();
+    cvf::Vec3d fractureNormal = offsetDistanceToCenterLine * cvf::Vec3d(fractureMatrix.col(2));
+
     {
-        model->addPart(surfacePart.p());
+        cvf::Mat4d m = cvf::Mat4d::fromTranslation(fractureNormal);
+
+        cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+        partTransform->setLocalTransform(m);
+
+        for (auto& part : parts)
+        {
+            part->setTransform(partTransform.p());
+            model->addPart(part.p());
+        }
     }
 
-    if (stimPlanMeshPart.notNull())
     {
-        model->addPart(stimPlanMeshPart.p());
+        cvf::Mat4d m = cvf::Mat4d::fromTranslation(-fractureNormal);
+
+        cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+        partTransform->setLocalTransform(m);
+
+        for (const auto& originalPart : parts)
+        {
+            auto part = originalPart->shallowCopy();
+
+            part->setTransform(partTransform.p());
+            model->addPart(part.p());
+        }
     }
 
-    if (containmentMaskPart.notNull())
+    if (m_rimFracture->fractureTemplate()->fractureContainment()->isEnabled())
     {
-        model->addPart(containmentMaskPart.p());
+        // Position the containment mask outside the fracture parts
+
+        auto originalPart = createContainmentMaskPart(eclView);
+        if (originalPart.notNull())
+        {
+            auto containmentPartNormal = 1.5 * fractureNormal;
+
+            {
+                cvf::Mat4d m = cvf::Mat4d::fromTranslation(containmentPartNormal);
+
+                cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+                partTransform->setLocalTransform(m);
+
+                originalPart->setTransform(partTransform.p());
+                model->addPart(originalPart.p());
+            }
+
+            {
+                cvf::Mat4d m = cvf::Mat4d::fromTranslation(-containmentPartNormal);
+
+                cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+                partTransform->setLocalTransform(m);
+
+                auto copy = originalPart->shallowCopy();
+                copy->setTransform(partTransform.p());
+                model->addPart(copy.p());
+            }
+        }
     }
 }
 
