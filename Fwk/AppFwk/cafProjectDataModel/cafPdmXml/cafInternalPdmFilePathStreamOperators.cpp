@@ -18,7 +18,7 @@ QTextStream& operator<<(QTextStream& str, const std::vector<caf::FilePath>& file
         trimmedEntries.push_back(text);
     }
 
-    for (size_t i = 0; i < trimmedEntries.size(); i++)
+    for (int i = 0; i < trimmedEntries.size(); i++)
     {
         str << trimmedEntries[i];
 

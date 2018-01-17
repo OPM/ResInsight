@@ -12,6 +12,8 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmValueField.h"
 
+#include <vector>
+
 
 class DemoPdmObject: public caf::PdmObjectHandle
 {
@@ -34,6 +36,7 @@ public:
         this->addField(&m_memberDoubleField, "m_memberDoubleField");
         this->addField(&m_memberIntField,    "m_memberIntField");
         this->addField(&m_memberStringField, "m_memberStringField");
+
 
 
         // Default values 
@@ -87,12 +90,18 @@ public:
         this->addField(&m_texts, "Texts");
         this->addField(&m_childArrayField, "DemoPdmObjectects");
         this->addField(&m_ptrField, "m_ptrField");
+        
+        this->addField(&m_singleFilePath, "m_singleFilePath");
+        this->addField(&m_multipleFilePath, "m_multipleFilePath");
 
     }
 
     caf::PdmDataValueField<QString >        m_texts;
     caf::PdmChildArrayField<DemoPdmObject*> m_childArrayField;
     caf::PdmPtrField<InheritedDemoObj*>     m_ptrField;
+
+    caf::PdmDataValueField<caf::FilePath>               m_singleFilePath;
+    caf::PdmDataValueField<std::vector<caf::FilePath>>  m_multipleFilePath;
 };
 
 
@@ -589,3 +598,37 @@ TEST(BaseTest, PdmPointer)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, PdmFilePath)
+{
+    InheritedDemoObj* d = new InheritedDemoObj;
+
+    QVariant newVal = "path with space";
+    d->m_singleFilePath.setFromQVariant(newVal);
+
+    QVariant var = d->m_singleFilePath.toQVariant();
+    ASSERT_TRUE(newVal == var);
+
+    delete d;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, MultiplePdmFilePath)
+{
+    InheritedDemoObj* d = new InheritedDemoObj;
+
+    QString newVal = "path with space";
+    d->m_multipleFilePath.v().push_back(newVal);
+    d->m_multipleFilePath.v().push_back(newVal);
+
+    QVariant var = d->m_multipleFilePath.toQVariant();
+    QStringList str = var.toStringList();
+
+    EXPECT_EQ(2, str.size());
+
+    delete d;
+}

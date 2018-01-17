@@ -50,7 +50,19 @@ bool caf::FilePath::operator==(const FilePath& other) const
 QTextStream& operator>>(QTextStream& str, caf::FilePath& filePath)
 {
     QString text;
-    str >> text;
+
+    while (str.status() == QTextStream::Ok)
+    {
+        // Read QChar to avoid white space trimming when reading QString
+        QChar singleChar;
+        str >> singleChar;
+
+        if (!singleChar.isNull())
+        {
+            text += singleChar;
+        }
+    }
+
     filePath.setPath(text);
 
     return str;
