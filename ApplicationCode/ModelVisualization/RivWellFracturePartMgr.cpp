@@ -393,14 +393,12 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
     cvf::Mat4d frMx = m_rimFracture->transformMatrix();
 
     cvf::BoundingBox frBBox;
-    std::vector<cvf::Vec3d> borderPolygonGlobCs;
     std::vector<cvf::Vec3d> borderPolygonLocalCsd;
     for (const auto& pv: borderPolygonLocalCS)
     {
         cvf::Vec3d pvd(pv);
         borderPolygonLocalCsd.push_back(pvd);
         pvd.transformPoint(frMx);
-        borderPolygonGlobCs.push_back(pvd);
         frBBox.add(pvd);
     }
 
@@ -437,7 +435,6 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
             }
 
             cvf::Vec3d fractureNormal = cvf::Vec3d(frMx.col(2));
-            cvf::Vec3d maskOffset = fractureNormal * 0.01 * frBBox.radius();
             for (const std::vector<cvf::Vec3d>& eclCellPolygon : eclCellPolygons)
             {
                 // Clip Eclipse cell polygon with fracture border
@@ -469,12 +466,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
 
                     for (size_t idx: triangleIndices)
                     {
-                        maskTriangles.push_back( cvf::Vec3f( displCoordTrans->transformToDisplayCoord(clippedPolygon[idx]  + maskOffset)) );
-                    }
-
-                    for (size_t idx: triangleIndices)
-                    {
-                        maskTriangles.push_back( cvf::Vec3f( displCoordTrans->transformToDisplayCoord(clippedPolygon[idx]  - maskOffset)) );
+                        maskTriangles.push_back( cvf::Vec3f( displCoordTrans->transformToDisplayCoord(clippedPolygon[idx]) ) );
                     }
                 }
             }
@@ -677,54 +669,65 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
         if (part.notNull()) parts.push_back(part.p());
     }
 
-    double offsetDistanceToCenterLine = 1.0;
+    double distanceToCenterLine = 1.0;
     {
         RimWellPathCollection* wellPathColl = nullptr;
         m_rimFracture->firstAncestorOrThisOfType(wellPathColl);
         if (wellPathColl)
         {
-            offsetDistanceToCenterLine = wellPathColl->wellPathRadiusScaleFactor() * characteristicCellSize;
+            distanceToCenterLine = wellPathColl->wellPathRadiusScaleFactor() * characteristicCellSize;
         }
 
         RimSimWellInView* simWell = nullptr;
         m_rimFracture->firstAncestorOrThisOfType(simWell);
         if (simWell)
         {
-            offsetDistanceToCenterLine = simWell->pipeRadius();
+            distanceToCenterLine = simWell->pipeRadius();
         }
     }
 
 
     // Make sure the distance is slightly smaller than the pipe radius to make the pipe is visible through the fracture
-    offsetDistanceToCenterLine *= 0.7;
+    distanceToCenterLine *= 0.1;
 
     auto fractureMatrix = m_rimFracture->transformMatrix();
-    cvf::Vec3d fractureNormal = offsetDistanceToCenterLine * cvf::Vec3d(fractureMatrix.col(2));
 
+    if (m_rimFracture->fractureTemplate() && m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
     {
-        cvf::Mat4d m = cvf::Mat4d::fromTranslation(fractureNormal);
+        cvf::Vec3d partTranslation = distanceToCenterLine * cvf::Vec3d(fractureMatrix.col(2));
 
-        cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-        partTransform->setLocalTransform(m);
-
-        for (auto& part : parts)
         {
-            part->setTransform(partTransform.p());
-            model->addPart(part.p());
+            cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
+
+            cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+            partTransform->setLocalTransform(m);
+
+            for (auto& part : parts)
+            {
+                part->setTransform(partTransform.p());
+                model->addPart(part.p());
+            }
+        }
+
+        {
+            cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
+
+            cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+            partTransform->setLocalTransform(m);
+
+            for (const auto& originalPart : parts)
+            {
+                auto part = originalPart->shallowCopy();
+
+                part->setTransform(partTransform.p());
+                model->addPart(part.p());
+            }
         }
     }
-
+    else
     {
-        cvf::Mat4d m = cvf::Mat4d::fromTranslation(-fractureNormal);
-
-        cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-        partTransform->setLocalTransform(m);
-
-        for (const auto& originalPart : parts)
+        for (auto& part : parts)
         {
-            auto part = originalPart->shallowCopy();
-
-            part->setTransform(partTransform.p());
             model->addPart(part.p());
         }
     }
@@ -732,14 +735,21 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
     if (m_rimFracture->fractureTemplate()->fractureContainment()->isEnabled())
     {
         // Position the containment mask outside the fracture parts
+        // Always duplicate the containment mask parts
 
         auto originalPart = createContainmentMaskPart(eclView);
         if (originalPart.notNull())
         {
-            auto containmentPartNormal = 1.5 * fractureNormal;
+            double scaleFactor = 0.03;
+            if (m_rimFracture->fractureTemplate() && m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+            {
+                scaleFactor = 1.5 * distanceToCenterLine;
+            }
+
+            cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d(fractureMatrix.col(2));
 
             {
-                cvf::Mat4d m = cvf::Mat4d::fromTranslation(containmentPartNormal);
+                cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
 
                 cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
                 partTransform->setLocalTransform(m);
@@ -749,7 +759,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
             }
 
             {
-                cvf::Mat4d m = cvf::Mat4d::fromTranslation(-containmentPartNormal);
+                cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
 
                 cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
                 partTransform->setLocalTransform(m);
