@@ -34,6 +34,7 @@ class Rim3dView;
 class RimFormationNames;
 class RimTimeStepFilter;
 class Rim2dIntersectionView;
+class RimIntersection;
 
 namespace cvf {
     class BoundingBox;
@@ -70,6 +71,8 @@ public:
     virtual double                              characteristicCellSize() const = 0;
 
     size_t                                      uiToNativeTimeStepIndex(size_t uiTimeStepIndex);
+
+    Rim2dIntersectionView*                      createAndAddIntersectionView(RimIntersection* intersection);
 
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

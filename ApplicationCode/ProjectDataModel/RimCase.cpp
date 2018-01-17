@@ -29,6 +29,7 @@
 #include "cafPdmObjectFactory.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
@@ -110,6 +111,22 @@ size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
     }
 
     return uiTimeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* RimCase::createAndAddIntersectionView(RimIntersection* intersection)
+{
+    Rim2dIntersectionView* intersectionView = new Rim2dIntersectionView;
+    intersectionView->setIntersection(intersection);
+    
+    QString name = QString("View of Intersection %1").arg(intersection->name());
+    intersectionView->name = name;
+
+    m_intersectionViews.push_back(intersectionView);
+
+    return intersectionView;
 }
 
 //--------------------------------------------------------------------------------------------------

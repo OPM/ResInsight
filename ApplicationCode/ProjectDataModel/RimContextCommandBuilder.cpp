@@ -454,6 +454,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewIntersectionViewFeature";
         }
         else if (dynamic_cast<RimIntersectionBox*>(uiItem))
         {

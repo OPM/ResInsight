@@ -39,6 +39,8 @@ public:
     Rim2dIntersectionView(void);
     virtual ~Rim2dIntersectionView(void);
 
+    void                        setIntersection(RimIntersection* intersection);
+
 
     virtual bool               isUsingFormationNames() const override;
     virtual void               scheduleGeometryRegen(RivCellSetEnum geometryType) override;

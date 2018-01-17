@@ -221,6 +221,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 
                 menuBuilder << "RicHideIntersectionFeature";
                 menuBuilder.addSeparator();
+                menuBuilder << "RicNewIntersectionViewFeature";
+                menuBuilder.addSeparator();
             }
             else if (intersectionBoxSourceInfo)
             {
