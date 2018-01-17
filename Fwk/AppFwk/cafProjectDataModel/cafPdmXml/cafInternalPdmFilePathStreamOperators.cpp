@@ -18,11 +18,11 @@ QTextStream& operator<<(QTextStream& str, const std::vector<caf::FilePath>& file
         trimmedEntries.push_back(text);
     }
 
-    for (const auto& s : trimmedEntries)
+    for (size_t i = 0; i < trimmedEntries.size(); i++)
     {
-        str << s;
+        str << trimmedEntries[i];
 
-        if (s != trimmedEntries.back())
+        if (i < trimmedEntries.size() - 1)
         {
             str << ";";
         }
