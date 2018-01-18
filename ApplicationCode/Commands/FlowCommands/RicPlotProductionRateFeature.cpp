@@ -295,6 +295,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     newCurve->setSummaryAddressY(addr);
     newCurve->setColor(color);
     newCurve->setLeftOrRightAxisY(plotAxis);
+    newCurve->loadDataAndUpdate(true);
 
     return newCurve;
 }
