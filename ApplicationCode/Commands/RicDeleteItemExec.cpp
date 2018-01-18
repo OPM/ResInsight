@@ -26,6 +26,7 @@
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
@@ -149,6 +150,16 @@ void RicDeleteItemExec::redo()
             if (proj)
             {
                 proj->createDisplayModelAndRedrawAllViews();
+            }
+
+            std::vector<RimView*> views;
+            proj->allVisibleViews(views);
+            for (RimView* view : views)
+            {
+                if (dynamic_cast<RimEclipseView*>(view))
+                {
+                    view->updateConnectedEditors();
+                }
             }
         }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES

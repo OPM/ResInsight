@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
+#include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -44,7 +45,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(NULL, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
+    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
 
     if (fileName.isEmpty()) return;
 
@@ -67,6 +68,18 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->setDefaultWellDiameterFromUnit();
 
         fracDefColl->updateConnectedEditors();
+
+        std::vector<RimView*> views;
+        project->allVisibleViews(views);
+
+        for (RimView* view : views)
+        {
+            if (dynamic_cast<RimEclipseView*>(view))
+            {
+                view->updateConnectedEditors();
+            }
+        }
+
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
     }
 }
