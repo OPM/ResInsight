@@ -20,9 +20,10 @@
 
 #include "RiaApplication.h"
 
-#include "RimOilField.h"
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
@@ -58,6 +59,18 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
         ellipseFractureTemplate->setDefaultValuesFromUnit();
 
         fracDefColl->updateConnectedEditors();
+        
+        std::vector<Rim3dView*> views;
+        project->allVisibleViews(views);
+
+        for (Rim3dView* view : views)
+        {
+            if (dynamic_cast<RimEclipseView*>(view))
+            {
+                view->updateConnectedEditors();
+            }
+        }
+
         RiuMainWindow::instance()->selectAsCurrentItem(ellipseFractureTemplate);
     }
 }

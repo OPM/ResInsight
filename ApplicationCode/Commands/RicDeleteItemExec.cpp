@@ -23,17 +23,18 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "Rim3dView.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -149,6 +150,16 @@ void RicDeleteItemExec::redo()
             if (proj)
             {
                 proj->createDisplayModelAndRedrawAllViews();
+            }
+
+            std::vector<Rim3dView*> views;
+            proj->allVisibleViews(views);
+            for (Rim3dView* view : views)
+            {
+                if (dynamic_cast<RimEclipseView*>(view))
+                {
+                    view->updateConnectedEditors();
+                }
             }
         }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
