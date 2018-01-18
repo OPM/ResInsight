@@ -20,10 +20,10 @@
 
 #include "RiaApplication.h"
 
+#include "RimOilField.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"

@@ -92,9 +92,13 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
                                                                        std::vector<double>& values, 
                                                                        const QDateTime& fromDate)
 {
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid, 
-                                                                                                               wellPath->wellPathGeometry()->m_wellPathPoints);
-    
+    std::vector<HexIntersectionInfo> intersections;
+    if (wellPath->wellPathGeometry())
+    {
+        intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid,
+                                                                                  wellPath->wellPathGeometry()->m_wellPathPoints);
+    }
+
     for (auto& intersection : intersections)
     {
         values[intersection.m_hexIndex] = RiaDefines::WELL_PATH;
