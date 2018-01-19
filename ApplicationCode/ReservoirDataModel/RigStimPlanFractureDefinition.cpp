@@ -18,13 +18,16 @@
 
 #include "RigStimPlanFractureDefinition.h"
 
-#include <QDebug>
+
+#include "RiaLogging.h"
+#include "RigFractureCell.h"
+#include "RigFractureGrid.h"
+#include "RigStatisticsMath.h"
+
+#include "RivWellFracturePartMgr.h"
 
 #include "cvfMath.h"
-#include "RivWellFracturePartMgr.h"
-#include "RigFractureCell.h"
-#include "RiaLogging.h"
-#include "RigFractureGrid.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -574,7 +577,8 @@ const std::vector<std::vector<double>>& RigStimPlanFractureDefinition::getDataAt
         }
     }
 
-    qDebug() << "ERROR: Requested parameter does not exists in stimPlan data";
+    RiaLogging::error("Requested parameter does not exists in stimPlan data");
+
     static std::vector<std::vector<double>> emptyVector;
     return emptyVector;
 }
@@ -582,12 +586,10 @@ const std::vector<std::vector<double>>& RigStimPlanFractureDefinition::getDataAt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, const QString& unit, 
-                                                  double* minValue, double* maxValue,
-                                                  double* posClosestToZero, double* negClosestToZero) const
+void RigStimPlanFractureDefinition::appendDataToResultStatistics(const QString& resultName, const QString& unit,
+                                                                  MinMaxAccumulator& minMaxAccumulator,
+                                                                  PosNegAccumulator& posNegAccumulator) const
 {
-    CVF_ASSERT(minValue && maxValue && posClosestToZero && negClosestToZero);
-
     size_t resIndex = resultIndex(resultName, unit);
     if (resIndex == cvf::UNDEFINED_SIZE_T) return;
 
@@ -595,28 +597,8 @@ void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, con
     {
         for (const auto& values : timeValues)
         {
-            for (double resultValue : values)
-            {
-                if (resultValue < *minValue)
-                {
-                    *minValue = resultValue;
-                }
-
-                if (resultValue > *maxValue)
-                {
-                    *maxValue = resultValue;
-                }
-
-                if (resultValue > 0 && resultValue < *posClosestToZero)
-                {
-                    *posClosestToZero = resultValue;
-                }
-
-                if (resultValue < 0 && resultValue > *negClosestToZero)
-                {
-                    *posClosestToZero = resultValue;
-                }
-            }
+            minMaxAccumulator.addData(values);
+            posNegAccumulator.addData(values);
         }
     }
 }

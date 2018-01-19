@@ -18,6 +18,8 @@
 
 #include "RimFractureTemplateCollection.h"
 
+#include "RigStatisticsMath.h"
+
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -95,16 +97,24 @@ std::vector<QString> RimFractureTemplateCollection::stimPlanResultNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
+void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue,
+                                                  double* maxValue, double* posClosestToZero, double* negClosestToZero) const
 {
+    MinMaxAccumulator minMaxAccumulator;
+    PosNegAccumulator posNegAccumulator;
+
     for (const RimFractureTemplate* f : fractureDefinitions())
     {
-        auto stimPlanFracture = dynamic_cast<const RimStimPlanFractureTemplate*>(f);
-        if (stimPlanFracture)
+        if (f)
         {
-            stimPlanFracture->computeMinMax(resultName, unit, minValue, maxValue, posClosestToZero, negClosestToZero);
+            f->appendDataToResultStatistics(resultName, unit, minMaxAccumulator, posNegAccumulator);
         }
     }
+
+    if (*minValue) *minValue = minMaxAccumulator.min;
+    if (*maxValue) *maxValue = minMaxAccumulator.max;
+    if (*posClosestToZero) *posClosestToZero = posNegAccumulator.pos;
+    if (*negClosestToZero) *negClosestToZero = posNegAccumulator.neg;
 }
 
 //--------------------------------------------------------------------------------------------------

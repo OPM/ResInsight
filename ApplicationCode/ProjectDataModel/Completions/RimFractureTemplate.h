@@ -35,6 +35,8 @@
 class RigEclipseCaseData;
 class RigFractureGrid;
 class RimFractureContainment;
+class MinMaxAccumulator;
+class PosNegAccumulator;
 
 //==================================================================================================
 ///  
@@ -85,6 +87,10 @@ public:
     virtual const RigFractureGrid*  fractureGrid() const = 0;
 
     const RimFractureContainment *  fractureContainment();
+
+    virtual void appendDataToResultStatistics(const QString& resultName, const QString& unit,
+                                               MinMaxAccumulator& minMaxAccumulator,
+                                               PosNegAccumulator& posNegAccumulator) const = 0;
 
 protected:
     caf::PdmChildField<RimFractureContainment*> m_fractureContainment;

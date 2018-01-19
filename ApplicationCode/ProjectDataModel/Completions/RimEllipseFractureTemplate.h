@@ -59,6 +59,10 @@ public:
     void                            setDefaultValuesFromUnit();
     double                          conductivity() const;
 
+    virtual void appendDataToResultStatistics(const QString& resultName, const QString& unit,
+                                               MinMaxAccumulator& minMaxAccumulator,
+                                               PosNegAccumulator& posNegAccumulator) const override;
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

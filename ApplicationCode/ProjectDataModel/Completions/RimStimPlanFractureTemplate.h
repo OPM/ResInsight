@@ -78,10 +78,13 @@ public:
 
     std::vector<double>                     timeSteps();
     std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
-    void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
     std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
+
+    virtual void appendDataToResultStatistics(const QString& resultName, const QString& unit,
+                                               MinMaxAccumulator& minMaxAccumulator,
+                                               PosNegAccumulator& posNegAccumulator) const override;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

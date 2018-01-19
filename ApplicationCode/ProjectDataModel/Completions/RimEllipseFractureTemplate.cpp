@@ -24,6 +24,7 @@
 #include "RigCellGeometryTools.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
+#include "RigStatisticsMath.h"
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
@@ -305,6 +306,18 @@ double RimEllipseFractureTemplate::conductivity() const
         cond = m_permeability * RiaEclipseUnitTools::inchToFeet(m_width);
     }
     return cond;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::appendDataToResultStatistics(const QString& resultName, const QString& unit, MinMaxAccumulator& minMaxAccumulator, PosNegAccumulator& posNegAccumulator) const
+{
+    if (resultName.startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
+    {
+        minMaxAccumulator.addValue(conductivity());
+        posNegAccumulator.addValue(conductivity());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

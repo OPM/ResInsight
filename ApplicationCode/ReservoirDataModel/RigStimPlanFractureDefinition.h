@@ -27,6 +27,8 @@
 #include "cvfVector3.h"
 
 class RigFractureGrid;
+class MinMaxAccumulator;
+class PosNegAccumulator;
 
 class RigStimPlanResultFrames
 {
@@ -102,7 +104,10 @@ public:
     std::vector<double>                       fractureGridResults(const QString& resultName, 
                                                                   const QString& unitName, 
                                                                   size_t timeStepIndex) const;
-    void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
+
+    void                                    appendDataToResultStatistics(const QString& resultName, const QString& unit, 
+                                                                          MinMaxAccumulator& minMaxAccumulator,
+                                                                          PosNegAccumulator& posNegAccumulator) const;
 
     QString                                   conductivityResultName() const;
     

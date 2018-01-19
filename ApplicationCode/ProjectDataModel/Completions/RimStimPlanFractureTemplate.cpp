@@ -360,17 +360,6 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::resultNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
-{
-    if (m_stimPlanFractureDefinitionData.notNull())
-    {
-        m_stimPlanFractureDefinitionData->computeMinMax(resultName, unitName, minValue, maxValue, posClosestToZero, negClosestToZero);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
     if (m_stimPlanFractureDefinitionData.notNull())
@@ -409,7 +398,20 @@ bool RimStimPlanFractureTemplate::hasConductivity() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::appendDataToResultStatistics(const QString& resultName, const QString& unit,
+                                                                MinMaxAccumulator& minMaxAccumulator,
+                                                                PosNegAccumulator& posNegAccumulator) const
+{
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        m_stimPlanFractureDefinitionData->appendDataToResultStatistics(resultName, unit, minMaxAccumulator, posNegAccumulator);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 {
