@@ -80,7 +80,10 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 {
     RimFractureTemplate::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &m_halfLength || changedField == &m_height)
+    if (   changedField == &m_halfLength
+        || changedField == &m_height
+        || changedField == &m_width
+        || changedField == &m_permeability)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
