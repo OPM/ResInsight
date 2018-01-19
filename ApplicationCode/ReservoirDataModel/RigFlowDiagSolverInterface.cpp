@@ -185,7 +185,9 @@ public:
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase)
-: m_eclipseCase(eclipseCase)
+    : m_eclipseCase(eclipseCase),
+    m_pvtCurveErrorCount(0),
+    m_relpermCurveErrorCount(0)
 {
 }
 
@@ -564,6 +566,30 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV(RigFlowDiagResultAddres
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFlowDiagSolverInterface::reportRelPermCurveError(const QString& message)
+{
+    if (m_relpermCurveErrorCount == 0)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "RelPerm curve problems: \n" + message);
+    }
+    m_relpermCurveErrorCount++;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagSolverInterface::reportPvtCurveError(const QString& message)
+{
+    if (m_pvtCurveErrorCount == 0)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "PVT curve problems: \n" + message);
+    }
+    m_pvtCurveErrorCount++;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>* injector_tof,
                                                                                                                     const std::vector<double>* producer_tof,
                                                                                                                     const std::vector<size_t>& selected_cell_indices,
@@ -636,6 +662,8 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOG, "PCOG"));   satFuncRequests.push_back(pcgo);
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOW, "PCOW"));   satFuncRequests.push_back(pcow);
 
+    try {
+
     // Calculate and return curves both with and without endpoint scaling and tag them accordingly
     // Must use two calls to achieve this
     const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF };
@@ -657,6 +685,13 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
         }
     }
 
+    } 
+    catch ( const std::exception& e )
+    {
+        reportRelPermCurveError( QString(e.what()));
+        return retCurveArr;
+    }
+
     return retCurveArr;
 }
 
@@ -666,6 +701,8 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurves(PvtCurveType pvtCurveType, size_t activeCellIndex)
 {
     std::vector<PvtCurve> retCurveArr;
+
+    try {
 
     if (!ensureStaticDataObjectInstanceCreated())
     {
@@ -734,6 +771,13 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
         }
     }
 
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError( QString(e.what()));
+        return retCurveArr;
+    }
+
     return retCurveArr;
 }
 
@@ -756,6 +800,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeC
         return false;
     }
 
+    try {
     // Bo
     {
         std::vector<double> phasePress = { pressure };
@@ -776,6 +821,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeC
         {
             *bg = valArr[0];
         }
+    }
+
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError(  QString(e.what()));
+        return false;
     }
 
     return true;
@@ -800,6 +852,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t a
         return false;
     }
 
+    try {
     // mu_o
     {
         std::vector<double> phasePress = { pressure };
@@ -820,6 +873,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t a
         {
             *mu_g = valArr[0];
         }
+    }
+
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError( QString(e.what()));
+        return false;
     }
 
     return true;
