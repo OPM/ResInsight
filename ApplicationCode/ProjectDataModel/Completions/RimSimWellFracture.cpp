@@ -30,6 +30,7 @@
 #include "RimSimWellInView.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "RigWellPath.h"
 
 
 
@@ -129,6 +130,29 @@ void RimSimWellFracture::loadDataAndUpdate()
     setBranchGeometry();
     updateFracturePositionFromLocation();
     updateAzimuthBasedOnWellAzimuthAngle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimSimWellFracture::perforationLengthCenterLineCoords() const
+{
+    std::vector<cvf::Vec3d> coords;
+
+    if (!m_branchCenterLines.empty() && m_branchIndex < m_branchCenterLines.size())
+    {
+        RigWellPath wellPathGeometry;
+
+        wellPathGeometry.m_wellPathPoints = m_branchCenterLines[m_branchIndex].wellPathPoints();
+        wellPathGeometry.m_measuredDepths = m_branchCenterLines[m_branchIndex].measuredDepths();
+
+        double startMd = m_location - perforationLength() / 2.0;
+        double endMd = m_location + perforationLength() / 2.0;
+
+        coords = wellPathGeometry.clippedPointSubset(startMd, endMd).first;
+    }
+
+    return coords;
 }
 
 //--------------------------------------------------------------------------------------------------

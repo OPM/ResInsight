@@ -135,6 +135,28 @@ void RimWellPathFracture::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords() const
+{
+    std::vector<cvf::Vec3d> wellPathCoords;
+
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfType(wellPath);
+    if (wellPath && wellPath->wellPathGeometry())
+    {
+        double startMd = m_measuredDepth - perforationLength() / 2.0;
+        double endMd = m_measuredDepth + perforationLength() / 2.0;
+
+        auto coordsAndMd = wellPath->wellPathGeometry()->clippedPointSubset(startMd, endMd);
+
+        wellPathCoords = coordsAndMd.first;
+    }
+
+    return wellPathCoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;

@@ -98,6 +98,7 @@ public:
     virtual double                  fractureMD() const = 0;
     
     virtual void                    loadDataAndUpdate() = 0;
+    virtual std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const = 0;
     
     friend class RimFractureTemplate;
 
