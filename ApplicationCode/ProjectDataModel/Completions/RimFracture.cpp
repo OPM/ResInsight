@@ -230,7 +230,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &m_stimPlanCellVizMode ||
         changedField == this->objectToggleField() ||
         changedField == &m_dip ||
-        changedField == &m_tilt)
+        changedField == &m_tilt ||
+        changedField == &m_perforationLength)
     {
         Rim3dView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);

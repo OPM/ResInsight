@@ -23,6 +23,7 @@
 #include "RigFractureGrid.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
+#include "RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
@@ -34,11 +35,13 @@
 #include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "RivFaultGeometryGenerator.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
+#include "RivPipeGeometryGenerator.h"
 #include "RivWellFracturePartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -220,6 +223,8 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
             }
         }
     }
+
+    appendFracturePerforationLengthParts(eclView, model);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,6 +692,66 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::appendFracturePerforationLengthParts(const RimEclipseView& activeView, cvf::ModelBasicList* model)
+{
+    if (!m_rimFracture->isChecked()) return;
+
+    if (!m_rimFracture->fractureTemplate()) return;
+    if (m_rimFracture->fractureTemplate()->orientationType() != RimFractureTemplate::ALONG_WELL_PATH) return;
+
+    auto displayCoordTransform = activeView.displayCoordTransform();
+    if (displayCoordTransform.isNull()) return;
+
+    double characteristicCellSize = activeView.ownerCase()->characteristicCellSize();
+    double wellPathRadius         = 1.0;
+
+    {
+        RimWellPath* rimWellPath = nullptr;
+        m_rimFracture->firstAncestorOrThisOfType(rimWellPath);
+        if (rimWellPath)
+        {
+            wellPathRadius = rimWellPath->wellPathRadius(characteristicCellSize);
+        }
+    }
+
+    {
+        RimSimWellInView* simWell = nullptr;
+        m_rimFracture->firstAncestorOrThisOfType(simWell);
+        if (simWell)
+        {
+            wellPathRadius = simWell->pipeRadius();
+        }
+    }
+
+    std::vector<cvf::Vec3d> displayCoords;
+    {
+        std::vector<cvf::Vec3d> perforationLengthCoord = m_rimFracture->perforationLengthCenterLineCoords();
+        for (const cvf::Vec3d& point : perforationLengthCoord)
+        {
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(point));
+        }
+    }
+
+    if (!displayCoords.empty())
+    {
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(m_rimFracture);
+        double perforationRadius = wellPathRadius * 1.2;
+        cvf::Collection<cvf::Part> parts;
+
+        RivPipeGeometryGenerator geoGenerator;
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, cvf::Color3f::ORANGE, perforationRadius);
+        
+        for (auto part : parts)
+        {
+            part->setSourceInfo(objectSourceInfo.p());
+            model->addPart(part.p());
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

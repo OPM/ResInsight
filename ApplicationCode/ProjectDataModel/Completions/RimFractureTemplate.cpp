@@ -168,6 +168,16 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             }
         }
     }
+
+    if (changedField == &perforationLength)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

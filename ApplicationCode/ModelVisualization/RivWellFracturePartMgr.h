@@ -66,6 +66,8 @@ private:
     cvf::ref<cvf::Part>                 createStimPlanElementColorSurfacePart(const RimEclipseView& activeView);
 
     cvf::ref<cvf::Part>                 createContainmentMaskPart(const RimEclipseView& activeView);
+    
+    void                                appendFracturePerforationLengthParts(const RimEclipseView& activeView, cvf::ModelBasicList* model);
 
     cvf::ref<cvf::Part>                 createStimPlanMeshPart(const RimEclipseView& activeView);
     cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView) const;
