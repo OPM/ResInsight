@@ -28,7 +28,6 @@
 #include "RigGridBase.h"
 
 #include "RimCalcScript.h"
-#include "RimSummaryCalculationCollection.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
@@ -38,6 +37,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimSummaryCalculationCollection.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
@@ -47,6 +47,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
+#include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiSnapshotDefinition.h"
@@ -58,7 +59,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimGridView.h"
+#include "RimTools.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -67,15 +68,15 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
-#include "RiuMainWindow.h"
 #include "RiuMainPlotWindow.h"
+#include "RiuMainWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmUiTreeOrdering.h"
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfBoundingBox.h"
 
 #include <QDir>
@@ -440,6 +441,18 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 
     QFileInfo fileInfoOld(oldProjectFileName);
     QString oldProjectPath = fileInfoOld.path();
+    
+    std::vector<caf::FilePath*> filePaths;
+    fieldsByType(this, filePaths);
+
+    for (caf::FilePath* filePath : filePaths)
+    {
+        bool foundFile = false;
+        std::vector<QString> searchedPaths;
+
+        QString newFilePath = RimTools::relocateFile(filePath->path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        filePath->setPath(newFilePath);
+    }
 
     // Loop over all cases and update file path
 

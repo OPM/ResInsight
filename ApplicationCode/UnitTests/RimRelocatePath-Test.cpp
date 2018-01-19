@@ -16,9 +16,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>* typedFields)
+void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 {
-    if (!typedFields) return;
     if (!object) return;
 
     std::vector<caf::PdmFieldHandle*> allFieldsInObject;
@@ -29,14 +28,14 @@ void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>* typedFields)
     for (const auto& field : allFieldsInObject)
     {
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>(field);
-        if (typedField) typedFields->push_back(&typedField->v());
+        if (typedField) typedFields.push_back(&typedField->v());
 
         caf::PdmField< std::vector<T> >* typedFieldInVector = dynamic_cast<caf::PdmField< std::vector<T> >*>(field);
         if (typedFieldInVector)
         {
             for (T& typedFieldFromVector : typedFieldInVector->v())
             {
-                typedFields->push_back(&typedFieldFromVector);
+                typedFields.push_back(&typedFieldFromVector);
             }
         }
 
@@ -65,7 +64,7 @@ TEST(RimRelocatePathTest, findPathsInProjectFile)
 
     std::vector< caf::FilePath* > filePaths;
 
-    fieldsByType(&project, &filePaths);
+    fieldsByType(&project, filePaths);
 
     for (auto filePath : filePaths)
     {
