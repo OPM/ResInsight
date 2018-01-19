@@ -82,21 +82,6 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPla
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFractureTemplateCollection::stimPlanResultNames() const
-{
-    std::vector<QString> names;
-
-    for (auto nameAndUnit : stimPlanResultNamesAndUnits())
-    {
-        names.push_back(nameAndUnit.first);
-    }
-
-    return names;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue,
                                                   double* maxValue, double* posClosestToZero, double* negClosestToZero) const
 {
