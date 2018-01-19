@@ -93,7 +93,6 @@ private:
 
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection();
-    inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;

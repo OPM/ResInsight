@@ -100,6 +100,9 @@ public:
     
     caf::PdmField<bool>                 showWellPath;
     caf::PdmField<cvf::Color3f>         wellPathColor;
+
+    double                              wellPathRadius(double characteristicCellSize) const;
+
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     RimFishbonesCollection*              fishbonesCollection();

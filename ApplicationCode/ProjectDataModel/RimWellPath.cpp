@@ -198,6 +198,23 @@ void RimWellPath::setSurveyType(QString surveyType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimWellPath::wellPathRadius(double characteristicCellSize) const
+{
+    double radius = characteristicCellSize * wellPathRadiusScaleFactor();
+
+    RimWellPathCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll)
+    {
+        radius *= coll->wellPathRadiusScaleFactor();
+    }
+
+    return radius;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPath::fishbonesCollection()
 {
     CVF_ASSERT(m_completions);

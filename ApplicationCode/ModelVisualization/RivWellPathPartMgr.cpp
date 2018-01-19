@@ -178,16 +178,13 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
-    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
-    if (!wellPathCollection) return;
-
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if (!wellPathGeometry) return;
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
     CVF_ASSERT(wellPathGeometry->m_measuredDepths.size() == wellPathGeometry->m_wellPathPoints.size());
 
-    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
+    double wellPathRadius = m_rimWellPath->wellPathRadius(characteristicCellSize);
     double perforationRadius = wellPathRadius * 1.1;
 
     RivPipeGeometryGenerator geoGenerator;
@@ -236,7 +233,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     clearAllBranchData();
-    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
+    double wellPathRadius = m_rimWellPath->wellPathRadius(characteristicCellSize);
 
     cvf::Vec3d textPosition;
 
@@ -473,10 +470,3 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
     return wellPathCollection;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RivWellPathPartMgr::wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection)
-{
-    return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
-}
