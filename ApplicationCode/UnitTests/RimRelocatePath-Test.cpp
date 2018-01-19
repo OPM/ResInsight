@@ -16,27 +16,36 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void fieldByType(caf::PdmObjectHandle* object, std::vector< caf::PdmField<T>* >* typedFields)
+void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>* typedFields)
 {
     if (!typedFields) return;
     if (!object) return;
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields(fields);
+    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
+    object->fields(allFieldsInObject);
 
     std::vector<caf::PdmObjectHandle*> children;
 
-    for (const auto& field : fields)
+    for (const auto& field : allFieldsInObject)
     {
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>(field);
-        if (typedField) typedFields->push_back(typedField);
+        if (typedField) typedFields->push_back(&typedField->v());
+
+        caf::PdmField< std::vector<T> >* typedFieldInVector = dynamic_cast<caf::PdmField< std::vector<T> >*>(field);
+        if (typedFieldInVector)
+        {
+            for (T& typedFieldFromVector : typedFieldInVector->v())
+            {
+                typedFields->push_back(&typedFieldFromVector);
+            }
+        }
 
         field->childObjects(&children);
     }
 
     for (const auto& child : children)
     {
-        fieldByType(child, typedFields);
+        fieldsByType(child, typedFields);
     }
 }
 
@@ -54,15 +63,12 @@ TEST(RimRelocatePathTest, findPathsInProjectFile)
     project.fileName = fileName;
     project.readFile();
 
-    std::vector< caf::PdmField<std::vector<caf::FilePath>>* > filePathsVectors;
+    std::vector< caf::FilePath* > filePaths;
 
-    fieldByType(&project, &filePathsVectors);
+    fieldsByType(&project, &filePaths);
 
-    for (auto fpVec : filePathsVectors)
+    for (auto filePath : filePaths)
     {
-        for (auto fp : fpVec->v())
-        {
-            std::cout << fp.path().toStdString() << std::endl;
-        }
+        std::cout << filePath->path().toStdString() << std::endl;
     }
 }
