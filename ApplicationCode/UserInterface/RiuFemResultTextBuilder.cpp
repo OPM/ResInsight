@@ -85,7 +85,9 @@ QString RiuFemResultTextBuilder::mainResultText()
 {
     QString text;
 
-    text = closestNodeResultText(m_reservoirView->cellResultResultDefinition());
+    RimGeoMechResultDefinition* cellResultDefinition = m_reservoirView->cellResultResultDefinition();
+
+    text = closestNodeResultText(cellResultDefinition);
 
     if (!text.isEmpty()) text += "\n";
 
@@ -94,7 +96,10 @@ QString RiuFemResultTextBuilder::mainResultText()
     appendDetails(text, formationDetails());
     text += "\n";
 
-    appendDetails(text, gridResultDetails());
+    if (cellResultDefinition->resultPositionType() != RIG_ELEMENT)
+    {
+        appendDetails(text, gridResultDetails());
+    }
 
     return text;
 }
@@ -363,7 +368,11 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
             float scalarValue = (resultIndex >= 0) ? scalarResults[resultIndex]: std::numeric_limits<float>::infinity();
 
 
-            if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
+            if (activeResultPosition == RIG_ELEMENT)
+            {
+                text.append(QString("Element result: %1\n").arg(scalarValue));
+            }
+            else if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
             {
                 text.append(QString("Closest result: N[%1], %2\n").arg(closestNodeId)
                                                                   .arg(scalarValue));
