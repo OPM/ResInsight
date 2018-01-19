@@ -54,7 +54,7 @@ RimGeoMechCase::RimGeoMechCase(void)
 {
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
-    CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case File Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_caseFileName, "CaseFileName", "Case File Name", "", "", "");
     m_caseFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
     geoMechViews.uiCapability()->setUiHidden(true);
@@ -106,7 +106,7 @@ RimGeoMechCase::~RimGeoMechCase(void)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::setFileName(const QString& fileName)
 {
-    m_caseFileName = fileName;
+    m_caseFileName.v().setPath(fileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void RimGeoMechCase::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::caseFileName() const
 {
-    return m_caseFileName();
+    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,12 +156,12 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
     // If read already, return
     if (this->m_geoMechCaseData.notNull()) return true;
 
-    if (!caf::Utils::fileExists(m_caseFileName()))
+    if (!caf::Utils::fileExists(m_caseFileName().path()))
     {
         return false;
     }
 
-    m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().toStdString());
+    m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().path().toStdString());
 
     bool fileOpenSuccess = m_geoMechCaseData->openAndReadFemParts(errorMessage);
     if (!fileOpenSuccess)
@@ -199,22 +199,7 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    bool foundFile = false;
-    std::vector<QString> searchedPaths;
-
-    // Update filename and folder paths when opening project from a different file location
-    m_caseFileName = RimTools::relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
-    
-    for (caf::FilePath& fileName : m_elementPropertyFileNames.v())
-    {
-        fileName = RimTools::relocateFile(fileName.path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
-    }
-
-#if 0 // Output the search path for debugging
-    for (size_t i = 0; i < searchedPaths.size(); ++i)
-       qDebug() << searchedPaths[i];
-#endif 
-
+    //No longer in use. Filepaths are now of type caf::FilePath, and updated in RimProject on load.
 }
 
 

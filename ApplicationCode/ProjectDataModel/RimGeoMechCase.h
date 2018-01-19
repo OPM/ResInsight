@@ -94,7 +94,7 @@ private:
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
-    caf::PdmField<QString>                    m_caseFileName;
+    caf::PdmField<caf::FilePath>              m_caseFileName;
     caf::PdmField<double>                     m_cohesion;
     caf::PdmField<double>                     m_frictionAngleDeg;
     caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;
