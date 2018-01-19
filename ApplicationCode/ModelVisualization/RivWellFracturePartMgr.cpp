@@ -26,6 +26,7 @@
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
@@ -54,6 +55,8 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "cvfTransform.h"
+
+#include <cmath>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +275,30 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
         surfacePart->setSourceInfo(new RivObjectSourceInfo(m_rimFracture));
 
         cvf::Color4f fractureColor = cvf::Color4f(activeView.stimPlanColors->defaultColor());
+        
+        RimLegendConfig* legendConfig = nullptr; 
+        if (activeView.stimPlanColors() && activeView.stimPlanColors()->isChecked()) 
+        { 
+            legendConfig = activeView.stimPlanColors()->activeLegend(); 
+        } 
+ 
+        if (legendConfig && legendConfig->scalarMapper()) 
+        { 
+            cvf::Color3ub resultColor = cvf::Color3ub(cvf::Color3::LIGHT_GRAY);
+
+            if (activeView.stimPlanColors->resultName().startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
+            {
+                RimEllipseFractureTemplate* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>(m_rimFracture->fractureTemplate()); 
+                if (ellipseFractureTemplate)
+                {
+                    double conductivity = ellipseFractureTemplate->conductivity();
+                    resultColor = legendConfig->scalarMapper()->mapToColor(conductivity);
+                }
+            }
+
+            fractureColor.set(cvf::Color3f::fromByteColor(resultColor.r(), resultColor.g(), resultColor.b())); 
+        } 
+
         caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
         surfacePart->setEffect(eff.p());
