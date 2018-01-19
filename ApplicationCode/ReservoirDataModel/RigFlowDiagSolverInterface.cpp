@@ -237,6 +237,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
 
+    try
     {
         progressInfo.setProgressDescription("Grid access");
 
@@ -294,6 +295,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             }
         }
     }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
+    }
 
     progressInfo.setProgress(3);
     progressInfo.setProgressDescription("Assigning Flux Field");
@@ -328,6 +334,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     // Set up flow Toolbox with timestep data
     std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> WellInFluxPrCell;
 
+    try
     {
         if (m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
         {
@@ -338,12 +345,12 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         }
         else
         {
-            Opm::ECLInitFileData init(getInitFileName());
-            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), 
-                                                                                                                  init, 
-                                                                                                                  *currentRestartData, 
-                                                                                                                  phaseSelection);
-            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
+                Opm::ECLInitFileData init(getInitFileName());
+                Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph),
+                                                                                                                      init,
+                                                                                                                      *currentRestartData,
+                                                                                                                      phaseSelection);
+                m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
         }
 
 
@@ -360,10 +367,16 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(WellInFluxPrCell);
 
     }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
+    }
 
     progressInfo.incrementProgress();
     progressInfo.setProgressDescription("Injector Solution");
 
+    try
     {
         // Injection Solution
         std::set<std::string> injectorCrossFlowTracers;
@@ -380,16 +393,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
                 injectorCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
             }
-
-            try
-            {
-                injectorSolution.reset(new Toolbox::Forward(m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
-            }
-            catch ( const std::exception& e )
-            {
-                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-                return result;
-            }
+            
+            injectorSolution.reset(new Toolbox::Forward(m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
 
             for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
             {
@@ -422,15 +427,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 prodjCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
             }
 
-            try
-            {
-                producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
-            }
-            catch ( const std::exception& e )
-            {
-                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-                return result;
-            }
+            producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
 
             for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
             {
@@ -489,6 +486,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
             }
         }
+    }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
     }
 
     return result; // Relying on implicit move constructor
