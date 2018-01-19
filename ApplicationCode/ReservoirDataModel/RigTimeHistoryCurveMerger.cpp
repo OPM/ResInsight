@@ -196,8 +196,8 @@ double RigTimeHistoryCurveMerger::interpolationValue(const time_t& interpolation
             bool isSecondValid = RigCurveDataTools::isValidValue(secondValue, removeInterpolatedValues);
             if (!isSecondValid) return HUGE_VAL;
 
-            double firstDiff = interpolationTimeStep - curveTimeSteps.at(firstI);
-            double secondDiff = curveTimeSteps.at(secondI) - interpolationTimeStep;
+            double firstDiff = fabs(difftime(interpolationTimeStep, curveTimeSteps.at(firstI)));
+            double secondDiff = fabs(difftime(curveTimeSteps.at(secondI), interpolationTimeStep));
 
             double firstWeight = secondDiff / (firstDiff + secondDiff);
             double secondWeight = firstDiff / (firstDiff + secondDiff);
