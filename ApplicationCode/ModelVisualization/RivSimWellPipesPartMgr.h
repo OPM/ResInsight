@@ -47,14 +47,12 @@ public:
     RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
     ~RivSimWellPipesPartMgr();
 
-    void setScaleTransform(cvf::Transform * scaleTransform) { m_scaleTransform = scaleTransform; scheduleGeometryRegen();}
+    void setScaleTransform(cvf::Transform * scaleTransform);
 
-    void scheduleGeometryRegen() { m_needsTransformUpdate = true; }
+    void scheduleGeometryRegen();
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);
-
-    const std::vector< std::vector <cvf::Vec3d> >&  centerLineOfWellBranches() { return m_pipeBranchesCLCoords;}
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;

@@ -29,15 +29,15 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
-#include "RivWellHeadPartMgr.h"
 #include "RivSimWellPipesPartMgr.h"
+#include "RivWellConnectionsPartMgr.h"
+#include "RivWellHeadPartMgr.h"
+#include "RivWellSpheresPartMgr.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfTransform.h"
-#include "RivWellSpheresPartMgr.h"
-#include "RivWellConnectionsPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -174,18 +174,5 @@ void RivReservoirSimWellsPartMgr::updatePipeResultColor(size_t frameIndex)
     {
         m_wellPipesPartMgrs[wIdx]->updatePipeResultColor( frameIndex);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector< std::vector <cvf::Vec3d> >* RivReservoirSimWellsPartMgr::centerLineOfWellBranches(int wellIdx)
-{
-    if (wellIdx < static_cast<int>(m_wellPipesPartMgrs.size()))
-    {
-        return &(m_wellPipesPartMgrs[wellIdx]->centerLineOfWellBranches());
-    }
-
-    return NULL;
 }
 

@@ -73,6 +73,24 @@ RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
+{
+    m_scaleTransform = scaleTransform;
+    
+    scheduleGeometryRegen();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::scheduleGeometryRegen()
+{
+    m_needsTransformUpdate = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivSimWellPipesPartMgr::buildWellPipeParts()
 {
     if (m_rimReservoirView.isNull()) return;
