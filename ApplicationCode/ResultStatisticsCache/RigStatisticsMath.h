@@ -62,7 +62,7 @@ private:
 class MinMaxAccumulator
 {
 public:
-    MinMaxAccumulator(double initMin = -HUGE_VAL, double initMax = HUGE_VAL): max(initMax), min(initMin) {}
+    MinMaxAccumulator(double initMin = HUGE_VAL, double initMax = -HUGE_VAL): max(initMax), min(initMin) {}
     
     void addData(const std::vector<double>& values)
     {
