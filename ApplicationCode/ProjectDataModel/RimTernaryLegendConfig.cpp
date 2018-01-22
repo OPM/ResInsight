@@ -20,6 +20,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RimEclipseView.h"
 #include "RimViewLinker.h"
@@ -89,7 +90,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
 
-    m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    m_scalarMapper = new RivTernaryScalarMapper(RiaColorTables::undefinedCellColor());
 
     recreateLegend();
     updateLegend();

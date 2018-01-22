@@ -51,4 +51,5 @@ public:
     static const caf::ColorTable& selectionPaletteColors();
     static const caf::ColorTable& timestepsPaletteColors();
 
+    static cvf::Color3f undefinedCellColor();
 };

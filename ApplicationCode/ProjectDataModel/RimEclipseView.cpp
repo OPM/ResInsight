@@ -21,6 +21,7 @@
 #include "RimEclipseView.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
 #include "RigActiveCellInfo.h"
@@ -851,10 +852,10 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
                                                                     color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
         case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:   
                                                                     color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case INACTIVE:                    color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;
+        case INACTIVE:                    color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
         case RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
         case RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
+        case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;   
     }
 
     if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)

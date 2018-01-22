@@ -19,6 +19,8 @@
 
 #include "RivTernaryScalarMapperEffectGenerator.h"
 
+#include "RiaColorTables.h"
+
 #include "RivTernaryScalarMapper.h"
 
 #include "cvfRenderStateBlending.h"
@@ -48,7 +50,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTernaryScalarMapperEffectGenerator::RivTernaryScalarMapperEffectGenerator(const RivTernaryScalarMapper* scalarMapper, caf::PolygonOffset polygonOffset)
-    : m_undefinedColor(cvf::Color3::GRAY)
+    : m_undefinedColor(RiaColorTables::undefinedCellColor())
 {
     m_scalarMapper = scalarMapper;
     m_polygonOffset = polygonOffset;

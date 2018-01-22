@@ -451,3 +451,11 @@ const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
 
     return colorTable;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::undefinedCellColor()
+{
+    return cvf::Color3::GRAY;
+}

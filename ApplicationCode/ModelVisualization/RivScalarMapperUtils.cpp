@@ -19,6 +19,8 @@
 
 #include "RivScalarMapperUtils.h"
 
+#include "RiaColorTables.h"
+
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -128,6 +130,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect(const cvf::
     caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
     scalarEffgen.setOpacityLevel(opacityLevel);
     scalarEffgen.setFaceCulling(faceCulling);
+    scalarEffgen.setUndefinedColor(RiaColorTables::undefinedCellColor());
     scalarEffgen.disableLighting(disableLighting);
 
     cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
@@ -146,7 +149,9 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect(cons
     RivTernaryScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
     scalarEffgen.setOpacityLevel(opacityLevel);
     scalarEffgen.setFaceCulling(faceCulling);
+    scalarEffgen.setUndefinedColor(RiaColorTables::undefinedCellColor());
     scalarEffgen.disableLighting(disableLighting);
+
     cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
 
     return scalarEffect;
