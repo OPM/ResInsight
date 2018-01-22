@@ -57,8 +57,6 @@
 #include "cvfFont.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfScalarMapperDiscreteLinear.h"
-#include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
 
@@ -68,26 +66,6 @@
 RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 {
     m_rimWellPath = wellPath;
-
-    // Setup a scalar mapper
-    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    cvf::Color3ubArray legendColors;
-    legendColors.resize(4);
-    legendColors[0] = cvf::Color3::GRAY;
-    legendColors[1] = cvf::Color3::GREEN;
-    legendColors[2] = cvf::Color3::BLUE;
-    legendColors[3] = cvf::Color3::RED;
-    scalarMapper->setColors(legendColors);
-    scalarMapper->setRange(0.0 , 4.0);
-    scalarMapper->setLevelCount(4, true);
-
-    m_scalarMapper = scalarMapper;
-
-    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
-    m_scalarMapperSurfaceEffect = surfEffGen.generateCachedEffect();
-
-    caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-    m_scalarMapperMeshEffect = meshEffGen.generateCachedEffect();
 }
 
 //--------------------------------------------------------------------------------------------------

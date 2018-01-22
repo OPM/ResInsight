@@ -28,10 +28,7 @@ namespace cvf
 {
     class Part;
     class ModelBasicList;
-    class Transform;
-    class Effect;
     class DrawableGeo;
-    class ScalarMapper;
 }
 
 namespace caf
@@ -108,9 +105,4 @@ private:
 
     RivPipeBranchData                       m_pipeBranchData;
     cvf::ref<cvf::Part>                     m_wellLabelPart;
-
-    cvf::ref<cvf::ScalarMapper>             m_scalarMapper;
-    cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
-    cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
-
 };
