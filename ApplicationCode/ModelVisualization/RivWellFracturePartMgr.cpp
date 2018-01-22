@@ -745,7 +745,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts(const RimEclip
         cvf::Collection<cvf::Part> parts;
 
         RivPipeGeometryGenerator geoGenerator;
-        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, cvf::Color3f::ORANGE, perforationRadius);
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, RiaColorTables::perforationLengthColor(), perforationRadius);
         
         for (auto part : parts)
         {

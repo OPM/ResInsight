@@ -459,3 +459,15 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::perforationLengthColor()
+{
+    // based on hwb ( 85,  9%, 67%) dark_olive_green
+    // added 10 to each component
+    cvf::Color3ub color(69, 94, 33);
+
+    return cvf::Color3f(color);
+}
