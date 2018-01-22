@@ -8,6 +8,7 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RiaApplication.h
 ${CEE_CURRENT_LIST_DIR}RiaCompletionTypeCalculationScheduler.h
 ${CEE_CURRENT_LIST_DIR}RiaDefines.h
+${CEE_CURRENT_LIST_DIR}RiaFractureDefines.h
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.h
 ${CEE_CURRENT_LIST_DIR}RiaPorosityModel.h
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveDefinition.h
@@ -19,6 +20,7 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RiaApplication.cpp
 ${CEE_CURRENT_LIST_DIR}RiaCompletionTypeCalculationScheduler.cpp
 ${CEE_CURRENT_LIST_DIR}RiaDefines.cpp
+${CEE_CURRENT_LIST_DIR}RiaFractureDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RiaMain.cpp
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.cpp
 ${CEE_CURRENT_LIST_DIR}RiaPorosityModel.cpp
