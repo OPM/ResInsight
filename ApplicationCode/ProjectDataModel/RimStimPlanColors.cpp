@@ -52,7 +52,7 @@ RimStimPlanColors::RimStimPlanColors()
 {
     CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "StimPlan Result Variable", "", "", "");
+    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
 
     CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
 
