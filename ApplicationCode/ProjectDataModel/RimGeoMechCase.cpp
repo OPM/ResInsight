@@ -41,6 +41,7 @@
 #include "RimGeoMechPropertyFilter.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
 #include <QFile>
@@ -214,6 +215,19 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
         views.push_back(geoMechViews[vIdx]);
     }
     return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    std::vector<PdmObjectHandle*> children;
+    geoMechViews.childObjects(&children);
+
+    for ( auto child : children ) uiTreeOrdering.add(child);
+
+    uiTreeOrdering.add(&m_2dIntersectionViewCollection);
 }
 
 //--------------------------------------------------------------------------------------------------

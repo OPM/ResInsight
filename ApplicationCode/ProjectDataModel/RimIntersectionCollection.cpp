@@ -19,10 +19,12 @@
 
 #include "RimIntersectionCollection.h"
 
+#include "Rim2dIntersectionViewCollection.h"
+#include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimSimWellInView.h"
-#include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
 
@@ -153,6 +155,8 @@ void RimIntersectionCollection::appendIntersection(RimIntersection* intersection
 {
     m_intersections.push_back(intersection);
 
+    syncronize2dIntersectionViews();
+
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 
@@ -162,6 +166,16 @@ void RimIntersectionCollection::appendIntersection(RimIntersection* intersection
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::syncronize2dIntersectionViews()
+{
+    RimCase* ownerCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(ownerCase);
+    ownerCase->intersectionViewCollection()->syncFromExistingIntersections(true);
 }
 
 //--------------------------------------------------------------------------------------------------

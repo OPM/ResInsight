@@ -129,6 +129,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
         {
+            crossSectionColl->syncronize2dIntersectionViews();
             view->scheduleCreateDisplayModelAndRedraw();
         }
 

@@ -39,8 +39,9 @@ public:
     Rim2dIntersectionView(void);
     virtual ~Rim2dIntersectionView(void);
 
-    void                        setIntersection(RimIntersection* intersection);
-
+    void                       setVisible(bool isVisible);
+    void                       setIntersection(RimIntersection* intersection);
+    RimIntersection*           intersection();
 
     virtual bool               isUsingFormationNames() const override;
     virtual void               scheduleGeometryRegen(RivCellSetEnum geometryType) override;
@@ -50,11 +51,8 @@ public:
     virtual RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
     virtual RimViewController* viewController() const override   { return nullptr; }
 
-
-
 protected:
 
-    caf::PdmPtrField<RimIntersection*> m_intersection;
 
     virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
     virtual void               createDisplayModel() override;
@@ -68,16 +66,16 @@ protected:
     virtual cvf::Transform*    scaleTransform() override;
     virtual void               resetLegendsInViewer() override;
     virtual void               onLoadDataAndUpdate() override;
+    virtual bool               isWindowVisible() override;
 
     virtual void               fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void               defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
-    cvf::ref<cvf::ModelBasicList>           m_intersectionVizModel;
-    cvf::ref<cvf::Transform>                m_scaleTransform;
+    caf::PdmPtrField<RimIntersection*> m_intersection;
+
+    cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
+    cvf::ref<cvf::Transform>           m_scaleTransform;
 
 
 };
-
-
-

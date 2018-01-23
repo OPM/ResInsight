@@ -36,6 +36,7 @@
 #include "RigEclipseCaseData.h"
 
 
+#include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -584,6 +585,14 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     {
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
     }
+    
+    // Intersection Views: Sync from intersections in the case.
+
+    for (RimCase* cas: casesToLoad)
+    {
+        cas->intersectionViewCollection()->syncFromExistingIntersections(false);
+    }
+
 
     loadAndUpdatePlotData();
 

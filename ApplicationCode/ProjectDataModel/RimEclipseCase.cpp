@@ -59,6 +59,7 @@
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -387,6 +388,19 @@ void RimEclipseCase::updateFormationNamesData()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    std::vector<PdmObjectHandle*> children;
+    reservoirViews.childObjects(&children);
+
+    for (auto child : children) uiTreeOrdering.add(child); 
+    
+    uiTreeOrdering.add(&m_2dIntersectionViewCollection);
 }
 
 //--------------------------------------------------------------------------------------------------

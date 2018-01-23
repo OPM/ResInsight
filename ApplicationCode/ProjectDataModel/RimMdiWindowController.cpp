@@ -140,7 +140,7 @@ void RimMdiWindowController::updateViewerWidget()
     RiuMainWindowBase* mainWindow =  getMainWindow();
     if ( !mainWindow ) return;
 
-    if ( viewPdmObject()->m_showWindow() )
+    if ( viewPdmObject()->isWindowVisible() )
     {
         if ( !viewWidget() )
         {

@@ -35,6 +35,7 @@ class RimFormationNames;
 class RimTimeStepFilter;
 class Rim2dIntersectionView;
 class RimIntersection;
+class Rim2dIntersectionViewCollection;
 
 namespace cvf {
     class BoundingBox;
@@ -72,8 +73,7 @@ public:
 
     size_t                                      uiToNativeTimeStepIndex(size_t uiTimeStepIndex);
 
-    Rim2dIntersectionView*                      createAndAddIntersectionView(RimIntersection* intersection);
-
+    Rim2dIntersectionViewCollection*            intersectionViewCollection();
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual std::vector<Rim3dView*>             allSpecialViews() const = 0;
@@ -83,7 +83,7 @@ private:
 
 protected:
     caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;
-    caf::PdmChildArrayField<Rim2dIntersectionView*> m_intersectionViews;
+    caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
 
 private: 
     bool m_isInActiveDestruction; 

@@ -62,6 +62,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewWindow.h
 ${CEE_CURRENT_LIST_DIR}Rim3dView.h
 ${CEE_CURRENT_LIST_DIR}RimGridView.h
 ${CEE_CURRENT_LIST_DIR}Rim2dIntersectionView.h
+${CEE_CURRENT_LIST_DIR}Rim2dIntersectionViewCollection.h
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimViewController.h
@@ -165,6 +166,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}Rim3dView.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridView.cpp
 ${CEE_CURRENT_LIST_DIR}Rim2dIntersectionView.cpp
+${CEE_CURRENT_LIST_DIR}Rim2dIntersectionViewCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewController.cpp

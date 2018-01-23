@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
 #include "RimIntersection.h"
 #include "RimCase.h"
 #include "RiuViewer.h"
@@ -38,7 +39,9 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     CAF_PDM_InitObject("Intersection View", ":/CrossSection16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_intersection,  "Intersection", "Intersection", ":/CrossSection16x16.png", "", "");
+    m_intersection.uiCapability()->setUiHidden(true);
 
+    m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
 }
@@ -54,9 +57,28 @@ Rim2dIntersectionView::~Rim2dIntersectionView(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::setVisible(bool isVisible)
+{
+    m_showWindow = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::setIntersection(RimIntersection* intersection)
 {
     m_intersection = intersection;
+    Rim3dView * parentView = nullptr;
+    intersection->firstAncestorOrThisOfTypeAsserted(parentView);
+    name = parentView->name() + ": " + intersection->name();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIntersection* Rim2dIntersectionView::intersection()
+{
+    return m_intersection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +129,23 @@ QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions(const
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::isWindowVisible()
+{
+    if (m_showWindow())
+    {
+        Rim2dIntersectionViewCollection* viewColl = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(viewColl);
+        return viewColl->isActive();
+    }
+    else 
+    {
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

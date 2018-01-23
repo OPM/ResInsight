@@ -29,6 +29,7 @@
 #include "cafPdmObjectFactory.h"
 
 #include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
 #include "RimIntersection.h"
 
 
@@ -52,10 +53,10 @@ RimCase::RimCase() : m_isInActiveDestruction(false)
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_timeStepFilter = new RimTimeStepFilter;
 
-    CAF_PDM_InitFieldNoDefault(&m_intersectionViews, "IntersectionViews", "Intersection Views", ":/CrossSections16x16.png", "", "");
-    m_intersectionViews.uiCapability()->setUiTreeHidden(true);
-    //m_intersectionViews.push_back(new Rim2dIntersectionView());
-
+    CAF_PDM_InitFieldNoDefault(&m_2dIntersectionViewCollection, "IntersectionViewCollection", "2D Intersection Views", ":/CrossSections16x16.png", "", "");
+    m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden(true);
+    m_2dIntersectionViewCollection.xmlCapability()->setIOWritable(false); // Temporarily until something of value are present.
+    m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +75,9 @@ std::vector<Rim3dView*> RimCase::views() const
     if (m_isInActiveDestruction) return std::vector<Rim3dView*>();
 
     std::vector<Rim3dView*> allViews = this->allSpecialViews();
-    for (auto view: m_intersectionViews)
+    std::vector<Rim2dIntersectionView*> isectViews = m_2dIntersectionViewCollection->views();
+
+    for (auto view: isectViews)
     {
         allViews.push_back(view);
     }
@@ -116,17 +119,9 @@ size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView* RimCase::createAndAddIntersectionView(RimIntersection* intersection)
+Rim2dIntersectionViewCollection* RimCase::intersectionViewCollection()
 {
-    Rim2dIntersectionView* intersectionView = new Rim2dIntersectionView;
-    intersectionView->setIntersection(intersection);
-    
-    QString name = QString("View of Intersection %1").arg(intersection->name());
-    intersectionView->name = name;
-
-    m_intersectionViews.push_back(intersectionView);
-
-    return intersectionView;
+    return m_2dIntersectionViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

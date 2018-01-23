@@ -111,6 +111,7 @@ public:
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual void                                updateFormationNamesData() override;
 

@@ -86,7 +86,7 @@ void RimViewWindow::updateMdiWindowVisibility()
     {
         if (viewWidget())
         {
-            if (m_showWindow)
+            if (isWindowVisible())
             {
                 viewWidget()->show();
             }
@@ -149,7 +149,7 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 {
     if ( changedField == &m_showWindow )
     {
-        if (m_showWindow)
+        if (isWindowVisible())
         {
             onLoadDataAndUpdate();
         }
