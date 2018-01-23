@@ -55,6 +55,9 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
+#include "RimPerforationInterval.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RimEllipseFractureTemplate.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -88,8 +91,6 @@
 #include <QMouseEvent>
 #include <QStatusBar>
 #include <array>
-#include "RimPerforationInterval.h"
-#include "RimStimPlanFractureTemplate.h"
 
 
 
@@ -497,7 +498,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
                 RimStimPlanFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
-                if (stimPlanTempl)
+                RimEllipseFractureTemplate* ellipseTempl = fracture ? dynamic_cast<RimEllipseFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
+                if (stimPlanTempl || ellipseTempl)
                 {
                     // Set fracture resultInfo text
                     QString resultInfoText;

@@ -258,7 +258,7 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
     RimStimPlanFractureTemplate* stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
     if (ellipseFractureTemplate)
     {
-        text.append("Result value: ");
+        text.append("Result value: CONDUCTIVITY ");
         text.append(QString::number(ellipseFractureTemplate->conductivity()) + "\n");
 
     }
