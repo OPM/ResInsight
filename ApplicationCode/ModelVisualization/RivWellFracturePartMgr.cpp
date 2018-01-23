@@ -248,6 +248,100 @@ std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint) const
+{
+    QString text;
+
+    if (m_rimFracture.isNull()) return text;
+
+    RimEllipseFractureTemplate* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>(m_rimFracture->fractureTemplate());
+    RimStimPlanFractureTemplate* stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
+    if (ellipseFractureTemplate)
+    {
+        text.append("Result value: ");
+        text.append(QString::number(ellipseFractureTemplate->conductivity()) + "\n");
+
+    }
+    else if (stimPlanTemplate)
+    {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
+        const RigFractureCell* cell         = getFractureCellAtDomainCoord(domainIntersectionPoint);
+        RimStimPlanColors* stimPlanColors   = activeView.stimPlanColors;
+
+        QString condValueText   = cell ? QString::number(cell->getConductivtyValue()) : "-";
+        QString iText           = cell ? QString::number(cell->getI()) : "-";
+        QString jText           = cell ? QString::number(cell->getJ()) : "-";
+
+        // Conductivity
+        text.append("Result value: ");
+        text.append(stimPlanColors->resultName() + " ");
+        text.append(condValueText + "\n");
+
+        // Cell index
+        text.append("Cell Index: ");
+        text.append(iText + ", " + jText + "\n");
+
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord(cvf::Vec3d domainCoord) const
+{
+    if (!m_rimFracture) return nullptr;
+
+    cvf::Mat4d toFractureXf = m_rimFracture->transformMatrix().getInverted();
+    cvf::Vec3d fractureCoord = domainCoord.getTransformedPoint(toFractureXf);
+
+    const RimStimPlanFractureTemplate* stimPlanTempl = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
+    if (!stimPlanTempl) return nullptr;
+
+    const RigFractureGrid* grid                 = stimPlanTempl->fractureGrid();
+    size_t cellI                                = cvf::UNDEFINED_SIZE_T;
+    size_t cellJ                                = cvf::UNDEFINED_SIZE_T;
+    const std::vector<RigFractureCell>& cells   = grid->fractureCells();
+
+    for (int i = 0; i < grid->iCellCount(); i++)
+    {
+        const RigFractureCell& cell = cells[i * grid->jCellCount()];
+        std::vector<cvf::Vec3d> polygon = cell.getPolygon();
+        double xmin = polygon[0].x();
+        double xmax = polygon[2].x();
+        if (fractureCoord.x() >= xmin && fractureCoord.x() <= xmax)
+        {
+            cellI = cell.getI();
+            break;
+        }
+    }
+
+    for (int j = 0; j < grid->jCellCount(); j++)
+    {
+        const RigFractureCell& cell = cells[j];
+        std::vector<cvf::Vec3d> polygon = cell.getPolygon();
+        double ymin = polygon[2].y();
+        double ymax = polygon[0].y();
+        if (fractureCoord.y() >= ymin && fractureCoord.y() <= ymax)
+        {
+            cellJ = cell.getJ();
+            break;
+        }
+    }
+
+    if (cellI != cvf::UNDEFINED_SIZE_T && cellJ != cvf::UNDEFINED_SIZE_T)
+    {
+        return &grid->cellFromIndex(grid->getGlobalIndexFromIJ(cellI, cellJ));
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEclipseView& activeView)
 {
     auto displayCoordTransform = activeView.displayCoordTransform();

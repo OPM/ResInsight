@@ -25,6 +25,7 @@
 
 #include "cafPdmPointer.h"
 
+#include <QString>
 #include <vector>
 
 namespace cvf
@@ -43,6 +44,7 @@ namespace caf
 class RimFracture;
 class RimStimPlanFractureTemplate;
 class RimEclipseView;
+class RigFractureCell;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -56,6 +58,10 @@ public:
     void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView);
 
     static std::vector<double>          mirrorDataAtSingleDepth(std::vector<double> depthData);
+
+    const QString                       resultInfoText(const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint) const;
+
+    const RigFractureCell*              getFractureCellAtDomainCoord(cvf::Vec3d domainCoord) const;
 
 private:
     cvf::ref<cvf::Part>                 createEllipseSurfacePart(const RimEclipseView& activeView);
@@ -79,5 +85,5 @@ private:
     static cvf::ref<cvf::DrawableGeo>   buildDrawableGeoFromTriangles(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
-    caf::PdmPointer<RimFracture>        m_rimFracture;
+    caf::PdmPointer<RimFracture>                    m_rimFracture;
 };

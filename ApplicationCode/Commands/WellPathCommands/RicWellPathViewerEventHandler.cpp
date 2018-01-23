@@ -55,8 +55,10 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
 
     cvf::uint wellPathTriangleIndex = cvf::UNDEFINED_UINT;
     const RivWellPathSourceInfo* wellPathSourceInfo = nullptr;
-    for (const auto & partAndTriangleIndexPair : eventObject.m_partAndTriangleIndexPairs)
+
+    if(eventObject.m_partAndTriangleIndexPairs.size() > 0)
     {
+        const auto & partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
         const cvf::Part* part = partAndTriangleIndexPair.first;
         
         const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
@@ -69,7 +71,6 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
         {
             wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
             wellPathTriangleIndex = partAndTriangleIndexPair.second;
-            break;
         }
     }
 

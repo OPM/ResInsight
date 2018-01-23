@@ -44,6 +44,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
@@ -68,6 +69,7 @@
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivWellFracturePartMgr.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
@@ -87,6 +89,7 @@
 #include <QStatusBar>
 #include <array>
 #include "RimPerforationInterval.h"
+#include "RimStimPlanFractureTemplate.h"
 
 
 
@@ -491,6 +494,30 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             if (rivObjectSourceInfo)
             {
                 RiuMainWindow::instance()->selectAsCurrentItem(rivObjectSourceInfo->object());
+
+                RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
+                RimStimPlanFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
+                if (stimPlanTempl)
+                {
+                    // Set fracture resultInfo text
+                    QString resultInfoText;
+
+                    cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(globalIntersectionPoint);
+
+                    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+                    RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
+                    if (eclView) resultInfoText = partMgr->resultInfoText(*eclView, domainCoord);
+
+                    // Set intersection point result text
+                    QString intersectionPointText;
+
+                    intersectionPointText.sprintf("Intersection point : Global [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                    resultInfoText.append(intersectionPointText);
+
+                    // Display result info text
+                    RiuMainWindow::instance()->setResultInfo(resultInfoText);
+                }
             }
             
             if (rivSourceInfo)
