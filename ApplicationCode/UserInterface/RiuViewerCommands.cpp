@@ -494,6 +494,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             if (rivObjectSourceInfo)
             {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 RiuMainWindow::instance()->selectAsCurrentItem(rivObjectSourceInfo->object());
 
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
@@ -520,6 +521,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     // Display result info text
                     RiuMainWindow::instance()->setResultInfo(resultInfoText);
                 }
+#endif //USE_PROTOTYPE_FEATURE_FRACTURES
             }
             
             if (rivSourceInfo)
