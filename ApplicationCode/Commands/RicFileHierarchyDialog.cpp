@@ -40,12 +40,16 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QListWidget>
+#include <QAbstractItemView>
 
 #include <vector>
 #include <time.h>
 #include <thread>
 
-
+#define DEFAULT_DIALOG_WIDTH        750
+#define DEFAULT_DIALOG_INIT_HEIGHT  150
+#define DEFAULT_DIALOG_FIND_HEIGHT  350
 #define FIND_BUTTON_FIND_TEXT       "Find"
 #define FIND_BUTTON_CANCEL_TEXT     "Cancel"
 #define NO_FILES_FOUND_TEXT         "No files found"
@@ -82,7 +86,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_effectiveFilterLabel = new QLabel();
     m_effectiveFilter   = new QLabel();
     m_fileListLabel     = new QLabel();
-    m_fileList          = new QTextEdit();
+    m_fileList          = new QListWidget();
     m_findOrCancelButton = new QPushButton();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -104,12 +108,12 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_effectiveFilterLabel->setText("Effective filter");
     m_effectiveFilter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_fileListLabel->setText("Files found");
-    m_fileList->setLineWrapMode(QTextEdit::NoWrap);
     m_fileListLabel->setVisible(false);
+    m_fileList->setSelectionMode(QAbstractItemView::NoSelection);
     m_fileList->setVisible(false);
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
-    m_findOrCancelButton->setText("Find");
+    m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);
     m_findOrCancelButton->setFixedWidth(75);
 
     // Define layout
@@ -148,6 +152,36 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RicFileHierarchyDialog::~RicFileHierarchyDialog()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicFileHierarchyDialogResult RicFileHierarchyDialog::getOpenFileNames(QWidget *parent /*= 0*/,
+                                                                      const QString &caption /*= QString()*/,
+                                                                      const QString &dir /*= QString()*/,
+                                                                      const QString &pathFilter /*= QString()*/,
+                                                                      const QString &fileNameFilter /*= QString()*/,
+                                                                      const QStringList &fileExtensions /*= QStringList()*/)
+{
+    QStringList             files;
+    RicFileHierarchyDialog  dialog(parent);
+
+    dialog.setWindowTitle(caption);
+
+    dialog.m_rootDir->setText(QDir::toNativeSeparators(dir));
+    dialog.m_pathFilter->setText(pathFilter);
+    dialog.m_fileFilter->setText(fileNameFilter);
+    dialog.m_fileExtension->setText(prefixStrings(fileExtensions, ".").join(" | "));
+
+    dialog.updateEffectiveFilter();
+    dialog.clearFileList();
+    dialog.setOkButtonEnabled(false);
+
+    dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
+    dialog.exec();
+
+    return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, dialog.files(), dialog.rootDir(), dialog.pathFilter(), dialog.fileNameFilter());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,11 +242,11 @@ bool RicFileHierarchyDialog::cancelPressed() const
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
-    QString text = m_fileList->toPlainText();
-    if (text.startsWith(WORKING_TEXT_1)) clearFileList();
+    if (currentStatus().startsWith(WORKING_TEXT_1)) clearFileList();
 
-    m_fileList->append(fileName);
-    QApplication::processEvents();
+    QListWidgetItem* item = new QListWidgetItem(fileName, m_fileList);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(Qt::Checked);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,56 +255,46 @@ void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 void RicFileHierarchyDialog::clearFileList()
 {
     m_files.clear();
-    m_fileList->setText("");
+    m_fileList->clear();
     setOkButtonEnabled(false);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::updateStatus()
+void RicFileHierarchyDialog::updateStatus(Status status, bool force)
 {
     static time_t lastStatusUpdate = 0;
     time_t now = time(0);
 
-    if (now == lastStatusUpdate) return;
+    // If less than one second since last update, then return
+    if (!force && now == lastStatusUpdate) return;
     lastStatusUpdate = now;
 
-    QString currStatus = m_fileList->toPlainText();
-    if      (currStatus == "") m_fileList->setText(WORKING_TEXT_1);
-    else if (currStatus == WORKING_TEXT_1) m_fileList->setText(WORKING_TEXT_2);
-    else if (currStatus == WORKING_TEXT_2) m_fileList->setText(WORKING_TEXT_3);
-    else if (currStatus == WORKING_TEXT_3) m_fileList->setText(WORKING_TEXT_1);
+    QString newStatus;
+    if (status == WORKING)
+    {
+        QString currStatus = currentStatus();
+        if (currStatus == "") newStatus = WORKING_TEXT_1;
+        else if (currStatus == WORKING_TEXT_1) newStatus = WORKING_TEXT_2;
+        else if (currStatus == WORKING_TEXT_2) newStatus = WORKING_TEXT_3;
+        else if (currStatus == WORKING_TEXT_3) newStatus = WORKING_TEXT_1;
+    }
+    else if (status == NO_FILES_FOUND)
+    {
+        newStatus = NO_FILES_FOUND_TEXT;
+    }
+
+    m_fileList->clear();
+    new QListWidgetItem(newStatus, m_fileList);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicFileHierarchyDialogResult RicFileHierarchyDialog::getOpenFileNames(QWidget *parent /*= 0*/, 
-                                                                     const QString &caption /*= QString()*/, 
-                                                                     const QString &dir /*= QString()*/,
-                                                                     const QString &pathFilter /*= QString()*/,
-                                                                     const QString &fileNameFilter /*= QString()*/,
-                                                                     const QStringList &fileExtensions /*= QStringList()*/)
+QString RicFileHierarchyDialog::currentStatus() const
 {
-    QStringList             files;
-    RicFileHierarchyDialog  dialog(parent);
-    
-    dialog.setWindowTitle(caption);
-
-    dialog.m_rootDir->setText(QDir::toNativeSeparators(dir));
-    dialog.m_pathFilter->setText(pathFilter);
-    dialog.m_fileFilter->setText(fileNameFilter);
-    dialog.m_fileExtension->setText(prefixStrings(fileExtensions, ".").join(" | "));
- 
-    dialog.updateEffectiveFilter();
-    dialog.m_fileList->setText("");
-    dialog.setOkButtonEnabled(false);
-
-    dialog.resize(600, 150);
-    dialog.exec();
-
-    return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, dialog.files(), dialog.rootDir(), dialog.pathFilter(), dialog.fileNameFilter());
+    return m_fileList->item(0) ? m_fileList->item(0)->text() : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,9 +302,14 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::getOpenFileNames(QWidget *p
 //--------------------------------------------------------------------------------------------------
 QStringList RicFileHierarchyDialog::findMatchingFiles()
 {
-    QStringList dirs = buildDirectoryListRecursive(rootDir());
+    const QStringList& dirs = buildDirectoryListRecursive(rootDir());
+    const QStringList& files = findFilesInDirs(dirs);
 
-    return findFilesInDirs(dirs);
+    for (const auto& file : files)
+    {
+        appendToFileList(file);
+    }
+    return files;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,8 +320,6 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
     QStringList allDirs;
 
     if (cancelPressed()) return allDirs;
-
-    updateStatus();
 
     QDir qdir(currentDir);
     QStringList subDirs = qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -312,6 +339,7 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
 
     for (QString subDir : subDirs)
     {
+        updateStatus(WORKING);
         QApplication::processEvents();
         allDirs += buildDirectoryListRecursive(QDir::toNativeSeparators(qdir.absoluteFilePath(subDir)));
     }
@@ -331,13 +359,13 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
         QDir qdir(dir);
         QStringList files = qdir.entryList(filters, QDir::Files);
 
-        updateStatus();
+        updateStatus(WORKING);
+        QApplication::processEvents();
 
         for (QString file : files)
         {
             QString absFilePath = QDir::toNativeSeparators(qdir.absoluteFilePath(file));
             allFiles.append(absFilePath);
-            appendToFileList(absFilePath);
         }
     }
     return allFiles;
@@ -426,11 +454,12 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
     {
         clearFileList();
 
-        if (!m_fileList->isVisible())
+        if(!m_fileList->isVisible())
         {
             m_fileListLabel->setVisible(true);
             m_fileList->setVisible(true);
-            resize(600, 350);
+
+            if(height() < DEFAULT_DIALOG_FIND_HEIGHT) resize(width(), DEFAULT_DIALOG_FIND_HEIGHT);
         }
 
         m_findOrCancelButton->setText(FIND_BUTTON_CANCEL_TEXT);
@@ -446,7 +475,7 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
         }
         else if(m_files.isEmpty())
         {
-            m_fileList->setText(NO_FILES_FOUND_TEXT);
+            updateStatus(NO_FILES_FOUND, true);
         }
 
         setOkButtonEnabled(!m_files.isEmpty());
@@ -462,6 +491,17 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::slotDialogOkClicked()
 {
+    m_files.clear();
+
+    int itemCount = m_fileList->count();
+    for (int i = 0; i < itemCount; i++)
+    {
+        const QListWidgetItem* item = m_fileList->item(i);
+        if ((item->flags() & Qt::ItemIsUserCheckable) != 0 && item->checkState())
+        {
+            m_files.push_back(item->text());
+        }
+    }
     accept();
 }
 

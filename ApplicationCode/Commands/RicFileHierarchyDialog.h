@@ -30,6 +30,7 @@ class QTextEdit;
 class QDialogButtonBox;
 class QPushButton;
 class QMainWindow;
+class QListWidget;
 class RicFileHierarchyDialogResult;
 
 //==================================================================================================
@@ -39,20 +40,11 @@ class RicFileHierarchyDialog : public QDialog
 {
     Q_OBJECT
 
+    enum Status {WORKING, NO_FILES_FOUND};
+
 public:
     RicFileHierarchyDialog(QWidget* parent);
     ~RicFileHierarchyDialog();
-
-    QStringList         files() const;
-    QString             rootDir() const;
-    QString             pathFilter() const;
-    QString             fileNameFilter() const;
-    QStringList         fileExtensions() const;
-    bool                cancelPressed() const;
-
-    void                appendToFileList(const QString& fileName);
-    void                clearFileList();
-    void                updateStatus();
 
     static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = 0,
                                                          const QString& caption = QString(),
@@ -62,6 +54,17 @@ public:
                                                          const QStringList& fileExtensions = QStringList());
 
 private:
+    QStringList files() const;
+    QString     rootDir() const;
+    QString     pathFilter() const;
+    QString     fileNameFilter() const;
+    QStringList fileExtensions() const;
+    bool        cancelPressed() const;
+    void        appendToFileList(const QString& fileName);
+    void        clearFileList();
+    void        updateStatus(Status status, bool force = false);
+    QString     currentStatus() const;
+
     QStringList findMatchingFiles();
 
     QStringList buildDirectoryListRecursive(const QString& currentDir);
@@ -100,7 +103,7 @@ private:
     QLabel*                             m_effectiveFilter;
 
     QLabel*                             m_fileListLabel;
-    QTextEdit*                          m_fileList;
+    QListWidget*                        m_fileList;
 
     QPushButton*                        m_findOrCancelButton;
     QDialogButtonBox*                   m_buttons;
