@@ -449,6 +449,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicPasteIntersectionsFeature";
         }
         else if (dynamic_cast<RimIntersection*>(uiItem))
         {
@@ -456,11 +457,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
+            menuBuilder << "RicPasteIntersectionsFeature";
         }
         else if (dynamic_cast<RimIntersectionBox*>(uiItem))
         {
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicPasteIntersectionsFeature";
         }
         else if (dynamic_cast<RimSimWellInView*>(uiItem))
         {
