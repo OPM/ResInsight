@@ -107,7 +107,7 @@ void RicNewSimWellIntersectionCmd::redo()
     intersection->type = RimIntersection::CS_SIMULATION_WELL;
     intersection->simulationWell = m_simWell;
 
-    m_intersectionCollection->appendIntersection(intersection);
+    m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------
