@@ -249,9 +249,9 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
     // Then read the properties from all the files referenced by the InputReservoir
 
     std::vector<QString> filenames;
-    for (const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties())
+    for (const QString& fileName : additionalFiles())
     {
-        filenames.push_back(inputProperty->fileName);
+        filenames.push_back(fileName);
     }
     filenames.push_back(m_gridFileName);
 
