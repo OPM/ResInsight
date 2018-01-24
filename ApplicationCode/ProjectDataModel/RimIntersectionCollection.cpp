@@ -160,12 +160,20 @@ void RimIntersectionCollection::appendIntersectionAndUpdate(RimIntersection* int
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 
-    Rim3dView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendIntersectionNoUpdate(RimIntersection* intersection)
+{
+    m_intersections.push_back(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +196,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate(RimIntersectionBo
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-    Rim3dView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
@@ -199,11 +207,19 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate(RimIntersectionBo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendIntersectionBoxNoUpdate(RimIntersectionBox* intersectionBox)
+{
+    m_intersectionBoxes.push_back(intersectionBox);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive)
     {
-        Rim3dView* rimView = NULL;
+        Rim3dView* rimView = nullptr;
         firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
