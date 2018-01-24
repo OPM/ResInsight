@@ -116,7 +116,7 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     intersection->type = RimIntersection::CS_WELL_PATH;
     intersection->wellPath = m_wellPath;
 
-    m_intersectionCollection->appendIntersection(intersection);
+    m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------
