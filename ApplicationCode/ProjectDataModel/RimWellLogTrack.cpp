@@ -1269,14 +1269,19 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
         if (m_formationWellPathForSourceWellPath == nullptr) return;
-        if (plot->depthType() != RimWellLogPlot::MEASURED_DEPTH) return;
+
+        if (!(plot->depthType() == RimWellLogPlot::MEASURED_DEPTH || plot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH))
+        {
+            return;
+        }
 
         std::vector<double> yValues;
 
         const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
         if (!formations) return;
 
-        formations->measuredDepthAndFormationNamesUpToLevel(m_formationLevel(), &formationNamesToPlot, &yValues, m_showformationFluids());
+
+        formations->depthAndFormationNamesUpToLevel(m_formationLevel(), &formationNamesToPlot, &yValues, m_showformationFluids(), plot->depthType());
         
         m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
     }
