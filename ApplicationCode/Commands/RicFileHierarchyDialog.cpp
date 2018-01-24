@@ -305,6 +305,8 @@ QString RicFileHierarchyDialog::currentStatus() const
 //--------------------------------------------------------------------------------------------------
 QStringList RicFileHierarchyDialog::findMatchingFiles()
 {
+    if (m_rootDir->text().isEmpty()) return QStringList();
+
     const QStringList& dirs = buildDirectoryListRecursive(rootDir());
     const QStringList& files = findFilesInDirs(dirs);
 
