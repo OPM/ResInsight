@@ -17,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportEclipseCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.h
@@ -38,6 +39,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportEclipseCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.cpp

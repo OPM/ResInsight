@@ -185,6 +185,7 @@ void RiuMainPlotWindow::createMenus()
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCasesFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
@@ -257,6 +258,7 @@ QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
     if (toolbarName.isEmpty() || toolbarName == "Standard")
     {
         commandIds << "RicImportEclipseCaseFeature";
+        commandIds << "RicImportEclipseCasesFeature";
         commandIds << "RicImportInputEclipseCaseFeature";
         commandIds << "RicImportSummaryCaseFeature";
         commandIds << "RicOpenProjectFeature";

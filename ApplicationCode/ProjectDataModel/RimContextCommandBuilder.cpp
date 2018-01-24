@@ -123,6 +123,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
         {
             menuBuilder << "RicImportEclipseCaseFeature";
+            menuBuilder << "RicImportEclipseCasesFeature";
             menuBuilder << "RicImportInputEclipseCaseFeature";
             menuBuilder << "RicCreateGridCaseGroupFeature";
             menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";

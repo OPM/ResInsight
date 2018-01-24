@@ -17,11 +17,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportEclipseCaseFeature.h"
+#include "RicImportEclipseCasesFeature.h"
 
 #include "RiaImportEclipseCaseTools.h"
 
 #include "RiaApplication.h"
+
+#include "RicFileHierarchyDialog.h"
 
 #include "RimEclipseCaseCollection.h"
 
@@ -32,12 +34,12 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature");
+CAF_CMD_SOURCE_INIT(RicImportEclipseCasesFeature, "RicImportEclipseCasesFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportEclipseCaseFeature::isCommandEnabled()
+bool RicImportEclipseCasesFeature::isCommandEnabled()
 {
     return true;
 }
@@ -45,19 +47,31 @@ bool RicImportEclipseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
+void RicImportEclipseCasesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-    if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-    app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
+
+    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(NULL, 
+                                                                                   "Import Eclipse Cases", 
+                                                                                   defaultDir, 
+                                                                                   m_pathFilter, 
+                                                                                   m_fileNameFilter, 
+                                                                                   QStringList() << ".EGRID" << ".GRID");
+
+    // Remember filters
+    m_pathFilter = result.pathFilter;
+    m_fileNameFilter = result.fileNameFilter;
+
+    if (!result.ok) return;
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(result.rootDir).absoluteFilePath());
 
     int i;
-    for (i = 0; i < fileNames.size(); i++)
+    for (i = 0; i < result.files.size(); i++)
     {
-        QString fileName = fileNames[i];
+        QString fileName = result.files[i];
 
         if (!fileName.isEmpty())
         {
@@ -72,8 +86,8 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicImportEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/Case48x48.png"));
-    actionToSetup->setText("Import Eclipse Case");
+    actionToSetup->setText("Import Eclipse Cases Recursively");
 }
