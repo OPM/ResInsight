@@ -229,7 +229,12 @@ QString RicFileHierarchyDialog::fileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 QStringList RicFileHierarchyDialog::fileExtensions() const
 {
-    return m_fileExtension->text().split("|");
+    QStringList exts = m_fileExtension->text().split("|");
+    for (QString& ext : exts)
+    {
+        ext = ext.trimmed();
+    }
+    return exts;
 }
 
 //--------------------------------------------------------------------------------------------------
