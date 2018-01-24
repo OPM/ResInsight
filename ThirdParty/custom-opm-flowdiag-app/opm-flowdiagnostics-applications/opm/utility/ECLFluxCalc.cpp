@@ -20,7 +20,7 @@
 #include <opm/utility/ECLFluxCalc.hpp>
 #include <opm/utility/ECLPvtCommon.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
-
+#include <opm/utility/ECLSaturationFunc.hpp>
 #include <opm/parser/eclipse/Units/Units.hpp>
 
 #include <algorithm>
@@ -221,6 +221,21 @@ namespace Opm
     }
 
 
+    std::vector<double>
+    ECLFluxCalc::massflux(const ECLRestartData& rstrt,
+                          const ECLPhaseIndex   phase) const
+    {
+        // Obtain dynamic data.
+        const auto dyn_data = this->phaseProperties(rstrt, phase);
+
+        // Compute fluxes per connection.
+        const int num_conn = transmissibility_.size();
+        std::vector<double> fluxvec(num_conn);
+        for (int conn = 0; conn < num_conn; ++conn) {
+            fluxvec[conn] = singleMassFlux(conn, dyn_data);
+        }
+        return fluxvec;
+    }
 
 
 
@@ -251,7 +266,35 @@ namespace Opm
         return mob * T * dh;
     }
 
+    double ECLFluxCalc::singleMassFlux(const int connection,
+                                       const DynamicData& dyn_data) const
+    {
+        const int c1 = neighbours_[2*connection];
+        const int c2 = neighbours_[2*connection + 1];
 
+        // Phase pressure in connecting cells.
+        const auto p1 = dyn_data.pressure[c1];
+        const auto p2 = dyn_data.pressure[c2];
+
+        // Phase density at interface: Arith. avg. of cell values.
+        const auto rho =
+            (dyn_data.density[c1] + dyn_data.density[c2]) / 2.0;
+
+        // Phase potential drop across interface.
+        const auto dh = p1 - p2 + rho*this->gravDz_[connection];
+
+        // Phase mobility at interface: Upstream weighting (phase pot).
+        const auto ucell = (dh < 0.0) ? c2 : c1;
+        const auto mob   = dyn_data.mobility[ucell];
+
+        // Background (static) transmissibility.
+        const auto T = this->transmissibility_[connection];
+
+        // Upstream weighted phase density.
+        const auto urho = dyn_data.density[ucell];
+
+        return urho * mob * T * dh;
+    }
 
 
 
@@ -278,12 +321,39 @@ namespace Opm
 
         switch (phase) {
         case ECLPhaseIndex::Aqua:
+            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SWAT");
             return this->watPVT(std::move(dyn_data));
 
         case ECLPhaseIndex::Liquid:
-            return this->oilPVT(rstrt, std::move(dyn_data));
+            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SOIL");
+            if (!dyn_data.saturation.empty()) {
+                return this->oilPVT(rstrt, std::move(dyn_data));
+            } else {
+                // SOIL vector not provided. Compute from SWAT and/or SGAS.
+                // may read two times
+                auto sw = this->graph_.rawLinearisedCellData<double>(rstrt, "SWAT");
+                auto sg = this->graph_.rawLinearisedCellData<double>(rstrt, "SGAS");
+                std::vector<double>& so = dyn_data.saturation;
+                so.assign(this->graph_.numCells(), 1.0);
+                auto adjust_So_for_other_phase =
+                    [&so](const std::vector<double>& s)
+                {
+                    std::transform(std::begin(so), std::end(so),
+                                   std::begin(s) ,
+                                   std::begin(so), std::minus<double>());
+                };
+                if (sg.size() == this->graph_.numCells()) {
+                    adjust_So_for_other_phase(sg);
+                }
+
+                if (sw.size() == this->graph_.numCells()) {
+                    adjust_So_for_other_phase(sw);
+                }
+                return this->oilPVT(rstrt, std::move(dyn_data));
+            }
 
         case ECLPhaseIndex::Vapour:
+            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SGAS");
             return this->gasPVT(rstrt, std::move(dyn_data));
         }
 
@@ -292,7 +362,18 @@ namespace Opm
         };
     }
 
+    double ECLFluxCalc::surfaceDensity(const ECLPhaseIndex   phase) const{
+        switch (phase) {
+        case ECLPhaseIndex::Aqua:
+            return this->pvtWat_->surfaceMassDensity(0);
 
+        case ECLPhaseIndex::Liquid:
+            return this->pvtOil_->surfaceMassDensity(0);
+
+        case ECLPhaseIndex::Vapour:
+            return this->pvtGas_->surfaceMassDensity(0);
+        }
+    }
 
 
 

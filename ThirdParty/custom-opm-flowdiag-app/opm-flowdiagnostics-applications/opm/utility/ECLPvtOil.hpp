@@ -40,8 +40,10 @@ namespace Opm { namespace ECLPVT {
     public:
         /// Constructor.
         ///
-        /// \param[in] raw Raw tabulated data.  Must correspond to the PVTO
-        ///    vector of an ECL INIT file..
+        /// \param[in] raw Raw tabulated data.  Must correspond to either
+        ///    the PVTO vector of an ECL INIT file (tabulated live oil),
+        ///    to PVDO data (tabulated dead oil) or to PVCDO data (constant
+        ///    compressibility dead oil).
         ///
         /// \param[in] usys Unit system convention of the result set from
         ///    which \p raw was extracted.  Must correspond to item 3 of the
@@ -52,6 +54,7 @@ namespace Opm { namespace ECLPVT {
         ///    \endcode.
         Oil(const ECLPropTableRawData& raw,
             const int                  usys,
+            const bool                 const_compr,
             std::vector<double>        rhoS);
 
         /// Destructor.

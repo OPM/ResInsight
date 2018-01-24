@@ -20,7 +20,7 @@ cmake_minimum_required (VERSION 2.8)
 option(SIBLING_SEARCH "Search for other modules in sibling directories?" ON)
 
 # Mandatory call to project
-project(opm-flowdiagnostics-applications CXX)
+project(opm-flowdiagnostics-applications C CXX)
 
 if(SIBLING_SEARCH AND NOT opm-common_DIR)
   # guess the sibling dir

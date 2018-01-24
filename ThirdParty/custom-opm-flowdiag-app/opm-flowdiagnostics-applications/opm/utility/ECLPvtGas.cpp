@@ -593,10 +593,34 @@ fromECLOutput(const ECLInitFileData& init)
     const auto& tabdims = init.keywordData<int>("TABDIMS");
     const auto& tab     = init.keywordData<double>("TAB");
 
-    raw.numPrimary = tabdims[ TABDIMS_NRPVTG_ITEM ]; // #Composition nodes
-    raw.numRows    = tabdims[ TABDIMS_NPPVTG_ITEM ]; // #Rv (or Pg) nodes
-    raw.numCols    = 5; // [ Rv, 1/B, 1/(B*mu), d(1/B)/dRv, d(1/(B*mu))/dRv ]
-    raw.numTables  = tabdims[ TABDIMS_NTPVTG_ITEM ]; // # PVTG tables
+    const auto numRv = tabdims[ TABDIMS_NRPVTG_ITEM ]; // #Composition (Rv) nodes
+    const auto numPg = tabdims[ TABDIMS_NPPVTG_ITEM ]; // #Pg nodes
+
+    raw.numCols   = 5; // [ x, 1/B, 1/(B*mu), d(1/B)/dx, d(1/(B*mu))/dx ]
+    raw.numTables = tabdims[ TABDIMS_NTPVTG_ITEM ]; // # PV{D,T}G tables
+
+    const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
+
+    if (lh[ LOGIHEAD_RV_INDEX ]) {
+        // Vaporised oil flag set => Wet Gas.
+        //
+        // Inner dimension (number of rows per sub-table) is number of
+        // composition nodes.  Number of primary keys (outer dimension,
+        // number of sub-tables per PVTG table) is number of pressure nodes.
+
+        raw.numPrimary = numPg;
+        raw.numRows    = numRv;
+    }
+    else {
+        // Vaporised oil flag NOT set => Dry Gas.
+        //
+        // Inner dimension (number of rows per sub-table) is number of
+        // pressure nodes.  Number of primary keys (outer dimension, number
+        // of sub-tables per PVDG table) is one.
+
+        raw.numPrimary = 1;
+        raw.numRows    = numPg;
+    }
 
     // Extract Primary Key (Pg)
     {

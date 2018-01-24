@@ -195,6 +195,8 @@ namespace {
             /// \endcode.
             const std::vector<int>& neighbours() const;
 
+            const std::vector<int>& getLocalCellID() const;
+
             /// Retrive static pore-volume values on active cells only.
             ///
             /// Corresponds to the \c PORV vector in the INIT file, possibly
@@ -348,6 +350,8 @@ namespace {
                 /// Retrieve global cell ID of from (I,J,K) index tuple.
                 std::size_t
                 getGlobalCell(const int i, const int j, const int k) const;
+
+                const std::vector<int>& getLocalCellID() const;
 
                 /// Retrieve active cell ID of particular global cell's
                 /// neighbour in given Cartesian direction.
@@ -872,6 +876,13 @@ CartesianCells::getGlobalCell(const int i, const int j, const int k) const
     return this->globIdx(ijk);
 }
 
+const std::vector<int>&
+ECL::CartesianGridData::
+CartesianCells::getLocalCellID() const
+{
+    return this->active_ID_;
+}
+
 int
 ECL::CartesianGridData::
 CartesianCells::getNeighbour(const std::size_t globalCell,
@@ -1004,6 +1015,12 @@ const std::vector<int>&
 ECL::CartesianGridData::neighbours() const
 {
     return this->neigh_;
+}
+
+const std::vector<int>&
+ECL::CartesianGridData::getLocalCellID() const
+{
+    return this->cells_.getLocalCellID();
 }
 
 const std::vector<double>&
@@ -1292,6 +1309,8 @@ public:
     /// \endcode.
     std::vector<int> neighbours() const;
 
+    std::vector<int> localCellID() const;
+
     /// Retrieve static pore-volume values on active cells only.
     ///
     /// Corresponds to the \c PORV vector in the INIT file, possibly
@@ -1371,6 +1390,12 @@ public:
     linearisedCellData(const ECLRestartData& rstrt,
                        const std::string&    vector,
                        UnitConvention        unit) const;
+
+
+    const ECLGeometryGrid& getGeometryGrid() const
+    {
+        return this->geomGrid_;
+    }
 
 private:
     /// Collection of non-Cartesian neighbourship relations attributed to a
@@ -1614,7 +1639,11 @@ private:
     /// Set of active grids in result set.
     std::vector<std::string> activeGrids_;
 
+    /// Map grid names to numeric grid IDs
     std::unordered_map<std::string, int> gridID_;
+
+    /// Geometry for main grid.
+    ECLGeometryGrid geomGrid_;
 
     /// Extract explicit non-neighbouring connections from ECL output.
     ///
@@ -1885,6 +1914,46 @@ Opm::ECLGraph::Impl::Impl(const boost::filesystem::path& grid,
 
     this->defineNNCs(G.get(), init);
     this->defineActivePhases(init);
+
+    // Extract geometry of main grid.
+    {
+        // Size
+        {
+            this->geomGrid_.size[0] = ecl_grid_get_nx(G.get());
+            this->geomGrid_.size[1] = ecl_grid_get_ny(G.get());
+            this->geomGrid_.size[2] = ecl_grid_get_nz(G.get());
+        }
+
+        // COORD
+        {
+            const auto ncoord =
+                    static_cast<std::size_t>(ecl_grid_get_coord_size(G.get()));
+            this->geomGrid_.coord.resize(ncoord, 0.0);
+
+            ecl_grid_init_coord_data_double(G.get(), this->geomGrid_.coord.data());
+        }
+
+        // ZCORN
+        {
+            const auto nzcorn =
+                    static_cast<std::size_t>(ecl_grid_get_zcorn_size(G.get()));
+            this->geomGrid_.zcorn.resize(nzcorn, 0.0);
+
+            ecl_grid_init_zcorn_data_double(G.get(), this->geomGrid_.zcorn.data());
+        }
+
+        // ACTNUM
+        {
+            const auto nglob =
+                    static_cast<std::size_t>(this->geomGrid_.size[0]) *
+                    static_cast<std::size_t>(this->geomGrid_.size[1]) *
+                    static_cast<std::size_t>(this->geomGrid_.size[2]);
+
+            this->geomGrid_.actnum.assign(nglob, 1);
+
+            ecl_grid_init_actnum_data(G.get(), this->geomGrid_.actnum.data());
+        }
+    }
 }
 
 int
@@ -1981,6 +2050,28 @@ Opm::ECLGraph::Impl::neighbours() const
     }
 
     return N;
+}
+
+std::vector<int>
+Opm::ECLGraph::Impl::localCellID() const
+{
+    auto ret = std::vector<int>{};
+    ret.reserve(this->numCells());
+
+    auto off = this->activeOffset_.begin();
+    for (const auto& G : this->grid_) {
+        for (const auto& loc : G.getLocalCellID()) {
+            const auto locID = (loc >= 0)
+                    ? static_cast<int>(*off) + loc
+                    : -1;
+
+            ret.push_back(locID);
+        }
+
+        ++off;
+    }
+
+    return ret;
 }
 
 std::vector<double>
@@ -2322,6 +2413,11 @@ std::size_t Opm::ECLGraph::numConnections() const
     return this->pImpl_->numConnections();
 }
 
+std::vector<int> Opm::ECLGraph::localCellID() const
+{
+    return this->pImpl_->localCellID();
+}
+
 const std::vector<Opm::ECLPhaseIndex        >&
 Opm::ECLGraph::activePhases() const
 {
@@ -2392,4 +2488,10 @@ Opm::ECLGraph::linearisedCellData(const ECLRestartData& rstrt,
                                   UnitConvention        unit) const
 {
     return this->pImpl_->linearisedCellData(rstrt, vector, unit);
+}
+
+const Opm::ECLGraph::ECLGeometryGrid&
+Opm::ECLGraph::getGeometryGrid() const
+{
+    return this->pImpl_->getGeometryGrid();
 }

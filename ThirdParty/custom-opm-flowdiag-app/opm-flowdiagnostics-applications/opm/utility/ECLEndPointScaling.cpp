@@ -81,6 +81,16 @@ namespace {
         return tep;
     }
 
+    double defaultedScaledSaturation(const double s, const double dflt)
+    {
+        // Use input scaled saturation ('s') if not defaulted (|s| < 1e20),
+        // default scaled saturation otherwise.  The sentinel value 1e20 is
+        // the common value used to represent unset/defaulted values in ECL
+        // result sets.
+
+        return (std::abs(s) < 1.0e+20) ? s : dflt;
+    }
+
     bool validSaturation(const double s)
     {
         return (! (s < 0.0)) && (! (s > 1.0));
@@ -135,6 +145,24 @@ private:
 
     void handleInvalidEndpoint(const SaturationAssoc& sp,
                                std::vector<double>&   effsat) const;
+
+    double sMin(const std::vector<int>::size_type cell,
+                const TableEndPoints&             tep) const
+    {
+        // Use model's scaled connate saturation if defined, otherwise fall
+        // back to table's unscaled connate saturation.
+
+        return defaultedScaledSaturation(this->smin_[cell], tep.low);
+    }
+
+    double sMax(const std::vector<int>::size_type cell,
+                const TableEndPoints&             tep) const
+    {
+        // Use model's scaled maximum saturation if defined, otherwise fall
+        // back to table's unscaled maximum saturation.
+
+        return defaultedScaledSaturation(this->smax_[cell], tep.high);
+    }
 };
 
 std::vector<double>
@@ -150,8 +178,8 @@ Impl::eval(const TableEndPoints&   tep,
     for (const auto& eval_pt : sp) {
         const auto cell = eval_pt.cell;
 
-        const auto sLO = this->smin_[cell];
-        const auto sHI = this->smax_[cell];
+        const auto sLO = this->sMin(cell, tep);
+        const auto sHI = this->sMax(cell, tep);
 
         if (! validSaturations({ sLO, sHI })) {
             this->handleInvalidEndpoint(eval_pt, effsat);
@@ -195,8 +223,8 @@ Impl::reverse(const TableEndPoints&   tep,
     for (const auto& eval_pt : sp) {
         const auto cell = eval_pt.cell;
 
-        const auto sLO = this->smin_[cell];
-        const auto sHI = this->smax_[cell];
+        const auto sLO = this->sMin(cell, tep);
+        const auto sHI = this->sMax(cell, tep);
 
         if (! validSaturations({ sLO, sHI })) {
             this->handleInvalidEndpoint(eval_pt, unscaledsat);
@@ -293,6 +321,33 @@ private:
 
     void handleInvalidEndpoint(const SaturationAssoc& sp,
                                std::vector<double>&   effsat) const;
+
+    double sMin(const std::vector<int>::size_type cell,
+                const TableEndPoints&             tep) const
+    {
+        // Use model's scaled connate saturation if defined, otherwise fall
+        // back to table's unscaled connate saturation.
+
+        return defaultedScaledSaturation(this->smin_[cell], tep.low);
+    }
+
+    double sDisp(const std::vector<int>::size_type cell,
+                 const TableEndPoints&             tep) const
+    {
+        // Use model's scaled displacing saturation if defined, otherwise
+        // fall back to table's unscaled displacing saturation.
+
+        return defaultedScaledSaturation(this->sdisp_[cell], tep.disp);
+    }
+
+    double sMax(const std::vector<int>::size_type cell,
+                const TableEndPoints&             tep) const
+    {
+        // Use model's scaled maximum saturation if defined, otherwise fall
+        // back to table's unscaled maximum saturation.
+
+        return defaultedScaledSaturation(this->smax_[cell], tep.high);
+    }
 };
 
 std::vector<double>
@@ -306,9 +361,9 @@ Impl::eval(const TableEndPoints&   tep,
     for (const auto& eval_pt : sp) {
         const auto cell = eval_pt.cell;
 
-        const auto sLO = this->smin_ [cell];
-        const auto sR  = this->sdisp_[cell];
-        const auto sHI = this->smax_ [cell];
+        const auto sLO = this->sMin (cell, tep);
+        const auto sR  = this->sDisp(cell, tep);
+        const auto sHI = this->sMax (cell, tep);
 
         if (! validSaturations({ sLO, sR, sHI })) {
             this->handleInvalidEndpoint(eval_pt, effsat);
@@ -355,9 +410,9 @@ Impl::reverse(const TableEndPoints&   tep,
     for (const auto& eval_pt : sp) {
         const auto cell = eval_pt.cell;
 
-        const auto sLO = this->smin_ [cell];
-        const auto sR  = this->sdisp_[cell];
-        const auto sHI = this->smax_ [cell];
+        const auto sLO = this->sMin (cell, tep);
+        const auto sR  = this->sDisp(cell, tep);
+        const auto sHI = this->sMax (cell, tep);
 
         if (! validSaturations({ sLO, sR, sHI })) {
             this->handleInvalidEndpoint(eval_pt, unscaledsat);
@@ -678,7 +733,13 @@ Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
                          const ::Opm::ECLInitFileData& init,
                          const InvBeh                  handle_invalid)
 {
-    auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
+    // Try dedicated scaled Sg_conn for Pc first
+    auto sgl = G.rawLinearisedCellData<double>(init, "SGLPC");
+    if (sgl.empty()) {
+        // Fall back to general scaled Sg_conn if not available.
+        sgl = G.rawLinearisedCellData<double>(init, "SGL");
+    }
+
     auto sgu = G.rawLinearisedCellData<double>(init, "SGU");
 
     if ((sgl.size() != sgu.size()) ||
@@ -702,7 +763,13 @@ Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
                          const ::Opm::ECLInitFileData& init,
                          const InvBeh                  handle_invalid)
 {
-    auto swl = G.rawLinearisedCellData<double>(init, "SWL");
+    // Try dedicated scaled Sw_conn for Pc first
+    auto swl = G.rawLinearisedCellData<double>(init, "SWLPC");
+    if (swl.empty()) {
+        // Fall back to general scaled Sw_conn if not available.
+        swl = G.rawLinearisedCellData<double>(init, "SWL");
+    }
+
     auto swu = G.rawLinearisedCellData<double>(init, "SWU");
 
     if ((swl.size() != swu.size()) ||
