@@ -42,6 +42,7 @@
 #include <QGroupBox>
 #include <QListWidget>
 #include <QAbstractItemView>
+#include <QMenu>
 
 #include <vector>
 #include <time.h>
@@ -95,6 +96,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     connect(m_rootDir, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
     connect(m_pathFilter, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
     connect(m_fileFilter, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
+    connect(m_fileList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(slotFileListCustomMenuRequested(const QPoint&)));
 
     connect(m_findOrCancelButton, SIGNAL(clicked()), this, SLOT(slotFindOrCancelButtonClicked()));
     connect(m_buttons, SIGNAL(accepted()), this, SLOT(slotDialogOkClicked()));
@@ -109,8 +111,9 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_effectiveFilter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_fileListLabel->setText("Files found");
     m_fileListLabel->setVisible(false);
-    m_fileList->setSelectionMode(QAbstractItemView::NoSelection);
+    m_fileList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_fileList->setVisible(false);
+    m_fileList->setContextMenuPolicy(Qt::CustomContextMenu);
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
     m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);
@@ -419,7 +422,7 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
 
     // Remove duplicate separators
     int len;
-    do 
+    do
     {
         len = native.size();
         native.replace(separator + separator, separator);
@@ -443,6 +446,73 @@ void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 {
     clearFileList();
     updateEffectiveFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotFileListCustomMenuRequested(const QPoint& point)
+{
+    QMenu menu;
+    QPoint globalPoint = point;
+    QAction* action;
+
+    action = new QAction("On", this);
+    connect(action, SIGNAL(triggered()), SLOT(slotTurnOnFileListItems()));
+    menu.addAction(action);
+
+    action = new QAction("Off", this);
+    connect(action, SIGNAL(triggered()), SLOT(slotTurnOffFileListItems()));
+    menu.addAction(action);
+
+    action = new QAction("Toggle", this);
+    connect(action, SIGNAL(triggered()), SLOT(slotToggleFileListItems()));
+    menu.addAction(action);
+
+    globalPoint = m_fileList->mapToGlobal(point);
+    menu.exec(globalPoint);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotToggleFileListItems()
+{
+    for (auto& item : m_fileList->selectedItems())
+    {
+        if ((item->flags() & Qt::ItemIsUserCheckable) != 0)
+        {
+            item->setCheckState(item->checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotTurnOffFileListItems()
+{
+    for (auto& item : m_fileList->selectedItems())
+    {
+        if ((item->flags() & Qt::ItemIsUserCheckable) != 0)
+        {
+            item->setCheckState(Qt::Unchecked);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotTurnOnFileListItems()
+{
+    for (auto& item : m_fileList->selectedItems())
+    {
+        if ((item->flags() & Qt::ItemIsUserCheckable) != 0)
+        {
+            item->setCheckState(Qt::Checked);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
