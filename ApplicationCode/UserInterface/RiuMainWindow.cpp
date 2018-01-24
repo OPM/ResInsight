@@ -355,6 +355,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));

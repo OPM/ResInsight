@@ -8,6 +8,7 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
+${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFromFilesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterFeatureImpl.h
@@ -28,6 +29,7 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFromFilesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterFeatureImpl.cpp

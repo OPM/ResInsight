@@ -190,6 +190,7 @@ void RiuMainPlotWindow::createMenus()
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
     importMenu->addSeparator();
 #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
