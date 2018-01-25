@@ -67,14 +67,14 @@ private:
 
     QStringList findMatchingFiles();
 
-    QStringList buildDirectoryListRecursive(const QString& currentDir);
+    QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
 
     QStringList findFilesInDirs(const QStringList& dirs);
 
     QStringList createNameFilterList(const QString& fileNameFilter,
                                      const QStringList& fileExtensions);
 
-    bool        pathFilterMatch(const QString& dir);
+    bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
 
     void        updateEffectiveFilter();
 

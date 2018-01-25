@@ -61,13 +61,16 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
 //--------------------------------------------------------------------------------------------------
-static QString separator = QString(QDir::separator());
+static QString SEPARATOR = "/";
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QStringList prefixStrings(const QStringList& strings, const QString& prefix);
-static QString     relativePath(const QString& rootDir, const QString& dir);
+static QString      toInternalSeparator(const QString& path);
+static QString&     appendSeparatorIfNo(QString& path);
+static QStringList  prefixStrings(const QStringList& strings, const QString& prefix);
+static QString      relativePath(const QString& rootDir, const QString& dir);
+static bool         equalPaths(const QString& path1, const QString& path2);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -200,12 +203,8 @@ QStringList RicFileHierarchyDialog::files() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::rootDir() const
 {
-    QString rootDir = m_rootDir->text();
-    if (!rootDir.endsWith(separator))
-    {
-        rootDir.append(separator);
-    }
-    return QDir::toNativeSeparators(rootDir);
+    QString rootDir = toInternalSeparator(m_rootDir->text());
+    return appendSeparatorIfNo(rootDir);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +212,7 @@ QString RicFileHierarchyDialog::rootDir() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::pathFilter() const
 {
-    return QDir::toNativeSeparators(m_pathFilter->text());
+    return toInternalSeparator(m_pathFilter->text());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +251,8 @@ void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
     if (currentStatus().startsWith(WORKING_TEXT_1)) clearFileList();
 
-    QListWidgetItem* item = new QListWidgetItem(fileName, m_fileList);
+    QString itemText = fileName;
+    QListWidgetItem* item = new QListWidgetItem(itemText.remove(0, rootDir().size()), m_fileList);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
 }
@@ -325,33 +325,47 @@ QStringList RicFileHierarchyDialog::findMatchingFiles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& currentDir)
+QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& currentDir, int level)
 {
     QStringList allDirs;
 
     if (cancelPressed()) return allDirs;
 
-    QDir qdir(currentDir);
-    QStringList subDirs = qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    QString currPathFilter = pathFilter();
+    bool subStringFilter = false;
 
-    if (pathFilterMatch(currentDir))
+    // Optimizing for speed by a refined match at first directory level
+    if (level == 1)
     {
-        allDirs.push_back(currentDir);
-    }
-    else
-    {
-        // If there is no match and filter string does not start with a wildcard, there is no need to enter sub directories
-        if (!pathFilter().startsWith("*") && !relativePath(rootDir(), currentDir).isEmpty())
+        QString pathFilter = this->pathFilter();
+        if (!pathFilter.startsWith("*"))
         {
-            return QStringList();
+            int wildcardIndex = pathFilter.indexOf(QRegExp(QString("[*%1]").arg(SEPARATOR)));
+            if (wildcardIndex >= 0)
+            {
+                currPathFilter = pathFilter.left(wildcardIndex + 1);
+                subStringFilter = true;
+            }
         }
     }
 
+    QString currRelPath = relativePath(rootDir(), currentDir);
+    if (pathFilterMatch(currPathFilter, currRelPath))
+    {
+        allDirs.push_back(currentDir);
+    }
+    else if(level == 1 && subStringFilter)
+    {
+        return QStringList();
+    }
+
+    QDir qdir(currentDir);
+    QStringList subDirs = qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (QString subDir : subDirs)
     {
         updateStatus(WORKING);
         QApplication::processEvents();
-        allDirs += buildDirectoryListRecursive(QDir::toNativeSeparators(qdir.absoluteFilePath(subDir)));
+        allDirs += buildDirectoryListRecursive(qdir.absoluteFilePath(subDir), level + 1);
     }
     return cancelPressed() ? QStringList() : allDirs;
 }
@@ -374,7 +388,7 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
 
         for (QString file : files)
         {
-            QString absFilePath = QDir::toNativeSeparators(qdir.absoluteFilePath(file));
+            QString absFilePath = qdir.absoluteFilePath(file);
             allFiles.append(absFilePath);
         }
     }
@@ -406,11 +420,9 @@ QStringList RicFileHierarchyDialog::createNameFilterList(const QString &fileName
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicFileHierarchyDialog::pathFilterMatch(const QString& dir)
+bool RicFileHierarchyDialog::pathFilterMatch(const QString& pathFilter, const QString& relPath)
 {
-    QRegExp regexp(pathFilter(), Qt::CaseInsensitive, QRegExp::Wildcard);
-    QString relPath = relativePath(rootDir(), dir);
-
+    QRegExp regexp(pathFilter, Qt::CaseInsensitive, QRegExp::Wildcard);
     return regexp.exactMatch(relPath);
 }
 
@@ -425,17 +437,18 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
         .arg(m_fileFilter->text())
         .arg(m_fileExtension->text());
 
-    QString native(QDir::toNativeSeparators(effFilter));
+    QString internalFilter(toInternalSeparator(effFilter));
 
     // Remove duplicate separators
     int len;
     do
     {
-        len = native.size();
-        native.replace(separator + separator, separator);
-    } while (native.size() != len);
+        len = internalFilter.size();
+        internalFilter.replace(SEPARATOR + SEPARATOR, SEPARATOR);
+    } while (internalFilter.size() != len);
 
-    m_effectiveFilter->setText(native);
+    // Present native separators to the user
+    m_effectiveFilter->setText(QDir::toNativeSeparators(internalFilter));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -576,7 +589,7 @@ void RicFileHierarchyDialog::slotDialogOkClicked()
         const QListWidgetItem* item = m_fileList->item(i);
         if ((item->flags() & Qt::ItemIsUserCheckable) != 0 && item->checkState())
         {
-            m_files.push_back(item->text());
+            m_files.push_back(rootDir() + item->text());
         }
     }
     accept();
@@ -609,6 +622,36 @@ void RicFileHierarchyDialog::slotBrowseButtonClicked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString toInternalSeparator(const QString& path)
+{
+    QString currNativeSep = QDir::separator();
+
+    if (currNativeSep == "/")
+    {
+        // On Linux like system -> Do not convert separators
+        return path;
+    }
+
+    // On other systems (i.e. Windows) -> Convert to internal separator (/)
+    QString output = path;
+    return output.replace(QString("\\"), SEPARATOR);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString& appendSeparatorIfNo(QString& path)
+{
+    if (!path.endsWith(SEPARATOR))
+    {
+        path.append(SEPARATOR);
+    }
+    return path;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList prefixStrings(const QStringList& strings, const QString& prefix)
 {
     QStringList prefixedStrings;
@@ -636,11 +679,23 @@ QString relativePath(const QString& rootDir, const QString& dir)
         QString relPath = dir;
         relPath.remove(0, rootDir.size());
 
-        if (relPath.startsWith("/") || relPath.startsWith("\\")) relPath.remove(0, 1);
-        return relPath;
+        if (relPath.startsWith(SEPARATOR)) relPath.remove(0, 1);
+        return appendSeparatorIfNo(relPath);
     }
     else
     {
         return dir;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool equalPaths(const QString& path1, const QString& path2)
+{
+    QString p1 = path1;
+    QString p2 = path2;
+    appendSeparatorIfNo(p1);
+    appendSeparatorIfNo(p2);
+    return p1 == p2;
 }
