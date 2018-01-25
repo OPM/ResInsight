@@ -115,6 +115,8 @@ public:
     void                                            updateCurveNames();
     QString                                         generatedPlotTitleFromVisibleCurves() const;
 
+    void                                            copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot);
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
