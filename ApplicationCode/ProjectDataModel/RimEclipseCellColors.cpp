@@ -40,7 +40,7 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
-#include "QMessageBox"
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
