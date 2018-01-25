@@ -19,8 +19,9 @@
 #include "RifStimPlanXmlReader.h"
 
 #include "RiaEclipseUnitTools.h"
-#include "RigStimPlanFractureDefinition.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RigStimPlanFractureDefinition.h"
 
 #include <QFile>
 #include <QXmlStreamReader>
@@ -117,8 +118,20 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                     return nullptr;
                 }
 
-                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue, conductivityScalingFactor);
-               
+                if (parameter.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
+                {
+                    // Scale all parameters containing conductivity
+
+                    for (auto& dataAtDepth : propertyValuesAtTimestep)
+                    {
+                        for (auto& dataValue : dataAtDepth)
+                        {
+                            dataValue *= conductivityScalingFactor;
+                        }
+                    }
+                }
+
+                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
             }
         }
     }

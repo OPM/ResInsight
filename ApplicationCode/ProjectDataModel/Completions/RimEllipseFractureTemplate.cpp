@@ -19,6 +19,7 @@
 #include "RimEllipseFractureTemplate.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 
 #include "RigCellGeometryTools.h"
@@ -314,9 +315,9 @@ double RimEllipseFractureTemplate::conductivity() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::appendDataToResultStatistics(const QString& resultName, const QString& unit, MinMaxAccumulator& minMaxAccumulator, PosNegAccumulator& posNegAccumulator) const
+void RimEllipseFractureTemplate::appendDataToResultStatistics(const QString& uiResultName, const QString& unit, MinMaxAccumulator& minMaxAccumulator, PosNegAccumulator& posNegAccumulator) const
 {
-    if (resultName.startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
+    if (uiResultName == RiaDefines::conductivityResultName())
     {
         minMaxAccumulator.addValue(conductivity());
         posNegAccumulator.addValue(conductivity());

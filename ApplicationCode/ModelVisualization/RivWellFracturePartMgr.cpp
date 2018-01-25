@@ -18,6 +18,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFractureDefines.h"
 
 #include "RigCellGeometryTools.h"
 #include "RigFractureCell.h"
@@ -386,7 +387,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
         { 
             cvf::Color3ub resultColor = cvf::Color3ub(RiaColorTables::undefinedCellColor());
 
-            if (activeView.stimPlanColors->uiResultName().startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
+            if (activeView.stimPlanColors->uiResultName() == RiaDefines::conductivityResultName())
             {
                 RimEllipseFractureTemplate* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>(m_rimFracture->fractureTemplate()); 
                 if (ellipseFractureTemplate)

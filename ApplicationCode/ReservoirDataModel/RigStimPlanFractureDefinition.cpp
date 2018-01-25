@@ -528,20 +528,8 @@ size_t RigStimPlanFractureDefinition::resultIndex(const QString& resultName, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue, double condScalingFactor)
+void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue)
 {
-    if (resultName == conductivityResultName())
-    {
-        for (std::vector<double> &dataAtDepth : data)
-        {
-            for (double &dataValue : dataAtDepth)
-            {
-                dataValue = dataValue * condScalingFactor;
-            }
-        }
-    }
-
-
     size_t resIndex = resultIndex(resultName, unit);
 
     if (resIndex != cvf::UNDEFINED_SIZE_T)
@@ -602,34 +590,6 @@ void RigStimPlanFractureDefinition::appendDataToResultStatistics(const QString& 
             posNegAccumulator.addData(values);
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigStimPlanFractureDefinition::conductivityResultName() const
-{
-    static const QString conductivity_text("CONDUCTIVITY");
-    static const QString conductivity_propped_text("Conductivity-Propped");
-    
-    // By intention we have two for loops here, as "CONDUCTIVITY" has priority over "Conductivity-Propped"
-    for (auto stimPlanResult : m_stimPlanResults)
-    {
-        if (stimPlanResult.resultName.compare(conductivity_text, Qt::CaseInsensitive) == 0)
-        {
-            return stimPlanResult.resultName;
-        }
-    }
-
-    for (auto stimPlanResult : m_stimPlanResults)
-    {
-        if (stimPlanResult.resultName.compare(conductivity_propped_text, Qt::CaseInsensitive) == 0)
-        {
-            return stimPlanResult.resultName;
-        }
-    }
-
-    return "";
 }
 
 //--------------------------------------------------------------------------------------------------

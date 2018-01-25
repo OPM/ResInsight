@@ -19,6 +19,7 @@
 #include "RimStimPlanColors.h"
 
 #include "RiaApplication.h"
+#include "RiaFractureDefines.h"
 
 #include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
@@ -371,7 +372,7 @@ void setDefaultResultIfStimPlan(caf::PdmField<QString> &field)
 
         for (auto resultNameAndUnit : templColl->stimPlanResultNamesAndUnits())
         {
-            if (resultNameAndUnit.first == "CONDUCTIVITY")
+            if (resultNameAndUnit.first.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
             {
                 field = toString(resultNameAndUnit);
                 break;

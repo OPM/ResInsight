@@ -59,7 +59,7 @@ public:
     void                            setDefaultValuesFromUnit();
     double                          conductivity() const;
 
-    virtual void appendDataToResultStatistics(const QString& resultName, const QString& unit,
+    virtual void appendDataToResultStatistics(const QString& uiResultName, const QString& unit,
                                                MinMaxAccumulator& minMaxAccumulator,
                                                PosNegAccumulator& posNegAccumulator) const override;
 

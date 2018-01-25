@@ -238,7 +238,7 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
     // if width not found, use conductivity
     if (hasConductivity())
     {
-        m_borderPolygonResultName = m_stimPlanFractureDefinitionData->conductivityResultName();
+        m_borderPolygonResultName = m_stimPlanFractureDefinitionData->conductivityResultNames().first();
         return true;
     }
 
@@ -407,7 +407,7 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::uiResultN
         std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
         for (const auto& nameUnitPair : propertyNamesUnitsOnFile)
         {
-            if (nameUnitPair.first.contains("conductivity", Qt::CaseInsensitive))
+            if (nameUnitPair.first.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
             {
                 conductivityUnit = nameUnitPair.second;
             }
@@ -464,7 +464,7 @@ std::vector<double> RimStimPlanFractureTemplate::fractureGridResults(const QStri
 bool RimStimPlanFractureTemplate::hasConductivity() const
 {
     if (m_stimPlanFractureDefinitionData.notNull() &&
-        !m_stimPlanFractureDefinitionData->conductivityResultName().isEmpty())
+        !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty())
     {
         return true;
     }
