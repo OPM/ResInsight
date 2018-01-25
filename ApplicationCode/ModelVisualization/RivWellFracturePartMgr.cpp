@@ -276,7 +276,9 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
 
         // Conductivity
         text.append("Result value: ");
-        text.append(stimPlanColors->uiResultName() + " ");
+
+        QString resultName = stimPlanTemplate->mapUiResultNameToFileResultName(stimPlanColors->uiResultName());
+        text.append(resultName + " ");
         text.append(condValueText + "\n");
 
         // Cell index

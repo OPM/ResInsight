@@ -86,6 +86,8 @@ public:
                                                MinMaxAccumulator& minMaxAccumulator,
                                                PosNegAccumulator& posNegAccumulator) const override;
 
+    QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
+
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -98,8 +100,6 @@ private:
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
-
-    QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
 
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
