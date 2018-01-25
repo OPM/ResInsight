@@ -742,9 +742,11 @@ void RiuMainWindow::slotRefreshViewActions()
 void RiuMainWindow::refreshAnimationActions()
 {
     caf::FrameAnimationControl* animationControl = NULL;
-    if (RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer())
+    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
+
+    if (activeView && activeView->viewer())
     {
-        animationControl = RiaApplication::instance()->activeReservoirView()->viewer()->animationControl();
+        animationControl = activeView->viewer()->animationControl();
     }
 
     m_animationToolBar->connectAnimationControl(animationControl);
@@ -754,37 +756,22 @@ void RiuMainWindow::refreshAnimationActions()
     int currentTimeStepIndex = 0;
 
     bool enableAnimControls = false;
-    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView && 
         activeView->viewer() &&
         activeView->viewer()->frameCount())
     {
         enableAnimControls = true;
-        RimEclipseView * activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-
-        if (activeRiv)
+       
+        if ( activeView->isTimeStepDependentDataVisible() )
         {
-            if (activeRiv->currentGridCellResults())
-            {
-                if (activeRiv->isTimeStepDependentDataVisible())
-                {
-                    timeStepStrings = activeRiv->eclipseCase()->timeStepStrings();
-                }
-                else
-                {
-                    timeStepStrings.push_back(tr("Static Property"));
-                }
-            }
+            timeStepStrings = activeView->ownerCase()->timeStepStrings();
         }
         else
         {
-            RimGeoMechView * activeGmv = dynamic_cast<RimGeoMechView*>(activeView);
-            if (activeGmv)
+            RimEclipseView * activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+            if ( activeRiv->currentGridCellResults() )
             {
-                if (activeGmv->isTimeStepDependentDataVisible())
-                {
-                    timeStepStrings = activeGmv->geoMechCase()->timeStepStrings();
-                }
+                timeStepStrings.push_back(tr("Static Property"));
             }
         }
 

@@ -72,7 +72,7 @@ public:
     const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
     void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
-    bool                                                isTimeStepDependentDataVisible();
+    bool                                                isTimeStepDependentDataVisible() const override ;
 
     virtual cvf::Transform*                             scaleTransform() override;
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
@@ -92,7 +92,6 @@ protected:
 
 private:
     virtual void                                        createDisplayModel() override;
-    virtual void                                        updateDisplayModelVisibility() override;
     virtual void                                        updateScaleTransform() override;
 
     virtual void                                        clampCurrentTimestep() override;

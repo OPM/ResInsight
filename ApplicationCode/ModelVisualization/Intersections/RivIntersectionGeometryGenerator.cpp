@@ -34,22 +34,27 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
+#include "cvfRay.h"
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// isFlattened means to transform each flat section of the intersection onto the XZ plane
+/// placed adjacent to each other as if they were rotated around the common extrusion line like a hinge 
 //--------------------------------------------------------------------------------------------------
 RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimIntersection* crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                     const cvf::Vec3d& extrusionDirection, 
-                                                                    const RivIntersectionHexGridInterface* grid)
+                                                                    const RivIntersectionHexGridInterface* grid,
+                                                                    bool isFlattened)
                                                                    : m_crossSection(crossSection),
                                                                    m_polyLines(polylines), 
                                                                    m_extrusionDirection(extrusionDirection), 
-                                                                   m_hexGrid(grid)
+                                                                   m_hexGrid(grid),
+                                                                   m_isFlattened(isFlattened)
 {
     m_triangleVxes = new cvf::Vec3fArray;
     m_cellBorderLineVxes = new cvf::Vec3fArray;
+    if (m_isFlattened) m_extrusionDirection = -cvf::Vec3d::Z_AXIS;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +64,41 @@ RivIntersectionGeometryGenerator::~RivIntersectionGeometryGenerator()
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Origo in the intersection of the ray P1-ExtrDir with the XY plane
+/// Ez in upwards extrusionDir
+/// Ey normal tio the section pplane
+/// Ex in plane along p1-p2
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4d calculateSectionLocalFlatteningCS(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& extrusionDir)
+{
+    using namespace cvf;
+
+    Vec3d Ez = extrusionDir.z() > 0.0 ? extrusionDir: -extrusionDir;
+
+    Vec3d sectionLineDir = p2 - p1;
+    sectionLineDir.normalize();
+
+    Vec3d Ey = Ez ^ sectionLineDir;
+    Vec3d Ex = Ey ^ Ez;
+
+    Ray extrusionRay; 
+    extrusionRay.setOrigin(p1);
+
+    if (p1.z() > 0) extrusionRay.setDirection(-Ez);
+    else extrusionRay.setDirection(Ez);
+
+
+    Vec3d tr(Vec3d::ZERO);
+    extrusionRay.planeIntersect(Plane(0.0, 0.0 , 1.0, 0.0), &tr);
+
+    return Mat4d(Ex[0], Ey[0], Ez[0], tr[0],
+                 Ex[1], Ey[1], Ez[1], tr[1],
+                 Ex[2], Ey[2], Ez[2], tr[2],
+                 0.0,   0.0,    0.0, 1.0);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -72,6 +112,9 @@ void RivIntersectionGeometryGenerator::calculateArrays()
     std::vector<cvf::Vec3f> cellBorderLineVxes;
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
+
+    double previousSectionFlattenedEndPosX = 0.0;
+    cvf::Vec3d previousSectionOrigo(cvf::Vec3d::ZERO);
 
     for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
     {
@@ -87,6 +130,11 @@ void RivIntersectionGeometryGenerator::calculateArrays()
         {
             cvf::Vec3d p1 = m_adjustedPolyline[lIdx];
             cvf::Vec3d p2 = m_adjustedPolyline[lIdx+1];
+
+            cvf::Mat4d sectionLocalCS = calculateSectionLocalFlatteningCS(p1, p2, m_extrusionDirection);
+            if (pLineIdx == 0 && lIdx == 0) previousSectionOrigo = sectionLocalCS.translation();
+            previousSectionFlattenedEndPosX += (sectionLocalCS.translation() - previousSectionOrigo).length();
+            previousSectionOrigo = sectionLocalCS.translation();
 
             cvf::BoundingBox sectionBBox;
             sectionBBox.add(p1);
@@ -196,8 +244,12 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                 std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
                 std::vector<bool> isClippedTriEdgeCellContour;
 
-                caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
-                                                      &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+                caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, 
+                                                                                     isTriangleEdgeCellContour, 
+                                                                                     p1Plane, 
+                                                                                     p2Plane,
+                                                                                     &clippedTriangleVxes, 
+                                                                                     &isClippedTriEdgeCellContour);
 
                 size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
 
@@ -206,32 +258,47 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     uint triVxIdx = tIdx*3;
 
                     // Accumulate triangle vertices
+                    cvf::Vec3d p0(clippedTriangleVxes[triVxIdx+0].vx);
+                    cvf::Vec3d p1(clippedTriangleVxes[triVxIdx+1].vx);
+                    cvf::Vec3d p2(clippedTriangleVxes[triVxIdx+2].vx);
 
-                    cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
-                    cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
-                    cvf::Vec3f p2(clippedTriangleVxes[triVxIdx+2].vx - displayOffset);
+                    if (m_isFlattened)
+                    {
+                        cvf::Mat4d invSectionCS = sectionLocalCS.getInverted();
+                        cvf::Vec3d flattenedTranslation(previousSectionFlattenedEndPosX, 0.0,0.0);
 
-                    triangleVertices.push_back(p0);
-                    triangleVertices.push_back(p1);
-                    triangleVertices.push_back(p2);
+                        p0 = p0.getTransformedPoint(invSectionCS) + flattenedTranslation - displayOffset;
+                        p1 = p1.getTransformedPoint(invSectionCS) + flattenedTranslation - displayOffset;
+                        p2 = p2.getTransformedPoint(invSectionCS) + flattenedTranslation - displayOffset;
+                    }
+                    else
+                    {
+                        p0 -= displayOffset;
+                        p1 -= displayOffset;
+                        p2 -= displayOffset;
+                    }
+
+                    triangleVertices.emplace_back(p0);
+                    triangleVertices.emplace_back(p1);
+                    triangleVertices.emplace_back(p2);
 
 
                     // Accumulate mesh lines
 
                     if (isClippedTriEdgeCellContour[triVxIdx])
                     {
-                        cellBorderLineVxes.push_back(p0);
-                        cellBorderLineVxes.push_back(p1);
+                        cellBorderLineVxes.emplace_back(p0);
+                        cellBorderLineVxes.emplace_back(p1);
                     }
                     if (isClippedTriEdgeCellContour[triVxIdx+1])
                     {
-                        cellBorderLineVxes.push_back(p1);
-                        cellBorderLineVxes.push_back(p2);
+                        cellBorderLineVxes.emplace_back(p1);
+                        cellBorderLineVxes.emplace_back(p2);
                     }
                     if (isClippedTriEdgeCellContour[triVxIdx+2])
                     {
-                        cellBorderLineVxes.push_back(p2);
-                        cellBorderLineVxes.push_back(p0);
+                        cellBorderLineVxes.emplace_back(p2);
+                        cellBorderLineVxes.emplace_back(p0);
                     }
 
                     // Mapping to cell index
@@ -266,7 +333,6 @@ void RivIntersectionGeometryGenerator::calculateArrays()
     m_triangleVxes->assign(triangleVertices);
     m_cellBorderLineVxes->assign(cellBorderLineVxes);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region

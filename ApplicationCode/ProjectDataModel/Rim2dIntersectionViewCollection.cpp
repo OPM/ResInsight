@@ -35,7 +35,6 @@ Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
     
     CAF_PDM_InitFieldNoDefault(&m_intersectionViews,  "IntersectionViews", "Intersection Views", ":/CrossSection16x16.png", "", "");
     m_intersectionViews.uiCapability()->setUiTreeHidden(true);
-    //m_intersectionViews.xmlCapability()->setIOWritable(false); // Temporarily until something of value are present.
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -875,40 +875,7 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateDisplayModelVisibility()
 {
-    if (m_viewer.isNull()) return;
-
-    const cvf::uint uintSurfaceBit      = surfaceBit;
-    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
-    const cvf::uint uintFaultBit        = faultBit;
-    const cvf::uint uintMeshFaultBit    = meshFaultBit;
- 
-    // Initialize the mask to show everything except the the bits controlled here
-    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
-
-    // Then turn the appropriate bits on according to the user settings
-
-    if (surfaceMode == SURFACE)
-    {
-         mask |= uintSurfaceBit;
-         mask |= uintFaultBit;
-    }
-    else if (surfaceMode == FAULTS)
-    {
-        mask |= uintFaultBit;
-    }
-
-    if (meshMode == FULL_MESH)
-    {
-        mask |= uintMeshSurfaceBit;
-        mask |= uintMeshFaultBit;
-    }
-    else if (meshMode == FAULTS_MESH)
-    {
-        mask |= uintMeshFaultBit;
-    }
-
-    m_viewer->setEnableMask(mask);
-    m_viewer->update();
+    Rim3dView::updateDisplayModelVisibility();
 
     faultCollection->updateConnectedEditors();
 

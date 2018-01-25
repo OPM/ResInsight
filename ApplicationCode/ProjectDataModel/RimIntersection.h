@@ -33,6 +33,7 @@ class RimWellPath;
 class RivIntersectionPartMgr;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
+class Rim2dIntersectionView;
 
 namespace caf 
 {
@@ -86,6 +87,7 @@ public:
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
+    Rim2dIntersectionView*                               correspondingIntersectionView();
     RivIntersectionPartMgr*                              intersectionPartMgr();
 
     std::vector< std::vector <cvf::Vec3d> >              polyLinesForExtrusionDirection() const;

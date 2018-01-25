@@ -63,9 +63,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection)
+RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection, bool isFlattened)
     : m_rimCrossSection(rimCrossSection),
-    m_defaultColor(cvf::Color3::WHITE)
+    m_defaultColor(cvf::Color3::WHITE),
+    m_isFlattened(isFlattened)
 {
     CVF_ASSERT(m_rimCrossSection);
 
@@ -793,6 +794,14 @@ void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimIntersection* RivIntersectionPartMgr::intersection() const
+{
+    return m_rimCrossSection.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::computeData()
 {
     std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines();
@@ -800,7 +809,7 @@ void RivIntersectionPartMgr::computeData()
     {
         cvf::Vec3d direction = m_rimCrossSection->extrusionDirection();
         cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
-        m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p());
+        m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p(), m_isFlattened);
     }
 }
 

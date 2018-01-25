@@ -22,6 +22,7 @@
 #include "cafPdmPtrField.h"
 
 class RimIntersection;
+class RivIntersectionPartMgr;
 
 namespace cvf
 {
@@ -51,13 +52,13 @@ public:
     virtual RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
     virtual RimViewController* viewController() const override   { return nullptr; }
 
-protected:
+    virtual bool               isTimeStepDependentDataVisible() const override;
 
+protected:
 
     virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
     virtual void               createDisplayModel() override;
     virtual void               createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
-    virtual void               updateDisplayModelVisibility() override;
     virtual void               clampCurrentTimestep() override;
     virtual void               updateCurrentTimeStep() override;
     virtual void               onTimeStepChanged() override;
@@ -72,8 +73,12 @@ protected:
     virtual void               defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
+    bool                       hasResults();
+    int                        timeStepCount();
+
     caf::PdmPtrField<RimIntersection*> m_intersection;
 
+    cvf::ref<RivIntersectionPartMgr>   m_flatIntersectionPartMgr;
     cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
     cvf::ref<cvf::Transform>           m_scaleTransform;
 

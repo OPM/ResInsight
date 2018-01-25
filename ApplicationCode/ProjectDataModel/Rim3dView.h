@@ -66,6 +66,17 @@ namespace caf
 {
     class DisplayCoordTransform;
 }
+
+
+enum PartRenderMaskEnum
+{
+    surfaceBit      = 0x00000001,
+    meshSurfaceBit  = 0x00000002,
+    faultBit        = 0x00000004,
+    meshFaultBit    = 0x00000008,
+};
+
+
 //==================================================================================================
 ///  
 ///  
@@ -118,6 +129,7 @@ public:
     int                                     currentTimeStep() const { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);
     void                                    setCurrentTimeStepAndUpdate(int frameIdx) override;
+    virtual bool                            isTimeStepDependentDataVisible() const = 0;
 
     // Updating 
     void                                    updateCurrentTimeStepAndRedraw() override;
@@ -135,7 +147,8 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
 
 protected:
-    void                                    setDefaultView();
+    virtual void                            setDefaultView();
+    void                                    disableGridBox();
 
     RimWellPathCollection*                  wellPathCollection();
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
@@ -153,7 +166,7 @@ protected:
     virtual void                            createDisplayModel() = 0;
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
     
-    virtual void                            updateDisplayModelVisibility() = 0;
+    virtual void                            updateDisplayModelVisibility();
     virtual void                            clampCurrentTimestep() = 0;
 
     virtual void                            updateCurrentTimeStep() = 0;
@@ -209,6 +222,6 @@ private:
     caf::PdmField<cvf::Mat4d>               m_cameraPosition;
     caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;
     caf::PdmField< cvf::Color3f >           m_backgroundColor;
-    caf::PdmField<bool>                     showGridBox;
+    caf::PdmField<bool>                     m_showGridBox;
 
 };

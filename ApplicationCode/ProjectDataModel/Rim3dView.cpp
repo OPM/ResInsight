@@ -113,7 +113,7 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid Lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid Surface",  "", "", "");
 
-    CAF_PDM_InitField(&showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+    CAF_PDM_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
@@ -234,7 +234,7 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(&name);
     viewGroup->add(&m_backgroundColor);
-    viewGroup->add(&showGridBox);
+    viewGroup->add(&m_showGridBox);
     viewGroup->add(&isPerspectiveView);
     viewGroup->add(&m_disableLighting);
 
@@ -572,7 +572,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
     }
-    else if (changedField == &showGridBox)
+    else if (changedField == &m_showGridBox)
     {
         createHighlightAndGridBoxDisplayModelWithRedraw();
     }
@@ -761,7 +761,48 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
         m_viewer->addStaticModelOnce(m_highlightVizModel.p());
     }
 
-    m_viewer->showGridBox(showGridBox());
+    m_viewer->showGridBox(m_showGridBox());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateDisplayModelVisibility()
+{
+    if (m_viewer.isNull()) return;
+
+    const cvf::uint uintSurfaceBit      = surfaceBit;
+    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
+    const cvf::uint uintFaultBit        = faultBit;
+    const cvf::uint uintMeshFaultBit    = meshFaultBit;
+
+    // Initialize the mask to show everything except the the bits controlled here
+    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
+
+    // Then turn the appropriate bits on according to the user settings
+
+    if (surfaceMode == SURFACE)
+    {
+        mask |= uintSurfaceBit;
+        mask |= uintFaultBit;
+    }
+    else if (surfaceMode == FAULTS)
+    {
+        mask |= uintFaultBit;
+    }
+
+    if (meshMode == FULL_MESH)
+    {
+        mask |= uintMeshSurfaceBit;
+        mask |= uintMeshFaultBit;
+    }
+    else if (meshMode == FAULTS_MESH)
+    {
+        mask |= uintMeshFaultBit;
+    }
+
+    m_viewer->setEnableMask(mask);
+    m_viewer->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -817,6 +858,14 @@ QWidget* Rim3dView::viewWidget()
 void Rim3dView::forceShowWindowOn()
 {
     m_showWindow.setValueWithFieldChanged(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::disableGridBox()
+{
+    m_showGridBox = false;
 }
 
 //--------------------------------------------------------------------------------------------------

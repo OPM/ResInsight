@@ -24,6 +24,7 @@
 #include "cvfColor4.h"
 #include "cvfVector3.h"
 #include "cvfArray.h"
+#include "cafPdmPointer.h"
 
 
 namespace cvf
@@ -55,7 +56,7 @@ class RivIntersectionVertexWeights;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionPartMgr(RimIntersection* rimCrossSection);
+    explicit RivIntersectionPartMgr(RimIntersection* rimCrossSection, bool isFlattened = false);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -64,6 +65,8 @@ public:
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    
+    const RimIntersection* intersection() const;
 
 private:
     void updatePartEffect();
@@ -105,10 +108,10 @@ public:
                                                  const RigFemResultAddress& resVarAddress, 
                                                  const cvf::ScalarMapper* mapper);
 
-    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
+    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
-    RimIntersection*            m_rimCrossSection;
+    caf::PdmPointer<RimIntersection> m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 
@@ -122,5 +125,7 @@ private:
 
     cvf::ref<cvf::Part>         m_highlightLineAlongExtrusionDir;
     cvf::ref<cvf::Part>         m_highlightPointsForExtrusionDir;
+
+    bool                        m_isFlattened;
 };
 

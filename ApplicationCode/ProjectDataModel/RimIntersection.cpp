@@ -47,6 +47,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
+#include "Rim2dIntersectionView.h"
 
 
 namespace caf {
@@ -726,6 +727,24 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    this->objectsWithReferringPtrFields(objects);
+    Rim2dIntersectionView* isectView = nullptr;
+    for (auto obj : objects)
+    {
+        isectView = dynamic_cast<Rim2dIntersectionView*>(obj);
+        if (isectView) break;
+    }
+    return isectView;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 {
     if (m_customExtrusionPoints().size() > 1) m_customExtrusionPoints.v().clear();
@@ -850,6 +869,13 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+
+    Rim2dIntersectionView * iview = correspondingIntersectionView();
+    if (iview)
+    {
+        iview->scheduleGeometryRegen(RivCellSetEnum::ALL_CELLS);
+        iview->scheduleCreateDisplayModelAndRedraw();
     }
 }
 

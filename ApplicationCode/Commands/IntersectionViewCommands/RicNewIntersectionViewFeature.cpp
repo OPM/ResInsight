@@ -42,20 +42,6 @@ bool RicNewIntersectionViewFeature::isCommandEnabled()
     return !objects.empty();
 }
 
-Rim2dIntersectionView* correspondingIntersectionView(RimIntersection* intersection)
-{
-    std::vector<caf::PdmObjectHandle*> objects;
-
-    intersection->objectsWithReferringPtrFields(objects);
-    Rim2dIntersectionView* isectView = nullptr;
-    for (auto obj : objects)
-    {
-        isectView = dynamic_cast<Rim2dIntersectionView*>(obj);
-        if (isectView) break;
-    }
-    return isectView;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +67,7 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
                 QMessageBox::warning(RiuMainWindow::instance(), "New Intersection View", text);
             }
 
-            Rim2dIntersectionView* intersectionView = correspondingIntersectionView(intersection);
+            Rim2dIntersectionView* intersectionView = intersection->correspondingIntersectionView();
             intersectionView->setVisible(true);
             intersectionView->loadDataAndUpdate();
 

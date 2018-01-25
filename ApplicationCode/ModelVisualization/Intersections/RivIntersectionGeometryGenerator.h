@@ -49,7 +49,8 @@ public:
     RivIntersectionGeometryGenerator(RimIntersection* crossSection,
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
-                                     const RivIntersectionHexGridInterface* grid );
+                                     const RivIntersectionHexGridInterface* grid,
+                                     bool isFlattened );
 
     ~RivIntersectionGeometryGenerator();
 
@@ -81,6 +82,7 @@ private:
     cvf::cref<RivIntersectionHexGridInterface>      m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d> >     m_polyLines;
     cvf::Vec3d                  m_extrusionDirection;
+    bool                        m_isFlattened;
 
     // Output arrays
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;

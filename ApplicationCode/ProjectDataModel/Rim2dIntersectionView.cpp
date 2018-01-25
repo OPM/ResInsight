@@ -28,6 +28,12 @@
 #include "cvfModelBasicList.h"
 #include "cvfTransform.h"
 #include "cvfScene.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCellColors.h"
+
+#include <QDateTime>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
@@ -44,6 +50,16 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
+    hasUserRequestedAnimation = true;
+    
+    isPerspectiveView = false;
+    cvf::Mat4d mx( 1, 0, 0, 0,
+                   0, 0, 1, 0,
+                   0, -1, 0, 100, 
+                   0, 0, 0, 1);
+
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(mx );
+    disableGridBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,10 +83,14 @@ void Rim2dIntersectionView::setVisible(bool isVisible)
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::setIntersection(RimIntersection* intersection)
 {
+    CAF_ASSERT(intersection);
+
     m_intersection = intersection;
     Rim3dView * parentView = nullptr;
     intersection->firstAncestorOrThisOfTypeAsserted(parentView);
     name = parentView->name() + ": " + intersection->name();
+
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +116,7 @@ bool Rim2dIntersectionView::isUsingFormationNames() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
+    m_flatIntersectionPartMgr = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,23 +133,64 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
+{
+    if ( m_intersection() )
+    {
+        RimGridView * gridView = nullptr;
+        m_intersection->firstAncestorOrThisOfTypeAsserted(gridView);
+        return gridView->isTimeStepDependentDataVisible();
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                            bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options; 
-    if (fieldNeedingOptions == &m_intersection)
-    {
-        std::vector<RimIntersection*> intersections; 
-         
-        this->ownerCase()->descendantsIncludingThisOfType(intersections);
-
-        for (auto intersection : intersections)
-        {
-            options.push_back(caf::PdmOptionItemInfo(intersection->name(), intersection));
-        }
-    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::hasResults()
+{
+    if (!m_intersection()) return false;
+
+    RimEclipseView * eclView = nullptr;
+    m_intersection->firstAncestorOrThisOfType(eclView);
+    if (eclView)
+    {
+        return (eclView->cellResult()->hasResult() || eclView->cellResult()->isTernarySaturationSelected());
+    }
+
+    RimGeoMechView * geoView = nullptr;
+    m_intersection->firstAncestorOrThisOfType(geoView);
+    if (geoView)
+    {
+        return geoView->cellResult()->hasResult();
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int Rim2dIntersectionView::timeStepCount()
+{
+    if ( isTimeStepDependentDataVisible() )
+    {
+        return static_cast<int>( this->ownerCase()->timeStepDates().size());
+    }
+
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,27 +225,43 @@ void Rim2dIntersectionView::createDisplayModel()
 {
     if (m_viewer.isNull()) return;
     if (!m_intersection()) return;
-    
+
+    updateScaleTransform();
+
+    m_viewer->removeAllFrames();
+
+    int tsCount = this->timeStepCount();
+
+    for (int i = 0; i < tsCount; ++i)
+    {
+        m_viewer->addFrame(new cvf::Scene());
+    }
+
+
+    if ( m_flatIntersectionPartMgr.isNull() || m_intersection() != m_flatIntersectionPartMgr->intersection())
+    {
+        m_flatIntersectionPartMgr = new RivIntersectionPartMgr(m_intersection(), true);
+    }
+
     m_intersectionVizModel->removeAllParts();
     
-    m_intersection()->intersectionPartMgr()->appendNativeCrossSectionFacesToModel(m_intersectionVizModel.p(), scaleTransform());
-    m_intersection()->intersectionPartMgr()->appendMeshLinePartsToModel(m_intersectionVizModel.p(), scaleTransform());
+    m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel(m_intersectionVizModel.p(), scaleTransform());
+    m_flatIntersectionPartMgr->appendMeshLinePartsToModel(m_intersectionVizModel.p(), scaleTransform());
+
+    m_flatIntersectionPartMgr->applySingleColorEffect();
 
     m_viewer->addStaticModelOnce(m_intersectionVizModel.p());
 
+    if ( this->hasUserRequestedAnimation() )
+    {
+        m_viewer->setCurrentFrame(m_currentTimeStep);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::updateDisplayModelVisibility()
 {
 }
 
@@ -199,6 +277,14 @@ void Rim2dIntersectionView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::updateCurrentTimeStep()
 {
+    if ((this->hasUserRequestedAnimation() && this->hasResults()))
+    {
+        m_flatIntersectionPartMgr->updateCellResultColor(m_currentTimeStep);
+    }
+    else
+    {
+        m_flatIntersectionPartMgr->applySingleColorEffect();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,7 +328,10 @@ cvf::Transform* Rim2dIntersectionView::scaleTransform()
 void Rim2dIntersectionView::resetLegendsInViewer()
 {
     m_viewer->showAxisCross(false);
-    m_viewer->showAnimationProgress(false);
+    m_viewer->showAnimationProgress(true);
+    m_viewer->showHistogram(false);
+    m_viewer->showInfoText(false);
+
     m_viewer->setMainScene(new cvf::Scene());
 }
 
