@@ -307,7 +307,7 @@ const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord(cvf:
     size_t cellJ                                = cvf::UNDEFINED_SIZE_T;
     const std::vector<RigFractureCell>& cells   = grid->fractureCells();
 
-    for (int i = 0; i < grid->iCellCount(); i++)
+    for (size_t i = 0; i < grid->iCellCount(); i++)
     {
         const RigFractureCell& cell = cells[i * grid->jCellCount()];
         std::vector<cvf::Vec3d> polygon = cell.getPolygon();
@@ -320,7 +320,7 @@ const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord(cvf:
         }
     }
 
-    for (int j = 0; j < grid->jCellCount(); j++)
+    for (size_t j = 0; j < grid->jCellCount(); j++)
     {
         const RigFractureCell& cell = cells[j];
         std::vector<cvf::Vec3d> polygon = cell.getPolygon();
