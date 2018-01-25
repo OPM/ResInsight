@@ -218,6 +218,11 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 
     if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(m_borderPolygonResultName).arg(m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex]));
     else                    RiaLogging::info(QString("Property for polygon calculation not set."));
+
+    if (!m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty())
+    {
+        m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

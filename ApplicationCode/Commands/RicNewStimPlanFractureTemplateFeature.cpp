@@ -66,6 +66,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->loadDataAndUpdate();
         fractureDef->setDefaultsBasedOnXMLfile();
         fractureDef->setDefaultWellDiameterFromUnit();
+        fractureDef->updateFractureGrid();
 
         fracDefColl->updateConnectedEditors();
 
