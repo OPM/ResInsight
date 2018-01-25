@@ -458,7 +458,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         bool enableSouring = false;
 
 #ifdef ENABLE_SOURING
-        enableSouring = true;
+        RigCaseCellResultsData* cellResultsData = m_eclipseCase->results(this->porosityModel());
+
+        if (cellResultsData->hasFlowDiagUsableFluxes())
+        {
+            enableSouring = true;
+        }
+
 #endif /* ENABLE_SOURING */
 
 
