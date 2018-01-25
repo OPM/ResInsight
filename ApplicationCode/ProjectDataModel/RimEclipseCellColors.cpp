@@ -277,22 +277,6 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 {
     if (this->isFlowDiagOrInjectionFlooding())
     {
-        RimEclipseCase* rimEclipseCase = nullptr;
-        this->firstAncestorOrThisOfType(rimEclipseCase);
-        CVF_ASSERT(rimEclipseCase);
-        if (!rimEclipseCase) return;
-
-        RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
-        CVF_ASSERT(eclipseCase);
-        if (!eclipseCase) return;
-        RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
-        
-        if (!cellResultsData->hasFlowDiagUsableFluxes())
-        {
-            QMessageBox::warning(RiuMainWindow::instance(), "Injection Flooding", "Cannot calculate any injection flooding properties, since no fluxes are available");
-            return;
-        }
-
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;
         RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
