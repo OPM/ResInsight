@@ -426,7 +426,7 @@ void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::updateSummaryPlotToolBar()
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow);
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow.p());
     if (summaryPlot)
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
