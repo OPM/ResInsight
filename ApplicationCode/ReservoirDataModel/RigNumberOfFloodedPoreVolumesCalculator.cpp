@@ -236,7 +236,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
 
         const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep-1];
 
-        if (flowrateNNC->size() > 0)
+        if (flowrateNNC && flowrateNNC->size() > 0)
         {
             distributeNNCflow(connections,
                               caseToApply,

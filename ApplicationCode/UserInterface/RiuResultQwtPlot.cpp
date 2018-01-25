@@ -66,6 +66,11 @@ RiuResultQwtPlot::~RiuResultQwtPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
+    if (dateTimes.empty() || timeHistoryValues.empty())
+    {
+        return;
+    }
+
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
     plotCurve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);

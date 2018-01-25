@@ -45,11 +45,23 @@ namespace Opm
         {
             std::string name;
             bool is_injector_well;
+
+            double qOs;   // Well oil surface volume rate.
+            double qWs;   // Well water surface volume rate.
+            double qGs;   // Well gas surface volume rate.
+            double lrat;  // Well liquid (oil + water) surface volume rate.
+            double bhp;   // Well bottom hole pressure.
+            double qr;    // Well total reservoir volume rate.
+
             struct Completion
             {
-                std::string gridName;          // empty for main grid, otherwise LGR grid.
+                std::string gridName;          // Empty for main grid, otherwise LGR grid.
                 std::array<int, 3> ijk;        // Cartesian location in grid.
-                double reservoir_inflow_rate;  // Total fluid rate in SI (m^3/s).
+                double reservoir_inflow_rate;  // Total reservoir volume fluid rate in SI (m^3/s).
+                double qOs;                    // Completion oil surface volute rate.
+                double qWs;                    // Completion water surface volute rate.
+                double qGs;                    // Completion gas surface volute rate.
+
             };
             std::vector<Completion> completions;
         };
