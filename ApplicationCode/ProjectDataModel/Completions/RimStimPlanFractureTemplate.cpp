@@ -58,7 +58,7 @@ CAF_PDM_SOURCE_INIT(RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
+RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
@@ -84,6 +84,22 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 //--------------------------------------------------------------------------------------------------
 RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimStimPlanFractureTemplate::activeTimeStepIndex()
+{
+    return m_activeTimeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::showStimPlanMesh()
+{
+    return m_showStimPlanMesh;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +243,7 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
     }
 
     // else: Set to first property
-    if (uiResultNamesWithUnit().size() > 0)
+    if (!uiResultNamesWithUnit().empty())
     {
         m_borderPolygonResultName = uiResultNamesWithUnit()[0].first;
         return true;

@@ -49,11 +49,11 @@ class RimStimPlanFractureTemplate : public RimFractureTemplate
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimStimPlanFractureTemplate(void);
-    virtual ~RimStimPlanFractureTemplate(void);
+    RimStimPlanFractureTemplate();
+    virtual ~RimStimPlanFractureTemplate();
     
-    int                                     activeTimeStepIndex() { return m_activeTimeStepIndex; }
-    bool                                    showStimPlanMesh()    { return m_showStimPlanMesh;}
+    int                                     activeTimeStepIndex();
+    bool                                    showStimPlanMesh();
 
     void                                    loadDataAndUpdate(); 
     void                                    setDefaultsBasedOnXMLfile();
@@ -67,12 +67,12 @@ public:
 
     // Fracture geometry
      
-    const RigFractureGrid*                  fractureGrid() const;
+    const RigFractureGrid*                  fractureGrid() const override;
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
                                                                      std::vector<cvf::uint>* triangleIndices, 
                                                                      RiaEclipseUnitTools::UnitSystem  neededUnit) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit);
+    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit) override;
 
     // Result Access
 
@@ -89,7 +89,7 @@ public:
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
@@ -113,5 +113,4 @@ private:
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
-
 };
