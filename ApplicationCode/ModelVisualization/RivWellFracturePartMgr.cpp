@@ -275,7 +275,7 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
 
         // Conductivity
         text.append("Result value: ");
-        text.append(stimPlanColors->resultName() + " ");
+        text.append(stimPlanColors->uiResultName() + " ");
         text.append(condValueText + "\n");
 
         // Cell index
@@ -386,7 +386,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
         { 
             cvf::Color3ub resultColor = cvf::Color3ub(RiaColorTables::undefinedCellColor());
 
-            if (activeView.stimPlanColors->resultName().startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
+            if (activeView.stimPlanColors->uiResultName().startsWith("CONDUCTIVITY", Qt::CaseInsensitive))
             {
                 RimEllipseFractureTemplate* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>(m_rimFracture->fractureTemplate()); 
                 if (ellipseFractureTemplate)
@@ -455,7 +455,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         std::vector<double> perNodeResultValues(nodeCoords.size(), HUGE_VAL);
         {
             size_t idx = 0;
-            const std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView.stimPlanColors->resultName(), activeView.stimPlanColors->unit(), stimPlanFracTemplate->activeTimeStepIndex());
+            const std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView.stimPlanColors->uiResultName(), activeView.stimPlanColors->unit(), stimPlanFracTemplate->activeTimeStepIndex());
             for (const std::vector<double>& unmirroredDataAtDepth : dataToPlot)
             {
                 const std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(unmirroredDataAtDepth);
@@ -583,7 +583,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
 
             scalarMapper = legendConfig->scalarMapper();
 
-            QString resultNameFromColors = activeView.stimPlanColors->resultName();
+            QString resultNameFromColors = activeView.stimPlanColors->uiResultName();
             QString resultUnitFromColors = activeView.stimPlanColors->unit();
 
             std::vector<double> prCellResults = stimPlanFracTemplate->fractureGridResults(resultNameFromColors,
@@ -897,7 +897,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
-    QString resultNameFromColors = activeView.stimPlanColors->resultName();
+    QString resultNameFromColors = activeView.stimPlanColors->uiResultName();
     QString resultUnitFromColors = activeView.stimPlanColors->unit();
 
     std::vector<double> prCellResults = stimPlanFracTemplate->fractureGridResults(resultNameFromColors,

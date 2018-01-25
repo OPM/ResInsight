@@ -49,7 +49,7 @@ public:
     virtual ~RimStimPlanColors();
 
     RimLegendConfig*    activeLegend() const;
-    QString             resultName() const;
+    QString             uiResultName() const;
     void                setDefaultResultNameForStimPlan();
     QString             unit() const;
     cvf::Color3f        defaultColor() const;

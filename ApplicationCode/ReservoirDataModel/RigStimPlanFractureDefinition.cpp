@@ -147,7 +147,8 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataA
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(int m_activeTimeStepIndex, 
+cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultName,
+                                                                            int m_activeTimeStepIndex, 
                                                                             RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit, 
                                                                             double m_wellPathDepthAtFracture)
 {
@@ -159,7 +160,7 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(int 
     QString condUnit;
     if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC ) condUnit = "md-m";
     if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )  condUnit = "md-ft";
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getMirroredDataAtTimeIndex(this->conductivityResultName(), 
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultName, 
                                                                                                      condUnit, 
                                                                                                      m_activeTimeStepIndex);
 
@@ -629,5 +630,23 @@ QString RigStimPlanFractureDefinition::conductivityResultName() const
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RigStimPlanFractureDefinition::conductivityResultNames() const
+{
+    QStringList resultNames;
+
+    for (const auto& stimPlanResult : m_stimPlanResults)
+    {
+        if (stimPlanResult.resultName.contains("conductivity", Qt::CaseInsensitive))
+        {
+            resultNames.push_back(stimPlanResult.resultName);
+        }
+    }
+
+    return resultNames;
 }
 

@@ -77,12 +77,12 @@ public:
     // Result Access
 
     std::vector<double>                     timeSteps();
-    std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
-    std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+    std::vector<std::pair<QString, QString> > uiResultNamesWithUnit() const;
+    std::vector<std::vector<double>>        resultValues(const QString& uiResultName, const QString& unitName, size_t timeStepIndex) const;
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
 
-    virtual void appendDataToResultStatistics(const QString& resultName, const QString& unit,
+    virtual void appendDataToResultStatistics(const QString& uiResultName, const QString& unit,
                                                MinMaxAccumulator& minMaxAccumulator,
                                                PosNegAccumulator& posNegAccumulator) const override;
 
@@ -99,7 +99,11 @@ private:
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
+    QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
+
+private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
+    caf::PdmField<QString>                  m_conductivityResultNameOnFile;
     caf::PdmField<bool>                     m_showStimPlanMesh;
 
     caf::PdmField<double>                   m_wellPathDepthAtFracture;

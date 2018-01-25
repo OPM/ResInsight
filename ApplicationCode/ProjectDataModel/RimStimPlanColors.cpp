@@ -199,7 +199,7 @@ RimLegendConfig* RimStimPlanColors::activeLegend() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanColors::resultName() const
+QString RimStimPlanColors::uiResultName() const
 {
     return RimStimPlanColors::toResultName(m_resultNameAndUnit());
 }
@@ -243,7 +243,7 @@ void RimStimPlanColors::updateLegendData()
 
         RimFractureTemplateCollection* fracTemplateColl = fractureTemplateCollection();
 
-        fracTemplateColl->computeMinMax(resultName(), unit(), &minValue, &maxValue, &posClosestToZero, &negClosestToZero);
+        fracTemplateColl->computeMinMax(uiResultName(), unit(), &minValue, &maxValue, &posClosestToZero, &negClosestToZero);
 
         if (minValue != HUGE_VAL)
         {

@@ -22,5 +22,5 @@
 
 namespace RiaDefines
 {
-static QString conductivityResultName();
+QString conductivityResultName();
 };

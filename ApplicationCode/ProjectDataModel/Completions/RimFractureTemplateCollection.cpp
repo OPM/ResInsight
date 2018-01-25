@@ -65,7 +65,7 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPla
         auto stimPlanFracture = dynamic_cast<const RimStimPlanFractureTemplate*>(f);
         if (stimPlanFracture)
         {
-            std::vector<std::pair<QString, QString> > namesAndUnits = stimPlanFracture->resultNamesWithUnit();
+            std::vector<std::pair<QString, QString> > namesAndUnits = stimPlanFracture->uiResultNamesWithUnit();
 
             for (auto nameAndUnit : namesAndUnits)
             {
@@ -82,7 +82,7 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPla
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue,
+void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName, const QString& unit, double* minValue,
                                                   double* maxValue, double* posClosestToZero, double* negClosestToZero) const
 {
     MinMaxAccumulator minMaxAccumulator;
@@ -92,7 +92,7 @@ void RimFractureTemplateCollection::computeMinMax(const QString& resultName, con
     {
         if (f)
         {
-            f->appendDataToResultStatistics(resultName, unit, minMaxAccumulator, posNegAccumulator);
+            f->appendDataToResultStatistics(uiResultName, unit, minMaxAccumulator, posNegAccumulator);
         }
     }
 

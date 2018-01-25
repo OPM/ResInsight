@@ -69,12 +69,9 @@ public:
 
     std::vector<double>                       getNegAndPosXcoords() const;
     std::vector<double>                       adjustedDepthCoordsAroundWellPathPosition(double wellPathDepthAtFracture) const;
-    std::vector<std::vector<double>>          getMirroredDataAtTimeIndex(const QString& resultName,
-                                                                         const QString& unitName,
-                                                                         size_t timeStepIndex) const;
                                               
-                                              
-    cvf::ref<RigFractureGrid>                 createFractureGrid(int m_activeTimeStepIndex,
+    cvf::ref<RigFractureGrid>                 createFractureGrid(const QString& resultName,
+                                                                 int m_activeTimeStepIndex,
                                                                  RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
                                                                  double m_wellPathDepthAtFracture);
                                               
@@ -110,15 +107,23 @@ public:
                                                                           PosNegAccumulator& posNegAccumulator) const;
 
     QString                                   conductivityResultName() const;
+    QStringList                               conductivityResultNames() const;
     
     // Setup                          
     void                                      reorderYgridToDepths();
+
 private:                                      
     bool                                      timeStepExisist(double timeStepValue);
     size_t                                    getTimeStepIndex(double timeStepValue);
     size_t                                    resultIndex(const QString& resultName, const QString& unit) const;
     size_t                                    mirroredGridXCount() const { return m_gridXs.size() ? m_gridXs.size() + m_gridXs.size() - 1  : 0 ;}
 
+    std::vector<std::vector<double>>          getMirroredDataAtTimeIndex(const QString& resultName,
+                                                                        const QString& unitName,
+                                                                        size_t timeStepIndex) const;
+                                              
+
+private:
     RiaEclipseUnitTools::UnitSystem           m_unitSet;
     std::vector<double>                       m_gridXs;
     std::vector<double>                       m_gridYs;
