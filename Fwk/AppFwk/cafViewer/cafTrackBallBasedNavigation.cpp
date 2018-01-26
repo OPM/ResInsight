@@ -190,7 +190,7 @@ cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int
     cvf::Camera* cam = m_viewer->mainCamera();
     ray = cam->rayFromWindowCoordinates(cvfXPos, cvfYPos);
 
-    if (cam->projection() == cvf::Camera::ORTHO)
+    if (ray.notNull() && cam->projection() == cvf::Camera::ORTHO)
     {
         cvf::Vec3d camDir = cam->direction();
         cvf::Plane focusPlane;
