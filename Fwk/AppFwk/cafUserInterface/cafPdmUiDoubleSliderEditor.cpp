@@ -37,19 +37,12 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmField.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiObjectHandle.h"
 
-#include "cafFactory.h"
-
-#include <QLineEdit>
-#include <QLabel>
 #include <QHBoxLayout>
 #include <QDoubleValidator>
-
-#include <QDebug>
 
 
 //--------------------------------------------------------------------------------------------------
