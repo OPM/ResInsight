@@ -1202,6 +1202,7 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
     m_formationCase.uiCapability()->setUiReadOnly(readOnly);
     m_formationWellPathForSourceCase.uiCapability()->setUiReadOnly(readOnly);
     m_formationWellPathForSourceWellPath.uiCapability()->setUiReadOnly(readOnly);
+    m_formationBranchDetection.uiCapability()->setUiReadOnly(readOnly);
     m_formationBranchIndex.uiCapability()->setUiReadOnly(readOnly);
     m_formationLevel.uiCapability()->setUiReadOnly(readOnly);
     m_showformationFluids.uiCapability()->setUiReadOnly(readOnly);
