@@ -204,12 +204,12 @@ QString Rim3dOverlayInfoConfig::caseInfoText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, bool showVolumeWeightedMean)
+QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
 
-    if (eclipseView) return resultInfoText(histData, eclipseView, showVolumeWeightedMean);
+    if (eclipseView) return resultInfoText(histData, eclipseView, showVolumeWeightedMean());
     if (geoMechView) return resultInfoText(histData, geoMechView);
     return "";
 }
@@ -764,7 +764,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
     if (showResultInfo())
     {
-        infoText += resultInfoText(histData, showVolumeWeightedMean());
+        infoText += resultInfoText(histData);
     }
 
     if (!infoText.isEmpty())
