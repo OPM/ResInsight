@@ -19,6 +19,7 @@ add_executable (${PROJECT_NAME}
 
 	cafPdmXmlBasicTest.cpp
 	cafPdmAdvancedTemplateTest.cpp
+	cafPdmXmlNumberTest.cpp
 )
 message(STATUS ${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
