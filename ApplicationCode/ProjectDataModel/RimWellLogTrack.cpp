@@ -152,6 +152,8 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_formationLevel, "FormationLevel", "Well Pick Filter", "", "", "");
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
+
+    m_formationsForCaseWithSimWellOnly = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -807,21 +809,33 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     
     formationGroup->add(&m_showFormations);
 
-    formationGroup->add(&m_formationSource);
+    if (!m_formationsForCaseWithSimWellOnly)
+    {
+        formationGroup->add(&m_formationSource);
+    }
+    else
+    {
+        m_formationSource = CASE;
+    }
 
     if (m_formationSource() == CASE)
     {
         formationGroup->add(&m_formationCase);
 
-        formationGroup->add(&m_formationTrajectoryType);
-        if (m_formationTrajectoryType() == WELL_PATH)
+        if (!m_formationsForCaseWithSimWellOnly)
         {
-            formationGroup->add(&m_formationWellPathForSourceCase);
+            formationGroup->add(&m_formationTrajectoryType);
+
+            if (m_formationTrajectoryType() == WELL_PATH)
+            {
+                formationGroup->add(&m_formationWellPathForSourceCase);
+            }
         }
-        else
+
+        if (m_formationsForCaseWithSimWellOnly || m_formationTrajectoryType() == SIMULATION_WELL)
         {
             formationGroup->add(&m_formationSimWellName);
-            
+
             RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(formationGroup,
                                                                                       m_formationSimWellName,
                                                                                       m_formationBranchDetection,
@@ -994,6 +1008,14 @@ void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
     gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly)
+{
+    m_formationsForCaseWithSimWellOnly = caseWithSimWellOnly;
 }
 
 //--------------------------------------------------------------------------------------------------

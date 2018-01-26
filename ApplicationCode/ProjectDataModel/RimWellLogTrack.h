@@ -119,6 +119,8 @@ public:
     void uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrdering);
     void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
 
+    void setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly);
+
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
@@ -177,6 +179,8 @@ private:
     caf::PdmField<bool>                                                m_showformationFluids;
 
     caf::PdmField<bool> m_formationBranchDetection;
+
+    bool m_formationsForCaseWithSimWellOnly;
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
     

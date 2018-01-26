@@ -227,7 +227,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         return options;
     }
 
-    std::set<QString> identifierTexts;
+    std::vector<QString> identifierTexts;
 
     RifSummaryReaderInterface* reader = firstSummaryReaderForVisibleCurves();
     if (reader)
@@ -265,7 +265,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
             quantityAnalyzer.appendAdresses(subset);
             for (const auto& quantity : quantityAnalyzer.quantities())
             {
-                identifierTexts.insert(QString::fromStdString(quantity));
+                identifierTexts.push_back(QString::fromStdString(quantity));
             }
         }
     }

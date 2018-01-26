@@ -97,29 +97,29 @@ std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const
+std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const
 {
-    std::set<QString> stringSet;
+    std::vector<QString> stringSet;
 
     if (category == RifEclipseSummaryAddress::SUMMARY_REGION)
     {
         for (const auto& regionNumber : m_regionNumbers)
         {
-            stringSet.insert(QString::number(regionNumber));
+            stringSet.push_back(QString::number(regionNumber));
         }
     }
     else if (category == RifEclipseSummaryAddress::SUMMARY_WELL)
     {
         for (const auto& wellName : m_wellNames)
         {
-            stringSet.insert(QString::fromStdString(wellName));
+            stringSet.push_back(QString::fromStdString(wellName));
         }
     }
     else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
     {
         for (const auto& wellGroupName : m_wellGroupNames)
         {
-            stringSet.insert(QString::fromStdString(wellGroupName));
+            stringSet.push_back(QString::fromStdString(wellGroupName));
         }
     }
 
