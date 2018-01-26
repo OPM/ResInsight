@@ -30,6 +30,9 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include "RiuViewer.h"
+#include "cvfCamera.h"
+
 CAF_CMD_SOURCE_INIT(RicNewIntersectionViewFeature, "RicNewIntersectionViewFeature");
 
 //--------------------------------------------------------------------------------------------------
@@ -61,8 +64,8 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
         {
             if (intersection->direction() != RimIntersection::CS_VERTICAL)
             {
-                QString text = QString("Intersection '%1' is not a vertical intersection. The intersection view supports"
-                                       "only vertical intersections.").arg(intersection->name());
+                QString text = QString("The intersection view only supports vertical intersections.\n" 
+                                       "The intersection '%1' is not vertical but a converted version will be shown in the view .").arg(intersection->name());
 
                 QMessageBox::warning(RiuMainWindow::instance(), "New Intersection View", text);
             }
@@ -79,7 +82,7 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
 
     if (objectToSelect)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
+        //RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
     }
 }
 
