@@ -676,8 +676,10 @@ void caf::Viewer::zoomAll()
 
     cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition(bb, vrp-eye, up, 0.9, m_cameraFieldOfViewYDeg, m_mainCamera->viewport()->aspectRatio());
     m_mainCamera->setFromLookAt(newEye, bb.center(), up);
-
+    
     updateParallelProjectionHeightFromMoveZoom(bb.center());
+
+    if (m_navigationPolicy.notNull()) m_navigationPolicy->setPointOfInterest(bb.center());
 
     navigationPolicyUpdate();
 }
