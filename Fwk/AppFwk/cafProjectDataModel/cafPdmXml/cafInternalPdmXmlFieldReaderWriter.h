@@ -30,6 +30,11 @@ struct PdmFieldWriter
     {
         QString dataString; 
         QTextStream data(&dataString, QIODevice::WriteOnly); 
+
+        // Use precision of 15 to cover most value ranges for double values
+        // Default Qt behavior is precision of 6
+        data.setRealNumberPrecision(15);
+
         data << fieldValue; 
         xmlStream.writeCharacters(dataString);
     }
