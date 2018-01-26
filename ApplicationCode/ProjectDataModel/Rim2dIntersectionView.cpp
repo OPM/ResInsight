@@ -37,6 +37,11 @@
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
+const cvf::Mat4d defaultIntersectinoViewMatrix(1, 0, 0, 0,
+                                               0, 0, 1, 0,
+                                               0, -1, 0, 1000,
+                                               0, 0, 0, 1);
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +58,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     hasUserRequestedAnimation = true;
     
     isPerspectiveView = false;
-    cvf::Mat4d mx( 1, 0, 0, 0,
-                   0, 0, 1, 0,
-                   0, -1, 0, 100, 
-                   0, 0, 0, 1);
-
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(mx );
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultIntersectinoViewMatrix );
     disableGridBox();
 }
 
@@ -251,10 +251,17 @@ void Rim2dIntersectionView::createDisplayModel()
     m_flatIntersectionPartMgr->applySingleColorEffect();
 
     m_viewer->addStaticModelOnce(m_intersectionVizModel.p());
+    
+    m_intersectionVizModel->updateBoundingBoxesRecursive();
 
     if ( this->hasUserRequestedAnimation() )
     {
         m_viewer->setCurrentFrame(m_currentTimeStep);
+    }
+
+    if ( this->viewer()->mainCamera()->viewMatrix() == defaultIntersectinoViewMatrix )
+    {
+        this->zoomAll();
     }
 }
 
