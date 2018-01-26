@@ -92,8 +92,8 @@ protected slots:
     void                slotSliderValueChanged(int value);
 
 private:
-    void                updateSliderPosition();
-    void                writeValueToField();
+    void                updateSliderPosition(double value);
+    void                writeValueToField(double value);
 
     int                 convertToSliderValue(double value);
     double              convertFromSliderValue(int sliderValue);
