@@ -79,7 +79,7 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
-: caf::Viewer(format, parent)
+: caf::Viewer(format, parent), m_isNavigationRotationEnabled(true)
 {
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
@@ -592,6 +592,17 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::enableNavigationRotation(bool enable)
+{
+    auto tbNavPol = dynamic_cast<caf::TrackBallBasedNavigation*>(m_navigationPolicy.p());
+    m_isNavigationRotationEnabled = enable;
+
+    if (tbNavPol) tbNavPol->enableRotation(m_isNavigationRotationEnabled);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateNavigationPolicy()
 {
     switch (RiaApplication::instance()->navigationPolicy())
@@ -616,6 +627,8 @@ void RiuViewer::updateNavigationPolicy()
             CVF_ASSERT(0);
             break;
     }
+
+    enableNavigationRotation(m_isNavigationRotationEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------

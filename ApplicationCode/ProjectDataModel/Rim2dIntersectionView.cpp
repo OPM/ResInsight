@@ -340,6 +340,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showInfoText(false);
 
     m_viewer->setMainScene(new cvf::Scene());
+    m_viewer->enableNavigationRotation(false);
 }
 
 //--------------------------------------------------------------------------------------------------

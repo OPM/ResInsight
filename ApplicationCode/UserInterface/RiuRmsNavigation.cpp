@@ -59,7 +59,7 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
-            if (me->button() == Qt::MidButton)
+            if (me->button() == Qt::MidButton && isRotationEnabled())
             {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick(me->x(), me->y(), &hic);

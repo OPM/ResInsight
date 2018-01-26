@@ -59,7 +59,7 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
-            if (me->button() == Qt::LeftButton)
+            if (me->button() == Qt::LeftButton && isRotationEnabled())
             {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick(me->x(), me->y(), &hic);

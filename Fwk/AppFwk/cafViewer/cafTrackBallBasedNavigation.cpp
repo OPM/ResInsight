@@ -78,6 +78,7 @@ void caf::TrackBallBasedNavigation::init()
     m_trackball = new cvf::ManipulatorTrackball;
     m_trackball->setCamera(m_viewer->mainCamera());
     m_isRotCenterInitialized = false;
+    m_isRotationEnabled = true;
     m_hasMovedMouseDuringNavigation = false;
     m_isNavigating = false;
     m_isZooming = false;

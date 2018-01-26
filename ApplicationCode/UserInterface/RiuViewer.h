@@ -91,6 +91,7 @@ public:
     void            removeAllColorLegends();
     void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
 
+    void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();
 
     virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
@@ -156,5 +157,6 @@ private:
     RivGridBoxGenerator*        m_gridBoxGenerator;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
+    bool                        m_isNavigationRotationEnabled;
 };
 
