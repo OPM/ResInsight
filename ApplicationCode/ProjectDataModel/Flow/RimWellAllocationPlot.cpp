@@ -253,6 +253,7 @@ void RimWellAllocationPlot::updateFromWell()
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
         plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
+        plotTrack->setFormationsForCaseWithSimWellOnly(true);
         plotTrack->setFormationBranchIndex((int)brIdx);
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
