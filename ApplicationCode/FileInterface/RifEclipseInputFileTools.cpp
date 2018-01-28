@@ -342,7 +342,17 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
 
                 filepos = data.pos() - lineLength;
                 keyPos.filePos = filepos;
-                keyPos.keyword = line.trimmed();
+
+                QString keywordCandidate = line;
+                int commentStart = keywordCandidate.indexOf("--");
+                if (commentStart > 0)
+                {
+                    keywordCandidate = keywordCandidate.left(commentStart);
+                }
+
+                keywordCandidate = keywordCandidate.trimmed();
+
+                keyPos.keyword = keywordCandidate;
                 keywords->push_back(keyPos);
                 //qDebug() << keyPos.keyword << " - " << keyPos.filePos;
             }
