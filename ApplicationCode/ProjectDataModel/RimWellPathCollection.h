@@ -93,7 +93,7 @@ public:
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
 
-    RimWellPath*                        newestAddedWellPath();
+    RimWellPath*                        mostRecentlyUpdatedWellPath();
 
     void                                readWellPathFormationFiles();
     void                                reloadAllWellPathFormations();
@@ -136,5 +136,5 @@ private:
 
     RifWellPathImporter*                m_wellPathImporter;
     RifWellPathFormationsImporter*      m_wellPathFormationsImporter;
-    caf::PdmPointer<RimWellPath>        m_newestAddedWellPath;
+    caf::PdmPointer<RimWellPath>        m_mostRecentlyUpdatedWellPath;
 };
