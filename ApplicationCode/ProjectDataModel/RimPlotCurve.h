@@ -92,7 +92,7 @@ public:
 
     QString                         curveName() const { return m_curveName; }
 
-    void                            updateCurveVisibility(bool updateParent);
+    void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();
     void                            updateLegendEntryVisibilityNoPlotUpdate();
 
