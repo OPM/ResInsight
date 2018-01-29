@@ -482,8 +482,6 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
     CVF_ASSERT(!completions.empty());
     QString wellName = completions[0].wellName();
     IJKCellIndex cellIndexIJK = completions[0].cellIndex();
-    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
-    size_t cellIndex = grid->cellIndexFromIJK(cellIndexIJK.i, cellIndexIJK.j, cellIndexIJK.k);
     RigCompletionData::CompletionType completionType = completions[0].completionType();
 
     //completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore, 
@@ -515,7 +513,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 
         if (completion.completionType() != completions[0].completionType())
         {
-            QString errorMessage = QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            QString errorMessage = QString("Cannot combine completions of different types in same cell %1").arg(cellIndexIJK.oneBasedLocalCellIndexString());
             RiaLogging::error(errorMessage);
             resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
@@ -523,7 +521,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 
         if (completion.wellName() != completions[0].wellName())
         {
-            QString errorMessage = QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            QString errorMessage = QString("Cannot combine completions of different types in same cell %1").arg(cellIndexIJK.oneBasedLocalCellIndexString());
             RiaLogging::error(errorMessage);
             resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
@@ -531,7 +529,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
         
         if (completion.transmissibility() == HUGE_VAL)
         {
-            QString errorMessage = QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            QString errorMessage = QString("Transmissibility calculation has failed for cell %1").arg(cellIndexIJK.oneBasedLocalCellIndexString());
             RiaLogging::error(errorMessage);
             resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
@@ -556,7 +554,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
         double transmissibilityEclipseCalculation = RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(settings.caseToApply(),
                                                                                                                                    skinfactor,
                                                                                                                                    wellBoreDiameter / 2,
-                                                                                                                                   cellIndex,
+                                                                                                                                   cellIndexIJK.globalCellIndex(),
                                                                                                                                    cellDirection);
 
         double wpimult = totalTrans / transmissibilityEclipseCalculation;
@@ -692,7 +690,7 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
             formatter.comment(QString("%1 : %2").arg(metadata.name).arg(metadata.comment));
         }
         formatter.add(data.wellName());
-        formatter.addZeroBasedCellIndex(data.cellIndex().i).addZeroBasedCellIndex(data.cellIndex().j).addZeroBasedCellIndex(data.cellIndex().k).addZeroBasedCellIndex(data.cellIndex().k);
+        formatter.addZeroBasedCellIndex(data.cellIndex().localCellIndexI()).addZeroBasedCellIndex(data.cellIndex().localCellIndexJ()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK());
         switch (data.connectionState())
         {
         case OPEN:
@@ -765,7 +763,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
         formatter.add(completion.wellName());
         formatter.add(completion.wpimult());
-        formatter.addZeroBasedCellIndex(completion.cellIndex().i).addZeroBasedCellIndex(completion.cellIndex().j).addZeroBasedCellIndex(completion.cellIndex().k);
+        formatter.addZeroBasedCellIndex(completion.cellIndex().localCellIndexI()).addZeroBasedCellIndex(completion.cellIndex().localCellIndexJ()).addZeroBasedCellIndex(completion.cellIndex().localCellIndexK());
         formatter.rowCompleted();
     }
 
@@ -781,7 +779,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 
     std::vector<RigCompletionData> completionData;
     const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-
 
     if (wellPath->perforationIntervalCollection()->isChecked())
     {
@@ -800,9 +797,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                 bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
                 if (!cellIsActive) continue;
 
-                size_t i, j, k;
-                settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.globCellIndex, &i, &j, &k);
-                RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
+                RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(cell.globCellIndex, settings.caseToApply));
                 CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
 
                 double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,

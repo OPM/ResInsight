@@ -22,6 +22,8 @@
 
 #include <vector>
 
+class RimEclipseCase;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -47,30 +49,44 @@ enum CellDirection {
 class IJKCellIndex {
 public:
     IJKCellIndex() {};
-    IJKCellIndex(size_t i, size_t j, size_t k) : i(i), j(j), k(k) {};
+
+    IJKCellIndex(size_t globalCellIndex, const RimEclipseCase* eclipseCase);
+
     IJKCellIndex(const IJKCellIndex& other)
     {
-        i = other.i;
-        j = other.j;
-        k = other.k;
+        m_localCellIndexI = other.m_localCellIndexI;
+        m_localCellIndexJ = other.m_localCellIndexJ;
+        m_localCellIndexK = other.m_localCellIndexK;
     }
 
     bool operator==(const IJKCellIndex& other) const
     {
-        return i == other.i && j == other.j && k == other.k;
+        return m_localCellIndexI == other.m_localCellIndexI && m_localCellIndexJ == other.m_localCellIndexJ && m_localCellIndexK == other.m_localCellIndexK;
     }
 
     bool operator<(const IJKCellIndex& other) const
     {
-        if (i != other.i) return i < other.i;
-        if (j != other.j) return j < other.j;
-        if (k != other.k) return k < other.k;
+        if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
+        if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
+        if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
         return false;
     }
 
-    size_t i;
-    size_t j;
-    size_t k;
+    size_t globalCellIndex() const;
+
+    size_t localCellIndexI() const;
+    size_t localCellIndexJ() const;
+    size_t localCellIndexK() const;
+
+    QString oneBasedLocalCellIndexString() const;
+
+private:
+    size_t m_globalCellIndex;
+    QString m_lgrName;
+
+    size_t m_localCellIndexI;
+    size_t m_localCellIndexJ;
+    size_t m_localCellIndexK;
 };
 
 //==================================================================================================

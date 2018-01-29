@@ -18,6 +18,10 @@
 
 #include "RigCompletionData.h"
 
+#include "RimEclipseCase.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+
 #include "RiaLogging.h"
 
 #include "cvfAssert.h"
@@ -79,7 +83,7 @@ RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData
     {
         if (it->completionType() != result.completionType())
         {
-            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.i).arg(result.m_cellIndex.j).arg(result.m_cellIndex.k));
+            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.localCellIndexI()).arg(result.m_cellIndex.localCellIndexJ()).arg(result.m_cellIndex.localCellIndexK()));
             continue;
         }
         if (onlyOneIsDefaulted(result.m_transmissibility, it->m_transmissibility))
@@ -389,4 +393,77 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_count = from.m_count;
     target.m_wpimult = from.m_wpimult;
     target.m_completionType = from.m_completionType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+IJKCellIndex::IJKCellIndex(size_t globalCellIndex, const RimEclipseCase* eclipseCase) : m_globalCellIndex(globalCellIndex)
+{
+    if (eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid())
+    {
+        const RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+        const RigCell&     cell = mainGrid->globalCellArray()[globalCellIndex];
+        RigGridBase*       grid = cell.hostGrid();
+        if (grid)
+        {
+            size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+
+            size_t i = 0;
+            size_t j = 0;
+            size_t k = 0;
+            grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+
+            m_localCellIndexI = i;
+            m_localCellIndexJ = j;
+            m_localCellIndexK = k;
+
+            if (grid != mainGrid)
+            {
+                m_lgrName = QString::fromStdString(grid->gridName());
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t IJKCellIndex::globalCellIndex() const
+{
+    return m_globalCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t IJKCellIndex::localCellIndexI() const
+{
+    return m_localCellIndexI;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t IJKCellIndex::localCellIndexJ() const
+{
+    return m_localCellIndexJ;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t IJKCellIndex::localCellIndexK() const
+{
+    return m_localCellIndexK;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString IJKCellIndex::oneBasedLocalCellIndexString() const
+{
+    QString text = QString("[%1, %2, %3]").arg(m_localCellIndexI + 1).arg(m_localCellIndexJ + 1).arg(m_localCellIndexK + 1);
+
+    return text;
 }

@@ -87,17 +87,14 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
     std::vector<RigCompletionData> completionData;
 
-    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
     for (const auto& cellAndWellBoreParts : wellBorePartsInCells)
     {
-        size_t cellIndex = cellAndWellBoreParts.first;
+        size_t globalCellIndex = cellAndWellBoreParts.first;
         const std::vector<WellBorePartForTransCalc>& wellBoreParts = cellAndWellBoreParts.second;
-        size_t i, j, k;
-        grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
-        bool cellIsActive = activeCellInfo->isActive(cellIndex);
+        bool cellIsActive = activeCellInfo->isActive(globalCellIndex);
         if (!cellIsActive) continue;
 
         // Find main bore and number of laterals
@@ -113,14 +110,14 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             else
             {
                 mainBoreDirection = RicWellPathExportCompletionDataFeature::calculateDirectionInCell(settings.caseToApply,
-                                                                                                     cellIndex,
+                                                                                                     globalCellIndex,
                                                                                                      wellBorePart.lengthsInCell);
             }
         }
         
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
-            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(globalCellIndex, settings.caseToApply));
 
             double transmissibility = 0.0;
             if (wellBorePart.isMainBore)
@@ -131,7 +128,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                                                             wellBorePart.lengthsInCell,
                                                                                                             wellBorePart.skinFactor,
                                                                                                             wellBorePart.wellRadius,
-                                                                                                            cellIndex,
+                                                                                                            globalCellIndex,
                                                                                                             settings.useLateralNTG);
 
             }
@@ -143,7 +140,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                                                      wellBorePart.lengthsInCell,
                                                                                                      wellBorePart.skinFactor,
                                                                                                      wellBorePart.wellRadius,
-                                                                                                     cellIndex,
+                                                                                                     globalCellIndex,
                                                                                                      settings.useLateralNTG,
                                                                                                      numberOfLaterals,
                                                                                                      mainBoreDirection);
@@ -151,7 +148,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             }
 
             CellDirection direction = RicWellPathExportCompletionDataFeature::calculateDirectionInCell(settings.caseToApply, 
-                                                                                                       cellIndex, 
+                                                                                                       globalCellIndex, 
                                                                                                        wellBorePart.lengthsInCell);
 
             completion.setTransAndWPImultBackgroundDataFromFishbone(transmissibility,  
