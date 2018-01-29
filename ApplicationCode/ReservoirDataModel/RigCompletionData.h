@@ -105,46 +105,46 @@ public:
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
 
-    void                                 setFromFracture(double transmissibility, double skinFactor);
-   
-    void setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
-                                                      double skinFactor, 
-                                                      double diameter, 
-                                                      CellDirection direction,
-                                                      bool isMainBore);
+    void        setFromFracture(double transmissibility, double skinFactor);
+    
+    void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
+                                                             double skinFactor, 
+                                                             double diameter,
+                                                             CellDirection direction, 
+                                                             bool isMainBore);
 
-    void setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
-                                                         double skinFactor, 
-                                                         double diameter, 
-                                                         CellDirection direction);
+    void        setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
+                                                                double skinFactor, 
+                                                                double diameter,
+                                                                CellDirection direction);
 
-    void                                 setCombinedValuesExplicitTrans(double transmissibility,
-                                                                        CompletionType completionType);
-    void                                 setCombinedValuesImplicitTransWPImult(double wpimult, 
-                                                                               CellDirection celldirection, 
-                                                                               double skinFactor, 
-                                                                               double wellDiameter, 
-                                                                               CompletionType completionType);
+    void        setCombinedValuesExplicitTrans(double transmissibility, CompletionType completionType);
+    
+    void        setCombinedValuesImplicitTransWPImult(double wpimult, 
+                                                      CellDirection celldirection, 
+                                                      double skinFactor,
+                                                      double wellDiameter, 
+                                                      CompletionType completionType);
 
-    void                                 addMetadata(const QString& name, const QString& comment);
-    static bool                          isDefaultValue(double val);
+    void        addMetadata(const QString& name, const QString& comment);
+    static bool isDefaultValue(double val);
 
-    const std::vector<RigCompletionMetaData>& metadata() const { return m_metadata; }
-    const QString&                            wellName() const { return m_wellName; }
-    const IJKCellIndex&                       cellIndex() const { return m_cellIndex; }
-    WellConnectionState                       connectionState() const { return m_connectionState; }
-    double                                    saturation() const { return m_saturation; }
-    double                                    transmissibility() const { return m_transmissibility; }
-    double                                    diameter() const { return m_diameter; } //TODO: should be ft or m
-    double                                    kh() const { return m_kh; }
-    double                                    skinFactor() const { return m_skinFactor; }
-    double                                    dFactor() const { return m_dFactor; }
-    CellDirection                             direction() const { return m_direction; }
-    size_t                                    count() const { return m_count; }
-    double                                    wpimult() const { return m_wpimult; }
-    CompletionType                            completionType() const { return m_completionType; }
-    bool                                      isMainBore() const { return m_isMainBore; }
-    bool                                      readyForExport() const { return m_readyForExport; }
+    const std::vector<RigCompletionMetaData>& metadata() const;
+    const QString&                            wellName() const;
+    const IJKCellIndex&                       cellIndex() const;
+    WellConnectionState                       connectionState() const;
+    double                                    saturation() const;
+    double                                    transmissibility() const;
+    double                                    diameter() const; //TODO: should be ft or m
+    double                                    kh() const;
+    double                                    skinFactor() const;
+    double                                    dFactor() const;
+    CellDirection                             direction() const;
+    size_t                                    count() const;
+    double                                    wpimult() const;
+    CompletionType                            completionType() const;
+    bool                                      isMainBore() const;
+    bool                                      readyForExport() const;
 
     std::vector<RigCompletionMetaData>   m_metadata; 
 
