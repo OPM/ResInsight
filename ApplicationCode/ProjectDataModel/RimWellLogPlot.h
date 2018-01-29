@@ -99,6 +99,8 @@ public:
 
     virtual void                                    zoomAll() override;
     virtual QWidget*                                viewWidget() override;
+    void                                            setDepthAutoZoom(bool on);
+
 
     QString                                         asciiDataForPlotExport() const;
 
