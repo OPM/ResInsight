@@ -365,7 +365,7 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
                 size_t i, j, k;
-                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
+                grid->ijkFromCellIndex(intersection.globalCellIndex, &i, &j, &k);
                 
                 formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
                 formatter.add(lateral.branchNumber);

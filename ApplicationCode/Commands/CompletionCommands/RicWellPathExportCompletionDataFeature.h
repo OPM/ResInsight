@@ -45,13 +45,13 @@ class RimWellPath;
 struct WellSegmentLateralIntersection {
     WellSegmentLateralIntersection(int segmentNumber, 
                                    int attachedSegmentNumber, 
-                                   size_t cellIndex, 
+                                   size_t globalCellIndex, 
                                    double length, 
                                    double depth, 
                                    const cvf::Vec3d& lengthsInCell)
         : segmentNumber(segmentNumber),
           attachedSegmentNumber(attachedSegmentNumber),
-          cellIndex(cellIndex),
+          globalCellIndex(globalCellIndex),
           mdFromPreviousIntersection(length),
           tvdChangeFromPreviousIntersection(depth),
           lengthsInCell(lengthsInCell),
@@ -60,7 +60,7 @@ struct WellSegmentLateralIntersection {
 
     int                      segmentNumber;
     int                      attachedSegmentNumber;
-    size_t                   cellIndex;
+    size_t                   globalCellIndex;
     bool                     mainBoreCell;
     double                   mdFromPreviousIntersection;
     double                   tvdChangeFromPreviousIntersection;
@@ -109,21 +109,6 @@ struct WellSegmentLocation {
 //==================================================================================================
 /// 
 //==================================================================================================
-struct EclipseCellIndexRange {
-    size_t i;
-    size_t j;
-    size_t k1;
-    size_t k2;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
-typedef std::tuple<size_t, size_t, size_t> EclipseCellIndex;
-
-//==================================================================================================
-/// 
-//==================================================================================================
 class RicWellPathExportCompletionDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
@@ -146,22 +131,24 @@ public:
     //functions also used by RicFishbonesTransmissibilityCalculationFeatureImp
     static std::set<size_t>                      findIntersectedCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
     static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
-    static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell);
+    static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell);
     
     static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, 
                                                                            const RimWellPath* wellPath, 
                                                                            const cvf::Vec3d& internalCellLengths, 
                                                                            double skinFactor, 
                                                                            double wellRadius, 
-                                                                           size_t cellIndex, 
+                                                                           size_t globalCellIndex, 
                                                                            bool useLateralNTG, 
                                                                            size_t volumeScaleConstant = 1, 
                                                                            CellDirection directionForVolumeScaling = CellDirection::DIR_I);
+
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                         double skinFactor,
                                                                                         double wellRadius,
-                                                                                        size_t cellIndex,
+                                                                                        size_t globalCellIndex,
                                                                                         CellDirection direction);
+
     static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimSimWellInView*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
 
 private:

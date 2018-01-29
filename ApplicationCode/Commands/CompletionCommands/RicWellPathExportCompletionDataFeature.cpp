@@ -856,7 +856,7 @@ void RicWellPathExportCompletionDataFeature::markWellPathCells(const std::vector
         {
             for (WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
-                if (wellPathCellSet.find(intersection.cellIndex) != wellPathCellSet.end())
+                if (wellPathCellSet.find(intersection.globalCellIndex) != wellPathCellSet.end())
                 {
                     intersection.mainBoreCell = true;
                 }
@@ -1034,7 +1034,7 @@ void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell)
+CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell)
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -1045,9 +1045,9 @@ CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(R
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DZ");
 
-    double xLengthFraction = fabs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(cellIndex));
-    double yLengthFraction = fabs(lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx(cellIndex));
-    double zLengthFraction = fabs(lengthsInCell.z() / dzAccessObject->cellScalarGlobIdx(cellIndex));
+    double xLengthFraction = fabs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(globalCellIndex));
+    double yLengthFraction = fabs(lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx(globalCellIndex));
+    double zLengthFraction = fabs(lengthsInCell.z() / dzAccessObject->cellScalarGlobIdx(globalCellIndex));
 
     if (xLengthFraction > yLengthFraction && xLengthFraction > zLengthFraction)
     {
@@ -1071,7 +1071,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
                                                                          const cvf::Vec3d& internalCellLengths, 
                                                                          double skinFactor, 
                                                                          double wellRadius, 
-                                                                         size_t cellIndex,
+                                                                         size_t globalCellIndex,
                                                                          bool useLateralNTG,
                                                                          size_t volumeScaleConstant,
                                                                          CellDirection directionForVolumeScaling)
@@ -1097,16 +1097,16 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     if (ntgResIdx != cvf::UNDEFINED_SIZE_T)
     {
         cvf::ref<RigResultAccessor> ntgAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
-        ntg = ntgAccessObject->cellScalarGlobIdx(cellIndex);
+        ntg = ntgAccessObject->cellScalarGlobIdx(globalCellIndex);
     }
     double latNtg = useLateralNTG ? ntg : 1.0;
 
-    double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
-    double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
-    double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
-    double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permy = permyAccessObject->cellScalarGlobIdx(cellIndex);
-    double permz = permzAccessObject->cellScalarGlobIdx(cellIndex);
+    double dx = dxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double dy = dyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double dz = dzAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
 
     double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
 
@@ -1131,7 +1131,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
 double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                       double skinFactor,
                                                                                       double wellRadius,
-                                                                                      size_t cellIndex,
+                                                                                      size_t globalCellIndex,
                                                                                       CellDirection direction)
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
@@ -1155,15 +1155,15 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclips
     if (ntgResIdx != cvf::UNDEFINED_SIZE_T)
     {
         cvf::ref<RigResultAccessor> ntgAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
-        ntg = ntgAccessObject->cellScalarGlobIdx(cellIndex);
+        ntg = ntgAccessObject->cellScalarGlobIdx(globalCellIndex);
     }
 
-    double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
-    double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
-    double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
-    double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permy = permyAccessObject->cellScalarGlobIdx(cellIndex);
-    double permz = permzAccessObject->cellScalarGlobIdx(cellIndex);
+    double dx = dxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double dy = dyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double dz = dzAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
 
     RiaEclipseUnitTools::UnitSystem units = eclipseCaseData->unitsType();
     double darcy = RiaEclipseUnitTools::darcysConstant(units);

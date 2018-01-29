@@ -63,7 +63,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                                                                                  isMainBore,
                                                                                  completionMetaData);
 
-                wellBorePartsInCells[intersection.cellIndex].push_back(wellBorePart);
+                wellBorePartsInCells[intersection.globalCellIndex].push_back(wellBorePart);
 
             }
         }
