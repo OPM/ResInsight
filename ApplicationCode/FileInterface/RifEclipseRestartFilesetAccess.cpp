@@ -251,8 +251,7 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, boo
 
         if (m_ecl_files[i])
         {
-            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
-            int reportNumber = ecl_util_filename_report_nr(fileName);
+            int reportNumber = RifEclipseRestartFilesetAccess::reportNumber(m_ecl_files[i]);
             if(reportNumber != -1)
             {
                 well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
@@ -282,6 +281,23 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
             m_availablePhases.insert(phases.begin(), phases.end());
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
+{
+    if (!ecl_file) return -1;
+
+    const char* eclFileName = ecl_file_get_src_file(ecl_file);
+    QString fileNameUpper(eclFileName);
+    fileNameUpper = fileNameUpper.toUpper();
+
+    // Convert to upper case, as ecl_util_filename_report_nr does not handle lower case file extensions
+    int reportNumber = ecl_util_filename_report_nr(fileNameUpper.toAscii().data());
+
+    return reportNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,9 +335,11 @@ std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
     {
         if (ecl_file)
         {
-            const char* fileName = ecl_file_get_src_file(ecl_file);
-            int reportNumber = ecl_util_filename_report_nr(fileName);
-            reportNr.push_back(reportNumber);
+            int reportNumber = RifEclipseRestartFilesetAccess::reportNumber(ecl_file);
+            if (reportNumber != -1)
+            {
+                reportNr.push_back(reportNumber);
+            }
         }
     }
 

@@ -58,6 +58,7 @@ public:
 
 private:
     void                        openTimeStep(size_t timeStep);
+    static int                  reportNumber(const ecl_file_type* ecl_file);
 
 private:
     QStringList                     m_fileNames;
