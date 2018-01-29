@@ -315,11 +315,11 @@ std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
 {
     std::vector<int> reportNr;
 
-    for (size_t i = 0; i < m_ecl_files.size(); i++)
+    for (const auto* ecl_file : m_ecl_files)
     {
-        if (m_ecl_files[i])
+        if (ecl_file)
         {
-            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
+            const char* fileName = ecl_file_get_src_file(ecl_file);
             int reportNumber = ecl_util_filename_report_nr(fileName);
             reportNr.push_back(reportNumber);
         }
