@@ -55,6 +55,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
+#include "Rim2dIntersectionViewCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -131,6 +132,14 @@ void RicDeleteItemExec::redo()
         {
             crossSectionColl->syncronize2dIntersectionViews();
             view->scheduleCreateDisplayModelAndRedraw();
+        }
+        else
+        {
+            RimCase* parentCase = dynamic_cast<RimCase*>(parentObj);
+            if ( parentCase ) // A view was deleted. Need to update the list of intersection views
+            {
+                parentCase->intersectionViewCollection()->syncFromExistingIntersections(true);
+            }
         }
 
         // SimWell Fractures

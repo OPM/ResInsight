@@ -28,6 +28,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
+#include "Rim2dIntersectionViewCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -102,6 +103,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         rimReservoirView->resolveReferencesRecursively();
         rimReservoirView->initAfterReadRecursively();
 
+        eclipseCase->intersectionViewCollection()->syncFromExistingIntersections(false);
         rimReservoirView->loadDataAndUpdate();
 
         caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
