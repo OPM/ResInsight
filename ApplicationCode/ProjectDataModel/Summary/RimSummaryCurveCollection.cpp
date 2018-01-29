@@ -98,6 +98,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->loadDataAndUpdate(false);
+        curve->updateQwtPlotAxis();
     }
 
     if ( updateParentPlot )
