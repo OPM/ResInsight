@@ -135,7 +135,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 {
     if (changedField == &m_showCurve)
     {
-        this->updateCurveVisibility();
+        this->updateCurveVisibility(true);
         if (m_showCurve()) loadDataAndUpdate(true);
     }
     else if (changedField == &m_curveName)
@@ -180,7 +180,7 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveVisibility()
+void RimPlotCurve::updateCurveVisibility(bool updateParent)
 {
     bool isVisibleInPossibleParent = true;
     
@@ -199,7 +199,10 @@ void RimPlotCurve::updateCurveVisibility()
         m_qwtPlotCurve->detach();
     }
 
-    updateZoomInParentPlot();
+    if (updateParent)
+    {
+        updateZoomInParentPlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,7 +210,7 @@ void RimPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurvePresentation(bool updatePlotLegend)
 {
-    this->updateCurveVisibility();
+    this->updateCurveVisibility(updatePlotLegend);
 
     if (updatePlotLegend)
     {
