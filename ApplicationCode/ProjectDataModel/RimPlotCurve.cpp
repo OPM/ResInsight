@@ -180,7 +180,7 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveVisibility(bool updateParent)
+void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
 {
     bool isVisibleInPossibleParent = true;
     
@@ -199,7 +199,7 @@ void RimPlotCurve::updateCurveVisibility(bool updateParent)
         m_qwtPlotCurve->detach();
     }
 
-    if (updateParent)
+    if (updateParentPlot)
     {
         updateZoomInParentPlot();
     }
