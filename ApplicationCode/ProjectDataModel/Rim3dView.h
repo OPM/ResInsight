@@ -148,7 +148,8 @@ public:
 
 protected:
     virtual void                            setDefaultView();
-    void                                    disableGridBox();
+    void                                    disableGridBoxField();
+    void                                    disablePerspectiveProjectionField();
 
     RimWellPathCollection*                  wellPathCollection();
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 

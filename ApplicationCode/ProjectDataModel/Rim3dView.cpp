@@ -863,9 +863,21 @@ void Rim3dView::forceShowWindowOn()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::disableGridBox()
+void Rim3dView::disableGridBoxField()
 {
     m_showGridBox = false;
+    m_showGridBox.uiCapability()->setUiHidden(true);
+    m_showGridBox.xmlCapability()->setIOWritable(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::disablePerspectiveProjectionField()
+{
+    isPerspectiveView = false;
+    isPerspectiveView.uiCapability()->setUiHidden(true);
+    isPerspectiveView.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,7 +35,7 @@
 
 #include <QDateTime>
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
+CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
 const cvf::Mat4d defaultIntersectinoViewMatrix(1, 0, 0, 0,
                                                0, 0, 1, 0,
@@ -55,11 +55,13 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
+
     hasUserRequestedAnimation = true;
     
-    isPerspectiveView = false;
     ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultIntersectinoViewMatrix );
-    disableGridBox();
+
+    disableGridBoxField();
+    disablePerspectiveProjectionField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +259,7 @@ void Rim2dIntersectionView::createDisplayModel()
     if ( this->hasUserRequestedAnimation() )
     {
         m_viewer->setCurrentFrame(m_currentTimeStep);
+        updateCurrentTimeStep();
     }
 
     if ( this->viewer()->mainCamera()->viewMatrix() == defaultIntersectinoViewMatrix )
