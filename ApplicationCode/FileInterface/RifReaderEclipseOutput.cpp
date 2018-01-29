@@ -2108,6 +2108,9 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
         m_dynamicResultsAccess->timeSteps(&timeStepsOnFile, &daysSinceSimulationStartOnFile);
         reportNumbersOnFile = m_dynamicResultsAccess->reportNumbers();
 
+        if (timeStepsOnFile.size() != daysSinceSimulationStartOnFile.size()) return timeStepInfos;
+        if (timeStepsOnFile.size() != reportNumbersOnFile.size()) return timeStepInfos;
+
         for (size_t i = 0; i < timeStepsOnFile.size(); i++)
         {
             if (this->isTimeStepIncludedByFilter(i))
