@@ -189,7 +189,7 @@ int Rim2dIntersectionView::timeStepCount()
 {
     if ( isTimeStepDependentDataVisible() )
     {
-        return static_cast<int>( this->ownerCase()->timeStepDates().size());
+        return static_cast<int>( this->ownerCase()->timeStepStrings().size());
     }
 
     return 0;

@@ -31,6 +31,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "Rim2dIntersectionViewCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature");
@@ -98,6 +99,7 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
 
         rimReservoirView->loadDataAndUpdate();
 
+        geomCase->intersectionViewCollection()->syncFromExistingIntersections(false);
         geomCase->updateConnectedEditors();
 
         lastViewCopy = rimReservoirView;
