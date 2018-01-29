@@ -723,7 +723,7 @@ void RiuMainWindow::slotRefreshEditActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotRefreshViewActions()
 {
-    bool enabled = true;
+    bool enabled = RiaApplication::instance()->activeGridView() != nullptr;
     m_viewFromNorth->setEnabled(enabled);
     m_viewFromSouth->setEnabled(enabled);
     m_viewFromEast->setEnabled(enabled);
@@ -1445,6 +1445,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     bool enable = view != NULL;
+    bool isGridView = RiaApplication::instance()->activeGridView() != nullptr;
 
     m_drawStyleLinesAction->setEnabled(enable);
     m_drawStyleLinesSolidAction->setEnabled(enable);
@@ -1458,9 +1459,9 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_disableLightingAction->setChecked(lightingDisabledInView);
     m_disableLightingAction->blockSignals(false);
 
-    if (enable)
+    m_drawStyleHideGridCellsAction->setEnabled(isGridView);
+    if (isGridView)
     {
-        m_drawStyleHideGridCellsAction->setEnabled(true);
         m_drawStyleHideGridCellsAction->blockSignals(true);
         m_drawStyleHideGridCellsAction->setChecked(!view->isGridVisualizationMode());
         m_drawStyleHideGridCellsAction->blockSignals(false);
