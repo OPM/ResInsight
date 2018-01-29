@@ -511,8 +511,14 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         if (initFileName.empty()) return false;
 
         const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
-        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
 
+        if (eclipseCaseData->hasFractureResults())
+        {
+            return false;
+        }
+
+        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
+        
         m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
     }
 
