@@ -605,14 +605,18 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
             lgrFileName += gridName;
         }
 
-        printCompletionsToFileLgr(folderName, lgrFileName, it.second, exportType);
+        printCompletionsToFileLgr(folderName, lgrFileName, gridName, it.second, exportType);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QString& folderName, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
+void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QString& folderName, 
+                                                                       const QString& fileName, 
+                                                                       const QString& gridName, 
+                                                                       std::vector<RigCompletionData>& completions,
+                                                                       RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     if (completions.empty()) return;
 
@@ -640,7 +644,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QSt
     std::sort(completions.begin(), completions.end());
 
     // Print completion data
-    generateCompdatTable(formatter, completions[0].completionDataGridCell().lgrName(), completions);
+    generateCompdatTable(formatter, gridName, completions);
     
     if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
@@ -692,11 +696,11 @@ std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > RicWellPath
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseDataTableFormatter& formatter, const QString& lgrName, const std::vector<RigCompletionData>& completionData)
+void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData)
 {
     std::vector<RifEclipseOutputTableColumn> header;
 
-    if (lgrName.isEmpty())
+    if (gridName.isEmpty())
     {
         header = {
             RifEclipseOutputTableColumn("Well"),
@@ -755,9 +759,9 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
         }
         formatter.add(data.wellName());
 
-        if (!lgrName.isEmpty())
+        if (!gridName.isEmpty())
         {
-            formatter.add(lgrName);
+            formatter.add(gridName);
         }
 
         formatter.addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexI()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexJ()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK());
