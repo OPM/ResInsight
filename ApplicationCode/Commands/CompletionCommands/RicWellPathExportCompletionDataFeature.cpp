@@ -909,7 +909,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                 bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
                 if (!cellIsActive) continue;
 
-                RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(cell.globCellIndex, settings.caseToApply));
+                RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(cell.globCellIndex, settings.caseToApply->mainGrid()));
                 CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
 
                 double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,

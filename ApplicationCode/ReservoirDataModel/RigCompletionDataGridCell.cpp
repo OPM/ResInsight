@@ -18,10 +18,7 @@
 
 #include "RigCompletionDataGridCell.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-
-#include "RimEclipseCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -31,14 +28,13 @@ RigCompletionDataGridCell::RigCompletionDataGridCell() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, const RimEclipseCase* eclipseCase)
+RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, const RigMainGrid* mainGrid)
     : m_globalCellIndex(globalCellIndex)
 {
-    if (eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid())
+    if (mainGrid)
     {
-        const RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-        const RigCell&     cell     = mainGrid->globalCellArray()[globalCellIndex];
-        RigGridBase*       grid     = cell.hostGrid();
+        const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
+        RigGridBase*   grid = cell.hostGrid();
         if (grid)
         {
             size_t gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -76,7 +72,7 @@ bool RigCompletionDataGridCell::operator<(const RigCompletionDataGridCell& other
     if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
     if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
     if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
-    
+
     return false;
 }
 

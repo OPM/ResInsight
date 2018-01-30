@@ -20,7 +20,7 @@
 
 #include <QString>
 
-class RimEclipseCase;
+class RigMainGrid;
 
 //==================================================================================================
 ///
@@ -30,7 +30,7 @@ class RigCompletionDataGridCell
 public:
     RigCompletionDataGridCell();
 
-    RigCompletionDataGridCell(size_t globalCellIndex, const RimEclipseCase* eclipseCase);
+    RigCompletionDataGridCell(size_t globalCellIndex, const RigMainGrid* mainGrid);
 
     bool operator==(const RigCompletionDataGridCell& other) const;
 
