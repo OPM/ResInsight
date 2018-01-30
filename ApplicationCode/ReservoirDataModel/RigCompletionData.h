@@ -52,13 +52,6 @@ public:
 
     IJKCellIndex(size_t globalCellIndex, const RimEclipseCase* eclipseCase);
 
-    IJKCellIndex(const IJKCellIndex& other)
-    {
-        m_localCellIndexI = other.m_localCellIndexI;
-        m_localCellIndexJ = other.m_localCellIndexJ;
-        m_localCellIndexK = other.m_localCellIndexK;
-    }
-
     bool operator==(const IJKCellIndex& other) const
     {
         return m_localCellIndexI == other.m_localCellIndexI && m_localCellIndexJ == other.m_localCellIndexJ && m_localCellIndexK == other.m_localCellIndexK;
@@ -79,6 +72,8 @@ public:
     size_t localCellIndexK() const;
 
     QString oneBasedLocalCellIndexString() const;
+
+    QString lgrName() const;
 
 private:
     size_t m_globalCellIndex;

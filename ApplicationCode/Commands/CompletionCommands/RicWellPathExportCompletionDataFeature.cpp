@@ -576,9 +576,44 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
                                                                     std::vector<RigCompletionData>& completions,
                                                                     RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
-    //TODO: Check that completion is ready for export
+    std::set<QString> gridNames;
 
-    QDir exportFolder = QDir(folderName);
+    for (const auto& c : completions)
+    {
+        gridNames.insert(c.cellIndex().lgrName());
+    }
+
+    for (const auto& gridName : gridNames)
+    {
+        std::vector<RigCompletionData> completionsForGrid;
+
+        for (const auto& c : completions)
+        {
+            if (gridName == c.cellIndex().lgrName())
+            {
+                completionsForGrid.push_back(c);
+            }
+        }
+
+        QString lgrFileName = fileName;
+        if (!gridName.isEmpty())
+        {
+            lgrFileName += "_";
+            lgrFileName += gridName;
+        }
+
+        printCompletionsToFileLgr(folderName, lgrFileName, completionsForGrid, exportType);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QString& folderName, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
+{
+    if (completions.empty()) return;
+
+    QDir exportFolder(folderName);
 
     if (!exportFolder.exists())
     {
@@ -589,7 +624,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
 
     QString filePath = exportFolder.filePath(fileName);
     QFile exportFile(filePath);
-        if (!exportFile.open(QIODevice::WriteOnly))
+    if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(filePath));
         return;
@@ -602,8 +637,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
     std::sort(completions.begin(), completions.end());
 
     // Print completion data
-    generateCompdatTable(formatter, completions);
-
+    generateCompdatTable(formatter, completions[0].cellIndex().lgrName(), completions);
     
     if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
@@ -655,26 +689,53 @@ std::map<IJKCellIndex, std::vector<RigCompletionData> > RicWellPathExportComplet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
+void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseDataTableFormatter& formatter, const QString& lgrName, const std::vector<RigCompletionData>& completionData)
 {
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn("Well"),
-        RifEclipseOutputTableColumn("I"),
-        RifEclipseOutputTableColumn("J"),
-        RifEclipseOutputTableColumn("K1"),
-        RifEclipseOutputTableColumn("K2"),
-        RifEclipseOutputTableColumn("Status"),
-        RifEclipseOutputTableColumn("SAT"),
-        RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
-        RifEclipseOutputTableColumn("DIAM"),
-        RifEclipseOutputTableColumn("KH"),
-        RifEclipseOutputTableColumn("S"),
-        RifEclipseOutputTableColumn("Df"),
-        RifEclipseOutputTableColumn("DIR"),
-        RifEclipseOutputTableColumn("r0")
-    };
+    std::vector<RifEclipseOutputTableColumn> header;
 
-    formatter.keyword("COMPDAT");
+    if (lgrName.isEmpty())
+    {
+        header = {
+            RifEclipseOutputTableColumn("Well"),
+            RifEclipseOutputTableColumn("I"),
+            RifEclipseOutputTableColumn("J"),
+            RifEclipseOutputTableColumn("K1"),
+            RifEclipseOutputTableColumn("K2"),
+            RifEclipseOutputTableColumn("Status"),
+            RifEclipseOutputTableColumn("SAT"),
+            RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
+            RifEclipseOutputTableColumn("DIAM"),
+            RifEclipseOutputTableColumn("KH"),
+            RifEclipseOutputTableColumn("S"),
+            RifEclipseOutputTableColumn("Df"),
+            RifEclipseOutputTableColumn("DIR"),
+            RifEclipseOutputTableColumn("r0")
+        };
+
+        formatter.keyword("COMPDAT");
+    }
+    else
+    {
+        header = {
+            RifEclipseOutputTableColumn("Well"),
+            RifEclipseOutputTableColumn("LgrName"),
+            RifEclipseOutputTableColumn("I"),
+            RifEclipseOutputTableColumn("J"),
+            RifEclipseOutputTableColumn("K1"),
+            RifEclipseOutputTableColumn("K2"),
+            RifEclipseOutputTableColumn("Status"),
+            RifEclipseOutputTableColumn("SAT"),
+            RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
+            RifEclipseOutputTableColumn("DIAM"),
+            RifEclipseOutputTableColumn("KH"),
+            RifEclipseOutputTableColumn("S"),
+            RifEclipseOutputTableColumn("Df"),
+            RifEclipseOutputTableColumn("DIR"),
+            RifEclipseOutputTableColumn("r0")
+        };
+
+        formatter.keyword("COMPDATL");
+    }
     formatter.header(header);
 
     for (const RigCompletionData& data : completionData)
@@ -690,6 +751,12 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
             formatter.comment(QString("%1 : %2").arg(metadata.name).arg(metadata.comment));
         }
         formatter.add(data.wellName());
+
+        if (!lgrName.isEmpty())
+        {
+            formatter.add(lgrName);
+        }
+
         formatter.addZeroBasedCellIndex(data.cellIndex().localCellIndexI()).addZeroBasedCellIndex(data.cellIndex().localCellIndexJ()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK());
         switch (data.connectionState())
         {

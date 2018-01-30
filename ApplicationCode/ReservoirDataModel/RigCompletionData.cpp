@@ -467,3 +467,11 @@ QString IJKCellIndex::oneBasedLocalCellIndexString() const
 
     return text;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString IJKCellIndex::lgrName() const
+{
+    return m_lgrName;
+}
