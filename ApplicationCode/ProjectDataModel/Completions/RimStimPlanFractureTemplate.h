@@ -113,4 +113,5 @@ private:
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
+    bool                                    m_readError;
 };

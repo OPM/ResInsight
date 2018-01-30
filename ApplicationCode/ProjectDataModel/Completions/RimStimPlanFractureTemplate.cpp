@@ -51,7 +51,7 @@
 #include <vector>
 #include <cmath>
 
-
+static std::vector<double> EMPTY_DOUBLE_VECTOR;
 
 CAF_PDM_SOURCE_INIT(RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate");
 
@@ -77,6 +77,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField(&m_conductivityResultNameOnFile,  "ConductivityResultName", QString(""), "Active Conductivity Result Name", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
+    m_readError    = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +112,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
     if (&m_stimPlanFileName == changedField)
     {
+        m_readError = false;
         updateUiTreeName();
         loadDataAndUpdate();
         setDefaultsBasedOnXMLfile();
@@ -262,16 +264,21 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
 void RimStimPlanFractureTemplate::loadDataAndUpdate()
 {
     QString errorMessage;
+
+    if (m_readError) return;
+
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(), m_conductivityScalingFactor(), &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
         fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet();
+        m_readError = false;
     }
     else
     {
         fractureTemplateUnit = RiaEclipseUnitTools::UNITS_UNKNOWN; 
+        m_readError = true;
     }
 
     updateFractureGrid();
@@ -530,8 +537,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     {
         loadDataAndUpdate();
     }
-
-    if (m_stimPlanFractureDefinitionData.notNull())
+    else	
     {
         m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
                                                                          neededUnit,
@@ -546,6 +552,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
+    if (m_stimPlanFractureDefinitionData.isNull()) return std::vector<cvf::Vec3f>();
 
     QString parameterName = m_borderPolygonResultName;
     QString parameterUnit = getUnitForStimPlanParameter(parameterName);
