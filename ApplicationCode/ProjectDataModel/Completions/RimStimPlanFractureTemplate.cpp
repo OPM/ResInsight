@@ -50,7 +50,7 @@
 #include <vector>
 #include <cmath>
 
-
+static std::vector<double> EMPTY_DOUBLE_VECTOR;
 
 CAF_PDM_SOURCE_INIT(RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate");
 
@@ -75,6 +75,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
     CAF_PDM_InitField(&m_conductivityScalingFactor, "ConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
 
     m_fractureGrid = new RigFractureGrid();
+    m_readError    = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +94,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
     if (&m_stimPlanFileName == changedField)
     {
+        m_readError = false;
         updateUiTreeName();
         loadDataAndUpdate();
         setDefaultsBasedOnXMLfile();
@@ -237,16 +239,21 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
 void RimStimPlanFractureTemplate::loadDataAndUpdate()
 {
     QString errorMessage;
+
+    if (m_readError) return;
+
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(), m_conductivityScalingFactor(), &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
         fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet();
+        m_readError = false;
     }
     else
     {
         fractureTemplateUnit = RiaEclipseUnitTools::UNITS_UNKNOWN; 
+        m_readError = true;
     }
 
     updateFractureGrid();
@@ -335,7 +342,7 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 const std::vector<double>& RimStimPlanFractureTemplate::timeSteps() 
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
-    return m_stimPlanFractureDefinitionData->timeSteps();
+    return m_stimPlanFractureDefinitionData.notNull() ? m_stimPlanFractureDefinitionData->timeSteps() : EMPTY_DOUBLE_VECTOR;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,6 +374,7 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
+    if (m_stimPlanFractureDefinitionData.isNull()) return std::vector<std::vector<double>>();
     return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
 }
 
@@ -375,6 +383,7 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanFractureTemplate::fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
+    if (m_stimPlanFractureDefinitionData.isNull()) return EMPTY_DOUBLE_VECTOR;
    return m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, timeStepIndex);
 }
 
@@ -405,9 +414,12 @@ const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::updateFractureGrid()
 {
-    m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_activeTimeStepIndex,
-                                                                          fractureTemplateUnit,
-                                                                          m_wellPathDepthAtFracture);
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_activeTimeStepIndex,
+                                                                              fractureTemplateUnit,
+                                                                              m_wellPathDepthAtFracture);
+    }
 }
 
 
@@ -424,12 +436,14 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     {
         loadDataAndUpdate();
     }
-
-    m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
-                                                                     neededUnit,
-                                                                     name,
-                                                                     nodeCoords,
-                                                                     triangleIndices);
+    else
+    {
+        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
+                                                                         neededUnit,
+                                                                         name,
+                                                                         nodeCoords,
+                                                                         triangleIndices);
+    }
     return;
 }
 
@@ -438,6 +452,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
+    if (m_stimPlanFractureDefinitionData.isNull()) return std::vector<cvf::Vec3f>();
 
     QString parameterName = m_borderPolygonResultName;
     QString parameterUnit = getUnitForStimPlanParameter(parameterName);
