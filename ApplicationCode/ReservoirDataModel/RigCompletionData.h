@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigCompletionDataGridCell.h"
+
 #include <QString>
 
 #include <vector>
@@ -46,47 +48,6 @@ enum CellDirection {
 //==================================================================================================
 /// 
 //==================================================================================================
-class IJKCellIndex {
-public:
-    IJKCellIndex() {};
-
-    IJKCellIndex(size_t globalCellIndex, const RimEclipseCase* eclipseCase);
-
-    bool operator==(const IJKCellIndex& other) const
-    {
-        return m_localCellIndexI == other.m_localCellIndexI && m_localCellIndexJ == other.m_localCellIndexJ && m_localCellIndexK == other.m_localCellIndexK;
-    }
-
-    bool operator<(const IJKCellIndex& other) const
-    {
-        if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
-        if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
-        if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
-        return false;
-    }
-
-    size_t globalCellIndex() const;
-
-    size_t localCellIndexI() const;
-    size_t localCellIndexJ() const;
-    size_t localCellIndexK() const;
-
-    QString oneBasedLocalCellIndexString() const;
-
-    QString lgrName() const;
-
-private:
-    size_t m_globalCellIndex;
-    QString m_lgrName;
-
-    size_t m_localCellIndexI;
-    size_t m_localCellIndexJ;
-    size_t m_localCellIndexK;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
 struct RigCompletionMetaData {
     RigCompletionMetaData(const QString& name, const QString& comment) : name(name), comment(comment) {}
 
@@ -107,7 +68,7 @@ public:
         CT_UNDEFINED
     };
 
-    RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex);
+    RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex);
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
@@ -142,7 +103,7 @@ public:
 
     const std::vector<RigCompletionMetaData>& metadata() const;
     const QString&                            wellName() const;
-    const IJKCellIndex&                       cellIndex() const;
+    const RigCompletionDataGridCell&          completionDataGridCell() const;
     WellConnectionState                       connectionState() const;
     double                                    saturation() const;
     double                                    transmissibility() const;
@@ -161,7 +122,7 @@ public:
 
 private:
     QString                              m_wellName;
-    IJKCellIndex                         m_cellIndex;
+    RigCompletionDataGridCell            m_cellIndex;
     WellConnectionState                  m_connectionState;
     double                               m_saturation; //TODO: remove, always use default in Eclipse?
     double                               m_transmissibility;

@@ -117,7 +117,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
         
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
-            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(globalCellIndex, settings.caseToApply));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(globalCellIndex, settings.caseToApply));
 
             double transmissibility = 0.0;
             if (wellBorePart.isMainBore)

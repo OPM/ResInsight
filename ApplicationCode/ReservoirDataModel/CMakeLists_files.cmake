@@ -66,6 +66,7 @@ ${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.h
 ${CEE_CURRENT_LIST_DIR}RigWeightedMeanCalc.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryCurveMerger.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.h
+${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.h
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
@@ -138,6 +139,7 @@ ${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RigWeightedMeanCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryCurveMerger.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.cpp
+${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)

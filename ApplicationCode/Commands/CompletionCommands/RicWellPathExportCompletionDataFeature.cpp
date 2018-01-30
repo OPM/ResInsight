@@ -288,7 +288,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
     }
 
-    std::map<IJKCellIndex, std::vector<RigCompletionData> > completionsPerEclipseCell;
+    std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > completionsPerEclipseCell;
 
     // FractureTransmissibilityExportInformation
     std::unique_ptr<QTextStream> fractureTransmissibilityExportInformationStream = nullptr;
@@ -378,7 +378,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         for (auto wellPath : usedWellPaths)
         {
-            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
+            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
             std::vector<RigCompletionData> completions;
             for (auto& data : filteredWellCompletions)
             {
@@ -404,7 +404,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         for (auto wellPath : usedWellPaths)
         {
-            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
+            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
             std::vector<RigCompletionData> completions;
             for (auto& data : filteredWellCompletions)
             {
@@ -446,7 +446,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         for (auto simWell : simWells)
         {
-            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, simWell->name());
+            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, simWell->name());
             std::vector<RigCompletionData> completions;
             for (auto& data : filteredWellCompletions)
             {
@@ -481,7 +481,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 {
     CVF_ASSERT(!completions.empty());
     QString wellName = completions[0].wellName();
-    IJKCellIndex cellIndexIJK = completions[0].cellIndex();
+    RigCompletionDataGridCell cellIndexIJK = completions[0].completionDataGridCell();
     RigCompletionData::CompletionType completionType = completions[0].completionType();
 
     //completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore, 
@@ -580,7 +580,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
 
     for (const auto& c : completions)
     {
-        gridNames.insert(c.cellIndex().lgrName());
+        gridNames.insert(c.completionDataGridCell().lgrName());
     }
 
     for (const auto& gridName : gridNames)
@@ -589,7 +589,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
 
         for (const auto& c : completions)
         {
-            if (gridName == c.cellIndex().lgrName())
+            if (gridName == c.completionDataGridCell().lgrName())
             {
                 completionsForGrid.push_back(c);
             }
@@ -637,7 +637,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QSt
     std::sort(completions.begin(), completions.end());
 
     // Print completion data
-    generateCompdatTable(formatter, completions[0].cellIndex().lgrName(), completions);
+    generateCompdatTable(formatter, completions[0].completionDataGridCell().lgrName(), completions);
     
     if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
@@ -668,9 +668,9 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::getComple
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<IJKCellIndex, std::vector<RigCompletionData> > RicWellPathExportCompletionDataFeature::getCompletionsForWell(const std::map<IJKCellIndex, std::vector<RigCompletionData>>& cellToCompletionMap, const QString& wellName)
+std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > RicWellPathExportCompletionDataFeature::getCompletionsForWell(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& cellToCompletionMap, const QString& wellName)
 {
-    std::map<IJKCellIndex, std::vector<RigCompletionData> > wellCompletions;
+    std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > wellCompletions;
 
     for (const auto& it : cellToCompletionMap)
     {
@@ -757,7 +757,7 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
             formatter.add(lgrName);
         }
 
-        formatter.addZeroBasedCellIndex(data.cellIndex().localCellIndexI()).addZeroBasedCellIndex(data.cellIndex().localCellIndexJ()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK()).addZeroBasedCellIndex(data.cellIndex().localCellIndexK());
+        formatter.addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexI()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexJ()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK()).addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK());
         switch (data.connectionState())
         {
         case OPEN:
@@ -830,7 +830,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
         formatter.add(completion.wellName());
         formatter.add(completion.wpimult());
-        formatter.addZeroBasedCellIndex(completion.cellIndex().localCellIndexI()).addZeroBasedCellIndex(completion.cellIndex().localCellIndexJ()).addZeroBasedCellIndex(completion.cellIndex().localCellIndexK());
+        formatter.addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexI()).addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexJ()).addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexK());
         formatter.rowCompleted();
     }
 
@@ -864,7 +864,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                 bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
                 if (!cellIsActive) continue;
 
-                RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(cell.globCellIndex, settings.caseToApply));
+                RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(cell.globCellIndex, settings.caseToApply));
                 CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
 
                 double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
@@ -1077,18 +1077,18 @@ void RicWellPathExportCompletionDataFeature::assignLateralIntersectionsAndBranch
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCellIndex, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data)
+void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data)
 {
     for (auto& completion : data)
     {
-        auto it = completionData->find(completion.cellIndex());
+        auto it = completionData->find(completion.completionDataGridCell());
         if (it != completionData->end())
         {
             it->second.push_back(completion);
         }
         else
         {
-            completionData->insert(std::pair<IJKCellIndex, std::vector<RigCompletionData> >(completion.cellIndex(), std::vector<RigCompletionData> {completion}));
+            completionData->insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData> >(completion.completionDataGridCell(), std::vector<RigCompletionData> {completion}));
         }
     }
 }

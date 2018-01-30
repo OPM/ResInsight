@@ -18,10 +18,6 @@
 
 #include "RigCompletionData.h"
 
-#include "RimEclipseCase.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-
 #include "RiaLogging.h"
 
 #include "cvfAssert.h"
@@ -34,7 +30,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex)
+RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex)
     : m_wellName(wellName),
       m_cellIndex(cellIndex),
       m_saturation(HUGE_VAL),
@@ -235,7 +231,7 @@ const QString& RigCompletionData::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const IJKCellIndex& RigCompletionData::cellIndex() const
+const RigCompletionDataGridCell& RigCompletionData::completionDataGridCell() const
 {
     return m_cellIndex;
 }
@@ -395,83 +391,3 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_completionType = from.m_completionType;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-IJKCellIndex::IJKCellIndex(size_t globalCellIndex, const RimEclipseCase* eclipseCase) : m_globalCellIndex(globalCellIndex)
-{
-    if (eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid())
-    {
-        const RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-        const RigCell&     cell = mainGrid->globalCellArray()[globalCellIndex];
-        RigGridBase*       grid = cell.hostGrid();
-        if (grid)
-        {
-            size_t gridLocalCellIndex = cell.gridLocalCellIndex();
-
-            size_t i = 0;
-            size_t j = 0;
-            size_t k = 0;
-            grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-
-            m_localCellIndexI = i;
-            m_localCellIndexJ = j;
-            m_localCellIndexK = k;
-
-            if (grid != mainGrid)
-            {
-                m_lgrName = QString::fromStdString(grid->gridName());
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t IJKCellIndex::globalCellIndex() const
-{
-    return m_globalCellIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t IJKCellIndex::localCellIndexI() const
-{
-    return m_localCellIndexI;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t IJKCellIndex::localCellIndexJ() const
-{
-    return m_localCellIndexJ;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t IJKCellIndex::localCellIndexK() const
-{
-    return m_localCellIndexK;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString IJKCellIndex::oneBasedLocalCellIndexString() const
-{
-    QString text = QString("[%1, %2, %3]").arg(m_localCellIndexI + 1).arg(m_localCellIndexJ + 1).arg(m_localCellIndexK + 1);
-
-    return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString IJKCellIndex::lgrName() const
-{
-    return m_lgrName;
-}
