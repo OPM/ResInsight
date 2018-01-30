@@ -576,33 +576,36 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
                                                                     std::vector<RigCompletionData>& completions,
                                                                     RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
-    std::set<QString> gridNames;
+    // Sort completions based on grid they belong to
+    std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
 
-    for (const auto& c : completions)
+    for (const auto& completion : completions)
     {
-        gridNames.insert(c.completionDataGridCell().lgrName());
+        QString gridName = completion.completionDataGridCell().lgrName();
+
+        auto it = completionsForGrid.find(gridName);
+        if (it == completionsForGrid.end())
+        {
+            completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>(gridName, std::vector<RigCompletionData>{completion}));
+        }
+        else
+        {
+            it->second.push_back(completion);
+        }
     }
 
-    for (const auto& gridName : gridNames)
+    for (auto& it : completionsForGrid)
     {
-        std::vector<RigCompletionData> completionsForGrid;
-
-        for (const auto& c : completions)
-        {
-            if (gridName == c.completionDataGridCell().lgrName())
-            {
-                completionsForGrid.push_back(c);
-            }
-        }
-
         QString lgrFileName = fileName;
+        QString gridName = it.first;
+
         if (!gridName.isEmpty())
         {
             lgrFileName += "_";
             lgrFileName += gridName;
         }
 
-        printCompletionsToFileLgr(folderName, lgrFileName, completionsForGrid, exportType);
+        printCompletionsToFileLgr(folderName, lgrFileName, it.second, exportType);
     }
 }
 
