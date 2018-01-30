@@ -103,7 +103,7 @@ private:
 
     static double  interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
 
-    static void    addTransparentCurve(QwtPlot* plot, const std::vector<QPointF>& points, const std::vector<WhichYAxis>& axes);
+    static void    addTransparentCurve(QwtPlot* plot, const std::vector<QPointF>& points, const std::vector<WhichYAxis>& axes, bool logScaleLeftAxis);
 
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                               asciiDataForUiSelectedCurves() const;

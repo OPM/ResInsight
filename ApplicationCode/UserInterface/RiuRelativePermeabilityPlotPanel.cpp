@@ -22,6 +22,7 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuTextDialog.h"
 
+#include "RigCurveDataTools.h"
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cvfBase.h"
@@ -232,7 +233,7 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 //--------------------------------------------------------------------------------------------------
 /// Add a transparent curve to make tooltip available on given points. 
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::addTransparentCurve(QwtPlot* plot, const std::vector<QPointF>& points, const std::vector<WhichYAxis>& axes)
+void RiuRelativePermeabilityPlotPanel::addTransparentCurve(QwtPlot* plot, const std::vector<QPointF>& points, const std::vector<WhichYAxis>& axes, bool logScaleLeftAxis)
 {
     QwtPlotCurve* curveLeftAxis = new QwtPlotCurve();
     QwtPlotCurve* curveRightAxis = new QwtPlotCurve();
@@ -245,6 +246,8 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve(QwtPlot* plot, const 
 
     for (size_t i = 0; i < points.size(); i++)
     {
+        if (!RigCurveDataTools::isValidValue(points[i].y(), logScaleLeftAxis)) continue;
+        
         if (axes[i] == LEFT_YAXIS)
         {
             pointsOnLeftAxis.push_back(points[i]);
@@ -382,7 +385,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
 
     plot->enableAxis(QwtPlot::yRight, shouldEnableRightYAxis);
 
-    addTransparentCurve(plot, points, axes);
+    addTransparentCurve(plot, points, axes, logScaleLeftAxis);
 
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if (swat != HUGE_VAL)
