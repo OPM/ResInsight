@@ -20,7 +20,7 @@
 
 #include "RicfCommandObject.h"
 
-#include "CompletionCommands/RicExportCompletionDataSettingsUi.h"
+#include "CompletionCommands/CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"

@@ -5,10 +5,8 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.h
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.h
-${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.h
@@ -18,10 +16,8 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathImportPerforationIntervalsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.cpp

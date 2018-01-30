@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../RicCaseAndFileExportSettingsUi.h"
+#include "RicCaseAndFileExportSettingsUi.h"
 
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
