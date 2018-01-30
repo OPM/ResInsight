@@ -648,7 +648,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QSt
     
     if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
-        generateWpimultTable(formatter, completions);
+        generateWpimultTable(formatter, gridName, completions);
     }
 
     RiaLogging::info(QString("Successfully exported completion data to %1").arg(filePath));
@@ -816,16 +816,35 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
+void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseDataTableFormatter& formatter, 
+                                                                  const QString& gridName,
+                                                                  const std::vector<RigCompletionData>& completionData)
 {
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn("Well"),
-        RifEclipseOutputTableColumn("Mult"),
-        RifEclipseOutputTableColumn("I"),
-        RifEclipseOutputTableColumn("J"),
-        RifEclipseOutputTableColumn("K"),
-    };
-    formatter.keyword("WPIMULT");
+    std::vector<RifEclipseOutputTableColumn> header;
+
+    if (gridName.isEmpty())
+    {
+        header = {
+            RifEclipseOutputTableColumn("Well"),
+            RifEclipseOutputTableColumn("Mult"),
+            RifEclipseOutputTableColumn("I"),
+            RifEclipseOutputTableColumn("J"),
+            RifEclipseOutputTableColumn("K"),
+        };
+        formatter.keyword("WPIMULT");
+    }
+    else
+    {
+        header = {
+            RifEclipseOutputTableColumn("Well"),
+            RifEclipseOutputTableColumn("LgrName"),
+            RifEclipseOutputTableColumn("Mult"),
+            RifEclipseOutputTableColumn("I"),
+            RifEclipseOutputTableColumn("J"),
+            RifEclipseOutputTableColumn("K"),
+        };
+        formatter.keyword("WPIMULTL");
+    }
     formatter.header(header);
 
     for (auto& completion : completionData)
@@ -837,6 +856,12 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
         formatter.add(completion.wellName());
         formatter.add(completion.wpimult());
+
+        if (!gridName.isEmpty())
+        {
+            formatter.add(gridName);
+        }
+
         formatter.addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexI()).addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexJ()).addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexK());
         formatter.rowCompleted();
     }
