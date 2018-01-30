@@ -155,8 +155,8 @@ private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                                const RicExportCompletionDataSettingsUi& settings);
 
-    static void                                  printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
-    static void                                  printCompletionsToFileLgr(const QString& folderName, const QString& fileName, const QString& gridName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
+    static void                                  printCompletionsToFiles(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
+    static void                                  printCompletionsToFile(const QString& folderName, const QString& fileName, const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
     static std::vector<RigCompletionData>        getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions, const QString& wellName, RigCompletionData::CompletionType completionType);
     static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > getCompletionsForWell(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& cellToCompletionMap, const QString& wellName);

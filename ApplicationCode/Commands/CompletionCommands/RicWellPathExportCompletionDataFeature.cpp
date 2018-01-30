@@ -371,7 +371,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
 
         const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
-        printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.compdatExport);
+        printCompletionsToFiles(exportSettings.folder, fileName, completions, exportSettings.compdatExport);
         progress.incrementProgress();
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL)
@@ -396,7 +396,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             if (wellCompletions.empty()) continue;
 
             QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
-            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
+            printCompletionsToFiles(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
             progress.incrementProgress();
         }
     }
@@ -415,7 +415,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 if (!fishbonesCompletions.empty())
                 {
                     QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                    printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
+                    printCompletionsToFiles(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
                 }
                 progress.incrementProgress();
             }
@@ -424,7 +424,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 if (!perforationCompletions.empty())
                 {
                     QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                    printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
+                    printCompletionsToFiles(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
                 }
                 progress.incrementProgress();
             }
@@ -433,7 +433,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 if (!fractureCompletions.empty())
                 {
                     QString fileName = QString("%1_Fractures_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                    printCompletionsToFile(exportSettings.folder, fileName, fractureCompletions, exportSettings.compdatExport);
+                    printCompletionsToFiles(exportSettings.folder, fileName, fractureCompletions, exportSettings.compdatExport);
                 }
                 progress.incrementProgress();
             }
@@ -466,7 +466,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             QString fileName = exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ?
                 QString("%1_unifiedCompletions_%2").arg(simWell->name()).arg(eclipseCaseName) :
                 QString("%1_Fractures_%2").arg(simWell->name()).arg(eclipseCaseName);
-            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
+            printCompletionsToFiles(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
             progress.incrementProgress();
         }
     }
@@ -571,54 +571,61 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName,
+void RicWellPathExportCompletionDataFeature::printCompletionsToFiles(const QString& folderName,
                                                                     const QString& fileName,
                                                                     std::vector<RigCompletionData>& completions,
                                                                     RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     // Sort completions based on grid they belong to
-    std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
+    std::vector<RigCompletionData> completionsForMainGrid;
+
+    std::map<QString, std::vector<RigCompletionData>> completionsForSubGrids;
 
     for (const auto& completion : completions)
     {
         QString gridName = completion.completionDataGridCell().lgrName();
-
-        auto it = completionsForGrid.find(gridName);
-        if (it == completionsForGrid.end())
+        if (gridName.isEmpty())
         {
-            completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>(gridName, std::vector<RigCompletionData>{completion}));
+            completionsForMainGrid.push_back(completion);
         }
         else
         {
-            it->second.push_back(completion);
+            auto it = completionsForSubGrids.find(gridName);
+            if (it == completionsForSubGrids.end())
+            {
+                completionsForSubGrids.insert(std::pair<QString, std::vector<RigCompletionData>>(gridName, std::vector<RigCompletionData>{completion}));
+            }
+            else
+            {
+                it->second.push_back(completion);
+            }
         }
     }
 
-    for (auto& it : completionsForGrid)
+    if (!completionsForMainGrid.empty())
     {
-        QString lgrFileName = fileName;
-        QString gridName = it.first;
+        std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
+        completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>("", completionsForMainGrid));
 
-        if (!gridName.isEmpty())
-        {
-            lgrFileName += "_";
-            lgrFileName += gridName;
-        }
+        printCompletionsToFile(folderName, fileName, completionsForGrid, exportType);
+    }
 
-        printCompletionsToFileLgr(folderName, lgrFileName, gridName, it.second, exportType);
+    if (!completionsForSubGrids.empty())
+    {
+        QString lgrFileName = fileName + "_LGR";
+        printCompletionsToFile(folderName, lgrFileName, completionsForSubGrids, exportType);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QString& folderName, 
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName, 
                                                                        const QString& fileName, 
-                                                                       const QString& gridName, 
-                                                                       std::vector<RigCompletionData>& completions,
+                                                                       const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
                                                                        RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
-    if (completions.empty()) return;
+    if (completionsPerGrid.empty()) return;
 
     QDir exportFolder(folderName);
 
@@ -640,15 +647,21 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFileLgr(const QSt
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
 
-    // Sort by well name / cell index
-    std::sort(completions.begin(), completions.end());
-
-    // Print completion data
-    generateCompdatTable(formatter, gridName, completions);
-    
-    if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+    for (const auto& gridCompletions : completionsPerGrid)
     {
-        generateWpimultTable(formatter, gridName, completions);
+        std::vector<RigCompletionData> completions = gridCompletions.second;
+
+        // Sort by well name / cell index
+        std::sort(completions.begin(), completions.end());
+
+        // Print completion data
+        QString gridName = gridCompletions.first;
+        generateCompdatTable(formatter, gridName, completions);
+    
+        if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        {
+            generateWpimultTable(formatter, gridName, completions);
+        }
     }
 
     RiaLogging::info(QString("Successfully exported completion data to %1").arg(filePath));
