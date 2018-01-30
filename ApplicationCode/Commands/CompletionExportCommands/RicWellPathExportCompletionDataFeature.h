@@ -112,17 +112,11 @@ struct WellSegmentLocation {
 class RicWellPathExportCompletionDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-protected:
 
-    // Overrides
+protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
-
-    std::vector<RimWellPath*>                    selectedWellPaths();
-    std::vector<RimSimWellInView*>               selectedSimWells();
-
-    bool                                         noWellPathsSelectedDirectly();
 
 public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
@@ -130,7 +124,6 @@ public:
 
     //functions also used by RicFishbonesTransmissibilityCalculationFeatureImp
     static std::set<size_t>                      findIntersectedCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
-    static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell);
     
     static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, 
@@ -143,15 +136,21 @@ public:
                                                                            size_t volumeScaleConstant = 1, 
                                                                            CellDirection directionForVolumeScaling = CellDirection::DIR_I);
 
+
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimSimWellInView*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
+
+private:
+    std::vector<RimWellPath*>                    selectedWellPaths();
+    std::vector<RimSimWellInView*>               selectedSimWells();
+
+    bool                                         noWellPathsSelectedDirectly();
+    static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
+
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                         double skinFactor,
                                                                                         double wellRadius,
                                                                                         size_t globalCellIndex,
                                                                                         CellDirection direction);
-
-    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimSimWellInView*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
-
-private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                                const RicExportCompletionDataSettingsUi& settings);
 
@@ -172,6 +171,5 @@ private:
     static void                                  assignLateralIntersectionsAndBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 
     static void                                  appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data);
-
 };
 

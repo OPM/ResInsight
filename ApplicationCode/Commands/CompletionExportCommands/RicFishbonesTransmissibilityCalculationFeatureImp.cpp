@@ -35,6 +35,23 @@
 #include "RimWellPathCompletions.h"
 #include "RigWellLogExtractor.h"
 
+//==================================================================================================
+/// 
+//==================================================================================================
+struct WellBorePartForTransCalc
+{
+    WellBorePartForTransCalc(cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, QString metaData)
+        : lengthsInCell(lengthsInCell), wellRadius(wellRadius), skinFactor(skinFactor), isMainBore(isMainBore), metaData(metaData)
+    {
+    }
+
+    cvf::Vec3d lengthsInCell;
+    double     wellRadius;
+    double     skinFactor;
+    QString    metaData;
+    bool       isMainBore;
+};
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

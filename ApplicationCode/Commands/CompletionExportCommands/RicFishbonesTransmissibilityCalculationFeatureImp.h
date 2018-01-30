@@ -18,40 +18,15 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfVector3.h"
-
 #include <vector>
 #include <map>
-#include <QString>
 
 class RigCompletionData;
 class RimWellPath;
 class RicExportCompletionDataSettingsUi;
 
+struct WellBorePartForTransCalc;
 
-//==================================================================================================
-/// 
-//==================================================================================================
-struct WellBorePartForTransCalc {
-    WellBorePartForTransCalc(cvf::Vec3d lengthsInCell,
-                             double wellRadius,
-                             double skinFactor,
-                             bool isMainBore,
-                             QString metaData)
-        : lengthsInCell(lengthsInCell),
-        wellRadius(wellRadius),
-        skinFactor(skinFactor),
-        isMainBore(isMainBore),
-        metaData(metaData)
-    {}
-
-    cvf::Vec3d               lengthsInCell;
-    double                   wellRadius;
-    double                   skinFactor;
-    QString                  metaData;
-    bool                     isMainBore;
-};
 
 //==================================================================================================
 /// 
@@ -59,20 +34,21 @@ struct WellBorePartForTransCalc {
 class RicFishbonesTransmissibilityCalculationFeatureImp
 {
 public:
-    static std::vector<RigCompletionData>        generateFishboneCompdatValuesUsingAdjustedCellVolume(const RimWellPath* wellPath, 
-                                                                                                      const RicExportCompletionDataSettingsUi& settings);
-
+    static std::vector<RigCompletionData> generateFishboneCompdatValuesUsingAdjustedCellVolume(const RimWellPath* wellPath, 
+                                                                                               const RicExportCompletionDataSettingsUi& settings);
 
 
 private:
-    static void                                  findFishboneLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc> >& wellBorePartsInCells, 
-                                                                                   const RimWellPath* wellPath, 
-                                                                                   const RicExportCompletionDataSettingsUi& settings);
-    static void                                  findFishboneImportedLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc> >& wellBorePartsInCells, 
-                                                                                           const RimWellPath* wellPath, 
-                                                                                           const RicExportCompletionDataSettingsUi& settings);
-    static void                                  findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells, 
-                                                                       const RimWellPath* wellPath, 
-                                                                       const RicExportCompletionDataSettingsUi& settings);
-};
+    static void findFishboneLateralsWellBoreParts(std::map<size_t, 
+                                                  std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                                  const RimWellPath* wellPath, 
+                                                  const RicExportCompletionDataSettingsUi& settings);
 
+    static void findFishboneImportedLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                                          const RimWellPath* wellPath, 
+                                                          const RicExportCompletionDataSettingsUi& settings);
+
+    static void findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                      const RimWellPath* wellPath, 
+                                      const RicExportCompletionDataSettingsUi& settings);
+};

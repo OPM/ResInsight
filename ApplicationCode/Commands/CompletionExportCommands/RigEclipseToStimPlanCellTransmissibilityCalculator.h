@@ -59,13 +59,11 @@ private:
                                           const QString& uiResultName);
 
 private:
-    RimEclipseCase*                     m_case;
-    double                              m_cDarcy;
-    double                              m_fractureSkinFactor;
-    cvf::Mat4d                          m_fractureTransform;
-    const RigFractureCell&              m_stimPlanCell;
-
-    std::vector<size_t>                 m_globalIndeciesToContributingEclipseCells;
-    std::vector<double>                 m_contributingEclipseCellTransmissibilities;
+    RimEclipseCase*        m_case;
+    double                 m_cDarcy;
+    double                 m_fractureSkinFactor;
+    cvf::Mat4d             m_fractureTransform;
+    const RigFractureCell& m_stimPlanCell;
+    std::vector<size_t>    m_globalIndeciesToContributingEclipseCells;
+    std::vector<double>    m_contributingEclipseCellTransmissibilities;
 };
-

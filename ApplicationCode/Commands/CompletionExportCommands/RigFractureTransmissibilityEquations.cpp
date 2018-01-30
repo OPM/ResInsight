@@ -17,22 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFractureTransmissibilityEquations.h"
+
 #include "cvfBase.h"
 #include "cvfMath.h"
+
 #include <cmath>
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans(double conductivity, 
-                                                                           double sideLengthParallellTrans, 
-                                                                           double sideLengthNormalTrans, 
-                                                                           double cDarcyForRelevantUnit)
-{
-    double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
-    return transmissibility;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -130,3 +120,16 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm,
     CVF_ASSERT(transmissibility == transmissibility);
     return transmissibility;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans(double conductivity, 
+                                                                           double sideLengthParallellTrans, 
+                                                                           double sideLengthNormalTrans, 
+                                                                           double cDarcyForRelevantUnit)
+{
+    double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
+    return transmissibility;
+}
+
