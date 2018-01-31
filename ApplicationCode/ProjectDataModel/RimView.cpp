@@ -436,7 +436,7 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RimView::wellPathCollection()
+RimWellPathCollection* RimView::wellPathCollection() const
 {
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(proj);

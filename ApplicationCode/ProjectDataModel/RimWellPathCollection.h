@@ -122,6 +122,8 @@ public:
                                                                           const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                           const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    bool                                anyWellsContainingPerforationIntervals() const;
+
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
