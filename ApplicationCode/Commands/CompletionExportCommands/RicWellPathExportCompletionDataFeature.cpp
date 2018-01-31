@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,63 +20,32 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
 
-#include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
-#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
-#include "RicExportFractureCompletionsImpl.h"
-
-#include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigResultAccessorFactory.h"
-
-#include "RigTransmissibilityEquations.h"
-
-#include "RigWellLogExtractionTools.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
 
 #include "RimDialogData.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishboneWellPathCollection.h"
-#include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
-#include "RimPerforationCollection.h"
-#include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathCompletions.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
-#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
-#include "cvfPlane.h"
-
 #include <QAction>
-#include <QDir>
-#include <QFileDialog>
-#include <QMessageBox>
-#include "RigWellLogExtractor.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    std::vector<RimSimWellInView*> simWells = selectedSimWells();
+    std::vector<RimWellPath*>      wellPaths = selectedWellPaths();
+    std::vector<RimSimWellInView*> simWells  = selectedSimWells();
 
     if (wellPaths.empty() && simWells.empty())
     {
@@ -104,23 +73,24 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    std::vector<RimSimWellInView*> simWells = selectedSimWells();
+    std::vector<RimWellPath*>      wellPaths = selectedWellPaths();
+    std::vector<RimSimWellInView*> simWells  = selectedSimWells();
 
     CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
 
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* project = app->project();
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
 
     QString projectFolder = app->currentProjectPath();
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
+    QString defaultDir    = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(onlyWellPathCollectionSelected);
+    bool                               onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
+    RicExportCompletionDataSettingsUi* exportSettings =
+        project->dialogData()->exportCompletionData(onlyWellPathCollectionSelected);
 
     if (wellPaths.empty())
     {
@@ -146,7 +116,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
         }
     }
 
-    if(exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
+    if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), exportSettings, "Export Completion Data", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
@@ -160,7 +130,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -168,7 +138,7 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPaths()
 {
@@ -195,19 +165,21 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
 {
     std::vector<RimWellPath*> wellPaths;
     caf::SelectionManager::instance()->objectsByType(&wellPaths);
 
-    if (wellPaths.empty()) return true;
-    else return false;
+    if (wellPaths.empty())
+        return true;
+    else
+        return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSimWellInView*> RicWellPathExportCompletionDataFeature::selectedSimWells()
 {
@@ -230,21 +202,3 @@ std::vector<RimSimWellInView*> RicWellPathExportCompletionDataFeature::selectedS
 
     return simWells;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
