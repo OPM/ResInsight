@@ -72,7 +72,6 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_borderPolygonResultName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_activeTimeStepIndex,           "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
-    CAF_PDM_InitField(&m_showStimPlanMesh,              "ShowStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
     CAF_PDM_InitField(&m_conductivityScalingFactor,     "ConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
     CAF_PDM_InitField(&m_conductivityResultNameOnFile,  "ConductivityResultName", QString(""), "Active Conductivity Result Name", "", "", "");
 
@@ -93,14 +92,6 @@ RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
 int RimStimPlanFractureTemplate::activeTimeStepIndex()
 {
     return m_activeTimeStepIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimStimPlanFractureTemplate::showStimPlanMesh()
-{
-    return m_showStimPlanMesh;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +139,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     if (&m_wellPathDepthAtFracture == changedField 
         || &m_borderPolygonResultName == changedField 
         || &m_activeTimeStepIndex == changedField 
-        || &m_showStimPlanMesh == changedField
         || &m_conductivityScalingFactor == changedField
         || &m_stimPlanFileName == changedField
         || &m_conductivityResultNameOnFile == changedField)
@@ -615,7 +605,6 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.add(&name);
-    uiOrdering.add(&m_showStimPlanMesh);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("Input");
     fileGroup->add(&m_stimPlanFileName);

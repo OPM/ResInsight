@@ -96,7 +96,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 
     if (stimPlanFracTemplate)
     {
-        if (m_rimFracture->stimPlanResultColorType() == RimFracture::SINGLE_ELEMENT_COLOR)
+        if (eclView.stimPlanColors->stimPlanResultColorType() == RimStimPlanColors::SINGLE_ELEMENT_COLOR)
         {
             auto part = createStimPlanElementColorSurfacePart(eclView);
             if (part.notNull()) parts.push_back(part.p());
@@ -107,7 +107,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
             if (part.notNull()) parts.push_back(part.p());
         }
 
-        if (stimPlanFracTemplate->showStimPlanMesh())
+        if (eclView.stimPlanColors->showStimPlanMesh())
         {
             auto part = createStimPlanMeshPart(eclView);
             if (part.notNull()) parts.push_back(part.p());

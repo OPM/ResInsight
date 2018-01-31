@@ -53,7 +53,6 @@ public:
     virtual ~RimStimPlanFractureTemplate();
     
     int                                     activeTimeStepIndex();
-    bool                                    showStimPlanMesh();
 
     void                                    loadDataAndUpdate(); 
     void                                    setDefaultsBasedOnXMLfile();
@@ -105,7 +104,6 @@ private:
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<QString>                  m_conductivityResultNameOnFile;
-    caf::PdmField<bool>                     m_showStimPlanMesh;
 
     caf::PdmField<double>                   m_wellPathDepthAtFracture;
     caf::PdmField<QString>                  m_borderPolygonResultName;

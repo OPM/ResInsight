@@ -40,6 +40,19 @@
 
 CAF_PDM_SOURCE_INIT(RimStimPlanColors, "RimStimPlanColors");
 
+namespace caf {
+
+    template<>
+    void caf::AppEnum< RimStimPlanColors::StimPlanResultColorType >::setUp()
+    {
+        addItem(RimStimPlanColors::COLOR_INTERPOLATION, "COLOR_INTERPOLATION", "On");
+        addItem(RimStimPlanColors::SINGLE_ELEMENT_COLOR, "SINGLE_ELEMENT_COLOR", "Off");
+
+        setDefault(RimStimPlanColors::COLOR_INTERPOLATION);
+    }
+
+} // End namespace caf
+
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +73,11 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
 
-    setName("Fracture Colors");
+    CAF_PDM_InitField(&m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "");
+
+    setName("Fracture");
     nameField()->uiCapability()->setUiReadOnly(true);
 }
 
@@ -178,6 +195,26 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     if (changedField == &m_resultNameAndUnit)
     {
         updateStimPlanTemplates();
+    }
+
+    if (changedField == &m_showStimPlanMesh)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
+
+    if(changedField == &m_stimPlanCellVizMode)
+    {
+        Rim3dView* rimView = nullptr;
+        this->firstAncestorOrThisOfType(rimView);
+        if (rimView)
+        {
+            rimView->createDisplayModelAndRedraw();
+        }
     }
 }
 
@@ -336,8 +373,30 @@ void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_resultNameAndUnit);
-    uiOrdering.add(&m_defaultColor);
+    caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Colors");
+    colorGroup->add(&m_resultNameAndUnit);
+    colorGroup->add(&m_defaultColor);
+
+    bool stimPlanExists = false;
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    std::vector<RimFractureTemplate*> fracTemplates = proj->allFractureTemplates();
+
+    for (auto fractemplate : fracTemplates)
+    {
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fractemplate))
+        {
+            stimPlanExists = true;
+            break;
+        }
+    }
+
+    if (stimPlanExists)
+    {
+        caf::PdmUiGroup* stimPlanGroup = uiOrdering.addNewGroup("StimPlan");
+        stimPlanGroup->add(&m_showStimPlanMesh);
+        stimPlanGroup->add(&m_stimPlanCellVizMode);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }

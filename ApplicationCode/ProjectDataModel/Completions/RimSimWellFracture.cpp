@@ -221,6 +221,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.add(nameField());
+    uiOrdering.add(&m_fractureTemplate);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_location);
@@ -234,9 +235,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_fractureUnit);
-    propertyGroup->add(&m_fractureTemplate);
     propertyGroup->add(&m_stimPlanTimeIndexToPlot);
-    propertyGroup->add(&m_stimPlanCellVizMode);
     propertyGroup->add(&m_perforationLength);
     propertyGroup->add(&m_perforationEfficiency);
     propertyGroup->add(&m_wellDiameter);

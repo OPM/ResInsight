@@ -123,7 +123,7 @@ RimEclipseView::RimEclipseView()
     faultResultSettings.uiCapability()->setUiHidden(true);
   
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    CAF_PDM_InitFieldNoDefault(&stimPlanColors, "StimPlanColors", "Fracture Colors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&stimPlanColors, "StimPlanColors", "Fracture", "", "", "");
     stimPlanColors = new RimStimPlanColors();
     stimPlanColors.uiCapability()->setUiHidden(true);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
