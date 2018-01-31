@@ -370,10 +370,15 @@ void RimStimPlanFractureTemplate::setPerforationLength()
         {
             perforationLength = std::round(cvf::Math::abs(firstTvd - lastTvd));
         }
-        else
-        {
-            perforationLength = 1;
-        }
+    }
+
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC && perforationLength < 10)
+    {
+        perforationLength = 10;
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD && perforationLength < RiaEclipseUnitTools::meterToFeet(10))
+    {
+        perforationLength = std::round(RiaEclipseUnitTools::meterToFeet(10));
     }
 }
 
