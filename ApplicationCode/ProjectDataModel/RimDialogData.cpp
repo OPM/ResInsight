@@ -19,7 +19,7 @@
 #include "RimDialogData.h"
 
 #include "ExportCommands/RicExportCarfinUi.h"
-#include "CompletionCommands/RicExportCompletionDataSettingsUi.h"
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
