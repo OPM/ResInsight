@@ -116,5 +116,5 @@ void RicfExportWellPathCompletions::execute()
 
     std::vector<RimSimWellInView*> simWells;
 
-    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, *exportSettings);
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
 }

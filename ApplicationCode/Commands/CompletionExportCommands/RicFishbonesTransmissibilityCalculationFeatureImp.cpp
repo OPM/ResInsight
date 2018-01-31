@@ -61,7 +61,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 {
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
-    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath);
+    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeatureImpl::findWellSegmentLocations(settings.caseToApply, wellPath);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool isMainBore = false;
@@ -126,7 +126,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             }
             else
             {
-                mainBoreDirection = RicWellPathExportCompletionDataFeature::calculateDirectionInCell(settings.caseToApply,
+                mainBoreDirection = RicWellPathExportCompletionDataFeatureImpl::calculateDirectionInCell(settings.caseToApply,
                                                                                                      globalCellIndex,
                                                                                                      wellBorePart.lengthsInCell);
             }
@@ -140,7 +140,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             if (wellBorePart.isMainBore)
             {
                 //No change in transmissibility for main bore
-                transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
+                transmissibility = RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(settings.caseToApply,
                                                                                                             wellPath,
                                                                                                             wellBorePart.lengthsInCell,
                                                                                                             wellBorePart.skinFactor,
@@ -152,7 +152,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             else
             {
                 //Adjust transmissibility for fishbone laterals
-                transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
+                transmissibility = RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(settings.caseToApply,
                                                                                                      wellPath,
                                                                                                      wellBorePart.lengthsInCell,
                                                                                                      wellBorePart.skinFactor,
@@ -164,7 +164,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
             }
 
-            CellDirection direction = RicWellPathExportCompletionDataFeature::calculateDirectionInCell(settings.caseToApply, 
+            CellDirection direction = RicWellPathExportCompletionDataFeatureImpl::calculateDirectionInCell(settings.caseToApply, 
                                                                                                        globalCellIndex, 
                                                                                                        wellBorePart.lengthsInCell);
 
@@ -190,7 +190,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                                                   const RicExportCompletionDataSettingsUi& settings)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
-    std::set<size_t> wellPathCells = RicWellPathExportCompletionDataFeature::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
+    std::set<size_t> wellPathCells = RicWellPathExportCompletionDataFeatureImpl::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
                                                                                                    wellPath->wellPathGeometry()->m_wellPathPoints);
     bool isMainBore = false;
 

@@ -175,7 +175,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
         return;
     }
 
-    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
+    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeatureImpl::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
 
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
