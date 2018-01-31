@@ -29,7 +29,6 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"
