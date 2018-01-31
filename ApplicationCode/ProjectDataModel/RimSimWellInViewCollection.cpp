@@ -321,7 +321,7 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         this->updateUiIconFromToggleField();
 
-        RimView* view;
+        Rim3dView* view;
         firstAncestorOrThisOfType(view);
         if (view)
         {

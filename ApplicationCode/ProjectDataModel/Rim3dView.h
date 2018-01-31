@@ -151,7 +151,7 @@ protected:
     void                                    disableGridBoxField();
     void                                    disablePerspectiveProjectionField();
 
-    RimWellPathCollection*                  wellPathCollection();
+    RimWellPathCollection*                  wellPathCollection() const;
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox);
 
