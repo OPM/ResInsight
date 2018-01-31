@@ -28,6 +28,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiObjectEditorHandle.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
@@ -134,6 +135,7 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
             m_currentCalculation = nullptr;
 
             this->updateConnectedEditors();
+            caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
         }
     }
 }
@@ -247,6 +249,7 @@ bool RicSummaryCurveCalculator::calculate() const
         }
 
         m_currentCalculation()->updateDependentCurvesAndPlots();
+        caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
 
     return true;
@@ -268,7 +271,7 @@ void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// f
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::onEditorWidgetsCreated()
 {
