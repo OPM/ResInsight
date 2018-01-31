@@ -18,7 +18,6 @@ ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.h
-${CEE_CURRENT_LIST_DIR}RigCompletionData.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifier.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.h
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.h
@@ -70,13 +69,9 @@ ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.h
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
     list (APPEND SOURCE_GROUP_HEADER_FILES
-        ${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.h
-        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.h
-        ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.h
         ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
         ${CEE_CURRENT_LIST_DIR}RigFractureGrid.h
         ${CEE_CURRENT_LIST_DIR}RigFractureCell.h
-        ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.h
     )
 endif()
 
@@ -95,7 +90,6 @@ ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
-${CEE_CURRENT_LIST_DIR}RigCompletionData.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultAddress.cpp
@@ -142,13 +136,9 @@ ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.cpp
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
     list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
-        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.cpp
-        ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
         ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
         ${CEE_CURRENT_LIST_DIR}RigFractureGrid.cpp
         ${CEE_CURRENT_LIST_DIR}RigFractureCell.cpp
-        ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.cpp
     )
 endif()
 

@@ -39,6 +39,7 @@ class QString;
 class RigEclipseCaseData;
 class RigCaseCellResultsData;
 class RigGridBase;
+class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
@@ -73,6 +74,8 @@ public:
     RigEclipseCaseData*                         eclipseCaseData();
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
+
+    const RigMainGrid*                          mainGrid() const;
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;

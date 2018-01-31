@@ -28,6 +28,9 @@ class RigMainGrid;
 class RimStimPlanFractureTemplate;
 class RigFractureGrid;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigTransmissibilityCondenser
 {
 public:

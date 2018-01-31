@@ -32,7 +32,7 @@
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 
-#include "CompletionCommands/RicExportFishbonesWellSegmentsFeature.h"
+#include "CompletionExportCommands/RicExportFishbonesWellSegmentsFeature.h"
 
 CAF_PDM_SOURCE_INIT(RicfExportMsw, "exportMsw");
 

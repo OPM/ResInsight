@@ -35,7 +35,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "CompletionCommands/RicWellPathExportCompletionDataFeature.h"
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 CAF_PDM_SOURCE_INIT(RicfExportSimWellCompletions, "exportSimWellCompletions");
 
@@ -127,5 +127,5 @@ void RicfExportSimWellCompletions::execute()
 
     std::vector<RimWellPath*> wellPaths;
 
-    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, *exportSettings);
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
 }

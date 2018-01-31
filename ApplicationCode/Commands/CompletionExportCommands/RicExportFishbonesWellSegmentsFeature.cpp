@@ -175,7 +175,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
         return;
     }
 
-    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
+    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeatureImpl::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
 
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
@@ -365,7 +365,7 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
                 size_t i, j, k;
-                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
+                grid->ijkFromCellIndex(intersection.globalCellIndex, &i, &j, &k);
                 
                 formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
                 formatter.add(lateral.branchNumber);

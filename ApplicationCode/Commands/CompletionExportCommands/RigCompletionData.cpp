@@ -30,7 +30,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex)
+RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex)
     : m_wellName(wellName),
       m_cellIndex(cellIndex),
       m_saturation(HUGE_VAL),
@@ -79,7 +79,7 @@ RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData
     {
         if (it->completionType() != result.completionType())
         {
-            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.i).arg(result.m_cellIndex.j).arg(result.m_cellIndex.k));
+            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.localCellIndexI()).arg(result.m_cellIndex.localCellIndexJ()).arg(result.m_cellIndex.localCellIndexK()));
             continue;
         }
         if (onlyOneIsDefaulted(result.m_transmissibility, it->m_transmissibility))
@@ -212,6 +212,134 @@ bool RigCompletionData::isDefaultValue(double val)
     return val == HUGE_VAL;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigCompletionMetaData>& RigCompletionData::metadata() const
+{
+    return m_metadata;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString& RigCompletionData::wellName() const
+{
+    return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigCompletionDataGridCell& RigCompletionData::completionDataGridCell() const
+{
+    return m_cellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+WellConnectionState RigCompletionData::connectionState() const
+{
+    return m_connectionState;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::saturation() const
+{
+    return m_saturation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::transmissibility() const
+{
+    return m_transmissibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::diameter() const
+{
+    return m_diameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::kh() const
+{
+    return m_kh;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::skinFactor() const
+{
+    return m_skinFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::dFactor() const
+{
+    return m_dFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CellDirection RigCompletionData::direction() const
+{
+    return m_direction;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigCompletionData::count() const
+{
+    return m_count;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::wpimult() const
+{
+    return m_wpimult;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RigCompletionData::completionType() const
+{
+    return m_completionType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isMainBore() const
+{
+    return m_isMainBore;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::readyForExport() const
+{
+    return m_readyForExport;
+}
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -262,3 +390,4 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_wpimult = from.m_wpimult;
     target.m_completionType = from.m_completionType;
 }
+
