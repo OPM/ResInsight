@@ -320,6 +320,13 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (&isActive == changedField)
     {
         this->updateUiIconFromToggleField();
+
+        RimView* view;
+        firstAncestorOrThisOfType(view);
+        if (view)
+        {
+            view->hasUserRequestedAnimation = true;
+        }
     }
 
     if (&m_showWellLabel == changedField)

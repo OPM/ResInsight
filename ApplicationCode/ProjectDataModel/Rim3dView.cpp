@@ -381,7 +381,7 @@ void Rim3dView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* Rim3dView::wellPathCollection()
+RimWellPathCollection* Rim3dView::wellPathCollection() const
 {
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(proj);

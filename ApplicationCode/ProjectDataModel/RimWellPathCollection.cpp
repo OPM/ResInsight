@@ -37,6 +37,7 @@
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
+#include "RimPerforationCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -476,6 +477,18 @@ void RimWellPathCollection::updateFilePathsFromProjectPath(const QString& newPro
     {
         wellPaths[wellPathIdx]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathCollection::anyWellsContainingPerforationIntervals() const
+{
+    for (const auto& wellPath : wellPaths)
+    {
+        if (!wellPath->perforationIntervalCollection()->perforations().empty()) return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
