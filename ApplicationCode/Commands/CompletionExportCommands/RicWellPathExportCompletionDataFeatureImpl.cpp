@@ -779,22 +779,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RicWellPathExportCompletionDataFeatureImpl::findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
-{
-    std::set<size_t> cells;
-
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(caseData->mainGrid(), coords);
-    for (auto intersection : intersections)
-    {
-        cells.insert(intersection.m_hexIndex);
-    }
-
-    return cells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeatureImpl::wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second)
 {
     return first.measuredDepth < second.measuredDepth;

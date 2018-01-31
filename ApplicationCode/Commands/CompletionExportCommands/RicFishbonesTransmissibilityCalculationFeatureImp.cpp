@@ -190,7 +190,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                                                   const RicExportCompletionDataSettingsUi& settings)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
-    std::set<size_t> wellPathCells = RicWellPathExportCompletionDataFeatureImpl::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
+    std::set<size_t> wellPathCells = RicFishbonesTransmissibilityCalculationFeatureImp::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
                                                                                                    wellPath->wellPathGeometry()->m_wellPathPoints);
     bool isMainBore = false;
 
@@ -250,4 +250,20 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
 
         wellBorePartsInCells[cell.globCellIndex].push_back(wellBorePart);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<size_t> RicFishbonesTransmissibilityCalculationFeatureImp::findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
+{
+    std::set<size_t> cells;
+
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(caseData->mainGrid(), coords);
+    for (auto intersection : intersections)
+    {
+        cells.insert(intersection.m_hexIndex);
+    }
+
+    return cells;
 }

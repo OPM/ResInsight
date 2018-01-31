@@ -118,9 +118,6 @@ public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
-    // TODO : Move
-    static std::set<size_t>                      findIntersectedCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
-
     static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell);
     
     static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, 

@@ -18,12 +18,17 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 #include <vector>
 #include <map>
+#include <set>
 
 class RigCompletionData;
 class RimWellPath;
 class RicExportCompletionDataSettingsUi;
+class RigEclipseCaseData;
 
 struct WellBorePartForTransCalc;
 
@@ -51,4 +56,6 @@ private:
     static void findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
                                       const RimWellPath* wellPath, 
                                       const RicExportCompletionDataSettingsUi& settings);
+
+    static std::set<size_t> findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords);
 };
