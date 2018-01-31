@@ -214,6 +214,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
     if (m_stimPlanFractureDefinitionData.isNull()) return;
 
     setDepthOfWellPathAtFracture();
+    setPerforationLength();
     RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(m_wellPathDepthAtFracture));
     m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
     bool polygonPropertySet = setBorderPolygonResultNameToDefault();
@@ -339,10 +340,40 @@ void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
 {
     if (!m_stimPlanFractureDefinitionData.isNull())
     {
-        double firstDepth = m_stimPlanFractureDefinitionData->minDepth();
-        double lastDepth  = m_stimPlanFractureDefinitionData->maxDepth();
-        double averageDepth = (firstDepth + lastDepth) / 2;
-        m_wellPathDepthAtFracture = averageDepth;
+        double firstTvd = m_stimPlanFractureDefinitionData->topPerfTvd();
+        double lastTvd = m_stimPlanFractureDefinitionData->bottomPerfTvd();
+
+        if (firstTvd != HUGE_VAL && lastTvd != HUGE_VAL)
+        {
+            m_wellPathDepthAtFracture = (firstTvd + lastTvd) / 2;
+        }
+        else
+        {
+            firstTvd = m_stimPlanFractureDefinitionData->minDepth();
+            lastTvd = m_stimPlanFractureDefinitionData->maxDepth();
+            m_wellPathDepthAtFracture = (firstTvd + lastTvd) / 2;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::setPerforationLength()
+{
+    if (!m_stimPlanFractureDefinitionData.isNull())
+    {
+        double firstTvd = m_stimPlanFractureDefinitionData->topPerfTvd();
+        double lastTvd = m_stimPlanFractureDefinitionData->bottomPerfTvd();
+
+        if (firstTvd != HUGE_VAL && lastTvd != HUGE_VAL)
+        {
+            perforationLength = std::round(cvf::Math::abs(firstTvd - lastTvd));
+        }
+        else
+        {
+            perforationLength = 1;
+        }
     }
 }
 

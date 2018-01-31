@@ -99,6 +99,7 @@ private:
 
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
+    void                                    setPerforationLength();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
 private:

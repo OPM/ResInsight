@@ -65,6 +65,11 @@ public:
     double                                    maxDepth()   const { return depths.back(); }
     size_t                                    depthCount() const { return depths.size(); }
 
+    double                                    topPerfTvd() const { return m_topPerfTvd; }
+    double                                    bottomPerfTvd() const { return m_bottomPerfTvd; }
+    void                                      setTvdToTopPerf(double topPerfTvd, RiaDefines::DepthUnitType unit);
+    void                                      setTvdToBottomPerf(double bottomPerfTvd, RiaDefines::DepthUnitType unit);
+
     // Grid Geometry
 
     std::vector<double>                       getNegAndPosXcoords() const;
@@ -127,6 +132,9 @@ private:
     std::vector<double>                       m_gridXs;
     std::vector<double>                       m_gridYs;
     std::vector<double>                       depths;
+
+    double                                    m_topPerfTvd;
+    double                                    m_bottomPerfTvd;
 
     std::vector<double>                       m_timeSteps;
     std::vector<RigStimPlanResultFrames>      m_stimPlanResults;

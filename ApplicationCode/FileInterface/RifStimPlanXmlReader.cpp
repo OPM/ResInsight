@@ -36,7 +36,6 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                                                                                   QString * errorMessage)
 {
     RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(stimPlanFileName));
-    RiaEclipseUnitTools::UnitSystemType unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
 
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFileData = new RigStimPlanFractureDefinition;
     size_t startingNegXsValues = 0;
@@ -51,9 +50,10 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         QXmlStreamReader xmlStream;
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
-        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p(), unitSystem);
+        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p());
 
-        stimPlanFileData->setUnitSet(unitSystem);
+        RiaEclipseUnitTools::UnitSystemType unitSystem = stimPlanFileData->unitSet();
+
         if (unitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
             RiaLogging::info(QString("Setting unit system for StimPlan fracture template %1 to %2").arg(stimPlanFileName).arg(unitSystem.uiText()));
         else 
@@ -160,7 +160,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData, RiaEclipseUnitTools::UnitSystemType& unit)
+size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData)
 {
 
     size_t startNegValuesXs = 0;
@@ -179,6 +179,16 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
             if (xmlStream.name() == "grid")
             {
                 gridunit = getAttributeValueString(xmlStream, "uom");
+
+                if (gridunit == "m")       stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_METRIC);
+                else if (gridunit == "ft") stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_FIELD);
+                else                       stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_UNKNOWN);
+
+                double tvdToTopPerfFt = getAttributeValueDouble(xmlStream, "TVDToTopPerfFt");
+                double tvdToBottomPerfFt = getAttributeValueDouble(xmlStream, "TVDToBottomPerfFt");
+
+                stimPlanFileData->setTvdToTopPerf(tvdToTopPerfFt, RiaDefines::UNIT_FEET);
+                stimPlanFileData->setTvdToBottomPerf(tvdToBottomPerfFt, RiaDefines::UNIT_FEET);
             }
 
             if (xmlStream.name() == "xs")
@@ -204,10 +214,6 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
             }
         }
     }
-
-    if (gridunit == "m")       unit = RiaEclipseUnitTools::UNITS_METRIC;
-    else if (gridunit == "ft") unit = RiaEclipseUnitTools::UNITS_FIELD;
-    else                       unit = RiaEclipseUnitTools::UNITS_UNKNOWN;
 
     if (startNegValuesYs > 0)
     {
