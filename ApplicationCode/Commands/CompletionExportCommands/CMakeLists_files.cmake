@@ -7,6 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathExportCompletionDataFeature.h
+${CEE_CURRENT_LIST_DIR}RicWellPathExportCompletionDataFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.h
 ${CEE_CURRENT_LIST_DIR}RigCompletionData.h
 ${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.h
@@ -28,6 +29,7 @@ endif()
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathExportCompletionDataFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicWellPathExportCompletionDataFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.cpp
 ${CEE_CURRENT_LIST_DIR}RigCompletionData.cpp
 ${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.cpp

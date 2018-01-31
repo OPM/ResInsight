@@ -35,7 +35,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 CAF_PDM_SOURCE_INIT(RicfExportSimWellCompletions, "exportSimWellCompletions");
 

@@ -21,7 +21,7 @@
 #include "RifEclipseDataTableFormatter.h"
 
 #include "RicCaseAndFileExportSettingsUi.h"
-#include "RicWellPathExportCompletionDataFeature.h"
+#include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 
 #include "cafCmdFeature.h"

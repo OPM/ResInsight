@@ -19,7 +19,7 @@
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicWellPathExportCompletionDataFeature.h"
+#include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCompletionData.h"
