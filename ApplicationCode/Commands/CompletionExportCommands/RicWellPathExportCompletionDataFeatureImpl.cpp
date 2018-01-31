@@ -24,30 +24,26 @@
 
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
-#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 #include "RicExportFractureCompletionsImpl.h"
+#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+
+#include "RifEclipseDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-
 #include "RigTransmissibilityEquations.h"
-
 #include "RigWellLogExtractionTools.h"
+#include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
-#include "RimDialogData.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -61,13 +57,7 @@
 
 #include "cvfPlane.h"
 
-#include <QAction>
 #include <QDir>
-#include <QFileDialog>
-#include <QMessageBox>
-#include "RigWellLogExtractor.h"
-
-
 
 
 
@@ -226,7 +216,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
             }
             std::vector<RigCompletionData> wellCompletions;
-            for (auto completion : completions)
+            for (const auto& completion : completions)
             {
                 if (completion.wellName() == wellPath->completions()->wellNameForExport())
                 {
@@ -294,7 +284,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
             }
             std::vector<RigCompletionData> wellCompletions;
-            for (auto completion : completions)
+            for (const auto& completion : completions)
             {
                 if (completion.wellName() == simWell->name())
                 {
@@ -516,7 +506,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::getCo
                                                                                                               RigCompletionData::CompletionType completionType)
 {
     std::vector<RigCompletionData> filteredCompletions;
-    for (auto completion : completions)
+    for (const auto& completion : completions)
     {
         if (completion.wellName() == wellName && completion.completionType() == completionType)
         {
@@ -847,7 +837,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignLateralIntersections(cons
 
         std::vector<std::pair<cvf::Vec3d, double> > lateralCoordMDPairs = location->fishbonesSubs->coordsAndMDForLateral(location->subIndex, lateral.lateralIndex);
         
-        if ( !lateralCoordMDPairs.size() ) 
+        if ( lateralCoordMDPairs.empty() ) 
         {
             continue;
         }

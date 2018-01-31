@@ -26,6 +26,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"

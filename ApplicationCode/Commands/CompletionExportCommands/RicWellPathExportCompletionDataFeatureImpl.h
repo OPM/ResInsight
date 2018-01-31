@@ -18,18 +18,14 @@
 
 #pragma once
 
-#include "RifEclipseDataTableFormatter.h"
-
-#include "RigWellLogExtractionTools.h"
-#include "RigWellPathIntersectionTools.h"
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 
-#include "cafCmdFeature.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
-#include "cvfBoundingBox.h"
-
+#include <vector>
 
 class RigCell;
 class RigEclipseCaseData;
@@ -38,7 +34,7 @@ class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimSimWellInView;
 class RimWellPath;
-
+class RifEclipseDataTableFormatter;
 
 //==================================================================================================
 /// 
