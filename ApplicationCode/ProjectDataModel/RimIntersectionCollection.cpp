@@ -20,6 +20,7 @@
 #include "RimIntersectionCollection.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimIntersection.h"
@@ -95,7 +96,9 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
+void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex, 
+                                                      const cvf::ScalarMapper* scalarColorMapper, 
+                                                      const RivTernaryScalarMapper* ternaryColorMapper)
 {
     if(!this->isActive()) return;
 
@@ -103,7 +106,7 @@ void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
     {
         if(cs->isActive)
         {
-            cs->intersectionPartMgr()->updateCellResultColor(timeStepIndex);
+            cs->intersectionPartMgr()->updateCellResultColor(timeStepIndex, scalarColorMapper, ternaryColorMapper);
         }
     }
 
@@ -184,6 +187,17 @@ void RimIntersectionCollection::syncronize2dIntersectionViews()
     RimCase* ownerCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(ownerCase);
     ownerCase->intersectionViewCollection()->syncFromExistingIntersections(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectionViews()
+{
+    for (RimIntersection* isection: m_intersections)
+    {
+        isection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

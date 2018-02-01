@@ -30,6 +30,7 @@
 #include "RigFormationNames.h"
 
 #include "RimGeoMechView.h"
+#include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -499,6 +500,7 @@ void RimGeoMechCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen(PROPERTY_FILTERED);
                 view->scheduleCreateDisplayModelAndRedraw();
+                geomView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }

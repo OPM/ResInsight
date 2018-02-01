@@ -289,7 +289,7 @@ void RimStimPlanColors::updateLegendData()
             legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);
         }
 
-        legendConfig->setTitle(cvfqt::Utils::toString(m_resultNameAndUnit()));
+        legendConfig->setTitle(m_resultNameAndUnit());
     }
 }
 

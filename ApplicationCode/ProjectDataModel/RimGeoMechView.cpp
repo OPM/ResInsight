@@ -290,7 +290,9 @@ void RimGeoMechView::updateCurrentTimeStep()
 
         if (this->cellResult()->hasResult())
         {
-            m_crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+            m_crossSectionCollection->updateCellResultColor(m_currentTimeStep, 
+                                                            this->cellResult()->legendConfig()->scalarMapper(), 
+                                                            nullptr);
         }
         else
         {
@@ -344,12 +346,22 @@ void RimGeoMechView::resetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateLegends()
 {
-    if (m_viewer)
+    if ( m_viewer )
     {
         m_viewer->removeAllColorLegends();
-    }
 
-    if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData()
+        this->updateLegendTextAndRanges(cellResult()->legendConfig(), m_currentTimeStep());
+
+        m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex)
+{
+    if (!m_geomechCase || !m_geomechCase->geoMechData()
         || !this->isTimeStepDependentDataVisible() 
         || !(cellResult()->resultAddress().isValid()) )
     {
@@ -366,16 +378,16 @@ void RimGeoMechView::updateLegends()
 
     RigFemResultAddress resVarAddress = cellResult()->resultAddress();
 
-    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, m_currentTimeStep, &localMin, &localMax);
-    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, timeStepIndex, &localMin, &localMax);
+    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero);
 
     gmCase->femPartResults()->minMaxScalarValues(resVarAddress, &globalMin, &globalMax);
     gmCase->femPartResults()->posNegClosestToZero(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
 
 
-    cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-    cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-    
+    legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
     if (cellResult()->hasCategoryResult())
     {
         std::vector<QString> fnVector;
@@ -383,18 +395,16 @@ void RimGeoMechView::updateLegends()
         {
             fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
         }
-        cellResult()->legendConfig->setNamedCategoriesInverse(fnVector);
+        legendConfig->setNamedCategoriesInverse(fnVector);
     }
-    
-    m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
-    cvf::String legendTitle = cvfqt::Utils::toString(
+    QString legendTitle = 
         caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldUiName());
+        + cellResult->resultFieldUiName();
 
     if (!cellResult->resultComponentUiName().isEmpty())
     {
-        legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
+        legendTitle += ", " + cellResult->resultComponentUiName();
     }
 
     if (   cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar" 
@@ -408,7 +418,7 @@ void RimGeoMechView::updateLegends()
         legendTitle += " [GPa]";
     }
 
-    cellResult()->legendConfig->setTitle(legendTitle);
+    legendConfig->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------

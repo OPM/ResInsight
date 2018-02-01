@@ -101,7 +101,9 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
         {
             if (cellResultColors->isTernarySaturationSelected())
             {
-                RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(), timeStepIndex);
+                RivTernaryTextureCoordsCreator texturer(cellResultColors, 
+                                                        cellResultColors->ternaryLegendConfig()->scalarMapper(), 
+                                                        timeStepIndex);
                 
                 texturer.createTextureCoords(m_intersectionBoxFacesTextureCoords.p(), m_intersectionBoxGenerator->triangleToCellIndex());
 

@@ -33,6 +33,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "Rim3dView.h"
@@ -409,6 +410,8 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
             {
                 viewLinker->updateCellResult();
             }
+            RimGridView* eclView = dynamic_cast<RimGridView*>(view);
+            if (eclView) eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 

@@ -41,6 +41,7 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
+#include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -398,6 +399,7 @@ void RimEclipseCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen(PROPERTY_FILTERED);
                 view->scheduleCreateDisplayModelAndRedraw();
+                eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }

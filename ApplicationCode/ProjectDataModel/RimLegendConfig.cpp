@@ -51,6 +51,7 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
+#include "RimIntersectionCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -191,7 +192,7 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     updateLegend();
 
-    Rim3dView* view = nullptr;
+    RimGridView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     if (view)
@@ -203,6 +204,8 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         }
 
         view->updateCurrentTimeStepAndRedraw();
+
+        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
@@ -664,10 +667,11 @@ QString RimLegendConfig::categoryNameFromCategoryValue(double categoryResultValu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setTitle(const cvf::String& title)
+void RimLegendConfig::setTitle(const QString& title)
 {
-    m_scalarMapperLegend->setTitle(title);
-    m_categoryLegend->setTitle(title);
+    auto cvfTitle = cvfqt::Utils::toString(title);
+    m_scalarMapperLegend->setTitle(cvfTitle);
+    m_categoryLegend->setTitle(cvfTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,6 +696,7 @@ void RimLegendConfig::setUiValuesFromLegendConfig(const RimLegendConfig* otherLe
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
     this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
+    this->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

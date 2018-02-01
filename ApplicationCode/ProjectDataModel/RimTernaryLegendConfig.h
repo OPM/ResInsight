@@ -65,13 +65,17 @@ public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();
 
+    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
     void                setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
     void                recreateLegend();
     
-    RivTernarySaturationOverlayItem*    legend();
-    RivTernaryScalarMapper*             scalarMapper();
+    const RivTernarySaturationOverlayItem*    legend() const;
+    RivTernarySaturationOverlayItem*          legend();
+    void                                      setTitle(const QString& title);
+
+    const RivTernaryScalarMapper*             scalarMapper() const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -83,9 +87,6 @@ private:
     void                updateLabelText();
     double              roundToNumSignificantDigits(double value, double precision);
     
-    friend class RimViewLinker;
-    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
-
 private:
     caf::PdmField<int>              precision;
     caf::PdmField<RangeModeEnum>    rangeMode;

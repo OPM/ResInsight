@@ -39,6 +39,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafProgressInfo.h"
+#include "RimIntersectionCollection.h"
 
 namespace caf {
     template<>
@@ -691,6 +692,7 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
             // a full display model rebuild is required
             reservoirViews[i]->hasUserRequestedAnimation = true;
             reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+            reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 

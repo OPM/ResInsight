@@ -23,6 +23,8 @@
 
 class RimIntersection;
 class RivIntersectionPartMgr;
+class RimLegendConfig;
+class RimTernaryLegendConfig;
 
 namespace cvf
 {
@@ -50,7 +52,7 @@ public:
     virtual void               selectOverlayInfoConfig() override {}
 
     virtual RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
-    virtual RimViewController* viewController() const override   { return nullptr; }
+    virtual RimViewController* viewController() const override       { return nullptr; }
 
     virtual bool               isTimeStepDependentDataVisible() const override;
 
@@ -75,6 +77,11 @@ protected:
 
     bool                       hasResults();
     int                        timeStepCount();
+
+    void                       updateLegends();
+
+    caf::PdmChildField<RimLegendConfig*>        m_legendConfig;
+    caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
 
     caf::PdmPtrField<RimIntersection*> m_intersection;
 

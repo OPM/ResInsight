@@ -41,6 +41,7 @@ class RimGeoMechPropertyFilterCollection;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
+class RimLegendConfig;
 
 namespace cvf {
     class CellRangeFilter;
@@ -83,6 +84,8 @@ public:
     virtual bool                                        isUsingFormationNames() const override;
 
     virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+
+    void                                                updateLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;

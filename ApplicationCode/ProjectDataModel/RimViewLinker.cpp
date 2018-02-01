@@ -33,6 +33,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimIntersectionCollection.h"
 #include "RimLegendConfig.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"
@@ -152,10 +153,10 @@ void RimViewLinker::updateCellResult()
                             eclipseView->cellResult()->legendConfig()->updateLegend();
 
                             eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
-                            eclipseView->cellResult()->ternaryLegendConfig()->updateLegend();
                         }
 
                         eclipseView->scheduleCreateDisplayModelAndRedraw();
+                        eclipseView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                     
                     eclipseView->cellResult()->updateIconState();
@@ -190,6 +191,7 @@ void RimViewLinker::updateCellResult()
                         }
 
                         geoView->scheduleCreateDisplayModelAndRedraw();
+                        geoView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
 
                     geoView->cellResult()->updateIconState();

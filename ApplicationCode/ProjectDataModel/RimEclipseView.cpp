@@ -656,7 +656,9 @@ void RimEclipseView::updateCurrentTimeStep()
 
     if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
-        m_crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+        m_crossSectionCollection->updateCellResultColor(m_currentTimeStep, 
+                                                        this->cellResult()->legendConfig()->scalarMapper(),
+                                                        this->cellResult()->ternaryLegendConfig()->scalarMapper());
     }
     else
     {
@@ -1035,7 +1037,7 @@ void RimEclipseView::updateLegends()
         }
 
         m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
-        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName()));
+        this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
     }
     else
     {
@@ -1060,71 +1062,24 @@ void RimEclipseView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData)
+void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, 
+                                                          RimEclipseCellColors* resultColors, 
+                                                          RigCaseCellResultsData* cellResultsData)
 {
+    resultColors->updateLegendData(m_currentTimeStep);
+
     if (resultColors->hasResult())
     {
-        resultColors->updateLegendData(m_currentTimeStep);
-
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiShortName()));
+        resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
-        {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                double globalMin = 0.0;
-                double globalMax = 1.0;
-                double localMin = 0.0;
-                double localMax = 1.0;
-
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
-        {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                double globalMin = 0.0;
-                double globalMax = 1.0;
-                double localMin = 0.0;
-                double localMax = 1.0;
-
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
-        {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                double globalMin = 0.0;
-                double globalMax = 1.0;
-                double localMin = 0.0;
-                double localMax = 1.0;
-
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
         if (resultColors->ternaryLegendConfig->legend())
         {
-            resultColors->ternaryLegendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel));
+            resultColors->ternaryLegendConfig->setTitle(legendLabel);
             m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend());
         }
     }

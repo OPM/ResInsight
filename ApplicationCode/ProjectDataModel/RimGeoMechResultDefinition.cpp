@@ -30,6 +30,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
+#include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
 #include "RimViewLinker.h"
 
@@ -214,7 +215,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
-    Rim3dView* view = nullptr;
+    RimGridView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
@@ -261,7 +262,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 if (view) view->scheduleGeometryRegen(PROPERTY_FILTERED);
             }
 
-            if (view) view->scheduleCreateDisplayModelAndRedraw();
+            if ( view )
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+                view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            }
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {

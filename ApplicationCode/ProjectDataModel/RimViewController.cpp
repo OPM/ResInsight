@@ -48,6 +48,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QMessageBox>
+#include "RimIntersectionCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimViewController, "ViewController");
 //--------------------------------------------------------------------------------------------------
@@ -687,6 +688,11 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
         {
             this->managedView()->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    if (this->isResultColorControlled() && this->managedView() )
+    {
+        this->managedView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 

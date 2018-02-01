@@ -114,7 +114,9 @@ public:
     void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
     QString                                     categoryNameFromCategoryValue(double categoryResultValue) const;
 
-    void                                        setTitle(const cvf::String& title);
+    void                                        setTitle(const QString& title);
+
+    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     cvf::OverlayItem*                           legend();
@@ -134,7 +136,6 @@ private:
     double                                      roundToNumSignificantDigits(double value, double precision);
 
     friend class RimViewLinker;
-    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
     
     static cvf::Color3ubArray                   colorArrayFromColorType(ColorRangesType colorType);
 

@@ -38,6 +38,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
@@ -690,6 +691,7 @@ public:
                         // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
                         // a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                        m_currentReservoir->reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
@@ -1053,6 +1055,8 @@ public:
                         // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
                         // a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                        m_currentReservoir->reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+
                     }
                 }
             }

@@ -43,6 +43,7 @@ class RigResultAccessor;
 class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimIntersection;
+class RivTernaryScalarMapper;
 class RivIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
@@ -59,7 +60,9 @@ public:
     explicit RivIntersectionPartMgr(RimIntersection* rimCrossSection, bool isFlattened = false);
 
     void applySingleColorEffect();
-    void updateCellResultColor(size_t timeStepIndex);
+    void updateCellResultColor(size_t timeStepIndex, 
+                               const cvf::ScalarMapper* scalarColorMapper, 
+                               const RivTernaryScalarMapper* ternaryColorMapper);
 
 
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
