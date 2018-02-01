@@ -86,6 +86,7 @@ public:
                                                PosNegAccumulator& posNegAccumulator) const override;
 
     QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
+    void                                    setDefaultConductivityResultIfEmpty();
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

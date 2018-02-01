@@ -67,6 +67,8 @@ public:
     void                updateStimPlanTemplates() const;
     StimPlanResultColorType stimPlanResultColorType() const { return m_stimPlanCellVizMode(); };
 
+    void                updateConductivityResultName();
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

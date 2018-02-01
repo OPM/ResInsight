@@ -46,6 +46,7 @@ public:
 
     void                                        deleteFractureDefinitions();
     void                                        loadAndUpdateData();
+    void                                        setDefaultConductivityResultIfEmpty();
 
     void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 };

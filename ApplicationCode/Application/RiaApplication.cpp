@@ -96,6 +96,7 @@
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
 #include "RimWellPathFracture.h"
+#include "RimStimPlanColors.h"
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
@@ -512,7 +513,9 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
+        oilField->fractureDefinitionCollection()->setDefaultConductivityResultIfEmpty();
 
         {
             std::vector<RimWellPathFracture*> wellPathFractures;
@@ -543,6 +546,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     }
 
 
+
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
@@ -567,6 +571,18 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                     CVF_ASSERT(riv);
 
                     viewProgress.setProgressDescription(riv->name());
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+                    if (m_project->isProjectFileVersionEqualOrOlderThan("2018.1.0.103"))
+                    {
+                        std::vector<RimStimPlanColors*> stimPlanColors;
+                        riv->descendantsIncludingThisOfType(stimPlanColors);
+                        if (stimPlanColors.size() == 1)
+                        {
+                            stimPlanColors[0]->updateConductivityResultName();
+                        }
+                    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
                     riv->loadDataAndUpdate();
                     this->setActiveReservoirView(riv);

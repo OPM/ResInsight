@@ -400,6 +400,20 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::setDefaultConductivityResultIfEmpty()
+{
+    if (m_conductivityResultNameOnFile().isEmpty())
+    {
+        if (!m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty())
+        {
+            m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimStimPlanFractureTemplate::mapUiResultNameToFileResultName(const QString& uiResultName) const
 {
     QString fileResultName;
