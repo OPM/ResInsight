@@ -26,7 +26,7 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderSettings.h"
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
@@ -84,7 +84,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 
                 if (resultFileInfo.lastModified() < indexFileInfo.lastModified())
                 {
-                    m_ecl_file = ecl_file_fast_open(RifStringTools::toNativeEncoded(m_filename).data(), RifStringTools::toNativeEncoded(indexFileName).data(), ECL_FILE_CLOSE_STREAM);
+                    m_ecl_file = ecl_file_fast_open(RiaStringEncodingTools::toNativeEncoded(m_filename).data(), RiaStringEncodingTools::toNativeEncoded(indexFileName).data(), ECL_FILE_CLOSE_STREAM);
                     if (!m_ecl_file)
                     {
                         RiaLogging::error(QString("Failed to open file %1 using index file.").arg(m_filename));
@@ -100,7 +100,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 
         if (!m_ecl_file)
         {
-            m_ecl_file = ecl_file_open(RifStringTools::toNativeEncoded(m_filename).data(), ECL_FILE_CLOSE_STREAM);
+            m_ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_filename).data(), ECL_FILE_CLOSE_STREAM);
             if (!m_ecl_file)
             {
                 RiaLogging::error(QString("Failed to open file %1").arg(m_filename));
@@ -113,7 +113,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                     QString resultPath = fi.absolutePath();
                     if (caf::Utils::isFolderWritable(resultPath))
                     {
-                        bool success = ecl_file_write_index(m_ecl_file, RifStringTools::toNativeEncoded(indexFileName).data());
+                        bool success = ecl_file_write_index(m_ecl_file, RiaStringEncodingTools::toNativeEncoded(indexFileName).data());
 
                         if (success)
                         {

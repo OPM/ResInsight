@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderEclipseSummary.h"
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #include "ert/ecl/ecl_sum.h"
 
@@ -66,11 +66,11 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringL
     stringlist_type* dataFiles = stringlist_alloc_new();
     for (int i = 0; i < dataFileNames.size(); i++)
     {
-        stringlist_append_copy(dataFiles, RifStringTools::toNativeEncoded(dataFileNames[i]).data());
+        stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
     }
 
     std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(RifStringTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), false);
+    m_ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), false);
 
     stringlist_free(dataFiles);
 

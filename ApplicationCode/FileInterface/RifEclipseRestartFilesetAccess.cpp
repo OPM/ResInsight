@@ -20,7 +20,7 @@
 
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -272,7 +272,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
     if (m_ecl_files[timeStep] == NULL)
     {
         int index = static_cast<int>(timeStep);
-        ecl_file_type* ecl_file = ecl_file_open(RifStringTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
 
@@ -297,7 +297,7 @@ int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
     fileNameUpper = fileNameUpper.toUpper();
 
     // Convert to upper case, as ecl_util_filename_report_nr does not handle lower case file extensions
-    int reportNumber = ecl_util_filename_report_nr(RifStringTools::toNativeEncoded(fileNameUpper).data());
+    int reportNumber = ecl_util_filename_report_nr(RiaStringEncodingTools::toNativeEncoded(fileNameUpper).data());
 
     return reportNumber;
 }

@@ -18,21 +18,26 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RiaStringEncodingTools.h"
 
-#include <QString>
-#include <QByteArray>
-#include <string>
 
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class RifStringTools
+const std::string RiaStringEncodingTools::toNativeEncoded(const QString& qstring)
 {
-public:
-    static const std::string    toNativeEncoded(const QString& qstring);
+#ifdef WIN32
+    return std::string(qstring.toLatin1().data());
+#else
+    return std::string(qstring.toUtf8().data());
+#endif
+}
 
-    static const QString        fromNativeEncoded(const char* native);
-};
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString RiaStringEncodingTools::fromNativeEncoded(const char* native)
+{
+#ifdef WIN32
+    return QString::fromLatin1(native);
+#else
+    return QString::fromUtf8(native);
+#endif
+}

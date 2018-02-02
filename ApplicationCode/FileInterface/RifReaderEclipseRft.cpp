@@ -21,7 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #include "cafVecIjk.h"
 
@@ -51,7 +51,7 @@ void RifReaderEclipseRft::open()
 
     RiaLogging::info(QString("Opening file '%1'").arg( m_fileName));
 
-    m_ecl_rft_file = ecl_rft_file_alloc_case(RifStringTools::toNativeEncoded(m_fileName).data());
+    m_ecl_rft_file = ecl_rft_file_alloc_case(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
 
     if (m_ecl_rft_file == NULL)
     {

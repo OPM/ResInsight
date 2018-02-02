@@ -28,7 +28,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifHdf5ReaderInterface.h"
 #include "RifReaderSettings.h"
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5Reader.h"
@@ -375,7 +375,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
 
     // Read geometry
     // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type * mainEclGrid = ecl_grid_alloc( RifStringTools::toNativeEncoded(fileName).data() );
+    ecl_grid_type * mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded(fileName).data() );
 
     progInfo.incrementProgress();
 
@@ -723,7 +723,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
     {
-        ecl_file_type* ecl_file = ecl_file_open(RifStringTools::toNativeEncoded(egridFileName).data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(egridFileName).data(), ECL_FILE_CLOSE_STREAM);
         if (!ecl_file) return false;
 
         int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
@@ -2214,7 +2214,7 @@ void RifReaderEclipseOutput::openInitFile()
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
-        m_ecl_init_file = ecl_file_open(RifStringTools::toNativeEncoded(initFileName).data(), ECL_FILE_CLOSE_STREAM);
+        m_ecl_init_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(initFileName).data(), ECL_FILE_CLOSE_STREAM);
     }
 }
 

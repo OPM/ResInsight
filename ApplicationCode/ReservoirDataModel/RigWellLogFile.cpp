@@ -21,7 +21,7 @@
 
 #include "RigWellLogCurveData.h"
 
-#include "RifStringTools.h"
+#include "RiaStringEncodingTools.h"
 
 #include "RimWellLogCurve.h"
 
@@ -83,7 +83,7 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     {
         int wellFormat = NRLib::Well::LAS;
 
-        well = NRLib::Well::ReadWell(RifStringTools::toNativeEncoded(fileName).data(), wellFormat);
+        well = NRLib::Well::ReadWell(RiaStringEncodingTools::toNativeEncoded(fileName).data(), wellFormat);
         if (!well)
         {
             return false;
@@ -151,7 +151,7 @@ void RigWellLogFile::close()
 QString RigWellLogFile::wellName() const
 {
     CVF_ASSERT(m_wellLogFile);
-    return RifStringTools::fromNativeEncoded(m_wellLogFile->GetWellName().data());
+    return RiaStringEncodingTools::fromNativeEncoded(m_wellLogFile->GetWellName().data());
 }
 
 //--------------------------------------------------------------------------------------------------
