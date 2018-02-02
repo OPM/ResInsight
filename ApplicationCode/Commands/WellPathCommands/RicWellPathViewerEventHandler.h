@@ -30,6 +30,6 @@ class RicWellPathViewerEventHandler : public RicViewerEventInterface
 public:
     static RicWellPathViewerEventHandler* instance();
 
-    virtual bool handleEvent(const RicViewerEventObject& eventObject);
+    bool handleEvent(const RicViewerEventObject& eventObject) override;
 };
 

@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
@@ -56,18 +57,41 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
     cvf::uint wellPathTriangleIndex = cvf::UNDEFINED_UINT;
     const RivWellPathSourceInfo* wellPathSourceInfo = nullptr;
 
-    if(eventObject.m_partAndTriangleIndexPairs.size() > 0)
+    if(!eventObject.m_partAndTriangleIndexPairs.empty())
     {
         const auto & partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
         const cvf::Part* part = partAndTriangleIndexPair.first;
         
         const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
-        if (!objectToSelect && sourceInfo)
+        if (sourceInfo)
         {
-            objectToSelect = sourceInfo->object();
+            if (dynamic_cast<RimPerforationInterval*>(sourceInfo->object()))
+            {
+                objectToSelect = sourceInfo->object();
+
+                if (eventObject.m_partAndTriangleIndexPairs.size() > 1)
+                {
+                    const auto& secondPair = eventObject.m_partAndTriangleIndexPairs[1];
+                    const cvf::Part* secondPickedPart = secondPair.first;
+                    if (secondPickedPart)
+                    {
+                        auto wellPathSourceCandidate = dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
+                        if (wellPathSourceCandidate)
+                        {
+                            RimWellPath* perforationWellPath = nullptr;
+                            objectToSelect->firstAncestorOrThisOfType(perforationWellPath);
+                            if (perforationWellPath == wellPathSourceCandidate->wellPath())
+                            {
+                                wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
+                                wellPathTriangleIndex = secondPair.second;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        if (part && part->sourceInfo() && dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
+        if (part && dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
         {
             wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
             wellPathTriangleIndex = partAndTriangleIndexPair.second;
