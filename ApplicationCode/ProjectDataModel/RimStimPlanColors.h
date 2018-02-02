@@ -60,6 +60,7 @@ public:
     QString             unit() const;
     cvf::Color3f        defaultColor() const;
     bool                showStimPlanMesh() const { return m_showStimPlanMesh; }
+    void                setShowStimPlanMesh(bool showStimPlanMesh);
 
     void                loadDataAndUpdate();
     void                updateLegendData();

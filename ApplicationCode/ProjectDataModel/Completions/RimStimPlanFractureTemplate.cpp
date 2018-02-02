@@ -75,6 +75,9 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField(&m_conductivityScalingFactor,     "ConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
     CAF_PDM_InitField(&m_conductivityResultNameOnFile,  "ConductivityResultName", QString(""), "Active Conductivity Result Name", "", "", "");
 
+    CAF_PDM_InitField(&m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "");
+    m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden(true);
+
     m_fractureGrid = new RigFractureGrid();
     m_readError    = false;
 }
@@ -428,6 +431,14 @@ QString RimStimPlanFractureTemplate::mapUiResultNameToFileResultName(const QStri
     }
 
     return fileResultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::showStimPlanMesh() const
+{
+    return m_showStimPlanMesh_OBSOLETE();
 }
 
 //--------------------------------------------------------------------------------------------------

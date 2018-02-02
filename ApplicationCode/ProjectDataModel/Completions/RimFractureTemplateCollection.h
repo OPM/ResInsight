@@ -49,4 +49,7 @@ public:
     void                                        setDefaultConductivityResultIfEmpty();
 
     void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+protected:
+    virtual void initAfterRead() override;
+
 };

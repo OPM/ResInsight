@@ -20,11 +20,24 @@
 
 #include "RigStatisticsMath.h"
 
+#include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFracture.h"
 #include "RimFractureTemplate.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafPdmObject.h"
+
+#include <map>
 
 
 
@@ -157,6 +170,110 @@ void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString
         if (ellipseFracture)
         {
             ellipseFracture->loadDataAndUpdate();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::initAfterRead()
+{
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj && proj->isProjectFileVersionEqualOrOlderThan("2018.1.0.103"))
+    {
+        bool setAllShowMeshToFalseOnAllEclipseViews = false;
+
+        std::vector<RimWellPathFracture*> wellPathFractures;
+        RimWellPathCollection* wellPathCollection = proj->activeOilField()->wellPathCollection();
+        wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
+
+        for (RimWellPathFracture* fracture : wellPathFractures)
+        {
+            RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
+            if (stimPlanFractureTemplate)
+            {
+                if (stimPlanFractureTemplate->showStimPlanMesh() == false)
+                {
+                    setAllShowMeshToFalseOnAllEclipseViews = true;
+                    break;
+                }
+            }
+        }
+
+        std::vector<RimEclipseView*> eclipseViews;
+        
+        std::vector<RimCase*> rimCases;
+        proj->allCases(rimCases);
+
+        for (RimCase* rimCase : rimCases)
+        {
+            for (Rim3dView* view : rimCase->views())
+            {
+                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+                if (eclView)
+                {
+                    eclipseViews.push_back(eclView);
+                }
+            }
+        }
+
+        for (RimEclipseView* eclipseView : eclipseViews)
+        {
+            if (setAllShowMeshToFalseOnAllEclipseViews)
+            {
+                eclipseView->stimPlanColors->setShowStimPlanMesh(false);
+                continue;
+            }
+
+            //Find all fractures in all simWells
+            std::map<RimStimPlanFractureTemplate*, bool> stimPlanFractureTemplatesInView;
+
+            std::vector<RimFracture*> fractures;
+            if (eclipseView->wellCollection)
+            {
+                eclipseView->wellCollection->descendantsIncludingThisOfType(fractures);
+            }
+            if (fractures.empty()) continue;
+
+            for (RimFracture* fracture : fractures)
+            {
+                RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
+                if (stimPlanFractureTemplate)
+                {
+                    stimPlanFractureTemplatesInView[stimPlanFractureTemplate];
+                }
+            }
+
+            if (stimPlanFractureTemplatesInView.empty()) continue;
+
+            auto templateIt = stimPlanFractureTemplatesInView.begin();
+
+            if (stimPlanFractureTemplatesInView.size() == 1)
+            {
+                eclipseView->stimPlanColors->setShowStimPlanMesh(templateIt->first->showStimPlanMesh());
+            }
+            else
+            {
+                bool anySetShowStimPlanMeshIsSetToFalse = false;
+                for (templateIt; templateIt != stimPlanFractureTemplatesInView.end(); templateIt++)
+                {
+                    if (templateIt->first->showStimPlanMesh() == false)
+                    {
+                        anySetShowStimPlanMeshIsSetToFalse = true;
+                        break;
+                    }
+                }
+                if (anySetShowStimPlanMeshIsSetToFalse)
+                {
+                    eclipseView->stimPlanColors->setShowStimPlanMesh(false);
+                }
+                else
+                {
+                    eclipseView->stimPlanColors->setShowStimPlanMesh(true);
+                }
+            }
         }
     }
 }

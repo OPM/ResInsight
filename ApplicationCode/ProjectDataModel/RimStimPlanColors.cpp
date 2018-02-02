@@ -92,6 +92,14 @@ RimStimPlanColors::~RimStimPlanColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanColors::setShowStimPlanMesh(bool showStimPlanMesh)
+{
+    m_showStimPlanMesh = showStimPlanMesh;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();

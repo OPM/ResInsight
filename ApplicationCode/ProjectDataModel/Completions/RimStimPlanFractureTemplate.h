@@ -88,6 +88,8 @@ public:
     QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
     void                                    setDefaultConductivityResultIfEmpty();
 
+    bool                                    showStimPlanMesh() const;
+
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -114,4 +116,6 @@ private:
     caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
+
+    caf::PdmField<bool>                     m_showStimPlanMesh_OBSOLETE;
 };
