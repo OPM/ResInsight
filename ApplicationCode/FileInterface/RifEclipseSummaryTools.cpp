@@ -20,17 +20,21 @@
 
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifStringTools.h"
 
 #include "cafAppEnum.h"
 
 #include "ert/ecl/ecl_util.h"
+
+#include <QString>
+#include <QStringList>
 
 #include <iostream>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::findSummaryHeaderFile(const std::string& inputFile, std::string* headerFile, bool* isFormatted)
+void RifEclipseSummaryTools::findSummaryHeaderFile(const QString& inputFile, QString* headerFile, bool* isFormatted)
 {
     findSummaryHeaderFileInfo(inputFile, headerFile, NULL, NULL, isFormatted);
 }
@@ -38,9 +42,9 @@ void RifEclipseSummaryTools::findSummaryHeaderFile(const std::string& inputFile,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile, 
-                                                   std::string* headerFile, 
-                                                   std::vector<std::string>* dataFiles)
+void RifEclipseSummaryTools::findSummaryFiles(const QString& inputFile, 
+                                                   QString* headerFile, 
+                                                   QStringList* dataFiles)
 {
     dataFiles->clear();
     headerFile->clear();
@@ -49,21 +53,21 @@ void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile,
     char* myBase = NULL;
     char* myExtention = NULL;
 
-    util_alloc_file_components(inputFile.data(), &myPath, &myBase, &myExtention);
+    util_alloc_file_components(RifStringTools::toNativeEncoded(inputFile).data(), &myPath, &myBase, &myExtention);
 
-    std::string path; if(myPath) path = myPath;
-    std::string base; if(myBase) base = myBase;
+    QString path; if(myPath) path = RifStringTools::fromNativeEncoded(myPath);
+    QString base; if(myBase) base = RifStringTools::fromNativeEncoded(myBase);
     std::string extention; if(myExtention) extention = myExtention;
 
-    if(path.empty() || base.empty()) return ;
+    if(path.isEmpty() || base.isEmpty()) return ;
 
     char* myHeaderFile = NULL;
     stringlist_type* summary_file_list = stringlist_alloc_new();
 
-    ecl_util_alloc_summary_files(path.data(), base.data(), extention.data(), &myHeaderFile, summary_file_list);
+    ecl_util_alloc_summary_files(RifStringTools::toNativeEncoded(path).data(), RifStringTools::toNativeEncoded(base).data(), extention.data(), &myHeaderFile, summary_file_list);
     if(myHeaderFile)
     {
-        (*headerFile) = myHeaderFile;
+        (*headerFile) = RifStringTools::fromNativeEncoded(myHeaderFile);
         util_safe_free(myHeaderFile);
     }
 
@@ -71,7 +75,7 @@ void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile,
     {
         for(int i = 0; i < stringlist_get_size(summary_file_list); i++)
         {
-            dataFiles->push_back(stringlist_iget(summary_file_list,i));
+            dataFiles->push_back(RifStringTools::fromNativeEncoded(stringlist_iget(summary_file_list,i)));
         }
     }
     stringlist_free(summary_file_list);
@@ -83,12 +87,12 @@ void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseSummaryTools::hasSummaryFiles(const std::string& gridFileName)
+bool RifEclipseSummaryTools::hasSummaryFiles(const QString& gridFileName)
 {
-    std::string headerFileName;
-    std::vector<std::string> dataFileNames;
+    QString headerFileName;
+    QStringList dataFileNames;
     RifEclipseSummaryTools::findSummaryFiles(gridFileName, &headerFileName, &dataFileNames);
-    if (!headerFileName.empty() && dataFileNames.size()) return true;
+    if (!headerFileName.isEmpty() && dataFileNames.size()) return true;
 
     return false;
 }
@@ -96,25 +100,25 @@ bool RifEclipseSummaryTools::hasSummaryFiles(const std::string& gridFileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifEclipseSummaryTools::findSummaryDataFiles(const std::string& caseFile)
+QStringList RifEclipseSummaryTools::findSummaryDataFiles(const QString& caseFile)
 {
-    std::vector<std::string> fileNames;
+    QStringList fileNames;
 
-    std::string path;
-    std::string base;
+    QString path;
+    QString base;
 
     findSummaryHeaderFileInfo(caseFile, NULL, &path, &base, NULL);
-    if (path.empty() || base.empty()) return fileNames;
+    if (path.isEmpty() || base.isEmpty()) return fileNames;
 
     char* header_file = NULL;
     stringlist_type* summary_file_list = stringlist_alloc_new();
 
-    ecl_util_alloc_summary_files(path.data(), base.data(), NULL, &header_file, summary_file_list);
+    ecl_util_alloc_summary_files(RifStringTools::toNativeEncoded(path).data(), RifStringTools::toNativeEncoded(base).data(), NULL, &header_file, summary_file_list);
     if (stringlist_get_size( summary_file_list ) > 0)
     {
         for (int i = 0; i < stringlist_get_size(summary_file_list); i++)
         {
-            fileNames.push_back(stringlist_iget(summary_file_list, i));
+            fileNames.push_back(RifStringTools::fromNativeEncoded(stringlist_iget(summary_file_list, i)));
         }
     }
 
@@ -163,13 +167,13 @@ void RifEclipseSummaryTools::dumpMetaData(RifSummaryReaderInterface* readerEclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const std::string& inputFile, std::string* headerFile, std::string* path, std::string* base, bool* isFormatted)
+void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted)
 {
     char* myPath = NULL;
     char* myBase = NULL;
     bool formattedFile = true;
 
-    util_alloc_file_components(inputFile.data(), &myPath, &myBase, NULL);
+    util_alloc_file_components(RifStringTools::toNativeEncoded(inputFile).data(), &myPath, &myBase, NULL);
 
     char* myHeaderFile = ecl_util_alloc_exfilename(myPath, myBase, ECL_SUMMARY_HEADER_FILE, true, -1);
     if (!myHeaderFile)

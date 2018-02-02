@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +20,19 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
+#include <QString>
+#include <QByteArray>
 #include <string>
-#include <vector>
-
-class RifSummaryReaderInterface;
-class QStringList;
-class QString;
 
 //==================================================================================================
 //
 // 
 //
 //==================================================================================================
-class RifEclipseSummaryTools
+class RifStringTools
 {
 public:
-    static void                     findSummaryHeaderFile(const QString& inputFile, QString* headerFile, bool* isFormatted);
-    static QStringList              findSummaryDataFiles(const QString& caseFile);
+    static const std::string    toNativeEncoded(const QString& qstring);
 
-    static void                     findSummaryFiles(const QString& inputFile, QString* headerFile, QStringList* dataFiles);
-    static bool                     hasSummaryFiles(const QString& gridFileName);
-    static void                     dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary);
-
-private:
-    static void                     findSummaryHeaderFileInfo(const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted);
+    static const QString        fromNativeEncoded(const char* native);
 };

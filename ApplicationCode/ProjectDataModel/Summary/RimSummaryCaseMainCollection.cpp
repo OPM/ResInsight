@@ -267,7 +267,7 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
 {
     QString gridFileName = eclResCase->gridFileName();
-    if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName).toStdString()))
+    if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName)))
     {
         RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
         this->m_cases.push_back(newSumCase);

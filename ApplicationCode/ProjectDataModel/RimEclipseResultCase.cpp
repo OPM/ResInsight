@@ -208,7 +208,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
     if (rftFileInfo.exists())
     {
         RiaLogging::info(QString("RFT file found"));
-        m_readerEclipseRft = new RifReaderEclipseRft(rftFileInfo.filePath().toStdString());
+        m_readerEclipseRft = new RifReaderEclipseRft(rftFileInfo.filePath());
     }
 
 
