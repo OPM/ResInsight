@@ -38,7 +38,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
-#include <QMessageBox>
 
 
 CAF_CMD_SOURCE_INIT(RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFileFeature");
@@ -63,7 +62,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     exportSnapshotOfAllPlotsIntoFolder(snapshotFolderName);
 
     QString text = QString("Exported snapshots to folder : \n%1").arg(snapshotFolderName);
-    QMessageBox::information(nullptr, "Export Snapshots To Folder", text);
+    RiaLogging::info(text);
 }
 
 //--------------------------------------------------------------------------------------------------
