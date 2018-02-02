@@ -36,7 +36,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
-#include <QMessageBox>
 
 
 CAF_CMD_SOURCE_INIT(RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature");

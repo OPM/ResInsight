@@ -44,7 +44,6 @@
 #include "cvfVector3.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include <algorithm>
 #include <vector>

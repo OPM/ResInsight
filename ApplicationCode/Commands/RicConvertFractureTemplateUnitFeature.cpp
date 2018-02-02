@@ -39,7 +39,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QMessageBox>
 #include <QString>
 #include <QFileInfo>
 
