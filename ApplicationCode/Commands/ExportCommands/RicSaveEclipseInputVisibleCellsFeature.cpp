@@ -42,7 +42,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputVisibleCellsFeature, "RicSaveEclipseInputVisibleCellsFeature");
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclipseInputActiveVisibleCellsFeature");

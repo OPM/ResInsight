@@ -40,7 +40,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 
 CAF_CMD_SOURCE_INIT(RicConvertAllFractureTemplatesToMetricFeature, "RicConvertAllFractureTemplatesToMetricFeature");

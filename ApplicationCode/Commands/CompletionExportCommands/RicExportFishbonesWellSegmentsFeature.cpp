@@ -43,7 +43,6 @@
 #include "cvfMath.h"
 
 #include <QAction>
-#include <QMessageBox>
 #include <QDir>
 
 
