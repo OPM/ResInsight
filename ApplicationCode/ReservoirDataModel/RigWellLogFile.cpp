@@ -21,6 +21,8 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "RifStringTools.h"
+
 #include "RimWellLogCurve.h"
 
 #include "well.hpp"
@@ -80,11 +82,8 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     try
     {
         int wellFormat = NRLib::Well::LAS;
-#ifdef _WINDOWS
-        well = NRLib::Well::ReadWell(fileName.toStdString(), wellFormat);
-#else
-        well = NRLib::Well::ReadWell(fileName.toUtf8().data(), wellFormat);
-#endif
+
+        well = NRLib::Well::ReadWell(RifStringTools::toNativeEncoded(fileName).data(), wellFormat);
         if (!well)
         {
             return false;
@@ -152,7 +151,7 @@ void RigWellLogFile::close()
 QString RigWellLogFile::wellName() const
 {
     CVF_ASSERT(m_wellLogFile);
-    return QString::fromStdString(m_wellLogFile->GetWellName());
+    return RifStringTools::fromNativeEncoded(m_wellLogFile->GetWellName().data());
 }
 
 //--------------------------------------------------------------------------------------------------
