@@ -440,6 +440,7 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
         keywords.push_back("ZCORN");
         keywords.push_back("SPECGRID");
         keywords.push_back("MAPAXES");
+        keywords.push_back("NOECHO");
 
         keywords.push_back(faultsKeyword);
 

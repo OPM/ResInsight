@@ -23,6 +23,9 @@
 #include "cafAppEnum.h"
 
 #include <map>
+#include <vector>
+
+class RicfCommandObject;
 
 //==================================================================================================
 //
@@ -52,6 +55,8 @@ public:
     QString getLastProjectPath() const;
 
     static RicfCommandFileExecutor* instance();
+
+    static std::vector<RicfCommandObject*> prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile);
 
 private:
     RicfMessages m_messages;
