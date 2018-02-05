@@ -278,14 +278,14 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
     if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_width        = 0.5f;
-        m_permeability = 800000.0f;
+        m_permeability = 80000.0f;
         m_halfLength   = 300.0f;
         m_height       = 225.0f;
     }
     else
     {
         m_width        = 0.01f;
-        m_permeability = 1000000.0f;
+        m_permeability = 100000.0f;
         m_halfLength   = 100.0f;
         m_height       = 75.0f;
     }
