@@ -91,9 +91,9 @@ void RimFileSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName)
 {
-    std::string headerFileNameStd;
-    std::vector<std::string> dataFileNames;
-    std::string nativeSumHeadFileName = QDir::toNativeSeparators(headerFileName).toStdString();
+    QString headerFileNameStd;
+    QStringList dataFileNames;
+    QString nativeSumHeadFileName = QDir::toNativeSeparators(headerFileName);
     RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileNameStd, &dataFileNames);
 
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
