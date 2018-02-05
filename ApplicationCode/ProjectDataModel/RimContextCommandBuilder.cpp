@@ -453,6 +453,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
         else if (dynamic_cast<RimIntersection*>(uiItem))
         {
@@ -462,6 +464,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
         else if (dynamic_cast<RimIntersectionBox*>(uiItem))
         {
@@ -469,6 +473,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
         else if (dynamic_cast<RimSimWellInView*>(uiItem))
         {
@@ -662,6 +668,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSimWellFractureFeature";
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
+        menuBuilder.addSeparator();
+        menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
     }
 
     {

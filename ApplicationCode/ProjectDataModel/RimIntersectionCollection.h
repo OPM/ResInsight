@@ -71,6 +71,9 @@ public:
                                const RivTernaryScalarMapper* ternaryColorMapper);
     void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
+    std::vector<RimIntersection*>       intersections() const;
+    std::vector<RimIntersectionBox*>    intersectionBoxes() const;
+
 protected:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();

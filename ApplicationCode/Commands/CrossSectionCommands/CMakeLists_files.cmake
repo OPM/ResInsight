@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSimWellIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPolylineIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewAzimuthDipIntersectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicCopyIntersectionsToAllViewsInCaseFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSimWellIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPolylineIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewAzimuthDipIntersectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCopyIntersectionsToAllViewsInCaseFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

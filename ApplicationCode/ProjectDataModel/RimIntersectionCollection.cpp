@@ -154,6 +154,22 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
+{
+    return m_intersections.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimIntersectionBox*> RimIntersectionCollection::intersectionBoxes() const
+{
+    return m_intersectionBoxes.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::appendIntersectionAndUpdate(RimIntersection* intersection)
 {
     m_intersections.push_back(intersection);

@@ -31,6 +31,7 @@
 #include <vector>
 
 class Rim3dView;
+class RimGridView;
 class RimFormationNames;
 class RimTimeStepFilter;
 class Rim2dIntersectionView;
@@ -54,6 +55,7 @@ public:
     caf::PdmPtrField<RimFormationNames*>        activeFormationNames;
 
     std::vector<Rim3dView*>                     views() const;
+    std::vector<RimGridView*>                   gridViews() const;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 

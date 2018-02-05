@@ -31,6 +31,7 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimIntersection.h"
+#include "RimGridView.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
@@ -82,6 +83,21 @@ std::vector<Rim3dView*> RimCase::views() const
     }
 
     return allViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridView*> RimCase::gridViews() const
+{
+    std::vector<RimGridView*> grViews;
+
+    for (Rim3dView* const view : views())
+    {
+        RimGridView* grView = dynamic_cast<RimGridView*>(view);
+        if (grView) grViews.push_back(grView);
+    }
+    return grViews;
 }
 
 //--------------------------------------------------------------------------------------------------
