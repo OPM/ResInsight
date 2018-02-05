@@ -42,8 +42,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "RivWellPathPartMgr.h"
-
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -298,24 +296,6 @@ RigWellPath* RimWellPath::wellPathGeometry()
 const RigWellPath* RimWellPath::wellPathGeometry() const
 {
     return m_wellPath.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivWellPathPartMgr* RimWellPath::partMgr()
-{
-/*
-    if (m_wellPathPartMgr.isNull()) 
-    {
-        RimWellPathCollection* wpColl;
-        this->firstAncestorOrThisOfType(wpColl);
-        if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
-    }
-
-    return m_wellPathPartMgr.p();
-*/
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,7 +42,6 @@ class RigWellPath;
 class RimProject;
 class RimWellLogFile;
 class RimFishboneWellPathCollection;
-class RivWellPathPartMgr;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
@@ -119,8 +118,6 @@ public:
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;
 
-    RivWellPathPartMgr*                 partMgr();
-
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
@@ -172,15 +169,12 @@ private:
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RigWellPathFormations>     m_wellPathFormations;
-    cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
     caf::PdmField<QString>              m_wellPathFormationFilePath;
     caf::PdmField<QString>              m_formationKeyInFile;
 
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
-    
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
-
 };
