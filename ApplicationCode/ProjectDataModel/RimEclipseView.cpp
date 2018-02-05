@@ -469,7 +469,7 @@ void RimEclipseView::createDisplayModel()
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
+    m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p());
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());

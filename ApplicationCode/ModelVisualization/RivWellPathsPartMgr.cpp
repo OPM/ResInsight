@@ -44,12 +44,9 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* 
                                                            const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                            const caf::DisplayCoordTransform* displayCoordTransform)
 {
-    auto wellPathColl = wellPathCollection();
+    if (!isWellPathVisible()) return;
 
-    if (!wellPathColl->isActive()) return;
-    if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    buildPartManagers();
+    createPartManagersIfRequired();
 
     for (auto& partMgr : m_wellPatshsPartMgrs)
     {
@@ -61,22 +58,15 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* 
 ///
 //--------------------------------------------------------------------------------------------------
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const Rim3dView* rimView)
+void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model)
 {
-    // Display of fractures is not supported in geomech view
-    const RimEclipseView* eclView = dynamic_cast<const RimEclipseView*>(rimView);
-    if (!eclView) return;
+    if (!isWellPathVisible()) return;
 
-    auto wellPathColl = wellPathCollection();
-
-    if (!wellPathColl->isActive()) return;
-    if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    buildPartManagers();
+    createPartManagersIfRequired();
 
     for (auto& partMgr : m_wellPatshsPartMgrs)
     {
-        partMgr->appendStaticFracturePartsToModel(model, eclView);
+        partMgr->appendStaticFracturePartsToModel(model);
     }
 }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
@@ -89,12 +79,9 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
                                                             const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                             const caf::DisplayCoordTransform* displayCoordTransform)
 {
-    auto wellPathColl = wellPathCollection();
+    if (!isWellPathVisible()) return;
 
-    if (!wellPathColl->isActive()) return;
-    if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    buildPartManagers();
+    createPartManagersIfRequired();
 
     for (auto& partMgr : m_wellPatshsPartMgrs)
     {
@@ -131,7 +118,7 @@ void RivWellPathsPartMgr::scheduleGeometryRegen() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::buildPartManagers()
+void RivWellPathsPartMgr::createPartManagersIfRequired()
 {
     RimProject* proj      = RiaApplication::instance()->project();
     auto        wellPaths = proj->allWellPaths();
@@ -157,4 +144,17 @@ RimWellPathCollection* RivWellPathsPartMgr::wellPathCollection() const
     RimProject* proj = RiaApplication::instance()->project();
 
     return proj->activeOilField()->wellPathCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivWellPathsPartMgr::isWellPathVisible() const
+{
+    auto wellPathColl = wellPathCollection();
+
+    if (!wellPathColl->isActive()) return false;
+    if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return false;
+
+    return true;
 }

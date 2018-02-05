@@ -23,9 +23,11 @@
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
-#include <QDateTime>
-#include <map>
 #include "cafPdmPointer.h"
+
+#include <QDateTime>
+
+#include <map>
 
 
 namespace cvf
@@ -54,36 +56,35 @@ public:
     explicit RivWellPathsPartMgr(Rim3dView* view);
     ~RivWellPathsPartMgr();
 
-    void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                   double characteristicCellSize,
-                                                                   const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+    void    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                             double characteristicCellSize,
+                                             const cvf::BoundingBox& wellPathClipBoundingBox,
+                                             const caf::DisplayCoordTransform* displayCoordTransform);
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                   const Rim3dView* rimView);
+    void    appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
-    void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                    const QDateTime& timeStamp,
-                                                                    double characteristicCellSize, 
-                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
+    void    appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                              const QDateTime& timeStamp,
+                                              double characteristicCellSize, 
+                                              const cvf::BoundingBox& wellPathClipBoundingBox,
+                                              const caf::DisplayCoordTransform* displayCoordTransform);
 
-    size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const;
+    size_t  segmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const;
 
 
 
 
 private:
-    void clearGeometryCache();
-    void scheduleGeometryRegen();
-    void buildPartManagers();
+    void                   clearGeometryCache();
+    void                   scheduleGeometryRegen();
+    void                   createPartManagersIfRequired();
     RimWellPathCollection* wellPathCollection() const;
+    bool                    isWellPathVisible() const;
 
 private:
-    caf::PdmPointer<Rim3dView>                m_rimView;
-
-    cvf::Collection<RivWellPathPartMgr>  m_wellPatshsPartMgrs;
+    caf::PdmPointer<Rim3dView>                  m_rimView;
+    cvf::Collection<RivWellPathPartMgr>         m_wellPatshsPartMgrs;
     std::map<RimWellPath*, RivWellPathPartMgr*> m_mapFromViewToIndex;
 };

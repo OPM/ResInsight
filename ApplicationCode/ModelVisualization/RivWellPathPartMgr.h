@@ -60,8 +60,7 @@ public:
                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                   const Rim3dView* eclView);
+    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
