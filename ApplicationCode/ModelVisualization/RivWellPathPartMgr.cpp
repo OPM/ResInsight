@@ -57,15 +57,18 @@
 #include "cvfFont.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
+RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view)
 {
     m_rimWellPath = wellPath;
+    m_rimView = view;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,15 +83,18 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 /// 
 //--------------------------------------------------------------------------------------------------
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView)
+void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const Rim3dView* rimView)
 {
+    const RimEclipseView* eclView = dynamic_cast<const RimEclipseView*>(rimView);
+    if (!eclView) return;
+
     if (!m_rimWellPath || !m_rimWellPath->showWellPath() || !m_rimWellPath->fractureCollection()->isChecked()) return;
 
     for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
     {
         CVF_ASSERT(f);
 
-        f->fracturePartManager()->appendGeometryPartsToModel(model, eclView);
+        f->fracturePartManager()->appendGeometryPartsToModel(model, *eclView);
     }
 }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
@@ -156,13 +162,16 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if (!wellPathCollection) return;
+
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if (!wellPathGeometry) return;
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
     CVF_ASSERT(wellPathGeometry->m_measuredDepths.size() == wellPathGeometry->m_wellPathPoints.size());
 
-    double wellPathRadius = m_rimWellPath->wellPathRadius(characteristicCellSize);
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
     double perforationRadius = wellPathRadius * 1.1;
 
     RivPipeGeometryGenerator geoGenerator;
@@ -211,7 +220,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     clearAllBranchData();
-    double wellPathRadius = m_rimWellPath->wellPathRadius(characteristicCellSize);
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
 
     cvf::Vec3d textPosition;
 
@@ -293,7 +302,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
             pbd.m_surfacePart = new cvf::Part;
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
             
-            RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath);
+            RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath, m_rimView);
             pbd.m_surfacePart->setSourceInfo(sourceInfo);
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
@@ -448,3 +457,10 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
     return wellPathCollection;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RivWellPathPartMgr::wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection)
+{
+    return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
+}

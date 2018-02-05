@@ -28,7 +28,10 @@ namespace cvf
 {
     class Part;
     class ModelBasicList;
+    class Transform;
+    class Effect;
     class DrawableGeo;
+    class ScalarMapper;
 }
 
 namespace caf
@@ -41,14 +44,14 @@ class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
-class RimEclipseView;
+class Rim3dView;
 
 class QDateTime;
 
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
-    explicit RivWellPathPartMgr(RimWellPath* wellPath);
+    explicit RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view);
     ~RivWellPathPartMgr();
 
     void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
@@ -58,7 +61,7 @@ public:
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                   const RimEclipseView& eclView);
+                                                                   const Rim3dView* eclView);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
@@ -90,9 +93,11 @@ private:
 
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection();
+    inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
+    caf::PdmPointer<Rim3dView>              m_rimView;
     
     struct RivPipeBranchData
     {

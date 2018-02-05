@@ -437,6 +437,7 @@ void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList
 void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
                                                              const RimEclipseView& eclView)
 {
+/*
     if (!this->isActive()) return;
     if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
 
@@ -445,6 +446,7 @@ void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList
         RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
         partMgr->appendStaticFracturePartsToModel(model, eclView);
     }
+*/
 }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 

@@ -26,6 +26,7 @@
 #include "cvfVector3.h"
 
 class RimWellPath;
+class Rim3dView;
 
 //==================================================================================================
 ///  
@@ -33,7 +34,7 @@ class RimWellPath;
 class RivWellPathSourceInfo : public cvf::Object
 {
 public:
-    explicit RivWellPathSourceInfo(RimWellPath* wellPath);
+    explicit RivWellPathSourceInfo(RimWellPath* wellPath, Rim3dView* view);
 
     RimWellPath* wellPath() const;
 
@@ -47,4 +48,5 @@ private:
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
+    caf::PdmPointer<Rim3dView> m_view;
 };

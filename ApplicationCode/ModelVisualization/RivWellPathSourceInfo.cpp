@@ -23,6 +23,7 @@
 
 #include "RimCase.h"
 #include "RimWellPath.h"
+#include "Rim3dView.h"
 #include "RimWellPathCollection.h"
 
 #include "RivWellPathPartMgr.h"
@@ -32,9 +33,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath)
+RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath, Rim3dView* view)
 {
     m_wellPath = wellPath;
+    m_view = view;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +105,8 @@ void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const c
 //--------------------------------------------------------------------------------------------------
 size_t RivWellPathSourceInfo::segmentIndex(size_t triangleIndex) const
 {
-    return m_wellPath->partMgr()->segmentIndexFromTriangleIndex(triangleIndex);
+    return -1;
+
+    //return m_view->wellPathSegmentIndexFromTriangleIndex(triangleIndex, m_wellPath);
 }
 

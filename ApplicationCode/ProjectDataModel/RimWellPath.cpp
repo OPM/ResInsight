@@ -305,6 +305,7 @@ const RigWellPath* RimWellPath::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr* RimWellPath::partMgr()
 {
+/*
     if (m_wellPathPartMgr.isNull()) 
     {
         RimWellPathCollection* wpColl;
@@ -313,6 +314,8 @@ RivWellPathPartMgr* RimWellPath::partMgr()
     }
 
     return m_wellPathPartMgr.p();
+*/
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
