@@ -11,7 +11,7 @@
 //TEST(RifReaderEclipseRftTest, TestRifEclipseRftAddress)
 TEST(DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress)
 {
-    std::string filename = "C:\\Users\\Rebecca Cox\\Dropbox\\norne\\norne\\NORNE_ATW2013.RFT";
+    QString filename = "C:\\Users\\Rebecca Cox\\Dropbox\\norne\\norne\\NORNE_ATW2013.RFT";
     
     RifReaderEclipseRft reader(filename);
 
