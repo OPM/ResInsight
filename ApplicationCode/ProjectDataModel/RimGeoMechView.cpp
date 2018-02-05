@@ -30,13 +30,14 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimLegendConfig.h"
+#include "RimTensorResults.h"
 #include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
@@ -81,6 +82,11 @@ RimGeoMechView::RimGeoMechView(void)
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiHidden(true);
 
+
+    CAF_PDM_InitFieldNoDefault(&m_tensorResults, "TensorResults", "Tensor Results", "", "", "");
+    m_tensorResults = new RimTensorResults();
+    m_tensorResults.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
@@ -96,6 +102,7 @@ RimGeoMechView::~RimGeoMechView(void)
 {
     m_geomechCase = NULL;
 
+    delete m_tensorResults;
     delete cellResult;
     delete m_propertyFilterCollection;
 }
@@ -624,6 +631,7 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_gridCollection());
 
     uiTreeOrdering.add(cellResult());
+    uiTreeOrdering.add(m_tensorResults());
 
     uiTreeOrdering.add(m_crossSectionCollection());
     

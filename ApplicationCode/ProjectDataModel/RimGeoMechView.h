@@ -38,6 +38,7 @@ class RimGeoMechCase;
 class RimGeoMechCellColors;
 class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
+class RimTensorResults;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
@@ -110,7 +111,7 @@ private:
     virtual void                                        initAfterRead() override;
 
 
-
+    caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 
