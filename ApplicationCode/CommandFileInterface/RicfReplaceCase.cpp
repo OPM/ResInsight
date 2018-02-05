@@ -18,18 +18,20 @@
 
 #include "RicfReplaceCase.h"
 
-#include "RicfCommandFileExecutor.h"
-
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaProjectModifier.h"
 
-CAF_PDM_SOURCE_INIT(RicfReplaceCase, "replaceCase");
+#include "RicfCommandFileExecutor.h"
+
+#include "RimProject.h"
+
+CAF_PDM_SOURCE_INIT(RicfSingleCaseReplace, "replaceCase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicfReplaceCase::RicfReplaceCase()
+RicfSingleCaseReplace::RicfSingleCaseReplace()
 {
     RICF_InitField(&m_caseId,        "caseId",      -1, "Case ID",  "", "", "");
     RICF_InitField(&m_newGridFile,   "newGridFile", QString(), "New Grid File",  "", "", "");
@@ -38,11 +40,56 @@ RicfReplaceCase::RicfReplaceCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfReplaceCase::execute()
+int RicfSingleCaseReplace::caseId() const
 {
-    if (m_newGridFile().isNull())
+    return m_caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicfSingleCaseReplace::filePath() const
+{
+    return m_newGridFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfSingleCaseReplace::execute()
+{
+    // Never call execute on this object, information is aggregated into RicfMultiCaseReplace
+    CAF_ASSERT(false);
+}
+
+
+
+
+CAF_PDM_SOURCE_INIT(RicfMultiCaseReplace, "replaceCaseImpl_no_support_for_command_file_text_parsing");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicfMultiCaseReplace::RicfMultiCaseReplace()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfMultiCaseReplace::setCaseReplacePairs(const std::map<int, QString>& caseIdToGridFileNameMap)
+{
+    m_caseIdToGridFileNameMap = caseIdToGridFileNameMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfMultiCaseReplace::execute()
+{
+    if (m_caseIdToGridFileNameMap.empty())
     {
-        RiaLogging::error("replaceCase: Required parameter newGridFile.");
+        RiaLogging::error("replaceCaseImpl: No replacements available.");
         return;
     }
 
@@ -53,15 +100,19 @@ void RicfReplaceCase::execute()
         return;
     }
 
-
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
-    if (m_caseId() == -1)
+    for (const auto& a : m_caseIdToGridFileNameMap)
     {
-        projectModifier->setReplaceCaseFirstOccurrence(m_newGridFile());
-    }
-    else
-    {
-        projectModifier->setReplaceCase(m_caseId(), m_newGridFile());
+        const auto caseId = a.first;
+        const auto filePath = a.second;
+        if (caseId < 0)
+        {
+            projectModifier->setReplaceCaseFirstOccurrence(filePath);
+        }
+        else
+        {
+            projectModifier->setReplaceCase(caseId, filePath);
+        }
     }
 
     RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p());
