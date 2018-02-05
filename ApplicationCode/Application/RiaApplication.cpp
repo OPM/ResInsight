@@ -2155,6 +2155,10 @@ void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList*
         
             logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
         }
+        else
+        {
+            RiaLogging::error("Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" + regTestProjectName + ".rsp");
+        }
     }
 
     RiaLogging::info("\n");
