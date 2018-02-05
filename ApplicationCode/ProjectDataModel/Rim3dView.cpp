@@ -32,6 +32,8 @@
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
 
+#include "RivWellPathsPartMgr.h"
+
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuTimeStepChangedHandler.h"
@@ -125,6 +127,8 @@ Rim3dView::Rim3dView(void)
 
     m_wellPathPipeVizModel = new cvf::ModelBasicList;
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
+
+    m_wellPathsPartManager = new RivWellPathsPartMgr(this); 
 
     this->setAs3DViewMdiWindow();
 }
@@ -639,9 +643,9 @@ void Rim3dView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
 
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-    wellPathCollection()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
-                                                             this->ownerCase()->characteristicCellSize(),
-                                                             wellPathClipBoundingBox,
+    m_wellPathsPartManager->appendStaticGeometryPartsToModel(wellPathModelBasicList, 
+                                                             this->ownerCase()->characteristicCellSize(), 
+                                                             wellPathClipBoundingBox, 
                                                              transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -663,7 +667,7 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
         currentTimeStamp = timeStamps[currentTimeStep()];
     }
 
-    wellPathCollection()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
+    m_wellPathsPartManager->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
         currentTimeStamp,
         this->ownerCase()->characteristicCellSize(),
         wellPathClipBoundingBox,
@@ -841,6 +845,14 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
     }
 
     return coordTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t Rim3dView::wellPathSegmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const
+{
+    return m_wellPathsPartManager->segmentIndexFromTriangleIndex(triangleIndex, wellPath);
 }
 
 //--------------------------------------------------------------------------------------------------

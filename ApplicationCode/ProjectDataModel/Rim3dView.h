@@ -51,6 +51,8 @@ class RimViewController;
 class RimViewLinker;
 class RiuViewer;
 class RimWellPathCollection;
+class RivWellPathsPartMgr; 
+class RimWellPath; 
 
 namespace cvf
 {
@@ -144,6 +146,8 @@ public:
 
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const override;
 
+    size_t                                  wellPathSegmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const; 
+
     virtual RimCase*                        ownerCase() const = 0;
 
 protected:
@@ -188,6 +192,8 @@ protected:
     cvf::ref<cvf::ModelBasicList>           m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList>           m_crossSectionVizModel;
     cvf::ref<cvf::ModelBasicList>           m_highlightVizModel;
+
+    cvf::ref<RivWellPathsPartMgr>           m_wellPathsPartManager; 
 
 private:
     // Overridden PdmObject methods:

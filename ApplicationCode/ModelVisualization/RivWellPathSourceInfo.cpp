@@ -105,8 +105,6 @@ void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const c
 //--------------------------------------------------------------------------------------------------
 size_t RivWellPathSourceInfo::segmentIndex(size_t triangleIndex) const
 {
-    return -1;
-
-    //return m_view->wellPathSegmentIndexFromTriangleIndex(triangleIndex, m_wellPath);
+    return m_view->wellPathSegmentIndexFromTriangleIndex(triangleIndex, m_wellPath);
 }
 

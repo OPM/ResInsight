@@ -106,21 +106,6 @@ public:
 
     void                                scheduleRedrawAffectedViews();
 
-    void                                appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
-                                                                         double                            characteristicCellSize, 
-                                                                         const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                                         const caf::DisplayCoordTransform* displayCoordTransform);
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    void                                appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                         const RimEclipseView& eclView);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
-    void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
-                                                                          const QDateTime&                  timeStamp,
-                                                                          double                            characteristicCellSize, 
-                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
     bool                                anyWellsContainingPerforationIntervals() const;
 

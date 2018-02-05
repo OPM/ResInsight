@@ -69,6 +69,7 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
+#include "RivWellPathsPartMgr.h" 
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFracture.h"
@@ -468,7 +469,7 @@ void RimEclipseView::createDisplayModel()
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    wellPathCollection()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), *this);
+    m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());

@@ -44,8 +44,6 @@
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
-#include "RivWellPathPartMgr.h"
-
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
 
@@ -410,64 +408,6 @@ void RimWellPathCollection::scheduleRedrawAffectedViews()
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                             double characteristicCellSize,
-                                                             const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                             const caf::DisplayCoordTransform* displayCoordTransform)
-{
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                             const RimEclipseView& eclView)
-{
-/*
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendStaticFracturePartsToModel(model, eclView);
-    }
-*/
-}
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                              const QDateTime& timeStamp,
-                                                              double characteristicCellSize,
-                                                              const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                              const caf::DisplayCoordTransform* displayCoordTransform)
-
-{
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendDynamicGeometryPartsToModel(model, timeStamp, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

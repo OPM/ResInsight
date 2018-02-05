@@ -63,7 +63,6 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const Rim3dView* rimView)
 {
-/*
     // Display of fractures is not supported in geomech view
     const RimEclipseView* eclView = dynamic_cast<const RimEclipseView*>(rimView);
     if (!eclView) return;
@@ -79,7 +78,6 @@ void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* 
     {
         partMgr->appendStaticFracturePartsToModel(model, eclView);
     }
-*/
 }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
@@ -135,7 +133,6 @@ void RivWellPathsPartMgr::scheduleGeometryRegen() {}
 //--------------------------------------------------------------------------------------------------
 void RivWellPathsPartMgr::buildPartManagers()
 {
-/*
     RimProject* proj      = RiaApplication::instance()->project();
     auto        wellPaths = proj->allWellPaths();
 
@@ -150,7 +147,6 @@ void RivWellPathsPartMgr::buildPartManagers()
             m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
