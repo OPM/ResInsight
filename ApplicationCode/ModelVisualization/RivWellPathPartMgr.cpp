@@ -110,7 +110,7 @@ void RivWellPathPartMgr::appendFishboneSubsPartsToModel(cvf::ModelBasicList* mod
 {
     if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked() ) return;
 
-    for ( auto rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs() )
+    for (const auto& rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs() )
     {
         cvf::ref<RivFishbonesSubsPartMgr> fishbSubPartMgr = new RivFishbonesSubsPartMgr(rimFishboneSubs);
         fishbSubPartMgr->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
@@ -134,7 +134,7 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* mod
         if (!fbWellPath->isChecked()) continue;
 
         std::vector<cvf::Vec3d> displayCoords;
-        for (auto lateralDomainCoords : fbWellPath->coordinates())
+        for (const auto& lateralDomainCoords : fbWellPath->coordinates())
         {
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
         }
@@ -329,7 +329,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
     textPosition.z() += 2.2 * characteristicCellSize; 
 
-    m_wellLabelPart = NULL;
+    m_wellLabelPart = nullptr;
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
         cvf::Font* font = RiaApplication::instance()->customFont();
@@ -431,11 +431,11 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::clearAllBranchData()
 {
-    m_pipeBranchData.m_pipeGeomGenerator = NULL;
-    m_pipeBranchData.m_surfacePart = NULL;
-    m_pipeBranchData.m_surfaceDrawable = NULL;
-    m_pipeBranchData.m_centerLinePart = NULL;
-    m_pipeBranchData.m_centerLineDrawable = NULL;
+    m_pipeBranchData.m_pipeGeomGenerator = nullptr;
+    m_pipeBranchData.m_surfacePart = nullptr;
+    m_pipeBranchData.m_surfaceDrawable = nullptr;
+    m_pipeBranchData.m_centerLinePart = nullptr;
+    m_pipeBranchData.m_centerLineDrawable = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
