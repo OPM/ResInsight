@@ -469,7 +469,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             if (!partAndTriangleIndexPairs.empty())
             {
-                RicViewerEventObject viewerEventObject(globalIntersectionPoint, partAndTriangleIndexPairs);
+                RicViewerEventObject viewerEventObject(globalIntersectionPoint, partAndTriangleIndexPairs, m_reservoirView);
                 for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
                 {
                     if (m_viewerEventHandlers[i]->handleEvent(viewerEventObject))
