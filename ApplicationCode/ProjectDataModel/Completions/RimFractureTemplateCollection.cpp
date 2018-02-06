@@ -69,7 +69,7 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPlanResultNamesAndUnits() const
+std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::resultNamesAndUnits() const
 {
     std::set<std::pair<QString, QString> > nameSet;
 
@@ -211,7 +211,7 @@ void RimFractureTemplateCollection::initAfterRead()
         {
             if (setAllShowMeshToFalseOnAllEclipseViews)
             {
-                eclipseView->stimPlanColors->setShowStimPlanMesh(false);
+                eclipseView->fractureColors->setShowStimPlanMesh(false);
                 continue;
             }
 
@@ -240,7 +240,7 @@ void RimFractureTemplateCollection::initAfterRead()
 
             if (stimPlanFractureTemplatesInView.size() == 1)
             {
-                eclipseView->stimPlanColors->setShowStimPlanMesh(templateIt->first->showStimPlanMesh());
+                eclipseView->fractureColors->setShowStimPlanMesh(templateIt->first->showStimPlanMesh());
             }
             else
             {
@@ -255,11 +255,11 @@ void RimFractureTemplateCollection::initAfterRead()
                 }
                 if (anySetShowStimPlanMeshIsSetToFalse)
                 {
-                    eclipseView->stimPlanColors->setShowStimPlanMesh(false);
+                    eclipseView->fractureColors->setShowStimPlanMesh(false);
                 }
                 else
                 {
-                    eclipseView->stimPlanColors->setShowStimPlanMesh(true);
+                    eclipseView->fractureColors->setShowStimPlanMesh(true);
                 }
             }
         }

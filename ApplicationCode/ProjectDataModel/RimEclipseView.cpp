@@ -124,9 +124,9 @@ RimEclipseView::RimEclipseView()
     faultResultSettings.uiCapability()->setUiHidden(true);
   
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    CAF_PDM_InitFieldNoDefault(&stimPlanColors, "StimPlanColors", "Fracture", "", "", "");
-    stimPlanColors = new RimStimPlanColors();
-    stimPlanColors.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&fractureColors, "StimPlanColors", "Fracture", "", "", "");
+    fractureColors = new RimStimPlanColors();
+    fractureColors.uiCapability()->setUiHidden(true);
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
@@ -463,7 +463,7 @@ void RimEclipseView::createDisplayModel()
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
     // as the fracture geometry depends on the StimPlan legend colors
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    stimPlanColors->updateLegendData();
+    fractureColors->updateLegendData();
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
@@ -771,7 +771,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->faultResultSettings()->customFaultResult()->loadResult();
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    this->stimPlanColors->loadDataAndUpdate();
+    this->fractureColors->loadDataAndUpdate();
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     updateMdiWindowVisibility();
@@ -1047,12 +1047,12 @@ void RimEclipseView::updateLegends()
     }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    RimLegendConfig* stimPlanLegend = stimPlanColors()->activeLegend();
+    RimLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
     if (stimPlanLegend)
     {
-        stimPlanColors->updateLegendData();
+        fractureColors->updateLegendData();
         
-        if (stimPlanColors()->isChecked() && stimPlanLegend->legend())
+        if (fractureColors()->isChecked() && stimPlanLegend->legend())
         {
             m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
         }
@@ -1403,7 +1403,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         if (!oilfield->fractureDefinitionCollection()->fractureDefinitions.empty())
         {
-            uiTreeOrdering.add(stimPlanColors());
+            uiTreeOrdering.add(fractureColors());
         }
     }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES

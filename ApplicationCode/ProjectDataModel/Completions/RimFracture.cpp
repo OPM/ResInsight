@@ -87,7 +87,7 @@ void setDefaultFractureColorResult()
 
             for (RimStimPlanColors* const stimPlanColors : fractureColors)
             {
-                stimPlanColors->setDefaultResultNameForStimPlan();
+                stimPlanColors->setDefaultResultName();
             }
         }
     }

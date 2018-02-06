@@ -56,7 +56,7 @@ public:
 
     RimLegendConfig*    activeLegend() const;
     QString             uiResultName() const;
-    void                setDefaultResultNameForStimPlan();
+    void                setDefaultResultName();
     QString             unit() const;
     cvf::Color3f        defaultColor() const;
     bool                showStimPlanMesh() const { return m_showStimPlanMesh; }

@@ -255,7 +255,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
     
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-        rimEclipseView->stimPlanColors()->setDefaultResultNameForStimPlan();
+        rimEclipseView->fractureColors()->setDefaultResultName();
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 

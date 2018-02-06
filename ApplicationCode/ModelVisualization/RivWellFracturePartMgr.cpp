@@ -85,7 +85,7 @@ RivWellFracturePartMgr::~RivWellFracturePartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView)
 {
-    if (!m_rimFracture->isChecked() || !eclView.stimPlanColors->isChecked()) return;
+    if (!m_rimFracture->isChecked() || !eclView.fractureColors->isChecked()) return;
 
     if (!m_rimFracture->fractureTemplate()) return;
 
@@ -96,7 +96,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 
     if (stimPlanFracTemplate)
     {
-        if (eclView.stimPlanColors->stimPlanResultColorType() == RimStimPlanColors::SINGLE_ELEMENT_COLOR)
+        if (eclView.fractureColors->stimPlanResultColorType() == RimStimPlanColors::SINGLE_ELEMENT_COLOR)
         {
             auto part = createStimPlanElementColorSurfacePart(eclView);
             if (part.notNull()) parts.push_back(part.p());
@@ -107,7 +107,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
             if (part.notNull()) parts.push_back(part.p());
         }
 
-        if (eclView.stimPlanColors->showStimPlanMesh())
+        if (eclView.fractureColors->showStimPlanMesh())
         {
             auto part = createStimPlanMeshPart(eclView);
             if (part.notNull()) parts.push_back(part.p());
@@ -268,7 +268,7 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
         const RigFractureCell* cell         = getFractureCellAtDomainCoord(domainIntersectionPoint);
-        RimStimPlanColors* stimPlanColors   = activeView.stimPlanColors;
+        RimStimPlanColors* stimPlanColors   = activeView.fractureColors;
 
         QString condValueText   = cell ? QString::number(cell->getConductivtyValue()) : "-";
         QString iText           = cell ? QString::number(cell->getI()) : "-";
@@ -377,19 +377,19 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
         surfacePart->setDrawable(geo.p());
         surfacePart->setSourceInfo(new RivObjectSourceInfo(m_rimFracture));
 
-        cvf::Color4f fractureColor = cvf::Color4f(activeView.stimPlanColors->defaultColor());
+        cvf::Color4f fractureColor = cvf::Color4f(activeView.fractureColors->defaultColor());
         
         RimLegendConfig* legendConfig = nullptr; 
-        if (activeView.stimPlanColors() && activeView.stimPlanColors()->isChecked()) 
+        if (activeView.fractureColors() && activeView.fractureColors()->isChecked()) 
         { 
-            legendConfig = activeView.stimPlanColors()->activeLegend(); 
+            legendConfig = activeView.fractureColors()->activeLegend(); 
         } 
  
         if (legendConfig && legendConfig->scalarMapper()) 
         { 
             cvf::Color3ub resultColor = cvf::Color3ub(RiaColorTables::undefinedCellColor());
 
-            if (activeView.stimPlanColors->uiResultName() == RiaDefines::conductivityResultName())
+            if (activeView.fractureColors->uiResultName() == RiaDefines::conductivityResultName())
             {
                 RimEllipseFractureTemplate* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>(m_rimFracture->fractureTemplate()); 
                 if (ellipseFractureTemplate)
@@ -445,9 +445,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     }
 
     RimLegendConfig* legendConfig = nullptr;
-    if (activeView.stimPlanColors() && activeView.stimPlanColors()->isChecked())
+    if (activeView.fractureColors() && activeView.fractureColors()->isChecked())
     {
-        legendConfig = activeView.stimPlanColors()->activeLegend();
+        legendConfig = activeView.fractureColors()->activeLegend();
     }
 
     // Show selected result on the surface geometry and filter out triangles that have result values near 0
@@ -458,7 +458,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         std::vector<double> perNodeResultValues(nodeCoords.size(), HUGE_VAL);
         {
             size_t idx = 0;
-            const std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView.stimPlanColors->uiResultName(), activeView.stimPlanColors->unit(), stimPlanFracTemplate->activeTimeStepIndex());
+            const std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView.fractureColors->uiResultName(), activeView.fractureColors->unit(), stimPlanFracTemplate->activeTimeStepIndex());
             for (const std::vector<double>& unmirroredDataAtDepth : dataToPlot)
             {
                 const std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(unmirroredDataAtDepth);
@@ -529,7 +529,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     {
         // No result is mapped, show the entire StimPlan surface with default color
 
-        return createSingleColorSurfacePart(triangleIndices, nodeCoords, activeView.stimPlanColors->defaultColor());
+        return createSingleColorSurfacePart(triangleIndices, nodeCoords, activeView.fractureColors->defaultColor());
     }
 
     return nullptr;
@@ -578,16 +578,16 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
 
         RimLegendConfig* legendConfig = nullptr;
-        if (activeView.stimPlanColors() && 
-            activeView.stimPlanColors()->isChecked() &&
-            activeView.stimPlanColors()->activeLegend())
+        if (activeView.fractureColors() && 
+            activeView.fractureColors()->isChecked() &&
+            activeView.fractureColors()->activeLegend())
         {
-            legendConfig = activeView.stimPlanColors()->activeLegend();
+            legendConfig = activeView.fractureColors()->activeLegend();
 
             scalarMapper = legendConfig->scalarMapper();
 
-            QString resultNameFromColors = activeView.stimPlanColors->uiResultName();
-            QString resultUnitFromColors = activeView.stimPlanColors->unit();
+            QString resultNameFromColors = activeView.fractureColors->uiResultName();
+            QString resultUnitFromColors = activeView.fractureColors->unit();
 
             std::vector<double> prCellResults = stimPlanFracTemplate->fractureGridResults(resultNameFromColors,
                                                                                           resultUnitFromColors,
@@ -673,7 +673,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
     {
         // No result is mapped, show the entire StimPlan surface with default color
 
-        return createSingleColorSurfacePart(triIndicesToInclude, nodeDisplayCoords, activeView.stimPlanColors->defaultColor());
+        return createSingleColorSurfacePart(triIndicesToInclude, nodeDisplayCoords, activeView.fractureColors->defaultColor());
     }
 }
 
@@ -900,8 +900,8 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
-    QString resultNameFromColors = activeView.stimPlanColors->uiResultName();
-    QString resultUnitFromColors = activeView.stimPlanColors->unit();
+    QString resultNameFromColors = activeView.fractureColors->uiResultName();
+    QString resultUnitFromColors = activeView.fractureColors->unit();
 
     std::vector<double> prCellResults = stimPlanFracTemplate->fractureGridResults(resultNameFromColors,
                                                                                   resultUnitFromColors,

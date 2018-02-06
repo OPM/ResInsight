@@ -86,7 +86,7 @@ public:
     caf::PdmChildField<RimCellEdgeColors*>                  cellEdgeResult;
     caf::PdmChildField<RimEclipseFaultColors*>              faultResultSettings;
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    caf::PdmChildField<RimStimPlanColors*>                  stimPlanColors;
+    caf::PdmChildField<RimStimPlanColors*>                  fractureColors;
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     caf::PdmChildField<RimSimWellInViewCollection*>         wellCollection;

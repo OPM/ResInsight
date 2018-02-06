@@ -56,7 +56,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
-static void setDefaultResultIfStimPlan(caf::PdmField<QString> &field);
+static void setDefaultFractureResult(caf::PdmField<QString> &field);
 static QString toString(const std::pair<QString, QString>& resultNameAndUnit);
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
 
-    std::vector<std::pair<QString, QString> > resultNameAndUnits = fractureTemplates->stimPlanResultNamesAndUnits();
+    std::vector<std::pair<QString, QString> > resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
 
     // Delete legends referencing results not present on file
     {
@@ -178,7 +178,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf
 
         options.push_back(caf::PdmOptionItemInfo("None", ""));
 
-        for (auto resultNameAndUnit : fractureTemplates->stimPlanResultNamesAndUnits())
+        for (auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits())
         {
             QString resultNameAndUnitString = toString(resultNameAndUnit);
             options.push_back(caf::PdmOptionItemInfo(resultNameAndUnitString, resultNameAndUnitString));
@@ -253,9 +253,9 @@ QString RimStimPlanColors::uiResultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::setDefaultResultNameForStimPlan()
+void RimStimPlanColors::setDefaultResultName()
 {
-    setDefaultResultIfStimPlan(m_resultNameAndUnit);
+    setDefaultFractureResult(m_resultNameAndUnit);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ void RimStimPlanColors::updateConductivityResultName()
     if (m_resultNameAndUnit().contains("conductivity", Qt::CaseInsensitive))
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
-        for (auto resultNameAndUnit : fractureTemplates->stimPlanResultNamesAndUnits())
+        for (auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits())
         {
             if (resultNameAndUnit.first.contains("conductivity", Qt::CaseInsensitive))
             {
@@ -447,7 +447,7 @@ QString toString(const std::pair<QString, QString>& resultNameAndUnit)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void setDefaultResultIfStimPlan(caf::PdmField<QString> &field)
+void setDefaultFractureResult(caf::PdmField<QString> &field)
 {
     RimProject* proj = RiaApplication::instance()->project();
 
@@ -459,7 +459,7 @@ void setDefaultResultIfStimPlan(caf::PdmField<QString> &field)
     {
         RimFractureTemplateCollection* templColl = proj->allFractureTemplateCollections().front();
 
-        for (auto resultNameAndUnit : templColl->stimPlanResultNamesAndUnits())
+        for (auto resultNameAndUnit : templColl->resultNamesAndUnits())
         {
             if (resultNameAndUnit.first.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
             {
