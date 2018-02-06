@@ -18,21 +18,24 @@
 
 #include "RicNewWellPathFractureFeature.h"
 
-#include "RicFractureNameGenerator.h"
-
 #include "RiaApplication.h"
+
+#include "RicFractureNameGenerator.h"
 
 #include "RigWellPath.h"
 
 #include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
 #include "RiuMainWindow.h"
 
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
@@ -57,6 +60,15 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
 
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
     CVF_ASSERT(fractureCollection);
+
+    if (fractureCollection->fractures.empty())
+    {
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (activeView)
+        {
+            activeView->fractureColors->setDefaultResultName();
+        }
+    }
 
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);

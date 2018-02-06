@@ -32,6 +32,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
+#include "RimStimPlanColors.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 
@@ -63,6 +64,15 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
+    if (eclipseWell->simwellFractureCollection()->simwellFractures.empty())
+    {
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (activeView)
+        {
+            activeView->fractureColors->setDefaultResultName();
+        }
+    }
+
     eclipseWell->simwellFractureCollection()->simwellFractures.push_back(fracture);
 
     RimOilField* oilfield = nullptr;

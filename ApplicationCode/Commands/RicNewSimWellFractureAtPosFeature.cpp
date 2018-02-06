@@ -21,8 +21,10 @@
 #include "RiaApplication.h"
 #include "RigEclipseCaseData.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
@@ -30,7 +32,7 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
-#include "Rim3dView.h"
+#include "RimStimPlanColors.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -68,6 +70,15 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     if (!fractureCollection) return;
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
+    if (fractureCollection->simwellFractures.empty())
+    {
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (activeView)
+        {
+            activeView->fractureColors->setDefaultResultName();
+        }
+    }
+
     fractureCollection->simwellFractures.push_back(fracture);
 
     fracture->setClosestWellCoord(simWellItem->m_domainCoord, simWellItem->m_branchIndex);
