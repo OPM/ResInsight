@@ -32,9 +32,11 @@
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
+class RimGridView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimSimWellInView;
+class Rim2dIntersectionView;
 class RimWellPath;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
@@ -109,7 +111,8 @@ public:
         GEOMECH_SELECTION_OBJECT,
         WELLPATH_SELECTION_OBJECT,
         SIMWELL_SELECTION_OBJECT,
-        GENERAL_SELECTION_OBJECT
+        GENERAL_SELECTION_OBJECT,
+        INTERSECTION_SELECTION_OBJECT
     };
 
 public:
@@ -128,8 +131,13 @@ public:
 class RiuEclipseSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex,
-                                     cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint);
+    explicit RiuEclipseSelectionItem(RimEclipseView* view,
+                                     size_t gridIndex,
+                                     size_t cellIndex,
+                                     size_t nncIndex,
+                                     cvf::Color3f color,
+                                     cvf::StructGridInterface::FaceType face,
+                                     const cvf::Vec3d& localIntersectionPoint);
     
     virtual ~RiuEclipseSelectionItem() {};
 
@@ -187,6 +195,33 @@ public:
     bool m_hasIntersectionTriangle;
     std::array<cvf::Vec3f, 3> m_intersectionTriangle;
     cvf::Vec3d m_localIntersectionPoint;
+};
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class Riu2dIntersectionSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit Riu2dIntersectionSelectionItem(RiuSelectionItem *selItem);
+
+    virtual ~Riu2dIntersectionSelectionItem();
+
+    virtual RiuSelectionType type() const
+    {
+        return INTERSECTION_SELECTION_OBJECT;
+    }
+
+public:
+    RiuEclipseSelectionItem* eclipseSelectionItem() const;
+    RiuGeoMechSelectionItem* geoMechSelectionItem() const;
+
+private:
+    RiuEclipseSelectionItem* m_eclipseSelItem;
+    RiuGeoMechSelectionItem* m_geoMechSelItem;
 };
 
 

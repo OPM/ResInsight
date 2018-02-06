@@ -19,9 +19,11 @@
 
 #include "RiuSelectionManager.h"
 
+#include "RimGridView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimSimWellInView.h"
+#include "Rim2dIntersectionView.h"
 #include "RimWellPath.h"
 
 #include "RivSimWellPipeSourceInfo.h"
@@ -155,7 +157,13 @@ void RiuSelectionManager::deleteAllItemsFromSelection(int role)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex, cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint)
+RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view,
+                                                 size_t gridIndex,
+                                                 size_t cellIndex,
+                                                 size_t nncIndex,
+                                                 cvf::Color3f color,
+                                                 cvf::StructGridInterface::FaceType face,
+                                                 const cvf::Vec3d& localIntersectionPoint)
     :   m_view(view),
         m_gridIndex(gridIndex),
         m_gridLocalCellIndex(cellIndex),
@@ -205,6 +213,40 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
     m_intersectionTriangle(intersectionTriangle)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Riu2dIntersectionSelectionItem::Riu2dIntersectionSelectionItem(RiuSelectionItem *selItem)
+{
+    m_eclipseSelItem = dynamic_cast<RiuEclipseSelectionItem*>(selItem);
+    m_geoMechSelItem = dynamic_cast<RiuGeoMechSelectionItem*>(selItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Riu2dIntersectionSelectionItem::~Riu2dIntersectionSelectionItem()
+{
+    if (m_eclipseSelItem) delete m_eclipseSelItem;
+    if (m_geoMechSelItem) delete m_geoMechSelItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuEclipseSelectionItem* Riu2dIntersectionSelectionItem::eclipseSelectionItem() const
+{
+    return m_eclipseSelItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuGeoMechSelectionItem* Riu2dIntersectionSelectionItem::geoMechSelectionItem() const
+{
+    return m_geoMechSelItem;
 }
 
 //--------------------------------------------------------------------------------------------------

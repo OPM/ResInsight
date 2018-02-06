@@ -31,6 +31,8 @@
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
+#include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 
 #include "cvfBase.h"
 //#include "cvfTrace.h"
@@ -68,8 +70,18 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged(const RiuSelectionItem* selecti
     m_sourceEclipseViewOfLastPlot = NULL;
     bool mustClearPlot = true;
 
-    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(selectionItem);
-    const RimEclipseView* eclipseView = eclipseSelectionItem ? eclipseSelectionItem->m_view.p() : NULL;
+    RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<RiuEclipseSelectionItem*>(const_cast<RiuSelectionItem*>(selectionItem));
+    RimEclipseView* eclipseView = eclipseSelectionItem ? eclipseSelectionItem->m_view.p() : NULL;
+
+    if (!eclipseSelectionItem && !eclipseView)
+    {
+        const Riu2dIntersectionSelectionItem* intersectionSelItem = dynamic_cast<const Riu2dIntersectionSelectionItem*>(selectionItem);
+        if (intersectionSelItem && intersectionSelItem->eclipseSelectionItem())
+        {
+            eclipseSelectionItem = intersectionSelItem->eclipseSelectionItem();
+            eclipseView = eclipseSelectionItem->m_view;
+        }
+    }
 
     if (m_targetPlotPanel->isVisible() && eclipseSelectionItem && eclipseView)
     {

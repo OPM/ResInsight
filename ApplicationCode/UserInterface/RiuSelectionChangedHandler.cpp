@@ -35,6 +35,8 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 #include "RimProject.h"
 
 #include "RiuFemResultTextBuilder.h"
@@ -241,6 +243,21 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSelectionChangedHandler::addCurveFromSelectionItem(const Riu2dIntersectionSelectionItem* selectionItem) const
+{
+    if (selectionItem->eclipseSelectionItem())
+    {
+        addCurveFromSelectionItem(selectionItem->eclipseSelectionItem());
+    }
+    else if (selectionItem->geoMechSelectionItem())
+    {
+        addCurveFromSelectionItem(selectionItem->geoMechSelectionItem());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuSelectionItem* itemAdded) const
 {
     if (itemAdded->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
@@ -255,6 +272,13 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuSelectionIte
 
         addCurveFromSelectionItem(geomSelectionItem);
     }
+    else if (itemAdded->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT)
+    {
+        const Riu2dIntersectionSelectionItem* _2dSelectionItem = static_cast<const Riu2dIntersectionSelectionItem*>(itemAdded);
+
+        addCurveFromSelectionItem(_2dSelectionItem);
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,11 +307,19 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
     QString resultInfo;
     QString pickInfo;
 
-    if (itemAdded != NULL)
+    RiuSelectionItem* selItem = const_cast<RiuSelectionItem*>(itemAdded);
+    if (selItem != NULL)
     {
-        if (itemAdded->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+        if (selItem->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT)
         {
-            const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>(itemAdded);
+            const Riu2dIntersectionSelectionItem* wrapperSelItem = dynamic_cast<Riu2dIntersectionSelectionItem*>(selItem);
+            if (wrapperSelItem && wrapperSelItem->eclipseSelectionItem()) selItem = wrapperSelItem->eclipseSelectionItem();
+            else if (wrapperSelItem && wrapperSelItem->geoMechSelectionItem()) selItem = wrapperSelItem->geoMechSelectionItem();
+        }
+
+        if (selItem->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+        {
+            const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>(selItem);
 
             RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
@@ -300,9 +332,9 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
 
             pickInfo = textBuilder.geometrySelectionText(", ");
         }
-        else if (itemAdded->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
+        else if (selItem->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
         {
-            const RiuGeoMechSelectionItem* geomSelectionItem = static_cast<const RiuGeoMechSelectionItem*>(itemAdded);
+            const RiuGeoMechSelectionItem* geomSelectionItem = static_cast<const RiuGeoMechSelectionItem*>(selItem);
 
             RimGeoMechView* geomView = geomSelectionItem->m_view.p();
             RiuFemResultTextBuilder textBuilder(geomView, (int)geomSelectionItem->m_gridIndex, (int)geomSelectionItem->m_cellIndex, geomView->currentTimeStep());
