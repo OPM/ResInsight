@@ -18,9 +18,12 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include <QString>
 
 namespace RiaDefines
 {
 QString conductivityResultName();
+QString unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitSystem);
 };

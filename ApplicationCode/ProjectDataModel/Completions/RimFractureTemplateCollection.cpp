@@ -75,15 +75,11 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPla
 
     for (const RimFractureTemplate* f : fractureDefinitions())
     {
-        auto stimPlanFracture = dynamic_cast<const RimStimPlanFractureTemplate*>(f);
-        if (stimPlanFracture)
-        {
-            std::vector<std::pair<QString, QString> > namesAndUnits = stimPlanFracture->uiResultNamesWithUnit();
+        std::vector<std::pair<QString, QString> > namesAndUnits = f->uiResultNamesWithUnit();
 
-            for (auto nameAndUnit : namesAndUnits)
-            {
-                nameSet.insert(nameAndUnit);
-            }
+        for (const auto& nameAndUnit : namesAndUnits)
+        {
+            nameSet.insert(nameAndUnit);
         }
     }
 

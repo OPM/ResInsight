@@ -63,6 +63,9 @@ public:
                                                MinMaxAccumulator& minMaxAccumulator,
                                                PosNegAccumulator& posNegAccumulator) const override;
 
+
+    virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

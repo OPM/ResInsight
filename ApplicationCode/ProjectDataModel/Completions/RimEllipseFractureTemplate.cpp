@@ -18,6 +18,7 @@
 
 #include "RimEllipseFractureTemplate.h"
 
+#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
@@ -28,10 +29,12 @@
 #include "RigStatisticsMath.h"
 #include "RigTesselatorTools.h"
 
+#include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanColors.h"
 
 #include "cafPdmObject.h"
 
@@ -72,6 +75,9 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 void RimEllipseFractureTemplate::loadDataAndUpdate()
 {
     setupFractureGridCells();
+
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    if (activeView) activeView->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,6 +328,19 @@ void RimEllipseFractureTemplate::appendDataToResultStatistics(const QString& uiR
         minMaxAccumulator.addValue(conductivity());
         posNegAccumulator.addValue(conductivity());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNamesWithUnit() const
+{
+    std::vector<std::pair<QString, QString>> propertyNamesAndUnits;
+
+    QString condUnit = RiaDefines::unitStringConductivity(fractureTemplateUnit());
+    propertyNamesAndUnits.push_back(std::make_pair(RiaDefines::conductivityResultName(), condUnit));
+
+    return propertyNamesAndUnits;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -92,6 +92,9 @@ public:
                                                MinMaxAccumulator& minMaxAccumulator,
                                                PosNegAccumulator& posNegAccumulator) const = 0;
 
+    virtual std::vector<std::pair<QString, QString> > uiResultNamesWithUnit() const = 0;
+
+
 protected:
     caf::PdmChildField<RimFractureContainment*> m_fractureContainment;
 

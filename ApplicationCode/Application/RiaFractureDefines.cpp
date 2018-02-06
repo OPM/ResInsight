@@ -25,3 +25,16 @@ QString RiaDefines::conductivityResultName()
 {
     return "CONDUCTIVITY";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    switch (unitSystem)
+    {
+        case RiaEclipseUnitTools::UNITS_METRIC:     return "md-m";
+        case RiaEclipseUnitTools::UNITS_FIELD:      return "md-ft";
+        default:                                    return "";
+    }
+}

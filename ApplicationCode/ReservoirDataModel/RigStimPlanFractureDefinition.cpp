@@ -18,7 +18,7 @@
 
 #include "RigStimPlanFractureDefinition.h"
 
-
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
@@ -215,9 +215,8 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
 
     bool wellCenterStimPlanCellFound = false;
 
-    QString condUnit;
-    if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC ) condUnit = "md-m";
-    if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )  condUnit = "md-ft";
+    QString condUnit = RiaDefines::unitStringConductivity(fractureTemplateUnit);
+
     std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultName, 
                                                                                                      condUnit, 
                                                                                                      m_activeTimeStepIndex);
