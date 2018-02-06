@@ -54,7 +54,6 @@ public:
     // Appearance
     void setRadius(double radius);
     void setCrossSectionVertexCount(size_t vertexCount);
-    void setPipeColor(cvf::Color3f val) { m_pipeColor = val; }
 
     cvf::ref<cvf::DrawableGeo> createPipeSurface();
     cvf::ref<cvf::DrawableGeo> createCenterLine();
@@ -100,5 +99,4 @@ private:
     double                      m_minimumBendAngle;
     double                      m_bendScalingFactor;
     size_t                      m_crossSectionNodeCount;
-    cvf::Color3f                m_pipeColor;
 };

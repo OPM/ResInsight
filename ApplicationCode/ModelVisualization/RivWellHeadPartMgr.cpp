@@ -125,7 +125,6 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         cvf::ref<RivPipeGeometryGenerator> pipeGeomGenerator = new RivPipeGeometryGenerator;
         pipeGeomGenerator->setPipeCenterCoords(wellHeadPipeCoords.p());
-        pipeGeomGenerator->setPipeColor(well->wellPipeColor());
         pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
 

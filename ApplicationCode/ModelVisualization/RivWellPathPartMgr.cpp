@@ -231,8 +231,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
         m_pipeGeomGenerator = new RivPipeGeometryGenerator;
 
         m_pipeGeomGenerator->setRadius(wellPathRadius);
-        m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
-        m_pipeGeomGenerator->setPipeColor( m_rimWellPath->wellPathColor());
+        m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());      
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         if (wellPathCollection->wellPathClip)

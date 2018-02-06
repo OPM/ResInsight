@@ -117,7 +117,6 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
         pbd.m_pipeGeomGenerator->setRadius(pipeRadius);
         pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
-        pbd.m_pipeGeomGenerator->setPipeColor( m_rimWell->wellPipeColor());
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
