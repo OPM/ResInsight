@@ -148,7 +148,9 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 size_t i = 0;
                 size_t j = 0;
                 size_t k = 0;
-                if (eclipseCase->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+
+                const RigGridBase* grid = eclipseCase->grid(m_gridIndex);
+                if (grid->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
                 {
                     // Adjust to 1-based Eclipse indexing
                     i++;
@@ -160,11 +162,16 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                     QString faceText = faceEnum.text();
 
                     text += QString("Face : %1").arg(faceText) + itemSeparator;
-                    text += QString("Hit grid %1").arg(m_gridIndex) + itemSeparator;
+
+                    QString gridName = QString::fromStdString(grid->gridName());
+                    text += QString("Grid : %1 [%2]").arg(gridName).arg(m_gridIndex) + itemSeparator;
+                    
                     text += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
+
+                    size_t globalCellIndex = grid->reservoirCellIndex(m_cellIndex);
+                    text += QString("Global Cell Index : %4").arg(globalCellIndex) + itemSeparator;
                 }
             }
-
             
             cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
             cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
