@@ -48,6 +48,9 @@ class Rim3dView;
 
 class QDateTime;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
@@ -95,18 +98,13 @@ private:
     inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
-    caf::PdmPointer<RimWellPath>            m_rimWellPath;
-    caf::PdmPointer<Rim3dView>              m_rimView;
+    caf::PdmPointer<RimWellPath>        m_rimWellPath;
+    caf::PdmPointer<Rim3dView>          m_rimView;
     
-    struct RivPipeBranchData
-    {
-        cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
-        cvf::ref<cvf::Part>                 m_surfacePart;
-        cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
-        cvf::ref<cvf::Part>                 m_centerLinePart;
-        cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
-    };
-
-    RivPipeBranchData                       m_pipeBranchData;
-    cvf::ref<cvf::Part>                     m_wellLabelPart;
+    cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
+    cvf::ref<cvf::Part>                 m_surfacePart;
+    cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
+    cvf::ref<cvf::Part>                 m_centerLinePart;
+    cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
+    cvf::ref<cvf::Part>                 m_wellLabelPart;
 };
