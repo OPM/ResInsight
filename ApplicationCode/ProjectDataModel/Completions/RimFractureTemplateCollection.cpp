@@ -118,14 +118,6 @@ void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::deleteFractureDefinitions()
-{
-    fractureDefinitions.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::loadAndUpdateData()
 {
     for (RimFractureTemplate* f : fractureDefinitions())

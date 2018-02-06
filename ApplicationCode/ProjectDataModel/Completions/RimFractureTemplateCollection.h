@@ -44,7 +44,6 @@ public:
     std::vector<std::pair<QString, QString> >   stimPlanResultNamesAndUnits() const;
     void                                        computeMinMax(const QString& uiResultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
 
-    void                                        deleteFractureDefinitions();
     void                                        loadAndUpdateData();
     void                                        setDefaultConductivityResultIfEmpty();
 
