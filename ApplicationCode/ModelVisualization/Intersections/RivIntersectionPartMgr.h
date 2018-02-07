@@ -26,6 +26,7 @@
 #include "cvfArray.h"
 #include "cafPdmPointer.h"
 
+#include <list>
 
 namespace cvf
 {
@@ -33,6 +34,7 @@ namespace cvf
     class Transform;
     class Part;
     class ScalarMapper;
+    class DrawableGeo;
 }
 
 class RigFemPart;
@@ -47,7 +49,7 @@ class RivTernaryScalarMapper;
 class RivIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
-
+class RivPipeGeometryGenerator;
 
 //==================================================================================================
 ///
@@ -68,17 +70,10 @@ public:
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
-    
+    void appendWellPipePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+
     const RimIntersection* intersection() const;
 
-private:
-    void updatePartEffect();
-    void generatePartGeometry();
-
-    void createPolyLineParts(bool useBufferObjects);
-    void createExtrusionDirParts(bool useBufferObjects);
-
-    void computeData();
 
 public:
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
@@ -110,13 +105,15 @@ public:
                                                  const cvf::Vec3fArray* triangelVertices, 
                                                  const RigFemResultAddress& resVarAddress, 
                                                  const cvf::ScalarMapper* mapper);
-
 private:
+    void generatePartGeometry();
+    void createPolyLineParts(bool useBufferObjects);
+    void createExtrusionDirParts(bool useBufferObjects);
+
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
+private:
     caf::PdmPointer<RimIntersection> m_rimCrossSection;
-
-    cvf::Color3f                m_defaultColor;
 
     cvf::ref<RivIntersectionGeometryGenerator>   m_crossSectionGenerator;
     cvf::ref<cvf::Part>         m_crossSectionFaces;
@@ -128,6 +125,14 @@ private:
 
     cvf::ref<cvf::Part>         m_highlightLineAlongExtrusionDir;
     cvf::ref<cvf::Part>         m_highlightPointsForExtrusionDir;
+
+    struct RivPipeBranchData
+    {
+        cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
+        cvf::ref<cvf::Part>                 m_surfacePart;
+        cvf::ref<cvf::Part>                 m_centerLinePart;
+    };
+    std::list<RivPipeBranchData> m_wellBranches;
 
     bool                        m_isFlattened;
 };
