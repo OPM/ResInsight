@@ -68,7 +68,7 @@ public:
         CT_UNDEFINED
     };
 
-    RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex);
+    RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue);
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
@@ -76,6 +76,7 @@ public:
     RigCompletionData& operator=(const RigCompletionData& other);
 
     void        setFromFracture(double transmissibility, double skinFactor);
+    void        setSecondOrderingValue(double orderingValue);
     
     void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                              double skinFactor, 
@@ -116,6 +117,9 @@ public:
     bool                                      isMainBore() const;
     bool                                      readyForExport() const;
 
+    double                                  firstOrderingValue() const;
+    double                                  secondOrderingValue() const;
+
     std::vector<RigCompletionMetaData>   m_metadata; 
 
 private:
@@ -137,6 +141,9 @@ private:
     double                               m_wpimult;
 
     CompletionType                       m_completionType;
+
+    double                               m_firstOrderingValue;
+    double                               m_secondOrderingValue;
 
 private:
     static bool                          onlyOneIsDefaulted(double first, double second);

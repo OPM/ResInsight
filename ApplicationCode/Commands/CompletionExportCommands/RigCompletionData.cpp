@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex)
+RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue)
     : m_wellName(wellName)
     , m_cellIndex(cellIndex)
     , m_saturation(HUGE_VAL)
@@ -45,6 +45,8 @@ RigCompletionData::RigCompletionData(const QString wellName, const RigCompletion
     , m_isMainBore(false)
     , m_readyForExport(false)
     , m_completionType(CT_UNDEFINED)
+    , m_firstOrderingValue(orderingValue)
+    , m_secondOrderingValue(HUGE_VAL)
 {
 }
 
@@ -71,6 +73,21 @@ bool RigCompletionData::operator<(const RigCompletionData& other) const
         return (m_wellName < other.m_wellName);
     }
 
+    if (m_completionType != other.m_completionType)
+    {
+        return (m_completionType < other.m_completionType);
+    }
+
+    if (m_firstOrderingValue != other.m_firstOrderingValue)
+    {
+        return (m_firstOrderingValue < other.m_firstOrderingValue);
+    }
+
+    if (m_secondOrderingValue != other.m_secondOrderingValue)
+    {
+        return (m_secondOrderingValue < other.m_secondOrderingValue);
+    }
+
     return m_cellIndex < other.m_cellIndex;
 }
 
@@ -94,6 +111,14 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
     m_completionType   = FRACTURE;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setSecondOrderingValue(double orderingValue)
+{
+    m_secondOrderingValue = orderingValue;
 }
 
 //==================================================================================================
@@ -300,6 +325,22 @@ bool RigCompletionData::readyForExport() const
     return m_readyForExport;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::firstOrderingValue() const
+{
+    return m_firstOrderingValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCompletionData::secondOrderingValue() const
+{
+    return m_secondOrderingValue;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -333,20 +374,22 @@ bool RigCompletionData::onlyOneIsDefaulted(double first, double second)
 //==================================================================================================
 void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData& from)
 {
-    target.m_metadata         = from.m_metadata;
-    target.m_wellName         = from.m_wellName;
-    target.m_cellIndex        = from.m_cellIndex;
-    target.m_connectionState  = from.m_connectionState;
-    target.m_saturation       = from.m_saturation;
-    target.m_transmissibility = from.m_transmissibility;
-    target.m_diameter         = from.m_diameter;
-    target.m_kh               = from.m_kh;
-    target.m_skinFactor       = from.m_skinFactor;
-    target.m_dFactor          = from.m_dFactor;
-    target.m_direction        = from.m_direction;
-    target.m_isMainBore       = from.m_isMainBore;
-    target.m_readyForExport   = from.m_readyForExport;
-    target.m_count            = from.m_count;
-    target.m_wpimult          = from.m_wpimult;
-    target.m_completionType   = from.m_completionType;
+    target.m_metadata            = from.m_metadata;
+    target.m_wellName            = from.m_wellName;
+    target.m_cellIndex           = from.m_cellIndex;
+    target.m_connectionState     = from.m_connectionState;
+    target.m_saturation          = from.m_saturation;
+    target.m_transmissibility    = from.m_transmissibility;
+    target.m_diameter            = from.m_diameter;
+    target.m_kh                  = from.m_kh;
+    target.m_skinFactor          = from.m_skinFactor;
+    target.m_dFactor             = from.m_dFactor;
+    target.m_direction           = from.m_direction;
+    target.m_isMainBore          = from.m_isMainBore;
+    target.m_readyForExport      = from.m_readyForExport;
+    target.m_count               = from.m_count;
+    target.m_wpimult             = from.m_wpimult;
+    target.m_completionType      = from.m_completionType;
+    target.m_firstOrderingValue  = from.m_firstOrderingValue;
+    target.m_secondOrderingValue = from.m_secondOrderingValue;
 }

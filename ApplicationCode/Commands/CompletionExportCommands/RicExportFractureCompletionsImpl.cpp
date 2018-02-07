@@ -348,7 +348,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                     
                 eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
 
-                RigCompletionData compDat(wellPathName, RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()));
+                RigCompletionData compDat(wellPathName, 
+                                          RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()),
+                                          fracture->fractureMD());
+
                 compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 fractureCompletions.push_back(compDat);

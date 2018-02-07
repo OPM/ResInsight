@@ -44,6 +44,8 @@ struct WellBorePartForTransCalc
     WellBorePartForTransCalc(cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, QString metaData)
         : lengthsInCell(lengthsInCell), wellRadius(wellRadius), skinFactor(skinFactor), isMainBore(isMainBore), metaData(metaData)
     {
+        intersectionWithWellMeasuredDepth = HUGE_VAL;
+        lateralIndex = cvf::UNDEFINED_SIZE_T;
     }
 
     cvf::Vec3d lengthsInCell;
@@ -51,6 +53,9 @@ struct WellBorePartForTransCalc
     double     skinFactor;
     QString    metaData;
     bool       isMainBore;
+
+    double      intersectionWithWellMeasuredDepth;
+    size_t      lateralIndex;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +85,9 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                                                                                  location.fishbonesSubs->skinFactor(), 
                                                                                  isMainBore,
                                                                                  completionMetaData);
+
+                wellBorePart.intersectionWithWellMeasuredDepth = location.measuredDepth;
+                wellBorePart.lateralIndex = lateral.lateralIndex;
 
                 wellBorePartsInCells[intersection.globalCellIndex].push_back(wellBorePart);
 
@@ -135,7 +143,8 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
         
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
-            RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(globalCellIndex, settings.caseToApply->mainGrid()));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), RigCompletionDataGridCell(globalCellIndex, settings.caseToApply->mainGrid()), wellBorePart.intersectionWithWellMeasuredDepth);
+            completion.setSecondOrderingValue(wellBorePart.lateralIndex);
 
             double transmissibility = 0.0;
             if (wellBorePart.isMainBore)
@@ -212,6 +221,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                              skinFactor, 
                                                                              isMainBore,
                                                                              completionMetaData);
+            wellBorePart.intersectionWithWellMeasuredDepth = cell.startMD;
+
             wellBorePartsInCells[cell.globCellIndex].push_back(wellBorePart); 
         }
     }
@@ -248,6 +259,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
                                                                          skinFactor,
                                                                          isMainBore,
                                                                          completionMetaData);
+
+        wellBorePart.intersectionWithWellMeasuredDepth = cell.startMD;
 
         wellBorePartsInCells[cell.globCellIndex].push_back(wellBorePart);
     }

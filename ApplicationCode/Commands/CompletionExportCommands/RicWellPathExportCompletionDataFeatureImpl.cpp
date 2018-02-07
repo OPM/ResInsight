@@ -346,7 +346,8 @@ RigCompletionData
         }
     }
 
-    RigCompletionData resultCompletion(wellName, cellIndexIJK);
+    RigCompletionData resultCompletion(wellName, cellIndexIJK, completions[0].firstOrderingValue());
+    resultCompletion.setSecondOrderingValue(completions[0].secondOrderingValue());
 
     double totalTrans = 0.0;
 
@@ -772,7 +773,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 if (!cellIsActive) continue;
 
                 RigCompletionData completion(wellPath->completions()->wellNameForExport(),
-                                             RigCompletionDataGridCell(cell.globCellIndex, settings.caseToApply->mainGrid()));
+                                             RigCompletionDataGridCell(cell.globCellIndex, settings.caseToApply->mainGrid()),
+                                             cell.startMD);
 
                 CellDirection direction =
                     calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
