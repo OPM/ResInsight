@@ -72,8 +72,6 @@ public:
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
-    static RigCompletionData   combine(const std::vector<RigCompletionData>& completions);
-
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
 

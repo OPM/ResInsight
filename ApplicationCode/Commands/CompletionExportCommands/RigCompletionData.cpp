@@ -67,42 +67,6 @@ RigCompletionData::RigCompletionData(const RigCompletionData& other)
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData>& completions)
-{
-    CVF_ASSERT(!completions.empty());
-
-    auto it = completions.cbegin();
-    RigCompletionData result(*it);
-    ++it;
-
-    for (; it != completions.cend(); ++it)
-    {
-        if (it->completionType() != result.completionType())
-        {
-            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.localCellIndexI()).arg(result.m_cellIndex.localCellIndexJ()).arg(result.m_cellIndex.localCellIndexK()));
-            continue;
-        }
-        if (onlyOneIsDefaulted(result.m_transmissibility, it->m_transmissibility))
-        {
-            RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
-        }
-        else
-        {
-            result.m_transmissibility += it->m_transmissibility;
-        }
-
-        result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
-        result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
-
-        result.m_count += it->m_count;
-    }
-
-    return result;
-}
-
-//==================================================================================================
-/// 
-//==================================================================================================
 bool RigCompletionData::operator<(const RigCompletionData& other) const
 {
     if (m_wellName != other.m_wellName) 
