@@ -8,7 +8,7 @@ AlignConsecutiveDeclarations: true
 AlignEscapedNewlinesLeft: true
 AlignOperands:   true
 AlignTrailingComments: false
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
@@ -18,8 +18,8 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: false
 BraceWrapping:
   AfterClass:      true
   AfterControlStatement: true
