@@ -124,7 +124,7 @@ TEST(OffshoreSphericalCoords, OffshoreSphericalCoords)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(TensorRotation, TensorRotation)
+TEST(Tensor, TensorRotation)
 {
 
     {
@@ -231,5 +231,33 @@ TEST(TensorRotation, TensorRotation)
         EXPECT_NEAR(0.0f, rotT[caf::Ten3f::SZX], 1e-4);
         EXPECT_NEAR(0.0f, rotT[caf::Ten3f::SYZ], 1e-4);
     }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(Tensor, TensorAddScale)
+{
+    caf::Ten3f orgT1(1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f);
+    caf::Ten3f orgT2(1.6f, 1.5f, 1.4f, 1.3f, 1.2f, 1.1f);
+
+    caf::Ten3f newT = orgT1 + orgT2;
+
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SXX], 1e-4);
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SYY], 1e-4);
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SZZ], 1e-4);
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SXY], 1e-4);
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SZX], 1e-4);
+    EXPECT_NEAR(2.7f, newT[caf::Ten3f::SYZ], 1e-4);
+
+    newT = newT*0.5;
+
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SXX], 1e-4);
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SYY], 1e-4);
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SZZ], 1e-4);
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SXY], 1e-4);
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SZX], 1e-4);
+    EXPECT_NEAR(1.35f, newT[caf::Ten3f::SYZ], 1e-4);
 
 }
