@@ -438,15 +438,15 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 
     if (fractureTemplate())
     {
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
-            || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
+            || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             m_uiWellPathAzimuth.uiCapability()->setUiHidden(true);
             m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(true);
             m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(true);
         }
 
-        else if (fractureTemplate()->orientationType == RimFractureTemplate::AZIMUTH)
+        else if (fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH)
         {
             m_uiWellPathAzimuth.uiCapability()->setUiHidden(false);
             m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(false);
@@ -462,17 +462,17 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             }
         }
 
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
-            || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
+            || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             m_azimuth.uiCapability()->setUiReadOnly(true);
         }
-        else if (fractureTemplate()->orientationType == RimFractureTemplate::AZIMUTH)
+        else if (fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH)
         {
             m_azimuth.uiCapability()->setUiReadOnly(false);
         }
 
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
         {
             m_perforationEfficiency.uiCapability()->setUiHidden(false);
             m_perforationLength.uiCapability()->setUiHidden(false);
@@ -626,7 +626,7 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
         m_stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
     }
 
-    if (fractureTemplate->orientationType == RimFractureTemplate::AZIMUTH)
+    if (fractureTemplate->orientationType() == RimFractureTemplate::AZIMUTH)
     {
         m_azimuth = fractureTemplate->azimuthAngle();
     }

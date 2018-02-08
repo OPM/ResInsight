@@ -268,12 +268,12 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet();
+        setFractureTemplateUnit(m_stimPlanFractureDefinitionData->unitSet());
         m_readError = false;
     }
     else
     {
-        fractureTemplateUnit = RiaEclipseUnitTools::UNITS_UNKNOWN; 
+        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_UNKNOWN); 
         m_readError = true;
     }
 
@@ -367,11 +367,11 @@ void RimStimPlanFractureTemplate::setPerforationLength()
         }
     }
 
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC && m_perforationLength < 10)
+    if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC && m_perforationLength < 10)
     {
         m_perforationLength = 10;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD && m_perforationLength < RiaEclipseUnitTools::meterToFeet(10))
+    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD && m_perforationLength < RiaEclipseUnitTools::meterToFeet(10))
     {
         m_perforationLength = std::round(RiaEclipseUnitTools::meterToFeet(10));
     }
@@ -571,7 +571,7 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
     {
         m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_conductivityResultNameOnFile,
                                                                               m_activeTimeStepIndex,
-                                                                              fractureTemplateUnit,
+                                                                              fractureTemplateUnit(),
                                                                               m_wellPathDepthAtFracture);
     }
 }
@@ -594,7 +594,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     {
         m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
                                                                          neededUnit,
-                                                                         name,
+                                                                         name(),
                                                                          nodeCoords,
                                                                          triangleIndices);
     }
@@ -617,7 +617,7 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEc
                                                                           m_activeTimeStepIndex,
                                                                          m_wellPathDepthAtFracture,
                                                                          neededUnit,
-                                                                         name);
+                                                                         name());
     }
 
     return std::vector<cvf::Vec3f>();
@@ -631,7 +631,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 {
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 
-    uiOrdering.add(&name);
+    uiOrdering.add(&m_name);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("Input");
     fileGroup->add(&m_stimPlanFileName);
@@ -639,7 +639,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     fileGroup->add(&m_wellPathDepthAtFracture);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
-    geometryGroup->add(&orientationType);
+    geometryGroup->add(&m_orientationType);
     geometryGroup->add(&m_azimuthAngle);
 
     caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");

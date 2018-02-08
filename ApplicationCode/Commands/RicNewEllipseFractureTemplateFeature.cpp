@@ -54,8 +54,8 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     {
         RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
         fracDefColl->fractureDefinitions.push_back(ellipseFractureTemplate);
-        ellipseFractureTemplate->name = "Ellipse Fracture Template";
-        ellipseFractureTemplate->fractureTemplateUnit = fracDefColl->defaultUnitsForFracTemplates();
+        ellipseFractureTemplate->setName("Ellipse Fracture Template");
+        ellipseFractureTemplate->setFractureTemplateUnit(fracDefColl->defaultUnitsForFracTemplates());
         ellipseFractureTemplate->setDefaultValuesFromUnit();
         ellipseFractureTemplate->loadDataAndUpdate();
 

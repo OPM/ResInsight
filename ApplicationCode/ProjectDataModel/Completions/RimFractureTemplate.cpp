@@ -65,11 +65,11 @@ RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-    CAF_PDM_InitField(&fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
-    fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField(&m_name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
+    m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&orientationType,       "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
+    CAF_PDM_InitField(&m_orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
     CAF_PDM_InitField(&m_azimuthAngle,        "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
 
@@ -96,9 +96,49 @@ RimFractureTemplate::~RimFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setName(const QString& name)
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem)
+{
+    m_fractureTemplateUnit = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFractureTemplate::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureTemplate::FracOrientationEnum RimFractureTemplate::orientationType() const
+{
+    return m_orientationType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() const
+{
+    return m_fractureTemplateUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 {
-    return &name;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +146,7 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_azimuthAngle || changedField == &orientationType)
+    if (changedField == &m_azimuthAngle || changedField == &m_orientationType)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -126,7 +166,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                         fracture->m_azimuth = m_azimuthAngle;
                     }
 
-                    if (changedField == &orientationType)
+                    if (changedField == &m_orientationType)
                     {
                         if (newValue == AZIMUTH)
                         {
@@ -186,28 +226,28 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
 
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         m_perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
         m_perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
-    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH
-        || orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH
+        || m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         m_azimuthAngle.uiCapability()->setUiHidden(true);
     }
-    else if (orientationType == RimFractureTemplate::AZIMUTH)
+    else if (m_orientationType == RimFractureTemplate::AZIMUTH)
     {
         m_azimuthAngle.uiCapability()->setUiHidden(false);
     }
 
-    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH)
     {
         m_perforationEfficiency.uiCapability()->setUiHidden(false);
         m_perforationLength.uiCapability()->setUiHidden(false);
@@ -251,16 +291,16 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
 {
-    if (fractureUnit == fractureTemplateUnit())
+    if (fractureUnit == m_fractureTemplateUnit())
     {
         return m_wellDiameter;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
              && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         return RiaEclipseUnitTools::meterToInch(m_wellDiameter);
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
              && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         return RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
@@ -274,16 +314,16 @@ double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::Unit
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
 {
-    if (fractureUnit == fractureTemplateUnit())
+    if (fractureUnit == m_fractureTemplateUnit())
     {
         return m_perforationLength;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
              && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         return RiaEclipseUnitTools::meterToFeet(m_perforationLength);
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
              && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         return RiaEclipseUnitTools::feetToMeter(m_perforationLength);
@@ -329,11 +369,11 @@ float RimFractureTemplate::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_wellDiameter = 8.5;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_wellDiameter = 0.216;
     }

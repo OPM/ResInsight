@@ -84,16 +84,16 @@ void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
     updateBranchGeometry();
     
     if (!fractureTemplate()) return;
-    if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH 
-        || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH 
+        || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         double simWellAzimuth = wellAzimuthAtFracturePosition();
 
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH )
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
         {
             m_azimuth = simWellAzimuth;
         }
-        else if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        else if (fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             if (simWellAzimuth + 90 < 360) m_azimuth = simWellAzimuth + 90;
             else m_azimuth = simWellAzimuth - 90;
