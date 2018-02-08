@@ -59,6 +59,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
+#include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -175,6 +176,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_gridBoxGenerator = new RivGridBoxGenerator;
 
     m_cursorPositionDomainCoords = cvf::Vec3d::UNDEFINED;
+    m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,8 +700,9 @@ RimViewWindow* RiuViewer::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
+    m_windowEdgeAxisOverlay->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
     m_gridBoxGenerator->updateFromCamera(mainCamera());
-
+    m_windowEdgeAxisOverlay->updateFromCamera(this->mainCamera());
     caf::Viewer::optimizeClippingPlanes();
 }
 
@@ -787,6 +791,19 @@ void RiuViewer::updateGridBoxData(double scaleZ,
     m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(domainCoordBoundingBox);
 
     m_gridBoxGenerator->createGridBoxParts();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showEdgeTickMarks(bool enable)
+{
+    m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
+
+    if (enable)
+    {
+        m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

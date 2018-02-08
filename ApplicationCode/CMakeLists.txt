@@ -111,6 +111,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
     ModelVisualization/Intersections/CMakeLists_files.cmake
+    ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
 	

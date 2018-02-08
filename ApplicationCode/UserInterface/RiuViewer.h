@@ -36,6 +36,7 @@ class Rim3dView;
 class RiuSimpleHistogramWidget;
 class RiuViewerCommands;
 class RivGridBoxGenerator;
+class RivWindowEdgeAxesOverlayItem;
 
 class QCDEStyle;
 class QLabel;
@@ -83,6 +84,7 @@ public:
                                       const cvf::Vec3d& displayModelOffset,
                                       const cvf::Color3f&  backgroundColor,
                                       const cvf::BoundingBox& domainCoordBoundingBox);
+    void            showEdgeTickMarks(bool enable);
 
     void            updateAnnotationItems();
 
@@ -155,6 +157,7 @@ private:
     RiuViewerCommands*          m_viewerCommands;
 
     RivGridBoxGenerator*        m_gridBoxGenerator;
+    cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
