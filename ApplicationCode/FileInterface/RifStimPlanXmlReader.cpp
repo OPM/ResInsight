@@ -256,9 +256,10 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
             if (xmlStream.isCDATA())
             {
                 QString depthDataStr = xmlStream.text().toString();
-                for (int i = 0; i < depthDataStr.split(' ').size(); i++)
+                QStringList splitted = depthDataStr.split(' ');
+                for (int i = 0; i < splitted.size(); i++)
                 {
-                    QString value = depthDataStr.split(' ')[i];
+                    QString value = splitted[i];
                     if ( value != "")
                     {
                         propertyValuesAtDepth.push_back(value.toDouble());
