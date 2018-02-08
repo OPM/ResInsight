@@ -68,8 +68,10 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(RimView
                                           .arg(rimView->name())
                                           .arg(resultName(rimView));
 
-    if ( timeSteps.size() ) fileName += QString("_%1_%2").arg(timeStep, 2, 10, QChar('0'))
-                                                         .arg(timeSteps[timeStep].replace(".", "-"));
+    if ( !timeSteps.empty() ) fileName += QString("_%1_%2").arg(timeStep, 2, 10, QChar('0'))
+                                                           .arg(timeSteps[timeStep]);
+
+    fileName.replace("-", "_");
 
     fileName = caf::Utils::makeValidFileBasename(fileName);
 
