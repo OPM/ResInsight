@@ -48,6 +48,7 @@
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
 #include "RivSingleCellPartGenerator.h"
+#include "RivTensorResultPartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
@@ -93,6 +94,7 @@ RimGeoMechView::RimGeoMechView(void)
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
+    m_tensorPartMgr = new RivTensorResultPartMgr(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +214,7 @@ void RimGeoMechView::createDisplayModel()
    cvf::ref<cvf::ModelBasicList> mainSceneGridVizModel =  new cvf::ModelBasicList;
    mainSceneGridVizModel->setName("GridModel");
    m_vizLogic->appendNoAnimPartsToModel(mainSceneGridVizModel.p());
+
    mainSceneGridVizModel->updateBoundingBoxesRecursive();
    mainScene->addModel(mainSceneGridVizModel.p());
 
@@ -286,6 +289,19 @@ void RimGeoMechView::updateCurrentTimeStep()
                     addDynamicWellPathsToModel(wellPathModelBasicList.p(), femBBox);
 
                     frameScene->addModel(wellPathModelBasicList.p());
+                }
+
+                {
+                    // Tensors
+                    cvf::String name = "Tensor";
+                    this->removeModelByName(frameScene, name);
+
+                    cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                    frameParts->setName(name);
+                    m_tensorPartMgr->appendDynamicGeometryPartsToModel(frameParts.p(), m_currentTimeStep);
+                    frameParts->updateBoundingBoxesRecursive();
+
+                    frameScene->addModel(frameParts.p());
                 }
             }
         }
@@ -426,6 +442,22 @@ void RimGeoMechView::updateLegendTextAndRanges(RimLegendConfig* legendConfig, in
     }
 
     legendConfig->setTitle(legendTitle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::ref<RivGeoMechVizLogic> RimGeoMechView::vizLogic() const
+{
+    return m_vizLogic;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimTensorResults* RimGeoMechView::tensorResults() const
+{
+    return m_tensorResults;
 }
 
 //--------------------------------------------------------------------------------------------------

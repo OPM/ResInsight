@@ -18,12 +18,39 @@
 
 #include "RimTensorResults.h"
 
+#include "RigFemResultAddress.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmUiListEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTensorResults, "RimTensorResults");
+
+
+namespace caf
+{
+    template<>
+    void AppEnum< RimTensorResults::TensorColors >::setUp()
+    {
+        addItem(RimTensorResults::WHITE_GRAY_BLACK , "WHITE_GRAY_BLACK", "White, Gray, Black");
+        addItem(RimTensorResults::MAGENTA_BROWN_BLACK, "MAGENTA_BROWN_BLACK", "Magenta, Brown, Black");
+        addItem(RimTensorResults::RESULT_COLORS, "RESULT_COLORS", "Result Colors");
+
+        setDefault(RimTensorResults::WHITE_GRAY_BLACK);
+    }
+
+    template<>
+    void AppEnum< RimTensorResults::ScaleMethod >::setUp()
+    {
+        addItem(RimTensorResults::RESULT, "RESULT", "Result");
+        addItem(RimTensorResults::CONSTANT, "CONSTANT", "Constant");
+
+        setDefault(RimTensorResults::RESULT);
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -52,16 +79,17 @@ RimTensorResults::RimTensorResults()
     CAF_PDM_InitField(&m_principal2, "Principal2", true, "Principal 2", "", "", "");
     CAF_PDM_InitField(&m_principal3, "Principal3", true, "Principal 3", "", "", "");
 
-    CAF_PDM_InitField(&m_threshold, "Threshold", 0.0, "Threshold", "", "", "");
+    CAF_PDM_InitField(&m_threshold, "Threshold", 0.0f, "Threshold", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_vectorColor, "VectorColor", "Color", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_scaleMethod, "ScaleMethod", "Scale Method", "", "", "");
-    CAF_PDM_InitField(&m_sizeScale, "SizeScale", 1.0, "Size Scale", "", "", "");
+    CAF_PDM_InitField(&m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "");
 
     m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultFieldNameUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-    m_resultPositionTypeUiField = RIG_ELEMENT_NODAL;
+    m_resultPositionType = RIG_ELEMENT_NODAL;
+    m_resultPositionTypeUiField = m_resultPositionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +98,78 @@ RimTensorResults::RimTensorResults()
 RimTensorResults::~RimTensorResults()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemResultAddress RimTensorResults::selectedTensorResult() const
+{
+    return RigFemResultAddress(m_resultPositionType(), m_resultFieldName().toStdString(), "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimTensorResults::showTensors() const
+{
+    return m_showTensors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimTensorResults::showPrincipal1() const
+{
+    return m_principal1();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimTensorResults::showPrincipal2() const
+{
+    return m_principal2();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimTensorResults::showPrincipal3() const
+{
+    return m_principal3();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimTensorResults::threshold() const
+{
+    return m_threshold();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimTensorResults::sizeScale() const
+{
+    return m_sizeScale();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTensorResults::TensorColors RimTensorResults::vectorColors() const
+{
+    return m_vectorColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTensorResults::ScaleMethod RimTensorResults::scaleMethod() const
+{
+    return m_scaleMethod();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +206,12 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     if (changedField == &m_resultFieldNameUiField)
     {
         m_resultPositionType = m_resultPositionTypeUiField;
+        m_resultFieldName = m_resultFieldNameUiField;
     }
+
+    RimGeoMechView* view;
+    firstAncestorOrThisOfType(view);
+    view->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,17 +250,6 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
         }
 
     }
-    else if (fieldNeedingOptions == &m_vectorColor)
-    {
-        options.push_back(caf::PdmOptionItemInfo("White, Gray, Black", nullptr));
-        options.push_back(caf::PdmOptionItemInfo("Magenta, Brown, Black", nullptr));
-        options.push_back(caf::PdmOptionItemInfo("Result Colors", nullptr));
-    }
-    else if (fieldNeedingOptions == &m_scaleMethod)
-    {
-        options.push_back(caf::PdmOptionItemInfo("Result", nullptr));
-        options.push_back(caf::PdmOptionItemInfo("Constant", nullptr));
-    }
 
     return options;
 }
@@ -191,4 +285,19 @@ void RimTensorResults::initAfterRead()
 {
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultFieldNameUiField = m_resultFieldName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTensorResults::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_resultFieldNameUiField)
+    {
+        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+        if (listEditAttr)
+        {
+            listEditAttr->m_heightHint = 50;
+        }
+    }
 }

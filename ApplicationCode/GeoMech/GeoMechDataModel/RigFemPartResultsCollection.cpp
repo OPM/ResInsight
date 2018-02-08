@@ -2034,6 +2034,62 @@ const std::vector<float>& RigFemPartResultsCollection::resultValues(const RigFem
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
+{
+    CVF_ASSERT(resVarAddr.resultPosType == RIG_ELEMENT_NODAL || resVarAddr.resultPosType == RIG_INTEGRATION_POINT);
+
+    std::vector<caf::Ten3f> outputTensors;
+
+    RigFemResultAddress address11(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    RigFemResultAddress address22(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    RigFemResultAddress address33(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    RigFemResultAddress address12(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    RigFemResultAddress address13(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    RigFemResultAddress address23(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+
+    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    {
+        address11.componentName = "S11";
+        address22.componentName = "S22";
+        address33.componentName = "S33";
+        address12.componentName = "S12";
+        address13.componentName = "S13";
+        address23.componentName = "S23";
+    }
+    else if (resVarAddr.fieldName == "E")
+    {
+        address11.componentName = "E11";
+        address22.componentName = "E22";
+        address33.componentName = "E33";
+        address12.componentName = "E12";
+        address13.componentName = "E13";
+        address23.componentName = "E23";
+    }
+    else
+        return outputTensors;
+
+    const std::vector<float>& v11 = resultValues(address11, partIndex, frameIndex);
+    const std::vector<float>& v22 = resultValues(address22, partIndex, frameIndex);
+    const std::vector<float>& v33 = resultValues(address33, partIndex, frameIndex);
+    const std::vector<float>& v12 = resultValues(address12, partIndex, frameIndex);
+    const std::vector<float>& v13 = resultValues(address13, partIndex, frameIndex);
+    const std::vector<float>& v23 = resultValues(address23, partIndex, frameIndex);
+
+    size_t valCount = v11.size();
+    outputTensors.resize(valCount);
+
+    for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+    {
+        caf::Ten3f tensor(v11[vIdx], v22[vIdx], v33[vIdx], v12[vIdx], v23[vIdx], v13[vIdx]);
+        outputTensors[vIdx] = tensor;
+    }
+
+    return outputTensors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigStatisticsDataCache* RigFemPartResultsCollection::statistics(const RigFemResultAddress& resVarAddr)
 {
     RigStatisticsDataCache* statCache = m_resultStatistics[resVarAddr].p();
@@ -2149,6 +2205,61 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(co
 const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex)
 {
     return this->statistics(resVarAddr)->cellScalarValuesHistogram(frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax)
+{
+    double currentMin = HUGE_VAL;
+    double currentMax = -HUGE_VAL;
+
+    double min;
+    double max;
+
+    std::vector<RigFemResultAddress> addresses;
+
+    for (size_t i = 0; i < 6; ++i)
+    {
+        addresses.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, ""));
+    }
+
+    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    {
+        addresses[0].componentName = "S11";
+        addresses[1].componentName = "S22";
+        addresses[2].componentName = "S33";
+        addresses[3].componentName = "S12";
+        addresses[4].componentName = "S13";
+        addresses[5].componentName = "S23";
+    }
+    else if (resVarAddr.fieldName == "E")
+    {
+        addresses[0].componentName = "E11";
+        addresses[1].componentName = "E22";
+        addresses[2].componentName = "E33";
+        addresses[3].componentName = "E12";
+        addresses[4].componentName = "E13";
+        addresses[5].componentName = "E23";
+    }
+    else return;
+    
+    for (auto address : addresses)
+    {
+        this->statistics(address)->minMaxCellScalarValues(frameIndex, min, max);
+        if (min < currentMin)
+        {
+            currentMin = min;
+        }
+        if (max > currentMax)
+        {
+            currentMax = max;
+        }
+    }
+
+    *localMin = currentMin;
+    *localMax = currentMax;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -139,3 +139,11 @@ void RivGeoMechPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, const
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::Collection<RivFemPartPartMgr> RivGeoMechPartMgr::femPartMgrs() const
+{
+    return m_femPartPartMgrs;
+}

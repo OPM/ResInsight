@@ -43,6 +43,7 @@ class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
 class RimLegendConfig;
+class RivTensorResultPartMgr;
 
 namespace cvf {
     class CellRangeFilter;
@@ -88,6 +89,9 @@ public:
 
     void                                                updateLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
 
+    const cvf::ref<RivGeoMechVizLogic>                  vizLogic() const;
+    const RimTensorResults*                             tensorResults() const;
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                                        onLoadDataAndUpdate() override;
@@ -119,5 +123,6 @@ private:
     cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;
     cvf::ref<cvf::Transform>                            m_scaleTransform;
 
+    cvf::ref<RivTensorResultPartMgr>                    m_tensorPartMgr;
 };
 

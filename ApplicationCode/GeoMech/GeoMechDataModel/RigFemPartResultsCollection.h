@@ -21,6 +21,8 @@
 
 #include "RigFemResultAddress.h"
 
+#include "cafTensor3.h"
+
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
@@ -64,7 +66,8 @@ public:
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
 
-    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
+    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
+    std::vector<caf::Ten3f>                          tensors(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     int                                              partCount() const;
     int                                              frameCount();
 
@@ -81,6 +84,8 @@ public:
     void                                             sumScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* sum);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
+
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
 
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,

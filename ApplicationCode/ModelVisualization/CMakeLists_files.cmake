@@ -40,6 +40,7 @@ ${CEE_CURRENT_LIST_DIR}RivPartPriority.h
 ${CEE_CURRENT_LIST_DIR}RivObjectSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivFishbonesSubsPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivTensorResultPartMgr.h
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
@@ -80,6 +81,7 @@ ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivObjectSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivFishbonesSubsPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivTensorResultPartMgr.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)

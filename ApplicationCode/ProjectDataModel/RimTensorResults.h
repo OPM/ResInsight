@@ -27,6 +27,7 @@
 
 #include <vector>
 
+class RigFemResultAddress;
 
 //==================================================================================================
 ///  
@@ -37,8 +38,32 @@ class RimTensorResults : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum TensorColors
+    {
+        WHITE_GRAY_BLACK,
+        MAGENTA_BROWN_BLACK,
+        RESULT_COLORS
+    };
+
+    enum ScaleMethod
+    {
+        RESULT,
+        CONSTANT
+    };
+
+public:
     RimTensorResults();
     virtual ~RimTensorResults();
+
+    RigFemResultAddress selectedTensorResult() const;
+    bool                showTensors() const;
+    bool                showPrincipal1() const;
+    bool                showPrincipal2() const;
+    bool                showPrincipal3() const;
+    float               threshold() const;
+    float               sizeScale() const;
+    TensorColors        vectorColors() const;
+    ScaleMethod         scaleMethod() const;
 
 private:
     std::vector<std::string>                getResultMetaDataForUIFieldSetting();
@@ -47,9 +72,9 @@ private:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            initAfterRead() override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-
     caf::PdmField<bool>                              m_showTensors;
 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPositionType;
@@ -62,11 +87,10 @@ private:
     caf::PdmField<bool>                              m_principal2;
     caf::PdmField<bool>                              m_principal3;
 
-    caf::PdmField<double>                            m_threshold;
+    caf::PdmField<float>                             m_threshold;
 
-    caf::PdmField<QString>                           m_vectorColor;
+    caf::PdmField<caf::AppEnum<TensorColors>>        m_vectorColor;
 
-    caf::PdmField<QString>                           m_scaleMethod;
-    caf::PdmField<double>                            m_sizeScale;
-
+    caf::PdmField<caf::AppEnum<ScaleMethod>>         m_scaleMethod;
+    caf::PdmField<float>                             m_sizeScale;
 };

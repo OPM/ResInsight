@@ -57,6 +57,8 @@ public:
     void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors);
                                 
     void                        appendPartsToModel(cvf::ModelBasicList* model);
+
+    const RivFemPartGeometryGenerator* surfaceGenerator() const;
                                 
 private:                        
     void                        generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder);

@@ -185,6 +185,14 @@ void RivFemPartPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RivFemPartGeometryGenerator* RivFemPartPartMgr::surfaceGenerator() const
+{
+    return &m_surfaceGenerator;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 {
     if (m_surfaceFaces.isNull()) return;
