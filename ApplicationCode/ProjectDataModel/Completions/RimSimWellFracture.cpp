@@ -139,7 +139,7 @@ std::vector<cvf::Vec3d> RimSimWellFracture::perforationLengthCenterLineCoords() 
 {
     std::vector<cvf::Vec3d> coords;
 
-    if (!m_branchCenterLines.empty() && m_branchIndex < m_branchCenterLines.size())
+    if (!m_branchCenterLines.empty() && m_branchIndex < static_cast<int>(m_branchCenterLines.size()))
     {
         RigWellPath wellPathGeometry;
 
