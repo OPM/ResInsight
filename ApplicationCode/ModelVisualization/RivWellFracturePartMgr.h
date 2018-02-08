@@ -57,8 +57,6 @@ public:
 
     void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView);
 
-    static std::vector<double>          mirrorDataAtSingleDepth(std::vector<double> depthData);
-
     const QString                       resultInfoText(const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint) const;
 
     const RigFractureCell*              getFractureCellAtDomainCoord(cvf::Vec3d domainCoord) const;

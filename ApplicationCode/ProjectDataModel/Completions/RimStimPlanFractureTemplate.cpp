@@ -260,7 +260,10 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if (m_readError) return;
 
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(), m_conductivityScalingFactor(), &errorMessage);
+    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
+                                                                                 m_conductivityScalingFactor(),
+                                                                                 RifStimPlanXmlReader::MIRROR_AUTO,
+                                                                                 &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     if (m_stimPlanFractureDefinitionData.notNull())
@@ -670,7 +673,7 @@ void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandl
 
     if (field == &m_wellPathDepthAtFracture)
     {
-        if ( !m_stimPlanFractureDefinitionData.isNull() && (m_stimPlanFractureDefinitionData->depthCount() > 0) )
+        if ( !m_stimPlanFractureDefinitionData.isNull() && (m_stimPlanFractureDefinitionData->yCount() > 0) )
         {
             caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
             if ( myAttr )

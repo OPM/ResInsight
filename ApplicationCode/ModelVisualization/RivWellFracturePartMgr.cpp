@@ -232,23 +232,6 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<double> depthData)
-{
-    std::vector<double> mirroredValuesAtGivenDepth;
-    mirroredValuesAtGivenDepth.push_back(depthData[0]);
-    for (size_t i = 1; i < (depthData.size()); i++) //starting at 1 since we don't want center value twice
-    {
-        double valueAtGivenX = depthData[i];
-        mirroredValuesAtGivenDepth.insert(mirroredValuesAtGivenDepth.begin(), valueAtGivenX);
-        mirroredValuesAtGivenDepth.push_back(valueAtGivenX);
-    }
-
-    return mirroredValuesAtGivenDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint) const
 {
     QString text;
@@ -443,7 +426,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         doubleCoord = displayCoordTransform->transformToDisplayCoord(doubleCoord);
         nodeCoord = cvf::Vec3f(doubleCoord);
     }
-
+ 
     RimLegendConfig* legendConfig = nullptr;
     if (activeView.fractureColors() && activeView.fractureColors()->isChecked())
     {
@@ -459,10 +442,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         {
             size_t idx = 0;
             const std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView.fractureColors->uiResultName(), activeView.fractureColors->unit(), stimPlanFracTemplate->activeTimeStepIndex());
-            for (const std::vector<double>& unmirroredDataAtDepth : dataToPlot)
+            for (const std::vector<double>& dataAtY : dataToPlot)
             {
-                const std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(unmirroredDataAtDepth);
-                for (double val : mirroredValuesAtDepth)
+                for (double val : dataAtY)
                 {
                     perNodeResultValues[idx++] = val;
                 }
