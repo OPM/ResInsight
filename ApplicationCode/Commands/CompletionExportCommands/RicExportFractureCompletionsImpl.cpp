@@ -181,7 +181,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
             RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(caseToApply,
                                                                                       fracture->transformMatrix(),
-                                                                                      fracture->fractureTemplate()->skinFactor,
+                                                                                      fracture->fractureTemplate()->skinFactor(),
                                                                                       cDarcyInCorrectUnit,
                                                                                       fractureCell);
 

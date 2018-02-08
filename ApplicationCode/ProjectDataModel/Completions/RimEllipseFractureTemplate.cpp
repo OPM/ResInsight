@@ -178,8 +178,8 @@ void RimEllipseFractureTemplate::changeUnits()
         m_halfLength         = RiaEclipseUnitTools::meterToFeet(m_halfLength);
         m_height             = RiaEclipseUnitTools::meterToFeet(m_height);
         m_width              = RiaEclipseUnitTools::meterToInch(m_width);
-        wellDiameter         = RiaEclipseUnitTools::meterToInch(wellDiameter);
-        perforationLength    = RiaEclipseUnitTools::meterToFeet(perforationLength);
+        m_wellDiameter         = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+        m_perforationLength    = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
         fractureTemplateUnit = RiaEclipseUnitTools::UNITS_FIELD;
     }
     else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
@@ -187,8 +187,8 @@ void RimEllipseFractureTemplate::changeUnits()
         m_halfLength         = RiaEclipseUnitTools::feetToMeter(m_halfLength);
         m_height             = RiaEclipseUnitTools::feetToMeter(m_height);
         m_width              = RiaEclipseUnitTools::inchToMeter(m_width);
-        wellDiameter         = RiaEclipseUnitTools::inchToMeter(wellDiameter);
-        perforationLength    = RiaEclipseUnitTools::feetToMeter(perforationLength);
+        m_wellDiameter         = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+        m_perforationLength    = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
         fractureTemplateUnit = RiaEclipseUnitTools::UNITS_METRIC;
     }
 
@@ -355,23 +355,23 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         m_height.uiCapability()->setUiName("Height [m]");
         m_width.uiCapability()->setUiName("Width [m]");
-        wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
+        m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
     }
     else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         m_height.uiCapability()->setUiName("Height [Ft]");
         m_width.uiCapability()->setUiName("Width [inches]");
-        wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
+        m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
     }
 
 
-    if (conductivityType == FINITE_CONDUCTIVITY)
+    if (conductivityType() == FINITE_CONDUCTIVITY)
     {
         m_permeability.uiCapability()->setUiHidden(false);
         m_width.uiCapability()->setUiHidden(false);
     }
-    else if (conductivityType == INFINITE_CONDUCTIVITY)
+    else if (conductivityType() == INFINITE_CONDUCTIVITY)
     {
         m_permeability.uiCapability()->setUiHidden(true);
         m_width.uiCapability()->setUiHidden(true);
@@ -384,19 +384,19 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&m_halfLength);
     geometryGroup->add(&m_height);
     geometryGroup->add(&orientationType);
-    geometryGroup->add(&azimuthAngle);
+    geometryGroup->add(&m_azimuthAngle);
 
     caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
     m_fractureContainment()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
-    propertyGroup->add(&conductivityType);
+    propertyGroup->add(&m_conductivityType);
     propertyGroup->add(&m_permeability);
     propertyGroup->add(&m_width);
-    propertyGroup->add(&skinFactor);
-    propertyGroup->add(&perforationLength);
-    propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellDiameter);
+    propertyGroup->add(&m_skinFactor);
+    propertyGroup->add(&m_perforationLength);
+    propertyGroup->add(&m_perforationEfficiency);
+    propertyGroup->add(&m_wellDiameter);
 
     uiOrdering.add(&fractureTemplateUnit);
     uiOrdering.skipRemainingFields(true);

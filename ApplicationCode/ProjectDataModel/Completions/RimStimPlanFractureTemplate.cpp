@@ -363,17 +363,17 @@ void RimStimPlanFractureTemplate::setPerforationLength()
 
         if (firstTvd != HUGE_VAL && lastTvd != HUGE_VAL)
         {
-            perforationLength = std::round(cvf::Math::abs(firstTvd - lastTvd));
+            m_perforationLength = std::round(cvf::Math::abs(firstTvd - lastTvd));
         }
     }
 
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC && perforationLength < 10)
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC && m_perforationLength < 10)
     {
-        perforationLength = 10;
+        m_perforationLength = 10;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD && perforationLength < RiaEclipseUnitTools::meterToFeet(10))
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD && m_perforationLength < RiaEclipseUnitTools::meterToFeet(10))
     {
-        perforationLength = std::round(RiaEclipseUnitTools::meterToFeet(10));
+        m_perforationLength = std::round(RiaEclipseUnitTools::meterToFeet(10));
     }
 }
 
@@ -640,7 +640,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&orientationType);
-    geometryGroup->add(&azimuthAngle);
+    geometryGroup->add(&m_azimuthAngle);
 
     caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
     m_fractureContainment()->defineUiOrdering(uiConfigName, *trGr);
@@ -648,11 +648,11 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_conductivityResultNameOnFile);
     propertyGroup->add(&m_conductivityScalingFactor);
-    propertyGroup->add(&conductivityType);
-    propertyGroup->add(&skinFactor);
-    propertyGroup->add(&perforationLength);
-    propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellDiameter);
+    propertyGroup->add(&m_conductivityType);
+    propertyGroup->add(&m_skinFactor);
+    propertyGroup->add(&m_perforationLength);
+    propertyGroup->add(&m_perforationEfficiency);
+    propertyGroup->add(&m_wellDiameter);
 }
 
 //--------------------------------------------------------------------------------------------------

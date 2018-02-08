@@ -483,11 +483,11 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             m_perforationLength.uiCapability()->setUiHidden(true);
         }
 
-        if (fractureTemplate()->conductivityType == RimFractureTemplate::FINITE_CONDUCTIVITY)
+        if (fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY)
         {
             m_wellDiameter.uiCapability()->setUiHidden(false);
         }
-        else if (fractureTemplate()->conductivityType == RimFractureTemplate::INFINITE_CONDUCTIVITY)
+        else if (fractureTemplate()->conductivityType() == RimFractureTemplate::INFINITE_CONDUCTIVITY)
         {
             m_wellDiameter.uiCapability()->setUiHidden(true);
         }
@@ -628,7 +628,7 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 
     if (fractureTemplate->orientationType == RimFractureTemplate::AZIMUTH)
     {
-        m_azimuth = fractureTemplate->azimuthAngle;
+        m_azimuth = fractureTemplate->azimuthAngle();
     }
     else
     {
