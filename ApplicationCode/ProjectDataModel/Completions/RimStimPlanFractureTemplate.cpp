@@ -629,8 +629,6 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEc
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
-
     uiOrdering.add(&m_name);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("Input");
@@ -653,6 +651,8 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     propertyGroup->add(&m_perforationLength);
     propertyGroup->add(&m_perforationEfficiency);
     propertyGroup->add(&m_wellDiameter);
+
+    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -97,6 +97,9 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
+private:
+    void                            prepareFieldsForUiDisplay();
+
 protected:
     caf::PdmField<QString>                             m_name;
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_fractureTemplateUnit;
@@ -108,4 +111,11 @@ protected:
     caf::PdmField<double>                              m_wellDiameter;
     caf::PdmField<caf::AppEnum<FracConductivityEnum>>  m_conductivityType;
     caf::PdmChildField<RimFractureContainment*>        m_fractureContainment;
+
+    caf::PdmField<bool>                                m_useNonDarcyFlow;
+    caf::PdmField<double>                              m_fractureWidth;
+    caf::PdmField<double>                              m_inertialCoefficient;
+    caf::PdmField<double>                              m_effectivePermeability;
+    caf::PdmField<double>                              m_specificGasGravity;
+    caf::PdmField<double>                              m_gasViscosity;
 };

@@ -350,7 +350,6 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
     
     if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
@@ -367,7 +366,6 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
     }
 
-
     if (conductivityType() == FINITE_CONDUCTIVITY)
     {
         m_permeability.uiCapability()->setUiHidden(false);
@@ -378,7 +376,6 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         m_permeability.uiCapability()->setUiHidden(true);
         m_width.uiCapability()->setUiHidden(true);
     }
-
     
     uiOrdering.add(&m_name);
 
@@ -400,7 +397,6 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     propertyGroup->add(&m_perforationEfficiency);
     propertyGroup->add(&m_wellDiameter);
 
-    uiOrdering.add(&m_fractureTemplateUnit);
-    uiOrdering.skipRemainingFields(true);
+    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 }
 

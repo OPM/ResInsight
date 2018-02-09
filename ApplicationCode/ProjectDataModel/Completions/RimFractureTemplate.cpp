@@ -55,6 +55,9 @@ namespace caf
 
 }
 
+// TODO Move to cafPdmObject.h
+#define CAF_PDM_InitField_Basic(field, keyword, default, uiName) CAF_PDM_InitField(field, keyword, default, uiName, "", "", "")
+
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFractureTemplate, "RimFractureTemplate");
 
@@ -84,6 +87,14 @@ RimFractureTemplate::RimFractureTemplate()
     m_fractureContainment = new RimFractureContainment();
     m_fractureContainment.uiCapability()->setUiTreeHidden(true);
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden(true);
+
+    // Non-Darcy Flow options
+    CAF_PDM_InitField_Basic(&m_useNonDarcyFlow,       "UseNonDarcyFlow",      false,  "Use Non-Darcy Flow");
+    CAF_PDM_InitField_Basic(&m_fractureWidth,         "FractureWidth",        0.0,    "Fracture Width");
+    CAF_PDM_InitField_Basic(&m_inertialCoefficient,   "InertialCoefficient",  0.0,    "Inertial Coefficient (beta)");
+    CAF_PDM_InitField_Basic(&m_effectivePermeability, "EffectivePermeability",0.0,    "Effective Permeability");
+    CAF_PDM_InitField_Basic(&m_specificGasGravity,    "SpecificGasGravity",   0.0,    "Specific Gas Gravity");
+    CAF_PDM_InitField_Basic(&m_gasViscosity,          "GasViscosity",         0.0,    "Gas Viscosity");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +236,42 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    prepareFieldsForUiDisplay();
 
+    auto group = uiOrdering.addNewGroup("Non-Darcy Flow");
+    group->setCollapsedByDefault(true);
+    group->add(&m_useNonDarcyFlow);
+    group->add(&m_fractureWidth);
+    group->add(&m_inertialCoefficient);
+    group->add(&m_effectivePermeability);
+    group->add(&m_specificGasGravity);
+    group->add(&m_gasViscosity);
+
+    uiOrdering.add(&m_fractureTemplateUnit);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_perforationEfficiency)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = 1.0;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::prepareFieldsForUiDisplay()
+{
     if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
@@ -266,25 +312,23 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     {
         m_wellDiameter.uiCapability()->setUiHidden(true);
     }
- 
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-    if (field == &m_perforationEfficiency)
+    // Non Darcy Flow
+    m_fractureWidth.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_inertialCoefficient.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_effectivePermeability.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_specificGasGravity.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_gasViscosity.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH)
     {
-        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 1.0;
-        }
+        m_fractureWidth.uiCapability()->setUiHidden(true);
+    }
+    else
+    {
+        m_fractureWidth.uiCapability()->setUiHidden(false);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
