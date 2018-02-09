@@ -244,7 +244,7 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
     {
         std::vector<std::string> fieldCompNames = getResultMetaDataForUIFieldSetting();
 
-        for (int oIdx = 0; oIdx < fieldCompNames.size(); ++oIdx)
+        for (size_t oIdx = 0; oIdx < fieldCompNames.size(); ++oIdx)
         {
             options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldCompNames[oIdx]), QString::fromStdString(fieldCompNames[oIdx])));
         }

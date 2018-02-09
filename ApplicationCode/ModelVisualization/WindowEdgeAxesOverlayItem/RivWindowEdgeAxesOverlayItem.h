@@ -37,6 +37,7 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfOverlayItem.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
