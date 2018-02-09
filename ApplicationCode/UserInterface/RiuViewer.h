@@ -149,7 +149,10 @@ private:
     QCDEStyle*      m_progressBarStyle;
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
+    bool                            m_showAxisCross;
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
+    cvf::Collection<cvf::OverlayItem> allOverlayItems();
+
 
     caf::PdmInterfacePointer<RiuViewerToViewInterface>    m_rimView;
     QPoint                      m_lastMousePressPosition;
@@ -158,6 +161,7 @@ private:
 
     RivGridBoxGenerator*        m_gridBoxGenerator;
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
+    bool                        m_showWindowEdgeAxes;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;

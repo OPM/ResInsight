@@ -383,7 +383,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showAnimationProgress(true);
     m_viewer->showHistogram(false);
     m_viewer->showInfoText(false);
-    m_viewer->showEdgeTickMarks(false);
+    m_viewer->showEdgeTickMarks(true);
 
     m_viewer->setMainScene(new cvf::Scene());
     m_viewer->enableNavigationRotation(false);
