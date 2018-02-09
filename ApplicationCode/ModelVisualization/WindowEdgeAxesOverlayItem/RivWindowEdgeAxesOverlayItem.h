@@ -90,6 +90,9 @@ public:
     void            setLineColor(const Color3f& lineColor);
     const Color3f&  lineColor() const;
 
+    int             frameBorderWidth()  { return static_cast<int>( m_frameBorderWidth); }
+    int             frameBorderHeight() { return static_cast<int>( m_frameBorderHeight); }
+
 protected:
     virtual Vec2ui  sizeHint();
     virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
@@ -115,8 +118,8 @@ protected:
     int                 m_lineWidth;
     cvf::ref<Font>      m_font;
 
-    float               m_frameHeight;
-    float               m_frameWidth;
+    float               m_frameBorderHeight;
+    float               m_frameBorderWidth;
     float               m_tickLineLength;
     float               m_pixelSpacing;
     bool                m_isSwitchingYAxisValueSign;

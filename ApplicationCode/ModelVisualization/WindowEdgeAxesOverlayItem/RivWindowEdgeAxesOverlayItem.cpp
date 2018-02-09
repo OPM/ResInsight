@@ -43,7 +43,7 @@
 
 #include "cvfScalarMapper.h"
 #include "cvfRenderStateBlending.h"
-#include "cvfScalarMapperDiscreteLinear.h"
+#include "cafTickMarkGenerator.h"
 
 using namespace cvf;
 
@@ -106,8 +106,8 @@ void RivWindowEdgeAxesOverlayItem::updateGeomerySizes()
     m_textSize =  m_font->textExtent(str);
     m_pixelSpacing = 2.0f;
     m_tickLineLength = m_textSize.y() *0.3f;
-    m_frameHeight = m_pixelSpacing + m_textSize.y() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
-    m_frameWidth  = m_pixelSpacing + m_textSize.x() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
+    m_frameBorderHeight = m_pixelSpacing + m_textSize.y() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
+    m_frameBorderWidth  = m_pixelSpacing + m_textSize.x() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,23 +136,20 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     int xTickMaxCount = m_windowSize.x()/(2*m_textSize.x());
     int yTickMaxCount = m_windowSize.y()/(2*m_textSize.x());
 
-    m_domainCoordsXValues.clear();
-    cvf::ScalarMapperDiscreteLinear linDiscreteScalarMapper;
-    linDiscreteScalarMapper.setRange(domainMinX, domainMaxX);
-    linDiscreteScalarMapper.setLevelCount(xTickMaxCount, true);
-    linDiscreteScalarMapper.majorTickValues(&m_domainCoordsXValues);
+    double minDomainXStepSize = (domainMaxX - domainMinX)/xTickMaxCount;
+    caf::TickMarkGenerator xTickCreator(domainMinX, domainMaxX,  minDomainXStepSize);
+    m_domainCoordsXValues = xTickCreator.tickMarkValues();
 
-    m_domainCoordsYValues.clear();
-    linDiscreteScalarMapper.setRange(domainMinY, domainMaxY);
-    linDiscreteScalarMapper.setLevelCount(yTickMaxCount, true);
-    linDiscreteScalarMapper.majorTickValues(&m_domainCoordsYValues);
+    double minDomainYStepSize = (domainMaxY - domainMinY)/yTickMaxCount;
+    caf::TickMarkGenerator yTickCreator(domainMinY, domainMaxY,  minDomainYStepSize);
+    m_domainCoordsYValues = yTickCreator.tickMarkValues();
 
+ 
     m_windowTickXValues.clear();
     Vec3d windowPoint;
-    double domainYValue0 = m_domainCoordsYValues[0];
     for (double domainX : m_domainCoordsXValues)
     {
-        Vec3d displayDomainTick(domainX, 0, domainYValue0);
+        Vec3d displayDomainTick(domainX, 0, domainMinY);
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
@@ -162,10 +159,9 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     }
 
     m_windowTickYValues.clear();
-    double domainXValue0 = m_domainCoordsXValues[0];
     for (double domainY : m_domainCoordsYValues)
     {
-        Vec3d displayDomainTick(domainXValue0, 0, domainY);
+        Vec3d displayDomainTick(domainMinX, 0, domainY);
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
@@ -313,7 +309,7 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 
     // Left Y - axis texts
     {
-        const float textX = m_frameWidth - m_tickLineLength - m_pixelSpacing;
+        const float textX = m_frameBorderWidth - m_tickLineLength - m_pixelSpacing;
 
         size_t numTicks = m_domainCoordsYValues.size();
         size_t i;
@@ -364,16 +360,16 @@ void RivWindowEdgeAxesOverlayItem::renderLegendImmediateMode(OpenGLContext* oglC
     v2[1] = static_cast<float>(m_windowSize.y());
     v3[1] = static_cast<float>(m_windowSize.y());
     
-    v4[0] = m_frameWidth;
-    v4[1] = m_frameHeight;
+    v4[0] = m_frameBorderWidth;
+    v4[1] = m_frameBorderHeight;
 
-    v5[0] = v1[0] - m_frameWidth;
-    v5[1] = m_frameHeight;
+    v5[0] = v1[0] - m_frameBorderWidth;
+    v5[1] = m_frameBorderHeight;
 
-    v6[0] = v2[0] - m_frameWidth;
+    v6[0] = v2[0] - m_frameBorderWidth;
     v6[1] = v2[1];
     
-    v7[0] = m_frameWidth;
+    v7[0] = m_frameBorderWidth;
     v7[1] = v3[1];
 
     glColor4fv(Vec4f(1.0f,1.0f,1.0f,0.5f).ptr());
@@ -417,9 +413,9 @@ void RivWindowEdgeAxesOverlayItem::renderLegendImmediateMode(OpenGLContext* oglC
             Vec3f p2(Vec3f::ZERO);
 
             p1[0] = (float)txpos;
-            p1[1] = m_frameHeight;
+            p1[1] = m_frameBorderHeight;
             p2[0] = (float)txpos;
-            p2[1] = m_frameHeight - m_tickLineLength;
+            p2[1] = m_frameBorderHeight - m_tickLineLength;
 
             glVertex3fv(p1.ptr());
             glVertex3fv(p2.ptr());
@@ -431,17 +427,17 @@ void RivWindowEdgeAxesOverlayItem::renderLegendImmediateMode(OpenGLContext* oglC
             Vec3f p1(Vec3f::ZERO);
             Vec3f p2(Vec3f::ZERO);
 
-            p1[0] = m_frameWidth;
+            p1[0] = m_frameBorderWidth;
             p1[1] = (float)typos;
-            p2[0] = m_frameWidth - m_tickLineLength;
+            p2[0] = m_frameBorderWidth - m_tickLineLength;
             p2[1] = (float)typos;
 
             glVertex3fv(p1.ptr());
             glVertex3fv(p2.ptr());
 
-            p1[0] = m_windowSize.x() - m_frameWidth;
+            p1[0] = m_windowSize.x() - m_frameBorderWidth;
             p1[1] = (float)typos;
-            p2[0] = m_windowSize.x() - m_frameWidth + m_tickLineLength;
+            p2[0] = m_windowSize.x() - m_frameBorderWidth + m_tickLineLength;
             p2[1] = (float)typos;
 
             glVertex3fv(p1.ptr());
