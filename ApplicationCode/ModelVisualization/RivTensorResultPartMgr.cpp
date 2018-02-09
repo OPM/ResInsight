@@ -56,6 +56,8 @@
 #include "cvfShaderProgram.h"
 #include "cvfStructGridGeometryGenerator.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -85,35 +87,16 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
     
     std::vector<TensorVisualization> tensorVisualizations;
 
+    RimTensorResults::TensorColors tensorColor = m_rimReservoirView->tensorResults()->vectorColors();
+    cvf::Color3f color1, color2, color3;
+
+    assignColorVectors(tensorColor, color1, color2, color3);
+
     RigFemResultAddress address = m_rimReservoirView->tensorResults()->selectedTensorResult();
     if (!isTensorAddress(address)) return;
 
     RigFemPartResultsCollection* resultCollection = m_rimReservoirView->geoMechCase()->geoMechData()->femPartResults();
     if (!resultCollection) return;
-
-    RimTensorResults::TensorColors tensorColor = m_rimReservoirView->tensorResults()->vectorColors();
-    cvf::Color3f color1;
-    cvf::Color3f color2;
-    cvf::Color3f color3;
-
-    if (tensorColor == RimTensorResults::WHITE_GRAY_BLACK)
-    {
-        color1 = cvf::Color3f(cvf::Color3::WHITE);
-        color2 = cvf::Color3f(cvf::Color3::GRAY);
-        color3 = cvf::Color3f(cvf::Color3::BLACK);
-    }
-    else if (tensorColor == RimTensorResults::MAGENTA_BROWN_BLACK)
-    {
-        color1 = cvf::Color3f(cvf::Color3::MAGENTA);
-        color2 = cvf::Color3f(cvf::Color3::BROWN);
-        color3 = cvf::Color3f(cvf::Color3::BLACK);
-    }
-    else
-    {
-        color1 = cvf::Color3f(cvf::Color3::BLACK);
-        color2 = cvf::Color3f(cvf::Color3::BLACK);
-        color3 = cvf::Color3f(cvf::Color3::BLACK);
-    }
 
     for (int partIdx = 0; partIdx < femParts->partCount(); partIdx++)
     {
@@ -123,7 +106,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
         size_t elmCount = part->elementCount();
         std::vector<caf::Ten3f> elmTensors;
         elmTensors.resize(elmCount);
-
+        
         for (int elmIdx = 0; elmIdx < elmCount; elmIdx++)
         {
              if (RigFemTypes::elmentNodeCount(part->elementType(elmIdx)) == 8)
@@ -161,18 +144,17 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
             elmPrincipalDirections[nIdx][2] = principalDirs[2];
         }
 
+        std::vector<RivGeoMechPartMgrCache::Key> partKeys =
+            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs((int)frameIndex);
+
         RigFemPartNodes nodes = part->nodes();
 
-        double min;
-        double max;
+        double min, max;
         resultCollection->minMaxScalarValuesOverAllTensorComponents(address, (int)frameIndex, &min, &max);
         
         if (max == 0) max = 1;
-        float arrowResultScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize() / cvf::Math::abs(max);
         float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
-
-        std::vector<RivGeoMechPartMgrCache::Key> partKeys =
-            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs((int)frameIndex);
+        float arrowResultScaling = arrowConstantScaling / cvf::Math::abs(max);
 
         cvf::ref<RivGeoMechPartMgrCache> partMgrCache = m_rimReservoirView->vizLogic()->partMgrCache();
 
@@ -197,9 +179,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
                     size_t elmIdx = quadVerticesToElmIdx[quadIdx];
 
-                    cvf::Vec3f result1;
-                    cvf::Vec3f result2;
-                    cvf::Vec3f result3;
+                    cvf::Vec3f result1, result2, result3;
 
                     if (m_rimReservoirView->tensorResults()->scaleMethod() == RimTensorResults::RESULT)
                     {
@@ -214,47 +194,21 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
                         result3.set(elmPrincipalDirections[elmIdx][2] * arrowConstantScaling);
                     }
 
-                    if (isValid(result1) && m_rimReservoirView->tensorResults()->showPrincipal1())
+                    if (isDrawable(result1, m_rimReservoirView->tensorResults()->showPrincipal1()))
                     {
-                        if (result1.length() > m_rimReservoirView->tensorResults()->threshold())
-                        {
-                            bool isPressure = true;
-                            if (elmPrincipals[0][elmIdx] < 0)
-                            {
-                                isPressure = false;
-                            }
-
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result1, color1, isPressure));
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result1, color1, isPressure));
-                        }
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result1, color1, isPressure(elmPrincipals[0][elmIdx])));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result1, color1, isPressure(elmPrincipals[0][elmIdx])));
                     }
-                    if (isValid(result2) && m_rimReservoirView->tensorResults()->showPrincipal2())
-                    {
-                        if (result2.length() > m_rimReservoirView->tensorResults()->threshold())
-                        {
-                            bool isPressure = true;
-                            if (elmPrincipals[1][elmIdx] < 0)
-                            {
-                                isPressure = false;
-                            }
 
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result2, color2, isPressure));
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result2, color2, isPressure));
-                        }
+                    if (isDrawable(result2, m_rimReservoirView->tensorResults()->showPrincipal2()))
+                    {
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result2, color2, isPressure(elmPrincipals[1][elmIdx])));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result2, color2, isPressure(elmPrincipals[1][elmIdx])));
                     }
-                    if (isValid(result3) && m_rimReservoirView->tensorResults()->showPrincipal3())
+                    if (isDrawable(result3, m_rimReservoirView->tensorResults()->showPrincipal3()))
                     {
-                        if (result3.length() > m_rimReservoirView->tensorResults()->threshold())
-                        {
-                            bool isPressure = true;
-                            if (elmPrincipals[2][elmIdx] < 0)
-                            {
-                                isPressure = false;
-                            }
-
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result3, color3, isPressure));
-                            tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result3, color3, isPressure));
-                        }
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result3, color3, isPressure(elmPrincipals[2][elmIdx])));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result3, color3, isPressure(elmPrincipals[2][elmIdx])));
                     }
                 }
             }
@@ -345,6 +299,31 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(std::vector<TensorVisuali
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivTensorResultPartMgr::assignColorVectors(RimTensorResults::TensorColors tensorColor, cvf::Color3f color1, cvf::Color3f color2, cvf::Color3f color3)
+{
+    if (tensorColor == RimTensorResults::WHITE_GRAY_BLACK)
+    {
+        color1 = cvf::Color3f(cvf::Color3::WHITE);
+        color2 = cvf::Color3f(cvf::Color3::GRAY);
+        color3 = cvf::Color3f(cvf::Color3::BLACK);
+    }
+    else if (tensorColor == RimTensorResults::MAGENTA_BROWN_BLACK)
+    {
+        color1 = cvf::Color3f(cvf::Color3::MAGENTA);
+        color2 = cvf::Color3f(cvf::Color3::BROWN);
+        color3 = cvf::Color3f(cvf::Color3::BLACK);
+    }
+    else
+    {
+        color1 = cvf::Color3f(cvf::Color3::BLACK);
+        color2 = cvf::Color3f(cvf::Color3::BLACK);
+        color3 = cvf::Color3f(cvf::Color3::BLACK);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
 {
     if (!(address.resultPosType == RIG_ELEMENT_NODAL || address.resultPosType == RIG_INTEGRATION_POINT))
@@ -366,6 +345,15 @@ bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
 //--------------------------------------------------------------------------------------------------
 bool RivTensorResultPartMgr::isValid(cvf::Vec3f resultVector)
 {
+    //nan
+    if (   resultVector.x() != resultVector.x()
+        || resultVector.y() != resultVector.y()
+        || resultVector.z() != resultVector.z())
+    {
+        return false;
+    }
+    
+    //inf
     if (   resultVector.x() == HUGE_VAL
         || resultVector.y() == HUGE_VAL
         || resultVector.z() == HUGE_VAL
@@ -376,7 +364,43 @@ bool RivTensorResultPartMgr::isValid(cvf::Vec3f resultVector)
         return false;
     }
 
-    if (resultVector.length() == 0)
+    //zero
+    if (resultVector == cvf::Vec3f::ZERO)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivTensorResultPartMgr::isPressure(float principalValue)
+{
+    if (principalValue < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivTensorResultPartMgr::isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const
+{
+    if (!showPrincipal)
+    {
+        return false;
+    }
+
+    if (!isValid(resultVector))
+    {
+        return false;
+    }
+
+    if (resultVector.length() <= m_rimReservoirView->tensorResults()->threshold())
     {
         return false;
     }

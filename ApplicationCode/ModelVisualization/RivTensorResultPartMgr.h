@@ -25,6 +25,8 @@
 
 #include "cafPdmPointer.h"
 
+#include "RimTensorResults.h"
+
 #include <array>
 #include <vector>
 
@@ -60,8 +62,11 @@ private:
 private:
     cvf::ref<cvf::Part> createPart(std::vector<TensorVisualization>& tensorVisualizations) const;
 
+    static void assignColorVectors(RimTensorResults::TensorColors tensorColor, cvf::Color3f color1, cvf::Color3f color2, cvf::Color3f color3);
     static bool isTensorAddress(RigFemResultAddress address);
     static bool isValid(cvf::Vec3f resultVector);
+    static bool isPressure(float principalValue);
+    bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;
