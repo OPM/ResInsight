@@ -61,6 +61,7 @@ private:
     cvf::ref<cvf::Part> createPart(std::vector<TensorVisualization>& tensorVisualizations) const;
 
     static bool isTensorAddress(RigFemResultAddress address);
+    static bool isValid(cvf::Vec3f resultVector);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;

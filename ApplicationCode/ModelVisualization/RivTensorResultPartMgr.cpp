@@ -214,41 +214,44 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
                         result3.set(elmPrincipalDirections[elmIdx][2] * arrowConstantScaling);
                     }
 
-                    if (m_rimReservoirView->tensorResults()->showPrincipal1())
+                    if (isValid(result1) && m_rimReservoirView->tensorResults()->showPrincipal1())
                     {
-                        if (cvf::Math::abs(elmPrincipals[0][elmIdx]) > m_rimReservoirView->tensorResults()->threshold())
+                        if (result1.length() > m_rimReservoirView->tensorResults()->threshold())
                         {
                             bool isPressure = true;
                             if (elmPrincipals[0][elmIdx] < 0)
                             {
                                 isPressure = false;
                             }
+
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result1, color1, isPressure));
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result1, color1, isPressure));
                         }
                     }
-                    if (m_rimReservoirView->tensorResults()->showPrincipal2())
+                    if (isValid(result2) && m_rimReservoirView->tensorResults()->showPrincipal2())
                     {
-                        bool isPressure = true;
-                        if (elmPrincipals[1][elmIdx] < 0)
+                        if (result2.length() > m_rimReservoirView->tensorResults()->threshold())
                         {
-                            isPressure = false;
-                        }
-                        if (cvf::Math::abs(elmPrincipals[1][elmIdx]) > m_rimReservoirView->tensorResults()->threshold())
-                        {
+                            bool isPressure = true;
+                            if (elmPrincipals[1][elmIdx] < 0)
+                            {
+                                isPressure = false;
+                            }
+
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result2, color2, isPressure));
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result2, color2, isPressure));
                         }
                     }
-                    if (m_rimReservoirView->tensorResults()->showPrincipal3())
+                    if (isValid(result3) && m_rimReservoirView->tensorResults()->showPrincipal3())
                     {
-                        bool isPressure = true;
-                        if (elmPrincipals[2][elmIdx] < 0)
+                        if (result3.length() > m_rimReservoirView->tensorResults()->threshold())
                         {
-                            isPressure = false;
-                        }
-                        if (cvf::Math::abs(elmPrincipals[2][elmIdx]) > m_rimReservoirView->tensorResults()->threshold())
-                        {
+                            bool isPressure = true;
+                            if (elmPrincipals[2][elmIdx] < 0)
+                            {
+                                isPressure = false;
+                            }
+
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), result3, color3, isPressure));
                             tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord), -result3, color3, isPressure));
                         }
@@ -351,6 +354,29 @@ bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
     if (!(address.fieldName == "SE"
          || address.fieldName == "ST"
          || address.fieldName == "E"))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivTensorResultPartMgr::isValid(cvf::Vec3f resultVector)
+{
+    if (   resultVector.x() == HUGE_VAL
+        || resultVector.y() == HUGE_VAL
+        || resultVector.z() == HUGE_VAL
+        || resultVector.x() == -HUGE_VAL
+        || resultVector.y() == -HUGE_VAL
+        || resultVector.z() == -HUGE_VAL)
+    {
+        return false;
+    }
+
+    if (resultVector.length() == 0)
     {
         return false;
     }
