@@ -118,7 +118,7 @@ public:
 
 private:
     template<typename T> 
-    friend inline const Vector2<T> operator*(T scalar, const Vector2<T>& rhs);
+    friend const Vector2<T> operator*(T scalar, const Vector2<T>& rhs);
 
 private:
     S m_v[2];
