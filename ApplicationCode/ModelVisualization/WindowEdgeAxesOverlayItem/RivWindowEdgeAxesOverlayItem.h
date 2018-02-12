@@ -100,17 +100,14 @@ protected:
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
     virtual bool    pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size);
     
-protected:
+private:
     void         updateGeomerySizes();
-    void         render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
-    void         renderLegendImmediateMode(OpenGLContext* oglContext);
+    void         renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
+    void         renderSoftwareFrameAndTickLines(OpenGLContext* oglContext);
     void         addTextToTextDrawer(TextDrawer* textDrawer);
 
-protected:
+private:
     cvf::cref<caf::DisplayCoordTransform> m_dispalyCoordsTransform;
-
-    DoubleArray         m_tickValues;           // Ticks between each level + top and bottom of legend (n+1 entries)
-    std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
 
     Vec2ui              m_windowSize;     // Pixel size of the window
     Vec2ui              m_textSize;

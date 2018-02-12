@@ -71,11 +71,6 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem(Font* font)
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
 
-    m_tickValues.reserve(3);
-    m_tickValues.add(0.0);
-    m_tickValues.add(0.5);
-    m_tickValues.add(1.0);
-
     setLayoutFixedPosition({0,0});
     updateGeomerySizes();
 }
@@ -115,6 +110,16 @@ void RivWindowEdgeAxesOverlayItem::updateGeomerySizes()
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
 {
+    if (!camera || camera->projection() != Camera::ORTHO )
+    {
+        m_domainCoordsXValues.clear();
+        m_domainCoordsYValues.clear();
+        m_windowTickXValues.clear();
+        m_windowTickYValues.clear();
+
+        return;
+    }
+
     m_windowSize = Vec2ui( camera->viewport()->width(), camera->viewport()->height());
     Vec3d windowOrigoInDomain;
     Vec3d windowMaxInDomain;
@@ -201,7 +206,7 @@ const Color3f&  RivWindowEdgeAxesOverlayItem::textColor() const
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
-    render(oglContext, position, size, false);
+    renderGeneric(oglContext, position, size, false);
 }
 
 
@@ -210,7 +215,7 @@ void RivWindowEdgeAxesOverlayItem::render(OpenGLContext* oglContext, const Vec2i
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
-    render(oglContext, position, size, true);
+    renderGeneric(oglContext, position, size, true);
 }
 
 
@@ -226,9 +231,10 @@ bool RivWindowEdgeAxesOverlayItem::pick(int oglXCoord, int oglYCoord, const Vec2
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void RivWindowEdgeAxesOverlayItem::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
+void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {   
-    if (size.x() <= 0 || size.y() <= 0)
+    if (size.x() <= 0 || size.y() <= 0
+    || (m_windowTickXValues.size() == 0 && m_windowTickYValues.size() == 0 ) )
     {
         return;
     }
@@ -243,7 +249,7 @@ void RivWindowEdgeAxesOverlayItem::render(OpenGLContext* oglContext, const Vec2i
     TextDrawer textDrawer(m_font.p());
     addTextToTextDrawer(&textDrawer);
 
-    renderLegendImmediateMode(oglContext);
+    renderSoftwareFrameAndTickLines(oglContext);
 
     if (software)
     {
@@ -332,7 +338,7 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void RivWindowEdgeAxesOverlayItem::renderLegendImmediateMode(OpenGLContext* oglContext)
+void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext* oglContext)
 {
     RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
