@@ -721,9 +721,13 @@ RimViewWindow* RiuViewer::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
-    m_windowEdgeAxisOverlay->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
+    if (m_showWindowEdgeAxes)
+    {
+        m_windowEdgeAxisOverlay->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
+        m_windowEdgeAxisOverlay->updateFromCamera(this->mainCamera());
+    }
+
     m_gridBoxGenerator->updateFromCamera(mainCamera());
-    m_windowEdgeAxisOverlay->updateFromCamera(this->mainCamera());
     caf::Viewer::optimizeClippingPlanes();
 }
 
