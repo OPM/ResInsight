@@ -35,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.h
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionBoxFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportElementPropertyFeature.h
+${CEE_CURRENT_LIST_DIR}RicSelectColorResult.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
@@ -118,6 +119,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSliceRangeFilterFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicHideIntersectionBoxFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportElementPropertyFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSelectColorResult.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
