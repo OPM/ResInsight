@@ -29,12 +29,16 @@
 #include "cvfModelBasicList.h"
 #include "cvfTransform.h"
 #include "cvfScene.h"
+
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimSimWellInView.h"
+#include "RimWellPath.h"
 
 #include <QDateTime>
 
@@ -334,7 +338,25 @@ void Rim2dIntersectionView::updateLegends()
         m_viewer->removeAllColorLegends();
     }
 
-    if (!hasResults()) return ;
+    if (!hasResults()) return;
+
+    RimCase* rimCase = nullptr;
+    m_intersection->firstAncestorOrThisOfType(rimCase);
+
+    QString overlayInfoText;
+
+    overlayInfoText += "<b>Case:</b> " + ownerCase()->caseUserDescription() + "<br>";
+
+    overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
+
+    if (m_intersection->simulationWell())
+    {
+        overlayInfoText += "<b>Simulation Well:</b> " + m_intersection->simulationWell()->name() + "<br>";;
+    }
+    else if (m_intersection->wellPath())
+    {
+        overlayInfoText += "<b>Well Path:</b> " + m_intersection->wellPath()->name() + "<br>";;
+    }
 
     cvf::OverlayItem* legend = nullptr;
 
@@ -342,6 +364,8 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(eclView);
     if (eclView)
     {
+        overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "</br>";
+
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
         eclView->cellResult()->updateLegendData(m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
@@ -362,6 +386,8 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
+        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->resultVariableName() + "</br>";
+
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
           
         geoView->updateLegendTextAndRanges(m_legendConfig(), m_currentTimeStep());
@@ -372,6 +398,9 @@ void Rim2dIntersectionView::updateLegends()
     {
         m_viewer->addColorLegendToBottomLeftCorner(legend);
     }
+
+    m_viewer->setInfoText(overlayInfoText);
+    m_viewer->showInfoText(true);
 }
 
 //--------------------------------------------------------------------------------------------------
