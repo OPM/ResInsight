@@ -42,7 +42,7 @@ public:
     caf::PdmChildField<RimLegendConfig*> legendConfig;
 
     void            updateIconState();
-    virtual void    initAfterRead();
+    virtual void    initAfterRead() override;
 
 protected:
     void updateLegendCategorySettings() override; 
