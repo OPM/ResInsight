@@ -508,7 +508,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     QString resultInfoText;
 
                     cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(globalIntersectionPoint);
+                    cvf::Vec3d domainCoord = transForm->transformToDomainCoord(globalIntersectionPoint);
 
                     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
                     RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
