@@ -345,8 +345,9 @@ void Rim2dIntersectionView::updateLegends()
 
     QString overlayInfoText;
 
-    overlayInfoText += "<b>Case:</b> " + ownerCase()->caseUserDescription() + "<br>";
+    overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
 
+    overlayInfoText += "<p>"; 
     overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
 
     if (m_intersection->simulationWell())
@@ -364,7 +365,7 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(eclView);
     if (eclView)
     {
-        overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "</br>";
+        overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "<br>";
 
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
@@ -386,7 +387,7 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
-        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->resultVariableName() + "</br>";
+        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->resultVariableName() + "<br>";
 
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
           
@@ -399,6 +400,7 @@ void Rim2dIntersectionView::updateLegends()
         m_viewer->addColorLegendToBottomLeftCorner(legend);
     }
 
+    overlayInfoText += "</p>";
     m_viewer->setInfoText(overlayInfoText);
     m_viewer->showInfoText(true);
 }
