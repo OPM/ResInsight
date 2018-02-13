@@ -340,6 +340,28 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::array<Vec3f, 8> RivWindowEdgeAxesOverlayItem::frameVertexArray()
+{
+    float windowWidth = static_cast<float>(m_windowSize.x());
+    float windowHeight = static_cast<float>(m_windowSize.y());
+
+    std::array<Vec3f, 8> vertexArray ={
+        Vec3f(0.0f                            , 0.0f               , 0.0f),
+        Vec3f(windowWidth                     , 0.0f               , 0.0f),
+        Vec3f(windowWidth                     , windowHeight       , 0.0f),
+        Vec3f(0.0f                            , windowHeight       , 0.0f),
+        Vec3f(m_frameBorderWidth              , m_frameBorderHeight, 0.0f),
+        Vec3f(windowWidth - m_frameBorderWidth, m_frameBorderHeight, 0.0f),
+        Vec3f(windowWidth - m_frameBorderWidth, windowHeight       , 0.0f),
+        Vec3f(m_frameBorderWidth              , windowHeight       , 0.0f),
+    };
+
+    return vertexArray;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Draw the legend using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext* oglContext)
@@ -355,51 +377,27 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
     blend.applyOpenGL(oglContext);
 
     // Frame vertices
-      
-    Vec3f v0(Vec3f::ZERO);   
-    Vec3f v1(Vec3f::ZERO);   
-    Vec3f v2(Vec3f::ZERO);   
-    Vec3f v3(Vec3f::ZERO);   
-    Vec3f v4(Vec3f::ZERO);   
-    Vec3f v5(Vec3f::ZERO);   
-    Vec3f v6(Vec3f::ZERO);   
-    Vec3f v7(Vec3f::ZERO);   
 
-    v1[0] = static_cast<float>(m_windowSize.x());
-    v2[0] = static_cast<float>(m_windowSize.x());
-    v2[1] = static_cast<float>(m_windowSize.y());
-    v3[1] = static_cast<float>(m_windowSize.y());
-    
-    v4[0] = m_frameBorderWidth;
-    v4[1] = m_frameBorderHeight;
-
-    v5[0] = v1[0] - m_frameBorderWidth;
-    v5[1] = m_frameBorderHeight;
-
-    v6[0] = v2[0] - m_frameBorderWidth;
-    v6[1] = v2[1];
-    
-    v7[0] = m_frameBorderWidth;
-    v7[1] = v3[1];
+    std::array<Vec3f, 8> vertexArray = frameVertexArray();
 
     glColor4fv(Vec4f(1.0f,1.0f,1.0f,0.5f).ptr());
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3fv(v0.ptr());
-    glVertex3fv(v1.ptr());
-    glVertex3fv(v5.ptr());
-    glVertex3fv(v4.ptr());
+    glVertex3fv(vertexArray[0].ptr());
+    glVertex3fv(vertexArray[1].ptr());
+    glVertex3fv(vertexArray[5].ptr());
+    glVertex3fv(vertexArray[4].ptr());
     glEnd();
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3fv(v1.ptr());
-    glVertex3fv(v2.ptr());
-    glVertex3fv(v6.ptr());
-    glVertex3fv(v5.ptr());
+    glVertex3fv(vertexArray[1].ptr());
+    glVertex3fv(vertexArray[2].ptr());
+    glVertex3fv(vertexArray[6].ptr());
+    glVertex3fv(vertexArray[5].ptr());
     glEnd();
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3fv(v3.ptr());
-    glVertex3fv(v0.ptr());
-    glVertex3fv(v4.ptr());
-    glVertex3fv(v7.ptr());
+    glVertex3fv(vertexArray[3].ptr());
+    glVertex3fv(vertexArray[0].ptr());
+    glVertex3fv(vertexArray[4].ptr());
+    glVertex3fv(vertexArray[7].ptr());
     glEnd();
 
 
@@ -409,12 +407,12 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
         glColor3fv(m_lineColor.ptr());
         glBegin(GL_LINES);
         // Frame lines
-        glVertex3fv(v7.ptr());
-        glVertex3fv(v4.ptr());
-        glVertex3fv(v4.ptr());
-        glVertex3fv(v5.ptr());
-        glVertex3fv(v5.ptr());
-        glVertex3fv(v6.ptr());
+        glVertex3fv(vertexArray[7].ptr());
+        glVertex3fv(vertexArray[4].ptr());
+        glVertex3fv(vertexArray[4].ptr());
+        glVertex3fv(vertexArray[5].ptr());
+        glVertex3fv(vertexArray[5].ptr());
+        glVertex3fv(vertexArray[6].ptr());
 
         // X - axis Tick lines
         for (double txpos : m_windowTickXValues)
@@ -497,22 +495,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
     }
 
     // Frame vertices
-
-    float windowWidth = static_cast<float>(m_windowSize.x());
-    float windowHeight = static_cast<float>(m_windowSize.y());
-
-    std::array<Vec3f, 8> vertexArray = {
-
-     Vec3f( 0.0f                            , 0.0f               , 0.0f),
-     Vec3f( windowWidth                     , 0.0f               , 0.0f),
-     Vec3f( windowWidth                     , windowHeight       , 0.0f),
-     Vec3f( 0.0f                            , windowHeight       , 0.0f),
-     Vec3f( m_frameBorderWidth              , m_frameBorderHeight, 0.0f),
-     Vec3f( windowWidth - m_frameBorderWidth, m_frameBorderHeight, 0.0f),
-     Vec3f( windowWidth - m_frameBorderWidth, windowHeight       , 0.0f),
-     Vec3f( m_frameBorderWidth              , windowHeight       , 0.0f),
-
-    };
+    std::array<Vec3f, 8> vertexArray = frameVertexArray();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glEnableVertexAttribArray(ShaderProgram::VERTEX);
@@ -525,11 +508,11 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
 
     // Triangle indices for the frame background
 
-    static const ushort trianglesConnects[] = { 0, 1, 5,  0, 5, 4,
-                                                1, 2, 6,  1, 6, 5,
-                                                3, 0, 4,  3, 4, 7 };
+    static const ushort backgroundTriangleIndices[] = { 0, 1, 5,  0, 5, 4,
+                                                        1, 2, 6,  1, 6, 5,
+                                                        3, 0, 4,  3, 4, 7 };
 
-    glDrawRangeElements(GL_TRIANGLES, 0, 7, 18, GL_UNSIGNED_SHORT, trianglesConnects);
+    glDrawRangeElements(GL_TRIANGLES, 0, 7, 18, GL_UNSIGNED_SHORT, backgroundTriangleIndices);
 
 
     // Draw frame border lines

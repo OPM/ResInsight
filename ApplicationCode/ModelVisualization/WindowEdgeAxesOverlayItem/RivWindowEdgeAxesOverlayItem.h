@@ -74,6 +74,7 @@ class RivWindowEdgeAxesOverlayItem : public cvf::OverlayItem
     using Color3f = cvf::Color3f;
     using String = cvf::String;
     using Vec2f = cvf::Vec2f;
+    using Vec3f = cvf::Vec3f;
     using Rectf = cvf::Rectf;
     using DoubleArray = cvf::DoubleArray;
     using MatrixState = cvf::MatrixState;
@@ -95,18 +96,19 @@ public:
     int             frameBorderHeight() { return static_cast<int>( m_frameBorderHeight); }
 
 protected:
-    virtual Vec2ui  sizeHint();
-    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
-    virtual bool    pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size);
+    Vec2ui          sizeHint() override;
+    void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
+    void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
+    bool            pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size) override;
     
 private:
-    void         updateGeomerySizes();
-    void         renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
-    void         renderSoftwareFrameAndTickLines(OpenGLContext* oglContext);
-    void         renderShaderFrameAndTickLines(OpenGLContext* oglContext, const MatrixState& matrixState);
-    void         addTextToTextDrawer(TextDrawer* textDrawer);
+    void            updateGeomerySizes();
+    void            renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
+    void            renderSoftwareFrameAndTickLines(OpenGLContext* oglContext);
+    void            renderShaderFrameAndTickLines(OpenGLContext* oglContext, const MatrixState& matrixState);
+    void            addTextToTextDrawer(TextDrawer* textDrawer);
 
+    std::array<Vec3f, 8> frameVertexArray();
 private:
     cvf::cref<caf::DisplayCoordTransform> m_dispalyCoordsTransform;
 
