@@ -104,6 +104,7 @@ private:
     void         updateGeomerySizes();
     void         renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
     void         renderSoftwareFrameAndTickLines(OpenGLContext* oglContext);
+    void         renderShaderFrameAndTickLines(OpenGLContext* oglContext, const MatrixState& matrixState);
     void         addTextToTextDrawer(TextDrawer* textDrawer);
 
 private:

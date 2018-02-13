@@ -44,6 +44,7 @@
 #include "cvfScalarMapper.h"
 #include "cvfRenderStateBlending.h"
 #include "cafTickMarkGenerator.h"
+#include <array>
 
 using namespace cvf;
 
@@ -249,14 +250,17 @@ void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext, cons
     TextDrawer textDrawer(m_font.p());
     addTextToTextDrawer(&textDrawer);
 
-    renderSoftwareFrameAndTickLines(oglContext);
 
     if (software)
     {
+        renderSoftwareFrameAndTickLines(oglContext);
         textDrawer.renderSoftware(oglContext, camera);
     }
     else
     {
+        const MatrixState matrixState(camera);
+        renderShaderFrameAndTickLines(oglContext, matrixState);
+
         textDrawer.render(oglContext, camera);
     }
 
@@ -461,6 +465,134 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
     resetDepth.applyOpenGL(oglContext);
     RenderStateBlending resetblend;
     resetblend.applyOpenGL(oglContext);
+    CVF_CHECK_OGL(oglContext);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Draw the frame using shader programs
+//--------------------------------------------------------------------------------------------------
+void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* oglContext, const MatrixState& matrixState)
+{
+    CVF_CALLSITE_OPENGL(oglContext);
+
+    RenderStateDepth depth(false);
+    depth.applyOpenGL(oglContext);
+
+    RenderStateLine line(static_cast<float>(m_lineWidth));
+    line.applyOpenGL(oglContext);
+
+    RenderStateBlending blend;
+    blend.configureTransparencyBlending();
+    blend.applyOpenGL(oglContext);
+
+    // Shader program
+    
+    ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram(oglContext);
+    CVF_TIGHT_ASSERT(shaderProgram.notNull());
+
+    if (shaderProgram->useProgram(oglContext))
+    {
+        shaderProgram->clearUniformApplyTracking();
+        shaderProgram->applyFixedUniforms(oglContext, matrixState);
+    }
+
+    // Frame vertices
+
+    float windowWidth = static_cast<float>(m_windowSize.x());
+    float windowHeight = static_cast<float>(m_windowSize.y());
+
+    std::array<Vec3f, 8> vertexArray = {
+
+     Vec3f( 0.0f                            , 0.0f               , 0.0f),
+     Vec3f( windowWidth                     , 0.0f               , 0.0f),
+     Vec3f( windowWidth                     , windowHeight       , 0.0f),
+     Vec3f( 0.0f                            , windowHeight       , 0.0f),
+     Vec3f( m_frameBorderWidth              , m_frameBorderHeight, 0.0f),
+     Vec3f( windowWidth - m_frameBorderWidth, m_frameBorderHeight, 0.0f),
+     Vec3f( windowWidth - m_frameBorderWidth, windowHeight       , 0.0f),
+     Vec3f( m_frameBorderWidth              , windowHeight       , 0.0f),
+
+    };
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glEnableVertexAttribArray(ShaderProgram::VERTEX);
+    glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray.data());
+
+    // Draw frame background
+
+    UniformFloat backgroundColorUniform("u_color", Color4f(1.0f, 1.0f, 1.0f, 0.5f));
+    shaderProgram->applyUniform(oglContext, backgroundColorUniform);
+
+    // Triangle indices for the frame background
+
+    static const ushort trianglesConnects[] = { 0, 1, 5,  0, 5, 4,
+                                                1, 2, 6,  1, 6, 5,
+                                                3, 0, 4,  3, 4, 7 };
+
+    glDrawRangeElements(GL_TRIANGLES, 0, 7, 18, GL_UNSIGNED_SHORT, trianglesConnects);
+
+
+    // Draw frame border lines
+
+    UniformFloat uniformColor("u_color", Color4f(m_lineColor));
+    shaderProgram->applyUniform(oglContext, uniformColor);
+
+    static const ushort frameLineIndices[] = { 7, 4, 
+                                               4, 5, 
+                                               5, 6 };
+
+    glDrawRangeElements(GL_LINES, 0, 7, 6, GL_UNSIGNED_SHORT, frameLineIndices);
+
+    // Render tickmarks
+
+    static const ushort tickLineIndices[] = { 0, 1 };
+
+    // X - axis Tick lines
+
+    for (double txpos : m_windowTickXValues)
+    {
+        vertexArray[0][0] = (float)txpos;
+        vertexArray[0][1] = m_frameBorderHeight;
+        vertexArray[1][0] = (float)txpos;
+        vertexArray[1][1] = m_frameBorderHeight - m_tickLineLength;
+
+        glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
+    }
+
+    // Left Y - axis Tick lines
+    
+    for (double typos : m_windowTickYValues)
+    {
+        vertexArray[0][0] = m_frameBorderWidth;
+        vertexArray[0][1] = (float)typos;
+        vertexArray[1][0] = m_frameBorderWidth - m_tickLineLength;
+        vertexArray[1][1] = (float)typos;
+
+        glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
+
+        vertexArray[0][0] = m_windowSize.x() - m_frameBorderWidth;
+        vertexArray[0][1] = (float)typos;
+        vertexArray[1][0] = m_windowSize.x() - m_frameBorderWidth + m_tickLineLength;
+        vertexArray[1][1] = (float)typos;
+
+        glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
+    }
+    
+    glDisableVertexAttribArray(ShaderProgram::VERTEX);
+
+    CVF_TIGHT_ASSERT(shaderProgram.notNull());
+    shaderProgram->useNoProgram(oglContext);
+
+    // Reset render states
+    RenderStateDepth resetDepth;
+    resetDepth.applyOpenGL(oglContext);
+
+    RenderStateLine resetLine;
+    resetLine.applyOpenGL(oglContext);
+
+    RenderStateBlending resetblend;
+    resetblend.applyOpenGL(oglContext);
+
     CVF_CHECK_OGL(oglContext);
 }
 
