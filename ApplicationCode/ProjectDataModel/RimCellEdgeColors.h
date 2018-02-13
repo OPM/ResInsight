@@ -91,6 +91,9 @@ public:
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
     void                                  posNegClosestToZero(double& pos, double& neg);
+
+    void                                  updateUiFieldsFromActiveResult();
+
 protected:
 
     virtual void                          initAfterRead();

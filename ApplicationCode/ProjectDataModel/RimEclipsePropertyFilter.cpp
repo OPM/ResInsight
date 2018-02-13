@@ -548,3 +548,11 @@ void RimEclipsePropertyFilter::initAfterRead()
     resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
     updateIconState();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateUiFieldsFromActiveResult()
+{
+    resultDefinition->updateUiFieldsFromActiveResult();
+}

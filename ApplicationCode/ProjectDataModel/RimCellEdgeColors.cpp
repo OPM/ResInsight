@@ -500,6 +500,14 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCellEdgeColors::updateUiFieldsFromActiveResult()
+{
+    m_singleVarEdgeResultColors->updateUiFieldsFromActiveResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::setEclipseCase(RimEclipseCase* eclipseCase)
 {
     m_singleVarEdgeResultColors->setEclipseCase(eclipseCase);

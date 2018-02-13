@@ -1063,6 +1063,15 @@ void RimEclipseResultDefinition::setSelectedSouringTracers(const std::vector<QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
+{
+    m_resultTypeUiField = m_resultType;
+    m_resultVariableUiField = resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
     bool isTernary =    (m_resultType() == RiaDefines::DYNAMIC_NATIVE) && 

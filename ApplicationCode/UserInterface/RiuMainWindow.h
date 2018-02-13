@@ -23,6 +23,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmUiDragDropInterface.h"
+#include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QPointer>
@@ -132,6 +133,8 @@ private:
     void            restoreTreeViewState();
 
     void            showDockPanel(const QString& dockPanelName);
+
+    void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;

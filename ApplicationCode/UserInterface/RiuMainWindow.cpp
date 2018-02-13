@@ -25,15 +25,19 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
 
+#include "Rim3dView.h"
+#include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
-#include "Rim3dView.h"
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
@@ -41,13 +45,13 @@
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
+#include "RiuPvtPlotPanel.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
-#include "RiuRelativePermeabilityPlotPanel.h"
-#include "RiuPvtPlotPanel.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -1257,6 +1261,9 @@ void RiuMainWindow::selectedObjectsChanged()
     {
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
     }
+
+    updateUiFieldsFromActiveResult(firstSelectedObject);
+
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
     if (uiItems.size() == 1)
@@ -1536,6 +1543,40 @@ void RiuMainWindow::showDockPanel(const QString &dockPanelName)
             dock->show();
             return;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate)
+{
+    RimEclipseResultDefinition* resultDefinition = nullptr;
+    resultDefinition = dynamic_cast<RimEclipseResultDefinition*>(objectToUpdate);
+    if (resultDefinition)
+    {
+        resultDefinition->updateUiFieldsFromActiveResult();
+    }
+
+    RimEclipsePropertyFilter* eclPropFilter = nullptr;
+    eclPropFilter = dynamic_cast<RimEclipsePropertyFilter*>(objectToUpdate);
+    if (eclPropFilter)
+    {
+        eclPropFilter->updateUiFieldsFromActiveResult();
+    }
+
+    RimEclipseFaultColors* eclFaultColors = nullptr;
+    eclFaultColors = dynamic_cast<RimEclipseFaultColors*>(objectToUpdate);
+    if (eclFaultColors)
+    {
+        eclFaultColors->updateUiFieldsFromActiveResult();
+    }
+
+    RimCellEdgeColors* cellEdgeColors = nullptr;
+    cellEdgeColors = dynamic_cast<RimCellEdgeColors*>(objectToUpdate);
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->updateUiFieldsFromActiveResult();
     }
 }
 

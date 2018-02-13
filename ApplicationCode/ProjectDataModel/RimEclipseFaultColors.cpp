@@ -100,6 +100,14 @@ RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::updateUiFieldsFromActiveResult()
+{
+    m_customFaultResultColors->updateUiFieldsFromActiveResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 {
     return &showCustomFaultResult;
