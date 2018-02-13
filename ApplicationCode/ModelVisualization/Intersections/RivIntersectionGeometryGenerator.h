@@ -50,7 +50,8 @@ public:
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivIntersectionHexGridInterface* grid,
-                                     bool isFlattened );
+                                     bool isFlattened,
+                                     double horizontalLengthAlongWellToPolylineStart);
 
     ~RivIntersectionGeometryGenerator();
 
@@ -88,6 +89,7 @@ private:
     const std::vector<std::vector<cvf::Vec3d> > m_polyLines;
     cvf::Vec3d                                  m_extrusionDirection;
     bool                                        m_isFlattened;
+    double                                      m_horizontalLengthAlongWellToPolylineStart;
                                                 
     // Output arrays                            
     cvf::ref<cvf::Vec3fArray>                   m_triangleVxes;

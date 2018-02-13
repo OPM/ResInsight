@@ -81,13 +81,20 @@ RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection,
     CVF_ASSERT(m_rimCrossSection);
 
     m_crossSectionFacesTextureCoords = new cvf::Vec2fArray;
+    
+    double horizontalLengthAlongWellToPolylineStart;
 
-    std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines();
+    std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines(&horizontalLengthAlongWellToPolylineStart);
     if (polyLines.size() > 0)
     {
         cvf::Vec3d direction = m_rimCrossSection->extrusionDirection();
         cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
-        m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p(), m_isFlattened);
+        m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, 
+                                                                       polyLines, 
+                                                                       direction, 
+                                                                       hexGrid.p(), 
+                                                                       m_isFlattened, 
+                                                                       horizontalLengthAlongWellToPolylineStart);
     }
 }
 

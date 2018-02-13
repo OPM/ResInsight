@@ -392,15 +392,19 @@ void RimIntersection::updateAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
+std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * horizontalLengthAlongWellToPolylineStart) const
 {
+    CVF_ASSERT(horizontalLengthAlongWellToPolylineStart != nullptr);
+
     std::vector< std::vector <cvf::Vec3d> > lines;
+    double horizontalProjectedLengthAlongWellPathToClipPoint = 0.0;
+    if (horizontalLengthAlongWellToPolylineStart)  *horizontalLengthAlongWellToPolylineStart = 0.0;
     if (type == CS_WELL_PATH)
     {
         if (wellPath() && wellPath->wellPathGeometry() )
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
-            clipToReservoir(lines[0]);
+            clipToReservoir(lines[0], &horizontalProjectedLengthAlongWellPathToClipPoint);
         }
     }
     else if (type == CS_SIMULATION_WELL)
@@ -435,6 +439,11 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
         {
             std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
             addExtents(polyLine);
+        }
+
+        if (horizontalLengthAlongWellToPolylineStart) 
+        {
+            *horizontalLengthAlongWellToPolylineStart = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
         }
     }
 
@@ -592,8 +601,11 @@ void RimIntersection::updateName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
+void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine, double * horizontalLengthAlongWellToClipPoint) const
 {
+    CVF_ASSERT(horizontalLengthAlongWellToClipPoint != nullptr);
+
+    *horizontalLengthAlongWellToClipPoint = 0.0;
     RimCase* ownerCase = nullptr;
     firstAncestorOrThisOfType(ownerCase);
     
@@ -607,6 +619,12 @@ void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
         {
             if (!caseBB.contains(polyLine[vxIdx]))
             { 
+                if (vxIdx > 0)
+                {
+                    cvf::Vec3d segment = polyLine[vxIdx] - polyLine[vxIdx-1];
+                    segment[2] = 0.0;
+                    *horizontalLengthAlongWellToClipPoint += segment.length();
+                }
                 continue;
             }
 
@@ -621,6 +639,10 @@ void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
                 
                     if (topPlane.intersect(polyLine[vxIdx-1], polyLine[vxIdx], &intersection))
                     {
+                        cvf::Vec3d segment = intersection - polyLine[vxIdx-1];
+                        segment[2] = 0.0;
+                        *horizontalLengthAlongWellToClipPoint += segment.length();
+
                         clippedPolyLine.push_back(intersection);
                     }
                 }

@@ -84,7 +84,7 @@ public:
     caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;
     caf::PdmField< bool >                                inputTwoAzimuthPointsFromViewerEnabled;
 
-    std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
+    std::vector< std::vector <cvf::Vec3d> >              polyLines(double * horizontalLengthAlongWellToPolylineStart = nullptr) const;
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
     Rim2dIntersectionView*                               correspondingIntersectionView();
@@ -133,7 +133,7 @@ private:
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
-    void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const;
+    void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLinee, double * horizontalLengthAlongWellToClipPoint) const;
     void                                    updateName();
     void                                    rebuildGeometryAndScheduleCreateDisplayModel();
     static double                           azimuthInRadians(cvf::Vec3d vec);
