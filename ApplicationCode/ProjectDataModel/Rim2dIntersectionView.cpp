@@ -387,7 +387,7 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
-        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->resultVariableName() + "<br>";
+        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->title() + "<br>";
 
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
           
