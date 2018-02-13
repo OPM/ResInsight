@@ -96,8 +96,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-
-
+    m_isChangedByField = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +122,14 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         if ( m_isTimeLapseResultUiField() )
             timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
     }
+
+    if (!m_isChangedByField)
+    {
+        m_resultPositionTypeUiField = m_resultPositionType;
+        m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
+    }
+
+    m_isChangedByField = false;
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -190,6 +197,8 @@ void RimGeoMechResultDefinition::setGeoMechCase(RimGeoMechCase* geomCase)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    m_isChangedByField = true;
+
     if(   &m_resultPositionTypeUiField == changedField 
        || &m_isTimeLapseResultUiField == changedField
        || &m_timeLapseBaseTimestepUiField == changedField)
