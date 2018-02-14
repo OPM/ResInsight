@@ -677,21 +677,6 @@ void RimLegendConfig::setTitle(const QString& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimLegendConfig::title() const
-{
-    if (m_currentScalarMapper == m_categoryMapper)
-    {
-        return cvfqt::Utils::toQString(m_categoryLegend->title());
-    }
-    else
-    {
-        return cvfqt::Utils::toQString(m_scalarMapperLegend->title());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* RimLegendConfig::legend()
 {
     if (m_currentScalarMapper == m_categoryMapper)

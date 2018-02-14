@@ -115,7 +115,6 @@ public:
     QString                                     categoryNameFromCategoryValue(double categoryResultValue) const;
 
     void                                        setTitle(const QString& title);
-    QString                                     title() const;
 
     void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 

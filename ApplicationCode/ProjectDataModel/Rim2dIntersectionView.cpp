@@ -340,9 +340,6 @@ void Rim2dIntersectionView::updateLegends()
 
     if (!hasResults()) return;
 
-    RimCase* rimCase = nullptr;
-    m_intersection->firstAncestorOrThisOfType(rimCase);
-
     QString overlayInfoText;
 
     overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
@@ -387,7 +384,38 @@ void Rim2dIntersectionView::updateLegends()
     m_intersection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
-        overlayInfoText += "<b>Cell Result:</b> " + geoView->cellResult()->legendConfig()->title() + "<br>";
+        QString resultPos;
+        QString fieldName = geoView->cellResultResultDefinition()->resultFieldUiName();
+        QString compName = geoView->cellResultResultDefinition()->resultComponentUiName();
+
+        switch (geoView->cellResultResultDefinition()->resultPositionType())
+        {
+        case RIG_NODAL:
+            resultPos = "Nodal";
+            break;
+
+        case RIG_ELEMENT_NODAL:
+            resultPos = "Element nodal";
+            break;
+
+        case RIG_INTEGRATION_POINT:
+            resultPos = "Integration point";
+            break;
+
+        case RIG_ELEMENT:
+            resultPos = "Element";
+            break;
+        default:
+            break;
+        }
+        if (compName == "")
+        {
+            overlayInfoText += QString("<b>Cell result:</b> %1, %2<br>").arg(resultPos).arg(fieldName);
+        }
+        else
+        {
+            overlayInfoText += QString("<b>Cell result:</b> %1, %2, %3<br>").arg(resultPos).arg(fieldName).arg(compName);
+        }
 
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
           
