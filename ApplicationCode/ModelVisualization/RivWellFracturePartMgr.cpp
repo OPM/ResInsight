@@ -870,10 +870,6 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart(const RimEcli
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView) const
 {
-    //TODO: This is needed to avoid errors when loading project with stimPlan fractures with multipled timesteps. 
-    //Should probably be moved, since it now is called twice in some cases... 
-    stimPlanFracTemplate->updateFractureGrid();
-
     if (!stimPlanFracTemplate->fractureGrid()) return nullptr;
 
     auto displayCoordTransform = activeView.displayCoordTransform();

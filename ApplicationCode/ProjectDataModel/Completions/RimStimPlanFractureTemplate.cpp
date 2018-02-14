@@ -113,8 +113,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
     if (&m_activeTimeStepIndex == changedField)
     {
-        updateFractureGrid();
-
         //Changes to this parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -145,6 +143,8 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         || &m_stimPlanFileName == changedField
         || &m_conductivityResultNameOnFile == changedField)
     {
+        updateFractureGrid();
+
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
