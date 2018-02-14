@@ -107,7 +107,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
         std::vector<caf::Ten3f> elmTensors;
         elmTensors.resize(elmCount);
 
-        for (int elmIdx = 0; elmIdx < elmCount; elmIdx++)
+        for (int elmIdx = 0; elmIdx < static_cast<int>(elmCount); elmIdx++)
         {
             if (RigFemTypes::elmentNodeCount(part->elementType(elmIdx)) == 8)
             {
@@ -168,7 +168,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
                 const std::vector<size_t>& quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
                 const std::vector<size_t>& quadVerticesToElmIdx         = surfaceGenerator->quadVerticesToGlobalElmIdx();
 
-                for (int quadIdx = 0; quadIdx < quadVerticesToNodeIdxMapping.size(); quadIdx = quadIdx + 4)
+                for (int quadIdx = 0; quadIdx < static_cast<int>(quadVerticesToNodeIdxMapping.size()); quadIdx = quadIdx + 4)
                 {
                     cvf::Vec3f center = nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadIdx]) +
                                         nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadIdx + 2]);
