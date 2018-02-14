@@ -773,7 +773,7 @@ void RiuMainWindow::refreshAnimationActions()
         else
         {
             RimEclipseView * activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-            if ( activeRiv->currentGridCellResults() )
+            if ( activeRiv && activeRiv->currentGridCellResults() )
             {
                 timeStepStrings.push_back(tr("Static Property"));
             }
