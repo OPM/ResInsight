@@ -77,9 +77,10 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
-#include "cafDisplayCoordTransform.h"
-#include "cafSelectionManager.h"
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafDisplayCoordTransform.h"
+#include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
@@ -499,9 +500,32 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             if (rivObjectSourceInfo)
             {
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-                RiuMainWindow::instance()->selectAsCurrentItem(rivObjectSourceInfo->object());
-
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
+                {
+                    bool blockSelectionOfFracture = false;
+                    if (fracture)
+                    {
+                        std::vector<caf::PdmUiItem*> uiItems;
+                        RiuMainWindow::instance()->projectTreeView()->selectedUiItems(uiItems);
+
+                        if (uiItems.size() == 1)
+                        {
+                            auto selectedFractureTemplate = dynamic_cast<RimFractureTemplate*>(uiItems[0]);
+
+                            if (selectedFractureTemplate != nullptr && selectedFractureTemplate == fracture->fractureTemplate())
+                            {
+                                blockSelectionOfFracture = true;
+                            }
+                        }
+                    }
+
+                    if (!blockSelectionOfFracture)
+                    {
+                        RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+                    }
+                }
+
+
                 RimStimPlanFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
                 RimEllipseFractureTemplate* ellipseTempl = fracture ? dynamic_cast<RimEllipseFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
                 if (stimPlanTempl || ellipseTempl)
