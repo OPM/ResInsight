@@ -21,11 +21,12 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
-#include "cafPdmChildField.h"
-#include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -36,6 +37,19 @@ class RigFractureGrid;
 class RimFractureContainment;
 class MinMaxAccumulator;
 class PosNegAccumulator;
+
+class FractureWidthAndConductivity
+{
+public:
+    FractureWidthAndConductivity()
+        : m_width(0.0)
+        , m_permeability(0.0)
+    {
+    }
+
+    double m_width;
+    double m_permeability;
+};
 
 //==================================================================================================
 ///  
@@ -57,6 +71,12 @@ public:
     {
         INFINITE_CONDUCTIVITY,
         FINITE_CONDUCTIVITY,
+    };
+
+    enum EffectivePermeabilityEnum
+    {
+        USER_DEFINED_PERMEABILITY,
+        CONDUCTIVITY_FROM_FRACTURE,
     };
 
 public:
@@ -99,6 +119,14 @@ protected:
 
 private:
     void                            prepareFieldsForUiDisplay();
+    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const = 0;
+
+    QString                         dFactorSummary() const;
+    double                          effectivePermeability() const;
+
+    double                          computeDFactor() const;
+    double                          nonDarcyH() const;
+
 
 protected:
     caf::PdmField<QString>                             m_name;
@@ -113,9 +141,16 @@ protected:
     caf::PdmChildField<RimFractureContainment*>        m_fractureContainment;
 
     caf::PdmField<bool>                                m_useNonDarcyFlow;
-    caf::PdmField<double>                              m_fractureWidth;
     caf::PdmField<double>                              m_inertialCoefficient;
-    caf::PdmField<double>                              m_effectivePermeability;
-    caf::PdmField<double>                              m_specificGasGravity;
+
+    caf::PdmField<caf::AppEnum<EffectivePermeabilityEnum>>  
+                                                       m_permeabilityType;
+    caf::PdmField<double>                              m_permeabilityScaleFactor;
+    caf::PdmField<double>                              m_permeability;
+
+    caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;
+
+    caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
+    caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
 };

@@ -104,6 +104,9 @@ private:
     void                                    setPerforationLength();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
+
+    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection() const override;
+
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<QString>                  m_conductivityResultNameOnFile;

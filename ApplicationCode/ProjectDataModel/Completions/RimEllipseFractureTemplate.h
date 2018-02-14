@@ -73,6 +73,9 @@ protected:
 private:
     void                            setupFractureGridCells();
 
+
+    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;
+
 private:
     cvf::ref<RigFractureGrid>   m_fractureGrid;
 

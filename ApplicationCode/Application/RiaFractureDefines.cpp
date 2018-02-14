@@ -38,3 +38,16 @@ QString RiaDefines::unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitS
         default:                                    return "";
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaDefines::nonDarcyFlowAlpha(RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    switch (unitSystem)
+    {
+        case RiaEclipseUnitTools::UNITS_METRIC: return 2.24460e-10;
+        case RiaEclipseUnitTools::UNITS_FIELD:  return 6.83352e-8;
+        default: return 0.0;
+    }
+}

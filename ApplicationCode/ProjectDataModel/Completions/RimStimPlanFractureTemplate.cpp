@@ -405,6 +405,42 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAtWellPathIntersection() const
+{
+    FractureWidthAndConductivity values;
+
+    if (m_fractureGrid.notNull())
+    {
+        std::pair<size_t, size_t> wellCellIJ = m_fractureGrid->fractureCellAtWellCenter();
+        size_t wellCellIndex = m_fractureGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
+        const RigFractureCell& wellCell = m_fractureGrid->cellFromIndex(wellCellIndex);
+
+        double conductivity = wellCell.getConductivtyValue();
+
+        std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+        for (const auto& nameUnit : propertyNamesUnitsOnFile)
+        {
+            if (nameUnit.first.contains("Width", Qt::CaseInsensitive))
+            {
+                auto data = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                double width = data[wellCellIndex];
+
+                if (fabs(width) > 1e-7)
+                {
+                    values.m_width = width;
+                    values.m_permeability = conductivity / width;
+                }
+            }
+        }
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::setDefaultConductivityResultIfEmpty()
 {
     if (m_conductivityResultNameOnFile().isEmpty())

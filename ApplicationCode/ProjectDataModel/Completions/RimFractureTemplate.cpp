@@ -18,6 +18,7 @@
 
 #include "RimFractureTemplate.h"
 
+#include "RiaFractureDefines.h"
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
@@ -26,6 +27,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "cvfVector3.h"
 
@@ -50,6 +52,15 @@ namespace caf
         addItem(RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite Conductivity");
 
         setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
+    }
+
+    template<>
+    void caf::AppEnum< RimFractureTemplate::EffectivePermeabilityEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::USER_DEFINED_PERMEABILITY, "UserDefinedPermeability",  "User Defined");
+        addItem(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE, "FractureConductivity",    "Use Fracture Conductivity");
+
+        setDefault(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE);
     }
 
 
@@ -90,11 +101,24 @@ RimFractureTemplate::RimFractureTemplate()
 
     // Non-Darcy Flow options
     CAF_PDM_InitField_Basic(&m_useNonDarcyFlow,       "UseNonDarcyFlow",      false,  "Use Non-Darcy Flow");
-    CAF_PDM_InitField_Basic(&m_fractureWidth,         "FractureWidth",        0.0,    "Fracture Width");
-    CAF_PDM_InitField_Basic(&m_inertialCoefficient,   "InertialCoefficient",  0.0,    "Inertial Coefficient (beta)");
-    CAF_PDM_InitField_Basic(&m_effectivePermeability, "EffectivePermeability",0.0,    "Effective Permeability");
-    CAF_PDM_InitField_Basic(&m_specificGasGravity,    "SpecificGasGravity",   0.0,    "Specific Gas Gravity");
-    CAF_PDM_InitField_Basic(&m_gasViscosity,          "GasViscosity",         0.0,    "Gas Viscosity");
+    CAF_PDM_InitField_Basic(&m_inertialCoefficient,   "InertialCoefficient",  0.006083236,    "Inertial Coefficient");
+
+    CAF_PDM_InitFieldNoDefault(&m_permeabilityType,     "PermeabilityType", "Type", "", "", "");
+    CAF_PDM_InitField_Basic(&m_permeabilityScaleFactor,"EffectivePermeabilityScaleFactor", 1.0,    "Scale Factor [0..1]");
+    CAF_PDM_InitField(&m_permeability,           "EffectivePermeability",            0.0,    "Effective Permeability", "", "", "");
+
+    CAF_PDM_InitField(&m_relativeGasDensity,    "RelativeGasDensity",   0.8,    "Relative Gas Density", "", "Relative density of gas at surface conditions with respect to air at STP", "");
+    CAF_PDM_InitField(&m_gasViscosity,          "GasViscosity",         0.02,   "Gas Viscosity", "", "Gas viscosity at bottom hole pressure", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
+    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::computeDFactor);
+    m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
+    m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
+    m_dFactorSummaryText.uiCapability()->setUiReadOnly(true);
+    m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,11 +265,24 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     auto group = uiOrdering.addNewGroup("Non-Darcy Flow");
     group->setCollapsedByDefault(true);
     group->add(&m_useNonDarcyFlow);
-    group->add(&m_fractureWidth);
     group->add(&m_inertialCoefficient);
-    group->add(&m_effectivePermeability);
-    group->add(&m_specificGasGravity);
+
+    {
+        auto permGroup = group->addNewGroup("Effective Permeability");
+        permGroup->add(&m_permeabilityType);
+        permGroup->add(&m_permeabilityScaleFactor);
+        permGroup->add(&m_permeability);
+    }
+
+    group->add(&m_relativeGasDensity);
     group->add(&m_gasViscosity);
+    group->add(&m_dFactorDisplayField);
+
+    {
+        auto dFactorGroup  = group->addNewGroup("D Factor Details");
+        dFactorGroup->setCollapsedByDefault(true);
+        dFactorGroup->add(&m_dFactorSummaryText);
+    }
 
     uiOrdering.add(&m_fractureTemplateUnit);
 }
@@ -264,8 +301,20 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
             myAttr->m_maximum = 1.0;
         }
     }
-}
 
+    if (field == &m_dFactorSummaryText)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            
+            QFont font("Monospace", 10);
+            myAttr->font = font;
+            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -314,19 +363,127 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     }
 
     // Non Darcy Flow
-    m_fractureWidth.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
     m_inertialCoefficient.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
-    m_effectivePermeability.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
-    m_specificGasGravity.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+
+    m_permeabilityType.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_permeabilityScaleFactor.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    m_permeability.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
+    
+    m_relativeGasDensity.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
     m_gasViscosity.uiCapability()->setUiReadOnly(!m_useNonDarcyFlow);
 
-    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+    if (m_useNonDarcyFlow)
     {
-        m_fractureWidth.uiCapability()->setUiHidden(true);
+        if (m_permeabilityType == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
+        {
+            m_permeabilityScaleFactor.uiCapability()->setUiHidden(true);
+            m_permeability.uiCapability()->setUiReadOnly(false);
+        }
+        else
+        {
+            m_permeabilityScaleFactor.uiCapability()->setUiHidden(false);
+            m_permeability.uiCapability()->setUiHidden(true);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFractureTemplate::dFactorSummary() const
+{
+    QString text;
+    
+    auto dFactor = computeDFactor();
+    text += QString("D-factor : %1").arg(dFactor);
+
+    text += "<br>";
+    text += "<br>";
+    auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+    text += QString("&alpha;  : %1").arg(alpha);
+
+    text += "<br>";
+    auto beta = m_inertialCoefficient;
+    text += QString("&beta;  : %1").arg(beta);
+
+    text += "<br>";
+    double effPerm = effectivePermeability();
+    text += QString("Ke : %1").arg(effPerm);
+
+    text += "<br>";
+    double gamma = m_relativeGasDensity;
+    text += QString("&gamma;  : %1").arg(gamma);
+
+    text += "<br>";
+    auto h = nonDarcyH();
+    text += QString("h  : %1").arg(h);
+
+    text += "<br>";
+    auto wellRadius = m_wellDiameter / 2.0;
+    text += QString("rw : %1").arg(wellRadius);
+
+    text += "<br>";
+    auto mu = m_gasViscosity;
+    text += QString("&mu;  : %1").arg(mu);
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::effectivePermeability() const
+{
+    if (m_permeabilityType() == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
+    {
+        return m_permeability;
     }
     else
     {
-        m_fractureWidth.uiCapability()->setUiHidden(false);
+        auto values = widthAndConductivityAtWellPathIntersection();
+
+        auto fracPermeability = values.m_permeability;
+
+        return fracPermeability * m_permeabilityScaleFactor;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::computeDFactor() const
+{
+    auto alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+    auto beta    = m_inertialCoefficient;
+    auto effPerm = effectivePermeability();
+    auto gamma   = m_relativeGasDensity;
+    
+    auto radius  = m_wellDiameter / 2.0;
+    auto mu      = m_gasViscosity;
+    auto h       = nonDarcyH();
+
+    double numerator   = alpha * beta * effPerm * gamma;
+    double denumerator = h * radius * mu;
+
+    if (denumerator < 1e-10) return HUGE_VAL;
+
+    return numerator / denumerator;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::nonDarcyH() const
+{
+    if (m_orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+    {
+        return m_perforationLength();
+    }
+    else
+    {
+        auto values = widthAndConductivityAtWellPathIntersection();
+    
+        return values.m_width;
     }
 }
 

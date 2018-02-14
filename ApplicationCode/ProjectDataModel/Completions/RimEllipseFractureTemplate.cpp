@@ -273,6 +273,18 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+FractureWidthAndConductivity RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection() const
+{
+    FractureWidthAndConductivity values;
+    values.m_width = m_width;
+    values.m_permeability = m_permeability;
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigFractureGrid* RimEllipseFractureTemplate::fractureGrid() const
 {
     return m_fractureGrid.p();
