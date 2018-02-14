@@ -186,10 +186,12 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        CVF_ASSERT(activeView);
+        if (activeView)
+        {
+            cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+            m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
+        }
 
-        cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
-        m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
     }
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
