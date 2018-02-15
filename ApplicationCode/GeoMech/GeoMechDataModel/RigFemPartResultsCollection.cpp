@@ -53,7 +53,30 @@
 
 #include <stdlib.h>
 #include <cmath>
+#include "RigHexIntersectionTools.h"
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::string RigFemPartResultsCollection::FIELD_NAME_COMPACTION = "COMPACTION";
+
+//--------------------------------------------------------------------------------------------------
+/// Internal definitions
+//--------------------------------------------------------------------------------------------------
+class RefElement
+{
+public:
+    size_t              elementIdx;
+    float               intersectionPointToCurrentNodeDistance;
+    cvf::Vec3f          intersectionPoint;
+    std::vector<size_t> elementFaceNodeIdxs;
+};
+
+static std::vector<cvf::Vec3d> coordsFromNodeIndices(const RigFemPart& part, const std::vector<size_t>& nodeIdxs);
+static std::vector<size_t> nodesForElement(const RigFemPart& part, size_t elementIdx);
+static float horizontalDistance(const cvf::Vec3f& p1, const cvf::Vec3f& p2);
+static void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t kRefLayer, RefElement *refElement);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -295,6 +318,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
             fieldCompNames["POR-Bar"];
+            fieldCompNames[FIELD_NAME_COMPACTION];
         }
         else if (resPos == RIG_ELEMENT_NODAL)
         {
@@ -559,7 +583,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
         frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName);
+        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName, RigFemResultAddress::NO_TIME_LAPSE, resVarAddr.refKLayerIndex);
         RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
         RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -1430,6 +1454,63 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStrainV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == FIELD_NAME_COMPACTION);
+
+    caf::ProgressInfo frameCountProgress(this->frameCount() + 1, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName));
+
+    RigFemScalarResultFrames * u3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "U", "U3"));
+    frameCountProgress.incrementProgress();
+
+    RigFemScalarResultFrames* compactionFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    const RigFemPart* part = m_femParts->part(partIndex);
+    for (int t = 0; t < u3Frames->frameCount(); t++)
+    {
+        std::vector<float>& compactionFrame = compactionFrames->frameData(t);
+        size_t nodeCount = part->nodes().nodeIds.size();
+
+        frameCountProgress.incrementProgress();
+
+        compactionFrame.resize(nodeCount);
+        for (int n = 0; n < nodeCount; n++)
+        {
+            RefElement refElement;
+            findReferenceElementForNode(*part, n, resVarAddr.refKLayerIndex, &refElement);
+
+            if (refElement.elementIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                float shortestDist = HUGE_VALF;
+                size_t closestNodeIdx = cvf::UNDEFINED_SIZE_T;
+
+                for (size_t nodeIdx : refElement.elementFaceNodeIdxs)
+                {
+                    float dist = horizontalDistance(refElement.intersectionPoint, part->nodes().coordinates[nodeIdx]);
+                    if (dist < shortestDist)
+                    {
+                        shortestDist = dist;
+                        closestNodeIdx = nodeIdx;
+                    }
+                }
+
+                compactionFrame[n] = u3Frames->frameData(t)[n] - u3Frames->frameData(t)[closestNodeIdx];
+            }
+            else
+            {
+                compactionFrame[n] = HUGE_VAL;
+            }
+        }
+    }
+
+    RigFemScalarResultFrames* requestedPrincipal = this->findOrLoadScalarResult(partIndex, resVarAddr);
+    return  requestedPrincipal;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     if (resVarAddr.isTimeLapse())
@@ -1451,6 +1532,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         {
             return calculateSurfaceAlignedStress(partIndex, resVarAddr);
         }
+    }
+
+    if (resVarAddr.fieldName == FIELD_NAME_COMPACTION)
+    {
+        return calculateCompactionValues(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI")
@@ -2371,5 +2457,96 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
 
         m_resultIndexToClosestResult = elmNodFaceResIdx;
         m_closestNodeId = femPart->nodes().nodeIds[closestNodeIdx];
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> coordsFromNodeIndices(const RigFemPart& part, const std::vector<size_t>& nodeIdxs)
+{
+    std::vector<cvf::Vec3d> out;
+    for (const auto& nodeIdx : nodeIdxs) out.push_back(cvf::Vec3d(part.nodes().coordinates[nodeIdx]));
+    return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> nodesForElement(const RigFemPart& part, size_t elementIdx)
+{
+    std::vector<size_t> nodeIdxs;
+    const int* nodeConn = part.connectivities(elementIdx);
+    for (int n = 0; n < 8; n++) nodeIdxs.push_back(nodeConn[n]);
+    return nodeIdxs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float horizontalDistance(const cvf::Vec3f& p1, const cvf::Vec3f& p2)
+{
+    cvf::Vec3f p1_ = p1;
+    cvf::Vec3f p2_ = p2;
+    p1_.z() = p2_.z() = 0;
+    return p1_.pointDistance(p2_);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t kRefLayer, RefElement *refElement)
+{
+    static const double zMin = -1e6, zMax = 1e6;
+
+    cvf::BoundingBox bb;
+    cvf::Vec3f currentNodeCoord = part.nodes().coordinates[nodeIdx];
+    cvf::Vec3f p1 = cvf::Vec3f(currentNodeCoord.x(), currentNodeCoord.y(), zMin);
+    cvf::Vec3f p2 = cvf::Vec3f(currentNodeCoord.x(), currentNodeCoord.y(), zMax);
+    bb.add(p1);
+    bb.add(p2);
+
+    std::vector<size_t> refElementCandidates;
+    part.findIntersectingCells(bb, &refElementCandidates);
+
+    const RigFemPartGrid* grid = part.structGrid();
+    const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
+
+    refElement->elementIdx = cvf::UNDEFINED_SIZE_T;
+    refElement->intersectionPointToCurrentNodeDistance = HUGE_VALF;
+    size_t i, j, k;
+    for (const size_t elemIdx : refElementCandidates)
+    {
+        grid->ijkFromCellIndex(elemIdx, &i, &j, &k);
+        if (k == kRefLayer)
+        {
+            const std::vector<size_t> nodeIndices = nodesForElement(part, elemIdx);
+            CVF_ASSERT(nodeIndices.size() == 8);
+
+            std::vector<HexIntersectionInfo> intersections;
+            RigHexIntersectionTools::lineHexCellIntersection(cvf::Vec3d(p1), cvf::Vec3d(p2), coordsFromNodeIndices(part, nodeIndices).data(), elemIdx, &intersections);
+
+            for (const auto& intersection : intersections)
+            {
+                cvf::Vec3f intersectionPoint = cvf::Vec3f(intersection.m_intersectionPoint);
+
+                float nodeToIntersectionDistance = currentNodeCoord.pointDistance(intersectionPoint);
+                if (nodeToIntersectionDistance < refElement->intersectionPointToCurrentNodeDistance)
+                {
+                    cvf::ubyte faceNodes[4];
+                    grid->cellFaceVertexIndices(intersection.m_face, faceNodes);
+                    std::vector<size_t> topFaceCoords({ nodeIndices[faceNodes[0]], nodeIndices[faceNodes[1]], nodeIndices[faceNodes[2]], nodeIndices[faceNodes[3]] });
+
+                    refElement->elementIdx = elemIdx;
+                    refElement->intersectionPointToCurrentNodeDistance = nodeToIntersectionDistance;
+                    refElement->intersectionPoint = intersectionPoint;
+                    refElement->elementFaceNodeIdxs = topFaceCoords;
+                }
+            }
+        }
     }
 }

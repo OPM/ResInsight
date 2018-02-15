@@ -48,6 +48,8 @@ namespace caf
 class RigFemPartResultsCollection: public cvf::Object
 {
 public:
+    static const std::string FIELD_NAME_COMPACTION;
+
     RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection();
 
@@ -115,6 +117,7 @@ private:
     RigFemScalarResultFrames*                        calculateSurfaceAngles(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStressValues(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStrainValues(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateCompactionValues(int partIndex, const RigFemResultAddress &resVarAddr);
 
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;

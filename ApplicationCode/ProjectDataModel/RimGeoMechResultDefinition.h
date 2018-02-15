@@ -101,6 +101,8 @@ private:
     caf::PdmField<QString>                            m_resultComponentName;
     caf::PdmField<bool>                               m_isTimeLapseResult;
     caf::PdmField<int>                                m_timeLapseBaseTimestep;
+    caf::PdmField<bool>                               m_isCompaction;
+    caf::PdmField<int>                                m_compactionRefLayer;
 
     // UI Fields only
 
@@ -112,7 +114,8 @@ private:
     caf::PdmField<QString>                            m_resultVariableUiField;
     caf::PdmField<bool>                               m_isTimeLapseResultUiField;
     caf::PdmField<int>                                m_timeLapseBaseTimestepUiField;
-
+    caf::PdmField<bool>                               m_isCompactionUiField;
+    caf::PdmField<int>                                m_compactionRefLayerUiField;
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
 
     bool                                              m_isChangedByField;
