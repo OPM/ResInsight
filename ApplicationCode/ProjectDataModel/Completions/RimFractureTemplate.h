@@ -73,10 +73,16 @@ public:
         FINITE_CONDUCTIVITY,
     };
 
-    enum EffectivePermeabilityEnum
+    enum PermeabilityEnum
     {
         USER_DEFINED_PERMEABILITY,
         CONDUCTIVITY_FROM_FRACTURE,
+    };
+
+    enum WidthEnum
+    {
+        USER_DEFINED_WIDTH,
+        WIDTH_FROM_FRACTURE,
     };
 
 public:
@@ -125,8 +131,7 @@ private:
     double                          effectivePermeability() const;
 
     double                          computeDFactor() const;
-    double                          nonDarcyH() const;
-
+    double                          fractureWidth() const;
 
 protected:
     caf::PdmField<QString>                             m_name;
@@ -141,10 +146,12 @@ protected:
     caf::PdmChildField<RimFractureContainment*>        m_fractureContainment;
 
     caf::PdmField<bool>                                m_useNonDarcyFlow;
+
+    caf::PdmField<caf::AppEnum<WidthEnum>>             m_fractureWidthType;
+    caf::PdmField<double>                              m_fractureWidth;
     caf::PdmField<double>                              m_inertialCoefficient;
 
-    caf::PdmField<caf::AppEnum<EffectivePermeabilityEnum>>  
-                                                       m_permeabilityType;
+    caf::PdmField<caf::AppEnum<PermeabilityEnum>>      m_permeabilityType;
     caf::PdmField<double>                              m_relativePermeability;
     caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 
