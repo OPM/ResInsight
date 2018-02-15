@@ -77,7 +77,7 @@ RimStimPlanColors::RimStimPlanColors()
 
     CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "");
 
-    setName("Fracture");
+    setName("Fractures");
     nameField()->uiCapability()->setUiReadOnly(true);
 }
 

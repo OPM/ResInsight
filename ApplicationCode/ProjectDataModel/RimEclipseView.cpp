@@ -1393,6 +1393,8 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(cellResult());
     uiTreeOrdering.add(cellEdgeResult());
     uiTreeOrdering.add(faultResultSettings());
+    uiTreeOrdering.add(wellCollection());
+
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
     RimProject* project = RiaApplication::instance()->project();
@@ -1408,7 +1410,6 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
-    uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_crossSectionCollection());
     
