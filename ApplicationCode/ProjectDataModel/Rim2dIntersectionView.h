@@ -56,6 +56,8 @@ public:
 
     virtual bool               isTimeStepDependentDataVisible() const override;
 
+    void                       updateLegends();
+
 protected:
 
     virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
@@ -78,7 +80,6 @@ protected:
     bool                       hasResults();
     int                        timeStepCount();
 
-    void                       updateLegends();
 
     caf::PdmChildField<RimLegendConfig*>        m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;

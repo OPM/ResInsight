@@ -71,13 +71,17 @@ public:
 
     void setPosition(cvf::Vec2ui position);
 
-    HistogramData                               histogramData();
-    QString                                     timeStepText();
-    QString                                     caseInfoText();
-    QString                                     resultInfoText(const HistogramData& histData);
+    HistogramData histogramData();
+    QString       timeStepText();
+    QString       caseInfoText();
+    QString       resultInfoText(const HistogramData& histData);
 
-    void                                        showStatisticsInfoDialog(bool raise = true);
-    QImage                                      statisticsDialogScreenShotImage();
+    void          showStatisticsInfoDialog(bool raise = true);
+    QImage        statisticsDialogScreenShotImage();
+
+    bool          showAnimProgress();
+    bool          showCaseInfo();
+    bool          showResultInfo();
 
     enum StatisticsTimeRangeType
     {
@@ -110,12 +114,12 @@ private:
     QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean);
     QString                                     resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView);
 
-    caf::PdmField<bool>                         active;
-    caf::PdmField<bool>                         showAnimProgress;
-    caf::PdmField<bool>                         showCaseInfo;
-    caf::PdmField<bool>                         showResultInfo;
-    caf::PdmField<bool>                         showVolumeWeightedMean;
-    caf::PdmField<bool>                         showHistogram;
+    caf::PdmField<bool>                         m_active;
+    caf::PdmField<bool>                         m_showAnimProgress;
+    caf::PdmField<bool>                         m_showCaseInfo;
+    caf::PdmField<bool>                         m_showResultInfo;
+    caf::PdmField<bool>                         m_showVolumeWeightedMean;
+    caf::PdmField<bool>                         m_showHistogram;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;

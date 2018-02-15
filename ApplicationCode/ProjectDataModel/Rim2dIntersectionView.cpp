@@ -333,16 +333,29 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::updateLegends()
 {
-    if (m_viewer)
+    if (!m_viewer)
     {
-        m_viewer->removeAllColorLegends();
+        return;
     }
+    m_viewer->removeAllColorLegends();
 
     if (!hasResults()) return;
 
     QString overlayInfoText;
 
-    overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
+    RimEclipseView * eclView = nullptr;
+    m_intersection->firstAncestorOrThisOfType(eclView);
+    if (eclView && eclView->overlayInfoConfig()->showCaseInfo())
+    {
+        overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
+    }
+
+    RimGeoMechView * geoView = nullptr;
+    m_intersection->firstAncestorOrThisOfType(geoView);
+    if (geoView && geoView->overlayInfoConfig()->showCaseInfo())
+    {
+        overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
+    }
 
     overlayInfoText += "<p>"; 
     overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
@@ -358,15 +371,24 @@ void Rim2dIntersectionView::updateLegends()
 
     cvf::OverlayItem* legend = nullptr;
 
-    RimEclipseView * eclView = nullptr;
-    m_intersection->firstAncestorOrThisOfType(eclView);
     if (eclView)
     {
-        overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "<br>";
+        if (eclView->overlayInfoConfig()->showAnimProgress())
+        {
+            m_viewer->showAnimationProgress(true);
+        }
+        else
+        {
+            m_viewer->showAnimationProgress(false);
+        }
+
+        if (eclView->overlayInfoConfig()->showResultInfo())
+        {
+            overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "<br>";
+        }
 
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
-        eclView->cellResult()->updateLegendData(m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
 
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {
@@ -380,41 +402,51 @@ void Rim2dIntersectionView::updateLegends()
         }
     }
 
-    RimGeoMechView * geoView = nullptr;
-    m_intersection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
-        QString resultPos;
-        QString fieldName = geoView->cellResultResultDefinition()->resultFieldUiName();
-        QString compName = geoView->cellResultResultDefinition()->resultComponentUiName();
-
-        switch (geoView->cellResultResultDefinition()->resultPositionType())
+        if (geoView->overlayInfoConfig()->showAnimProgress())
         {
-        case RIG_NODAL:
-            resultPos = "Nodal";
-            break;
-
-        case RIG_ELEMENT_NODAL:
-            resultPos = "Element nodal";
-            break;
-
-        case RIG_INTEGRATION_POINT:
-            resultPos = "Integration point";
-            break;
-
-        case RIG_ELEMENT:
-            resultPos = "Element";
-            break;
-        default:
-            break;
-        }
-        if (compName == "")
-        {
-            overlayInfoText += QString("<b>Cell result:</b> %1, %2<br>").arg(resultPos).arg(fieldName);
+            m_viewer->showAnimationProgress(true);
         }
         else
         {
-            overlayInfoText += QString("<b>Cell result:</b> %1, %2, %3<br>").arg(resultPos).arg(fieldName).arg(compName);
+            m_viewer->showAnimationProgress(false);
+        }
+
+        if (geoView->overlayInfoConfig()->showResultInfo())
+        {
+            QString resultPos;
+            QString fieldName = geoView->cellResultResultDefinition()->resultFieldUiName();
+            QString compName = geoView->cellResultResultDefinition()->resultComponentUiName();
+
+            switch (geoView->cellResultResultDefinition()->resultPositionType())
+            {
+            case RIG_NODAL:
+                resultPos = "Nodal";
+                break;
+
+            case RIG_ELEMENT_NODAL:
+                resultPos = "Element nodal";
+                break;
+
+            case RIG_INTEGRATION_POINT:
+                resultPos = "Integration point";
+                break;
+
+            case RIG_ELEMENT:
+                resultPos = "Element";
+                break;
+            default:
+                break;
+            }
+            if (compName == "")
+            {
+                overlayInfoText += QString("<b>Cell result:</b> %1, %2<br>").arg(resultPos).arg(fieldName);
+            }
+            else
+            {
+                overlayInfoText += QString("<b>Cell result:</b> %1, %2, %3<br>").arg(resultPos).arg(fieldName).arg(compName);
+            }
         }
 
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
