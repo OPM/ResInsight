@@ -61,7 +61,16 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
     {
         RimStimPlanFractureTemplate* fractureDef = new RimStimPlanFractureTemplate();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
-        fractureDef->setName("StimPlan Fracture Template");
+
+        QFileInfo stimplanfileFileInfo(fileName);
+        QString name = stimplanfileFileInfo.baseName();
+        if (name.isEmpty())
+        {
+            name = "StimPlan Fracture Template";
+        }
+
+        fractureDef->setName(name);
+
         fractureDef->setFileName(fileName);
         fractureDef->loadDataAndUpdate();
         fractureDef->setDefaultsBasedOnXMLfile();

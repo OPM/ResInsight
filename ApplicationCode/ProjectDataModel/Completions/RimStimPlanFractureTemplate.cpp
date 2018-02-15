@@ -106,7 +106,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     if (&m_stimPlanFileName == changedField)
     {
         m_readError = false;
-        updateUiTreeName();
         loadDataAndUpdate();
         setDefaultsBasedOnXMLfile();
     }
@@ -154,23 +153,12 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::updateUiTreeName()
-{
-    this->uiCapability()->setUiName(fileNameWithOutPath());
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::setFileName(const QString& fileName)
 {
     m_stimPlanFileName = fileName;
-
-    updateUiTreeName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,15 +167,6 @@ void RimStimPlanFractureTemplate::setFileName(const QString& fileName)
 const QString& RimStimPlanFractureTemplate::fileName()
 {
     return m_stimPlanFileName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimStimPlanFractureTemplate::fileNameWithOutPath()
-{
-    QFileInfo stimplanfileFileInfo(m_stimPlanFileName());
-    return stimplanfileFileInfo.fileName();
 }
 
 //--------------------------------------------------------------------------------------------------
