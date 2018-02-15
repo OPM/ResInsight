@@ -129,7 +129,8 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
                     cvf::Vec3f center = nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex]) +
                                         nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex + 2]);
 
-                    cvf::Vec3d displayCoord = m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord(cvf::Vec3d(center/2));
+                    cvf::Vec3d displayCoord =
+                        m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord(cvf::Vec3d(center / 2));
 
                     cvf::Vec3f faceNormal = calculateFaceNormal(nodes, quadVerticesToNodeIdxMapping, quadVertex);
 
@@ -293,9 +294,6 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     std::vector<cvf::Vec3f> vertices;
     vertices.reserve(tensorVisualizations.size() * 5);
 
-    cvf::ref<cvf::Color3ubArray> colors = new cvf::Color3ubArray();
-    colors->reserve(tensorVisualizations.size() * 5);
-
     uint counter = 0;
     for (TensorVisualization tensor : tensorVisualizations)
     {
@@ -321,41 +319,38 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
-    drawable->setColorArray(colors.p());
-
     indexedUInt->setIndices(indexArray.p());
     drawable->addPrimitiveSet(indexedUInt.p());
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
     drawable->setVertexArray(vertexArray.p());
 
-    // Setup a scalar mapper
-    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    {
-        cvf::Color3ubArray legendColors;
-        legendColors.resize(3);
-        if (m_rimReservoirView->tensorResults()->vectorColors() == RimTensorResults::MAGENTA_BROWN_BLACK)
-        {
-            legendColors[0] = cvf::Color3::MAGENTA;
-            legendColors[1] = cvf::Color3::BROWN;
-            legendColors[2] = cvf::Color3::BLACK;
-        }
-        else if (m_rimReservoirView->tensorResults()->vectorColors() == RimTensorResults::WHITE_GRAY_BLACK)
-        {
-            legendColors[0] = cvf::Color3::WHITE;
-            legendColors[1] = cvf::Color3::GRAY;
-            legendColors[2] = cvf::Color3::BLACK;
-        }
-        else
-        {
-            legendColors[0] = cvf::Color3::BLACK;
-            legendColors[1] = cvf::Color3::BLACK;
-            legendColors[2] = cvf::Color3::BLACK;
-        }
+    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(drawable->textureCoordArray());
 
-        scalarMapper->setColors(legendColors);
+    if (lineTexCoords.isNull())
+    {
+        lineTexCoords = new cvf::Vec2fArray;
+    }
+    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
+
+    auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
+    if (vectorColors == RimTensorResults::MAGENTA_BROWN_BLACK || vectorColors == RimTensorResults::WHITE_GRAY_BLACK)
+    {
+        createOneColorPerPrincipalScalarMapper(m_rimReservoirView->tensorResults()->vectorColors(), scalarMapper.p());
+        createOneColorPerPrincipalTextureCoords(lineTexCoords.p(), tensorVisualizations, scalarMapper.p());
+    }
+    else
+    {
+        // THIS WILL BE REPLACED BY REAL RESULT COLOR MAPPER
+        cvf::Color3ubArray arrowColors;
+        arrowColors.resize(3);
+        arrowColors[0] = cvf::Color3::BLACK;
+        arrowColors[1] = cvf::Color3::BLACK;
+        arrowColors[2] = cvf::Color3::BLACK;
+        scalarMapper->setColors(arrowColors);
         scalarMapper->setRange(0.5, 3.5);
         scalarMapper->setLevelCount(3, true);
+        createOneColorPerPrincipalTextureCoords(lineTexCoords.p(), tensorVisualizations, scalarMapper.p());
     }
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
@@ -368,16 +363,6 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
     cvf::ref<cvf::Effect>                scalarMapperMeshEffect = meshEffGen.generateUnCachedEffect();
 
-    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(drawable->textureCoordArray());
-
-    if (lineTexCoords.isNull())
-    {
-        lineTexCoords = new cvf::Vec2fArray;
-    }
-
-    // Calculate new texture coordinates
-    createTextureCoords(lineTexCoords.p(), tensorVisualizations, scalarMapper.p());
-
     drawable->setTextureCoordArray(lineTexCoords.p());
 
     cvf::ref<cvf::Part> part = new cvf::Part;
@@ -385,6 +370,57 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     part->setEffect(scalarMapperMeshEffect.p());
 
     return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet,
+                                                                    cvf::ScalarMapperDiscreteLinear*      scalarMapper)
+{
+    CVF_ASSERT(scalarMapper);
+
+    cvf::Color3ubArray arrowColors;
+    arrowColors.resize(3);
+    if (colorSet == RimTensorResults::MAGENTA_BROWN_BLACK)
+    {
+        arrowColors[0] = cvf::Color3::MAGENTA;
+        arrowColors[1] = cvf::Color3::BROWN;
+        arrowColors[2] = cvf::Color3::BLACK;
+    }
+    else if (colorSet == RimTensorResults::WHITE_GRAY_BLACK)
+    {
+        arrowColors[0] = cvf::Color3::WHITE;
+        arrowColors[1] = cvf::Color3::GRAY;
+        arrowColors[2] = cvf::Color3::BLACK;
+    }
+
+    scalarMapper->setColors(arrowColors);
+    scalarMapper->setRange(0.5, 3.5);
+    scalarMapper->setLevelCount(3, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
+                                                                     const std::vector<TensorVisualization>& tensorVisualizations,
+                                                                     const cvf::ScalarMapper*                mapper)
+{
+    CVF_ASSERT(textureCoords);
+    CVF_ASSERT(mapper);
+
+    size_t vertexCount = tensorVisualizations.size() * 5;
+    if (textureCoords->size() != vertexCount) textureCoords->reserve(vertexCount);
+
+    for (auto tensor : tensorVisualizations)
+    {
+        for (size_t vxIdx = 0; vxIdx < 5; ++vxIdx)
+        {
+            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.princial);
+            textureCoords->add(texCoord);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,7 +505,7 @@ bool RivTensorResultPartMgr::isDrawable(cvf::Vec3f resultVector, bool showPrinci
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const TensorVisualization &tensorVisualization) const
+std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const TensorVisualization& tensorVisualization) const
 {
     std::array<cvf::Vec3f, 5> vertices;
 
@@ -501,27 +537,4 @@ std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const Tens
     vertices[4] = headTop;
 
     return vertices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                 const std::vector<TensorVisualization>& tensorVisualizations,
-                                                 const cvf::ScalarMapper*                mapper) const
-{
-    CVF_ASSERT(textureCoords);
-    CVF_ASSERT(mapper);
-
-    size_t vertexCount = tensorVisualizations.size() * 5;
-    if (textureCoords->size() != vertexCount) textureCoords->reserve(vertexCount);
-
-    for (auto tensor : tensorVisualizations)
-    {
-        for (size_t vxIdx = 0; vxIdx < 5; ++vxIdx)
-        {
-            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.princial);
-            textureCoords->add(texCoord);
-        }
-    }
 }

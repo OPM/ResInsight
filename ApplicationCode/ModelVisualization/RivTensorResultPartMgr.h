@@ -27,14 +27,17 @@
 #include "cafPdmPointer.h"
 #include "cafTensor3.h"
 
+#include "RimTensorResults.h"
+
 #include <array>
 #include <vector>
 
 namespace cvf
 {
-class Part;
 class ModelBasicList;
+class Part;
 class ScalarMapper;
+class ScalarMapperDiscreteLinear;
 } // namespace cvf
 
 class RigFemResultAddress;
@@ -82,15 +85,17 @@ private:
 
     cvf::ref<cvf::Part> createPart(const std::vector<TensorVisualization>& tensorVisualizations) const;
 
+    static void createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet, cvf::ScalarMapperDiscreteLinear* scalarMapper);
+    static void createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
+                                                        const std::vector<TensorVisualization>& tensorVisualization,
+                                                        const cvf::ScalarMapper*                mapper);
+
     static bool isTensorAddress(RigFemResultAddress address);
     static bool isValid(cvf::Vec3f resultVector);
     static bool isPressure(float principalValue);
     bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
 
     std::array<cvf::Vec3f, 5> createArrowVertices(const TensorVisualization &tensorVisualization) const;
-    void                      createTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                  const std::vector<TensorVisualization>& tensorVisualization,
-                                                  const cvf::ScalarMapper*                mapper) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;
