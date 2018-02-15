@@ -145,8 +145,8 @@ protected:
 
     caf::PdmField<caf::AppEnum<EffectivePermeabilityEnum>>  
                                                        m_permeabilityType;
-    caf::PdmField<double>                              m_permeabilityScaleFactor;
-    caf::PdmField<double>                              m_permeability;
+    caf::PdmField<double>                              m_relativePermeability;
+    caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 
     caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;

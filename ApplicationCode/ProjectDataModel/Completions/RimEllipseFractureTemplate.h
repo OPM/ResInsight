@@ -82,5 +82,5 @@ private:
     caf::PdmField<float>        m_halfLength;
     caf::PdmField<float>        m_height;
     caf::PdmField<float>        m_width;
-    caf::PdmField<float>        m_permeability;
+    caf::PdmField<float>        m_userDefinedEffectivePermeability;
 };

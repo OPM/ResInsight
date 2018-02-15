@@ -56,7 +56,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&m_height,      "Height",           0.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&m_width,       "Width",            0.0f,   "Width", "", "", "");
 
-    CAF_PDM_InitField(&m_permeability,"Permeability",     0.0f,   "Permeability [mD]", "", "", "");
+    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,"Permeability",     0.0f,   "Permeability [mD]", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
     setupFractureGridCells();
@@ -90,7 +90,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (   changedField == &m_halfLength
         || changedField == &m_height
         || changedField == &m_width
-        || changedField == &m_permeability)
+        || changedField == &m_userDefinedEffectivePermeability)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -102,7 +102,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             setupFractureGridCells();
         }
     }
-    if (changedField == &m_width || changedField == &m_permeability)
+    if (changedField == &m_width || changedField == &m_userDefinedEffectivePermeability)
     {
         setupFractureGridCells();
     }
@@ -277,7 +277,7 @@ FractureWidthAndConductivity RimEllipseFractureTemplate::widthAndConductivityAtW
 {
     FractureWidthAndConductivity values;
     values.m_width = m_width;
-    values.m_permeability = m_permeability;
+    values.m_permeability = m_userDefinedEffectivePermeability;
 
     return values;
 }
@@ -298,14 +298,14 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
     if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_width        = 0.5f;
-        m_permeability = 80000.0f;
+        m_userDefinedEffectivePermeability = 80000.0f;
         m_halfLength   = 300.0f;
         m_height       = 225.0f;
     }
     else
     {
         m_width        = 0.01f;
-        m_permeability = 100000.0f;
+        m_userDefinedEffectivePermeability = 100000.0f;
         m_halfLength   = 100.0f;
         m_height       = 75.0f;
     }
@@ -322,12 +322,12 @@ double RimEllipseFractureTemplate::conductivity() const
     if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
         //Conductivity should be md-m, width is in m
-        cond = m_permeability * m_width;
+        cond = m_userDefinedEffectivePermeability * m_width;
     }
     else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         //Conductivity should be md-ft, but width is in inches 
-        cond = m_permeability * RiaEclipseUnitTools::inchToFeet(m_width);
+        cond = m_userDefinedEffectivePermeability * RiaEclipseUnitTools::inchToFeet(m_width);
     }
     return cond;
 }
@@ -380,12 +380,12 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     if (conductivityType() == FINITE_CONDUCTIVITY)
     {
-        m_permeability.uiCapability()->setUiHidden(false);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(false);
         m_width.uiCapability()->setUiHidden(false);
     }
     else if (conductivityType() == INFINITE_CONDUCTIVITY)
     {
-        m_permeability.uiCapability()->setUiHidden(true);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(true);
         m_width.uiCapability()->setUiHidden(true);
     }
     
@@ -402,7 +402,7 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_conductivityType);
-    propertyGroup->add(&m_permeability);
+    propertyGroup->add(&m_userDefinedEffectivePermeability);
     propertyGroup->add(&m_width);
     propertyGroup->add(&m_skinFactor);
     propertyGroup->add(&m_perforationLength);
