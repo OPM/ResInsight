@@ -728,7 +728,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     {
         for (Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views())
         {
-            view->updateLegends();
+            view->update3dInfo();
         }
     }
 }
