@@ -123,6 +123,10 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
                 CVF_ASSERT(copy);
 
                 destCollection->appendIntersectionAndUpdate(copy);
+
+                // Resolve references after object has been inserted into the project data model
+                copy->resolveReferencesRecursively();
+                copy->updateConnectedEditors();
             }
         }
     }
