@@ -85,6 +85,14 @@ public:
         WIDTH_FROM_FRACTURE,
     };
 
+    enum NonDarcyFlowEnum
+    {
+        NON_DARCY_NONE,
+        NON_DARCY_COMPUTED,
+        NON_DARCY_USER_DEFINED,
+    };
+
+
 public:
     RimFractureTemplate();
     virtual ~RimFractureTemplate();
@@ -145,7 +153,8 @@ protected:
     caf::PdmField<caf::AppEnum<FracConductivityEnum>>  m_conductivityType;
     caf::PdmChildField<RimFractureContainment*>        m_fractureContainment;
 
-    caf::PdmField<bool>                                m_useNonDarcyFlow;
+    caf::PdmField<caf::AppEnum<NonDarcyFlowEnum>>      m_nonDarcyFlowType;
+    caf::PdmField<double>                              m_userDefinedDFactor;
 
     caf::PdmField<caf::AppEnum<WidthEnum>>             m_fractureWidthType;
     caf::PdmField<double>                              m_fractureWidth;
