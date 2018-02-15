@@ -110,6 +110,11 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     }
 
     if (doUpdate) this->updateConnectedEditors();
+    
+    RimCase* rimCase = nullptr;
+    firstAncestorOrThisOfType(rimCase);
+
+    if (rimCase) rimCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

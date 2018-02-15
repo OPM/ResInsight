@@ -30,6 +30,7 @@
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 
+#include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
@@ -415,7 +416,12 @@ void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 
     for (auto child : children) uiTreeOrdering.add(child); 
     
-    uiTreeOrdering.add(&m_2dIntersectionViewCollection);
+    if (!m_2dIntersectionViewCollection->views().empty())
+    {
+        uiTreeOrdering.add(&m_2dIntersectionViewCollection);
+    }
+
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
