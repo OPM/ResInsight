@@ -19,13 +19,13 @@
 #pragma once
 
 #include "cvfBase.h"
+#include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
-
-#include "RimTensorResults.h"
+#include "cafTensor3.h"
 
 #include <array>
 #include <vector>
@@ -34,10 +34,13 @@ namespace cvf
 {
 class Part;
 class ModelBasicList;
-} 
+class ScalarMapper;
+} // namespace cvf
 
 class RigFemResultAddress;
 class RimGeoMechView;
+class RigFemPartNodes;
+class RigFemPart;
 
 class RivTensorResultPartMgr : public cvf::Object
 {
@@ -48,25 +51,46 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex) const;
 
 private:
-
     struct TensorVisualization
     {
-        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Color3f color, bool isPressure)
-            : vertex(vertex), result(result), color(color), isPressure(isPressure) {};
+        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, size_t princial)
+            : vertex(vertex)
+            , result(result)
+            , faceNormal(faceNormal)
+            , isPressure(isPressure)
+            , princial(princial){};
 
-        cvf::Vec3f   vertex;
-        cvf::Vec3f   result;
-        cvf::Color3f color;
-        bool         isPressure;
+        cvf::Vec3f vertex;
+        cvf::Vec3f result;
+        cvf::Vec3f faceNormal;
+        bool       isPressure;
+        size_t     princial;
     };
-private:
-    cvf::ref<cvf::Part> createPart(std::vector<TensorVisualization>& tensorVisualizations) const;
 
-    static void assignColorVectors(RimTensorResults::TensorColors tensorColor, cvf::Color3f* color1, cvf::Color3f* color2, cvf::Color3f* color3);
+private:
+    static void calculateElementTensors(const RigFemPart&              part,
+                                        const std::vector<caf::Ten3f>& vertexTensors,
+                                        std::vector<caf::Ten3f>*       elmTensors);
+
+    static void calculatePrincipalsAndDirections(const std::vector<caf::Ten3f>&          tensors,
+                                                 std::array<std::vector<float>, 3>*      principals,
+                                                 std::vector<std::array<cvf::Vec3f, 3>>* principalDirections);
+
+    static cvf::Vec3f calculateFaceNormal(const RigFemPartNodes&     nodes,
+                                          const std::vector<size_t>& quadVerticesToNodeIdxMapping,
+                                          int                        quadVertex);
+
+    cvf::ref<cvf::Part> createPart(const std::vector<TensorVisualization>& tensorVisualizations) const;
+
     static bool isTensorAddress(RigFemResultAddress address);
     static bool isValid(cvf::Vec3f resultVector);
     static bool isPressure(float principalValue);
     bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
+
+    std::array<cvf::Vec3f, 5> createArrowVertices(const TensorVisualization &tensorVisualization) const;
+    void                      createTextureCoords(cvf::Vec2fArray*                        textureCoords,
+                                                  const std::vector<TensorVisualization>& tensorVisualization,
+                                                  const cvf::ScalarMapper*                mapper) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;
