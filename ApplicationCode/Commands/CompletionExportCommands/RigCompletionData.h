@@ -115,7 +115,6 @@ public:
     double                                    wpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
-    bool                                      readyForExport() const;
 
     double                                  firstOrderingValue() const;
     double                                  secondOrderingValue() const;
@@ -135,7 +134,6 @@ private:
     CellDirection                        m_direction;
 
     bool                                 m_isMainBore; //to use mainbore for Eclipse calculation
-    bool                                 m_readyForExport;
 
     size_t                               m_count; //TODO: Remove, usage replaced by WPImult
     double                               m_wpimult;
