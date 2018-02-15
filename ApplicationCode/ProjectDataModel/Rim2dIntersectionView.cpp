@@ -421,8 +421,8 @@ void Rim2dIntersectionView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::updateCurrentTimeStep()
 {
-    updateLegends();
     update3dInfo();
+    updateLegends();
 
     if ((this->hasUserRequestedAnimation() && this->hasResults()))
     {
@@ -441,10 +441,8 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::updateLegends()
 {
-    if (!m_viewer)
-    {
-        return;
-    }
+    if (!m_viewer) return; 
+    
     m_viewer->removeAllColorLegends();
 
     if (!hasResults()) return;
@@ -461,6 +459,7 @@ void Rim2dIntersectionView::updateLegends()
     {
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
+        eclView->cellResult()->updateLegendData(m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
 
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {
@@ -477,7 +476,7 @@ void Rim2dIntersectionView::updateLegends()
     if (geoView)
     {
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
-          
+
         geoView->updateLegendTextAndRanges(m_legendConfig(), m_currentTimeStep());
         legend = m_legendConfig()->legend();
     }
