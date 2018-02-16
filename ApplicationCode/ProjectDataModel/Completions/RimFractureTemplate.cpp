@@ -76,8 +76,8 @@ namespace caf
     void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
     {
         addItem(RimFractureTemplate::NON_DARCY_NONE, "None", "None");
-        addItem(RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Computed by Parameters");
-        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined Value");
+        addItem(RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Compute D-factor from Parameters");
+        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "By User Defined D-factor");
 
         setDefault(RimFractureTemplate::NON_DARCY_NONE);
     }
@@ -134,7 +134,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html>", "", "Gas viscosity at bottom hole pressure", "");
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
-    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::computeDFactor);
+    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
     m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
@@ -438,18 +438,15 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
         m_fractureWidth.uiCapability()->setUiReadOnly(true);
     }
 
-    if (hideNonDarcyFlowParams)
+    if (m_permeabilityType == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
     {
-        if (m_permeabilityType == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
-        {
-            m_relativePermeability.uiCapability()->setUiHidden(true);
-            m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(false);
-        }
-        else
-        {
-            m_relativePermeability.uiCapability()->setUiHidden(false);
-            m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(true);
-        }
+        m_relativePermeability.uiCapability()->setUiHidden(true);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(false);
+    }
+    else
+    {
+        m_relativePermeability.uiCapability()->setUiHidden(false);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(true);
     }
 }
 
@@ -460,8 +457,8 @@ QString RimFractureTemplate::dFactorSummary() const
 {
     QString text;
     
-    auto dFactor = computeDFactor();
-    text += QString("D-factor : %1").arg(dFactor);
+    auto val = dFactor();
+    text += QString("D-factor : %1").arg(val);
 
     text += "<br>";
     text += "<br>";
@@ -517,7 +514,7 @@ double RimFractureTemplate::effectivePermeability() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::computeDFactor() const
+double RimFractureTemplate::dFactor() const
 {
     if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
     {
@@ -539,6 +536,14 @@ double RimFractureTemplate::computeDFactor() const
     if (denumerator < 1e-10) return HUGE_VAL;
 
     return numerator / denumerator;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::kh() const
+{
+    return effectivePermeability() * fractureWidth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -647,4 +652,12 @@ void RimFractureTemplate::setDefaultWellDiameterFromUnit()
     {
         m_wellDiameter = 0.216;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::isNonDarcyFlowEnabled() const
+{
+    return m_nonDarcyFlowType() != RimFractureTemplate::NON_DARCY_NONE;
 }

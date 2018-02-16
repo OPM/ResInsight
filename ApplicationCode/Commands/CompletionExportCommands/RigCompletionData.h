@@ -97,6 +97,9 @@ public:
                                                       double wellDiameter, 
                                                       CompletionType completionType);
 
+    void        setDFactor(double dFactor);
+    void        setKh(double kh);
+
     void        addMetadata(const QString& name, const QString& comment);
     static bool isDefaultValue(double val);
 

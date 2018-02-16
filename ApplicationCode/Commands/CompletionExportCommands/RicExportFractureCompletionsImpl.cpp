@@ -339,6 +339,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         /////
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map 
 
+        std::vector<RigCompletionData> allCompletionsForOneFracture;
+
         std::set<RigTransmissibilityCondenser::CellAddress> externalCells = transCondenser.externalCells();
         for (RigTransmissibilityCondenser::CellAddress externalCell : externalCells)
         {
@@ -354,9 +356,42 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
                 compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
                 compDat.addMetadata(fracture->name(), QString::number(trans));
-                fractureCompletions.push_back(compDat);
+                allCompletionsForOneFracture.push_back(compDat);
             }
         }
+
+        /////
+        // Compute Non-Dracy Flow parameters
+
+        if (fracture->fractureTemplate()->isNonDarcyFlowEnabled())
+        {
+            double dFactorForFracture = fracture->fractureTemplate()->dFactor();
+            double khForFracture = fracture->fractureTemplate()->kh();
+
+            double sumOfTransmissibilitiesInFracture = 0.0;
+            for (const auto& c : allCompletionsForOneFracture)
+            {
+                sumOfTransmissibilitiesInFracture += c.transmissibility();
+            }
+
+            if (fabs(sumOfTransmissibilitiesInFracture) > 1e-10)
+            {
+                for (auto& c : allCompletionsForOneFracture)
+                {
+                    if (fabs(c.transmissibility()) > 1e-10)
+                    {
+                        double dFactorForOneConnection = dFactorForFracture * sumOfTransmissibilitiesInFracture / c.transmissibility();
+                        c.setDFactor(dFactorForOneConnection);
+                    }
+
+                    double khForOneConnection = khForFracture * c.transmissibility() / sumOfTransmissibilitiesInFracture;
+
+                    c.setKh(khForOneConnection);
+                }
+            }
+        }
+
+        std::copy(allCompletionsForOneFracture.begin(), allCompletionsForOneFracture.end(), std::back_inserter(fractureCompletions));
 
         if ( outputStreamForIntermediateResultsText )
         {

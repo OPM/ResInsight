@@ -113,7 +113,7 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigCompletionData::setSecondOrderingValue(double orderingValue)
 {
@@ -176,6 +176,22 @@ void RigCompletionData::setCombinedValuesImplicitTransWPImult(double         wpi
     m_completionType = completionType;
     m_skinFactor     = skinFactor;
     m_diameter       = wellDiameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setDFactor(double dFactor)
+{
+    m_dFactor = dFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setKh(double kh)
+{
+    m_kh = kh;
 }
 
 //==================================================================================================

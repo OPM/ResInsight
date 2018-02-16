@@ -325,6 +325,7 @@ RigCompletionData
                                                                               const RicExportCompletionDataSettingsUi& settings)
 {
     CVF_ASSERT(!completions.empty());
+
     QString                           wellName       = completions[0].wellName();
     RigCompletionDataGridCell         cellIndexIJK   = completions[0].completionDataGridCell();
     RigCompletionData::CompletionType completionType = completions[0].completionType();
@@ -348,6 +349,10 @@ RigCompletionData
 
     RigCompletionData resultCompletion(wellName, cellIndexIJK, completions[0].firstOrderingValue());
     resultCompletion.setSecondOrderingValue(completions[0].secondOrderingValue());
+
+    // NOTE : Kh and DFactor is taken from the first completion 
+    resultCompletion.setKh(completions[0].kh());
+    resultCompletion.setDFactor(completions[0].dFactor());
 
     double totalTrans = 0.0;
 
@@ -634,13 +639,19 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
             case SHUT: formatter.add("SHUT"); break;
             case AUTO: formatter.add("AUTO"); break;
         }
+        
         if (RigCompletionData::isDefaultValue(data.saturation()))
             formatter.add("1*");
         else
             formatter.add(data.saturation());
-        if (RigCompletionData::isDefaultValue(data.transmissibility()))
+        
+        if (!RigCompletionData::isDefaultValue(data.dFactor()) ||
+            RigCompletionData::isDefaultValue(data.transmissibility()))
         {
-            formatter.add("1*"); // Transmissibility
+            if (RigCompletionData::isDefaultValue(data.transmissibility()))
+                formatter.add("1*");
+            else
+                formatter.add(data.transmissibility());
 
             if (RigCompletionData::isDefaultValue(data.diameter()))
                 formatter.add("1*");
@@ -657,7 +668,7 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
             if (RigCompletionData::isDefaultValue(data.dFactor()))
                 formatter.add("1*");
             else
-                formatter.add(data.dFactor());
+                formatter.add(-data.dFactor());
 
             switch (data.direction())
             {

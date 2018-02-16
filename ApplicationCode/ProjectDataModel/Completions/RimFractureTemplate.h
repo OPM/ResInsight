@@ -125,6 +125,10 @@ public:
     void                            setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem);
     void                            setDefaultWellDiameterFromUnit();
 
+    bool                            isNonDarcyFlowEnabled() const;
+    double                          dFactor() const;
+    double                          kh() const;
+
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -138,7 +142,6 @@ private:
     QString                         dFactorSummary() const;
     double                          effectivePermeability() const;
 
-    double                          computeDFactor() const;
     double                          fractureWidth() const;
 
 protected:
