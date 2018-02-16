@@ -375,7 +375,10 @@ void RimGeoMechView::updateLegends()
 
         this->updateLegendTextAndRanges(cellResult()->legendConfig(), m_currentTimeStep());
 
-        m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
+        if (cellResult()->hasResult())
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
+        }
     }
 }
 
