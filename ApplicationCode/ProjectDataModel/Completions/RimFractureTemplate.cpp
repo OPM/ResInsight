@@ -402,30 +402,6 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
 
     // Non Darcy Flow
 
-    bool hideNonDarcyFlowParams = false;
-    if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_COMPUTED) hideNonDarcyFlowParams = false;
-
-    if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
-    {
-        m_userDefinedDFactor.uiCapability()->setUiHidden(false);
-    }
-    else
-    {
-        m_userDefinedDFactor.uiCapability()->setUiHidden(true);
-    }
-
-    m_inertialCoefficient.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-
-    m_fractureWidthType.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-    m_fractureWidth.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-
-    m_permeabilityType.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-    m_relativePermeability.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-    m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-    
-    m_relativeGasDensity.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-    m_gasViscosity.uiCapability()->setUiHidden(hideNonDarcyFlowParams);
-
     if (m_fractureWidthType == RimFractureTemplate::USER_DEFINED_WIDTH)
     {
         m_fractureWidth.uiCapability()->setUiReadOnly(false);
