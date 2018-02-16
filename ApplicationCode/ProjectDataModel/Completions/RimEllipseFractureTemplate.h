@@ -79,8 +79,8 @@ private:
 private:
     cvf::ref<RigFractureGrid>   m_fractureGrid;
 
-    caf::PdmField<float>        m_halfLength;
-    caf::PdmField<float>        m_height;
-    caf::PdmField<float>        m_width;
-    caf::PdmField<float>        m_userDefinedEffectivePermeability;
+    caf::PdmField<double>        m_halfLength;
+    caf::PdmField<double>        m_height;
+    caf::PdmField<double>        m_width;
+    caf::PdmField<double>        m_userDefinedEffectivePermeability;
 };

@@ -52,11 +52,11 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_halfLength,  "HalfLength",       0.0f,   "Halflength X<sub>f</sub>", "", "", "");
-    CAF_PDM_InitField(&m_height,      "Height",           0.0f,   "Height", "", "", "");
-    CAF_PDM_InitField(&m_width,       "Width",            0.0f,   "Width", "", "", "");
+    CAF_PDM_InitField(&m_halfLength,  "HalfLength",       0.0,   "Halflength X<sub>f</sub>", "", "", "");
+    CAF_PDM_InitField(&m_height,      "Height",           0.0,   "Height", "", "", "");
+    CAF_PDM_InitField(&m_width,       "Width",            0.0,   "Width", "", "", "");
 
-    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,"Permeability",     0.0f,   "Permeability [mD]", "", "", "");
+    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,"Permeability",     0.0,   "Permeability [mD]", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
     setupFractureGridCells();
@@ -297,17 +297,17 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
 {
     if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        m_width        = 0.5f;
-        m_userDefinedEffectivePermeability = 80000.0f;
-        m_halfLength   = 300.0f;
-        m_height       = 225.0f;
+        m_width        = 0.5;
+        m_userDefinedEffectivePermeability = 80000.0;
+        m_halfLength   = 300.0;
+        m_height       = 225.0;
     }
     else
     {
-        m_width        = 0.01f;
-        m_userDefinedEffectivePermeability = 100000.0f;
-        m_halfLength   = 100.0f;
-        m_height       = 75.0f;
+        m_width        = 0.01;
+        m_userDefinedEffectivePermeability = 100000.0;
+        m_halfLength   = 100.0;
+        m_height       = 75.0;
     }
 
     this->setDefaultWellDiameterFromUnit();
