@@ -375,20 +375,16 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 sumOfTransmissibilitiesInFracture += c.transmissibility();
             }
 
-            if (fabs(sumOfTransmissibilitiesInFracture) > 1e-10)
+            for (auto& c : allCompletionsForOneFracture)
             {
-                for (auto& c : allCompletionsForOneFracture)
-                {
-                    if (fabs(c.transmissibility()) > 1e-10)
-                    {
-                        double dFactorForOneConnection = dFactorForFracture * sumOfTransmissibilitiesInFracture / c.transmissibility();
-                        c.setDFactor(dFactorForOneConnection);
-                    }
+                // NOTE : What is supposed to happen when the transmissibility is close to zero?
 
-                    double khForOneConnection = khForFracture * c.transmissibility() / sumOfTransmissibilitiesInFracture;
+                double dFactorForOneConnection = dFactorForFracture * sumOfTransmissibilitiesInFracture / c.transmissibility();
+                c.setDFactor(dFactorForOneConnection);
 
-                    c.setKh(khForOneConnection);
-                }
+                double khForOneConnection = khForFracture * c.transmissibility() / sumOfTransmissibilitiesInFracture;
+
+                c.setKh(khForOneConnection);
             }
         }
 
