@@ -353,14 +353,7 @@ RigCompletionData
 
     if (firstCompletion.isNonDarcyFlow())
     {
-        resultCompletion.setKh(firstCompletion.kh());
-        resultCompletion.setDFactor(firstCompletion.dFactor());
-
-        resultCompletion.setCombinedValuesExplicitTrans(firstCompletion.transmissibility(), completionType);
-
-        resultCompletion.m_metadata = firstCompletion.m_metadata;
-
-        return resultCompletion;
+        return firstCompletion;
     }
 
     // completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore,
