@@ -354,7 +354,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                           RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()),
                                           fracture->fractureMD());
 
-                compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
+                double diameter = 2.0 * fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType());
+                compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor(), diameter);
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 allCompletionsForOneFracture.push_back(compDat);
             }

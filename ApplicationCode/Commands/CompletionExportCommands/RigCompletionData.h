@@ -75,7 +75,7 @@ public:
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
 
-    void        setFromFracture(double transmissibility, double skinFactor);
+    void        setFromFracture(double transmissibility, double skinFactor, double diameter);
     void        setSecondOrderingValue(double orderingValue);
     
     void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 

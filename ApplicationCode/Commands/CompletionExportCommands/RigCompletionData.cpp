@@ -105,11 +105,12 @@ RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setFromFracture(double transmissibility, double skinFactor)
+void RigCompletionData::setFromFracture(double transmissibility, double skinFactor, double diameter)
 {
     m_completionType   = FRACTURE;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
+    m_diameter         = diameter;
 }
 
 //--------------------------------------------------------------------------------------------------
