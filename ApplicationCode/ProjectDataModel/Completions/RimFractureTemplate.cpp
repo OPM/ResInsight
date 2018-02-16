@@ -27,6 +27,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "cvfVector3.h"
@@ -135,6 +136,7 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
     m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
+    m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
     m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
