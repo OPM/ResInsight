@@ -598,9 +598,11 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
                   RifEclipseOutputTableColumn(
                       "TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("DIAM"),
-                  RifEclipseOutputTableColumn("KH"),
+                  RifEclipseOutputTableColumn(
+                      "KH", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("S"),
-                  RifEclipseOutputTableColumn("Df"),
+                  RifEclipseOutputTableColumn(
+                      "Df", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("DIR"),
                   RifEclipseOutputTableColumn("r0")};
 
@@ -619,9 +621,11 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
                   RifEclipseOutputTableColumn(
                       "TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("DIAM"),
-                  RifEclipseOutputTableColumn("KH"),
+                  RifEclipseOutputTableColumn(
+                      "KH", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("S"),
-                  RifEclipseOutputTableColumn("Df"),
+                  RifEclipseOutputTableColumn(
+                      "Df", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
                   RifEclipseOutputTableColumn("DIR"),
                   RifEclipseOutputTableColumn("r0")};
 
