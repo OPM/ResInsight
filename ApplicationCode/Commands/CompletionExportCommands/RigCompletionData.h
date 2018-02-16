@@ -97,6 +97,7 @@ public:
                                                       double wellDiameter, 
                                                       CompletionType completionType);
 
+    bool        isNonDarcyFlow() const;
     void        setDFactor(double dFactor);
     void        setKh(double kh);
 

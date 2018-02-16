@@ -181,6 +181,17 @@ void RigCompletionData::setCombinedValuesImplicitTransWPImult(double         wpi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isNonDarcyFlow() const
+{
+    if (!isDefaultValue(m_kh)) return true;
+    if (!isDefaultValue(m_dFactor)) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCompletionData::setDFactor(double dFactor)
 {
     m_dFactor = dFactor;
