@@ -272,6 +272,8 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    options = RimFractureTemplate::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
     if (fieldNeedingOptions == &m_borderPolygonResultName)
     {
         for (std::pair<QString, QString> nameUnit : uiResultNamesWithUnit())
@@ -397,18 +399,49 @@ FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAt
         double conductivity = wellCell.getConductivtyValue();
 
         std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
-        for (const auto& nameUnit : propertyNamesUnitsOnFile)
+
+        QString propertyNameForFractureWidth;
         {
-            if (nameUnit.first.contains("Width", Qt::CaseInsensitive))
+            QString widthParameterName;
+            QString effWidthParameterName;
+            for (const auto& nameUnit : propertyNamesUnitsOnFile)
             {
-                auto data = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
-
-                double width = data[wellCellIndex];
-
-                if (fabs(width) > 1e-7)
+                if (effWidthParameterName.isEmpty() && nameUnit.first.contains("effective width", Qt::CaseInsensitive))
                 {
-                    values.m_width = width;
-                    values.m_permeability = conductivity / width;
+                    effWidthParameterName = nameUnit.first;
+                }
+
+                if (widthParameterName.isEmpty() && nameUnit.first.contains("width", Qt::CaseInsensitive))
+                {
+                    widthParameterName = nameUnit.first;
+                }
+            }
+
+            if (!effWidthParameterName.isEmpty())
+            {
+                propertyNameForFractureWidth = effWidthParameterName;
+            }
+            else
+            {
+                propertyNameForFractureWidth = widthParameterName;
+            }
+        }
+
+        if (!propertyNameForFractureWidth.isEmpty())
+        {
+            for (const auto& nameUnit : propertyNamesUnitsOnFile)
+            {
+                if (nameUnit.first == propertyNameForFractureWidth)
+                {
+                    auto data = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                    double width = data[wellCellIndex];
+
+                    if (fabs(width) > 1e-20)
+                    {
+                        values.m_width = width;
+                        values.m_permeability = conductivity / width;
+                    }
                 }
             }
         }

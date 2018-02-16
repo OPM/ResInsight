@@ -357,7 +357,33 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                         bool*                      useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_fractureWidthType)
+    {
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(USER_DEFINED_WIDTH), USER_DEFINED_WIDTH));
+
+        auto widthAndCond = widthAndConductivityAtWellPathIntersection();
+        if (widthAndCond.isValid())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
+        }
+        else
+        {
+            m_fractureWidthType = USER_DEFINED_WIDTH;
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::prepareFieldsForUiDisplay()
 {
@@ -404,13 +430,18 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
 
     // Non Darcy Flow
 
+    auto values = widthAndConductivityAtWellPathIntersection();
+    if (!values.isValid())
+    {
+        m_fractureWidthType = RimFractureTemplate::USER_DEFINED_WIDTH;
+    }
+
     if (m_fractureWidthType == RimFractureTemplate::USER_DEFINED_WIDTH)
     {
         m_fractureWidth.uiCapability()->setUiReadOnly(false);
     }
     else
     {
-        auto values = widthAndConductivityAtWellPathIntersection();
         m_fractureWidth = values.m_width;
 
         m_fractureWidth.uiCapability()->setUiReadOnly(true);

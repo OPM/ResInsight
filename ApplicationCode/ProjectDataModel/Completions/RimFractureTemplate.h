@@ -47,6 +47,14 @@ public:
     {
     }
 
+    bool isValid() const
+    {
+        if (m_width != 0.0) return true;
+        if (m_permeability != 0.0) return true;
+
+        return false;
+    }
+
     double m_width;
     double m_permeability;
 };
@@ -93,6 +101,8 @@ public:
     };
 
 
+
+
 public:
     RimFractureTemplate();
     virtual ~RimFractureTemplate();
@@ -134,6 +144,7 @@ protected:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
     void                            prepareFieldsForUiDisplay();
