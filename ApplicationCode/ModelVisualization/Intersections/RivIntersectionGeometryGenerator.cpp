@@ -613,16 +613,16 @@ cvf::Mat4d RivIntersectionGeometryGenerator::unflattenTransformMatrix(const cvf:
 
     int polyLineIdx = -1;
     int segIdx = -1;
-    for (int i = 0; i < m_flattenedOrOffsettedPolyLines.size(); i++)
+    for (size_t i = 0; i < m_flattenedOrOffsettedPolyLines.size(); i++)
     {
         std::vector<cvf::Vec3d> pts = m_flattenedOrOffsettedPolyLines[i];
-        for(int j = 0; j < pts.size(); j++)
+        for(size_t j = 0; j < pts.size(); j++)
         {
             // Assumes ascending sorted list
             if (j > 0 && intersectionPointUtm.x() < pts[j].x())
             {
-                polyLineIdx = i;
-                segIdx = j - 1;
+                polyLineIdx = static_cast<int>(i);
+                segIdx = static_cast<int>(j) - 1;
                 startPt = pts[segIdx];
                 break;
             }
