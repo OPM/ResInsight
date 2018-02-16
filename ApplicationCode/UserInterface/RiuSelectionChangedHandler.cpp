@@ -310,9 +310,12 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
     RiuSelectionItem* selItem = const_cast<RiuSelectionItem*>(itemAdded);
     if (selItem != NULL)
     {
+        Rim2dIntersectionView* intersectionView = nullptr;
+
         if (selItem->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT)
         {
             const Riu2dIntersectionSelectionItem* wrapperSelItem = dynamic_cast<Riu2dIntersectionSelectionItem*>(selItem);
+            intersectionView = wrapperSelItem->view();
             if (wrapperSelItem && wrapperSelItem->eclipseSelectionItem()) selItem = wrapperSelItem->eclipseSelectionItem();
             else if (wrapperSelItem && wrapperSelItem->geoMechSelectionItem()) selItem = wrapperSelItem->geoMechSelectionItem();
         }
@@ -327,6 +330,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
             textBuilder.setFace(eclipseSelectionItem->m_face);
             textBuilder.setNncIndex(eclipseSelectionItem->m_nncIndex);
             textBuilder.setIntersectionPoint(eclipseSelectionItem->m_localIntersectionPoint);
+            textBuilder.set2dIntersectionView(intersectionView);
 
             resultInfo = textBuilder.mainResultText();
 
@@ -340,6 +344,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
             RiuFemResultTextBuilder textBuilder(geomView, (int)geomSelectionItem->m_gridIndex, (int)geomSelectionItem->m_cellIndex, geomView->currentTimeStep());
             textBuilder.setIntersectionPoint(geomSelectionItem->m_localIntersectionPoint);
             textBuilder.setFace(geomSelectionItem->m_elementFace);
+            textBuilder.set2dIntersectionView(intersectionView);
             if (geomSelectionItem->m_hasIntersectionTriangle) textBuilder.setIntersectionTriangle(geomSelectionItem->m_intersectionTriangle);
 
             resultInfo = textBuilder.mainResultText();

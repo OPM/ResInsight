@@ -19,10 +19,10 @@
 #pragma once
 
 #include "Rim3dView.h"
+#include "RivIntersectionPartMgr.h"
 #include "cafPdmPtrField.h"
 
 class RimIntersection;
-class RivIntersectionPartMgr;
 class RimLegendConfig;
 class RimTernaryLegendConfig;
 
@@ -57,6 +57,8 @@ public:
     virtual bool               isTimeStepDependentDataVisible() const override;
 
     void                       update3dInfo();
+
+    cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const { return m_flatIntersectionPartMgr; }
 
 protected:
     void                       updateLegends();

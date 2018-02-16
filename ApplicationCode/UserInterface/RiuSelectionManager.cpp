@@ -218,8 +218,9 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Riu2dIntersectionSelectionItem::Riu2dIntersectionSelectionItem(RiuSelectionItem *selItem)
+Riu2dIntersectionSelectionItem::Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem)
 {
+    m_view = view;
     m_eclipseSelItem = dynamic_cast<RiuEclipseSelectionItem*>(selItem);
     m_geoMechSelItem = dynamic_cast<RiuGeoMechSelectionItem*>(selItem);
 }
@@ -231,6 +232,14 @@ Riu2dIntersectionSelectionItem::~Riu2dIntersectionSelectionItem()
 {
     if (m_eclipseSelItem) delete m_eclipseSelItem;
     if (m_geoMechSelItem) delete m_geoMechSelItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmPointer<Rim2dIntersectionView> Riu2dIntersectionSelectionItem::view() const
+{
+    return m_view;
 }
 
 //--------------------------------------------------------------------------------------------------

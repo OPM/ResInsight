@@ -27,6 +27,8 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 
+#include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -35,6 +37,8 @@
 #include "RimFormationNames.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+
+#include "RivIntersectionPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 
@@ -71,6 +75,14 @@ void RiuResultTextBuilder::setNncIndex(size_t nncIndex)
 void RiuResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
 {
     m_intersectionPoint = intersectionPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuResultTextBuilder::set2dIntersectionView(Rim2dIntersectionView* intersectionView)
+{
+    m_2dIntersectionView = intersectionView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,9 +189,24 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
             cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
 
             QString formattedText;
-            formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+            if (m_2dIntersectionView)
+            {
+                formattedText.sprintf("Horizontal length from well start: %.2f", domainCoord.x());
+                text += formattedText + itemSeparator;
 
-            text += formattedText;
+                cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
+                if (!t.isZero())
+                {
+                    cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
+                    formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
+                    text += formattedText;
+                }
+            }
+            else
+            {
+                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                text += formattedText;
+            }
         }
     }
 

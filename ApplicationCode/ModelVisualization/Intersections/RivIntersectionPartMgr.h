@@ -24,6 +24,8 @@
 #include "cvfColor4.h"
 #include "cvfVector3.h"
 #include "cvfArray.h"
+#include "cvfMatrix4.h"
+
 #include "cafPdmPointer.h"
 
 #include <list>
@@ -74,6 +76,7 @@ public:
 
     const RimIntersection* intersection() const;
 
+    cvf::Mat4d unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm);
 
 public:
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 

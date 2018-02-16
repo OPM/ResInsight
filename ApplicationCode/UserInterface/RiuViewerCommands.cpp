@@ -654,7 +654,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 else                  selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint);
             }
 
-            if (intersectionView) selItem = new Riu2dIntersectionSelectionItem(selItem);
+            if (intersectionView) selItem = new Riu2dIntersectionSelectionItem(intersectionView, selItem);
         }
 
         if (appendToSelection)

@@ -25,6 +25,7 @@
 #include "RimIntersection.h"
 
 #include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionPartMgr.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
@@ -601,6 +602,41 @@ const cvf::Vec3fArray* RivIntersectionGeometryGenerator::triangleVxes() const
 RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
 {
     return m_crossSection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4d RivIntersectionGeometryGenerator::unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm)
+{
+    cvf::Vec3d startPt = cvf::Vec3d::ZERO;
+
+    int polyLineIdx = -1;
+    int segIdx = -1;
+    for (int i = 0; i < m_flattenedOrOffsettedPolyLines.size(); i++)
+    {
+        std::vector<cvf::Vec3d> pts = m_flattenedOrOffsettedPolyLines[i];
+        for(int j = 0; j < pts.size(); j++)
+        {
+            // Assumes ascending sorted list
+            if (j > 0 && intersectionPointUtm.x() < pts[j].x())
+            {
+                polyLineIdx = i;
+                segIdx = j - 1;
+                startPt = pts[segIdx];
+                break;
+            }
+        }
+
+        if (!startPt.isZero()) break;
+    }
+
+    if (polyLineIdx > -1 && segIdx > -1)
+    {
+        cvf::Mat4d t = m_segementTransformPrLinePoint[polyLineIdx][segIdx];
+        return t.getInverted();                                                 // Check for invertible?
+    }
+    return cvf::Mat4d::ZERO;
 }
 
 //--------------------------------------------------------------------------------------------------

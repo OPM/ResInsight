@@ -206,7 +206,7 @@ public:
 class Riu2dIntersectionSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit Riu2dIntersectionSelectionItem(RiuSelectionItem *selItem);
+    explicit Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem);
 
     virtual ~Riu2dIntersectionSelectionItem();
 
@@ -216,10 +216,12 @@ public:
     }
 
 public:
+    caf::PdmPointer<Rim2dIntersectionView> view() const;
     RiuEclipseSelectionItem* eclipseSelectionItem() const;
     RiuGeoMechSelectionItem* geoMechSelectionItem() const;
 
 private:
+    caf::PdmPointer<Rim2dIntersectionView> m_view;
     RiuEclipseSelectionItem* m_eclipseSelItem;
     RiuGeoMechSelectionItem* m_geoMechSelItem;
 };

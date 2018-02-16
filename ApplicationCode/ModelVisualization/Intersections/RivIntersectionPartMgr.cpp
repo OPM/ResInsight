@@ -970,6 +970,14 @@ const RimIntersection* RivIntersectionPartMgr::intersection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Mat4d RivIntersectionPartMgr::unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm)
+{
+    return m_crossSectionGenerator->unflattenTransformMatrix(intersectionPointUtm);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridInterface()
 {
     RimEclipseView* eclipseView;
