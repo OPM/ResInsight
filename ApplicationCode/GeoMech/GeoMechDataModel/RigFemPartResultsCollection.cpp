@@ -1919,7 +1919,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
         return resFrames;
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

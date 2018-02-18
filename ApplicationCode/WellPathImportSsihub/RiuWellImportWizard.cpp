@@ -127,7 +127,7 @@ void RiuWellImportWizard::issueHttpRequestToFile(QString completeUrlText, QStrin
             tr("Unable to save the file %1: %2.")
             .arg(destinationFileName).arg(m_file->errorString()));
         delete m_file;
-        m_file = 0;
+        m_file = nullptr;
         return;
     }
 
@@ -156,7 +156,7 @@ void RiuWellImportWizard::httpFinished()
             m_file->close();
             m_file->remove();
             delete m_file;
-            m_file = 0;
+            m_file = nullptr;
         }
         m_reply->deleteLater();
         m_myProgressDialog->hide();
@@ -231,9 +231,9 @@ void RiuWellImportWizard::httpFinished()
     }
 
     m_reply->deleteLater();
-    m_reply = 0;
+    m_reply = nullptr;
     delete m_file;
-    m_file = 0;
+    m_file = nullptr;
 
     if (m_currentDownloadState == DOWNLOAD_WELLS || m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
@@ -446,7 +446,7 @@ void RiuWellImportWizard::downloadWellPaths()
 {
     WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(page(m_wellSelectionPageId));
     std::vector<DownloadEntity> downloadEntities;
-    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, nullptr);
 
     for (size_t i = 0; i < downloadEntities.size(); i++)
     {
@@ -537,7 +537,7 @@ QStringList RiuWellImportWizard::absoluteFilePathsToWellPaths() const
 
     WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(page(m_wellSelectionPageId));
     std::vector<DownloadEntity> downloadEntities;
-    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, nullptr);
 
     for (size_t i = 0; i < downloadEntities.size(); i++)
     {
@@ -787,7 +787,7 @@ void FieldSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 FieldSelectionPage::~FieldSelectionPage()
 {
-    m_propertyView->showProperties(NULL);
+    m_propertyView->showProperties(nullptr);
 }
 
 
@@ -915,7 +915,7 @@ WellSelectionPage::~WellSelectionPage()
 {
     if (m_wellSelectionTreeView)
     {
-        m_wellSelectionTreeView->setPdmItem(NULL);
+        m_wellSelectionTreeView->setPdmItem(nullptr);
     }
     delete m_regionsWithVisibleWells;
 }
@@ -926,7 +926,7 @@ WellSelectionPage::~WellSelectionPage()
 //--------------------------------------------------------------------------------------------------
 void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle)
 {
-    if (objHandle == NULL)
+    if (objHandle == nullptr)
     {
         objHandle = m_regionsWithVisibleWells;
     }
@@ -968,8 +968,8 @@ void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& dow
 //--------------------------------------------------------------------------------------------------
 bool lessByDescription(const caf::PdmPointer<caf::PdmObjectHandle>& obj1, const caf::PdmPointer<caf::PdmObjectHandle>& obj2)
 {
-    caf::PdmUiFieldHandle* uiFieldHandle1 = NULL;
-    caf::PdmUiFieldHandle* uiFieldHandle2 = NULL;
+    caf::PdmUiFieldHandle* uiFieldHandle1 = nullptr;
+    caf::PdmUiFieldHandle* uiFieldHandle2 = nullptr;
 
     if (obj1.notNull() && obj1->uiCapability() && obj1->uiCapability()->userDescriptionField())
     {
@@ -1053,7 +1053,7 @@ void WellSummaryPage::updateSummaryPage()
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
     WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(wiz->page(wiz->wellSelectionPageId()));
     std::vector<DownloadEntity> downloadEntities;
-    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, nullptr);
 
     for (size_t i = 0; i < downloadEntities.size(); i++)
     {

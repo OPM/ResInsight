@@ -128,5 +128,5 @@ RimWellPathEntry* RimOilFieldEntry::find(const QString& name, RimWellPathEntry::
         }
     }
 
-    return NULL;
+    return nullptr;
 }
