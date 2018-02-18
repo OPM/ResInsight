@@ -1475,7 +1475,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
         frameCountProgress.incrementProgress();
 
         compactionFrame.resize(nodeCount);
-        for (int n = 0; n < nodeCount; n++)
+        for (size_t n = 0; n < nodeCount; n++)
         {
             RefElement refElement;
             findReferenceElementForNode(*part, n, resVarAddr.refKLayerIndex, &refElement);
