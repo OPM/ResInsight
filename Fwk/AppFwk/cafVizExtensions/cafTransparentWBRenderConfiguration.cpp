@@ -128,7 +128,7 @@ public:
         CVF_ASSERT(renderConfiguration);
         m_renderConfiguration = renderConfiguration;
     }
-    virtual cvf::UniformSet* uniformSet()  { return NULL; }
+    virtual cvf::UniformSet* uniformSet()  { return nullptr; }
     virtual void        update(cvf::Rendering* rendering)
     {
         m_renderConfiguration->updateEffectsForRendering(rendering);

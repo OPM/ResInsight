@@ -214,13 +214,13 @@ cvf::ref<cvf::Effect> EffectGenerator::generateUnCachedEffect() const
 //--------------------------------------------------------------------------------------------------
 void EffectGenerator::updateEffect(cvf::Effect* effect) const
 {
-    CVF_ASSERT(effect != NULL);
+    CVF_ASSERT(effect != nullptr);
 
     // Clear effect
 
-    effect->setRenderStateSet(NULL);
-    effect->setUniformSet(NULL);
-    effect->setShaderProgram(NULL);
+    effect->setRenderStateSet(nullptr);
+    effect->setUniformSet(nullptr);
+    effect->setShaderProgram(nullptr);
 
     if (sm_renderingMode == SHADER_BASED)
     {
@@ -629,7 +629,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
 cvf::ref<cvf::TextureImage> 
 ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel)
 {
-    CVF_ASSERT(texImg != NULL);
+    CVF_ASSERT(texImg != nullptr);
     CVF_ASSERT(texImg->height() == 1);
 
     cvf::ref<cvf::TextureImage> modTexImg = new cvf::TextureImage;
@@ -655,9 +655,9 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
 //--------------------------------------------------------------------------------------------------
 bool ScalarMapperEffectGenerator::isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2)
 {
-    if (texImg1 == NULL && texImg2 == NULL ) return true;
+    if (texImg1 == nullptr && texImg2 == nullptr ) return true;
 
-    if (   texImg1 != NULL && texImg2 != NULL 
+    if (   texImg1 != nullptr && texImg2 != nullptr 
         && texImg1->height() == texImg2->height() 
         && texImg1->width()  == texImg2->width()
         && texImg1->width() > 0 && texImg1->height() > 0

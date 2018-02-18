@@ -170,7 +170,7 @@ QString Utils::indentString(int numSpacesToIndent, const QString& str)
 bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir)
 {
     bool overWriteFiles = false;
-    (*saveDir) = QFileDialog::getExistingDirectory(NULL, "Select save directory", defaultDir);
+    (*saveDir) = QFileDialog::getExistingDirectory(nullptr, "Select save directory", defaultDir);
 
     std::vector<QString> filesToOverwrite;
     for (QString fileName : fileNames)
