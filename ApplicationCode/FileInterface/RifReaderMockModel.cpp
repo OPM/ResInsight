@@ -124,7 +124,7 @@ bool RifReaderMockModel::dynamicResult(const QString& result, RiaDefines::Porosi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderMockModel::RifReaderMockModel() : m_reservoir(NULL)
+RifReaderMockModel::RifReaderMockModel() : m_reservoir(nullptr)
 {
     /*
     m_cellResults.push_back("Dummy results");

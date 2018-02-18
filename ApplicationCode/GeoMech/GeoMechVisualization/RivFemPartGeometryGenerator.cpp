@@ -69,7 +69,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_quadVertices.notNull());
 
-    if (m_quadVertices->size() == 0) return NULL;
+    if (m_quadVertices->size() == 0) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setFromQuadVertexArray(m_quadVertices.p());
@@ -85,7 +85,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 {
-    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return NULL;
+    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(m_quadVertices.p());
@@ -105,7 +105,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable(double creaseAngle)
 {
-    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return NULL;
+    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return nullptr;
 
     cvf::OutlineEdgeExtractor ee(creaseAngle, *m_quadVertices);
 
@@ -115,7 +115,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable(double c
     ref<cvf::UIntArray> lineIndices = ee.lineIndices();
     if (lineIndices->size() == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_LINES);
@@ -333,7 +333,7 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
         quadVertices->assign(vertices);
     }
 
-    if (!(quadVertices.notNull() && quadVertices->size() != 0)) return NULL;
+    if (!(quadVertices.notNull() && quadVertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(quadVertices.p());

@@ -224,10 +224,10 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
-    if (m_rimWell == NULL) return;
+    if (m_rimWell == nullptr) return;
 
     RigSimWellData* simWellData = m_rimWell->simWellData();
-    if (simWellData == NULL) return;
+    if (simWellData == nullptr) return;
 
     if (!simWellData->hasWellResult(frameIndex)) return; // Or reset colors or something
 
@@ -282,14 +282,14 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
             {
                 // we need a faster lookup, I guess
-                const RigWellResultPoint* wResCell = NULL;
+                const RigWellResultPoint* wResCell = nullptr;
             
                 if (cellIds[wcIdx].isCell())
                 {
                     wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
                 }
 
-                if (wResCell == NULL) 
+                if (wResCell == nullptr) 
                 {
                     // We cant find any state. This well cell is closed.
                 }

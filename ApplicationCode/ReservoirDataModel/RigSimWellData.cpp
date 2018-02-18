@@ -371,7 +371,7 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
         return &m_wellHead;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

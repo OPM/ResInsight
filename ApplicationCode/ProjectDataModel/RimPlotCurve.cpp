@@ -107,7 +107,7 @@ RimPlotCurve::RimPlotCurve()
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
 
-    m_parentQwtPlot = NULL;
+    m_parentQwtPlot = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ RimPlotCurve::~RimPlotCurve()
 	{
 		m_qwtPlotCurve->detach();
 		delete m_qwtPlotCurve;
-		m_qwtPlotCurve = NULL;
+		m_qwtPlotCurve = nullptr;
 	}
 
 	if (m_parentQwtPlot)
@@ -373,7 +373,7 @@ void RimPlotCurve::updateCurveAppearance()
 
     QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
 
-    QwtSymbol* symbol = NULL;
+    QwtSymbol* symbol = nullptr;
 
     if (m_pointSymbol() != SYMBOL_NONE)
     {

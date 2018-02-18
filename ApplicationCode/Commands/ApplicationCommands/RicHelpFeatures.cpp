@@ -50,7 +50,7 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    caf::AboutDialog dlg(NULL);
+    caf::AboutDialog dlg(nullptr);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));

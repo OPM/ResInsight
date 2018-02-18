@@ -84,12 +84,12 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
     RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
-    relPermPlotUpdater->updateOnSelectionChanged(NULL);
+    relPermPlotUpdater->updateOnSelectionChanged(nullptr);
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
-    pvtPlotUpdater->updateOnSelectionChanged(NULL);
+    pvtPlotUpdater->updateOnSelectionChanged(nullptr);
 
-    updateResultInfo(NULL);
+    updateResultInfo(nullptr);
 
     scheduleUpdateForAllVisibleViews();
 }
@@ -308,7 +308,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
     QString pickInfo;
 
     RiuSelectionItem* selItem = const_cast<RiuSelectionItem*>(itemAdded);
-    if (selItem != NULL)
+    if (selItem != nullptr)
     {
         Rim2dIntersectionView* intersectionView = nullptr;
 

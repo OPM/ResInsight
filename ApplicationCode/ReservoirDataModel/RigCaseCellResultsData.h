@@ -74,7 +74,7 @@ public:
     // Access meta-information about the results
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
-    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
+    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = nullptr) const; 
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;

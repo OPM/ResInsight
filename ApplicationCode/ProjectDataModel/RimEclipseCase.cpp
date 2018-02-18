@@ -109,7 +109,7 @@ RimEclipseCase::RimEclipseCase()
     m_fractureModelResults.uiCapability()->setUiHidden(true);
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden(true);
 
-    this->setReservoirData( NULL );
+    this->setReservoirData( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,8 +483,8 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
     }
     else
     {
-        m_fractureModelResults()->setCellResults(NULL);
-        m_matrixModelResults()->setCellResults(NULL);
+        m_fractureModelResults()->setCellResults(nullptr);
+        m_matrixModelResults()->setCellResults(nullptr);
     }
 }
 

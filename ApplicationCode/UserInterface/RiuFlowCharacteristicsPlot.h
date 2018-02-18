@@ -47,7 +47,7 @@ class RiuFlowCharacteristicsPlot : public QFrame, public RiuInterfaceToViewWindo
 {
     Q_OBJECT;
 public:
-    RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = NULL);
+    RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuFlowCharacteristicsPlot();
 
     void setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);

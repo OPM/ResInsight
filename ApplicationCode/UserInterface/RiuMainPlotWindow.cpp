@@ -62,7 +62,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow::RiuMainPlotWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(NULL), m_blockSlotSubWindowActivated(false)
+RiuMainPlotWindow::RiuMainPlotWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(nullptr), m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
@@ -112,11 +112,11 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 {
-    setPdmRoot(NULL);
+    setPdmRoot(nullptr);
 
     if (m_pdmUiPropertyView)
     {
-        m_pdmUiPropertyView->showProperties(NULL);
+        m_pdmUiPropertyView->showProperties(nullptr);
     }
 
     cleanUpTemporaryWidgets();
@@ -400,7 +400,7 @@ QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -625,7 +625,7 @@ void RiuMainPlotWindow::selectedObjectsChanged()
     std::vector<caf::PdmUiItem*> uiItems;
     m_projectTreeView->selectedUiItems(uiItems);
 
-    caf::PdmObjectHandle* firstSelectedObject = NULL;
+    caf::PdmObjectHandle* firstSelectedObject = nullptr;
 
     if (uiItems.size() == 1)
     {

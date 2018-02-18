@@ -35,7 +35,7 @@
 RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     : QWidget(pParent)
 {
-    m_monitoredProcess = NULL;
+    m_monitoredProcess = nullptr;
 
     QLabel* pLabel = new QLabel("Status:", this);
     pLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
@@ -112,7 +112,7 @@ void RiuProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::stopMonitorWorkProcess()
 {
-    m_monitoredProcess = NULL;
+    m_monitoredProcess = nullptr;
 
     m_terminatePushButton->setEnabled(false);
 

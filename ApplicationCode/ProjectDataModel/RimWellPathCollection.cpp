@@ -252,7 +252,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile(NULL, m_wellPathImporter);
+        wellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name()));
 
@@ -262,7 +262,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
-            existingWellPath->readWellPathFile(NULL, m_wellPathImporter);
+            existingWellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
             // Let name from well path file override name from well log file
             existingWellPath->setName(wellPath->name());

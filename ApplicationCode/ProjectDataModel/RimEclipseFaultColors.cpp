@@ -56,7 +56,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
 RimEclipseFaultColors::~RimEclipseFaultColors()
 {
     delete m_customFaultResultColors;
-    m_customFaultResultColors = NULL;
+    m_customFaultResultColors = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

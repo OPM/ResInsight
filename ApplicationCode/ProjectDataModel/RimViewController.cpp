@@ -266,8 +266,8 @@ void RimViewController::updateOverrides()
 
         if (isVisibleCellsOveridden())
         {
-            if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+            if (manEclView) manEclView->setOverridePropertyFilterCollection(nullptr);
+            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(nullptr);
             m_managedView->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
             m_managedView->scheduleCreateDisplayModelAndRedraw();
         }
@@ -285,7 +285,7 @@ void RimViewController::updateOverrides()
                     }
                     else
                     {
-                        manEclView->setOverridePropertyFilterCollection(NULL);
+                        manEclView->setOverridePropertyFilterCollection(nullptr);
                     }
                 }
             }
@@ -301,13 +301,13 @@ void RimViewController::updateOverrides()
                     }
                     else
                     {
-                        manGeoView->setOverridePropertyFilterCollection(NULL);
+                        manGeoView->setOverridePropertyFilterCollection(nullptr);
                     }
                 }
             }
         }
 
-        this->updateRangeFilterOverrides(NULL);
+        this->updateRangeFilterOverrides(nullptr);
         
         if (manGeoView)
         {
@@ -351,10 +351,10 @@ void RimViewController::removeOverrides(RimGridView* view)
         RimEclipseView* manEclView = dynamic_cast<RimEclipseView*>(view);
         RimGeoMechView* manGeoView = dynamic_cast<RimGeoMechView*>(view);
 
-        if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+        if (manEclView) manEclView->setOverridePropertyFilterCollection(nullptr);
+        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(nullptr);
         
-        view->setOverrideRangeFilterCollection(NULL);
+        view->setOverrideRangeFilterCollection(nullptr);
     }
 }
 
@@ -558,7 +558,7 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimViewController::ownerViewLinker() const
 {
-    RimViewLinker* viewLinker = NULL;
+    RimViewLinker* viewLinker = nullptr;
     this->firstAncestorOrThisOfType(viewLinker);
 
     return viewLinker;
@@ -574,10 +574,10 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     RimGeoMechView* masterGeomechView = dynamic_cast<RimGeoMechView*>(masterView());
     RimGeoMechView* dependGeomechView = managedGeoView();
 
-    RigMainGrid* masterEclGrid = NULL;
-    RigMainGrid* dependEclGrid = NULL;
-    RigFemPart*  masterFemPart = NULL;
-    RigFemPart*  dependFemPart = NULL;
+    RigMainGrid* masterEclGrid = nullptr;
+    RigMainGrid* dependEclGrid = nullptr;
+    RigFemPart*  masterFemPart = nullptr;
+    RigFemPart*  dependFemPart = nullptr;
 
     if (masterEclipseView)
     {
@@ -613,7 +613,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
             }
             else
             {
-                m_caseToCaseCellMapper = NULL;
+                m_caseToCaseCellMapper = nullptr;
             }
     }
 
@@ -960,7 +960,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 
     if (!isRangeFiltersControlled())
     {
-        m_managedView->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(nullptr);
 
         return;
     }
@@ -1034,7 +1034,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
     bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection(m_managedView->name);
     if (restoreOriginal)
     {
-        m_managedView->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(nullptr);
     }
     else
     {

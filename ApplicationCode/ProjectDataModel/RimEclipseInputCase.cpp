@@ -103,7 +103,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         return true;
     }
 
-    if (this->eclipseCaseData() == NULL) 
+    if (this->eclipseCaseData() == nullptr) 
     {
         this->setReservoirData(new RigEclipseCaseData(this));
     }
@@ -181,7 +181,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 bool RimEclipseInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if (this->eclipseCaseData() == NULL)
+    if (this->eclipseCaseData() == nullptr)
     {
         cvf::ref<RifReaderInterface> readerInterface;
 

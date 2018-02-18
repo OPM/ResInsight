@@ -205,7 +205,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
         }
         else if (pMgrKey.geometryType() == PROPERTY_FILTERED)
         {
-            RivGeoMechPartMgr* rangefiltered = NULL;
+            RivGeoMechPartMgr* rangefiltered = nullptr;
             if (m_geomechView->rangeFilterCollection()->hasActiveFilters())
             {
                 rangefiltered = getUpdatedPartMgr(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, -1));

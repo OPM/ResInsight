@@ -171,7 +171,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
         if (analysisModels)
         {
             std::vector<QString> groupNames;
@@ -236,7 +236,7 @@ public:
         }
 
         RimProject* proj = RiaApplication::instance()->project();
-        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
         if (analysisModels)
         {
 
@@ -247,7 +247,7 @@ public:
             }
             else
             {
-                RimIdenticalGridCaseGroup* caseGroup = NULL;
+                RimIdenticalGridCaseGroup* caseGroup = nullptr;
                 for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
                 {
                     RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];

@@ -157,7 +157,7 @@ void RiaDefaultConsoleLogger::writeToConsole(const std::string& str)
         DWORD stringLength = static_cast<DWORD>(str.length());
 
         unsigned long iDum = 0;
-        WriteConsoleA(hStdOutputHandle, str.c_str(), stringLength, &iDum, NULL);
+        WriteConsoleA(hStdOutputHandle, str.c_str(), stringLength, &iDum, nullptr);
     }
 #else
     fputs(str.c_str(), stderr);
@@ -203,7 +203,7 @@ void RiaLogging::setLoggerInstance(RiaLogger* loggerInstance)
 void RiaLogging::deleteLoggerInstance()
 {
     delete sm_logger;
-    sm_logger = NULL;
+    sm_logger = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

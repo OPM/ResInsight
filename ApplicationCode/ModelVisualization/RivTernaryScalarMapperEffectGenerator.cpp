@@ -241,9 +241,9 @@ caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 //--------------------------------------------------------------------------------------------------
 bool RivTernaryScalarMapperEffectGenerator::isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2)
 {
-    if (texImg1 == NULL && texImg2 == NULL) return true;
+    if (texImg1 == nullptr && texImg2 == nullptr) return true;
 
-    if (texImg1 != NULL && texImg2 != NULL
+    if (texImg1 != nullptr && texImg2 != nullptr
         && texImg1->height() == texImg2->height()
         && texImg1->width() == texImg2->width()
         && texImg1->width() > 0 && texImg1->height() > 0

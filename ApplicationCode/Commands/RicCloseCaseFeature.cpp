@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT(RicCloseCaseFeature, "RicCloseCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != NULL || selectedGeoMechCase() != NULL;
+    return selectedEclipseCase() != nullptr || selectedGeoMechCase() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ RimEclipseCase* RicCloseCaseFeature::selectedEclipseCase() const
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ RimGeoMechCase* RicCloseCaseFeature::selectedGeoMechCase() const
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,8 +129,8 @@ void RicCloseCaseFeature::removeCaseFromAllGroups(RimEclipseCase* eclipseCase)
     CVF_ASSERT(eclipseCase);
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : nullptr;
     if (analysisModels)
     {
         analysisModels->removeCaseFromAllGroups(eclipseCase);
@@ -197,8 +197,8 @@ void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
     CVF_ASSERT(geoMechCase);
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : NULL;
+    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : nullptr;
     if (models)
     {
         models->cases.removeChildObject(geoMechCase);
@@ -240,7 +240,7 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
 
     for (size_t i = 0; i < casesToBeDeleted.size(); i++)
     {
-        RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+        RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
         casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
 
         if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))

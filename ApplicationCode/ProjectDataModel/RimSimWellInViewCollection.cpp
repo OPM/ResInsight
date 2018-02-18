@@ -209,7 +209,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     obsoleteField_showWellLabel.xmlCapability()->setIOWritable(false);
     obsoleteField_showWellCellFence.xmlCapability()->setIOWritable(false);
 
-    m_reservoirView = NULL;
+    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ RimSimWellInView* RimSimWellInViewCollection::findWell(QString name)
             return this->wells()[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

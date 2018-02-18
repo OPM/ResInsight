@@ -80,7 +80,7 @@ void RicNewPolylineIntersectionFeature::setupActionLook(QAction* actionToSetup)
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection)
 {
 }

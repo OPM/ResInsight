@@ -86,7 +86,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
     }
 
     bool ok;
-    fullPathFilenameNewScript = QInputDialog::getText(NULL,
+    fullPathFilenameNewScript = QInputDialog::getText(nullptr,
                                                       "Specify new script file", 
                                                       "File name", 
                                                       QLineEdit::Normal, 

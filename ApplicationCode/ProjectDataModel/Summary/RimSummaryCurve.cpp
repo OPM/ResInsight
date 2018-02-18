@@ -800,7 +800,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                         .arg(last.toString(formatString));
                 }
 
-                QMessageBox::warning(NULL, "Detected no overlapping time steps", description);
+                QMessageBox::warning(nullptr, "Detected no overlapping time steps", description);
             }
         }
     }

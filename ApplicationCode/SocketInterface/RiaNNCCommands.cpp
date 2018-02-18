@@ -298,7 +298,7 @@ class RiaSetNNCProperty: public RiaSocketCommand
 {
 public:
     RiaSetNNCProperty() :
-        m_currentReservoir(NULL),
+        m_currentReservoir(nullptr),
         m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),

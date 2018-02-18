@@ -46,7 +46,7 @@ public:
     RicFileHierarchyDialog(QWidget* parent);
     ~RicFileHierarchyDialog();
 
-    static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = 0,
+    static RicFileHierarchyDialogResult  getOpenFileNames(QWidget *parent = nullptr,
                                                          const QString& caption = QString(),
                                                          const QString& dir = QString(),
                                                          const QString& pathFilter = QString(),

@@ -70,7 +70,7 @@ RimEclipseCellColors::RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
-    CVF_ASSERT(obsoleteField_legendConfig() == NULL);
+    CVF_ASSERT(obsoleteField_legendConfig() == nullptr);
 
     m_legendConfigData.deleteAllChildObjects();
 
@@ -171,7 +171,7 @@ void RimEclipseCellColors::initAfterRead()
         RimLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
 
         // set to NULL before pushing into container
-        obsoleteField_legendConfig = NULL;
+        obsoleteField_legendConfig = nullptr;
 
         m_legendConfigData.push_back(obsoleteLegend);
         m_legendConfigPtrField = obsoleteLegend;

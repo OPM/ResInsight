@@ -79,7 +79,7 @@ RimGridView::~RimGridView(void)
     if (proj && this->isMasterView())
     {
         delete proj->viewLinkerCollection->viewLinker();
-        proj->viewLinkerCollection->viewLinker = NULL;
+        proj->viewLinkerCollection->viewLinker = nullptr;
 
         proj->uiCapability()->updateConnectedEditors();
     }
@@ -87,7 +87,7 @@ RimGridView::~RimGridView(void)
     RimViewController* vController = this->viewController();
     if (proj && vController)
     {
-        vController->setManagedView(NULL);
+        vController->setManagedView(nullptr);
         vController->ownerViewLinker()->removeViewController(vController);
         delete vController;
 
@@ -181,7 +181,7 @@ const RimCellRangeFilterCollection* RimGridView::rangeFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridView::hasOverridenRangeFilterCollection()
 {
-    return m_overrideRangeFilterCollection() != NULL;
+    return m_overrideRangeFilterCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void RimGridView::replaceRangeFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 RimViewController* RimGridView::viewController() const
 {
-    RimViewController* viewController = NULL;
+    RimViewController* viewController = nullptr;
     std::vector<caf::PdmObjectHandle*> reffingObjs;
 
     this->objectsWithReferringPtrFields(reffingObjs);
@@ -291,7 +291,7 @@ void RimGridView::onTimeStepChanged()
 {
     if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())
     {  
-        m_currentReservoirCellVisibility = NULL; 
+        m_currentReservoirCellVisibility = nullptr; 
     }
 }
 
@@ -339,7 +339,7 @@ void RimGridView::selectOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimGridView::viewLinkerIfMasterView() const
 {
-    RimViewLinker* viewLinker = NULL;
+    RimViewLinker* viewLinker = nullptr;
     std::vector<caf::PdmObjectHandle*> reffingObjs;
 
     this->objectsWithReferringPtrFields(reffingObjs);

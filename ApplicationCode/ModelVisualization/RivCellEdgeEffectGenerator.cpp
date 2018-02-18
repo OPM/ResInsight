@@ -43,7 +43,7 @@
 //--------------------------------------------------------------------------------------------------
 CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper)
 {
-    CVF_ASSERT(edgeScalarMapper != NULL);
+    CVF_ASSERT(edgeScalarMapper != nullptr);
 
     m_edgeScalarMapper = edgeScalarMapper;
 

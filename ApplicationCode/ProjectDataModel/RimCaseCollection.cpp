@@ -66,5 +66,5 @@ RimEclipseCase* RimCaseCollection::findByDescription(const QString& caseDescript
         }
     }
 
-    return NULL;
+    return nullptr;
 }

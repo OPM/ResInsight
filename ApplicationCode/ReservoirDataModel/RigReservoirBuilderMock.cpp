@@ -298,7 +298,7 @@ bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, con
     size_t k;
 
     /* initialize random seed: */
-    srand ( time(NULL) );
+    srand ( time(nullptr) );
 
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;

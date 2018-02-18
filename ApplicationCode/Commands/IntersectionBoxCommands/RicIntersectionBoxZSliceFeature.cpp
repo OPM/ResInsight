@@ -66,7 +66,7 @@ void RicIntersectionBoxZSliceFeature::onActionTriggered(bool isChecked)
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-        RimGridView* rimView = NULL;
+        RimGridView* rimView = nullptr;
         coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

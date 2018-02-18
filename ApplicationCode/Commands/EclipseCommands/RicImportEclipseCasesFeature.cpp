@@ -52,7 +52,7 @@ void RicImportEclipseCasesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(NULL, 
+    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(nullptr, 
                                                                                    "Import Eclipse Cases", 
                                                                                    defaultDir, 
                                                                                    m_pathFilter, 

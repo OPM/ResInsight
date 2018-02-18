@@ -79,7 +79,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
         featureUi.setRkbDiffs(wellNames, rkbDiffs);
     }
     
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     RicExportFeatureImpl::configureForExport(&propertyDialog);
     propertyDialog.resize(QSize(400, 200));
     

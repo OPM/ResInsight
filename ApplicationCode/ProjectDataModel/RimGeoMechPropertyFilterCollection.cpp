@@ -55,7 +55,7 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
-    RimGeoMechView* geoMechView = NULL;
+    RimGeoMechView* geoMechView = nullptr;
     firstAncestorOrThisOfType(geoMechView);
     
     return geoMechView;
@@ -142,7 +142,7 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    RimGeoMechView* view = NULL;
+    RimGeoMechView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     if (view)
     {

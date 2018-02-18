@@ -95,7 +95,7 @@ void RivReservoirFaultsPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilit
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
-    CVF_ASSERT(model != NULL);
+    CVF_ASSERT(model != nullptr);
 
     RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     if (!faultCollection) return;
@@ -243,7 +243,7 @@ void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, 
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* model)
 {
-    CVF_ASSERT(model != NULL);
+    CVF_ASSERT(model != nullptr);
     if (!m_reservoirView) return;
 
     RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();

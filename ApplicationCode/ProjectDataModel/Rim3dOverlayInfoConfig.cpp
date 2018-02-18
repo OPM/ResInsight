@@ -494,7 +494,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimGeoMechView* geoMechView)
     {
         RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+        RigFemPartCollection* femParts = caseData ? caseData->femParts() : nullptr;
 
         if (femParts)
         {

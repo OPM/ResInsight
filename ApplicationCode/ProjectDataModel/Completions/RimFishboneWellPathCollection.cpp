@@ -137,7 +137,7 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
 
     uiCapability()->setUiHidden(!m_wellPaths.empty());
 
-    RimProject* project = NULL;
+    RimProject* project = nullptr;
     firstAncestorOrThisOfTypeAsserted(project);
     if (project)
     {

@@ -295,7 +295,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
         size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
         size_t i, j, k;
-        RigGridBase* hostGrid = NULL; 
+        RigGridBase* hostGrid = nullptr; 
         bool firstNO_FAULTFaceForCell = true;
         bool isCellActive = true;
 
@@ -476,7 +476,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 {
     CVF_ASSERT(m_faultsPrCellAcc.notNull());
 
-    if (face == cvf::StructGridInterface::NO_FACE) return NULL;
+    if (face == cvf::StructGridInterface::NO_FACE) return nullptr;
 
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
     if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
@@ -510,7 +510,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
         }
     }
 #endif
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -555,7 +555,7 @@ void RigMainGrid::buildCellSearchTree()
         }
 
         m_cellSearchTree = new cvf::BoundingBoxTree;
-        m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+        m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, nullptr);
     }
 }
 

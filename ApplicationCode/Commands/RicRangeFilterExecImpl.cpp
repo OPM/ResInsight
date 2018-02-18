@@ -28,7 +28,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicRangeFilterExecImpl::RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter)
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
     CVF_ASSERT(rangeFilterCollection);
     m_cellRangeFilterCollection = rangeFilterCollection;

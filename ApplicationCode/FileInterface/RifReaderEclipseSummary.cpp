@@ -33,7 +33,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary::RifReaderEclipseSummary()
-    : m_ecl_sum(NULL), 
+    : m_ecl_sum(nullptr), 
       m_ecl_SmSpec(nullptr)
 {
 
@@ -47,7 +47,7 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
     if (m_ecl_sum)
     {
         ecl_sum_free(m_ecl_sum);
-        m_ecl_sum = NULL;
+        m_ecl_sum = nullptr;
     }
 }
 

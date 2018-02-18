@@ -150,8 +150,8 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 {
-    RigEclipseCaseData* eclipseCase = NULL;
-    if (m_reservoirView != NULL && m_reservoirView->eclipseCase())
+    RigEclipseCaseData* eclipseCase = nullptr;
+    if (m_reservoirView != nullptr && m_reservoirView->eclipseCase())
     {
         eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
     }
@@ -564,10 +564,10 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
     bool activeCellsIsVisible,
     bool mainGridIsVisible) 
 {
-    CVF_ASSERT(cellVisibility != NULL);
-    CVF_ASSERT(grid != NULL);
-    CVF_ASSERT(activeCellInfo != NULL);
-    CVF_ASSERT(cellIsInWellStatuses != NULL);
+    CVF_ASSERT(cellVisibility != nullptr);
+    CVF_ASSERT(grid != nullptr);
+    CVF_ASSERT(activeCellInfo != nullptr);
+    CVF_ASSERT(cellIsInWellStatuses != nullptr);
     CVF_ASSERT(cellIsInWellStatuses->size() >= grid->cellCount());
 
     cellVisibility->resize(grid->cellCount());
@@ -614,8 +614,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
     std::vector<std::vector<cvf::UByteArray*> > gridsWithCellSetVisibility = masterView->getAllGridsCurrentCellSetsCellVisibility();
     #endif    
     
-    CVF_ASSERT(cellVisibility != NULL);
-    CVF_ASSERT(grid != NULL);
+    CVF_ASSERT(cellVisibility != nullptr);
+    CVF_ASSERT(grid != nullptr);
 
     size_t gridCellCount = grid->cellCount();
     cellVisibility->resize(gridCellCount);
@@ -660,8 +660,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::copyByteArray(cvf::UByteArray* destination, const cvf::UByteArray* source ) 
 {
-    CVF_ASSERT(destination != NULL);
-    CVF_ASSERT(source != NULL);
+    CVF_ASSERT(destination != nullptr);
+    CVF_ASSERT(source != nullptr);
 
     if (destination->size() != source->size())
     {
@@ -685,11 +685,11 @@ void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType
                                                      const cvf::UByteArray* nativeVisibility, 
                                                      const RimCellRangeFilterCollection* rangeFilterColl) 
 {
-    CVF_ASSERT(cellVisibility != NULL);
-    CVF_ASSERT(nativeVisibility != NULL);
-    CVF_ASSERT(rangeFilterColl != NULL);
+    CVF_ASSERT(cellVisibility != nullptr);
+    CVF_ASSERT(nativeVisibility != nullptr);
+    CVF_ASSERT(rangeFilterColl != nullptr);
 
-    CVF_ASSERT(grid != NULL);
+    CVF_ASSERT(grid != nullptr);
     CVF_ASSERT(nativeVisibility->size() == grid->cellCount());
 
     // Initialize range filter with native visibility
@@ -701,7 +701,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType
         cvf::CellRangeFilter gridCellRangeFilter;
         rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid->gridIndex());
 
-        const RigLocalGrid* lgr = NULL;
+        const RigLocalGrid* lgr = nullptr;
         cvf::ref<cvf::UByteArray> parentGridVisibilities;
 
         if (!grid->isMainGrid())
@@ -741,7 +741,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType
                 size_t mainGridJ;
                 size_t mainGridK;
 
-                bool isInSubGridArea = cell.subGrid() != NULL;
+                bool isInSubGridArea = cell.subGrid() != nullptr;
                 grid->ijkFromCellIndex(cellIndex, &mainGridI, &mainGridJ, &mainGridK);
                 
                 bool nativeRangeVisibility = false;
@@ -769,9 +769,9 @@ void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType
 void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex, 
     const cvf::UByteArray* rangeFilterVisibility, RimEclipsePropertyFilterCollection* propFilterColl)
 {
-    CVF_ASSERT(cellVisibility != NULL);
-    CVF_ASSERT(rangeFilterVisibility != NULL);
-    CVF_ASSERT(propFilterColl != NULL);
+    CVF_ASSERT(cellVisibility != nullptr);
+    CVF_ASSERT(rangeFilterVisibility != nullptr);
+    CVF_ASSERT(propFilterColl != nullptr);
 
     CVF_ASSERT(grid->cellCount() > 0);
     CVF_ASSERT(rangeFilterVisibility->size() == grid->cellCount());

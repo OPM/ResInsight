@@ -81,7 +81,7 @@ void RicNewAzimuthDipIntersectionFeature::setupActionLook(QAction* actionToSetup
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection)
 {
 }

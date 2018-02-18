@@ -160,12 +160,12 @@ RimScriptCollection * RimScriptCollection::findScriptCollection(const QString& p
 
     for (size_t i = 0; i < this->subDirectories.size(); ++i)
     {
-         RimScriptCollection* foundColl = NULL;
+         RimScriptCollection* foundColl = nullptr;
          if (this->subDirectories[i]) foundColl = this->subDirectories[i]->findScriptCollection(path);
          if (foundColl) return foundColl;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

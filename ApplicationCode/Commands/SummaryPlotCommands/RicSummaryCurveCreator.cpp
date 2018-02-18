@@ -692,7 +692,7 @@ void RicSummaryCurveCreator::createNewPlot()
 
             {
                 bool ok = false;
-                candidatePlotName = QInputDialog::getText(NULL,
+                candidatePlotName = QInputDialog::getText(nullptr,
                                                           "New Summary Plot Name", "New Summary Plot Name",
                                                           QLineEdit::Normal,
                                                           candidatePlotName, 

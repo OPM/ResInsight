@@ -49,7 +49,7 @@ void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimIntersectionCollection* intersectionCollection = NULL;
+    RimIntersectionCollection* intersectionCollection = nullptr;
     collection[0]->firstAncestorOrThisOfType(intersectionCollection);
 
     CVF_ASSERT(intersectionCollection);
@@ -71,7 +71,7 @@ void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 /// 
 //--------------------------------------------------------------------------------------------------
 RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection)
 {
 }

@@ -88,7 +88,7 @@ RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor(RimWellP
 {
     if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigEclipseCaseData* eclCaseData = eclCase->eclipseCaseData();
@@ -115,7 +115,7 @@ RigGeoMechWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor(RimWellP
 {
     if (!(wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();

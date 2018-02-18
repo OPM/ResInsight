@@ -88,7 +88,7 @@ TEST(DISABLED_HDFTests, BasicFileRead)
 
 			hsize_t dims[2];
 			H5::DataSpace	dataspace = dataset.getSpace();
-			dataspace.getSimpleExtentDims(dims, NULL);
+			dataspace.getSimpleExtentDims(dims, nullptr);
 
 			std::vector<double> values;
 			values.resize(dims[0]);

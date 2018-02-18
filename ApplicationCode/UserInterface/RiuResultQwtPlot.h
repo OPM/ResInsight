@@ -37,7 +37,7 @@ namespace cvf
 class RiuResultQwtPlot : public QwtPlot
 {
 public:
-    explicit RiuResultQwtPlot(QWidget* parent = NULL);
+    explicit RiuResultQwtPlot(QWidget* parent = nullptr);
     virtual ~RiuResultQwtPlot();
 
     void addCurve(const QString& curveName, 

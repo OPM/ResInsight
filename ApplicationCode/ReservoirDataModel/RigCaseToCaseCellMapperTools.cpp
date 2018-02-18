@@ -41,12 +41,12 @@ public:
 
     const caf::SizeTArray8* neighborIndices(int offsetI, int offsetJ, int offsetK)
     {
-        if (offsetI < 0 && m_baseI == 0) return NULL;
-        if (offsetJ < 0 && m_baseJ == 0) return NULL;
-        if (offsetK < 0 && m_baseK == 0) return NULL;
-        if (offsetI > 0 && m_baseI == m_mainGrid->cellCountI()-1) return NULL;
-        if (offsetJ > 0 && m_baseJ == m_mainGrid->cellCountJ()-1) return NULL;
-        if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return NULL;
+        if (offsetI < 0 && m_baseI == 0) return nullptr;
+        if (offsetJ < 0 && m_baseJ == 0) return nullptr;
+        if (offsetK < 0 && m_baseK == 0) return nullptr;
+        if (offsetI > 0 && m_baseI == m_mainGrid->cellCountI()-1) return nullptr;
+        if (offsetJ > 0 && m_baseJ == m_mainGrid->cellCountJ()-1) return nullptr;
+        if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return nullptr;
 
         size_t gridLocalCellIndex = m_mainGrid->cellIndexFromIJK(m_baseI + offsetI, m_baseJ + offsetJ, m_baseK + offsetK);
         const RigCell& cell = m_mainGrid->globalCellArray()[gridLocalCellIndex];

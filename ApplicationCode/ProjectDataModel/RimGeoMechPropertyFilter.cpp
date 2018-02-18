@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
-    : m_parentContainer(NULL)
+    : m_parentContainer(nullptr)
 {
     CAF_PDM_InitObject("Property Filter", ":/CellFilter_Values.png", "", "");
 
@@ -193,7 +193,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     bool isPropertyFilterControlled = false;
 
-    Rim3dView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
     if (rimView)

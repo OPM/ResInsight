@@ -45,7 +45,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSaveEclipseResultAsInputPropertyExec::RicSaveEclipseResultAsInputPropertyExec(RimEclipseCellColors* cellColors)
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
     CVF_ASSERT(cellColors);
     m_cellColors = cellColors;

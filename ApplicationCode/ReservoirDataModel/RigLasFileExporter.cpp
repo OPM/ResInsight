@@ -394,7 +394,7 @@ bool RigLasFileExporter::writeToFolder(const QString& exportFolder)
         if (caf::Utils::fileExists(fileName))
         {
             QString txt = QString("File %1 exists.\n\nDo you want to overwrite the file?").arg(fileName);
-            int ret = QMessageBox::question(NULL, "LAS File Export",
+            int ret = QMessageBox::question(nullptr, "LAS File Export",
                         txt,
                         QMessageBox::Yes | QMessageBox::No,
                         QMessageBox::Yes);

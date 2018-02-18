@@ -273,7 +273,7 @@ void RicFileHierarchyDialog::clearFileList()
 void RicFileHierarchyDialog::updateStatus(Status status, bool force)
 {
     static time_t lastStatusUpdate = 0;
-    time_t now = time(0);
+    time_t now = time(nullptr);
 
     // If less than one second since last update, then return
     if (!force && now == lastStatusUpdate) return;

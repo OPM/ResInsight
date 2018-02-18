@@ -30,7 +30,7 @@ class RimCellRangeFilterCollection;
 class RicRangeFilterInsertExec : public RicRangeFilterExecImpl
 {
 public:
-    RicRangeFilterInsertExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);
+    RicRangeFilterInsertExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr);
     virtual ~RicRangeFilterInsertExec();
 
     virtual QString name();

@@ -31,7 +31,7 @@ class RimCellRangeFilterCollection;
 class RicRangeFilterExecImpl : public caf::CmdExecuteCommand
 {
 public:
-    RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0); 
+    RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr); 
     virtual ~RicRangeFilterExecImpl();
 
     virtual QString name() = 0;

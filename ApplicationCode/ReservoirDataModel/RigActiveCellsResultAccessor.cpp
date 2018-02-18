@@ -38,7 +38,7 @@ RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* gr
 //--------------------------------------------------------------------------------------------------
 double RigActiveCellsResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
-    if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
+    if (m_reservoirResultValues == nullptr || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
     size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
     size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
@@ -65,7 +65,7 @@ double RigActiveCellsResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, c
 //--------------------------------------------------------------------------------------------------
 double RigActiveCellsResultAccessor::cellScalarGlobIdx(size_t reservoirCellIndex) const
 {
-    if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0) return HUGE_VAL;
+    if (m_reservoirResultValues == nullptr || m_reservoirResultValues->size() == 0) return HUGE_VAL;
 
     size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
     if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;

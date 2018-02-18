@@ -215,6 +215,6 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    m_formationNamesFileName = RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, NULL, NULL);
+    m_formationNamesFileName = RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
 

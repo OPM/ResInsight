@@ -30,7 +30,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicEclipsePropertyFilterNewExec::RicEclipsePropertyFilterNewExec(RimEclipsePropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
     assert(propertyFilterCollection);
     m_propertyFilterCollection = propertyFilterCollection;

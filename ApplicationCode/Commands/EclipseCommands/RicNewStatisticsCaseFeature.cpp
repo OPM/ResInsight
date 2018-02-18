@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewStatisticsCaseFeature::isCommandEnabled()
 {
-    return selectedValidUIItem() != NULL;
+    return selectedValidUIItem() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation(caf::PdmUiItem* uiItem)
 {
-    RimIdenticalGridCaseGroup* caseGroup = NULL;
+    RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
     if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
     {
@@ -122,6 +122,6 @@ RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }

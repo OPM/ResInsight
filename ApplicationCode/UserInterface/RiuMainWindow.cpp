@@ -97,20 +97,20 @@
 //==================================================================================================
 
 
-RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
+RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = nullptr;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::RiuMainWindow()
-    : m_pdmRoot(NULL),
-    m_mainViewer(NULL),
-    m_relPermPlotPanel(NULL),
-    m_pvtPlotPanel(NULL),
-    m_windowMenu(NULL),
+    : m_pdmRoot(nullptr),
+    m_mainViewer(nullptr),
+    m_relPermPlotPanel(nullptr),
+    m_pvtPlotPanel(nullptr),
+    m_windowMenu(nullptr),
     m_blockSlotSubWindowActivated(false)
 {
-    CVF_ASSERT(sm_mainWindowInstance == NULL);
+    CVF_ASSERT(sm_mainWindowInstance == nullptr);
 
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
@@ -183,7 +183,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
 
     if (m_pdmUiPropertyView)
     {
-        m_pdmUiPropertyView->showProperties(NULL);
+        m_pdmUiPropertyView->showProperties(nullptr);
     }
 
     for (size_t i = 0; i < additionalProjectViews.size(); i++)
@@ -191,10 +191,10 @@ void RiuMainWindow::cleanupGuiCaseClose()
         RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
         if (projPropView)
         {
-            projPropView->showProperties(NULL);
+            projPropView->showProperties(nullptr);
         }
     }
-    m_processMonitor->startMonitorWorkProcess(NULL);
+    m_processMonitor->startMonitorWorkProcess(nullptr);
 
     RicEditSummaryPlotFeature* editSumCurves = dynamic_cast<RicEditSummaryPlotFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicEditSummaryPlotFeature"));
     if (editSumCurves)
@@ -210,7 +210,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
-    setPdmRoot(NULL);
+    setPdmRoot(nullptr);
 
     cleanupGuiCaseClose();
 }
@@ -745,7 +745,7 @@ void RiuMainWindow::slotRefreshViewActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshAnimationActions()
 {
-    caf::FrameAnimationControl* animationControl = NULL;
+    caf::FrameAnimationControl* animationControl = nullptr;
     Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
 
     if (activeView && activeView->viewer())
@@ -858,7 +858,7 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1072,7 +1072,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     // Find the activated 3D view
     
-    Rim3dView* activatedView = NULL;
+    Rim3dView* activatedView = nullptr;
 
     std::vector<RimCase*> allCases;
     proj->allCases(allCases);
@@ -1080,7 +1080,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
         RimCase* reservoirCase = allCases[caseIdx];
-        if (reservoirCase == NULL) continue;
+        if (reservoirCase == nullptr) continue;
 
         std::vector<Rim3dView*> views = reservoirCase->views();
 
@@ -1199,7 +1199,7 @@ void RiuMainWindow::setActiveViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
-    if (RiaApplication::instance()->activeReservoirView() != NULL)
+    if (RiaApplication::instance()->activeReservoirView() != nullptr)
     {
         RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueWithFieldChanged(frameRate);
     }
@@ -1255,7 +1255,7 @@ void RiuMainWindow::selectedObjectsChanged()
     std::vector<caf::PdmUiItem*> uiItems;
     m_projectTreeView->selectedUiItems(uiItems);
 
-    caf::PdmObjectHandle* firstSelectedObject = NULL;
+    caf::PdmObjectHandle* firstSelectedObject = nullptr;
 
     if (uiItems.size() == 1)
     {
@@ -1451,7 +1451,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 void RiuMainWindow::refreshDrawStyleActions()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    bool enable = view != NULL;
+    bool enable = view != nullptr;
     bool isGridView = RiaApplication::instance()->activeGridView() != nullptr;
 
     m_drawStyleLinesAction->setEnabled(enable);

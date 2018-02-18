@@ -57,7 +57,7 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(NULL, "Import Summary Cases", defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
+    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(nullptr, "Import Summary Cases", defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
 
     // Remember filters
     m_pathFilter = result.pathFilter;

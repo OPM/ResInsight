@@ -159,7 +159,7 @@ QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
     QGLFormat glFormat;
     glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-    m_viewer = new RiuViewer(glFormat, NULL);
+    m_viewer = new RiuViewer(glFormat, nullptr);
     m_viewer->setOwnerReservoirView(this);
 
     cvf::String xLabel;

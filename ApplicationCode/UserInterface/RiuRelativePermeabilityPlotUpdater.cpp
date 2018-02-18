@@ -52,7 +52,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotUpdater::RiuRelativePermeabilityPlotUpdater(RiuRelativePermeabilityPlotPanel* targetPlotPanel)
 :   m_targetPlotPanel(targetPlotPanel),
-    m_sourceEclipseViewOfLastPlot(NULL)
+    m_sourceEclipseViewOfLastPlot(nullptr)
 {
 
 }
@@ -67,11 +67,11 @@ void RiuRelativePermeabilityPlotUpdater::updateOnSelectionChanged(const RiuSelec
         return;
     }
 
-    m_sourceEclipseViewOfLastPlot = NULL;
+    m_sourceEclipseViewOfLastPlot = nullptr;
     bool mustClearPlot = true;
 
     RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<RiuEclipseSelectionItem*>(const_cast<RiuSelectionItem*>(selectionItem));
-    RimEclipseView* eclipseView = eclipseSelectionItem ? eclipseSelectionItem->m_view.p() : NULL;
+    RimEclipseView* eclipseView = eclipseSelectionItem ? eclipseSelectionItem->m_view.p() : nullptr;
 
     if (!eclipseSelectionItem && !eclipseView)
     {
@@ -138,7 +138,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
     CVF_ASSERT(plotPanel);
 
     RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseView.eclipseCase());
-    RigEclipseCaseData* eclipseCaseData = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : NULL;
+    RigEclipseCaseData* eclipseCaseData = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
     if (eclipseResultCase && eclipseCaseData && eclipseResultCase->flowDiagSolverInterface())
     {
         size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseCaseData, gridIndex, gridLocalCellIndex);
@@ -182,7 +182,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
 QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex, double satnum)
 {
     const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
-    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : nullptr;
     if (grid && gridLocalCellIndex < grid->cellCount())
     {
         size_t i = 0;
@@ -229,7 +229,7 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText(const Rig
 size_t CellLookupHelper::mapToActiveCellIndex(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex)
 {
     const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
-    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : nullptr;
     if (grid && gridLocalCellIndex < grid->cellCount())
     {
         // Note!!

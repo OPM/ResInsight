@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage"
 /// 
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
-    : m_cellResults(NULL)
+    : m_cellResults(nullptr)
 {
     CAF_PDM_InitObject("Cacher", "", "", "");
 
@@ -150,7 +150,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                 // starting with the number of values 
                 for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].dates().size() ; ++tsIdx)
                 {
-                    const std::vector<double>* data = NULL;
+                    const std::vector<double>* data = nullptr;
                     if (tsIdx < timestepCount)
                     {
                         data = &(m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex, tsIdx));
@@ -219,7 +219,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
 {
     m_cellResults = cellResults;
 
-    if (m_cellResults == NULL) 
+    if (m_cellResults == nullptr) 
         return;
 
     // Now that we have got the results container, we can finally 
@@ -283,7 +283,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
 
         for (size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx)
         {
-            std::vector<double>* data = NULL;
+            std::vector<double>* data = nullptr;
 
             data = &(m_cellResults->cellScalarResults(resultIndex, tsIdx));
 

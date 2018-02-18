@@ -46,7 +46,7 @@ void RicOpenProjectFeature::onActionTriggered(bool isChecked)
     if (!app->askUserToSaveModifiedProject()) return;
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(NULL, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
+    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
     if (fileName.isEmpty()) return;
 

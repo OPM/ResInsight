@@ -137,7 +137,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
         }
         else
         {
-            QMessageBox::warning(NULL, "File open", "Failed to import file located at\n" + fileName);
+            QMessageBox::warning(nullptr, "File open", "Failed to import file located at\n" + fileName);
 
             removeFileName(fileName);
         }

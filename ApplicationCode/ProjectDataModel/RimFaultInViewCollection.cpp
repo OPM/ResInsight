@@ -84,7 +84,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
     faults.uiCapability()->setUiHidden(true);
 
-    m_reservoirView = NULL;
+    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ RimFaultInView* RimFaultInViewCollection::findFaultByName(QString name)
             return this->faults()[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 

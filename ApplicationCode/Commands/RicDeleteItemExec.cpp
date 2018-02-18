@@ -97,7 +97,7 @@ void RicDeleteItemExec::redo()
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();
         
-        Rim3dView* view = NULL;
+        Rim3dView* view = nullptr;
         parentObj->firstAncestorOrThisOfType(view);
 
         // Range Filters
@@ -107,7 +107,7 @@ void RicDeleteItemExec::redo()
 
         if (rangeFilterColl)
         {
-            rangeFilterColl->updateDisplayModeNotifyManagedViews(NULL);
+            rangeFilterColl->updateDisplayModeNotifyManagedViews(nullptr);
         }
 
         // Prop Filter
@@ -219,7 +219,7 @@ void RicDeleteItemExec::redo()
         {
             if (wellLogPlotCollection->wellLogPlots.empty())
             {
-                RimProject* project = NULL;
+                RimProject* project = nullptr;
                 parentObj->firstAncestorOrThisOfType(project);
                 if (project)
                 {
@@ -230,13 +230,13 @@ void RicDeleteItemExec::redo()
         
         // Linked views
 
-        RimViewLinkerCollection* viewLinkerCollection = NULL;
+        RimViewLinkerCollection* viewLinkerCollection = nullptr;
         parentObj->firstAncestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)
         {
             viewLinkerCollection->uiCapability()->updateConnectedEditors();
 
-            RimProject* project = NULL;
+            RimProject* project = nullptr;
             parentObj->firstAncestorOrThisOfType(project);
             if (project)
             {

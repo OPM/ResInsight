@@ -67,9 +67,9 @@ bool RivEclipseIntersectionGrid::useCell(size_t cellIndex) const
 {
     const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex];
     if (m_showInactiveCells)
-        return !(cell.isInvalid() || (cell.subGrid() != NULL));
+        return !(cell.isInvalid() || (cell.subGrid() != nullptr));
     else
-        return m_activeCellInfo->isActive(cellIndex) && (cell.subGrid() == NULL);
+        return m_activeCellInfo->isActive(cellIndex) && (cell.subGrid() == nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

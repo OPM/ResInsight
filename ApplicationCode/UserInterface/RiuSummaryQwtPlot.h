@@ -44,7 +44,7 @@ class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
+    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();

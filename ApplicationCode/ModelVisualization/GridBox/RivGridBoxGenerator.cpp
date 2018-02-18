@@ -535,8 +535,8 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         break;
     }
 
-    std::vector<double>* displayCoordsTickValues = NULL;
-    std::vector<double>* domainCoordsTickValues = NULL;
+    std::vector<double>* displayCoordsTickValues = nullptr;
+    std::vector<double>* domainCoordsTickValues = nullptr;
 
     if (axis == X_AXIS)
     {

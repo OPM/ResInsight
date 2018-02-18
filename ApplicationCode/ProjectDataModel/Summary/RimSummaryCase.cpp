@@ -147,7 +147,7 @@ void RimSummaryCase::updateAutoShortName()
 {
     if(m_useAutoShortName)
     {
-        RimOilField* oilField = NULL;
+        RimOilField* oilField = nullptr;
         this->firstAncestorOrThisOfType(oilField);
         CVF_ASSERT(oilField);
 

@@ -102,7 +102,7 @@ RimGeoMechView::RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::~RimGeoMechView(void)
 {
-    m_geomechCase = NULL;
+    m_geomechCase = nullptr;
 
     delete m_tensorResults;
     delete cellResult;
@@ -128,7 +128,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
             QMessageBox::warning(RiuMainWindow::instance(), 
                             "File open error", 
                             displayMessage);
-            m_geomechCase = NULL;
+            m_geomechCase = nullptr;
             return;
         }
     }
@@ -136,7 +136,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     progress.setProgressDescription("Reading Current Result");
 
-    CVF_ASSERT(this->cellResult() != NULL);
+    CVF_ASSERT(this->cellResult() != nullptr);
     if (this->hasUserRequestedAnimation())
     {
         m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded(this->cellResult()->resultAddress());
@@ -544,7 +544,7 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
             viewLinker->scheduleGeometryRegenForDepViews(geometryType);
         }
     }
-    m_currentReservoirCellVisibility = NULL;
+    m_currentReservoirCellVisibility = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

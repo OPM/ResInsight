@@ -31,7 +31,7 @@ class RiuNightchartsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RiuNightchartsWidget(QWidget* parent = 0);
+    explicit RiuNightchartsWidget(QWidget* parent = nullptr);
 
     void addItem(const QString& name, const QColor& color, float value);
     void setType(Nightcharts::type type);

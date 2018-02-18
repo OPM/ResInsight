@@ -41,7 +41,7 @@ RimFaultInView::RimFaultInView()
 
     CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault Color", "", "", "");
 
-    m_rigFault = NULL;
+    m_rigFault = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     if (&faultColor == changedField || &showFault == changedField)
     {
-        RimEclipseView* reservoirView = NULL;
+        RimEclipseView* reservoirView = nullptr;
 
         this->firstAncestorOrThisOfType(reservoirView);
 

@@ -52,10 +52,10 @@ void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMech
 //--------------------------------------------------------------------------------------------------
 bool RicNewViewFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != NULL
-        || selectedEclipseView() != NULL
-        || selectedGeoMechCase() != NULL
-        || selectedGeoMechView() != NULL;
+    return selectedEclipseCase() != nullptr
+        || selectedEclipseView() != nullptr
+        || selectedGeoMechCase() != nullptr
+        || selectedGeoMechView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ void RicNewViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
-    Rim3dView* insertedView = NULL;
+    Rim3dView* insertedView = nullptr;
 
     if (eclipseCase)
     {
@@ -131,7 +131,7 @@ RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,5 +179,5 @@ RimGeoMechView* RicNewViewFeature::selectedGeoMechView()
         return selection[0];
     }
 
-    return NULL;
+    return nullptr;
 }

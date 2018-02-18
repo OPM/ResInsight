@@ -140,7 +140,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     cvf::Vec3d whIntermediate = whStartPos;
     whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
-    const RigWellResultPoint* prevWellResPoint = NULL;
+    const RigWellResultPoint* prevWellResPoint = nullptr;
 
     // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
 
@@ -158,7 +158,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         const RigWellResultBranch&  branch = resBranches[brIdx];
         if ( !hasAnyValidDataCells(branch) ) continue;
 
-        prevWellResPoint = NULL;
+        prevWellResPoint = nullptr;
 
         // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above 
 

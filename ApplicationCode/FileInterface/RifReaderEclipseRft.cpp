@@ -53,7 +53,7 @@ void RifReaderEclipseRft::open()
 
     m_ecl_rft_file = ecl_rft_file_alloc_case(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
 
-    if (m_ecl_rft_file == NULL)
+    if (m_ecl_rft_file == nullptr)
     {
         RiaLogging::warning(QString("Libecl could not find/open file '%'").arg( m_fileName));
         return;

@@ -328,7 +328,7 @@ GeometryTools::inPlaneLineIntersect3D(  const cvf::Vec3d& planeNormal,
                                         const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, const cvf::Vec3d& p4, 
                                         cvf::Vec3d* intersectionPoint, double* fractionAlongLine1, double* fractionAlongLine2,  double tolerance)
 {
-    CVF_ASSERT (intersectionPoint != NULL);
+    CVF_ASSERT (intersectionPoint != nullptr);
 
     int Z = findClosestAxis(planeNormal);
     int X = (Z + 1) % 3;
@@ -762,7 +762,7 @@ EarClipTesselator::EarClipTesselator():
     m_X(-1), 
     m_Y(-1), 
     m_areaTolerance(1e-12), 
-    m_nodeCoords(NULL)
+    m_nodeCoords(nullptr)
 {
 
 }
@@ -775,7 +775,7 @@ EarClipTesselator::EarClipTesselator():
 
 bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices ) 
 {
-    CVF_ASSERT(m_nodeCoords != NULL);
+    CVF_ASSERT(m_nodeCoords != nullptr);
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
     size_t numVertices = m_polygonIndices.size();
@@ -1010,7 +1010,7 @@ void FanEarClipTesselator::setCenterNode(size_t centerNodeIndex)
 bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
 {
     CVF_ASSERT(m_centerNodeIndex != std::numeric_limits<size_t>::max());
-    CVF_ASSERT(m_nodeCoords != NULL);
+    CVF_ASSERT(m_nodeCoords != nullptr);
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
     size_t nv = m_polygonIndices.size();

@@ -46,7 +46,7 @@ CAF_CMD_SOURCE_INIT(RicSaveEclipseInputPropertyFeature, "RicSaveEclipseInputProp
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseInputPropertyFeature::isCommandEnabled()
 {
-    return selectedInputProperty() != NULL;
+    return selectedInputProperty() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
     exportSettings.eclipseKeyword = inputProperty->eclipseKeyword;
 
     // Find input reservoir for this property
-    RimEclipseInputCase* inputReservoir = NULL;
+    RimEclipseInputCase* inputReservoir = nullptr;
     {
         RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(inputProperty->parentField()->ownerObject());
         if (!inputPropertyCollection) return;

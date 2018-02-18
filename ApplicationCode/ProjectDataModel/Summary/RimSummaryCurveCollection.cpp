@@ -151,7 +151,7 @@ RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPl
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

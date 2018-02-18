@@ -470,7 +470,7 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotScheduleRedraw()
 {
-    Rim3dView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
@@ -628,7 +628,7 @@ void RimIntersectionBox::switchSingelPlaneState()
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox() 
 {
-    RimCase* rimCase = NULL;
+    RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfType(rimCase);
     
     CVF_ASSERT(rimCase);

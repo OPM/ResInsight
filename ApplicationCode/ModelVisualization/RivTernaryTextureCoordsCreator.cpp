@@ -81,7 +81,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     RimEclipseCellColors* cellResultColors, 
     const RivTernaryScalarMapper* ternaryColorMapper, 
     size_t timeStepIndex)
-    : m_quadMapper(NULL)
+    : m_quadMapper(nullptr)
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
 
@@ -100,7 +100,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
 
     // Create a texture mapper without detecting transparency using RigPipeInCellEvaluator
-    m_texMapper = new RivTernaryResultToTextureMapper(ternaryColorMapper, NULL);
+    m_texMapper = new RivTernaryResultToTextureMapper(ternaryColorMapper, nullptr);
     CVF_ASSERT(m_texMapper.notNull());
 }
 

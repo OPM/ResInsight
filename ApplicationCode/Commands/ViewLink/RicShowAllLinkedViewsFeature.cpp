@@ -49,7 +49,7 @@ void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&managedViews);
     for (size_t i = 0; i < managedViews.size(); i++)
     {
-        RimViewLinker* rimLinked = NULL;
+        RimViewLinker* rimLinked = nullptr;
         managedViews[i]->firstAncestorOrThisOfType(rimLinked);
         CVF_ASSERT(rimLinked);
 

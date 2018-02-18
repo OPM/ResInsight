@@ -92,8 +92,8 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
     RiaApplication* app = RiaApplication::instance();
     RimProject* project = app->project();
 
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return false;
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if (analysisModels == nullptr) return false;
 
     RiuMainWindow::instance()->show();
 
@@ -114,7 +114,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
     // Add a corresponding summary case if it exists
     {
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : NULL;
+        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if (sumCaseColl)
         {
             {
@@ -193,9 +193,9 @@ bool RiaImportEclipseCaseTools::addEclipseCases(const QStringList& fileNames)
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RimEclipseResultCase* mainResultCase = NULL;
+    RimEclipseResultCase* mainResultCase = nullptr;
     std::vector< std::vector<int> > mainCaseGridDimensions;
-    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+    RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
 
     RiaApplication* app = RiaApplication::instance();
     RimProject* project = app->project();

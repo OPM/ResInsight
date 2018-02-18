@@ -161,7 +161,7 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     }
     parseOptions->setUiModeImport(fileName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, parseOptions, "CSV Import Options", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, parseOptions, "CSV Import Options", "");
     if (propertyDialog.exec() != QDialog::Accepted)
     {
         return nullptr;

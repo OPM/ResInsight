@@ -43,7 +43,7 @@ class RiuTofAccumulatedPhaseFractionsPlot : public QwtPlot, public RiuInterfaceT
     Q_OBJECT
 
 public:
-    RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent = NULL);
+    RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuTofAccumulatedPhaseFractionsPlot();
 
     RimTofAccumulatedPhaseFractionsPlot*                 ownerPlotDefinition();

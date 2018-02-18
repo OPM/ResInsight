@@ -71,7 +71,7 @@ void RicRangeFilterNewExec::redo()
         rangeFilter->setDefaultValues();
         applyCommandDataOnFilter(rangeFilter);
 
-        m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(NULL);
+        m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(nullptr);
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 
@@ -94,7 +94,7 @@ void RicRangeFilterNewExec::undo()
 
     m_cellRangeFilterCollection->rangeFilters.erase(m_cellRangeFilterCollection->rangeFilters.size() - 1);
 
-    m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(NULL);
+    m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(nullptr);
 
     m_cellRangeFilterCollection->updateConnectedEditors();
 }

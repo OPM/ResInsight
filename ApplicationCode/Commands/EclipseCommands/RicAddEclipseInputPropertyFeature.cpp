@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicAddEclipseInputPropertyFeature, "RicAddEclipseInputProper
 //--------------------------------------------------------------------------------------------------
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
-    return selectedInputPropertyCollection() != NULL;
+    return selectedInputPropertyCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

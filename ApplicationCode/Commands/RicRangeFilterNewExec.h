@@ -27,7 +27,7 @@
 class RicRangeFilterNewExec : public RicRangeFilterExecImpl
 {
 public:
-    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);    
+    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr);    
     virtual ~RicRangeFilterNewExec();
 
     virtual QString name();

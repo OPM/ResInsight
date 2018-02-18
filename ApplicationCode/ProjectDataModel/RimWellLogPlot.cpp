@@ -65,7 +65,7 @@ RimWellLogPlot::RimWellLogPlot()
 {
     CAF_PDM_InitObject("Well Log Plot", ":/WellLogPlot16x16.png", "", "");
 
-    m_viewer = NULL;
+    m_viewer = nullptr;
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     

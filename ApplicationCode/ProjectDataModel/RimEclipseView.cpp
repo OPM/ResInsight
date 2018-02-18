@@ -156,7 +156,7 @@ RimEclipseView::RimEclipseView()
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
 	
-	m_eclipseCase = NULL;
+	m_eclipseCase = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ RimEclipseView::~RimEclipseView()
 
     m_reservoirGridPartManager->clearGeometryCache();
 
-    m_eclipseCase = NULL;
+    m_eclipseCase = nullptr;
 }
 
 
@@ -758,15 +758,15 @@ void RimEclipseView::onLoadDataAndUpdate()
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
                                 "Could not open the Eclipse Grid file: \n"+ m_eclipseCase->gridFileName());
-            this->setEclipseCase( NULL);
+            this->setEclipseCase( nullptr);
             return;
         }
     }
 
-    CVF_ASSERT(this->cellResult() != NULL);
+    CVF_ASSERT(this->cellResult() != nullptr);
     this->cellResult()->loadResult();
 
-    CVF_ASSERT(this->cellEdgeResult() != NULL);
+    CVF_ASSERT(this->cellEdgeResult() != nullptr);
     this->cellEdgeResult()->loadResult();
 
     this->faultResultSettings()->customFaultResult()->loadResult();
@@ -900,7 +900,7 @@ RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
         return m_eclipseCase->results(cellResult->porosityModel());
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -915,7 +915,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
         return m_eclipseCase->eclipseCaseData()->activeCellInfo(cellResult->porosityModel());
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -935,7 +935,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
         }
     }
 
-    m_currentReservoirCellVisibility = NULL;
+    m_currentReservoirCellVisibility = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,7 +960,7 @@ void RimEclipseView::scheduleSimWellGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 {
-    CVF_ASSERT(gridIndices != NULL);
+    CVF_ASSERT(gridIndices != nullptr);
 
     // Create vector of grid indices to render
     std::vector<RigGridBase*> grids;
@@ -1132,7 +1132,7 @@ void RimEclipseView::syncronizeWellsWithResults()
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
-        well->setSimWellData(NULL, -1);
+        well->setSimWellData(nullptr, -1);
     }
 
     bool isAnyWellCreated = false;
@@ -1161,7 +1161,7 @@ void RimEclipseView::syncronizeWellsWithResults()
     {
         RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
         RigSimWellData* simWellData = well->simWellData();
-        if (simWellData == NULL)
+        if (simWellData == nullptr)
         {
             delete well;
         }
@@ -1204,7 +1204,7 @@ RivReservoirViewPartMgr * RimEclipseView::reservoirGridPartManager()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
 {
-    CVF_ASSERT(visibleCells != NULL);
+    CVF_ASSERT(visibleCells != nullptr);
 
     // Initialize the return array
     if (visibleCells->size() != grid->cellCount())

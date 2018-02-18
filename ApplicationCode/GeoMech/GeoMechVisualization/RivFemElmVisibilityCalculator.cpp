@@ -96,9 +96,9 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                                                               const cvf::UByteArray* rangeFilterVisibility, 
                                                               RimGeoMechPropertyFilterCollection* propFilterColl)
 {
-    CVF_ASSERT(cellVisibility != NULL);
-    CVF_ASSERT(rangeFilterVisibility != NULL);
-    CVF_ASSERT(propFilterColl != NULL);
+    CVF_ASSERT(cellVisibility != nullptr);
+    CVF_ASSERT(rangeFilterVisibility != nullptr);
+    CVF_ASSERT(propFilterColl != nullptr);
 
     CVF_ASSERT(grid->elementCount() > 0);
     CVF_ASSERT(rangeFilterVisibility->size() == static_cast<size_t>(grid->elementCount()));
@@ -255,8 +255,8 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
                                                                     const RigFemPart* femPart, 
                                                                     RimViewController* masterViewLink)
 {
-    CVF_ASSERT(elmVisibilities != NULL);
-    CVF_ASSERT(femPart != NULL);
+    CVF_ASSERT(elmVisibilities != nullptr);
+    CVF_ASSERT(femPart != nullptr);
 
     RimGridView* masterView = masterViewLink->ownerViewLinker()->masterView();
     cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();

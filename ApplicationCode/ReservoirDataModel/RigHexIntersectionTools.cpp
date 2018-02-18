@@ -35,7 +35,7 @@ int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1,
                                                      const size_t hexIndex, 
                                                      std::vector<HexIntersectionInfo>* intersections)
 {
-    CVF_ASSERT(intersections != NULL);
+    CVF_ASSERT(intersections != nullptr);
 
     std::set<HexIntersectionInfo> uniqueIntersections;
 

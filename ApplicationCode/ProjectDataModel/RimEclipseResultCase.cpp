@@ -152,7 +152,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
                 m_timeStepFilter->setTimeStepsFromFile(timeSteps);
 
-                caf::PdmUiPropertyViewDialog propertyDialog(NULL, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+                caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
                 propertyDialog.resize(QSize(400, 400));
 
                 if (propertyDialog.exec() != QDialog::Accepted)
@@ -387,7 +387,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         RimMockModelSettings rimMockModelSettings;
         caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
 
-        caf::PdmUiPropertyViewDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model", "");
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &rimMockModelSettings, "Customize Mock Model", "");
         if (propertyDialog.exec() == QDialog::Accepted)
         {
             QApplication::restoreOverrideCursor();

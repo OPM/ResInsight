@@ -142,7 +142,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
     int yBelowVx1 = 0;
 
     const double* vtx0;
-    const double* vtx1 = NULL;
+    const double* vtx1 = nullptr;
 
     double dv0;
 

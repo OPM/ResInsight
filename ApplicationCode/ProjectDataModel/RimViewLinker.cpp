@@ -291,7 +291,7 @@ QString RimViewLinker::displayNameForView(RimGridView* view)
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
@@ -313,7 +313,7 @@ void RimViewLinker::setMasterView(RimGridView* view)
     if (previousViewController)
     {
         delete previousViewController;
-        this->m_viewControllers.removeChildObject(NULL);
+        this->m_viewControllers.removeChildObject(nullptr);
     }
 
     this->removeOverrides();
@@ -388,7 +388,7 @@ void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive() const
 {
-    RimViewLinkerCollection* viewLinkerCollection = NULL;
+    RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
     
     if (!viewLinkerCollection)
@@ -464,7 +464,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridV
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))

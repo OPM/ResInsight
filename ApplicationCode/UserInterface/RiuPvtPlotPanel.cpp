@@ -100,7 +100,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotWidget::RiuPvtPlotWidget(RiuPvtPlotPanel* parent)
 :   QWidget(parent),
-    m_trackerPlotMarker(NULL)
+    m_trackerPlotMarker(nullptr)
 {
     m_qwtPlot = new PvtQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
@@ -190,7 +190,7 @@ void RiuPvtPlotWidget::plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, co
     m_qwtPlot->detachItems(QwtPlotItem::Rtti_PlotMarker);
     m_qwtCurveArr.clear();
     m_pvtCurveArr.clear();
-    m_trackerPlotMarker = NULL;
+    m_trackerPlotMarker = nullptr;
 
 
     // Construct an auxiliary curve that connects the first point in all the input curves as a visual aid
@@ -383,7 +383,7 @@ void RiuPvtPlotWidget::updateTrackerPlotMarkerAndLabelFromPicker()
         {
             m_trackerPlotMarker->detach();
             delete m_trackerPlotMarker;
-            m_trackerPlotMarker = NULL;
+            m_trackerPlotMarker = nullptr;
 
             needsReplot = true;
         }
@@ -406,7 +406,7 @@ const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPos
 
     if (closestSampleIndex) *closestSampleIndex = -1;
 
-    const QwtPlotCurve* closestCurve = NULL;
+    const QwtPlotCurve* closestCurve = nullptr;
     double distMin = HUGE_VAL;
     int closestPointSampleIndex = -1;
 
@@ -437,7 +437,7 @@ const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample(const QPoint& cursorPos
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

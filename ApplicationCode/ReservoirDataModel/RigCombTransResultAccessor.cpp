@@ -63,7 +63,7 @@ double RigCombTransResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::neighborCellTran(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId, const RigResultAccessor* transAccessor) const
 {
-    if (transAccessor != NULL)
+    if (transAccessor != nullptr)
     {
         size_t i, j, k, neighborGridCellIdx;
         m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);

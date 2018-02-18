@@ -102,7 +102,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     updateIconState();
     uiCapability()->updateConnectedEditors();
     
-    updateDisplayModeNotifyManagedViews(NULL);
+    updateDisplayModeNotifyManagedViews(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
-    Rim3dView* view = NULL;
+    Rim3dView* view = nullptr;
     firstAncestorOrThisOfType(view);
     if (!view) return;
 
@@ -175,7 +175,7 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RimCellRangeFilterCollection::baseView() const
 {
-    Rim3dView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
 
     return rimView;

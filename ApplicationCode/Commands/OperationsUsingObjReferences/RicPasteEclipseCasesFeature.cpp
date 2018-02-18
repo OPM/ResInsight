@@ -126,7 +126,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
         return;
     }
 
-    RimEclipseResultCase* mainResultCase = NULL;
+    RimEclipseResultCase* mainResultCase = nullptr;
     std::vector< std::vector<int> > mainCaseGridDimensions;
 
     // Read out main grid and main grid dimensions if present in case group
@@ -184,8 +184,8 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
             }
         }
 
-        RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-        RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+        RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+        RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : nullptr;
         if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
         caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);

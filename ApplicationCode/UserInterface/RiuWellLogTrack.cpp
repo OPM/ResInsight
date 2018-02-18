@@ -196,7 +196,7 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 {
-    QwtPlotCurve* closestCurve = NULL;
+    QwtPlotCurve* closestCurve = nullptr;
     double distMin = DBL_MAX;
 
     const QwtPlotItemList& itmList = itemList();

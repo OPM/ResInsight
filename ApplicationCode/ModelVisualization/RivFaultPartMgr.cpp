@@ -374,7 +374,7 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    updateNNCColors(0, NULL);
+    updateNNCColors(0, nullptr);
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -417,8 +417,8 @@ void RivFaultPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 {
-    m_faultLabelPart = NULL;
-    m_faultLabelLinePart = NULL;
+    m_faultLabelPart = nullptr;
+    m_faultLabelLinePart = nullptr;
 
     if (!part) return;
 

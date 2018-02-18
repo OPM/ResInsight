@@ -125,7 +125,7 @@ void RiaProjectModifier::replaceSourceCases(RimProject* project)
 {
     for (RimOilField* oilField : project->oilFields())
     {
-        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if (analysisModels)
         {
             for (RimIdenticalGridCaseGroup* caseGroup : analysisModels->caseGroups)
@@ -280,7 +280,7 @@ int RiaProjectModifier::firstGroupId(RimProject* project)
     for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if (analysisModels)
         {
             if (analysisModels->caseGroups.size() > 0)

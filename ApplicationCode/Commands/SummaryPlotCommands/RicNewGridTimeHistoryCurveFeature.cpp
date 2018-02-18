@@ -112,7 +112,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     QString newPlotName = RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName();
     featureUi.setSuggestedPlotName(newPlotName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Destination Plot", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Select Destination Plot", "");
     propertyDialog.resize(QSize(400, 200));
 
     if (propertyDialog.exec() != QDialog::Accepted) return nullptr;

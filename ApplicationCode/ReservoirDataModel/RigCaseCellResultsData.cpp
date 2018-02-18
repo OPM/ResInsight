@@ -44,9 +44,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData) : m_activeCellInfo(NULL)
+RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData) : m_activeCellInfo(nullptr)
 {
-    CVF_ASSERT(ownerCaseData != NULL);
+    CVF_ASSERT(ownerCaseData != nullptr);
     CVF_ASSERT(ownerCaseData->mainGrid() != nullptr);
 
     m_ownerCaseData = ownerCaseData;
@@ -1316,15 +1316,15 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     this->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
 
-    std::vector<double>* swatForTimeStep = NULL;
-    std::vector<double>* sgasForTimeStep = NULL;
+    std::vector<double>* swatForTimeStep = nullptr;
+    std::vector<double>* sgasForTimeStep = nullptr;
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
         swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
         if (swatForTimeStep->size() == 0)
         {
-            swatForTimeStep = NULL;
+            swatForTimeStep = nullptr;
         }
     }
 
@@ -1333,7 +1333,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         sgasForTimeStep = &(this->cellScalarResults(scalarIndexSGAS, timeStepIndex));
         if (sgasForTimeStep->size() == 0)
         {
-            sgasForTimeStep = NULL;
+            sgasForTimeStep = nullptr;
         }
     }
 
@@ -1405,13 +1405,13 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
 
     this->cellScalarResults(scalarIndexSGAS, timeStepIndex).resize(swatResultValueCount);
 
-    std::vector<double>* swatForTimeStep = NULL;
+    std::vector<double>* swatForTimeStep = nullptr;
 
     {
         swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
         if (swatForTimeStep->size() == 0)
         {
-            swatForTimeStep = NULL;
+            swatForTimeStep = nullptr;
         }
     }
 
@@ -1554,7 +1554,7 @@ void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2, const std
     bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
         &polygon,
         &intersections,
-        (cvf::EdgeIntersectStorage<size_t>*)NULL,
+        (cvf::EdgeIntersectStorage<size_t>*)nullptr,
         cvf::wrapArrayConst(&nodes),
         face1.data(),
         face2.data(),
@@ -1688,7 +1688,7 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
 
     std::vector<double> & permResults    = this->cellScalarResults(permResultIdx)[0];
     std::vector<double> & riTransResults = this->cellScalarResults(riTransResultIdx)[0];
-    std::vector<double> * ntgResults     = NULL;
+    std::vector<double> * ntgResults     = nullptr;
     if (hasNTGResults)
     {
         ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
@@ -1699,9 +1699,9 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
     riTransResults.resize(resultValueCount);
 
     // Prepare how to index the result values:
-    ResultIndexFunction riTranIdxFunc = NULL;
-    ResultIndexFunction permIdxFunc   = NULL;
-    ResultIndexFunction ntgIdxFunc    = NULL;
+    ResultIndexFunction riTranIdxFunc = nullptr;
+    ResultIndexFunction permIdxFunc   = nullptr;
+    ResultIndexFunction ntgIdxFunc    = nullptr;
     {
         bool isPermUsingResIdx  = this->isUsingGlobalActiveIndex(permResultIdx);
         bool isTransUsingResIdx = this->isUsingGlobalActiveIndex(riTransResultIdx);
@@ -1841,17 +1841,17 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
     m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
 
-    std::vector<double> * ntgResults     = NULL;
+    std::vector<double> * ntgResults     = nullptr;
     if (hasNTGResults)
     {
         ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
     }
 
     // Prepare how to index the result values:
-    ResultIndexFunction permXIdxFunc = NULL;
-    ResultIndexFunction permYIdxFunc = NULL;
-    ResultIndexFunction permZIdxFunc = NULL;
-    ResultIndexFunction ntgIdxFunc   = NULL;
+    ResultIndexFunction permXIdxFunc = nullptr;
+    ResultIndexFunction permYIdxFunc = nullptr;
+    ResultIndexFunction permZIdxFunc = nullptr;
+    ResultIndexFunction ntgIdxFunc   = nullptr;
     {
         bool isPermXUsingResIdx = this->isUsingGlobalActiveIndex(permXResultIdx);
         bool isPermYUsingResIdx = this->isUsingGlobalActiveIndex(permYResultIdx);
@@ -1884,7 +1884,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
         size_t neighborResvCellIdx = nncConnections[connIdx].m_c2GlobIdx;
         cvf::StructGridInterface::FaceType faceId = nncConnections[connIdx].m_c1Face;
 
-        ResultIndexFunction permIdxFunc = NULL;
+        ResultIndexFunction permIdxFunc = nullptr;
         std::vector<double> * permResults;
 
         switch (faceId)

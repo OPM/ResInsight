@@ -44,7 +44,7 @@ bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
         return false;
     }
  
-    return selectedWellLogPlot() != NULL;
+    return selectedWellLogPlot() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

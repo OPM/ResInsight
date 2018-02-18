@@ -69,7 +69,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FAULTS", projectFolder);
 
-    QString selectedDir = QFileDialog::getExistingDirectory(NULL, tr("Select Directory"), defaultDir);
+    QString selectedDir = QFileDialog::getExistingDirectory(nullptr, tr("Select Directory"), defaultDir);
 
     if (selectedDir.isNull()) {
         // Stop if folder selection was cancelled.

@@ -145,7 +145,7 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags itemflags = 0;
+    Qt::ItemFlags itemflags = nullptr;
 
     if (index.isValid())
     {
@@ -399,7 +399,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(trackTarget, wellLogPlotCurves, NULL);
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(trackTarget, wellLogPlotCurves, nullptr);
             return true;
         }
     }
@@ -429,7 +429,7 @@ bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGro
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlotTarget, wellLogPlotTracks, NULL);
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlotTarget, wellLogPlotTracks, nullptr);
             return true;
         }
     }
