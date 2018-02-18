@@ -43,7 +43,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiEditorHandle::PdmUiEditorHandle() : m_pdmItem(NULL)
+PdmUiEditorHandle::PdmUiEditorHandle() : m_pdmItem(nullptr)
 {
 
 }

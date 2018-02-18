@@ -51,8 +51,8 @@ class QMinimizePanel : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QMinimizePanel(QWidget* parent=0);
-    explicit QMinimizePanel(const QString &title, QWidget* parent=0);
+    explicit QMinimizePanel(QWidget* parent=nullptr);
+    explicit QMinimizePanel(const QString &title, QWidget* parent=nullptr);
     ~QMinimizePanel();
 
     QFrame*         contentFrame() { return m_contentFrame; }  

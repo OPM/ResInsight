@@ -82,10 +82,10 @@ public:
     void                        setIgnoreSubTree(bool doIgnoreSubTree )     { m_isToIgnoreSubTree = doIgnoreSubTree; }
 
     // Testing for the PdmItem being represented
-    bool                        isRepresentingObject() const   { return !isRepresentingField() && (m_object != NULL); }
-    bool                        isRepresentingField()  const   { return (m_object != NULL) && (m_field != NULL);}
-    bool                        isDisplayItemOnly() const      { return  (m_uiItem != NULL); }
-    bool                        isValid() const                { return (this->activeItem() != NULL); }
+    bool                        isRepresentingObject() const   { return !isRepresentingField() && (m_object != nullptr); }
+    bool                        isRepresentingField()  const   { return (m_object != nullptr) && (m_field != nullptr);}
+    bool                        isDisplayItemOnly() const      { return  (m_uiItem != nullptr); }
+    bool                        isValid() const                { return (this->activeItem() != nullptr); }
 
     // Access to the PdmItem being represented
     PdmUiItem*                  activeItem() const;

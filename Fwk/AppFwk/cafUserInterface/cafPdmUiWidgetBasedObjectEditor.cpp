@@ -76,7 +76,7 @@ void caf::PdmUiWidgetBasedObjectEditor::recursivelyConfigureAndUpdateUiItemsInGr
     CAF_ASSERT(containerWidgetWithGridLayout);
 
     int currentRowIndex = 0;
-    QWidget* previousTabOrderWidget = NULL;
+    QWidget* previousTabOrderWidget = nullptr;
 
     // Currently, only QGridLayout is supported
     QGridLayout* parentLayout = dynamic_cast<QGridLayout*>(containerWidgetWithGridLayout->layout());
@@ -204,8 +204,8 @@ bool caf::PdmUiWidgetBasedObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGr
 QMinimizePanel* caf::PdmUiWidgetBasedObjectEditor::findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName)
 {
     QString groupBoxKey = group->keyword();
-    QMinimizePanel* groupBox = NULL;
-    QGridLayout* groupBoxLayout = NULL;
+    QMinimizePanel* groupBox = nullptr;
+    QGridLayout* groupBoxLayout = nullptr;
 
     // Find or create groupBox
     std::map<QString, QPointer<QMinimizePanel> >::iterator it;
@@ -338,7 +338,7 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
-        it->second->setField(NULL);
+        it->second->setField(nullptr);
     }
 
     // Set all group Boxes to be unvisited
@@ -352,7 +352,7 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
     std::vector< PdmFieldHandle* > fvhToRemoveFromMap;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
-        if (it->second->field() == 0)
+        if (it->second->field() == nullptr)
         {
             PdmUiFieldEditorHandle* fvh = it->second;
             delete fvh;

@@ -114,9 +114,9 @@ protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
     /// being "Label" Editor" or a single combined widget. 
 
-    virtual QWidget*    createCombinedWidget(QWidget * parent) { return NULL; }
-    virtual QWidget*    createEditorWidget(QWidget * parent)   { return NULL; }
-    virtual QWidget*    createLabelWidget(QWidget * parent)    { return NULL; }
+    virtual QWidget*    createCombinedWidget(QWidget * parent) { return nullptr; }
+    virtual QWidget*    createEditorWidget(QWidget * parent)   { return nullptr; }
+    virtual QWidget*    createLabelWidget(QWidget * parent)    { return nullptr; }
 
     void                setValueToField(const QVariant& value);
 

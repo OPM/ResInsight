@@ -64,7 +64,7 @@ class TableViewPushButton : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit TableViewPushButton(caf::PdmUiFieldHandle* field, const QString& text, QWidget* parent = 0);
+    explicit TableViewPushButton(caf::PdmUiFieldHandle* field, const QString& text, QWidget* parent = nullptr);
 
 private slots:
     void slotPressed();

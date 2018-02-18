@@ -76,7 +76,7 @@ class PdmUiTableView : public QWidget, public DataModelObserver
 {
     Q_OBJECT
 public:
-    PdmUiTableView(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    PdmUiTableView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
     ~PdmUiTableView();
 
     PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);

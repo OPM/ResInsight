@@ -51,7 +51,7 @@
 class PdmDoubleValidator : public QDoubleValidator
 {
 public:
-    explicit PdmDoubleValidator(QObject * parent = 0) : QDoubleValidator(parent)
+    explicit PdmDoubleValidator(QObject * parent = nullptr) : QDoubleValidator(parent)
     {
     }
 

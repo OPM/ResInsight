@@ -341,14 +341,14 @@ PdmUiItemInfo::LabelPosType PdmUiItem::uiLabelPosition(QString uiConfigName) con
 
 const PdmUiItemInfo* PdmUiItem::configInfo(QString uiConfigName) const
 {
-    if (uiConfigName == "" || uiConfigName.isNull()) return NULL;
+    if (uiConfigName == "" || uiConfigName.isNull()) return nullptr;
 
     std::map<QString, PdmUiItemInfo>::const_iterator it;
     it = m_configItemInfos.find(uiConfigName);
 
     if (it != m_configItemInfos.end()) return &(it->second);
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ const PdmUiItemInfo* PdmUiItem::defaultInfo() const
 
     if (it != m_configItemInfos.end()) return &(it->second);
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,7 +395,7 @@ PdmUiItem::~PdmUiItem()
     std::set<PdmUiEditorHandle*>::iterator it;
     for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
-        (*it)->m_pdmItem = NULL;
+        (*it)->m_pdmItem = nullptr;
     }
 }
 

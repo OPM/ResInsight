@@ -101,7 +101,7 @@ QWidget* PdmUiToolButtonEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiToolButtonEditor::createLabelWidget(QWidget * parent)
 {
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

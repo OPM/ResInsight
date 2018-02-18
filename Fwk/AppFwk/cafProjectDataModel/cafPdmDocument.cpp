@@ -135,7 +135,7 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
 {
-    if (object == NULL) return;
+    if (object == nullptr) return;
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
     

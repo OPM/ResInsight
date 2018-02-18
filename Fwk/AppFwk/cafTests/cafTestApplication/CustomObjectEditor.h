@@ -71,7 +71,7 @@ public:
     void defineGridLayout(int rowCount, int columnCount);
 
     // See QGridLayout::addWidget
-    void addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = 0);
+    void addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = nullptr);
     void removeWidget(QWidget* widget);
 
     void addBlankCell(int row, int column);

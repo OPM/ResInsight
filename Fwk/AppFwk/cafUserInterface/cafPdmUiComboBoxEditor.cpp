@@ -182,7 +182,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 class CustomQComboBox : public QComboBox
 {
 public:
-    explicit CustomQComboBox(QWidget* parent = 0)
+    explicit CustomQComboBox(QWidget* parent = nullptr)
         : QComboBox(parent)
     {}
 

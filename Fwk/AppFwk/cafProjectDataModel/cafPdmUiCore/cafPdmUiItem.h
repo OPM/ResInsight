@@ -191,7 +191,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
 class PdmUiItem
 {
 public:
-    PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
+    PdmUiItem() : m_staticItemInfo(nullptr)                                                   { }
     virtual ~PdmUiItem();
 
     PdmUiItem(const PdmUiItem&) = delete;

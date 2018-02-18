@@ -104,7 +104,7 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

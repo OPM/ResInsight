@@ -170,7 +170,7 @@ std::pair<CmdFeature*, size_t>  CmdFeatureManager::findExistingCmdFeature(const 
     }
     else
     {
-        return std::make_pair(static_cast<CmdFeature*>(NULL), -1);
+        return std::make_pair(static_cast<CmdFeature*>(nullptr), -1);
     }
 }
 
@@ -191,7 +191,7 @@ caf::CmdFeature* CmdFeatureManager::commandFeature(const std::string& commandId)
         return item;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

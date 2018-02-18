@@ -64,7 +64,7 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    explicit MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
+    explicit MyStringListModel(QObject *parent = nullptr) : m_isItemsEditable(false), QStringListModel(parent) { }
 
     virtual Qt::ItemFlags flags (const QModelIndex& index) const
     {
@@ -90,7 +90,7 @@ private:
 class QListViewHeightHint : public QListView
 {
 public:
-    explicit QListViewHeightHint(QWidget *parent = 0)
+    explicit QListViewHeightHint(QWidget *parent = nullptr)
         : m_heightHint(-1)
     {
     }

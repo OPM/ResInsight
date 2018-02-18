@@ -24,7 +24,7 @@ PdmObjectHandle::~PdmObjectHandle()
     std::set<PdmObjectHandle**>::iterator it;
     for (it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end() ; ++it)
     {
-        (**it) = NULL;
+        (**it) = nullptr;
     }
 }
 
@@ -41,7 +41,7 @@ void PdmObjectHandle::fields(std::vector<PdmFieldHandle*>& fields) const
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
 {
-    CAF_ASSERT(m_parentField == NULL);
+    CAF_ASSERT(m_parentField == nullptr);
 
     m_parentField = parentField;
 }
@@ -53,7 +53,7 @@ void PdmObjectHandle::removeAsParentField(PdmFieldHandle* parentField)
 {
     CAF_ASSERT(m_parentField == parentField);
 
-    m_parentField = NULL;
+    m_parentField = nullptr;
 }
 
 
@@ -62,7 +62,7 @@ void PdmObjectHandle::removeAsParentField(PdmFieldHandle* parentField)
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::addReferencingPtrField(PdmFieldHandle* fieldReferringToMe)
 {
-    if (fieldReferringToMe != NULL) m_referencingPtrFields.insert(fieldReferringToMe);
+    if (fieldReferringToMe != nullptr) m_referencingPtrFields.insert(fieldReferringToMe);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void PdmObjectHandle::addReferencingPtrField(PdmFieldHandle* fieldReferringToMe)
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::removeReferencingPtrField(PdmFieldHandle* fieldReferringToMe)
 {
-    if (fieldReferringToMe != NULL) m_referencingPtrFields.erase(fieldReferringToMe);
+    if (fieldReferringToMe != nullptr) m_referencingPtrFields.erase(fieldReferringToMe);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void PdmObjectHandle::addField(PdmFieldHandle* field, const QString& keyword)
     field->m_ownerObject = this;
 
     CAF_ASSERT(!keyword.isEmpty());
-    CAF_ASSERT(this->findField(keyword) == NULL);
+    CAF_ASSERT(this->findField(keyword) == nullptr);
 
     field->setKeyword(keyword);
     m_fields.push_back(field);
@@ -134,7 +134,7 @@ PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

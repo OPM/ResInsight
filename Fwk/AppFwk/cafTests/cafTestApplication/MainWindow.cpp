@@ -559,7 +559,7 @@ CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");
 
 
 
-MainWindow* MainWindow::sm_mainWindowInstance = NULL;
+MainWindow* MainWindow::sm_mainWindowInstance = nullptr;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -789,10 +789,10 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
-    m_pdmUiTreeView->setPdmItem(NULL);
-    m_pdmUiTreeView2->setPdmItem(NULL);
-    m_pdmUiPropertyView->showProperties(NULL);
-    m_pdmUiTableView->setListField(NULL);
+    m_pdmUiTreeView->setPdmItem(nullptr);
+    m_pdmUiTreeView2->setPdmItem(nullptr);
+    m_pdmUiPropertyView->showProperties(nullptr);
+    m_pdmUiTableView->setListField(nullptr);
 
     delete m_pdmUiTreeView;
     delete m_pdmUiTreeView2;
@@ -865,7 +865,7 @@ void MainWindow::slotInsert()
     for (size_t i = 0; i < selection.size(); ++i)
     {
         caf::PdmUiFieldHandle* uiFh = dynamic_cast<caf::PdmUiFieldHandle*>(selection[i]);
-        caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = NULL;
+        caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = nullptr;
 
         if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
         
@@ -935,8 +935,8 @@ void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
-    caf::PdmObjectHandle* obj = NULL;
-    caf::PdmChildArrayFieldHandle* listField = NULL;
+    caf::PdmObjectHandle* obj = nullptr;
+    caf::PdmChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
@@ -954,8 +954,8 @@ void MainWindow::slotShowTableView()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
-    caf::PdmObjectHandle* obj = NULL;
-    caf::PdmChildArrayFieldHandle* listField = NULL;
+    caf::PdmObjectHandle* obj = nullptr;
+    caf::PdmChildArrayFieldHandle* listField = nullptr;
 
     if (selection.size())
     {
@@ -969,7 +969,7 @@ void MainWindow::slotShowTableView()
         {
             if (!listField->hasSameFieldCountForAllObjects())
             {
-                listField = NULL;
+                listField = nullptr;
             }
         }
     }

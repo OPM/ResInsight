@@ -95,7 +95,7 @@ void NotificationCenter::notifyObservers()
 {
     foreach(DataModelObserver* o, m_observers)
     {
-        o->handleModelNotification(NULL);
+        o->handleModelNotification(nullptr);
     }
 }
 

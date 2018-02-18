@@ -92,7 +92,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CmdExecCommandManager::CmdExecCommandManager()
 {
-    m_commandFeatureInterface = NULL;
+    m_commandFeatureInterface = nullptr;
     
     m_undoStack = new QUndoStack();
 }
@@ -124,7 +124,7 @@ void CmdExecCommandManager::activateCommandSystem()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::deactivateCommandSystem()
 {
-    PdmUiCommandSystemProxy::instance()->setCommandInterface(NULL);
+    PdmUiCommandSystemProxy::instance()->setCommandInterface(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

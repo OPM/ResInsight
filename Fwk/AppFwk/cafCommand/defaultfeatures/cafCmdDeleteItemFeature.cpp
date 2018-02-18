@@ -61,9 +61,9 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
     SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = caf::SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return NULL;
+    if (!childArrayFieldHandle) return nullptr;
 
-    caf::PdmObjectHandle* currentPdmObject = NULL;
+    caf::PdmObjectHandle* currentPdmObject = nullptr;
 
     for (size_t i = 0; i < items.size(); i++)
     {
@@ -73,7 +73,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
         }
     }
 
-    if (!currentPdmObject) return NULL;
+    if (!currentPdmObject) return nullptr;
 
     int indexAfter = -1;
 

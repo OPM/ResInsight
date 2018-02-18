@@ -20,7 +20,7 @@ PdmObjectHandle * PdmDefaultObjectFactory::create(const QString& classNameKeywor
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

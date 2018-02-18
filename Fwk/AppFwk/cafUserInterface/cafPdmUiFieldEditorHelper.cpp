@@ -49,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::fieldEditorForField(caf::PdmUiFieldHandle* field, const QString& uiConfigName)
 {
-    caf::PdmUiFieldEditorHandle* fieldEditor = NULL;
+    caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
     // If editor type is specified, find in factory
     if (!field->uiEditorTypeName(uiConfigName).isEmpty())
