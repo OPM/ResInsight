@@ -64,6 +64,7 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
+#include <QMessageBox>
 #include <QString>
 
 #include <math.h>
@@ -197,6 +198,19 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 {
     if (changedField == &m_fractureTemplate)
     {
+        if (fractureUnit() != m_fractureTemplate->fractureTemplateUnit())
+        {
+            QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
+
+            QString warningText = QString("Using a fracture template of different unit is not supported.\n\nPlease select a "
+                                          "fracture template of unit '%1'")
+                                      .arg(fractureUnitText);
+
+            QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
+
+            m_fractureTemplate = nullptr;
+        }
+
         setFractureTemplate(m_fractureTemplate);
         setDefaultFractureColorResult();
     }
