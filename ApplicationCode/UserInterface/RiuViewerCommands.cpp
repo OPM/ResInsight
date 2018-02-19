@@ -576,7 +576,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 intersectionHit = true;
                 intersectionTriangleHit = crossSectionSourceInfo->triangle(firstPartTriangleIndex);
 
-                RiuMainWindow::instance()->selectAsCurrentItem(crossSectionSourceInfo->crossSection());
+                if (!dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()))
+                {
+                    RiuMainWindow::instance()->selectAsCurrentItem(crossSectionSourceInfo->crossSection());
+                }
 
             }
             else if (intersectionBoxSourceInfo)
