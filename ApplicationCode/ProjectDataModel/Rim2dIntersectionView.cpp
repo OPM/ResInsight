@@ -190,6 +190,9 @@ void Rim2dIntersectionView::update3dInfo()
     }
 
     overlayInfoText += "<p>";
+
+    overlayInfoText += "<b>Z-scale:</b> " + QString::number(scaleZ()) + "<br> ";
+
     overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
 
     if (m_intersection->simulationWell())
