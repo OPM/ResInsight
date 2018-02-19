@@ -274,11 +274,11 @@ void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 
 //--------------------------------------------------------------------------------------------------
 /// Splits the start stop interval between cells that are not close enough. 
-/// The depth values are expected to contain pair of depths: Depth at cell enter, and cell leave  
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::splitIntervalAtEmptySpace(const std::vector<double>& depthValues, 
-                                                               size_t startIdx, size_t stopIdx, 
-                                                               std::vector< std::pair<size_t, size_t> >* intervals)
+void RigWellLogCurveData::splitIntervalAtEmptySpace(const std::vector<double>&                depthValues, 
+                                                    size_t                                    startIdx,
+                                                    size_t                                    stopIdx, 
+                                                    std::vector< std::pair<size_t, size_t> >* intervals)
 {
     CVF_ASSERT(intervals);
 
@@ -293,20 +293,31 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace(const std::vector<double>& d
     // !! TODO: Find a reasonable tolerance
     const double depthDiffTolerance = 0.1;
 
-    // Find intervals containing depth values that should be connected
-    size_t intStartIdx = startIdx;
-    for (size_t vIdx = startIdx + 1; vIdx < stopIdx; vIdx += 2)
+    // Find intervals containing depth values that should be connected:
+    //
+    // vIdx = 0 is the first point of a well, usually outside of the model. Further depth values are
+    // organized in pairs of depths (in and out of a cell), and sometimes the depths varies slightly. If
+    // the distance between a depth pair is larger than the depthDiffTolerance, the two sections will be split
+    // into two intervals. 
+    //
+    // The first pair is located at vIdx = 1 & 2. If startIdx = 0, an offset of 1 is added to vIdx, to access 
+    // that pair in the loop. If startIdx = 1 (can happen if the start point is inside of the model and invalid),
+    // the offset is not needed.
+
+    size_t intervalStartIdx = startIdx;
+    size_t offset = 1 - startIdx % 2;
+    for (size_t vIdx = startIdx + offset; vIdx < stopIdx; vIdx += 2)
     {
         if (cvf::Math::abs(depthValues[vIdx + 1] - depthValues[vIdx]) > depthDiffTolerance)
         {
-            intervals->push_back(std::make_pair(intStartIdx, vIdx));
-            intStartIdx = vIdx + 1;
+            intervals->push_back(std::make_pair(intervalStartIdx, vIdx));
+            intervalStartIdx = vIdx + 1;
         }
     }
 
-    if (intStartIdx <= stopIdx)
+    if (intervalStartIdx <= stopIdx)
     {
-        intervals->push_back(std::make_pair(intStartIdx, stopIdx));
+        intervals->push_back(std::make_pair(intervalStartIdx, stopIdx));
     }
 }
 
