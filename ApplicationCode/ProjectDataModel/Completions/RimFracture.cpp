@@ -394,7 +394,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 
         for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
         {
-            options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
+            options.push_back(caf::PdmOptionItemInfo(fracDef->nameAndUnit(), fracDef));
         }
     }
     else if (fieldNeedingOptions == &m_stimPlanTimeIndexToPlot)

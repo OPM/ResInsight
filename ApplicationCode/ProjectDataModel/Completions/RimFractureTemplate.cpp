@@ -98,6 +98,12 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&m_name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "");
+    m_nameAndUnit.registerGetMethod(this, &RimFractureTemplate::nameAndUnit);
+    m_nameAndUnit.uiCapability()->setUiHidden(true);
+    m_nameAndUnit.xmlCapability()->disableIO();
+
     CAF_PDM_InitField(&m_fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
@@ -138,12 +144,14 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
     m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
     m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
+    m_dFactorDisplayField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
     m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
     m_dFactorSummaryText.uiCapability()->setUiReadOnly(true);
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
+    m_dFactorSummaryText.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +206,7 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 {
-    return &m_name;
+    return &m_nameAndUnit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,6 +576,27 @@ double RimFractureTemplate::fractureWidth() const
     }
 
     return m_fractureWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFractureTemplate::nameAndUnit() const
+{
+    QString decoratedName;
+
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        decoratedName += "[M] - ";
+    }
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        decoratedName += "[F] - ";
+    }
+
+    decoratedName += m_name;
+
+    return decoratedName;
 }
 
 //--------------------------------------------------------------------------------------------------

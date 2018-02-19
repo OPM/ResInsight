@@ -108,6 +108,8 @@ public:
     virtual ~RimFractureTemplate();
 
     QString                         name() const;
+    QString                         nameAndUnit() const;
+
     RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit() const;
     FracOrientationEnum             orientationType() const;
     float                           azimuthAngle() const;
@@ -157,6 +159,8 @@ private:
 
 protected:
     caf::PdmField<QString>                             m_name;
+    caf::PdmProxyValueField<QString>                   m_nameAndUnit;
+
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_fractureTemplateUnit;
     caf::PdmField<caf::AppEnum<FracOrientationEnum>>   m_orientationType;
     caf::PdmField<float>                               m_azimuthAngle;
