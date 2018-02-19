@@ -21,6 +21,11 @@
 
 #include "qwt_plot.h"
 
+#include <map>
+#include <vector>
+#include <QString>
+
+class RimCase;
 class QwtPlotCurve;
 class QwtPlotGrid;
 
@@ -36,15 +41,19 @@ namespace cvf
 //==================================================================================================
 class RiuResultQwtPlot : public QwtPlot
 {
+    Q_OBJECT
+
 public:
     explicit RiuResultQwtPlot(QWidget* parent = nullptr);
     virtual ~RiuResultQwtPlot();
 
-    void addCurve(const QString& curveName, 
+    void addCurve(const RimCase* rimCase,
+                  const QString& curveName,
                   const cvf::Color3f& curveColor, 
                   const std::vector<QDateTime>& dateTimes, 
                   const std::vector<double>& timeHistoryValues);
-    void addCurve(const QString& curveName, 
+    void addCurve(const RimCase* rimCase, 
+                  const QString& curveName,
                   const cvf::Color3f& curveColor, 
                   const std::vector<double>& frameTimes, 
                   const std::vector<double>& timeHistoryValues);
@@ -59,7 +68,17 @@ protected:
 private:
     void setDefaults();
 
+    QString asciiDataForUiSelectedCurves() const;
+
+private slots:
+    void slotCurrentPlotDataInTextDialog();
+
 private:
     std::vector<QwtPlotCurve*>  m_plotCurves;
+
+    std::map<int, QString >                           m_caseNames;
+    std::map<int, std::vector< QDateTime> >           m_timeSteps;
+    std::map<int, std::vector< std::vector<double> >> m_curveData;
+    std::map<int, std::vector< QString> >             m_curveNames;
 };
 

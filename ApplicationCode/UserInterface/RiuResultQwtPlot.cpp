@@ -22,8 +22,11 @@
 #include "RigCurveDataTools.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimCase.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuTextDialog.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -41,7 +44,6 @@
 
 #include <QMenu>
 #include <QContextMenuEvent>
-#include "RiuSummaryQwtPlot.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ RiuResultQwtPlot::~RiuResultQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
     if (dateTimes.empty() || timeHistoryValues.empty())
     {
@@ -84,21 +86,28 @@ void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& cu
     this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
 
     this->replot();
+
+    int caseId = rimCase->caseId;
+    
+    m_caseNames[caseId] = rimCase->caseUserDescription;
+    m_curveNames[caseId].push_back(curveName);
+    m_curveData[caseId].push_back(timeHistoryValues);
+    m_timeSteps[caseId] = dateTimes;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
 {
     std::vector<QDateTime> dateTimes;
 
-    for (size_t i = 0; i < frameTimes.size(); i++)
+    for (double frameTime : frameTimes)
     {
-        dateTimes.push_back(QwtDate::toDateTime(frameTimes[i]));
+        dateTimes.push_back(QwtDate::toDateTime(frameTime));
     }
 
-    addCurve(curveName, curveColor, dateTimes, timeHistoryValues);
+    addCurve(rimCase, curveName, curveColor, dateTimes, timeHistoryValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,6 +122,11 @@ void RiuResultQwtPlot::deleteAllCurves()
     }
 
     m_plotCurves.clear();
+
+    m_caseNames.clear();
+    m_curveNames.clear();
+    m_curveData.clear();
+    m_timeSteps.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,9 +155,14 @@ void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 
     menuBuilder << "RicNewGridTimeHistoryCurveFeature";
 
+    const int curveCount = this->itemList(QwtPlotItem::Rtti_PlotCurve).count();
+
+    QAction* act = menu.addAction("Show Plot Data", this, SLOT(slotCurrentPlotDataInTextDialog()));
+    act->setEnabled(curveCount > 0);
+
     menuBuilder.appendToMenu(&menu);
 
-    if (menu.actions().size() > 0)
+    if (!menu.actions().empty())
     {
         menu.exec(event->globalPos());
     }
@@ -170,4 +189,55 @@ void RiuResultQwtPlot::setDefaults()
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend(this);
     this->insertLegend(legend, BottomLegend);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
+{
+    QString out;
+ 
+    for (std::pair<int, QString> caseIdAndName : m_caseNames)
+    {
+        int caseId = caseIdAndName.first;
+        out += "Case: " + caseIdAndName.second;
+        out += "\n";
+
+        for (size_t i = 0; i < m_timeSteps.at(caseId).size(); i++) //time steps & data points
+        {
+            if (i == 0)
+            {
+                out += "Date and time";
+                for (QString curveName : m_curveNames.at(caseId))
+                {
+                    out += "\t" + curveName;
+                }
+            }
+            out += "\n";
+            out += m_timeSteps.at(caseId)[i].toString("yyyy-MM-dd hh:mm:ss ");
+
+            for (size_t j = 0; j < m_curveData.at(caseId).size(); j++) // curves
+            {
+                out += "\t" + QString::number(m_curveData.at(caseId)[j][i], 'g', 6);
+            }
+        }
+        out += "\n\n";
+    }
+
+    return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuResultQwtPlot::slotCurrentPlotDataInTextDialog()
+{
+    QString outTxt = asciiDataForUiSelectedCurves();
+
+    RiuTextDialog* textDialog = new RiuTextDialog(this);
+    textDialog->setMinimumSize(400, 600);
+    textDialog->setWindowTitle("Result Plot Data");
+    textDialog->setText(outTxt);
+    textDialog->show();
 }
