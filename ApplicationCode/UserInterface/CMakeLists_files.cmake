@@ -149,6 +149,7 @@ ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuPvtPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
+${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuTextDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuViewer.h
 ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
