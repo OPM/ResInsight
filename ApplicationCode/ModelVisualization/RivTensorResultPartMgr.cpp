@@ -334,10 +334,10 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
 
     cvf::ScalarMapper* activeScalerMapper = nullptr;
 
+    cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
     auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
     if (vectorColors == RimTensorResults::MAGENTA_BROWN_BLACK || vectorColors == RimTensorResults::WHITE_GRAY_BLACK)
     {
-        cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
 
         activeScalerMapper = discreteScalarMapper.p();
         
