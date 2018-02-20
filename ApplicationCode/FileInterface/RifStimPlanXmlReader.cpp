@@ -184,6 +184,8 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStr
 
         if (xmlStream.isStartElement())
         {
+            RiaEclipseUnitTools::UnitSystem destinationUnit = requiredUnit;
+
             if (xmlStream.name() == "grid")
             {
                 gridunit = getAttributeValueString(xmlStream, "uom");
@@ -192,11 +194,20 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStr
                 else if (gridunit == "ft") stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_FIELD;
                 else                       stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
 
-                double tvdToTopPerfFt = getAttributeValueDouble(xmlStream, "TVDToTopPerfFt");
-                double tvdToBottomPerfFt = getAttributeValueDouble(xmlStream, "TVDToBottomPerfFt");
+                if (destinationUnit == RiaEclipseUnitTools::UNITS_UNKNOWN)
+                {
+                    // Use file unit set if requested unit is unknown
+                    destinationUnit = stimPlanFileData->m_unitSet;
+                }
 
-                stimPlanFileData->setTvdToTopPerf(tvdToTopPerfFt, RiaDefines::UNIT_FEET);
-                stimPlanFileData->setTvdToBottomPerf(tvdToBottomPerfFt, RiaDefines::UNIT_FEET);
+                double tvdToTopPerfFt = getAttributeValueDouble(xmlStream, "TVDToTopPerfFt");
+                double tvdToBotPerfFt = getAttributeValueDouble(xmlStream, "TVDToBottomPerfFt");
+
+                double tvdToTopPerfRequestedUnit = RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UNITS_FIELD, destinationUnit, tvdToTopPerfFt);
+                double tvdToBotPerfRequestedUnit = RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UNITS_FIELD, destinationUnit, tvdToBotPerfFt);
+
+                stimPlanFileData->setTvdToTopPerf(tvdToTopPerfRequestedUnit);
+                stimPlanFileData->setTvdToBottomPerf(tvdToBotPerfRequestedUnit);
             }
 
             if (xmlStream.name() == "xs")
@@ -207,7 +218,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStr
                     std::vector<double> gridValues;
                     getGriddingValues(xmlStream, gridValues, dummy);
 
-                    gridValuesXs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, requiredUnit, gridValues);
+                    gridValuesXs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, destinationUnit, gridValues);
                 }
 
                 stimPlanFileData->m_fileXs = gridValuesXs;
@@ -222,7 +233,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStr
                     std::vector<double> gridValues;
                     getGriddingValues(xmlStream, gridValues, startNegValuesYs);
 
-                    gridValuesYs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, requiredUnit, gridValues);
+                    gridValuesYs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, destinationUnit, gridValues);
                 }
 
                 // Reorder and change sign
@@ -315,6 +326,25 @@ std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem(RiaEclipseU
     }
 
     return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                       RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                       double                          value)
+{
+    if (sourceUnit == RiaEclipseUnitTools::UNITS_FIELD && requiredUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(value);
+    }
+    else if (sourceUnit == RiaEclipseUnitTools::UNITS_METRIC && requiredUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(value);
+    }
+
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------

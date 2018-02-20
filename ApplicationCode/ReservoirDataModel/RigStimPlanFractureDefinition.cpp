@@ -133,59 +133,17 @@ double RigStimPlanFractureDefinition::maxY() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setTvdToTopPerf(double topPerfTvd, RiaDefines::DepthUnitType unit)
+void RigStimPlanFractureDefinition::setTvdToTopPerf(double topPerfTvd)
 {
-    if (unit == RiaDefines::UNIT_METER)
-    {
-        if (m_unitSet == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            m_topPerfTvd = RiaEclipseUnitTools::meterToFeet(topPerfTvd);
-        }
-        else if (m_unitSet == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            m_topPerfTvd = topPerfTvd;
-        }
-    }
-    else if (unit == RiaDefines::UNIT_FEET)
-    {
-        if (m_unitSet == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            m_topPerfTvd = topPerfTvd;
-        }
-        else if (m_unitSet == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            m_topPerfTvd = RiaEclipseUnitTools::feetToMeter(topPerfTvd);
-        }
-    }
+    m_topPerfTvd = topPerfTvd;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setTvdToBottomPerf(double bottomPerfTvd, RiaDefines::DepthUnitType unit)
+void RigStimPlanFractureDefinition::setTvdToBottomPerf(double bottomPerfTvd)
 {
-    if (unit == RiaDefines::UNIT_METER)
-    {
-        if (m_unitSet == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            m_bottomPerfTvd = RiaEclipseUnitTools::meterToFeet(bottomPerfTvd);
-        }
-        else if (m_unitSet == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            m_bottomPerfTvd = bottomPerfTvd;
-        }
-    }
-    else if (unit == RiaDefines::UNIT_FEET)
-    {
-        if (m_unitSet == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            m_bottomPerfTvd = bottomPerfTvd;
-        }
-        else if (m_unitSet == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            m_bottomPerfTvd = RiaEclipseUnitTools::feetToMeter(bottomPerfTvd);
-        }
-    }
+    m_bottomPerfTvd = bottomPerfTvd;
 }
 
 //--------------------------------------------------------------------------------------------------

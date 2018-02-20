@@ -68,8 +68,8 @@ public:
     double                          maxDepth() const;
     double                          topPerfTvd() const;
     double                          bottomPerfTvd() const;
-    void                            setTvdToTopPerf(double topPerfTvd, RiaDefines::DepthUnitType unit);
-    void                            setTvdToBottomPerf(double bottomPerfTvd, RiaDefines::DepthUnitType unit);
+    void                            setTvdToTopPerf(double topPerfTvd);
+    void                            setTvdToBottomPerf(double bottomPerfTvd);
     
     cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
                                                        int                                 activeTimeStepIndex,

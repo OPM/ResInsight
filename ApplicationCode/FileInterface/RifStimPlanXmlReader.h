@@ -56,6 +56,8 @@ private:
     static std::vector<double>              valuesInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
                                                                        RiaEclipseUnitTools::UnitSystem requiredUnit,
                                                                        const std::vector<double>&      values);
+
+    static double                           valueInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                                      RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                                      double                          value);
 };
-
-
