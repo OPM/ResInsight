@@ -77,6 +77,7 @@ public:
 
     void        setFromFracture(double transmissibility, double skinFactor, double diameter);
     void        setSecondOrderingValue(double orderingValue);
+    void        setDiameter(double diameter);
     
     void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                              double skinFactor, 

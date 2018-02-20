@@ -334,6 +334,7 @@ RigCompletionData
 
     RigCompletionData resultCompletion(wellName, cellIndexIJK, firstCompletion.firstOrderingValue());
     resultCompletion.setSecondOrderingValue(firstCompletion.secondOrderingValue());
+    resultCompletion.setDiameter(firstCompletion.diameter());
 
     bool anyNonDarcyFlowPresent = false;
     for (const auto& c : completions)
@@ -703,6 +704,17 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
         else
         {
             formatter.add(data.transmissibility());
+
+            // Based on feedback from Shunping
+            // Include diameter when COMPDATL is exported
+            // See https://github.com/OPM/ResInsight/issues/2517
+            if (!gridName.isEmpty())
+            {
+                if (RigCompletionData::isDefaultValue(data.diameter()))
+                    formatter.add("1*");
+                else
+                    formatter.add(data.diameter());
+            }
         }
 
         formatter.rowCompleted();
