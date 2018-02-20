@@ -19,9 +19,11 @@
 
 #include "RicAppendIntersectionFeature.h"
 
+#include "RimGeoMechView.h"
+#include "RimGridView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimGridView.h"
+#include "RimTensorResults.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -107,6 +109,13 @@ void RicAppendIntersectionFeatureCmd::redo()
 
     //Enable display of grid cells, to be able to show generated property filter
     view->showGridCells(false);
+
+    RimGeoMechView* geoMechView = nullptr;
+    geoMechView = dynamic_cast<RimGeoMechView*>(view);
+    if (geoMechView)
+    {
+        geoMechView->tensorResults()->setShowTensors(false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
