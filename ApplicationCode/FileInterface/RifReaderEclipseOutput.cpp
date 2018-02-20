@@ -694,7 +694,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     // Keep the set of files of interest
     m_filesWithSameBaseName = fileSet;
     m_eclipseCase = eclipseCase;
-
+    m_fileName = fileName;
 
     if (!readActiveCellInfo())
     {
