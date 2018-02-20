@@ -18,6 +18,8 @@
 
 #include "RivTensorResultPartMgr.h"
 
+#include "RiaColorTables.h"
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimLegendConfig.h"
@@ -382,15 +384,11 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTen
     arrowColors.resize(3);
     if (colorSet == RimTensorResults::MAGENTA_BROWN_BLACK)
     {
-        arrowColors[0] = cvf::Color3::MAGENTA;
-        arrowColors[1] = cvf::Color3::BROWN;
-        arrowColors[2] = cvf::Color3::BLACK;
+        arrowColors = RiaColorTables::tensorMagentaBrownBlackPaletteColors().color3ubArray();
     }
     else if (colorSet == RimTensorResults::WHITE_GRAY_BLACK)
     {
-        arrowColors[0] = cvf::Color3::WHITE;
-        arrowColors[1] = cvf::Color3::GRAY;
-        arrowColors[2] = cvf::Color3::BLACK;
+        arrowColors = RiaColorTables::tensorWhiteGrayBlackPaletteColors().color3ubArray();
     }
 
     scalarMapper->setColors(arrowColors);

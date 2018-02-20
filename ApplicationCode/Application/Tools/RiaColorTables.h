@@ -37,6 +37,8 @@ public:
     static const caf::ColorTable& blueWhiteRedPaletteColors();
     static const caf::ColorTable& redWhiteBluePaletteColors();
     static const caf::ColorTable& categoryPaletteColors();
+    static const caf::ColorTable& tensorWhiteGrayBlackPaletteColors();
+    static const caf::ColorTable& tensorMagentaBrownBlackPaletteColors();
     static const caf::ColorTable& angularPaletteColors();
     static const caf::ColorTable& stimPlanPaletteColors();
     static const caf::ColorTable& faultsPaletteColors();
