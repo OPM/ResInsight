@@ -88,7 +88,9 @@ public:
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
 
     void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
-
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
                                                                             const RigFemResultAddress& resVarAddr);
@@ -119,6 +121,9 @@ private:
     RigFemScalarResultFrames*                        calculatePrincipalStrainValues(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculateCompactionValues(int partIndex, const RigFemResultAddress &resVarAddr);
 
+    static std::vector<RigFemResultAddress>          tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr);
+
+private:
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
     cvf::ref<RifElementPropertyReader>               m_elementPropertyReader;

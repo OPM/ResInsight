@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -28,6 +29,7 @@
 #include <vector>
 
 class RigFemResultAddress;
+class RimLegendConfig;
 
 //==================================================================================================
 ///  
@@ -56,6 +58,7 @@ public:
     virtual ~RimTensorResults();
 
     RigFemResultAddress selectedTensorResult() const;
+    void                setShowTensors(bool enableTensors);
     bool                showTensors() const;
     bool                showPrincipal1() const;
     bool                showPrincipal2() const;
@@ -64,6 +67,11 @@ public:
     float               sizeScale() const;
     TensorColors        vectorColors() const;
     ScaleMethod         scaleMethod() const;
+
+    RigFemResultPosEnum resultPositionType() const;
+    QString             resultFieldName() const;
+
+    caf::PdmChildField<RimLegendConfig*> legendConfig;
 
 private:
     std::vector<std::string>                getResultMetaDataForUIFieldSetting();

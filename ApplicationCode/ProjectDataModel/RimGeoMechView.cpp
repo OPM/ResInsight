@@ -379,7 +379,49 @@ void RimGeoMechView::updateLegends()
         {
             m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
         }
+
+        updateTensorLegendTextAndRanges(m_tensorResults->legendConfig(), m_currentTimeStep());
+
+        if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS)
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->legendConfig->legend());
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateTensorLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex)
+{
+    if (!m_geomechCase || !m_geomechCase->geoMechData()) return;
+
+    double localMin, localMax;
+    double localPosClosestToZero, localNegClosestToZero;
+    double globalMin, globalMax;
+    double globalPosClosestToZero, globalNegClosestToZero;
+
+    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
+    CVF_ASSERT(gmCase);
+
+    RigFemResultPosEnum resPos = tensorResults()->resultPositionType();
+    QString resFieldName = tensorResults()->resultFieldName();
+
+    RigFemResultAddress resVarAddress(resPos, resFieldName.toStdString(), "");
+
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents(resVarAddress, timeStepIndex, &localMin, &localMax);
+    gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents(resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero);
+    
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents(resVarAddress, &globalMin, &globalMax);
+    gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
+
+    legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+    QString legendTitle = "Tensors:\n" + caf::AppEnum<RigFemResultPosEnum>(tensorResults()->resultPositionType()).uiText() + "\n"
+                         + tensorResults()->resultFieldName();
+
+    legendConfig->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,9 +466,8 @@ void RimGeoMechView::updateLegendTextAndRanges(RimLegendConfig* legendConfig, in
         legendConfig->setNamedCategoriesInverse(fnVector);
     }
 
-    QString legendTitle = 
-        caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldUiName();
+    QString legendTitle = "Cell Results:\n" + caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + 
+        "\n" + cellResult->resultFieldUiName();
 
     if (!cellResult->resultComponentUiName().isEmpty())
     {
@@ -459,6 +500,14 @@ const cvf::ref<RivGeoMechVizLogic> RimGeoMechView::vizLogic() const
 /// 
 //--------------------------------------------------------------------------------------------------
 const RimTensorResults* RimGeoMechView::tensorResults() const
+{
+    return m_tensorResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTensorResults* RimGeoMechView::tensorResults()
 {
     return m_tensorResults;
 }

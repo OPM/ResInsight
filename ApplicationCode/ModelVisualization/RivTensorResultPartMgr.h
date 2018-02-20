@@ -87,8 +87,12 @@ private:
 
     static void createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet, cvf::ScalarMapperDiscreteLinear* scalarMapper);
     static void createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                        const std::vector<TensorVisualization>& tensorVisualization,
+                                                        const std::vector<TensorVisualization>& tensorVisualizations,
                                                         const cvf::ScalarMapper*                mapper);
+
+    static void createResultColorTextureCoords(cvf::Vec2fArray*                        textureCoords,
+                                               const std::vector<TensorVisualization>& tensorVisualizations,
+                                               const cvf::ScalarMapper*                mapper);
 
     static bool isTensorAddress(RigFemResultAddress address);
     static bool isValid(cvf::Vec3f resultVector);

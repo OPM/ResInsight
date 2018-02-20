@@ -34,6 +34,7 @@
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
+#include "RigHexIntersectionTools.h"
 #include "RigStatisticsDataCache.h"
 
 #include "RimMainPlotCollection.h"
@@ -53,7 +54,6 @@
 
 #include <stdlib.h>
 #include <cmath>
-#include "RigHexIntersectionTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -2293,6 +2293,35 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(co
     return this->statistics(resVarAddr)->cellScalarValuesHistogram(frameIndex);
 }
 
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr)
+{
+    std::vector<RigFemResultAddress> addresses;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        addresses.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, ""));
+    }
+
+    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    {
+        addresses[0].componentName = "S1";
+        addresses[1].componentName = "S2";
+        addresses[2].componentName = "S3";
+    }
+    else if (resVarAddr.fieldName == "E")
+    {
+        addresses[0].componentName = "E1";
+        addresses[1].componentName = "E2";
+        addresses[2].componentName = "E3";
+    }
+    else
+    {
+        addresses.clear();
+    }
+
+    return addresses;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -2301,37 +2330,9 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(cons
     double currentMin = HUGE_VAL;
     double currentMax = -HUGE_VAL;
 
-    double min;
-    double max;
+    double min, max;
 
-    std::vector<RigFemResultAddress> addresses;
-
-    for (size_t i = 0; i < 6; ++i)
-    {
-        addresses.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, ""));
-    }
-
-    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
-    {
-        addresses[0].componentName = "S11";
-        addresses[1].componentName = "S22";
-        addresses[2].componentName = "S33";
-        addresses[3].componentName = "S12";
-        addresses[4].componentName = "S13";
-        addresses[5].componentName = "S23";
-    }
-    else if (resVarAddr.fieldName == "E")
-    {
-        addresses[0].componentName = "E11";
-        addresses[1].componentName = "E22";
-        addresses[2].componentName = "E33";
-        addresses[3].componentName = "E12";
-        addresses[4].componentName = "E13";
-        addresses[5].componentName = "E23";
-    }
-    else return;
-    
-    for (auto address : addresses)
+    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
     {
         this->statistics(address)->minMaxCellScalarValues(frameIndex, min, max);
         if (min < currentMin)
@@ -2346,6 +2347,87 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(cons
 
     *localMin = currentMin;
     *localMax = currentMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax)
+{
+    double currentMin = HUGE_VAL;
+    double currentMax = -HUGE_VAL;
+
+    double min, max;
+
+    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    {
+        this->statistics(address)->minMaxCellScalarValues(min, max);
+        if (min < currentMin)
+        {
+            currentMin = min;
+        }
+        if (max > currentMax)
+        {
+            currentMax = max;
+        }
+    }
+
+    *globalMin = currentMin;
+    *globalMax = currentMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero)
+{
+    double currentPosClosestToZero = HUGE_VAL;
+    double currentNegClosestToZero = -HUGE_VAL;
+
+    double pos, neg;
+
+    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    {
+        this->statistics(address)->posNegClosestToZero(frameIndex, pos, neg);
+        if (pos < currentPosClosestToZero)
+        {
+            currentPosClosestToZero = pos;
+        }
+        if (neg > currentNegClosestToZero)
+        {
+            currentNegClosestToZero = neg;
+        }
+    }
+
+    *localPosClosestToZero = currentPosClosestToZero;
+    *localNegClosestToZero = currentNegClosestToZero;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero)
+{
+    double currentPosClosestToZero = HUGE_VAL;
+    double currentNegClosestToZero = -HUGE_VAL;
+
+    double pos, neg;
+
+    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    {
+        this->statistics(address)->posNegClosestToZero(pos, neg);
+        if (pos < currentPosClosestToZero)
+        {
+            currentPosClosestToZero = pos;
+        }
+        if (neg > currentNegClosestToZero)
+        {
+            currentNegClosestToZero = neg;
+        }
+    }
+
+    *globalPosClosestToZero = currentPosClosestToZero;
+    *globalNegClosestToZero = currentNegClosestToZero;
 }
 
 //--------------------------------------------------------------------------------------------------

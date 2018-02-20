@@ -91,6 +91,7 @@ public:
 
     const cvf::ref<RivGeoMechVizLogic>                  vizLogic() const;
     const RimTensorResults*                             tensorResults() const;
+    RimTensorResults*                                   tensorResults();
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
@@ -110,6 +111,8 @@ private:
     virtual void                                        resetLegendsInViewer() override;
 
     void                                                updateLegends();
+
+    void                                                updateTensorLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
 
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                        initAfterRead() override;

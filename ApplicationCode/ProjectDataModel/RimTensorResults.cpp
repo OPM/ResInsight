@@ -21,6 +21,7 @@
 #include "RigFemResultAddress.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimLegendConfig.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmUiListEditor.h"
@@ -58,6 +59,10 @@ namespace caf
 RimTensorResults::RimTensorResults()
 {
     CAF_PDM_InitObject("Tensor Results", ":/CellResult.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    this->legendConfig = new RimLegendConfig();
+    legendConfig.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType", "Result Position", "", "", "");
     m_resultPositionType.uiCapability()->setUiHidden(true);
@@ -97,7 +102,7 @@ RimTensorResults::RimTensorResults()
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::~RimTensorResults()
 {
-
+    delete legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +111,16 @@ RimTensorResults::~RimTensorResults()
 RigFemResultAddress RimTensorResults::selectedTensorResult() const
 {
     return RigFemResultAddress(m_resultPositionType(), m_resultFieldName().toStdString(), "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTensorResults::setShowTensors(bool enableTensors)
+{
+    m_showTensors = enableTensors;
+    updateConnectedEditors();
+    updateUiIconFromState(enableTensors);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,6 +190,22 @@ RimTensorResults::ScaleMethod RimTensorResults::scaleMethod() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemResultPosEnum RimTensorResults::resultPositionType() const
+{
+    return m_resultPositionType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTensorResults::resultFieldName() const
+{
+    return m_resultFieldName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RimTensorResults::getResultMetaDataForUIFieldSetting()
 {
     std::vector<std::string> fieldNames;
@@ -207,6 +238,10 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     {
         m_resultPositionType = m_resultPositionTypeUiField;
         m_resultFieldName = m_resultFieldNameUiField;
+    }
+    if (changedField == &m_showTensors)
+    {
+        setShowTensors(m_showTensors);
     }
 
     RimGeoMechView* view;
