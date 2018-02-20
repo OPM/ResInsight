@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,10 +20,10 @@
 
 #include "RiaApplication.h"
 
-#include "RimOilField.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
@@ -34,11 +34,36 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFractureTemplateFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplateCollection* templateCollection,
+                                                                            RimEllipseFractureTemplate* ellipseFractureTemplate)
+{
+    ellipseFractureTemplate->loadDataAndUpdate();
+
+    templateCollection->updateConnectedEditors();
+
+    RimProject* project = RiaApplication::instance()->project();
+
+    std::vector<Rim3dView*> views;
+    project->allVisibleViews(views);
+
+    for (Rim3dView* view : views)
+    {
+        if (dynamic_cast<RimEclipseView*>(view))
+        {
+            view->updateConnectedEditors();
+        }
+    }
+
+    RiuMainWindow::instance()->selectAsCurrentItem(ellipseFractureTemplate);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
@@ -49,35 +74,22 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     if (oilfield == nullptr) return;
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
-    
+
     if (fracDefColl)
     {
         RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
+
         fracDefColl->fractureDefinitions.push_back(ellipseFractureTemplate);
         ellipseFractureTemplate->setName("Ellipse Fracture Template");
         ellipseFractureTemplate->setFractureTemplateUnit(fracDefColl->defaultUnitsForFracTemplates());
         ellipseFractureTemplate->setDefaultValuesFromUnit();
-        ellipseFractureTemplate->loadDataAndUpdate();
 
-        fracDefColl->updateConnectedEditors();
-        
-        std::vector<Rim3dView*> views;
-        project->allVisibleViews(views);
-
-        for (Rim3dView* view : views)
-        {
-            if (dynamic_cast<RimEclipseView*>(view))
-            {
-                view->updateConnectedEditors();
-            }
-        }
-
-        RiuMainWindow::instance()->selectAsCurrentItem(ellipseFractureTemplate);
+        selectFractureTemplateAndUpdate(fracDefColl, ellipseFractureTemplate);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewEllipseFractureTemplateFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -86,7 +98,7 @@ void RicNewEllipseFractureTemplateFeature::setupActionLook(QAction* actionToSetu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewEllipseFractureTemplateFeature::isCommandEnabled()
 {
