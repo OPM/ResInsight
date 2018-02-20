@@ -90,6 +90,9 @@ public:
 
     bool                                    showStimPlanMesh() const;
 
+
+    virtual void                            convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

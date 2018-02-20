@@ -125,7 +125,7 @@ private:
     double                                  maxY() const;
 
 private:
-    RiaEclipseUnitTools::UnitSystem         m_unitSet;
+    RiaEclipseUnitTools::UnitSystem         m_unitSet; // To be deleted
     std::vector<double>                     m_fileXs;
     std::vector<double>                     m_Ys;
     std::vector<double>                     m_timeSteps;

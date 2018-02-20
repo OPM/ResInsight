@@ -542,10 +542,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
         {
-            menuBuilder << "RicPasteEllipseFractureFeature";
+            //menuBuilder << "RicPasteEllipseFractureFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
         else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
         {

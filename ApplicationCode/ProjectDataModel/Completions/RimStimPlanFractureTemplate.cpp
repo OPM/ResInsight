@@ -242,12 +242,17 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
                                                                                  m_conductivityScalingFactor(),
                                                                                  RifStimPlanXmlReader::MIRROR_AUTO,
+                                                                                 fractureTemplateUnit(),
                                                                                  &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        setFractureTemplateUnit(m_stimPlanFractureDefinitionData->unitSet());
+        if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_UNKNOWN)
+        {
+            setFractureTemplateUnit(m_stimPlanFractureDefinitionData->unitSet());
+        }
+
         m_readError = false;
     }
     else
@@ -489,6 +494,18 @@ QString RimStimPlanFractureTemplate::mapUiResultNameToFileResultName(const QStri
 bool RimStimPlanFractureTemplate::showStimPlanMesh() const
 {
     return m_showStimPlanMesh_OBSOLETE();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
+{
+    setFractureTemplateUnit(neededUnit);
+
+    m_readError = false;
+    loadDataAndUpdate();
+    setDefaultsBasedOnXMLfile();
 }
 
 //--------------------------------------------------------------------------------------------------

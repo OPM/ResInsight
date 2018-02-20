@@ -66,6 +66,9 @@ public:
 
     virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
 
+
+    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

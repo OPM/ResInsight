@@ -141,6 +141,9 @@ public:
     double                          dFactor() const;
     double                          kh() const;
 
+    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+
+
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

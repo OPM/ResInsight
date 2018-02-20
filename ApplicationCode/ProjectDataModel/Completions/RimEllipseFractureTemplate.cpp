@@ -175,23 +175,11 @@ void RimEllipseFractureTemplate::changeUnits()
 {
     if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        m_halfLength         = RiaEclipseUnitTools::meterToFeet(m_halfLength);
-        m_height             = RiaEclipseUnitTools::meterToFeet(m_height);
-        m_width              = RiaEclipseUnitTools::meterToInch(m_width);
-        m_wellDiameter         = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
-        m_perforationLength    = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
-
-        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_FIELD);
+        convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
     }
     else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        m_halfLength         = RiaEclipseUnitTools::feetToMeter(m_halfLength);
-        m_height             = RiaEclipseUnitTools::feetToMeter(m_height);
-        m_width              = RiaEclipseUnitTools::inchToMeter(m_width);
-        m_wellDiameter         = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
-        m_perforationLength    = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
-
-        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_METRIC);
+        convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
     }
 
     this->updateConnectedEditors();
@@ -355,6 +343,38 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
     propertyNamesAndUnits.push_back(std::make_pair(RiaDefines::conductivityResultName(), condUnit));
 
     return propertyNamesAndUnits;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
+{
+    if (neededUnit == fractureTemplateUnit())
+    {
+        return;
+    }
+
+    if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_halfLength         = RiaEclipseUnitTools::meterToFeet(m_halfLength);
+        m_height             = RiaEclipseUnitTools::meterToFeet(m_height);
+        m_width              = RiaEclipseUnitTools::meterToInch(m_width);
+        m_wellDiameter         = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+        m_perforationLength    = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
+
+        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_FIELD);
+    }
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_halfLength         = RiaEclipseUnitTools::feetToMeter(m_halfLength);
+        m_height             = RiaEclipseUnitTools::feetToMeter(m_height);
+        m_width              = RiaEclipseUnitTools::inchToMeter(m_width);
+        m_wellDiameter         = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+        m_perforationLength    = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
+
+        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_METRIC);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
