@@ -193,15 +193,17 @@ void Rim2dIntersectionView::update3dInfo()
 
     overlayInfoText += "<b>Z-scale:</b> " + QString::number(scaleZ()) + "<br> ";
 
-    overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
-
     if (m_intersection->simulationWell())
     {
-        overlayInfoText += "<b>Simulation Well:</b> " + m_intersection->simulationWell()->name() + "<br>";;
+        overlayInfoText += "<b>Simulation Well:</b> " + m_intersection->simulationWell()->name() + "<br>";
     }
     else if (m_intersection->wellPath())
     {
-        overlayInfoText += "<b>Well Path:</b> " + m_intersection->wellPath()->name() + "<br>";;
+        overlayInfoText += "<b>Well Path:</b> " + m_intersection->wellPath()->name() + "<br>";
+    }
+    else
+    {
+        overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
     }
 
     if (eclView)
