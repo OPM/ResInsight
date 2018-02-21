@@ -208,7 +208,10 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
             QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
 
-            m_fractureTemplate = nullptr;
+            PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+            auto prevTemplate = dynamic_cast<RimFractureTemplate*>(prevValue);
+
+            m_fractureTemplate = prevTemplate;
         }
 
         setFractureTemplate(m_fractureTemplate);
@@ -398,17 +401,23 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    RimOilField* oilField = proj->activeOilField();
-    if (oilField == nullptr) return options;
-
     if (fieldNeedingOptions == &m_fractureTemplate)
     {
-        RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
-        if (fracDefColl == nullptr) return options;
-
-        for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+        RimOilField* oilField = proj->activeOilField();
+        if (oilField && oilField->fractureDefinitionCollection)
         {
-            options.push_back(caf::PdmOptionItemInfo(fracDef->nameAndUnit(), fracDef));
+            RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
+
+            for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+            {
+                QString displayText = fracDef->nameAndUnit();
+                if (fracDef->fractureTemplateUnit() != fractureUnit())
+                {
+                    displayText += " (non-matching unit)";
+                }
+
+                options.push_back(caf::PdmOptionItemInfo(displayText, fracDef));
+            }
         }
     }
     else if (fieldNeedingOptions == &m_stimPlanTimeIndexToPlot)
