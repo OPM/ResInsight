@@ -81,17 +81,19 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 
     fracture->setName(RicFractureNameGenerator::nameForNewFracture());
 
+    auto unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
         objHandle->firstAncestorOrThisOfType(eclipseCase);
-        fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+        if (eclipseCase)
+        {
+            unitSet = eclipseCase->eclipseCaseData()->unitsType();
+        }
+        fracture->setFractureUnit(unitSet);
     }
 
-    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
-    {
-        RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->setFractureTemplate(fracDef);
-    }
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
+    fracture->setFractureTemplate(fracDef);
 
     fracture->updateFracturePositionFromLocation();
 

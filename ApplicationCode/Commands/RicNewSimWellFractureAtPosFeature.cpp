@@ -93,17 +93,20 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fracture->setName(QString("Fracture_") + fracNum);
 
+    auto unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
         simWell->firstAncestorOrThisOfType(eclipseCase);
-        fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+        if (eclipseCase)
+        {
+            unitSet = eclipseCase->eclipseCaseData()->unitsType();
+        }
+    
+        fracture->setFractureUnit(unitSet);
     }
     
-    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
-    {
-        RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->setFractureTemplate(fracDef);
-    }
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
+    fracture->setFractureTemplate(fracDef);
 
     simWell->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
