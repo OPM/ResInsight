@@ -283,20 +283,18 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
     {
         for (std::pair<QString, QString> nameUnit : uiResultNamesWithUnit())
         {
-            //options.push_back(caf::PdmOptionItemInfo(nameUnit.first + " [" + nameUnit.second + "]", nameUnit.first + " " + nameUnit.second));
             options.push_back(caf::PdmOptionItemInfo(nameUnit.first, nameUnit.first));
         }
     }
     else if (fieldNeedingOptions == &m_activeTimeStepIndex)
     {
         std::vector<double> timeValues = timeSteps();
-        int index = 0;
+        int                 index      = 0;
         for (double value : timeValues)
         {
             options.push_back(caf::PdmOptionItemInfo(QString::number(value), index));
             index++;
         }
-
     }
     else if (fieldNeedingOptions == &m_conductivityResultNameOnFile)
     {
@@ -311,7 +309,6 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
     }
 
     return options;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -703,9 +700,9 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon()
     {
         return m_stimPlanFractureDefinitionData->createFractureBorderPolygon(parameterName,
                                                                              parameterUnit,
-                                                                          m_activeTimeStepIndex,
-                                                                         m_wellPathDepthAtFracture,
-                                                                         name());
+                                                                             m_activeTimeStepIndex,
+                                                                             m_wellPathDepthAtFracture,
+                                                                             name());
     }
 
     return std::vector<cvf::Vec3f>();
@@ -772,4 +769,3 @@ void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandl
         }
     }
 }
-

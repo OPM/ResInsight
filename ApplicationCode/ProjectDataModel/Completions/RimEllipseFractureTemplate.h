@@ -43,40 +43,37 @@ class RimEllipseFractureTemplate : public RimFractureTemplate
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimEllipseFractureTemplate(void);
-    virtual ~RimEllipseFractureTemplate(void);
+    RimEllipseFractureTemplate();
+    virtual ~RimEllipseFractureTemplate();
+
+    void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
+                                                     std::vector<cvf::uint>* polygonIndices) override;
+
+    std::vector<cvf::Vec3f> fractureBorderPolygon() override;
+    void                    changeUnits();
+    const RigFractureGrid*  fractureGrid() const override;
+    void                    setDefaultValuesFromUnit();
+    double                  conductivity() const;
     
-    void                            loadDataAndUpdate() override;
-    
-    void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                     std::vector<cvf::uint>* polygonIndices);
-    std::vector<cvf::Vec3f>         fractureBorderPolygon();
-    void                            changeUnits();
-    
-    const RigFractureGrid*          fractureGrid() const;
+    void                    appendDataToResultStatistics(const QString&     uiResultName,
+                                                         const QString&     unit,
+                                                         MinMaxAccumulator& minMaxAccumulator,
+                                                         PosNegAccumulator& posNegAccumulator) const override;
 
-    void                            setDefaultValuesFromUnit();
-    double                          conductivity() const;
+    void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
 
-    virtual void appendDataToResultStatistics(const QString& uiResultName, const QString& unit,
-                                               MinMaxAccumulator& minMaxAccumulator,
-                                               PosNegAccumulator& posNegAccumulator) const override;
-
-
-    virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
-
-
-    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+    void                    loadDataAndUpdate() override;
+    std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
 
 protected:
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    void                            setupFractureGridCells();
+    void                   setupFractureGridCells();
 
 
-    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;
+    FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;
 
 private:
     cvf::ref<RigFractureGrid>   m_fractureGrid;

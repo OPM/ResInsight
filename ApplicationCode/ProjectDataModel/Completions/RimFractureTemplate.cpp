@@ -39,9 +39,9 @@ namespace caf
     template<>
     void caf::AppEnum< RimFractureTemplate::FracOrientationEnum>::setUp()
     {
-        addItem(RimFractureTemplate::AZIMUTH, "Az", "Azimuth");
-        addItem(RimFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
-        addItem(RimFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
+        addItem(RimFractureTemplate::AZIMUTH,               "Az",                   "Azimuth");
+        addItem(RimFractureTemplate::ALONG_WELL_PATH,       "AlongWellPath",        "Along Well Path");
+        addItem(RimFractureTemplate::TRANSVERSE_WELL_PATH,  "TransverseWellPath",   "Transverse (normal) to Well Path");
 
         setDefault(RimFractureTemplate::TRANSVERSE_WELL_PATH);
     }
@@ -50,7 +50,7 @@ namespace caf
     void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
     {
         addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite Conductivity");
-        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite Conductivity");
+        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY,   "FiniteConductivity",   "Finite Conductivity");
 
         setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
     }
@@ -58,8 +58,8 @@ namespace caf
     template<>
     void caf::AppEnum< RimFractureTemplate::PermeabilityEnum>::setUp()
     {
-        addItem(RimFractureTemplate::USER_DEFINED_PERMEABILITY, "UserDefinedPermeability",  "User Defined");
-        addItem(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE, "FractureConductivity",    "Use Fracture Conductivity");
+        addItem(RimFractureTemplate::USER_DEFINED_PERMEABILITY,     "UserDefinedPermeability",  "User Defined");
+        addItem(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE,    "FractureConductivity",     "Use Fracture Conductivity");
 
         setDefault(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE);
     }
@@ -67,8 +67,8 @@ namespace caf
     template<>
     void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
     {
-        addItem(RimFractureTemplate::USER_DEFINED_WIDTH, "UserDefinedWidth", "User Defined");
-        addItem(RimFractureTemplate::WIDTH_FROM_FRACTURE, "FractureWidth", "Use Fracture Width");
+        addItem(RimFractureTemplate::USER_DEFINED_WIDTH,    "UserDefinedWidth", "User Defined");
+        addItem(RimFractureTemplate::WIDTH_FROM_FRACTURE,   "FractureWidth",    "Use Fracture Width");
 
         setDefault(RimFractureTemplate::WIDTH_FROM_FRACTURE);
     }
@@ -76,9 +76,9 @@ namespace caf
     template<>
     void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
     {
-        addItem(RimFractureTemplate::NON_DARCY_NONE, "None", "None");
-        addItem(RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Compute D-factor from Parameters");
-        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "By User Defined D-factor");
+        addItem(RimFractureTemplate::NON_DARCY_NONE,        "None",         "None");
+        addItem(RimFractureTemplate::NON_DARCY_COMPUTED,    "Computed",     "Compute D-factor from Parameters");
+        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED,"UserDefined",  "By User Defined D-factor");
 
         setDefault(RimFractureTemplate::NON_DARCY_NONE);
     }
@@ -104,7 +104,7 @@ RimFractureTemplate::RimFractureTemplate()
     m_nameAndUnit.uiCapability()->setUiHidden(true);
     m_nameAndUnit.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
+    CAF_PDM_InitField(&m_fractureTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
@@ -112,10 +112,11 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
 
     CAF_PDM_InitField(&m_perforationLength,     "PerforationLength",      1.0, "Perforation Length", "", "", "");
+    
     CAF_PDM_InitField(&m_perforationEfficiency, "PerforationEfficiency",  1.0, "Perforation Efficiency", "", "", "");
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&m_wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
 
+    CAF_PDM_InitField(&m_wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
     CAF_PDM_InitField(&m_conductivityType,    "ConductivityType", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "");

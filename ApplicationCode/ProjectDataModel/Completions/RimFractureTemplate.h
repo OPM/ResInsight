@@ -100,9 +100,6 @@ public:
         NON_DARCY_USER_DEFINED,
     };
 
-
-
-
 public:
     RimFractureTemplate();
     virtual ~RimFractureTemplate();

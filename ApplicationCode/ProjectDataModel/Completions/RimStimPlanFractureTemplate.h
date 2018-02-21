@@ -59,7 +59,6 @@ public:
 
     void                                    setFileName(const QString& fileName);
     const QString&                          fileName();
-    QString                                 fileNameWithOutPath();
 
     void                                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
@@ -80,9 +79,10 @@ public:
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
 
-    virtual void appendDataToResultStatistics(const QString& uiResultName, const QString& unit,
-                                               MinMaxAccumulator& minMaxAccumulator,
-                                               PosNegAccumulator& posNegAccumulator) const override;
+    void                                    appendDataToResultStatistics(const QString& uiResultName, 
+                                                                         const QString& unit,
+                                                                         MinMaxAccumulator& minMaxAccumulator,
+                                                                         PosNegAccumulator& posNegAccumulator) const override;
 
     QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
     void                                    setDefaultConductivityResultIfEmpty();
@@ -90,7 +90,7 @@ public:
     bool                                    showStimPlanMesh() const;
 
 
-    virtual void                            convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+    void                                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
