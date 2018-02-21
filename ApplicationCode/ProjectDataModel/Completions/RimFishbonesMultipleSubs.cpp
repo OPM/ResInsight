@@ -465,24 +465,6 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-    if (field == &m_rangeStart ||
-        field == &m_rangeEnd ||
-        field == &m_rangeSubSpacing)
-    {
-        caf::PdmUiDoubleValueEditorAttribute* attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>(attribute);
-
-        if (attr)
-        {
-            attr->m_decimals = 2;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
     if (m_subsLocationMode == FB_SUB_COUNT_END)
