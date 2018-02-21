@@ -46,7 +46,7 @@ public:
     RimEllipseFractureTemplate(void);
     virtual ~RimEllipseFractureTemplate(void);
     
-    void                            loadDataAndUpdate();
+    void                            loadDataAndUpdate() override;
     
     void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                      std::vector<cvf::uint>* polygonIndices);

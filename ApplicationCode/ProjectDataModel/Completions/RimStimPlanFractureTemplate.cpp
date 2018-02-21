@@ -502,10 +502,32 @@ bool RimStimPlanFractureTemplate::showStimPlanMesh() const
 void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
     setFractureTemplateUnit(neededUnit);
+    RimFractureTemplate::convertToUnitSystem(neededUnit);
 
     m_readError = false;
     loadDataAndUpdate();
-    setDefaultsBasedOnXMLfile();
+
+    if (m_stimPlanFractureDefinitionData.isNull()) return;
+
+    if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_wellPathDepthAtFracture = RiaEclipseUnitTools::meterToFeet(m_wellPathDepthAtFracture);
+    }
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_wellPathDepthAtFracture = RiaEclipseUnitTools::feetToMeter(m_wellPathDepthAtFracture);
+    }
+
+    m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
+    bool polygonPropertySet = setBorderPolygonResultNameToDefault();
+
+    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(m_borderPolygonResultName).arg(m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex]));
+    else                    RiaLogging::info(QString("Property for polygon calculation not set."));
+
+    if (!m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty())
+    {
+        m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

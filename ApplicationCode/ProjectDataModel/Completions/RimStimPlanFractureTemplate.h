@@ -54,7 +54,7 @@ public:
     
     int                                     activeTimeStepIndex();
 
-    void                                    loadDataAndUpdate(); 
+    void                                    loadDataAndUpdate() override;
     void                                    setDefaultsBasedOnXMLfile();
 
     void                                    setFileName(const QString& fileName);

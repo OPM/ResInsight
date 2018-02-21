@@ -533,6 +533,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem))
         {
             menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder << "RicPasteStimPlanFractureFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
@@ -542,7 +543,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
         {
-            //menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder << "RicPasteStimPlanFractureFeature";
+            menuBuilder << "RicPasteEllipseFractureFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
@@ -552,6 +554,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
         {
             menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder << "RicPasteStimPlanFractureFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";

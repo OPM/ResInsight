@@ -566,6 +566,25 @@ double RimFractureTemplate::kh() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
+{
+    if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_perforationLength = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+    }
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_perforationLength = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+    }
+
+    // TODO : Convert NON-darcy values
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)

@@ -140,7 +140,9 @@ public:
     double                          dFactor() const;
     double                          kh() const;
 
-    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit);
+
+    virtual void                    loadDataAndUpdate() = 0;
 
 
 protected:

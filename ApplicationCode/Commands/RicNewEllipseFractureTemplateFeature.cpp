@@ -40,9 +40,9 @@ CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFracture
 ///
 //--------------------------------------------------------------------------------------------------
 void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplateCollection* templateCollection,
-                                                                            RimEllipseFractureTemplate* ellipseFractureTemplate)
+                                                                           RimFractureTemplate*           fractureTemplate)
 {
-    ellipseFractureTemplate->loadDataAndUpdate();
+    fractureTemplate->loadDataAndUpdate();
 
     templateCollection->updateConnectedEditors();
 
@@ -59,7 +59,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
         }
     }
 
-    RiuMainWindow::instance()->selectAsCurrentItem(ellipseFractureTemplate);
+    RiuMainWindow::instance()->selectAsCurrentItem(fractureTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------

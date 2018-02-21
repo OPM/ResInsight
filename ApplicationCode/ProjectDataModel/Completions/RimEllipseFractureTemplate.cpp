@@ -324,30 +324,20 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
-    if (neededUnit == fractureTemplateUnit())
-    {
-        return;
-    }
+    setFractureTemplateUnit(neededUnit);
+    RimFractureTemplate::convertToUnitSystem(neededUnit);
 
     if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_halfLength         = RiaEclipseUnitTools::meterToFeet(m_halfLength);
         m_height             = RiaEclipseUnitTools::meterToFeet(m_height);
         m_width              = RiaEclipseUnitTools::meterToInch(m_width);
-        m_wellDiameter         = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
-        m_perforationLength    = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
-
-        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_FIELD);
     }
     else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_halfLength         = RiaEclipseUnitTools::feetToMeter(m_halfLength);
         m_height             = RiaEclipseUnitTools::feetToMeter(m_height);
         m_width              = RiaEclipseUnitTools::inchToMeter(m_width);
-        m_wellDiameter         = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
-        m_perforationLength    = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
-
-        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_METRIC);
     }
 }
 
@@ -362,14 +352,12 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         m_height.uiCapability()->setUiName("Height [m]");
         m_width.uiCapability()->setUiName("Width [m]");
-        m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
     }
     else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         m_height.uiCapability()->setUiName("Height [Ft]");
         m_width.uiCapability()->setUiName("Width [inches]");
-        m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
     }
 
     if (conductivityType() == FINITE_CONDUCTIVITY)
