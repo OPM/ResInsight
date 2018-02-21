@@ -585,6 +585,34 @@ void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem ne
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
+{
+    // The unit has changed. Disconnect all fractures referencing this fracture template to avoid mix of units between fracture
+    // and template
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields(referringObjects);
+
+    for (auto objHandle : referringObjects)
+    {
+        RimFracture* fracture = dynamic_cast<RimFracture*>(objHandle);
+        if (fracture)
+        {
+            fracture->setFractureTemplate(nullptr);
+        }
+    }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)

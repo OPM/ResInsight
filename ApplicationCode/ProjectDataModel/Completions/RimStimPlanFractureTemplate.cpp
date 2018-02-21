@@ -501,6 +501,8 @@ bool RimStimPlanFractureTemplate::showStimPlanMesh() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
+    if (m_fractureTemplateUnit() == neededUnit) return;
+
     setFractureTemplateUnit(neededUnit);
     RimFractureTemplate::convertToUnitSystem(neededUnit);
 

@@ -324,6 +324,8 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
+    if (m_fractureTemplateUnit() == neededUnit) return;
+
     setFractureTemplateUnit(neededUnit);
     RimFractureTemplate::convertToUnitSystem(neededUnit);
 

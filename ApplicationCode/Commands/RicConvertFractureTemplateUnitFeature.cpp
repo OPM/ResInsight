@@ -68,6 +68,8 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
        fractureTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
     }
 
+    fractureTemplate->disconnectAllFracturesAndRedrawViews();
+
     fractureTemplate->updateConnectedEditors();
 }
 

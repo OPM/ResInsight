@@ -144,6 +144,8 @@ public:
 
     virtual void                    loadDataAndUpdate() = 0;
 
+    void                            disconnectAllFracturesAndRedrawViews() const;
+
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
