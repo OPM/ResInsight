@@ -621,7 +621,7 @@ QString RimFractureTemplate::nameAndUnit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::wellDiameterInFractureUnit()
+double RimFractureTemplate::wellDiameter()
 {
     return m_wellDiameter;
 }
@@ -629,7 +629,7 @@ double RimFractureTemplate::wellDiameterInFractureUnit()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::perforationLengthInFractureUnit()
+double RimFractureTemplate::perforationLength()
 {
     return m_perforationLength;
 }

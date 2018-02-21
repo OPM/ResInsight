@@ -298,11 +298,11 @@ double RimFracture::wellRadius() const
 {
     if (m_fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        return m_wellDiameter / 2;
+        return m_wellDiameter / 2.0;
     }
     else if (m_fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2);
+        return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2.0);
     }
 
     return cvf::UNDEFINED_DOUBLE;
@@ -657,8 +657,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     {
         this->updateAzimuthBasedOnWellAzimuthAngle();
     }
-    this->m_wellDiameter = fractureTemplate->wellDiameterInFractureUnit();
-    this->m_perforationLength = fractureTemplate->perforationLengthInFractureUnit();
+    this->m_wellDiameter = fractureTemplate->wellDiameter();
+    this->m_perforationLength = fractureTemplate->perforationLength();
 }
 
 //--------------------------------------------------------------------------------------------------

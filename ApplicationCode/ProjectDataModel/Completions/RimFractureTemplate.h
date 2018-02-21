@@ -114,12 +114,12 @@ public:
     FracOrientationEnum             orientationType() const;
     float                           azimuthAngle() const;
     float                           skinFactor() const;
-    double                          wellDiameterInFractureUnit();
+    double                          wellDiameter();
     FracConductivityEnum            conductivityType() const;
-    double                          perforationLengthInFractureUnit();
+    double                          perforationLength();
 
-    virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>*        nodeCoords,
-                                                             std::vector<cvf::uint>*         triangleIndices) = 0;
+    virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
+                                                             std::vector<cvf::uint>*  triangleIndices) = 0;
 
     virtual std::vector<cvf::Vec3f> fractureBorderPolygon() = 0;
     virtual const RigFractureGrid*  fractureGrid() const = 0;
