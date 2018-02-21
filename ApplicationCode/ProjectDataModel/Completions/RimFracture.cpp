@@ -442,7 +442,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     else if (m_fractureUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
-        m_perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
+        m_perforationLength.uiCapability()->setUiName("Perforation Length [ft]");
     }
 
     if (fractureTemplate())

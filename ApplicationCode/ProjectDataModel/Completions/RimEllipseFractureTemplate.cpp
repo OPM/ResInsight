@@ -357,8 +357,8 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     }
     else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
-        m_height.uiCapability()->setUiName("Height [Ft]");
+        m_halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [ft]");
+        m_height.uiCapability()->setUiName("Height [ft]");
         m_width.uiCapability()->setUiName("Width [inches]");
     }
 

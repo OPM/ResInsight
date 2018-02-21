@@ -138,7 +138,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_userDefinedEffectivePermeability,  "EffectivePermeability",0.0,    "Effective Permeability (Ke) [mD]", "", "", "");
 
     CAF_PDM_InitField(&m_relativeGasDensity,            "RelativeGasDensity",   0.8,    "<html>Relative Gas Density (&gamma;)</html>", "", "Relative density of gas at surface conditions with respect to air at STP", "");
-    CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html>", "", "Gas viscosity at bottom hole pressure", "");
+    CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html> [cP]", "", "Gas viscosity at bottom hole pressure", "");
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
     m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
@@ -399,11 +399,13 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         m_perforationLength.uiCapability()->setUiName("Perforation Length [m]");
+        m_fractureWidth.uiCapability()->setUiName("Fracture Width [m]");
     }
     else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
-        m_perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
+        m_perforationLength.uiCapability()->setUiName("Perforation Length [ft]");
+        m_fractureWidth.uiCapability()->setUiName("Fracture Width [ft]");
     }
 
     if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH
@@ -572,14 +574,14 @@ void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem ne
     {
         m_perforationLength = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
         m_wellDiameter      = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+        m_fractureWidth     = RiaEclipseUnitTools::feetToMeter(m_fractureWidth);
     }
     else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_perforationLength = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
         m_wellDiameter      = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+        m_fractureWidth     = RiaEclipseUnitTools::meterToFeet(m_fractureWidth);
     }
-
-    // TODO : Convert NON-darcy values
 }
 
 //--------------------------------------------------------------------------------------------------
