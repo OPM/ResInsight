@@ -46,6 +46,7 @@ class RiuResultQwtPlot;
 class RiuViewer;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
+class RiuMohrsCirclePlot;
 
 struct RimMdiWindowGeometry;
 
@@ -175,6 +176,7 @@ private:
     QPointer<RiuMessagePanel>               m_messagePanel;
     
     RiuResultQwtPlot*                   m_resultQwtPlot;
+    RiuMohrsCirclePlot*                 m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
     RiuPvtPlotPanel*                    m_pvtPlotPanel;
 

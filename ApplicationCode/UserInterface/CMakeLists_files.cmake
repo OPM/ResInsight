@@ -69,6 +69,7 @@ ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuTools.h
+${CEE_CURRENT_LIST_DIR}RiuMohrsCirclePlot.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -133,6 +134,7 @@ ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuTools.cpp
+${CEE_CURRENT_LIST_DIR}RiuMohrsCirclePlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -174,6 +176,7 @@ ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
+${CEE_CURRENT_LIST_DIR}RiuMohrsCirclePlot.h
 )
 
 list(APPEND QT_UI_FILES

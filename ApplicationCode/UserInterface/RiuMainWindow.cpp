@@ -42,6 +42,7 @@
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
+#include "RiuMohrsCirclePlot.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -107,6 +108,7 @@ RiuMainWindow::RiuMainWindow()
     m_mainViewer(nullptr),
     m_relPermPlotPanel(nullptr),
     m_pvtPlotPanel(nullptr),
+    m_mohrsCirclePlot(nullptr),
     m_windowMenu(nullptr),
     m_blockSlotSubWindowActivated(false)
 {
@@ -597,6 +599,7 @@ void RiuMainWindow::createDockPanels()
     QDockWidget* resultPlotDock = nullptr;
     QDockWidget* relPermPlotDock = nullptr;
     QDockWidget* pvtPlotDock = nullptr;
+    QDockWidget* mohrsCirclePlotDock = nullptr;
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
@@ -640,6 +643,19 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
         resultPlotDock = dockPanel;
     }
+
+#ifdef USE_ODB_API
+    {
+        QDockWidget* dockPanel = new QDockWidget("Mohr's Circle Plot", this);
+        dockPanel->setObjectName("dockTimeHistoryPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_mohrsCirclePlot = new RiuMohrsCirclePlot(dockPanel);
+        dockPanel->setWidget(m_mohrsCirclePlot);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        mohrsCirclePlotDock = dockPanel;
+    }
+#endif
  
     {
         QDockWidget* dockPanel = new QDockWidget("Relative Permeability Plot", this);
@@ -677,7 +693,13 @@ void RiuMainWindow::createDockPanels()
 
     // Tabify docks
     tabifyDockWidget(pvtPlotDock, relPermPlotDock);
+#ifdef USE_ODB_API
+    tabifyDockWidget(relPermPlotDock, mohrsCirclePlotDock);
+    tabifyDockWidget(mohrsCirclePlotDock, resultPlotDock);
+#else
     tabifyDockWidget(relPermPlotDock, resultPlotDock);
+#endif
+
 }
 
 //--------------------------------------------------------------------------------------------------
