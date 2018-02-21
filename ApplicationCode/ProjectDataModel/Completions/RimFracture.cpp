@@ -64,6 +64,7 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
+#include <QMessageBox>
 #include <QString>
 
 #include <math.h>
@@ -197,6 +198,22 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 {
     if (changedField == &m_fractureTemplate)
     {
+        if (fractureUnit() != m_fractureTemplate->fractureTemplateUnit())
+        {
+            QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
+
+            QString warningText = QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                                          "fracture template of unit '%1'")
+                                      .arg(fractureUnitText);
+
+            QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
+
+            PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+            auto prevTemplate = dynamic_cast<RimFractureTemplate*>(prevValue);
+
+            m_fractureTemplate = prevTemplate;
+        }
+
         setFractureTemplate(m_fractureTemplate);
         setDefaultFractureColorResult();
     }
@@ -223,7 +240,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             proj->reloadCompletionTypeResultsInAllViews();
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,30 +294,17 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFracture::wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const
+double RimFracture::wellRadius() const
 {
     if (m_fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            return RiaEclipseUnitTools::meterToFeet(m_wellDiameter / 2);
-        }
-        else
-        {
-            return m_wellDiameter / 2;
-        }
+        return m_wellDiameter / 2.0;
     }
     else if (m_fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            return RiaEclipseUnitTools::inchToMeter(m_wellDiameter / 2);
-        }
-        else
-        {
-            return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2);
-        }
+        return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2.0);
     }
+
     return cvf::UNDEFINED_DOUBLE;
 }
 
@@ -347,7 +350,7 @@ void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std:
     RimFractureTemplate* fractureDef = fractureTemplate();
     if (fractureDef)
     {
-        fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices, fractureUnit());
+        fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices);
     }
 
     cvf::Mat4d m = transformMatrix();
@@ -384,17 +387,23 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    RimOilField* oilField = proj->activeOilField();
-    if (oilField == nullptr) return options;
-
     if (fieldNeedingOptions == &m_fractureTemplate)
     {
-        RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
-        if (fracDefColl == nullptr) return options;
-
-        for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+        RimOilField* oilField = proj->activeOilField();
+        if (oilField && oilField->fractureDefinitionCollection)
         {
-            options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
+            RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
+
+            for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+            {
+                QString displayText = fracDef->nameAndUnit();
+                if (fracDef->fractureTemplateUnit() != fractureUnit())
+                {
+                    displayText += " (non-matching unit)";
+                }
+
+                options.push_back(caf::PdmOptionItemInfo(displayText, fracDef));
+            }
         }
     }
     else if (fieldNeedingOptions == &m_stimPlanTimeIndexToPlot)
@@ -613,6 +622,20 @@ size_t RimFracture::findAnchorEclipseCell(const RigMainGrid* mainGrid ) const
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
+    if (fractureTemplate && fractureTemplate->fractureTemplateUnit() != fractureUnit())
+    {
+        QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
+
+        QString warningText =
+            QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                    "fracture template of unit '%1'")
+                .arg(fractureUnitText);
+
+        QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
+
+        return;
+    }
+
     m_fractureTemplate = fractureTemplate;
 
     if (!fractureTemplate)
@@ -634,8 +657,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     {
         this->updateAzimuthBasedOnWellAzimuthAngle();
     }
-    this->m_wellDiameter = fractureTemplate->wellDiameterInFractureUnit(m_fractureUnit());
-    this->m_perforationLength = fractureTemplate->perforationLengthInFractureUnit(m_fractureUnit());
+    this->m_wellDiameter = fractureTemplate->wellDiameter();
+    this->m_perforationLength = fractureTemplate->perforationLength();
 }
 
 //--------------------------------------------------------------------------------------------------

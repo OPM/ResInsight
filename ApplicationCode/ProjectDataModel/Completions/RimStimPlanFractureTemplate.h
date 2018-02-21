@@ -54,7 +54,7 @@ public:
     
     int                                     activeTimeStepIndex();
 
-    void                                    loadDataAndUpdate(); 
+    void                                    loadDataAndUpdate() override;
     void                                    setDefaultsBasedOnXMLfile();
 
     void                                    setFileName(const QString& fileName);
@@ -69,9 +69,8 @@ public:
     const RigFractureGrid*                  fractureGrid() const override;
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                                     std::vector<cvf::uint>* triangleIndices, 
-                                                                     RiaEclipseUnitTools::UnitSystem  neededUnit) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+                                                                     std::vector<cvf::uint>* triangleIndices) override;
+    std::vector<cvf::Vec3f>                 fractureBorderPolygon() override;
 
     // Result Access
 
@@ -89,6 +88,9 @@ public:
     void                                    setDefaultConductivityResultIfEmpty();
 
     bool                                    showStimPlanMesh() const;
+
+
+    virtual void                            convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

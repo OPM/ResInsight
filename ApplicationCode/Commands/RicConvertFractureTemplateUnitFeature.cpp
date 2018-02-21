@@ -55,11 +55,20 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimEllipseFractureTemplate* ellipseFractureTemplate = nullptr;
-    objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
+    RimFractureTemplate* fractureTemplate = nullptr;
+    objHandle->firstAncestorOrThisOfType(fractureTemplate);
 
-   ellipseFractureTemplate->changeUnits();
+    auto currentUnit = fractureTemplate->fractureTemplateUnit();
+    if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+       fractureTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
+    }
+    else
+    {
+       fractureTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
+    }
 
+    fractureTemplate->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,16 +82,16 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimEllipseFractureTemplate* ellipseFractureTemplate = nullptr;
-    objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
-    if (!ellipseFractureTemplate) return;
+    RimFractureTemplate* fractureTemplate = nullptr;
+    objHandle->firstAncestorOrThisOfType(fractureTemplate);
+    if (!fractureTemplate) return;
 
     QString text = "Convert Values to ";
-    if (ellipseFractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
+    if (fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
         text += "Field";
     }
-    else if (ellipseFractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
+    else if (fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         text += "Metric";
     }

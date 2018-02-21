@@ -60,7 +60,7 @@ public:
     
     void                            setStimPlanTimeIndexToPlot(int timeIndex);
 
-    double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double                          wellRadius() const;
     cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
     RiaEclipseUnitTools::UnitSystem fractureUnit() const;

@@ -69,6 +69,22 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const
+{
+    for (RimFractureTemplate* f : fractureDefinitions())
+    {
+        if (f->fractureTemplateUnit() == unitSet)
+        {
+            return f;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::resultNamesAndUnits() const
 {
     std::set<std::pair<QString, QString> > nameSet;

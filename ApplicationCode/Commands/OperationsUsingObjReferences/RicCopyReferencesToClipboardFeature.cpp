@@ -21,6 +21,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFractureTemplate.h"
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -161,6 +162,10 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     else if (dynamic_cast<RimWellLogPlot*>(pdmObject))
     {
         if (!wellAllocPlot && !rftPlot) return true;
+    }
+    else if (dynamic_cast<RimFractureTemplate*>(pdmObject))
+    {
+        return true;
     }
 
     return false;

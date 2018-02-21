@@ -68,16 +68,15 @@ public:
     double                          maxDepth() const;
     double                          topPerfTvd() const;
     double                          bottomPerfTvd() const;
-    void                            setTvdToTopPerf(double topPerfTvd, RiaDefines::DepthUnitType unit);
-    void                            setTvdToBottomPerf(double bottomPerfTvd, RiaDefines::DepthUnitType unit);
+    void                            setTvdToTopPerf(double topPerfTvd);
+    void                            setTvdToBottomPerf(double bottomPerfTvd);
     
     cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
                                                        int                                 activeTimeStepIndex,
-                                                       RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
+                                                       const QString&                      conductivityUnitText, 
                                                        double                              wellPathIntersectionAtFractureDepth);
     
     void                            createFractureTriangleGeometry(double                          wellPathIntersectionAtFractureDepth,
-                                                                   RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                    const QString&                  fractureUserName,
                                                                    std::vector<cvf::Vec3f>*        vertices,
                                                                    std::vector<cvf::uint>*         triangleIndices);
@@ -86,7 +85,6 @@ public:
                                                                 const QString&                  resultUnit,
                                                                 int                             activeTimeStepIndex,
                                                                 double                          wellPathIntersectionAtFractureDepth,
-                                                                RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                 const QString&                  fractureUserName);
 
     const std::vector<double>&               timeSteps() const;
@@ -125,7 +123,7 @@ private:
     double                                  maxY() const;
 
 private:
-    RiaEclipseUnitTools::UnitSystem         m_unitSet;
+    RiaEclipseUnitTools::UnitSystem         m_unitSet; // To be deleted
     std::vector<double>                     m_fileXs;
     std::vector<double>                     m_Ys;
     std::vector<double>                     m_timeSteps;

@@ -290,7 +290,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                     double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
                                                                                                              wellCell.cellSizeX(),
                                                                                                              wellCell.cellSizeZ(),
-                                                                                                             fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
+                                                                                                             fracture->wellRadius(),
                                                                                                              fracTemplate->skinFactor(),
                                                                                                              cDarcyInCorrectUnit);
 
@@ -354,7 +354,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                           RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()),
                                           fracture->fractureMD());
 
-                double diameter = 2.0 * fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType());
+                double diameter = 2.0 * fracture->wellRadius();
                 compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor(), diameter);
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 allCompletionsForOneFracture.push_back(compDat);

@@ -86,11 +86,11 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
 
     fracture->setName(RicFractureNameGenerator::nameForNewFracture());
 
-    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
-    {
-        RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->setFractureTemplate(fracDef);
-    }
+    auto unitSet = wellPath->unitSystem();
+    fracture->setFractureUnit(unitSet);
+
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
+    fracture->setFractureTemplate(fracDef);
 
     wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

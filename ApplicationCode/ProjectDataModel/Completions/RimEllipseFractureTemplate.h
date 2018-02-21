@@ -46,12 +46,11 @@ public:
     RimEllipseFractureTemplate(void);
     virtual ~RimEllipseFractureTemplate(void);
     
-    void                            loadDataAndUpdate();
+    void                            loadDataAndUpdate() override;
     
     void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                     std::vector<cvf::uint>* polygonIndices, 
-                                                     RiaEclipseUnitTools::UnitSystem neededUnit);
-    std::vector<cvf::Vec3f>         fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem  neededUnit);
+                                                     std::vector<cvf::uint>* polygonIndices);
+    std::vector<cvf::Vec3f>         fractureBorderPolygon();
     void                            changeUnits();
     
     const RigFractureGrid*          fractureGrid() const;
@@ -65,6 +64,9 @@ public:
 
 
     virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
+
+
+    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
 
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

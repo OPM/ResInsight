@@ -98,6 +98,12 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&m_name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "");
+    m_nameAndUnit.registerGetMethod(this, &RimFractureTemplate::nameAndUnit);
+    m_nameAndUnit.uiCapability()->setUiHidden(true);
+    m_nameAndUnit.xmlCapability()->disableIO();
+
     CAF_PDM_InitField(&m_fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
@@ -138,12 +144,14 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
     m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
     m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
+    m_dFactorDisplayField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
     m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
     m_dFactorSummaryText.uiCapability()->setUiReadOnly(true);
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
+    m_dFactorSummaryText.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +206,7 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 {
-    return &m_name;
+    return &m_nameAndUnit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -558,6 +566,25 @@ double RimFractureTemplate::kh() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
+{
+    if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_perforationLength = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+    }
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_perforationLength = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+    }
+
+    // TODO : Convert NON-darcy values
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)
@@ -573,47 +600,38 @@ double RimFractureTemplate::fractureWidth() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+QString RimFractureTemplate::nameAndUnit() const
 {
-    if (fractureUnit == m_fractureTemplateUnit())
+    QString decoratedName;
+
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        return m_wellDiameter;
+        decoratedName += "[M] - ";
     }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RiaEclipseUnitTools::meterToInch(m_wellDiameter);
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+        decoratedName += "[F] - ";
     }
 
-    return cvf::UNDEFINED_DOUBLE;
+    decoratedName += m_name;
+
+    return decoratedName;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+double RimFractureTemplate::wellDiameter()
 {
-    if (fractureUnit == m_fractureTemplateUnit())
-    {
-        return m_perforationLength;
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_perforationLength);
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_perforationLength);
-    }
+    return m_wellDiameter;
+}
 
-    return cvf::UNDEFINED_DOUBLE;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::perforationLength()
+{
+    return m_perforationLength;
 }
 
 //--------------------------------------------------------------------------------------------------

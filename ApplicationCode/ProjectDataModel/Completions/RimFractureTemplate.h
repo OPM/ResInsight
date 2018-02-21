@@ -108,19 +108,20 @@ public:
     virtual ~RimFractureTemplate();
 
     QString                         name() const;
+    QString                         nameAndUnit() const;
+
     RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit() const;
     FracOrientationEnum             orientationType() const;
     float                           azimuthAngle() const;
     float                           skinFactor() const;
-    double                          wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
+    double                          wellDiameter();
     FracConductivityEnum            conductivityType() const;
-    double                          perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
+    double                          perforationLength();
 
-    virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>*        nodeCoords,
-                                                             std::vector<cvf::uint>*         triangleIndices,
-                                                             RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+    virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
+                                                             std::vector<cvf::uint>*  triangleIndices) = 0;
 
-    virtual std::vector<cvf::Vec3f> fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+    virtual std::vector<cvf::Vec3f> fractureBorderPolygon() = 0;
     virtual const RigFractureGrid*  fractureGrid() const = 0;
     const RimFractureContainment*   fractureContainment();
 
@@ -138,6 +139,11 @@ public:
     bool                            isNonDarcyFlowEnabled() const;
     double                          dFactor() const;
     double                          kh() const;
+
+    virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit);
+
+    virtual void                    loadDataAndUpdate() = 0;
+
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
@@ -157,6 +163,8 @@ private:
 
 protected:
     caf::PdmField<QString>                             m_name;
+    caf::PdmProxyValueField<QString>                   m_nameAndUnit;
+
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_fractureTemplateUnit;
     caf::PdmField<caf::AppEnum<FracOrientationEnum>>   m_orientationType;
     caf::PdmField<float>                               m_azimuthAngle;

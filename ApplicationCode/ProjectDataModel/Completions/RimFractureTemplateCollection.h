@@ -37,6 +37,8 @@ class RimFractureTemplateCollection : public caf::PdmObject
 public:
     RimFractureTemplateCollection(void);
     virtual ~RimFractureTemplateCollection(void);
+
+    RimFractureTemplate* firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const;
     
     caf::PdmChildArrayField<RimFractureTemplate*>           fractureDefinitions;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >    defaultUnitsForFracTemplates;

@@ -530,17 +530,32 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewSimWellFractureFeature";
         }
-        else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
-            dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
+        else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem))
         {
+            menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder << "RicPasteStimPlanFractureFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertAllFractureTemplatesToMetricFeature";
             menuBuilder << "RicConvertAllFractureTemplatesToFieldFeature";
         }
+        else if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
+        {
+            menuBuilder << "RicPasteStimPlanFractureFeature";
+            menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewEllipseFractureTemplateFeature";
+            menuBuilder << "RicNewStimPlanFractureTemplateFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicConvertFractureTemplateUnitFeature";
+        }
         else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
         {
+            menuBuilder << "RicPasteEllipseFractureFeature";
+            menuBuilder << "RicPasteStimPlanFractureFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
             menuBuilder << "Separator";
