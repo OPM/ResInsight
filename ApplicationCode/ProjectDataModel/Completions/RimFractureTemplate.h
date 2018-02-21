@@ -114,9 +114,9 @@ public:
     FracOrientationEnum             orientationType() const;
     float                           azimuthAngle() const;
     float                           skinFactor() const;
-    double                          wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
+    double                          wellDiameterInFractureUnit();
     FracConductivityEnum            conductivityType() const;
-    double                          perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
+    double                          perforationLengthInFractureUnit();
 
     virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>*        nodeCoords,
                                                              std::vector<cvf::uint>*         triangleIndices) = 0;

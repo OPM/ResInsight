@@ -42,7 +42,7 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
 {
     std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->wellPathPointsIncludingInterpolatedIntersectionPoint(rimFracture->fractureMD());
     cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
-    double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
+    double wellRadius                                        = rimFracture->wellRadius();
     std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
     {
         RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();

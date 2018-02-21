@@ -295,30 +295,17 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFracture::wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const
+double RimFracture::wellRadius() const
 {
     if (m_fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            return RiaEclipseUnitTools::meterToFeet(m_wellDiameter / 2);
-        }
-        else
-        {
-            return m_wellDiameter / 2;
-        }
+        return m_wellDiameter / 2;
     }
     else if (m_fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            return RiaEclipseUnitTools::inchToMeter(m_wellDiameter / 2);
-        }
-        else
-        {
-            return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2);
-        }
+        return RiaEclipseUnitTools::inchToFeet(m_wellDiameter / 2);
     }
+
     return cvf::UNDEFINED_DOUBLE;
 }
 
@@ -657,8 +644,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     {
         this->updateAzimuthBasedOnWellAzimuthAngle();
     }
-    this->m_wellDiameter = fractureTemplate->wellDiameterInFractureUnit(m_fractureUnit());
-    this->m_perforationLength = fractureTemplate->perforationLengthInFractureUnit(m_fractureUnit());
+    this->m_wellDiameter = fractureTemplate->wellDiameterInFractureUnit();
+    this->m_perforationLength = fractureTemplate->perforationLengthInFractureUnit();
 }
 
 //--------------------------------------------------------------------------------------------------

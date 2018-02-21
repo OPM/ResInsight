@@ -602,47 +602,17 @@ QString RimFractureTemplate::nameAndUnit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+double RimFractureTemplate::wellDiameterInFractureUnit()
 {
-    if (fractureUnit == m_fractureTemplateUnit())
-    {
-        return m_wellDiameter;
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToInch(m_wellDiameter);
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
-    }
-
-    return cvf::UNDEFINED_DOUBLE;
+    return m_wellDiameter;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+double RimFractureTemplate::perforationLengthInFractureUnit()
 {
-    if (fractureUnit == m_fractureTemplateUnit())
-    {
-        return m_perforationLength;
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_perforationLength);
-    }
-    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_perforationLength);
-    }
-
-    return cvf::UNDEFINED_DOUBLE;
+    return m_perforationLength;
 }
 
 //--------------------------------------------------------------------------------------------------
