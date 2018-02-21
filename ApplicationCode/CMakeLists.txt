@@ -124,7 +124,6 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
-    Commands/FractureCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
@@ -138,6 +137,13 @@ list( APPEND REFERENCED_CMAKE_FILES
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND REFERENCED_CMAKE_FILES
+    Commands/FractureCommands/CMakeLists_files.cmake
+    )
+endif()
+
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
