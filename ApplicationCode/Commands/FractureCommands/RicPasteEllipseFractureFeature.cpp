@@ -18,7 +18,7 @@
 
 #include "RicPasteEllipseFractureFeature.h"
 
-#include "../OperationsUsingObjReferences/RicPasteFeatureImpl.h"
+#include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
 #include "RicNewEllipseFractureTemplateFeature.h"
 

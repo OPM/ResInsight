@@ -72,22 +72,6 @@ ${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFileHierarchyDialog.h
 )
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_HEADER_FILES
-        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.h
-    )
-endif()
-
-
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicWellLogTools.cpp
@@ -150,22 +134,6 @@ ${CEE_CURRENT_LIST_DIR}RicShowGridStatisticsFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicFileHierarchyDialog.cpp
 )
-
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.cpp
-    )
-endif()
 
 
 list(APPEND CODE_HEADER_FILES
