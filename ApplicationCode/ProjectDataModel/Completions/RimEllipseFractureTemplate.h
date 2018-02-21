@@ -49,9 +49,8 @@ public:
     void                            loadDataAndUpdate();
     
     void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                     std::vector<cvf::uint>* polygonIndices, 
-                                                     RiaEclipseUnitTools::UnitSystem neededUnit);
-    std::vector<cvf::Vec3f>         fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem  neededUnit);
+                                                     std::vector<cvf::uint>* polygonIndices);
+    std::vector<cvf::Vec3f>         fractureBorderPolygon();
     void                            changeUnits();
     
     const RigFractureGrid*          fractureGrid() const;

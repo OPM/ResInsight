@@ -256,7 +256,7 @@ std::vector<std::pair<QString, QString> > RigStimPlanFractureDefinition::getStim
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultName,
                                                                             int activeTimeStepIndex, 
-                                                                            RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit, 
+                                                                            const QString& conductivityUnitText, 
                                                                             double wellPathIntersectionAtFractureDepth)
 {
     std::vector<RigFractureCell> stimPlanCells;
@@ -264,10 +264,8 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
 
     bool wellCenterStimPlanCellFound = false;
 
-    QString condUnit = RiaDefines::unitStringConductivity(fractureTemplateUnit);
-
     std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getDataAtTimeIndex(resultName, 
-                                                                                             condUnit, 
+                                                                                             conductivityUnitText, 
                                                                                              activeTimeStepIndex);
 
     std::vector<double> yCoordsAtNodes = this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth);
@@ -365,7 +363,6 @@ std::vector<double> RigStimPlanFractureDefinition::fractureGridResults(const QSt
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigStimPlanFractureDefinition::createFractureTriangleGeometry(double wellPathIntersectionAtFractureDepth,
-                                                                   RiaEclipseUnitTools::UnitSystem neededUnit, 
                                                                    const QString& fractureUserName, 
                                                                    std::vector<cvf::Vec3f>* vertices, 
                                                                    std::vector<cvf::uint>* triangleIndices)
@@ -374,30 +371,6 @@ void RigStimPlanFractureDefinition::createFractureTriangleGeometry(double wellPa
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
     std::vector<double> adjustedYs = this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth);
-
-    if ( neededUnit == m_unitSet )
-    {
-        RiaLogging::debug(QString("No conversion necessary for %1").arg(fractureUserName));
-    }
-
-    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(fractureUserName));
-        for ( double& value : adjustedYs ) value = RiaEclipseUnitTools::meterToFeet(value);
-        for ( double& value : xCoords )        value = RiaEclipseUnitTools::meterToFeet(value);
-    }
-    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(fractureUserName));
-        for ( double& value : adjustedYs ) value = RiaEclipseUnitTools::feetToMeter(value);
-        for ( double& value : xCoords )        value = RiaEclipseUnitTools::feetToMeter(value);
-    }
-    else
-    {
-        //Should never get here...
-        RiaLogging::error(QString("Error: Could not convert units for fracture template %1").arg(fractureUserName));
-        return;
-    }
 
     for ( cvf::uint k = 0; k < adjustedYs.size(); k++ )
     {
@@ -431,7 +404,6 @@ void RigStimPlanFractureDefinition::createFractureTriangleGeometry(double wellPa
                     triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
                     triangleIndices->push_back((i)+ (k + 1)*lenXcoords);
                 }
-
             }
         }
     }
@@ -474,7 +446,6 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
                                                                                    const QString& resultUnit, 
                                                                                    int activeTimeStepIndex, 
                                                                                    double wellPathIntersectionAtFractureDepth,
-                                                                                   RiaEclipseUnitTools::UnitSystem neededUnit, 
                                                                                    const QString& fractureUserName)
 {
     std::vector<cvf::Vec3f> polygon;
@@ -525,41 +496,6 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
 
     //Adding first point last - to close the polygon
     if ( polygon.size()>0 ) polygon.push_back(polygon[0]);
-
-
-    if ( neededUnit == m_unitSet )
-    {
-        RiaLogging::debug(QString("No conversion necessary for %1").arg(fractureUserName));
-    }
-
-    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(fractureUserName));
-        for ( cvf::Vec3f& node : polygon )
-        {
-            float x = RiaEclipseUnitTools::meterToFeet(node.x());
-            float y = RiaEclipseUnitTools::meterToFeet(node.y());
-            float z = RiaEclipseUnitTools::meterToFeet(node.z());
-            node = cvf::Vec3f(x, y, z);
-        }
-    }
-    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(fractureUserName));
-        for ( cvf::Vec3f& node : polygon )
-        {
-            float x = RiaEclipseUnitTools::feetToMeter(node.x());
-            float y = RiaEclipseUnitTools::feetToMeter(node.y());
-            float z = RiaEclipseUnitTools::feetToMeter(node.z());
-            node = cvf::Vec3f(x, y, z);
-        }
-    }
-    else
-    {
-        //Should never get here...
-        RiaLogging::error(QString("Error: Could not convert units for fracture template %1").arg(fractureUserName));
-    }
-
 
     return polygon;
 }

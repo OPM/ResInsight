@@ -119,10 +119,9 @@ public:
     double                          perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
 
     virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>*        nodeCoords,
-                                                             std::vector<cvf::uint>*         triangleIndices,
-                                                             RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+                                                             std::vector<cvf::uint>*         triangleIndices) = 0;
 
-    virtual std::vector<cvf::Vec3f> fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+    virtual std::vector<cvf::Vec3f> fractureBorderPolygon() = 0;
     virtual const RigFractureGrid*  fractureGrid() const = 0;
     const RimFractureContainment*   fractureContainment();
 

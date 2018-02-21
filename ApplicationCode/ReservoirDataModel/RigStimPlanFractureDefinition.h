@@ -73,11 +73,10 @@ public:
     
     cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
                                                        int                                 activeTimeStepIndex,
-                                                       RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
+                                                       const QString&                      conductivityUnitText, 
                                                        double                              wellPathIntersectionAtFractureDepth);
     
     void                            createFractureTriangleGeometry(double                          wellPathIntersectionAtFractureDepth,
-                                                                   RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                    const QString&                  fractureUserName,
                                                                    std::vector<cvf::Vec3f>*        vertices,
                                                                    std::vector<cvf::uint>*         triangleIndices);
@@ -86,7 +85,6 @@ public:
                                                                 const QString&                  resultUnit,
                                                                 int                             activeTimeStepIndex,
                                                                 double                          wellPathIntersectionAtFractureDepth,
-                                                                RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                 const QString&                  fractureUserName);
 
     const std::vector<double>&               timeSteps() const;

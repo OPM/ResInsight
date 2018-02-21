@@ -634,9 +634,11 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
+        QString condUnit = RiaDefines::unitStringConductivity(fractureTemplateUnit());
+
         m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_conductivityResultNameOnFile,
                                                                               m_activeTimeStepIndex,
-                                                                              fractureTemplateUnit(),
+                                                                              condUnit,
                                                                               m_wellPathDepthAtFracture);
     }
 }
@@ -647,8 +649,7 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                           std::vector<cvf::uint>* triangleIndices, 
-                                                           RiaEclipseUnitTools::UnitSystem neededUnit)
+                                                           std::vector<cvf::uint>* triangleIndices)
 {
 
     if (m_stimPlanFractureDefinitionData.isNull())
@@ -658,7 +659,6 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     else	
     {
         m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
-                                                                         neededUnit,
                                                                          name(),
                                                                          nodeCoords,
                                                                          triangleIndices);
@@ -668,7 +668,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
+std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon()
 {
     if (m_stimPlanFractureDefinitionData.isNull()) return std::vector<cvf::Vec3f>();
 
@@ -681,7 +681,6 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEc
                                                                              parameterUnit,
                                                                           m_activeTimeStepIndex,
                                                                          m_wellPathDepthAtFracture,
-                                                                         neededUnit,
                                                                          name());
     }
 

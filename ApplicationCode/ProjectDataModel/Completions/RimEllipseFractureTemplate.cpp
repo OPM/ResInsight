@@ -112,38 +112,12 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                          std::vector<cvf::uint>* triangleIndices, 
-                                                          RiaEclipseUnitTools::UnitSystem neededUnit)
+                                                          std::vector<cvf::uint>* triangleIndices)
 {
     RigEllipsisTesselator tesselator(20);
 
-    float a = cvf::UNDEFINED_FLOAT;
-    float b = cvf::UNDEFINED_FLOAT;
-
-    if (neededUnit == fractureTemplateUnit())
-    {
-        a = m_halfLength;
-        b = m_height / 2.0f;
-
-    }
-    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        RiaLogging::info(QString("Converting fracture template geometry from metric to field"));
-        a = RiaEclipseUnitTools::meterToFeet(m_halfLength);
-        b = RiaEclipseUnitTools::meterToFeet(m_height / 2.0f);
-    }
-    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        RiaLogging::info(QString("Converting fracture template geometry from field to metric"));
-        a = RiaEclipseUnitTools::feetToMeter(m_halfLength);
-        b = RiaEclipseUnitTools::feetToMeter(m_height / 2.0f);
-    }
-    else
-    {
-        //Should never get here...
-        RiaLogging::error(QString("Error: Could not convert units for fracture / fracture template"));
-        return;
-    }
+    float a = m_halfLength;
+    float b = m_height / 2.0f;
 
     tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
 }
@@ -151,14 +125,14 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon()
 {
     std::vector<cvf::Vec3f> polygon;
 
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureTriangleGeometry(&nodeCoords, &triangleIndices, neededUnit);
+    fractureTriangleGeometry(&nodeCoords, &triangleIndices);
 
     for (size_t i = 1; i < nodeCoords.size(); i++)
     {
@@ -221,7 +195,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
             
             double cond = conductivity();
 
-            std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon(fractureTemplateUnit());
+            std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon();
             std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
             for (auto v : ellipseFracPolygon) ellipseFracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
             std::vector<std::vector<cvf::Vec3d> >clippedFracturePolygons = RigCellGeometryTools::intersectPolygons(cellPolygon, ellipseFracPolygonDouble);

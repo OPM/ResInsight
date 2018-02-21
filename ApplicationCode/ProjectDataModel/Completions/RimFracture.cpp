@@ -361,7 +361,7 @@ void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std:
     RimFractureTemplate* fractureDef = fractureTemplate();
     if (fractureDef)
     {
-        fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices, fractureUnit());
+        fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices);
     }
 
     cvf::Mat4d m = transformMatrix();
