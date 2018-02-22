@@ -182,6 +182,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
     m_resultQwtPlot->deleteAllCurves();
     if (m_relPermPlotPanel) m_relPermPlotPanel->clearPlot();
     if (m_pvtPlotPanel) m_pvtPlotPanel->clearPlot();
+    if (m_mohrsCirclePlot) m_mohrsCirclePlot->clearPlot();
 
     if (m_pdmUiPropertyView)
     {
@@ -913,6 +914,14 @@ RiuRelativePermeabilityPlotPanel* RiuMainWindow::relativePermeabilityPlotPanel()
 RiuPvtPlotPanel* RiuMainWindow::pvtPlotPanel()
 {
     return m_pvtPlotPanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMohrsCirclePlot* RiuMainWindow::mohrsCirclePlot()
+{
+    return m_mohrsCirclePlot;
 }
 
 //--------------------------------------------------------------------------------------------------

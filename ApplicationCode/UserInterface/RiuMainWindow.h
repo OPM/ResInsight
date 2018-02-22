@@ -118,6 +118,7 @@ public:
     RiuResultQwtPlot*                   resultPlot();
     RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                    pvtPlotPanel();
+    RiuMohrsCirclePlot*                 mohrsCirclePlot();
     RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();

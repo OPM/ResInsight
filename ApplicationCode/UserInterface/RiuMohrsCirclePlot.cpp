@@ -20,6 +20,16 @@
 
 #include "qwt_round_scale_draw.h"
 #include "qwt_symbol.h"
+#include "RiuSelectionManager.h"
+
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 
 #include "cvfAssert.h"
 
@@ -75,6 +85,41 @@ void RiuMohrsCirclePlot::setPrincipalsAndRedrawCircles(double p1, double p2, dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* selectionItem)
+{
+    const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
+    
+    RimGeoMechView* geoMechView = geoMechSelectionItem ? geoMechSelectionItem->m_view : nullptr;
+
+    bool mustClearPlot = true;
+
+    if (this->isVisible() && geoMechSelectionItem && geoMechView)
+    {
+        const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
+        const size_t cellIndex = geoMechSelectionItem->m_cellIndex;
+        if (queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex))
+        {
+            mustClearPlot = false;
+        }
+    }
+
+    if (mustClearPlot)
+    {
+        this->clearPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::clearPlot()
+{
+    deleteCircles();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QSize RiuMohrsCirclePlot::sizeHint() const
 {
     return QSize(100, 100);
@@ -125,6 +170,39 @@ void RiuMohrsCirclePlot::deleteCircles()
     }
 
     m_mohrCirclesMarkers.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
+{
+    if (!geoMechView) return false;
+    
+    RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
+    if (!resultCollection) return false;
+
+    int frameIdx = geoMechView->currentTimeStep();
+    
+    RigFemResultAddress currentAddress = geoMechView->cellResult->resultAddress();
+
+    //TODO: All tensors are calculated everytime this function is called. FIX
+    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(currentAddress, 0, frameIdx);
+    RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
+
+    caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, 0)];
+    for (int i = 1; i < 8; i++)
+    {
+        tensorSumOfElmNodes = tensorSumOfElmNodes + vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, i)];
+    }
+
+    caf::Ten3f elmTensor = tensorSumOfElmNodes * (1.0 / 8.0);
+
+    cvf::Vec3f principalDirs[3];
+    cvf::Vec3f elmPrincipals = elmTensor.calculatePrincipals(principalDirs);
+
+    setPrincipalsAndRedrawCircles(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

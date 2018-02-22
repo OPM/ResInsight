@@ -25,6 +25,8 @@
 
 #include <array>
 
+class RiuSelectionItem;
+class RimGeoMechView;
 //==================================================================================================
 //
 //
@@ -41,6 +43,9 @@ public:
     void setPrincipals(double p1, double p2, double p3);
     void setPrincipalsAndRedrawCircles(double p1, double p2, double p3);
 
+    void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
+    void clearPlot();
+
 protected:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
@@ -48,6 +53,8 @@ protected:
     void redrawCircles();
     void deleteCircles();
 
+    bool queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
+    
 private:
     struct MohrCircle
     {

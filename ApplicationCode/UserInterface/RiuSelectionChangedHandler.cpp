@@ -29,25 +29,26 @@
 #include "RigTimeHistoryResultAccessor.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
 
+#include "Rim2dIntersectionView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "Rim2dIntersectionView.h"
 #include "RimIntersection.h"
 #include "RimProject.h"
 
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
+#include "RiuMohrsCirclePlot.h"
+#include "RiuPvtPlotPanel.h"
+#include "RiuPvtPlotUpdater.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
 #include "RiuSelectionManager.h"
-#include "RiuRelativePermeabilityPlotPanel.h"
-#include "RiuPvtPlotPanel.h"
-#include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuPvtPlotUpdater.h"
 
 #include <QStatusBar>
 
@@ -106,6 +107,8 @@ void RiuSelectionChangedHandler::handleItemAppended(const RiuSelectionItem* item
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnSelectionChanged(item);
+
+    RiuMainWindow::instance()->mohrsCirclePlot()->updateOnSelectionChanged(item);
 
     updateResultInfo(item);
 
