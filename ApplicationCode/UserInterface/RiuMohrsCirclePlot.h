@@ -19,14 +19,16 @@
 #pragma once
 
 #include "qwt_plot.h"
-#include "qwt_plot_marker.h"
-
-#include <QWidget>
+#include "qwt_plot_item.h"
 
 #include <array>
 
 class RiuSelectionItem;
 class RimGeoMechView;
+class QwtRoundScaleDraw;
+class QwtPlotRescaler;
+class QWidget;
+
 //==================================================================================================
 //
 //
@@ -73,7 +75,10 @@ private:
     double m_principal1;
     double m_principal2;
     double m_principal3;
-    std::array<MohrCircle, 3> m_mohrCircles;
-    std::vector<QwtPlotMarker*> m_mohrCirclesMarkers;
 
+    std::array<MohrCircle, 3> m_mohrCircles;
+
+    std::vector<QwtPlotItem*> m_circlePlotItems;
+
+    QwtPlotRescaler* m_rescaler;
 };

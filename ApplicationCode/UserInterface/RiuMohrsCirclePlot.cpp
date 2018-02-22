@@ -18,9 +18,9 @@
 
 #include "RiuMohrsCirclePlot.h"
 
-#include "qwt_round_scale_draw.h"
-#include "qwt_symbol.h"
 #include "RiuSelectionManager.h"
+
+#include "RiaColorTables.h"
 
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -32,6 +32,14 @@
 #include "RimGeoMechView.h"
 
 #include "cvfAssert.h"
+
+#include <QPainterPath>
+#include <QWidget>
+
+#include "qwt_plot_layout.h"
+#include "qwt_plot_marker.h"
+#include "qwt_plot_rescaler.h"
+#include "qwt_plot_shapeitem.h"
 
 //==================================================================================================
 ///
@@ -47,8 +55,13 @@
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 :   QwtPlot(parent)
 {
+
+
     setDefaults();
-    setPrincipalsAndRedrawCircles(320, 200, 150);
+
+    //setPrincipalsAndRedrawCircles(40, 30, 20);
+
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +70,7 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 {
     deleteCircles();
+    delete m_rescaler;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,21 +155,44 @@ void RiuMohrsCirclePlot::redrawCircles()
     deleteCircles();
     createMohrCircles();
 
-    for (MohrCircle circle : m_mohrCircles)
+    QwtPlotMarker* lineXPlotMarker = new QwtPlotMarker("LineX");
+    lineXPlotMarker->setLineStyle(QwtPlotMarker::HLine);
+    lineXPlotMarker->setYValue(0);
+    lineXPlotMarker->attach(this);
+
+    QwtPlotMarker* lineYPlotMarker = new QwtPlotMarker("LineY");
+    lineYPlotMarker->setLineStyle(QwtPlotMarker::VLine);
+    lineYPlotMarker->setXValue(0);
+    lineYPlotMarker->attach(this);
+
+    caf::ColorTable colors = RiaColorTables::mohrsCirclePaletteColors();
+
+    for (size_t i = 0; i < m_mohrCircles.size(); i++)
     {
-        QwtSymbol* circleSymbol = new QwtSymbol(QwtSymbol::Ellipse);
-        circleSymbol->setSize(2 * circle.radius, 2 * circle.radius);
-        
-        QwtPlotMarker* circlePlotItem = new QwtPlotMarker("Circle");
-        circlePlotItem->setSymbol(circleSymbol);
-        circlePlotItem->setXValue(circle.centerX);
-        circlePlotItem->setYValue(0);
-        
-        m_mohrCirclesMarkers.push_back(circlePlotItem);
-        circlePlotItem->attach(this);
+        MohrCircle* circle = &m_mohrCircles[i];
+        QwtPlotShapeItem* plotItem = new QwtPlotShapeItem("Circle");
+
+        QPainterPath* circleDrawing = new QPainterPath();
+        QPointF center(circle->centerX, 0);
+        circleDrawing->addEllipse(center, circle->radius, circle->radius);
+        plotItem->setPen(QPen(colors.cycledQColor(i)));
+        plotItem->setShape(*circleDrawing);
+        plotItem->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+        m_circlePlotItems.push_back(plotItem);
+        plotItem->attach(this);
     }
 
+    double yHeight = 0.6*(m_principal1 - m_principal3);
+    this->setAxisScale(QwtPlot::yLeft, -yHeight, yHeight);
+
+    double xMin = m_principal3 < 0 ? 1.1*m_principal3 : -1;
+    double xMax = m_principal1 < 0 ? 1 : 1.1*m_principal1;
+    this->setAxisScale(QwtPlot::xBottom, xMin, xMax);
+
     this->replot();
+    m_rescaler->rescale();
+    this->plotLayout()->setAlignCanvasToScales(true);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,13 +200,13 @@ void RiuMohrsCirclePlot::redrawCircles()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::deleteCircles()
 {
-    for (size_t i = 0; i < m_mohrCirclesMarkers.size(); i++)
+    for (size_t i = 0; i < m_circlePlotItems.size(); i++)
     {
-        m_mohrCirclesMarkers[i]->detach();
-        delete m_mohrCirclesMarkers[i];
+        m_circlePlotItems[i]->detach();
+        delete m_circlePlotItems[i];
     }
 
-    m_mohrCirclesMarkers.clear();
+    m_circlePlotItems.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,13 +247,16 @@ bool RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::setDefaults()
 {
+    m_rescaler = new QwtPlotRescaler(this->canvas());
+    m_rescaler->setReferenceAxis(QwtPlot::yLeft);
+    m_rescaler->setAspectRatio(QwtPlot::xBottom, 1.0);
+    m_rescaler->setRescalePolicy(QwtPlotRescaler::Fixed);
+    m_rescaler->setEnabled(true);
+
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
-
-    this->setAxisScale(QwtPlot::yLeft, -400, 400);
-    this->setAxisScale(QwtPlot::xBottom, 0, 400);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -485,6 +485,22 @@ const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::mohrsCirclePaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub::RED,
+        cvf::Color3ub::DARK_GREEN,
+        cvf::Color3ub::BLUE
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable(colors);
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;
