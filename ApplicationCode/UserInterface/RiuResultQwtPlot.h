@@ -61,8 +61,8 @@ public:
     void deleteAllCurves();
 
 protected:
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     virtual void contextMenuEvent(QContextMenuEvent *) override;
 
 private:
