@@ -91,9 +91,9 @@ RimEclipseCase::RimEclipseCase()
     m_filesContainingFaults_OBSOLETE.xmlCapability()->setIOWritable(false);
     m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    caseName.xmlCapability()->setIOWritable(false);
-    caseName.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_caseName_OBSOLETE, "CaseName",  QString(), "Obsolete", "", "" ,"");
+    m_caseName_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_caseName_OBSOLETE.uiCapability()->setUiHidden(true);
 
     // Init
 
@@ -210,9 +210,9 @@ void RimEclipseCase::initAfterRead()
         riv->setEclipseCase(this);
     }
 
-    if (caseUserDescription().isEmpty() && !caseName().isEmpty())
+    if (caseUserDescription().isEmpty() && !m_caseName_OBSOLETE().isEmpty())
     {
-        caseUserDescription = caseName;
+        caseUserDescription = m_caseName_OBSOLETE;
     }
 }
 

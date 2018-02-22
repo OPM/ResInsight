@@ -5,8 +5,8 @@
 
 Module: opm-flowdiagnostics-applications
 Description: flow diagnostics applications and examples
-Version: 2016.10-pre
-Label: 2016.10-pre
+Version: 2018.04-pre
+Label: 2018.04-pre
 Maintainer: bard.skaflestad@sintef.no
 MaintainerName: Bård Skaflestad
 Url: http://opm-project.org

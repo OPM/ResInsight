@@ -40,6 +40,48 @@
 #include <ert/ecl/ecl_kw_magic.h>
 
 namespace {
+    std::function<double(double)>
+    fvf(const Opm::ECLUnits::UnitSystem& usys)
+    {
+        const auto scale = usys.reservoirVolume()
+                / usys.surfaceVolumeLiquid();
+
+        return [scale](const double x) -> double
+        {
+            return Opm::unit::convert::from(x, scale);
+        };
+    }
+
+    std::function<double(double)>
+    viscosity(const Opm::ECLUnits::UnitSystem& usys)
+    {
+        const auto scale = usys.viscosity();
+
+        return [scale](const double x) -> double
+        {
+            return Opm::unit::convert::from(x, scale);
+        };
+    }
+
+    ::Opm::ECLPVT::ConvertUnits pvcdoUnitConverter(const int usys)
+    {
+        using ToSI = ::Opm::ECLPVT::CreateUnitConverter::ToSI;
+
+        const auto u = ::Opm::ECLUnits::createUnitSystem(usys);
+
+        // [ Pref, Bo, Co, mu_o, Cv ]
+
+        return ::Opm::ECLPVT::ConvertUnits {
+            ToSI::pressure(*u),
+            {
+                fvf(*u),
+                ToSI::compressibility(*u),
+                viscosity(*u),
+                ToSI::compressibility(*u)
+            }
+        };
+    }
+
     ::Opm::ECLPVT::ConvertUnits
     deadOilUnitConverter(const ::Opm::ECLUnits::UnitSystem& usys)
     {
@@ -100,6 +142,142 @@ public:
 
     virtual std::unique_ptr<PVxOBase> clone() const = 0;
 };
+
+// =====================================================================
+
+class DeadOilConstCompr : public PVxOBase
+{
+public:
+    using ElemIt = std::vector<double>::const_iterator;
+    using ConvertUnits = ::Opm::ECLPVT::ConvertUnits;
+
+    DeadOilConstCompr(ElemIt               xBegin,
+              ElemIt               xEnd,
+              const ConvertUnits&  convert,
+              std::vector<ElemIt>& colIt);
+
+    virtual std::vector<double>
+    formationVolumeFactor(const std::vector<double>& /* rs */,
+                          const std::vector<double>& po) const
+    {
+        return this->evaluate(po, [this](const double p) -> double
+            {
+                // 1 / (1 / B)
+                return 1.0 / this->recipFvf(p);
+            });
+    }
+
+    virtual std::vector<double>
+    viscosity(const std::vector<double>& /*rs*/,
+              const std::vector<double>& po) const
+    {
+        return this->evaluate(po, [this](const double p) -> double
+            {
+                // (1 / B) / (1 / (B * mu))
+                return this->recipFvf(p) / this->recipFvfVisc(p);
+            });
+    }
+
+    virtual std::vector<Opm::ECLPVT::PVTGraph>
+    getPvtCurve(const Opm::ECLPVT::RawCurve /*curve*/) const
+    {
+        return {};
+    }
+
+    virtual std::unique_ptr<PVxOBase> clone() const
+    {
+        return std::unique_ptr<PVxOBase>(new DeadOilConstCompr(*this));
+    }
+
+    double& surfaceMassDensity()
+    {
+        return this->rhoS_;
+    }
+
+    double surfaceMassDensity() const
+    {
+        return this->rhoS_;
+    }
+
+private:
+    double po_ref_       { 1.0 };
+    double fvf_     { 1.0 }; // B
+    double visc_ { 1.0 }; // mu
+    double Co_           { 1.0 };
+    double cv_     { 0.0 }; // Cv
+    double rhoS_         { 0.0 };
+
+    double recipFvf(const double po) const
+    {
+        const auto x = this->Co_ * (po - this->po_ref_);
+
+        return this->exp(x) / this->fvf_ ;
+    }
+
+    double recipFvfVisc(const double po) const
+    {
+        const auto y = (this->Co_ - this->cv_) * (po - this->po_ref_);
+
+        return  this->exp(y) / (this->fvf_ * this->visc_);
+    }
+
+    double exp(const double x) const
+    {
+        return 1.0 + x*(1.0 + x/2.0);
+    }
+
+    template <class CalcQuant>
+    std::vector<double>
+    evaluate(const std::vector<double>& po,
+             CalcQuant&&                calculate) const
+    {
+        auto q = std::vector<double>{};
+        q.reserve(po.size());
+
+        for (const auto& poi : po) {
+            q.push_back(calculate(poi));
+        }
+
+        return q;
+    }
+};
+
+DeadOilConstCompr::DeadOilConstCompr(ElemIt               xBegin,
+                     ElemIt               xEnd,
+                     const ConvertUnits&  convert,
+                     std::vector<ElemIt>& colIt)
+{
+    // Recall: Table is
+    //
+    //    [ Po, Bo, Co, mu_o, Cv ]
+    //
+    // xBegin is Pw, colIt is remaining four columns.
+
+    this->fvf_     = convert.column[0](*colIt[0]); // Bo
+    this->Co_           = convert.column[1](*colIt[1]); // Co
+    this->visc_ = convert.column[2](*colIt[2]); // mu_o
+    this->cv_     = convert.column[3](*colIt[3]); // Cw - Cv
+
+    // Honour requirement that constructor advances column iterators.
+    const auto N = std::distance(xBegin, xEnd);
+    for (auto& it : colIt) { it += N; }
+
+    if (! (std::abs(*xBegin) < 1.0e20)) {
+          throw std::invalid_argument {
+            "Invalid Input PVCDO Table"
+        };
+    }
+
+    this->po_ref_ = convert.indep(*xBegin);
+
+    ++xBegin;
+    if (std::abs(*xBegin) < 1.0e20) {
+        throw std::invalid_argument {
+          "Probably Invalid Input PVCDO Table"
+      };
+    }
+}
+
 
 // =====================================================================
 
@@ -227,6 +405,7 @@ private:
 namespace {
     std::vector<std::unique_ptr<PVxOBase>>
     createDeadOil(const ::Opm::ECLPropTableRawData& raw,
+                  const bool   const_compr,
                   const int                         usys)
     {
         using PVTInterp = std::unique_ptr<PVxOBase>;
@@ -234,6 +413,16 @@ namespace {
 
         assert ((raw.numPrimary == 1) &&
                 "Can't Create Dead Oil Function From Live Oil Table");
+
+        if (const_compr) {
+            const auto cvrt = pvcdoUnitConverter(usys);
+
+            return ::Opm::MakeInterpolants<PVTInterp>::fromRawData(raw,
+                [&cvrt](ElmIt xBegin, ElmIt xEnd, std::vector<ElmIt>& colIt)
+            {
+                return PVTInterp{ new DeadOilConstCompr(xBegin, xEnd, cvrt, colIt) };
+            });
+        }
 
         const auto cvrt = deadOilUnitConverter(usys);
 
@@ -313,6 +502,7 @@ namespace {
 
     std::vector<std::unique_ptr<PVxOBase>>
     createPVTFunction(const ::Opm::ECLPropTableRawData& raw,
+                      const bool   const_compr,
                       const int                         usys)
     {
         if (raw.numPrimary == 0) {
@@ -344,7 +534,7 @@ namespace {
         }
 
         if (raw.numPrimary == 1) {
-            return createDeadOil(raw, usys);
+            return createDeadOil(raw, const_compr, usys);
         }
 
         return createLiveOil(raw, usys);
@@ -379,6 +569,7 @@ private:
 public:
     Impl(const ECLPropTableRawData& raw,
          const int                  usys,
+         const bool     const_compr,
          std::vector<double>        rhoS);
 
     Impl(const Impl& rhs);
@@ -420,8 +611,9 @@ private:
 Opm::ECLPVT::Oil::Impl::
 Impl(const ECLPropTableRawData& raw,
      const int                  usys,
+     const bool     const_compr,
      std::vector<double>        rhoS)
-    : eval_(createPVTFunction(raw, usys))
+    : eval_(createPVTFunction(raw, const_compr, usys))
     , rhoS_(std::move(rhoS))
 {}
 
@@ -504,8 +696,9 @@ Opm::ECLPVT::Oil::Impl::validateRegIdx(const RegIdx region) const
 
 Opm::ECLPVT::Oil::Oil(const ECLPropTableRawData& raw,
                       const int                  usys,
+                      const bool const_compr,
                       std::vector<double>        rhoS)
-    : pImpl_(new Impl(raw, usys, std::move(rhoS)))
+    : pImpl_(new Impl(raw, usys, const_compr, std::move(rhoS)))
 {}
 
 Opm::ECLPVT::Oil::~Oil()
@@ -583,15 +776,39 @@ fromECLOutput(const ECLInitFileData& init)
         return OPtr{};
     }
 
+    const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
+    const int LOGIHEAD_CONST_COMPR_INDEX = 38;
+    const bool is_const_compr = lh[LOGIHEAD_CONST_COMPR_INDEX];
+
     auto raw = ::Opm::ECLPropTableRawData{};
 
     const auto& tabdims = init.keywordData<int>("TABDIMS");
     const auto& tab     = init.keywordData<double>("TAB");
 
-    raw.numPrimary = tabdims[ TABDIMS_NRPVTO_ITEM ]; // #Rs nodes/full table
-    raw.numRows    = tabdims[ TABDIMS_NPPVTO_ITEM ]; // #Po nodes/sub-table
-    raw.numCols    = 5; // [ Po, 1/B, 1/(B*mu), d(1/B)/dPo, d(1/(B*mu))/dPo ]
-    raw.numTables  = tabdims[ TABDIMS_NTPVTO_ITEM ]; // # PVTO tables
+    const auto numRs = tabdims[ TABDIMS_NRPVTO_ITEM ]; // #Rs nodes/full table
+
+    // Inner dimension (number of rows per sub-table) is number of pressure
+    // nodes for both live oil and dead oil cases.
+    raw.numRows   = tabdims[ TABDIMS_NPPVTO_ITEM ]; // #Po nodes/sub-table
+    raw.numCols   = 5; // [ Po, 1/B, 1/(B*mu), d(1/B)/dPo, d(1/(B*mu))/dPo ]
+    raw.numTables = tabdims[ TABDIMS_NTPVTO_ITEM ]; // # PVTO tables
+
+    if (lh[ LOGIHEAD_RS_INDEX ]) {
+        // Dissolved gas flag set => Live Oil.
+        //
+        // Number of primary keys (outer dimension, number of sub-tables per
+        // PVTO table) is number of composition nodes.
+
+        raw.numPrimary = numRs;
+    }
+    else {
+        // Dissolved gas flag NOT set => Dead Oil.
+        //
+        // Number of primary keys (outer dimension, number of sub-tables per
+        // PVDO table) is one.
+
+        raw.numPrimary = 1;
+    }
 
     // Extract Primary Key (Rs)
     {
@@ -617,6 +834,6 @@ fromECLOutput(const ECLInitFileData& init)
     auto rhoS = surfaceMassDensity(init, ECLPhaseIndex::Liquid);
 
     return OPtr{
-        new Oil(raw, ih[ INTEHEAD_UNIT_INDEX ], std::move(rhoS))
+        new Oil(raw, ih[ INTEHEAD_UNIT_INDEX ], is_const_compr, std::move(rhoS))
     };
 }

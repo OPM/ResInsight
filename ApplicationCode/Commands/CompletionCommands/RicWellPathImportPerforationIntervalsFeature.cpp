@@ -71,6 +71,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
 
     std::map<QString, std::vector<RifPerforationInterval> > perforationIntervals = RifPerforationIntervalReader::readPerforationIntervals(wellPathFilePaths);
 
+    RimPerforationInterval* lastPerforationInterval = nullptr;
     for (auto& entry : perforationIntervals)
     {
         RimWellPath* wellPath = wellPathCollection->tryFindMatchingWellPath(entry.first);
@@ -95,13 +96,20 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
                     perforationInterval->setDate(interval.date);
                 }
                 wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
+                lastPerforationInterval = perforationInterval;
             }
         }
     }
+    wellPathCollection->uiCapability()->updateConnectedEditors();
 
     if (app->project())
     {
         app->project()->createDisplayModelAndRedrawAllViews();
+    }
+
+    if (lastPerforationInterval)
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(lastPerforationInterval);
     }
 }
 

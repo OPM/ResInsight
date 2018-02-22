@@ -51,7 +51,7 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFileName(RimViewWindow* vi
         fileName = viewWindow->uiCapability()->uiName();
     }
 
-    fileName = caf::Utils::makeValidFileBasename(fileName);
+    fileName = makeValidFileName(fileName);
 
     return fileName;
 }
@@ -68,10 +68,10 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(RimView
                                           .arg(rimView->name())
                                           .arg(resultName(rimView));
 
-    if ( timeSteps.size() ) fileName += QString("_%1_%2").arg(timeStep, 2, 10, QChar('0'))
-                                                         .arg(timeSteps[timeStep].replace(".", "-"));
+    if ( !timeSteps.empty() ) fileName += QString("_%1_%2").arg(timeStep, 2, 10, QChar('0'))
+                                                           .arg(timeSteps[timeStep]);
 
-    fileName = caf::Utils::makeValidFileBasename(fileName);
+    fileName = makeValidFileName(fileName);
 
     return fileName;
 }
@@ -108,4 +108,19 @@ QString RicSnapshotFilenameGenerator::resultName(RimView * rimView)
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicSnapshotFilenameGenerator::makeValidFileName(const QString& filename)
+{
+    QString trimmedString = filename;
+
+    // Use lowercase instead of dash before calling caf::Utils::makeValidFileBasename
+    trimmedString.replace("-", "_");
+
+    trimmedString = caf::Utils::makeValidFileBasename(trimmedString);
+
+    return trimmedString;
 }

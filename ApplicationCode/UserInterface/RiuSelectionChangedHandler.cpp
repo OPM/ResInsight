@@ -154,7 +154,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->eclipseCaseData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex, timeStepDates.size());
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
-        RiuMainWindow::instance()->resultPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
+        RiuMainWindow::instance()->resultPlot()->addCurve(eclipseView->eclipseCase(), curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
     }
 }
 
@@ -223,7 +223,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         std::vector<QDateTime> dates = geoMechView->geoMechCase()->timeStepDates();
         if (dates.size() == timeHistoryValues.size())
         {
-            RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dates, timeHistoryValues);
+            RiuMainWindow::instance()->resultPlot()->addCurve(geoMechView->geoMechCase(), curveName, geomSelectionItem->m_color, dates, timeHistoryValues);
         }
         else
         {
@@ -233,7 +233,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
                 dummyStepTimes.push_back(i);
             }
 
-            RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dummyStepTimes, timeHistoryValues);
+            RiuMainWindow::instance()->resultPlot()->addCurve(geoMechView->geoMechCase(), curveName, geomSelectionItem->m_color, dummyStepTimes, timeHistoryValues);
         }
     }
 }

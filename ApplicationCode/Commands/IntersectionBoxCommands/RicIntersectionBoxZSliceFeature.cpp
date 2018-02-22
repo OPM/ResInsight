@@ -59,7 +59,7 @@ void RicIntersectionBoxZSliceFeature::onActionTriggered(bool isChecked)
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
         intersectionBox->name = QString("Z-slice (Intersection box)");
 
-        coll->appendIntersectionBox(intersectionBox);
+        coll->appendIntersectionBoxAndUpdate(intersectionBox);
         cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
         intersectionBox->setToDefaultSizeSlice(RimIntersectionBox::PLANE_STATE_Z, domainCoord);
 

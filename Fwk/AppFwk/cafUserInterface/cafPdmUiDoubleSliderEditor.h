@@ -43,7 +43,6 @@
 #include <QWidget>
 #include <QPointer>
 #include <QLineEdit>
-#include <QGroupBox>
 #include <QSlider>
 
 
@@ -53,7 +52,6 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-
 class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -73,6 +71,9 @@ public:
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -92,8 +93,8 @@ protected slots:
     void                slotSliderValueChanged(int value);
 
 private:
-    void                updateSliderPosition();
-    void                writeValueToField();
+    void                updateSliderPosition(double value);
+    void                writeValueToField(double value);
 
     int                 convertToSliderValue(double value);
     double              convertFromSliderValue(int sliderValue);

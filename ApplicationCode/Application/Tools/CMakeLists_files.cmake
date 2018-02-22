@@ -24,6 +24,7 @@ ${CEE_CURRENT_LIST_DIR}RiaStdStringTools.h
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.h
 ${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.h
 ${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools.h
+${CEE_CURRENT_LIST_DIR}RiaStringEncodingTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -45,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RiaStdStringTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.cpp
 ${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools.cpp
+${CEE_CURRENT_LIST_DIR}RiaStringEncodingTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

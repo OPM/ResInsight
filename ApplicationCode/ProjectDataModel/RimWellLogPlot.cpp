@@ -147,6 +147,14 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         rftPlot->updateConnectedEditors();
     }
+
+    RimWellPltPlot* pltPlot(nullptr);
+    this->firstAncestorOrThisOfType(pltPlot);
+
+    if (pltPlot)
+    {
+        pltPlot->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +302,7 @@ void RimWellLogPlot::setDepthZoomByFactorAndCenter(double zoomFactor, double zoo
     double newMaximum = zoomCenter + (m_maxVisibleDepth - zoomCenter)*zoomFactor;
 
     setDepthZoomMinMax(newMinimum, newMaximum);
+    setDepthAutoZoom(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +312,7 @@ void RimWellLogPlot::panDepth(double panFactor)
 {
     double delta = panFactor*(m_maxVisibleDepth - m_minVisibleDepth);
     setDepthZoomMinMax(m_minVisibleDepth + delta, m_maxVisibleDepth + delta);
+    setDepthAutoZoom(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,9 +393,7 @@ bool RimWellLogPlot::hasAvailableDepthRange() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::zoomAll()
 {
-    m_isAutoScaleDepthEnabled = true;
-    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
-
+    setDepthAutoZoom(true);
     updateDepthZoom();
 }
 
@@ -395,6 +403,15 @@ void RimWellLogPlot::zoomAll()
 QWidget* RimWellLogPlot::viewWidget()
 {
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setDepthAutoZoom(bool on)
+{
+    m_isAutoScaleDepthEnabled = on;
+    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -594,11 +611,7 @@ void RimWellLogPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    bool tempAutoScale = m_isAutoScaleDepthEnabled;
-    m_isAutoScaleDepthEnabled = false;
     updateTracks();
-
-    m_isAutoScaleDepthEnabled = tempAutoScale;
 }
 
 //--------------------------------------------------------------------------------------------------

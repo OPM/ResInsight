@@ -100,7 +100,7 @@ void RicAppendIntersectionFeatureCmd::redo()
 
     RimIntersection* intersection = new RimIntersection();
     intersection->name = QString("Intersection");
-    m_intersectionCollection->appendIntersection(intersection);
+    m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 
     RimView* view = nullptr;
     m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);

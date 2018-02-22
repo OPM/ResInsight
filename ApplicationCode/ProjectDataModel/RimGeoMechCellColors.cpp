@@ -76,6 +76,7 @@ void RimGeoMechCellColors::updateIconState()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::initAfterRead()
 {
+    RimGeoMechResultDefinition::initAfterRead();
     updateIconState();
 }
 

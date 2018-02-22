@@ -82,6 +82,8 @@ public:
     const RigActiveCellInfo*                    activeCellInfo(RiaDefines::PorosityModelType porosityModel) const;
     void                                        setActiveCellInfo(RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo);
 
+    bool                                        hasFractureResults() const;
+
     void                                        setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                          activeFormationNames(); 
 

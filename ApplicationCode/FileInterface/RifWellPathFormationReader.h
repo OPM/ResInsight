@@ -39,5 +39,6 @@ public:
 
 private:
     static void readFile(const QString& filePath, std::vector<QString>* wellNames, std::vector<QString>* formationNames,
-                         std::vector<double>* mdTop, std::vector<double>* mdBase);
+                         std::vector<double>* mdTop, std::vector<double>* mdBase, std::vector<double>* tvdTop,
+                         std::vector<double>* tvdBase);
 };

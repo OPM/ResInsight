@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 
-#include "RifcCommandFileReader.h"
+#include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
-#include "cafPdmField.h"
 #include "RicfMessages.h"
+#include "RifcCommandFileReader.h"
+
+#include "cafPdmField.h"
 
 class TestCommand1: public RicfCommandObject
 {
@@ -161,6 +163,44 @@ TEST(RicfCommands, EmptyArgumentList)
     EXPECT_EQ((size_t)0, errors.m_messages.size());
 
     for (auto obj : objects)
+    {
+        delete(obj);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects)
+{
+    QString commandString = R"(
+    replaceCase(newGridFile="/1.EGRID", caseId=1)
+    replaceCase(newGridFile="/2.EGRID", caseId=2)
+
+    openProject(path="/home/user/ResInsightProject.rsp")
+    replaceCase(newGridFile="/3.EGRID", caseId=3)
+    replaceCase(newGridFile="/4.EGRID", caseId=4)
+  
+    exportSnapshots()
+    replaceCase(newGridFile="/6.EGRID", caseId=6)
+    replaceCase(newGridFile="/7.EGRID", caseId=7)
+
+    closeProject()
+
+    )";
+
+    QTextStream inputStream(&commandString);
+    RicfMessages errors;
+
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
+    EXPECT_TRUE(errors.m_messages.empty());
+    EXPECT_EQ((size_t)9, objects.size());
+
+    auto exeObjects = RicfCommandFileExecutor::prepareFileCommandsForExecution(objects);
+    EXPECT_EQ((size_t)6, exeObjects.size());
+
+    for (auto obj : exeObjects)
     {
         delete(obj);
     }

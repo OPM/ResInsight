@@ -510,8 +510,10 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
             curve->setCurveVisiblity(false);
     }
 
+    m_previewPlot->copyAxisPropertiesFromOther(sourceSummaryPlot);
     m_previewPlot->enableAutoPlotTitle(sourceSummaryPlot.autoPlotTitle());
     m_previewPlot->updatePlotTitle();
+    m_previewPlot->updateAxes();
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
 

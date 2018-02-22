@@ -36,6 +36,7 @@
 #include "cafUtils.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiObjectEditorHandle.h"
 
 #include <QFile>
 
@@ -67,6 +68,7 @@ RimObservedDataCollection::~RimObservedDataCollection()
 void RimObservedDataCollection::removeObservedData(RimObservedData* observedData)
 {
     m_observedDataArray.removeChildObject(observedData);
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +138,7 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
     }
 
     this->updateConnectedEditors();
-
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     return observedData;
 }
 
@@ -198,5 +200,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     }
 
     this->updateConnectedEditors();
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     return observedData;
 }

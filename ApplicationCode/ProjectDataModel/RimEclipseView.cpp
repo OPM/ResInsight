@@ -71,6 +71,7 @@
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFracture.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimSimWellFracture.h"
 #include "RivWellFracturePartMgr.h"
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
@@ -1469,7 +1470,18 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(cellEdgeResult());
     uiTreeOrdering.add(faultResultSettings());
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    uiTreeOrdering.add(stimPlanColors());
+
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
+    RimOilField* oilfield = project->activeOilField();
+    
+    if (oilfield && oilfield->fractureDefinitionCollection().notNull())
+    {
+        if (!oilfield->fractureDefinitionCollection()->fractureDefinitions.empty())
+        {
+            uiTreeOrdering.add(stimPlanColors());
+        }
+    }
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     uiTreeOrdering.add(wellCollection());
@@ -1546,6 +1558,8 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 
         if (this->faultResultSettings->customFaultResult()->isTernarySaturationSelected()) return true;
     }
+
+    if (this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
 
     return false;
 }

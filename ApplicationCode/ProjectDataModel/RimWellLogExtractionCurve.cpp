@@ -215,7 +215,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clampTimestep()
 {
-    if (m_case)
+    if (m_timeStep > 0 && m_case)
     {
         if (m_timeStep > m_case->timeStepStrings().size() - 1)
         {
@@ -814,7 +814,7 @@ QString RimWellLogExtractionCurve::wellDate() const
         }
     }
 
-    return (m_timeStep < timeStepNames.size()) ? timeStepNames[m_timeStep] : "";
+    return (m_timeStep >= 0 && m_timeStep < timeStepNames.size()) ? timeStepNames[m_timeStep] : "";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -96,6 +96,9 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 {
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj->allFractureTemplates().empty()) return;
+
     RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
     if (!fractureColl) return;
 
@@ -120,6 +123,9 @@ void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj->allFractureTemplates().empty()) return false;
+
     if (selectedWellPathFractureCollection())
     {
         return true;

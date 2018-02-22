@@ -41,7 +41,7 @@ namespace caf
 class RifReaderEclipseRft : public cvf::Object
 {
 public:
-    RifReaderEclipseRft(const std::string& fileName);
+    RifReaderEclipseRft(const QString& fileName);
     ~RifReaderEclipseRft();
 
     const std::vector<RifEclipseRftAddress>&                    eclipseRftAddresses();
@@ -63,7 +63,7 @@ private:
     // Taken from ecl_rft_file.h and ecl_rft_node.h
     typedef struct ecl_rft_file_struct ecl_rft_file_type;
 
-    std::string                         m_fileName;
+    QString                             m_fileName;
     ecl_rft_file_type*                  m_ecl_rft_file;
     std::vector<RifEclipseRftAddress>   m_eclipseRftAddresses;
     std::set<QString>                   m_wellNames;

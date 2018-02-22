@@ -34,4 +34,5 @@ public:
 private:
     static QString generateSnapshotFilenameForRimView(RimView* rimView);
     static QString resultName(RimView* rimView);
+    static QString makeValidFileName(const QString& filename);
 };

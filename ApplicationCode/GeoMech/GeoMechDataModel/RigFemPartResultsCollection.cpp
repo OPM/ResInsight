@@ -1369,10 +1369,18 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
     if(resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
-        if (resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" )
+        if (resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc")
+        {
             return calculateSurfaceAngles(partIndex, resVarAddr);
-        else
+        }
+        else if (resVarAddr.componentName.empty())
+        {
+            return nullptr;
+        }
+        else 
+        {
             return calculateSurfaceAlignedStress(partIndex, resVarAddr);
+        }
     }
 
     if (resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI")

@@ -107,4 +107,5 @@ private:
     caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
 
+    bool                                    m_readError;
 };

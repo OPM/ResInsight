@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderEclipseSummary.h"
+#include "RiaStringEncodingTools.h"
 
 #include "ert/ecl/ecl_sum.h"
 
@@ -24,6 +25,8 @@
 #include <assert.h>
 
 #include <QDateTime>
+#include <QString>
+#include <QStringList>
 #include "ert/ecl/smspec_node.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -51,23 +54,23 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames)
+bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringList& dataFileNames)
 {
     assert(m_ecl_sum == NULL); 
     
-    if (headerFileName.empty() || dataFileNames.size() == 0) return false;
+    if (headerFileName.isEmpty() || dataFileNames.size() == 0) return false;
 
-    assert(!headerFileName.empty());
+    assert(!headerFileName.isEmpty());
     assert(dataFileNames.size() > 0);
 
     stringlist_type* dataFiles = stringlist_alloc_new();
-    for (size_t i = 0; i < dataFileNames.size(); i++)
+    for (int i = 0; i < dataFileNames.size(); i++)
     {
-        stringlist_append_copy(dataFiles, dataFileNames[i].data());
+        stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
     }
 
     std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(headerFileName.data(), dataFiles, itemSeparatorInVariableNames.data(), false);
+    m_ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), false);
 
     stringlist_free(dataFiles);
 

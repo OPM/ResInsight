@@ -537,11 +537,6 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
             return resultCompletion; //Returning empty completion, should not be exported
         }       
 
-        if (settings.excludeMainBoreForFishbones && completionType == RigCompletionData::FISHBONES && completion.isMainBore())
-        {
-            continue;
-        }
-
         totalTrans = totalTrans + completion.transmissibility();
     }
 

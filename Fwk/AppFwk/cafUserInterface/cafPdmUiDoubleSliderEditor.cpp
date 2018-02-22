@@ -37,19 +37,12 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmField.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiObjectHandle.h"
 
-#include "cafFactory.h"
-
-#include <QLineEdit>
-#include <QLabel>
 #include <QHBoxLayout>
 #include <QDoubleValidator>
-
-#include <QDebug>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +99,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
         uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
     }
     
+    double doubleValue = field()->uiValue().toDouble();
     QString textValue = field()->uiValue().toString();
 
     m_slider->blockSignals(true);
@@ -118,7 +112,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_lineEdit->setValidator(pdmValidator);
     m_lineEdit->setText(textValue);
 
-    updateSliderPosition();
+    updateSliderPosition(doubleValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,9 +155,12 @@ QWidget* PdmUiDoubleSliderEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::slotEditingFinished()
 {
-    updateSliderPosition();
+    QString textValue = m_lineEdit->text();
 
-    writeValueToField();
+    double doubleVal = textValue.toDouble();
+    doubleVal = qBound(m_attributes.m_minimum, doubleVal, m_attributes.m_maximum);
+
+    writeValueToField(doubleVal);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,22 +169,16 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 void PdmUiDoubleSliderEditor::slotSliderValueChanged(int value)
 {
     double newDoubleValue = convertFromSliderValue(value);
-    m_lineEdit->setText(QString::number(newDoubleValue));
 
-    writeValueToField();
+    writeValueToField(newDoubleValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::updateSliderPosition()
+void PdmUiDoubleSliderEditor::updateSliderPosition(double value)
 {
-    QString textValue = m_lineEdit->text();
-
-    bool convertOk = false;
-    double newSliderValue = textValue.toDouble(&convertOk);
-
-    int newSliderPosition = convertToSliderValue(newSliderValue);
+    int newSliderPosition = convertToSliderValue(value);
     if (m_slider->value() != newSliderPosition)
     {
         m_slider->blockSignals(true);
@@ -199,11 +190,9 @@ void PdmUiDoubleSliderEditor::updateSliderPosition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::writeValueToField()
+void PdmUiDoubleSliderEditor::writeValueToField(double value)
 {
-    QString textValue = m_lineEdit->text();
-    QVariant v;
-    v = textValue;
+    QVariant v = value;
     this->setValueToField(v);
 }
 

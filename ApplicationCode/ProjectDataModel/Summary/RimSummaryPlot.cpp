@@ -531,6 +531,24 @@ QString RimSummaryPlot::generatedPlotTitleFromVisibleCurves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot)
+{
+    {
+        QString data = sourceSummaryPlot.yAxisPropertiesLeftOrRight(RiaDefines::PLOT_AXIS_LEFT)->writeObjectToXmlString();
+        yAxisPropertiesLeftOrRight(RiaDefines::PLOT_AXIS_LEFT)
+            ->readObjectFromXmlString(data, caf::PdmDefaultObjectFactory::instance());
+    }
+
+    {
+        QString data = sourceSummaryPlot.yAxisPropertiesLeftOrRight(RiaDefines::PLOT_AXIS_RIGHT)->writeObjectToXmlString();
+        yAxisPropertiesLeftOrRight(RiaDefines::PLOT_AXIS_RIGHT)
+            ->readObjectFromXmlString(data, caf::PdmDefaultObjectFactory::instance());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;

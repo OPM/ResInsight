@@ -185,7 +185,9 @@ public:
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase)
-: m_eclipseCase(eclipseCase)
+    : m_eclipseCase(eclipseCase),
+    m_pvtCurveErrorCount(0),
+    m_relpermCurveErrorCount(0)
 {
 }
 
@@ -237,6 +239,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
 
+    try
     {
         progressInfo.setProgressDescription("Grid access");
 
@@ -294,6 +297,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             }
         }
     }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
+    }
 
     progressInfo.setProgress(3);
     progressInfo.setProgressDescription("Assigning Flux Field");
@@ -328,6 +336,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     // Set up flow Toolbox with timestep data
     std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> WellInFluxPrCell;
 
+    try
     {
         if (m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
         {
@@ -338,12 +347,12 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         }
         else
         {
-            Opm::ECLInitFileData init(getInitFileName());
-            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), 
-                                                                                                                  init, 
-                                                                                                                  *currentRestartData, 
-                                                                                                                  phaseSelection);
-            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
+                Opm::ECLInitFileData init(getInitFileName());
+                Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph),
+                                                                                                                      init,
+                                                                                                                      *currentRestartData,
+                                                                                                                      phaseSelection);
+                m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
         }
 
 
@@ -360,10 +369,16 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(WellInFluxPrCell);
 
     }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
+    }
 
     progressInfo.incrementProgress();
     progressInfo.setProgressDescription("Injector Solution");
 
+    try
     {
         // Injection Solution
         std::set<std::string> injectorCrossFlowTracers;
@@ -380,16 +395,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
                 injectorCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
             }
-
-            try
-            {
-                injectorSolution.reset(new Toolbox::Forward(m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
-            }
-            catch ( const std::exception& e )
-            {
-                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-                return result;
-            }
+            
+            injectorSolution.reset(new Toolbox::Forward(m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
 
             for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
             {
@@ -422,15 +429,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 prodjCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
             }
 
-            try
-            {
-                producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
-            }
-            catch ( const std::exception& e )
-            {
-                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-                return result;
-            }
+            producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
 
             for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
             {
@@ -490,6 +489,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             }
         }
     }
+    catch ( const std::exception& e )
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString(e.what()));
+        return result;
+    }
 
     return result; // Relying on implicit move constructor
 }
@@ -507,8 +511,14 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         if (initFileName.empty()) return false;
 
         const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
-        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
 
+        if (eclipseCaseData->hasFractureResults())
+        {
+            return false;
+        }
+
+        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
+        
         m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
     }
 
@@ -557,6 +567,30 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV(RigFlowDiagResultAddres
     {
         m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume(m_opmFlowDiagStaticData->m_poreVolume);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagSolverInterface::reportRelPermCurveError(const QString& message)
+{
+    if (m_relpermCurveErrorCount == 0)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "RelPerm curve problems: \n" + message);
+    }
+    m_relpermCurveErrorCount++;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagSolverInterface::reportPvtCurveError(const QString& message)
+{
+    if (m_pvtCurveErrorCount == 0)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "PVT curve problems: \n" + message);
+    }
+    m_pvtCurveErrorCount++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,6 +668,8 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOG, "PCOG"));   satFuncRequests.push_back(pcgo);
     curveIdentNameArr.push_back(std::make_pair(RelPermCurve::PCOW, "PCOW"));   satFuncRequests.push_back(pcow);
 
+    try {
+
     // Calculate and return curves both with and without endpoint scaling and tag them accordingly
     // Must use two calls to achieve this
     const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF };
@@ -655,6 +691,13 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
         }
     }
 
+    } 
+    catch ( const std::exception& e )
+    {
+        reportRelPermCurveError( QString(e.what()));
+        return retCurveArr;
+    }
+
     return retCurveArr;
 }
 
@@ -664,6 +707,8 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurves(PvtCurveType pvtCurveType, size_t activeCellIndex)
 {
     std::vector<PvtCurve> retCurveArr;
+
+    try {
 
     if (!ensureStaticDataObjectInstanceCreated())
     {
@@ -732,6 +777,13 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
         }
     }
 
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError( QString(e.what()));
+        return retCurveArr;
+    }
+
     return retCurveArr;
 }
 
@@ -754,6 +806,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeC
         return false;
     }
 
+    try {
     // Bo
     {
         std::vector<double> phasePress = { pressure };
@@ -774,6 +827,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(size_t activeC
         {
             *bg = valArr[0];
         }
+    }
+
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError(  QString(e.what()));
+        return false;
     }
 
     return true;
@@ -798,6 +858,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t a
         return false;
     }
 
+    try {
     // mu_o
     {
         std::vector<double> phasePress = { pressure };
@@ -818,6 +879,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(size_t a
         {
             *mu_g = valArr[0];
         }
+    }
+
+    }
+    catch ( const std::exception& e )
+    {
+        reportPvtCurveError( QString(e.what()));
+        return false;
     }
 
     return true;

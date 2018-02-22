@@ -113,6 +113,7 @@ private:
     caf::PdmField<bool>                               m_isTimeLapseResultUiField;
     caf::PdmField<int>                                m_timeLapseBaseTimestepUiField;
 
-
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
+
+    bool                                              m_isChangedByField;
 };

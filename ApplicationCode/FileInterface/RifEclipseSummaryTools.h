@@ -24,6 +24,8 @@
 #include <vector>
 
 class RifSummaryReaderInterface;
+class QStringList;
+class QString;
 
 //==================================================================================================
 //
@@ -33,13 +35,13 @@ class RifSummaryReaderInterface;
 class RifEclipseSummaryTools
 {
 public:
-    static void                     findSummaryHeaderFile(const std::string& inputFile, std::string* headerFile, bool* isFormatted);
-    static std::vector<std::string> findSummaryDataFiles(const std::string& caseFile);
+    static void                     findSummaryHeaderFile(const QString& inputFile, QString* headerFile, bool* isFormatted);
+    static QStringList              findSummaryDataFiles(const QString& caseFile);
 
-    static void                     findSummaryFiles(const std::string& inputFile, std::string* headerFile, std::vector<std::string>* dataFiles);
-    static bool                     hasSummaryFiles(const std::string& gridFileName);
+    static void                     findSummaryFiles(const QString& inputFile, QString* headerFile, QStringList* dataFiles);
+    static bool                     hasSummaryFiles(const QString& gridFileName);
     static void                     dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary);
 
 private:
-    static void                     findSummaryHeaderFileInfo(const std::string& inputFile, std::string* headerFile, std::string* path, std::string* base, bool* isFormatted);
+    static void                     findSummaryHeaderFileInfo(const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted);
 };

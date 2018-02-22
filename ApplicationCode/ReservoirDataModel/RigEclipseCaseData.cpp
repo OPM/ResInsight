@@ -566,6 +566,20 @@ void RigEclipseCaseData::setActiveCellInfo(RiaDefines::PorosityModelType porosit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigEclipseCaseData::hasFractureResults() const
+{
+    if (activeCellInfo(RiaDefines::FRACTURE_MODEL)
+     && activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount() > 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
 {
     if (m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull())

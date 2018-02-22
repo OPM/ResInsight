@@ -31,7 +31,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicDeleteScriptPathFeature, "RicDeleteScriptPathFeature");
 

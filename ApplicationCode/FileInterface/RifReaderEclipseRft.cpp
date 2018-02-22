@@ -21,6 +21,8 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RiaStringEncodingTools.h"
+
 #include "cafVecIjk.h"
 
 #include "ert/ecl/ecl_rft_file.h"
@@ -28,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft::RifReaderEclipseRft(const std::string& fileName):
+RifReaderEclipseRft::RifReaderEclipseRft(const QString& fileName):
     m_fileName(fileName), m_ecl_rft_file(nullptr)
 {
 }
@@ -45,15 +47,15 @@ RifReaderEclipseRft::~RifReaderEclipseRft()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseRft::open()
 {
-    if (m_fileName.empty()) return;
+    if (m_fileName.isEmpty()) return;
 
-    RiaLogging::info(QString("Opening file '%1'").arg(m_fileName.c_str()));
+    RiaLogging::info(QString("Opening file '%1'").arg( m_fileName));
 
-    m_ecl_rft_file = ecl_rft_file_alloc_case(m_fileName.data());
+    m_ecl_rft_file = ecl_rft_file_alloc_case(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
 
     if (m_ecl_rft_file == NULL)
     {
-        RiaLogging::warning(QString("Libecl could not find/open file '%'").arg(m_fileName.c_str()));
+        RiaLogging::warning(QString("Libecl could not find/open file '%'").arg( m_fileName));
         return;
     }
 

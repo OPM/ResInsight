@@ -458,7 +458,15 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         bool enableSouring = false;
 
 #ifdef ENABLE_SOURING
-        enableSouring = true;
+        if (m_eclipseCase.notNull())
+        {
+            RigCaseCellResultsData* cellResultsData = m_eclipseCase->results(this->porosityModel());
+
+            if (cellResultsData->hasFlowDiagUsableFluxes())
+            {
+                enableSouring = true;
+            }
+        }
 #endif /* ENABLE_SOURING */
 
 
@@ -1107,13 +1115,11 @@ bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
-    if ( m_eclipseCase
-        && m_eclipseCase->eclipseCaseData()
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL) 
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount() > 0 )
-        {
-            return true;
-        } 
+    if (m_eclipseCase
+        && m_eclipseCase->eclipseCaseData())
+    {
+        return m_eclipseCase->eclipseCaseData()->hasFractureResults();
+    }
 
     return false;
 }

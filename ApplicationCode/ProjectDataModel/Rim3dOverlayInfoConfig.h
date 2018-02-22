@@ -74,7 +74,7 @@ public:
     HistogramData                               histogramData();
     QString                                     timeStepText();
     QString                                     caseInfoText();
-    QString                                     resultInfoText(const HistogramData& histData, bool showVolumeWeightedMean);
+    QString                                     resultInfoText(const HistogramData& histData);
 
     void                                        showStatisticsInfoDialog(bool raise = true);
     QImage                                      statisticsDialogScreenShotImage();

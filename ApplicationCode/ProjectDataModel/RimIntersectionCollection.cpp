@@ -149,7 +149,7 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersection(RimIntersection* intersection)
+void RimIntersectionCollection::appendIntersectionAndUpdate(RimIntersection* intersection)
 {
     m_intersections.push_back(intersection);
 
@@ -167,9 +167,19 @@ void RimIntersectionCollection::appendIntersection(RimIntersection* intersection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionBox(RimIntersectionBox* intersectionBox)
+void RimIntersectionCollection::appendIntersectionBoxAndUpdate(RimIntersectionBox* intersectionBox)
 {
     m_intersectionBoxes.push_back(intersectionBox);
+
+    updateConnectedEditors();
+    RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
+
+    RimView* rimView = NULL;
+    firstAncestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

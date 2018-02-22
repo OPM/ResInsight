@@ -25,6 +25,8 @@
 #include <vector>
 #include <map>
 
+class QString;
+class QStringList;
 
 //==================================================================================================
 //
@@ -36,7 +38,7 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    bool                                open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
+    bool                                open(const QString& headerFileName, const QStringList& dataFileNames);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 

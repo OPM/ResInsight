@@ -264,6 +264,7 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
 
     double delta = value - minimumDepth;
     m_plotDefinition->setDepthZoomMinMax(minimumDepth + delta, maximumDepth + delta);
+    m_plotDefinition->setDepthAutoZoom(false);
 }
 
 //--------------------------------------------------------------------------------------------------

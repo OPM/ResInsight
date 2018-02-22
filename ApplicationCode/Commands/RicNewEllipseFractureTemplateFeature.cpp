@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
@@ -58,6 +59,18 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->setDefaultWellDiameterFromUnit();
 
         fracDefColl->updateConnectedEditors();
+
+        std::vector<RimView*> views;
+        project->allVisibleViews(views);
+
+        for (RimView* view : views)
+        {
+            if (dynamic_cast<RimEclipseView*>(view))
+            {
+                view->updateConnectedEditors();
+            }
+        }
+
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
     }
 }

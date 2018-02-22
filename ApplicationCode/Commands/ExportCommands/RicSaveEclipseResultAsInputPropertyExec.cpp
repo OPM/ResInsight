@@ -20,6 +20,7 @@
 #include "RicSaveEclipseResultAsInputPropertyExec.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RicExportFeatureImpl.h"
 
@@ -38,7 +39,7 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafUtils.h"
 
-#include <QMessageBox>
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -101,7 +102,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
-            QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
+            RiaLogging::error("Failed to exported current result to " + exportSettings.fileName);
         }
     }
 }

@@ -21,6 +21,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmUiDragDropInterface.h"
+#include "cafPdmPointer.h"
 
 #include <QMdiArea>
 
@@ -116,7 +117,7 @@ private:
     QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
     QMdiArea*           m_mdiArea;
-    RimViewWindow*      m_activePlotViewWindow;
+    caf::PdmPointer<RimViewWindow>  m_activePlotViewWindow;
 
     QMenu*              m_windowMenu;
 

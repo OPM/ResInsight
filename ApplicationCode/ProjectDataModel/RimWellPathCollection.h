@@ -93,7 +93,7 @@ public:
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
 
-    RimWellPath*                        newestAddedWellPath();
+    RimWellPath*                        mostRecentlyUpdatedWellPath();
 
     void                                readWellPathFormationFiles();
     void                                reloadAllWellPathFormations();
@@ -122,6 +122,8 @@ public:
                                                                           const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                           const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    bool                                anyWellsContainingPerforationIntervals() const;
+
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -136,5 +138,5 @@ private:
 
     RifWellPathImporter*                m_wellPathImporter;
     RifWellPathFormationsImporter*      m_wellPathFormationsImporter;
-    caf::PdmPointer<RimWellPath>        m_newestAddedWellPath;
+    caf::PdmPointer<RimWellPath>        m_mostRecentlyUpdatedWellPath;
 };

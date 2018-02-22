@@ -20,6 +20,7 @@
 #include "RicExportFaultsFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFault.h"
@@ -33,7 +34,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
 
@@ -191,7 +191,7 @@ void RicExportFaultsFeature::saveFault(QString completeFilename, const RigMainGr
     
     if (!exportFile.open(QIODevice::WriteOnly) )
     {
-        QMessageBox::critical(NULL, "ResInsight - Export Faults", "Could not open the file :\n" + completeFilename);
+        RiaLogging::error("Could not open the file : " + completeFilename);
     }
 
     QTextStream stream(&exportFile);

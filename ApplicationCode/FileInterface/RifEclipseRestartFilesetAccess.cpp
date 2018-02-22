@@ -20,6 +20,8 @@
 
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseOutputFileTools.h"
+#include "RiaStringEncodingTools.h"
+
 #include "cafProgressInfo.h"
 
 #include "ert/ecl/ecl_file.h"
@@ -251,8 +253,7 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, boo
 
         if (m_ecl_files[i])
         {
-            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
-            int reportNumber = ecl_util_filename_report_nr(fileName);
+            int reportNumber = RifEclipseRestartFilesetAccess::reportNumber(m_ecl_files[i]);
             if(reportNumber != -1)
             {
                 well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
@@ -271,7 +272,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
     if (m_ecl_files[timeStep] == NULL)
     {
         int index = static_cast<int>(timeStep);
-        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
 
@@ -282,6 +283,23 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
             m_availablePhases.insert(phases.begin(), phases.end());
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
+{
+    if (!ecl_file) return -1;
+
+    const char* eclFileName = ecl_file_get_src_file(ecl_file);
+    QString fileNameUpper(eclFileName);
+    fileNameUpper = fileNameUpper.toUpper();
+
+    // Convert to upper case, as ecl_util_filename_report_nr does not handle lower case file extensions
+    int reportNumber = ecl_util_filename_report_nr(RiaStringEncodingTools::toNativeEncoded(fileNameUpper).data());
+
+    return reportNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,12 +333,11 @@ std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
 {
     std::vector<int> reportNr;
 
-    for (size_t i = 0; i < m_ecl_files.size(); i++)
+    for (const auto* ecl_file : m_ecl_files)
     {
-        if (m_ecl_files[i])
+        if (ecl_file)
         {
-            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
-            int reportNumber = ecl_util_filename_report_nr(fileName);
+            int reportNumber = RifEclipseRestartFilesetAccess::reportNumber(ecl_file);
             if (reportNumber != -1)
             {
                 reportNr.push_back(reportNumber);

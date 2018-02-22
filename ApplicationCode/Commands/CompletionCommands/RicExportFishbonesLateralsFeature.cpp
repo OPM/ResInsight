@@ -32,7 +32,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicExportFishbonesLateralsFeature, "RicExportFishbonesLateralsFeature");
 

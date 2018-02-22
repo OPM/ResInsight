@@ -129,9 +129,16 @@ private:
     bool                           ensureStaticDataObjectInstanceCreated();
     void                           assignPhaseCorrecedPORV(RigFlowDiagResultAddress::PhaseSelection phaseSelection, 
                                                            size_t timeStepIdx);
+    void                           reportRelPermCurveError(const QString &message);
+    void                           reportPvtCurveError(const QString &message);
 
     RimEclipseResultCase *             m_eclipseCase;
     cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;
+
+
+    int                                m_pvtCurveErrorCount; 
+    int                                m_relpermCurveErrorCount; 
+
 };
 
 

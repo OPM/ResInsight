@@ -50,6 +50,9 @@ CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature"
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 {
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj->allFractureTemplates().empty()) return;
+
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
 
@@ -109,6 +112,9 @@ void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewSimWellFractureFeature::isCommandEnabled()
 {
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj->allFractureTemplates().empty()) return false;
+
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return false;
 

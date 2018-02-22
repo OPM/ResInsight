@@ -48,8 +48,9 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendIntersection(RimIntersection* intersection);
-    void appendIntersectionBox(RimIntersectionBox* intersectionBox);
+    void appendIntersectionAndUpdate(RimIntersection* intersection);
+    
+    void appendIntersectionBoxAndUpdate(RimIntersectionBox* intersectionBox);
 
     bool hasActiveIntersectionForSimulationWell(const RimSimWellInView* simWell) const;
 
