@@ -150,7 +150,7 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap(const Ri
     #endif
 
 
-    for ( char fIdx = 0; fIdx < 6; ++fIdx )
+    for ( unsigned char fIdx = 0; fIdx < 6; ++fIdx )
     {
         if ( !isPossibleNeighborInDirection[fIdx] )
         {
