@@ -98,21 +98,23 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 {
     const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
 
-    RimGeoMechView* geoMechView = geoMechSelectionItem ? geoMechSelectionItem->m_view : nullptr;
+    if (!geoMechSelectionItem)
+    {
+        this->clearPlot();
+        return;
+    }
+    
+    RimGeoMechView* geoMechView = geoMechSelectionItem->m_view;
+    CVF_ASSERT(geoMechView);
 
-    bool mustClearPlot = true;
-
-    if (this->isVisible() && geoMechSelectionItem && geoMechView)
+    if (this->isVisible())
     {
         const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
         const size_t cellIndex = geoMechSelectionItem->m_cellIndex;
-        if (queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex))
-        {
-            mustClearPlot = false;
-        }
+        
+        queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex);
     }
-
-    if (mustClearPlot)
+    else
     {
         this->clearPlot();
     }
@@ -160,6 +162,7 @@ void RiuMohrsCirclePlot::redrawCircles()
         QPainterPath* circleDrawing = new QPainterPath();
         QPointF       center(circle->centerX, 0);
         circleDrawing->addEllipse(center, circle->radius, circle->radius);
+
         plotItem->setPen(QPen(colors.cycledQColor(i)));
         plotItem->setShape(*circleDrawing);
         plotItem->setRenderHint(QwtPlotItem::RenderAntialiased, true);
@@ -170,8 +173,45 @@ void RiuMohrsCirclePlot::redrawCircles()
     double yHeight = 0.6 * (m_principal1 - m_principal3);
     this->setAxisScale(QwtPlot::yLeft, -yHeight, yHeight);
 
-    double xMin = m_principal3 < 0 ? 1.1 * m_principal3 : -1;
-    double xMax = m_principal1 < 0 ? 1 : 1.1 * m_principal1;
+    // Scale the x-axis to show the y-axis if the largest circle's leftmost intersection of the
+    // x-axis (principal 3) is to the right of the y-axis
+
+    //The following examples shows the largest of the three Mohr circles
+
+    // Ex 1: xMin will be set to 1.1 * m_principal3 to be able to see the whole circle
+    //      |y
+    //     _|____
+    //    / |     \
+    //   /  |      \
+    //--|---|-------|------- x
+    //   \  |      /
+    //    \_|_____/
+    //      |
+    //      |
+
+    // Ex 2: xMin will be set to -1 to be able to see the y-axis
+    //  |y              
+    //  |                _______
+    //  |               /       \
+    //  |              /         \
+    // -|-------------|-----------|---------- x
+    //  |              \         /
+    //  |               \_______/
+    //  |               
+    //  |               
+
+    double xMin;
+    if (m_principal3 < 0)
+    {
+        xMin = 1.1 * m_principal3;
+    }
+    else
+    {
+        xMin = -1;
+    }
+    // When using the rescaler, xMax is ignored
+    double xMax = 0;
+
     this->setAxisScale(QwtPlot::xBottom, xMin, xMax);
 
     this->replot();
@@ -196,12 +236,11 @@ void RiuMohrsCirclePlot::deleteCircles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
+void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
 {
-    if (!geoMechView) return false;
+    CVF_ASSERT(geoMechView);
 
     RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
-    if (!resultCollection) return false;
 
     int frameIdx = geoMechView->currentTimeStep();
 
@@ -223,7 +262,6 @@ bool RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     cvf::Vec3f elmPrincipals = elmTensor.calculatePrincipals(principalDirs);
 
     setPrincipalsAndRedrawCircles(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,14 +297,14 @@ void RiuMohrsCirclePlot::setDefaults()
 void RiuMohrsCirclePlot::createMohrCircles()
 {
     m_mohrCircles[0].component = 2;
-    m_mohrCircles[0].radius    = (m_principal1 - m_principal3) / 2;
-    m_mohrCircles[0].centerX   = (m_principal1 + m_principal3) / 2;
+    m_mohrCircles[0].radius    = (m_principal1 - m_principal3) / 2.0;
+    m_mohrCircles[0].centerX   = (m_principal1 + m_principal3) / 2.0;
 
     m_mohrCircles[1].component = 1;
-    m_mohrCircles[1].radius    = (m_principal2 - m_principal3) / 2;
-    m_mohrCircles[1].centerX   = (m_principal2 + m_principal3) / 2;
+    m_mohrCircles[1].radius    = (m_principal2 - m_principal3) / 2.0;
+    m_mohrCircles[1].centerX   = (m_principal2 + m_principal3) / 2.0;
 
     m_mohrCircles[2].component = 3;
-    m_mohrCircles[2].radius    = (m_principal1 - m_principal2) / 2;
-    m_mohrCircles[2].centerX   = (m_principal1 + m_principal2) / 2;
+    m_mohrCircles[2].radius    = (m_principal1 - m_principal2) / 2.0;
+    m_mohrCircles[2].centerX   = (m_principal1 + m_principal2) / 2.0;
 }

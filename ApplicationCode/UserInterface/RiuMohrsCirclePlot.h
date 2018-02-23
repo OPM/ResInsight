@@ -55,7 +55,7 @@ protected:
     void redrawCircles();
     void deleteCircles();
 
-    bool queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
+    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
     
 private:
     struct MohrCircle
