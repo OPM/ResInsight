@@ -134,7 +134,9 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         CVF_ASSERT(false);
     }
 
-    bool ok1, ok2;
+    bool ok1 = false;
+    bool ok2 = false;
+
     if (topVx == 1)
     {
         ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
