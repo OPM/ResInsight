@@ -672,7 +672,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 
     // Calculate and return curves both with and without endpoint scaling and tag them accordingly
     // Must use two calls to achieve this
-    const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF };
+        const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { {RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF} };
     for (RelPermCurve::EpsMode epsMode : epsModeArr)
     {
         const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
