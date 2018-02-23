@@ -114,12 +114,12 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     :   caf::OpenGLWidget(contextGroup(), format, new QWidget(parent), sharedWidget()),
     m_navigationPolicy(nullptr),
+    m_navigationPolicyEnabled(true),
     m_defaultPerspectiveNearPlaneDistance(0.05),
     m_maxClipPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_cameraFieldOfViewYDeg(40.0),
-    m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
-    m_navigationPolicyEnabled(true),
+    m_releaseOGLResourcesEachFrame(false),
     m_isOverlayPaintingEnabled(true),
     m_offscreenViewportWidth(0),
     m_offscreenViewportHeight(0)
