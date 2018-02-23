@@ -160,8 +160,8 @@ public:
 
 public:
     RigWellResultFrame() :
-        m_isOpen(false),
-        m_productionType(UNDEFINED_PRODUCTION_TYPE)
+        m_productionType(UNDEFINED_PRODUCTION_TYPE),
+        m_isOpen(false)
     { }
 
     const RigWellResultPoint*         findResultCell(size_t gridIndex, size_t gridCellIndex) const;

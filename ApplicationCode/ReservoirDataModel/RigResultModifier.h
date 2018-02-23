@@ -66,10 +66,12 @@ private:
 class RigActiveCellsResultModifier : public RigResultModifier
 {
 public:
-    RigActiveCellsResultModifier(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
-        : m_grid(grid),
-        m_reservoirResultValues(reservoirResultValues),
-        m_activeCellInfo(activeCellInfo)
+    RigActiveCellsResultModifier(const RigGridBase*       grid,
+                                 const RigActiveCellInfo* activeCellInfo,
+                                 std::vector<double>*     reservoirResultValues)
+        : m_grid(grid)
+        , m_activeCellInfo(activeCellInfo)
+        , m_reservoirResultValues(reservoirResultValues)
     {
     }
 
@@ -85,8 +87,8 @@ public:
 
 
 private:
-    const RigActiveCellInfo*    m_activeCellInfo;
     const RigGridBase*          m_grid;
+    const RigActiveCellInfo*    m_activeCellInfo;
     std::vector<double>*        m_reservoirResultValues;
 };
 

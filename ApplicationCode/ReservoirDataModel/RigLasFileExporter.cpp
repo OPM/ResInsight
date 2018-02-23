@@ -92,9 +92,9 @@ class SingleLasFileMetaData
 {
 public:
     SingleLasFileMetaData()
-        : m_minimumCurveValue(HUGE_VAL),
-        m_rkbDiff(HUGE_VAL),
-        m_exportTvdrkb(false)
+        : m_rkbDiff(HUGE_VAL)
+        , m_exportTvdrkb(false)
+        , m_minimumCurveValue(HUGE_VAL)
     {
     }
 

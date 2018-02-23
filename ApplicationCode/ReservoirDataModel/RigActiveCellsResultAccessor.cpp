@@ -26,9 +26,9 @@
 
 
 RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* grid, const std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
-    : m_grid(grid),
-    m_reservoirResultValues(reservoirResultValues),
-    m_activeCellInfo(activeCellInfo)
+    : m_activeCellInfo(activeCellInfo),
+    m_grid(grid),
+    m_reservoirResultValues(reservoirResultValues)
 {
 }
 
