@@ -134,6 +134,8 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
             return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_K, m_zTransAccessor.p());
         }
         break;
+    default:
+        break;
     }
 
     return HUGE_VAL;

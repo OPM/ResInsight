@@ -1891,19 +1891,20 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
         {
             case cvf::StructGridInterface::POS_I:
             case cvf::StructGridInterface::NEG_I:
-            permIdxFunc = permXIdxFunc;
-            permResults = &permXResults;
-            break;
+                permIdxFunc = permXIdxFunc;
+                permResults = &permXResults;
+                break;
             case cvf::StructGridInterface::POS_J:
             case cvf::StructGridInterface::NEG_J:
-            permIdxFunc = permYIdxFunc;
-            permResults = &permYResults;
-            break;
+                permIdxFunc = permYIdxFunc;
+                permResults = &permYResults;
+                break;
             case cvf::StructGridInterface::POS_K:
             case cvf::StructGridInterface::NEG_K:
-            permIdxFunc = permZIdxFunc;
-            permResults = &permZResults;
-            break;
+                permIdxFunc = permZIdxFunc;
+                permResults = &permZResults;
+                break;
+            default: break;
         }
 
         if (!permIdxFunc) continue;
