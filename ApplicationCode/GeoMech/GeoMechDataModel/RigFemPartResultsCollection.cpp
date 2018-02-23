@@ -281,6 +281,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
                     case RIG_INTEGRATION_POINT:
                         m_readerInterface->readIntegrationPointField(resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -1997,6 +1999,8 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
             break;
         case RIG_INTEGRATION_POINT:
             fieldAndComponentNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+            break;
+        default:
             break;
     }
 
