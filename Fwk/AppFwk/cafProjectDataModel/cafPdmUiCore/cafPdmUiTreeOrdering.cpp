@@ -140,13 +140,13 @@ bool PdmUiTreeOrdering::containsObject(const PdmObjectHandle* object)
 ///  Creates an new root PdmUiTreeOrdering item, pointing at a PdmObject
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::PdmUiTreeOrdering(PdmObjectHandle* pdmObject) : 
-    m_parentItem(nullptr),
+    m_object(pdmObject),
     m_field(nullptr),
+    m_uiItem(nullptr),
     m_forgetRemainingFields(false),
     m_isToIgnoreSubTree(false),
-    m_uiItem(nullptr),
-    m_object(pdmObject),
-    m_treeItemEditor(nullptr)
+    m_treeItemEditor(nullptr),
+    m_parentItem(nullptr)
 {
 }
 
@@ -154,13 +154,13 @@ PdmUiTreeOrdering::PdmUiTreeOrdering(PdmObjectHandle* pdmObject) :
 ///  Creates an new root PdmUiTreeOrdering item, pointing at a field
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::PdmUiTreeOrdering( PdmFieldHandle* pdmField ) : 
-    m_parentItem(nullptr),
+    m_object(nullptr),
     m_field(pdmField),
+    m_uiItem(nullptr),
     m_forgetRemainingFields(false),
     m_isToIgnoreSubTree(false),
-    m_uiItem(nullptr),
-    m_object(nullptr),
-    m_treeItemEditor(nullptr)
+    m_treeItemEditor(nullptr),
+    m_parentItem(nullptr)
 {
     if (pdmField) m_object = pdmField->ownerObject();
 }
@@ -169,13 +169,13 @@ PdmUiTreeOrdering::PdmUiTreeOrdering( PdmFieldHandle* pdmField ) :
 /// Creates an new root PdmUiTreeOrdering item, as a display item only
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::PdmUiTreeOrdering(const QString & title, const QString& iconResourceName) : 
-    m_parentItem(nullptr),
+    m_object(nullptr),
     m_field(nullptr),
+    m_uiItem(nullptr),
     m_forgetRemainingFields(false),
     m_isToIgnoreSubTree(false),
-    m_uiItem(nullptr),
-    m_object(nullptr),
-    m_treeItemEditor(nullptr)
+    m_treeItemEditor(nullptr),
+    m_parentItem(nullptr)
 {
     m_uiItem = new PdmUiItem();
     m_uiItem->setUiName(title);
@@ -187,13 +187,13 @@ PdmUiTreeOrdering::PdmUiTreeOrdering(const QString & title, const QString& iconR
 ///  at the end of parents existing child list.
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::PdmUiTreeOrdering(PdmUiTreeOrdering* parent, PdmObjectHandle* pdmObject) :
-    m_parentItem(parent),
+    m_object(pdmObject),
     m_field(nullptr),
+    m_uiItem(nullptr),
     m_forgetRemainingFields(false),
     m_isToIgnoreSubTree(false),
-    m_uiItem(nullptr),
-    m_object(pdmObject),
-    m_treeItemEditor(nullptr)
+    m_treeItemEditor(nullptr),
+    m_parentItem(parent)
 {
     if (m_parentItem)
     {
@@ -206,13 +206,13 @@ PdmUiTreeOrdering::PdmUiTreeOrdering(PdmUiTreeOrdering* parent, PdmObjectHandle*
 ///  at the end of parents existing child list.
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering::PdmUiTreeOrdering(PdmUiTreeOrdering* parent , PdmFieldHandle* pdmField ) : 
-    m_parentItem(parent),
+    m_object(nullptr),
     m_field(pdmField),
+    m_uiItem(nullptr),
     m_forgetRemainingFields(false),
     m_isToIgnoreSubTree(false),
-    m_uiItem(nullptr),
-    m_object(nullptr),
-    m_treeItemEditor(nullptr)
+    m_treeItemEditor(nullptr),
+    m_parentItem(parent)
 {
     if (m_parentItem)
     {

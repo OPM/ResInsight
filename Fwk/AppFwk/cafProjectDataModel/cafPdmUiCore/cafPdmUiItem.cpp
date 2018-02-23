@@ -47,8 +47,8 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool isReadOnly /* = false */, QIcon anIcon /* = QIcon()*/)
-    : m_value(aValue),
-    m_optionUiText(anOptionUiText),
+    : m_optionUiText(anOptionUiText),
+    m_value(aValue),
     m_isReadOnly(isReadOnly),
     m_icon(anIcon),
     m_level(0)

@@ -139,7 +139,7 @@ namespace caf
 class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
 {
 public:
-    PdmObject() : PdmObjectHandle(), PdmUiObjectHandle(this, false), PdmXmlObjectHandle(this, false) {}
+    PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false) {}
     virtual ~PdmObject() {}
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information 
