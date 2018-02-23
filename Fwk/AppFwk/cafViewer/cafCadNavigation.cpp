@@ -167,6 +167,8 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
             }
         }
         break;
+    default:
+        break;
     }
 
     if (isSupposedToConsumeEvents())

@@ -202,6 +202,8 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
             }
         }
         break;
+    default:
+        break;
     }
 
     if (isSupposedToConsumeEvents())
