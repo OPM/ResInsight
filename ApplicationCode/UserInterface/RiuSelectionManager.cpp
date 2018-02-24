@@ -177,42 +177,41 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view, 
-                                                 size_t gridIndex, 
-                                                 size_t cellIndex, 
-                                                 cvf::Color3f color, 
-                                                 int elementFace, 
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView*   view,
+                                                 size_t            gridIndex,
+                                                 size_t            cellIndex,
+                                                 cvf::Color3f      color,
+                                                 int               elementFace,
                                                  const cvf::Vec3d& localIntersectionPoint)
-    :   m_view(view),
-        m_gridIndex(gridIndex),
-        m_cellIndex(cellIndex),
-        m_color(color),
-        m_elementFace(elementFace),
-        m_localIntersectionPoint(localIntersectionPoint),
-        m_hasIntersectionTriangle(false)
+    : m_view(view)
+    , m_gridIndex(gridIndex)
+    , m_cellIndex(cellIndex)
+    , m_color(color)
+    , m_elementFace(elementFace)
+    , m_hasIntersectionTriangle(false)
+    , m_localIntersectionPoint(localIntersectionPoint)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view, 
-                                                 size_t gridIndex, 
-                                                 size_t cellIndex, 
-                                                 cvf::Color3f color, 
-                                                 int elementFace, 
-                                                 const cvf::Vec3d& localIntersectionPoint, 
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView*                  view,
+                                                 size_t                           gridIndex,
+                                                 size_t                           cellIndex,
+                                                 cvf::Color3f                     color,
+                                                 int                              elementFace,
+                                                 const cvf::Vec3d&                localIntersectionPoint,
                                                  const std::array<cvf::Vec3f, 3>& intersectionTriangle)
-    : m_view(view),
-    m_gridIndex(gridIndex),
-    m_cellIndex(cellIndex),
-    m_color(color),
-    m_elementFace(elementFace),
-    m_localIntersectionPoint(localIntersectionPoint), 
-    m_hasIntersectionTriangle(true),
-    m_intersectionTriangle(intersectionTriangle)
+    : m_view(view)
+    , m_gridIndex(gridIndex)
+    , m_cellIndex(cellIndex)
+    , m_color(color)
+    , m_elementFace(elementFace)
+    , m_hasIntersectionTriangle(true)
+    , m_intersectionTriangle(intersectionTriangle)
+    , m_localIntersectionPoint(localIntersectionPoint)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -105,12 +105,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer) 
-    : QObject(ownerViewer), 
-      m_viewer(ownerViewer), 
-      m_currentGridIdx(-1),
-      m_currentCellIndex(-1),
-      m_currentPickPositionInDomainCoords(cvf::Vec3d::UNDEFINED)
+RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
+    : QObject(ownerViewer)
+    , m_currentGridIdx(-1)
+    , m_currentCellIndex(-1)
+    , m_currentFaceIndex(cvf::StructGridInterface::NO_FACE)
+    , m_currentPickPositionInDomainCoords(cvf::Vec3d::UNDEFINED)
+    , m_viewer(ownerViewer)
 {
     {
         m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicIntersectionViewerEventHandler::instance()));

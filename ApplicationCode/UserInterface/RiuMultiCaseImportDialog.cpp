@@ -32,7 +32,9 @@
 class FileListModel: public QStringListModel
 {
 public:
-    explicit FileListModel(QObject *parent = nullptr) : m_isItemsEditable(false), QStringListModel(parent) 
+    explicit FileListModel(QObject* parent = nullptr)
+        : QStringListModel(parent)
+        , m_isItemsEditable(false)
     {
     }
 

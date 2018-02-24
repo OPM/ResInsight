@@ -43,12 +43,12 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent) 
-    :   m_plotDefinition(plotDefinition),
-        QFrame(parent)
+RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
+    : QFrame(parent)
+    , m_plotDefinition(plotDefinition)
 {
     Q_ASSERT(m_plotDefinition);
-    
+
     QVBoxLayout* mainLayout = new QVBoxLayout();
     this->setLayout(mainLayout);
     this->layout()->setMargin(0);

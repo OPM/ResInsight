@@ -68,16 +68,12 @@ private:
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
-    size_t m_currentGridIdx;
-    size_t m_currentCellIndex;
-    cvf::StructGridInterface::FaceType m_currentFaceIndex;
-    cvf::Vec3d  m_currentPickPositionInDomainCoords;
-
-    caf::PdmPointer<Rim3dView> m_reservoirView;
-
-    QPointer<RiuViewer> m_viewer;
-
+private:
+    size_t                                m_currentGridIdx;
+    size_t                                m_currentCellIndex;
+    cvf::StructGridInterface::FaceType    m_currentFaceIndex;
+    cvf::Vec3d                            m_currentPickPositionInDomainCoords;
+    caf::PdmPointer<Rim3dView>            m_reservoirView;
+    QPointer<RiuViewer>                   m_viewer;
     std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
 };
-
-
