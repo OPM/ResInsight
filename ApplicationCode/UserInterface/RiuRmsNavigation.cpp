@@ -185,6 +185,8 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
             }
         }
         break;
+    default:
+        break;
     }
 
     if (isSupposedToConsumeEvents())

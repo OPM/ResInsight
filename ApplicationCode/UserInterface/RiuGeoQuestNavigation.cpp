@@ -160,6 +160,8 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
             }
         }
         break;
+    default:
+        break;
     }
 
     if (isSupposedToConsumeEvents())

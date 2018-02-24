@@ -149,6 +149,8 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
             }
         }
         break;
+    default:
+        break;
     }
 
     if (isSupposedToConsumeEvents())
