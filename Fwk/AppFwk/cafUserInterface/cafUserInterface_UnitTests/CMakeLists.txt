@@ -6,16 +6,7 @@ include (${QT_USE_FILE})
 project ( cafUserInterface_UnitTests )
 
 include_directories (
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/..
-
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    
-    ${cafUserInterface_SOURCE_DIR}
-   
+	${CMAKE_CURRENT_SOURCE_DIR}   
 )
 
 
@@ -39,10 +30,6 @@ source_group("" FILES ${PROJECT_FILES})
 message(STATUS ${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
 target_link_libraries ( ${PROJECT_NAME}
-	cafProjectDataModel
-    cafPdmUiCore
-    cafPdmCore
-    cafPdmXml
     cafUserInterface
     ${QT_LIBRARIES}
     ${THREAD_LIBRARY}

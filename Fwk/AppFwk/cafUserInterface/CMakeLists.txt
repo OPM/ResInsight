@@ -6,15 +6,6 @@ include (${QT_USE_FILE})
 
 project (cafUserInterface)
 
-include_directories(
-    ${cafProjectDataModel_SOURCE_DIR}
-)
-
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-)
 
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS    
@@ -154,10 +145,13 @@ add_library( ${PROJECT_NAME}
     ${MOC_FILES_CPP}
 )
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
-    cafPdmUiCore
-    cafPdmCore
     ${QT_LIBRARIES}
 )
 

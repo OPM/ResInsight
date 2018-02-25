@@ -6,16 +6,7 @@ include (${QT_USE_FILE})
 project ( cafProjectDataModel_UnitTests )
 
 include_directories (
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    
-    ${cafProjectDataModel_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set( PROJECT_FILES
@@ -35,9 +26,6 @@ add_executable (${PROJECT_NAME}
 message(${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafPdmCore
-    cafPdmUiCore
-    cafPdmXml
 	cafProjectDataModel 
     ${QT_LIBRARIES}
     ${THREAD_LIBRARY}
