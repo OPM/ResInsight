@@ -42,16 +42,11 @@ ${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.h
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader.h
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyReader.h
+${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
-    list (APPEND SOURCE_GROUP_HEADER_FILES 
-        ${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.h
-    ) 
-endif() 
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RifEclipseDataTableFormatter.cpp
@@ -89,16 +84,11 @@ ${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyReader.cpp
+${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

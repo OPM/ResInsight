@@ -13,17 +13,12 @@ ${CEE_CURRENT_LIST_DIR}RigCompletionData.h
 ${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.h
+${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
+${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.h
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.h
+${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.h
+${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_HEADER_FILES
-        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
-        ${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.h
-        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.h
-        ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.h
-        ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.h
-    )
-endif()
 
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -35,18 +30,12 @@ ${CEE_CURRENT_LIST_DIR}RigCompletionData.cpp
 ${CEE_CURRENT_LIST_DIR}RigCompletionDataGridCell.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.cpp
+${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.cpp
+${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
-        ${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
-        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.cpp
-        ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
-        ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.cpp
-    )
-endif()
-
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

@@ -14,24 +14,18 @@ ${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPerforationCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPerforationInterval.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
+${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.h
+${CEE_CURRENT_LIST_DIR}RimFracture.h
+${CEE_CURRENT_LIST_DIR}RimFractureContainment.h
+${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
+${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
+${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.h
+${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
+${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
+${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
+${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
+${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_HEADER_FILES
-        ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.h
-        ${CEE_CURRENT_LIST_DIR}RimFracture.h
-        ${CEE_CURRENT_LIST_DIR}RimFractureContainment.h
-        ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
-        ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
-        ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.h
-        ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
-        ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
-        ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
-        ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
-        ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.h
-    )
-endif()
-
 
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -44,24 +38,18 @@ ${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPerforationCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPerforationInterval.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
+${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.cpp
+${CEE_CURRENT_LIST_DIR}RimFracture.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureContainment.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.cpp
-        ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
-        ${CEE_CURRENT_LIST_DIR}RimFractureContainment.cpp
-        ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
-        ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
-        ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.cpp
-        ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
-        ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
-        ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
-        ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp
-        ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.cpp
-    )
-endif()
-
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

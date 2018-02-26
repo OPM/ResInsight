@@ -65,15 +65,10 @@ ${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.h
 ${CEE_CURRENT_LIST_DIR}RigWeightedMeanCalc.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryCurveMerger.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.h
+${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
+${CEE_CURRENT_LIST_DIR}RigFractureGrid.h
+${CEE_CURRENT_LIST_DIR}RigFractureCell.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_HEADER_FILES
-        ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
-        ${CEE_CURRENT_LIST_DIR}RigFractureGrid.h
-        ${CEE_CURRENT_LIST_DIR}RigFractureCell.h
-    )
-endif()
 
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -132,16 +127,10 @@ ${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RigWeightedMeanCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryCurveMerger.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathFormations.cpp
+${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
+${CEE_CURRENT_LIST_DIR}RigFractureGrid.cpp
+${CEE_CURRENT_LIST_DIR}RigFractureCell.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
-        ${CEE_CURRENT_LIST_DIR}RigFractureGrid.cpp
-        ${CEE_CURRENT_LIST_DIR}RigFractureCell.cpp
-    )
-endif()
-
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

@@ -42,13 +42,8 @@ ${CEE_CURRENT_LIST_DIR}ListKeywordsForObjectsAndFields-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifElementPropertyTableReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RimRelocatePath-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser-Test.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser-Test.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
