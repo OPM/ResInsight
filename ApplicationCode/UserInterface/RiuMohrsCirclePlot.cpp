@@ -263,14 +263,15 @@ void RiuMohrsCirclePlot::redrawEnvelope()
     double x = m_cohesion/tanFrictionAngle;
     if (m_principal1 < 0)
     {
-        xVals.push_back(-x);
+        xVals.push_back(x);
+        xVals.push_back(m_principal3*1.1);
     }
     else
     {
-        xVals.push_back(x);
+        xVals.push_back(-x);
+        xVals.push_back(m_principal1*1.1);
     }
 
-    xVals.push_back(m_principal1*1.1);
 
     yVals.push_back(0);
     yVals.push_back((x + cvf::Math::abs(m_principal1) * 1.1) * tanFrictionAngle);
