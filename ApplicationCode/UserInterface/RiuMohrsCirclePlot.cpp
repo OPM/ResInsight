@@ -126,6 +126,7 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 void RiuMohrsCirclePlot::clearPlot()
 {
     deleteCircles();
+    this->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,7 +181,7 @@ void RiuMohrsCirclePlot::redrawCircles()
 
     // Ex 1: xMin will be set to 1.1 * m_principal3 to be able to see the whole circle
     //      |y
-    //     _|____
+    //     _|_____
     //    / |     \
     //   /  |      \
     //--|---|-------|------- x
@@ -245,10 +246,20 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     int frameIdx = geoMechView->currentTimeStep();
 
     RigFemResultAddress currentAddress = geoMechView->cellResult->resultAddress();
-
-    // TODO: All tensors are calculated everytime this function is called. FIX
+    if (!(currentAddress.fieldName == "SE" || currentAddress.fieldName == "ST" || currentAddress.fieldName == "E"))
+    {
+        clearPlot();
+        return;
+    }
+    // TODO: All tensors are calculated every time this function is called. FIX
     std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(currentAddress, 0, frameIdx);
-    RigFemPart*             femPart       = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
+    if (vertexTensors.empty())
+    {
+        clearPlot();
+        return;
+    }
+
+    RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
 
     caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, 0)];
     for (int i = 1; i < 8; i++)
