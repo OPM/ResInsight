@@ -36,10 +36,13 @@
 #include <QPainterPath>
 #include <QWidget>
 
+#include "qwt_plot_curve.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_rescaler.h"
 #include "qwt_plot_shapeitem.h"
+
+#include <cmath>
 
 //==================================================================================================
 ///
@@ -84,11 +87,12 @@ void RiuMohrsCirclePlot::setPrincipals(double p1, double p2, double p3)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setPrincipalsAndRedrawCircles(double p1, double p2, double p3)
+void RiuMohrsCirclePlot::setPrincipalsAndRedrawPlot(double p1, double p2, double p3)
 {
     setPrincipals(p1, p2, p3);
 
     redrawCircles();
+    redrawEnvelope();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +130,8 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 void RiuMohrsCirclePlot::clearPlot()
 {
     deleteCircles();
+    deleteEnvelope();
+
     this->replot();
 }
 
@@ -235,6 +241,68 @@ void RiuMohrsCirclePlot::deleteCircles()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::redrawEnvelope()
+{
+    deleteEnvelope();
+
+    if (m_cohesion == HUGE_VAL || m_frictionAngle == HUGE_VAL)
+    {
+        this->replot();
+        return;
+    }
+
+    QwtPlotCurve* qwtCurve = new QwtPlotCurve();
+    
+    std::vector<double> xVals;
+    std::vector<double> yVals;
+    
+    double tanFrictionAngle = cvf::Math::abs(cvf::Math::tan(cvf::Math::toRadians(m_frictionAngle)));
+
+    double x = m_cohesion/tanFrictionAngle;
+    if (m_principal1 < 0)
+    {
+        xVals.push_back(-x);
+    }
+    else
+    {
+        xVals.push_back(x);
+    }
+
+    xVals.push_back(m_principal1*1.1);
+
+    yVals.push_back(0);
+    yVals.push_back((x + cvf::Math::abs(m_principal1) * 1.1) * tanFrictionAngle);
+
+    qwtCurve->setSamples(xVals.data(), yVals.data(), 2);
+
+    qwtCurve->setStyle(QwtPlotCurve::Lines);
+    qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+
+    const QPen curvePen(Qt::red);
+    qwtCurve->setPen(curvePen);
+
+    qwtCurve->attach(this);
+
+    m_envolopePlotItem = qwtCurve;
+    this->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::deleteEnvelope()
+{
+    if (m_envolopePlotItem)
+    {
+        m_envolopePlotItem->detach();
+        delete m_envolopePlotItem;
+        m_envolopePlotItem = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
@@ -272,7 +340,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     cvf::Vec3f principalDirs[3];
     cvf::Vec3f elmPrincipals = elmTensor.calculatePrincipals(principalDirs);
 
-    setPrincipalsAndRedrawCircles(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
+    setPrincipalsAndRedrawPlot(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +368,10 @@ void RiuMohrsCirclePlot::setDefaults()
     lineYPlotMarker->setLineStyle(QwtPlotMarker::VLine);
     lineYPlotMarker->setXValue(0);
     lineYPlotMarker->attach(this);
+
+    m_envolopePlotItem = nullptr;
+    m_cohesion = HUGE_VAL;
+    m_frictionAngle = HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,4 +390,20 @@ void RiuMohrsCirclePlot::createMohrCircles()
     m_mohrCircles[2].component = 3;
     m_mohrCircles[2].radius    = (m_principal1 - m_principal2) / 2.0;
     m_mohrCircles[2].centerX   = (m_principal1 + m_principal2) / 2.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::setFrictionAngle(double frictionAngle)
+{
+    m_frictionAngle = frictionAngle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::setCohesion(double cohesion)
+{
+    m_cohesion = cohesion;
 }

@@ -28,6 +28,7 @@ class RimGeoMechView;
 class QwtRoundScaleDraw;
 class QwtPlotRescaler;
 class QWidget;
+class QwtPlotCurve;
 
 //==================================================================================================
 //
@@ -43,7 +44,7 @@ public:
     ~RiuMohrsCirclePlot();
 
     void setPrincipals(double p1, double p2, double p3);
-    void setPrincipalsAndRedrawCircles(double p1, double p2, double p3);
+    void setPrincipalsAndRedrawPlot(double p1, double p2, double p3);
 
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
     void clearPlot();
@@ -54,6 +55,9 @@ protected:
 
     void redrawCircles();
     void deleteCircles();
+
+    void redrawEnvelope();
+    void deleteEnvelope();
 
     void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
     
@@ -67,9 +71,13 @@ private:
         double radius;
         double centerX;
     };
+
 private:
     void setDefaults();
     void createMohrCircles();
+
+    void setFrictionAngle(double frictionAngle);
+    void setCohesion(double cohesion);
 
 private:
     double m_principal1;
@@ -79,6 +87,12 @@ private:
     std::array<MohrCircle, 3> m_mohrCircles;
 
     std::vector<QwtPlotItem*> m_circlePlotItems;
+    
+    QwtPlotCurve* m_envolopePlotItem;
+
+    double m_frictionAngle;
+    double m_cohesion;
+    double m_factorOfSafety;
 
     QwtPlotRescaler* m_rescaler;
 };
