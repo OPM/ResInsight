@@ -488,9 +488,9 @@ const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
 const caf::ColorTable& RiaColorTables::mohrsCirclePaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
-        cvf::Color3ub::RED,
-        cvf::Color3ub::DARK_GREEN,
-        cvf::Color3ub::BLUE
+        cvf::Color3ub(202,   0,   0),   // Red
+        cvf::Color3ub(0, 112, 136),   // Dark Green-Blue
+        cvf::Color3ub(56,  56, 255),   // Vivid Blue
     };
 
     static caf::ColorTable colorTable = caf::ColorTable(colors);

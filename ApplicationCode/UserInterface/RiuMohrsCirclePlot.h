@@ -79,6 +79,10 @@ private:
     void setFrictionAngle(double frictionAngle);
     void setCohesion(double cohesion);
 
+    void updateTransparentCurveOnPrincipals();
+
+    void replotAndScaleAxis();
+
 private:
     double m_principal1;
     double m_principal2;
@@ -89,6 +93,7 @@ private:
     std::vector<QwtPlotItem*> m_circlePlotItems;
     
     QwtPlotCurve* m_envolopePlotItem;
+    QwtPlotCurve* m_transparentCurve;
 
     double m_frictionAngle;
     double m_cohesion;
