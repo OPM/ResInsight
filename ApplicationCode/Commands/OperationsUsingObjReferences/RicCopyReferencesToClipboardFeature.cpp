@@ -21,7 +21,9 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplate.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -163,10 +165,12 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     {
         if (!wellAllocPlot && !rftPlot) return true;
     }
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     else if (dynamic_cast<RimFractureTemplate*>(pdmObject))
     {
         return true;
     }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     return false;
 }
