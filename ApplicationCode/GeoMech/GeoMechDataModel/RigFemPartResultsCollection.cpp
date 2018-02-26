@@ -2146,7 +2146,7 @@ std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors(const RigFemResultA
         address13.componentName = "S13";
         address23.componentName = "S23";
     }
-    else if (resVarAddr.fieldName == "E")
+    else if (resVarAddr.fieldName == "NE")
     {
         address11.componentName = "E11";
         address22.componentName = "E22";
@@ -2312,7 +2312,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorPrincipalCom
         addresses[1].componentName = "S2";
         addresses[2].componentName = "S3";
     }
-    else if (resVarAddr.fieldName == "E")
+    else if (resVarAddr.fieldName == "NE")
     {
         addresses[0].componentName = "E1";
         addresses[1].componentName = "E2";

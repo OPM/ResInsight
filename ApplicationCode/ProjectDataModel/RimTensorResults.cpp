@@ -226,7 +226,7 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         std::vector<std::string> fieldCompNames = getResultMetaDataForUIFieldSetting();
         if (m_resultPositionTypeUiField() == m_resultPositionType())
         {
-            m_resultFieldNameUiField = m_resultFieldName();
+            m_resultFieldNameUiField = uiFieldName(m_resultFieldName());
         }
         else
         {
@@ -237,7 +237,7 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     if (changedField == &m_resultFieldNameUiField)
     {
         m_resultPositionType = m_resultPositionTypeUiField;
-        m_resultFieldName = m_resultFieldNameUiField;
+        m_resultFieldName = fieldNameFromUi(m_resultFieldNameUiField);
     }
     if (changedField == &m_showTensors)
     {
@@ -319,7 +319,7 @@ void RimTensorResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 void RimTensorResults::initAfterRead()
 {
     m_resultPositionTypeUiField = m_resultPositionType;
-    m_resultFieldNameUiField = m_resultFieldName();
+    m_resultFieldNameUiField = uiFieldName(m_resultFieldName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,4 +335,30 @@ void RimTensorResults::defineEditorAttribute(const caf::PdmFieldHandle* field, Q
             listEditAttr->m_heightHint = 50;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTensorResults::uiFieldName(const QString& fieldName)
+{
+    if (fieldName == "NE")
+    {
+        return QString("E");
+    }
+
+    return fieldName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTensorResults::fieldNameFromUi(const QString& uiFieldName)
+{
+    if (uiFieldName == "E")
+    {
+        return QString("NE");
+    }
+
+    return uiFieldName;
 }

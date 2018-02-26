@@ -340,7 +340,6 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
     if (vectorColors == RimTensorResults::MAGENTA_BROWN_BLACK || vectorColors == RimTensorResults::WHITE_GRAY_BLACK)
     {
-
         activeScalerMapper = discreteScalarMapper.p();
         
         createOneColorPerPrincipalScalarMapper(vectorColors, discreteScalarMapper.p());
@@ -453,7 +452,7 @@ bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
     {
         return false;
     }
-    if (!(address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "E"))
+    if (!(address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "NE"))
     {
         return false;
     }

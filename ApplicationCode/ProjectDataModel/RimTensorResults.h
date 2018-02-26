@@ -82,6 +82,9 @@ private:
     virtual void                            initAfterRead() override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
+    static QString                          uiFieldName(const QString& fieldName);
+    static QString                          fieldNameFromUi(const QString& uiFieldName);
+
 private:
     caf::PdmField<bool>                              m_showTensors;
 
