@@ -93,11 +93,9 @@
 #include "RiuWellAllocationPlot.h"
 #include "RiuFlowCharacteristicsPlot.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimStimPlanColors.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include "RicImportInputEclipseCaseFeature.h"
@@ -511,8 +509,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                 rimObservedData->updateMetaData();
             }
         }
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
         oilField->fractureDefinitionCollection()->setDefaultConductivityResultIfEmpty();
@@ -526,7 +522,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                 fracture->loadDataAndUpdate();
             }
         }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     }
 
@@ -572,7 +567,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
                     viewProgress.setProgressDescription(riv->name());
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                     if (m_project->isProjectFileVersionEqualOrOlderThan("2018.1.0.103"))
                     {
                         std::vector<RimStimPlanColors*> stimPlanColors;
@@ -582,7 +576,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                             stimPlanColors[0]->updateConductivityResultName();
                         }
                     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
                     riv->loadDataAndUpdate();
                     this->setActiveReservoirView(riv);

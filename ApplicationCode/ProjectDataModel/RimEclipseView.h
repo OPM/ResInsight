@@ -53,9 +53,7 @@ class RimFaultInViewCollection;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimSimWellInViewCollection;
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimStimPlanColors;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivIntersectionPartMgr;
@@ -85,9 +83,7 @@ public:
     caf::PdmChildField<RimEclipseCellColors*>               cellResult;
     caf::PdmChildField<RimCellEdgeColors*>                  cellEdgeResult;
     caf::PdmChildField<RimEclipseFaultColors*>              faultResultSettings;
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     caf::PdmChildField<RimStimPlanColors*>                  fractureColors;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     caf::PdmChildField<RimSimWellInViewCollection*>         wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>           faultCollection;

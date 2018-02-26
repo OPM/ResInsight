@@ -71,12 +71,10 @@
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathsPartMgr.h" 
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimSimWellFracture.h"
 #include "RivWellFracturePartMgr.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include "cafCadNavigation.h"
@@ -123,11 +121,9 @@ RimEclipseView::RimEclipseView()
     faultResultSettings = new RimEclipseFaultColors();
     faultResultSettings.uiCapability()->setUiHidden(true);
   
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     CAF_PDM_InitFieldNoDefault(&fractureColors, "StimPlanColors", "Fracture", "", "", "");
     fractureColors = new RimStimPlanColors();
     fractureColors.uiCapability()->setUiHidden(true);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimSimWellInViewCollection;
@@ -462,15 +458,11 @@ void RimEclipseView::createDisplayModel()
 
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
     // as the fracture geometry depends on the StimPlan legend colors
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     fractureColors->updateLegendData();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p());
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -702,7 +694,6 @@ void RimEclipseView::updateCurrentTimeStep()
             }
 
             // Sim Well Fractures
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
             {
                 cvf::String name = "SimWellFracturesModel";
                 this->removeModelByName(frameScene, name);
@@ -733,7 +724,6 @@ void RimEclipseView::updateCurrentTimeStep()
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel(simWellFracturesModelBasicList.p());
             }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
     }
 
@@ -770,9 +760,7 @@ void RimEclipseView::onLoadDataAndUpdate()
     this->cellEdgeResult()->loadResult();
 
     this->faultResultSettings()->customFaultResult()->loadResult();
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     this->fractureColors->loadDataAndUpdate();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     updateMdiWindowVisibility();
 
@@ -786,7 +774,6 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     syncronizeWellsWithResults();
     
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     {
         // Update simulation well fractures after well cell results are imported
         
@@ -797,7 +784,6 @@ void RimEclipseView::onLoadDataAndUpdate()
             fracture->loadDataAndUpdate();
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     this->scheduleCreateDisplayModelAndRedraw();
 }
@@ -1046,7 +1032,6 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
     if (stimPlanLegend)
     {
@@ -1057,7 +1042,6 @@ void RimEclipseView::updateLegends()
             m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1395,8 +1379,6 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(faultResultSettings());
     uiTreeOrdering.add(wellCollection());
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
     RimOilField* oilfield = project->activeOilField();
@@ -1408,7 +1390,6 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
             uiTreeOrdering.add(fractureColors());
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_crossSectionCollection());

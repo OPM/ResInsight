@@ -138,10 +138,8 @@ public:
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
     std::vector<RimFractureTemplate*> allFractureTemplates() const;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 protected:
     // Overridden methods

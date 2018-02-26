@@ -62,9 +62,7 @@ public:
                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                     const QDateTime& timeStamp,

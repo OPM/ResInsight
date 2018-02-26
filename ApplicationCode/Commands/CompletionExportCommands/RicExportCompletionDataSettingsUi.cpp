@@ -76,9 +76,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Include Fractures", "", "", "");
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
     m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
@@ -114,7 +112,6 @@ void RicExportCompletionDataSettingsUi::showForWellPath()
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (changedField == &compdatExport)
     {
         if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
@@ -128,7 +125,6 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
             includeFractures.uiCapability()->setUiReadOnly(false);
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +206,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         if (!includePerforations) timeStep.uiCapability()->setUiReadOnly(true);
         else  timeStep.uiCapability()->setUiReadOnly(false);
         
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         caf::PdmUiGroup* fractureGroup = uiOrdering.addNewGroup("Export of Fracture Completions");
         fractureGroup->add(&includeFractures);
         
@@ -222,7 +217,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         {
             includeFractures.uiCapability()->setUiReadOnly(false);
         }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
     uiOrdering.skipRemainingFields();

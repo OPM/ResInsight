@@ -357,9 +357,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder << "RicNewWellPathFractureAtPosFeature";
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
                 menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
 
@@ -402,9 +400,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder.addSeparator();
                 menuBuilder << "RicShowContributingWellsFeature";
                 menuBuilder.addSeparator();
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder << "RicNewSimWellFractureAtPosFeature";
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
                 menuBuilder.addSeparator();
                 menuBuilder << "RicNewSimWellIntersectionFeature";
             }
@@ -500,7 +496,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             if (rivObjectSourceInfo)
             {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
                 {
                     bool blockSelectionOfFracture = false;
@@ -550,7 +545,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     // Display result info text
                     RiuMainWindow::instance()->setResultInfo(resultInfoText);
                 }
-#endif //USE_PROTOTYPE_FEATURE_FRACTURES
             }
             
             if (rivSourceInfo)

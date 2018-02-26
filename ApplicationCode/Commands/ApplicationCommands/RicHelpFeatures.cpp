@@ -71,9 +71,6 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 #ifdef USE_HDF5
     activeFeatures += "  Souring";
 #endif
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    activeFeatures += "  Fractures";
-#endif
 
     if (!activeFeatures.isEmpty())
     {

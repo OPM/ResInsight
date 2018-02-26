@@ -24,9 +24,7 @@
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "clipper/clipper.hpp"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include <vector>
 
@@ -222,7 +220,6 @@ double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(std::vector<
     return areaWeightedLength;
 }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
 double clipperConversionFactor = 10000; //For transform to clipper int 
 
@@ -249,7 +246,6 @@ cvf::Vec3d fromClipperPoint(const ClipperLib::IntPoint& clipPoint)
 
     return cvf::Vec3d (clipPoint.X, clipPoint.Y, zDValue ) /clipperConversionFactor;
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 ///  
@@ -258,7 +254,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(st
 {
     std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
     
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     // Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polygon1path;
     for (cvf::Vec3d& v : polygon1)
@@ -289,7 +284,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(st
         }
         clippedPolygons.push_back(clippedPolygon);
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     return clippedPolygons;
 }
@@ -297,7 +291,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 void fillInterpolatedSubjectZ(ClipperLib::IntPoint& e1bot,
                               ClipperLib::IntPoint& e1top,
                               ClipperLib::IntPoint& e2bot,
@@ -350,7 +343,6 @@ void fillUndefinedZ(ClipperLib::IntPoint& e1bot,
 {
    pt.Z = std::numeric_limits<int>::max();
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// Assumes x.y plane polygon. Polyline might have a Z, and the returned Z is the polyline Z, interpolated if it is clipped.
@@ -361,7 +353,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
 {
     std::vector<std::vector<cvf::Vec3d> > clippedPolyline;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     //Adjusting polygon to avoid clipper issue with interpolating z-values when lines crosses though polygon vertecies
     std::vector<cvf::Vec3d> adjustedPolygon = ajustPolygonToAvoidIntersectionsAtVertex(polyLine, polygon);
 
@@ -410,7 +401,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
         }
         clippedPolyline.push_back(clippedPolygon);
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     return clippedPolyline;
 }

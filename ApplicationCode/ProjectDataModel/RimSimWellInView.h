@@ -36,10 +36,7 @@ class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimSimWellFractureCollection;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //==================================================================================================
 ///  
@@ -93,9 +90,7 @@ public:
     caf::PdmField<bool>                 showWellCells;
     caf::PdmField<bool>                 showWellCellFence;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 protected:
