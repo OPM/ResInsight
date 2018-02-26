@@ -314,7 +314,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     int frameIdx = geoMechView->currentTimeStep();
 
     RigFemResultAddress currentAddress = geoMechView->cellResult->resultAddress();
-    if (!(currentAddress.fieldName == "SE" || currentAddress.fieldName == "ST" || currentAddress.fieldName == "E"))
+    if (!(currentAddress.fieldName == "SE" || currentAddress.fieldName == "ST" || currentAddress.fieldName == "NE"))
     {
         clearPlot();
         return;
