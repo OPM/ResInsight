@@ -311,6 +311,9 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     CVF_ASSERT(geoMechView);
 
     RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
+    
+    setCohesion(geoMechView->geoMechCase()->cohesion());
+    setFrictionAngle(geoMechView->geoMechCase()->frictionAngleDeg());
 
     int frameIdx = geoMechView->currentTimeStep();
 

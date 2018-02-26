@@ -386,6 +386,22 @@ void RimGeoMechCase::addElementPropertyFiles(const std::vector<caf::FilePath>& f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::cohesion() const
+{
+    return m_cohesion;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::frictionAngleDeg() const
+{
+    return m_frictionAngleDeg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;
