@@ -36,7 +36,8 @@ namespace caf
     void AppEnum< RimTensorResults::TensorColors >::setUp()
     {
         addItem(RimTensorResults::WHITE_GRAY_BLACK , "WHITE_GRAY_BLACK", "White, Gray, Black");
-        addItem(RimTensorResults::MAGENTA_BROWN_BLACK, "MAGENTA_BROWN_BLACK", "Magenta, Brown, Black");
+        addItem(RimTensorResults::ORANGE_BLUE_WHITE, "ORANGE_BLUE_WHITE", "Orange, Blue, White");
+        addItem(RimTensorResults::MAGENTA_BROWN_GRAY, "MAGENTA_BROWN_GRAY", "Magenta, Brown, Gray");
         addItem(RimTensorResults::RESULT_COLORS, "RESULT_COLORS", "Result Colors");
 
         setDefault(RimTensorResults::WHITE_GRAY_BLACK);

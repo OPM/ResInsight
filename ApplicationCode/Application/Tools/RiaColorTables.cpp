@@ -197,7 +197,7 @@ const caf::ColorTable& RiaColorTables::tensorWhiteGrayBlackPaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
         cvf::Color3ub::WHITE,
-        cvf::Color3ub::GRAY,
+        cvf::Color3ub::LIGHT_GRAY,
         cvf::Color3ub::BLACK,
     };
 
@@ -208,12 +208,27 @@ const caf::ColorTable& RiaColorTables::tensorWhiteGrayBlackPaletteColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const caf::ColorTable& RiaColorTables::tensorMagentaBrownBlackPaletteColors()
+const caf::ColorTable& RiaColorTables::tensorOrangeBlueWhitePaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
-        cvf::Color3ub::DARK_MAGENTA,
+        cvf::Color3ub(236, 118,   0),   // Orange
+        cvf::Color3ub(56,  56, 255),   // Vivid Blue
+        cvf::Color3ub(210, 248, 250),   // White Turquoiseish
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable(colors);
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::tensorsMagentaBrownGrayPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub(248, 0, 170), // Magenta
         cvf::Color3ub::BROWN,
-        cvf::Color3ub::BLACK,
+        cvf::Color3ub::LIGHT_GRAY,
     };
 
     static caf::ColorTable colorTable = caf::ColorTable(colors);

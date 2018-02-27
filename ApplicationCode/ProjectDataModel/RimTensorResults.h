@@ -43,7 +43,8 @@ public:
     enum TensorColors
     {
         WHITE_GRAY_BLACK,
-        MAGENTA_BROWN_BLACK,
+        ORANGE_BLUE_WHITE,
+        MAGENTA_BROWN_GRAY,
         RESULT_COLORS
     };
 
