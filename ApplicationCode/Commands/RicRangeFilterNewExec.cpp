@@ -25,7 +25,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void RicRangeFilterNewExec::redo()
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 
-        RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
+        Riu3DMainWindowTools::selectAsCurrentItem(rangeFilter);
         
         RimGridView* view = nullptr;
         m_cellRangeFilterCollection->firstAncestorOrThisOfTypeAsserted(view);

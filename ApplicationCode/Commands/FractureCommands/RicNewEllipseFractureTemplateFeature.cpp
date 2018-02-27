@@ -26,7 +26,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -59,7 +59,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
         }
     }
 
-    RiuMainWindow::instance()->selectAsCurrentItem(fractureTemplate);
+    Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------

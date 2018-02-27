@@ -28,7 +28,7 @@
 #include "Rim3dView.h"
 #include "RimWellAllocationPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -110,8 +110,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
             flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
             // Make sure the summary plot window is created and visible
-            RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-            plotwindow->selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
         }
     }
 }

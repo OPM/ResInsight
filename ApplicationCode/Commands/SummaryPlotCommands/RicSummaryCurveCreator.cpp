@@ -41,7 +41,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCalculationCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
@@ -193,9 +193,10 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         if (changedField == &m_okButtonField)
         {
             m_closeButtonField = true;
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-            mainPlotWindow->selectAsCurrentItem(m_targetPlot);
-            mainPlotWindow->setExpanded(m_targetPlot);
+
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem(m_targetPlot);
+            RiuPlotMainWindowTools::setExpanded(m_targetPlot);
         }
 
         m_applyButtonField = false;

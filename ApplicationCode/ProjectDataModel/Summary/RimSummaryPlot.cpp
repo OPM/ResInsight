@@ -34,7 +34,7 @@
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cvfBase.h"
@@ -176,24 +176,24 @@ RimSummaryTimeAxisProperties* RimSummaryPlot::timeAxisProperties()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
 {
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindowTools::showPlotMainWindow();
     if (axis == QwtPlot::yLeft)
     {
-        plotwindow->selectAsCurrentItem(m_leftYAxisProperties);
+        RiuPlotMainWindowTools::selectAsCurrentItem(m_leftYAxisProperties);
     }
     else if (axis == QwtPlot::yRight)
     {
-        plotwindow->selectAsCurrentItem(m_rightYAxisProperties);
+        RiuPlotMainWindowTools::selectAsCurrentItem(m_rightYAxisProperties);
     }
     else if (axis == QwtPlot::xBottom)
     {
         if (m_isCrossPlot)
         {
-            plotwindow->selectAsCurrentItem(m_bottomAxisProperties);
+            RiuPlotMainWindowTools::selectAsCurrentItem(m_bottomAxisProperties);
         }
         else
         {
-            plotwindow->selectAsCurrentItem(m_timeAxisProperties);
+            RiuPlotMainWindowTools::selectAsCurrentItem(m_timeAxisProperties);
         }
     }
 }

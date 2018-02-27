@@ -30,7 +30,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cvfModel.h"
 #include "cvfScene.h"
@@ -331,7 +331,7 @@ void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 void RimGridView::selectOverlayInfoConfig()
 {
-    RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
+    Riu3DMainWindowTools::selectAsCurrentItem(m_overlayInfoConfig);
 }
 
 //--------------------------------------------------------------------------------------------------

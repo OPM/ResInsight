@@ -27,7 +27,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QTreeView>
@@ -81,8 +81,8 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
-    RiuMainWindow::instance()->selectAsCurrentItem(viewLinker);
-    RiuMainWindow::instance()->setExpanded(viewLinker);
+    Riu3DMainWindowTools::selectAsCurrentItem(viewLinker);
+    Riu3DMainWindowTools::setExpanded(viewLinker);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@
 
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
@@ -66,7 +66,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(perforationInterval);
+    Riu3DMainWindowTools::selectAsCurrentItem(perforationInterval);
 }
 
 //--------------------------------------------------------------------------------------------------

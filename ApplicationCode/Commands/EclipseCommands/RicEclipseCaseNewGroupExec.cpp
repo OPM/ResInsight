@@ -27,7 +27,7 @@
 #include "RimOilField.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -73,8 +73,9 @@ void RicEclipseCaseNewGroupExec::redo()
 
         analysisModels->caseGroups().push_back(createdObject);
         analysisModels->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem(createdObject);
-        RiuMainWindow::instance()->setExpanded(createdObject);
+
+        Riu3DMainWindowTools::selectAsCurrentItem(createdObject);
+        Riu3DMainWindowTools::setExpanded(createdObject);
     }
 }
 

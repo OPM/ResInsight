@@ -29,7 +29,7 @@
 #include "RimWellPath.h"
 #include "RimWellRftPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -84,12 +84,9 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->setExpanded(plotTrack);
-            mainPlotWindow->selectAsCurrentItem(rftPlot);
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::setExpanded(plotTrack);
+        RiuPlotMainWindowTools::selectAsCurrentItem(rftPlot);
     }
 }
 

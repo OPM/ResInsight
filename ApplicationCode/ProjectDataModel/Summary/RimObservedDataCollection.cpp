@@ -31,7 +31,7 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafUtils.h"
 #include "cafPdmSettings.h"
@@ -130,12 +130,9 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
         errorText->append(observedData->errorMessagesFromReader());
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(observedData);
-        mainPlotWindow->setExpanded(observedData);
-    }
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(observedData);
+    RiuPlotMainWindowTools::setExpanded(observedData);
 
     this->updateConnectedEditors();
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
@@ -192,12 +189,9 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
         return nullptr;
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(userData);
-        mainPlotWindow->setExpanded(userData);
-    }
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(userData);
+    RiuPlotMainWindowTools::setExpanded(userData);
 
     this->updateConnectedEditors();
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
