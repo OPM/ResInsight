@@ -579,14 +579,6 @@ void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeView* RiuMainPlotWindow::projectTreeView()
-{
-    return m_projectTreeView;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
@@ -631,22 +623,22 @@ void RiuMainPlotWindow::selectedObjectsChanged()
     {
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
     }
+
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
-    if (uiItems.size() == 1)
+    if (uiItems.size() == 1 && m_allowActiveViewChangeFromSelection)
     {
         // Find the reservoir view or the Plot that the selected item is within
 
         if (!firstSelectedObject)
         {
             caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
-            if (selectedField)
-                firstSelectedObject = selectedField->ownerObject();
+            if (selectedField) firstSelectedObject = selectedField->ownerObject();
         }
 
-        if (!firstSelectedObject)
-            return;
+        if (!firstSelectedObject) return;
 
+        
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>(firstSelectedObject);
         if (!selectedWindow)
         {
@@ -714,13 +706,6 @@ void RiuMainPlotWindow::restoreTreeViewState()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
-{
-    m_projectTreeView->selectAsCurrentItem(object);
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -728,14 +713,6 @@ void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 void RiuMainPlotWindow::setDefaultWindowSize()
 {
     resize(1000, 810);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
-{
-    m_projectTreeView->setExpanded(uiItem, expanded);
 }
 
 //--------------------------------------------------------------------------------------------------

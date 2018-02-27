@@ -21,11 +21,15 @@
 #include "RiaVersionInfo.h"
 
 #include <QSettings>
+#include "cafPdmUiTreeView.h"
+#include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
+    : m_projectTreeView(nullptr)
+    , m_allowActiveViewChangeFromSelection(true)
 {
     setDockNestingEnabled(true);
 }
@@ -95,4 +99,22 @@ QString RiuMainWindowBase::registryFolderName()
     QString versionName(STRPRODUCTVER);
     QString regFolder = QString("%1/%2").arg(versionName).arg(mainWindowName());
     return regFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange)
+{
+    m_allowActiveViewChangeFromSelection = allowActiveViewChange;
+    m_projectTreeView->selectAsCurrentItem(object);
+    m_allowActiveViewChangeFromSelection = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
+{
+    m_projectTreeView->setExpanded(uiItem, expanded);
 }

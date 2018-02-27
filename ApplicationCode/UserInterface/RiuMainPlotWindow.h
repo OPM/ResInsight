@@ -55,7 +55,7 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 public:
     RiuMainPlotWindow();
     
-    virtual QString     mainWindowName();
+    QString             mainWindowName() override;
     
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
@@ -65,15 +65,10 @@ public:
     void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
     void                setActiveViewer(QWidget* subWindow) override;
 
-    caf::PdmUiTreeView* projectTreeView();
-
     void                hideAllDockWindows();
-
-    void                selectAsCurrentItem(caf::PdmObject* object);
 
     void                setDefaultWindowSize();
 
-    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
 
@@ -87,7 +82,7 @@ public:
     void                updateSummaryPlotToolBar();
 
 protected:
-    virtual void        closeEvent(QCloseEvent* event);
+    void                closeEvent(QCloseEvent* event) override;
 
 private:
     void                setPdmRoot(caf::PdmObject* pdmRoot);
@@ -121,7 +116,6 @@ private:
 
     QMenu*              m_windowMenu;
 
-    caf::PdmUiTreeView*         m_projectTreeView;
     caf::PdmUiToolBarEditor*    m_summaryPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     

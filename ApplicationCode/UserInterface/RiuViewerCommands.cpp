@@ -571,11 +571,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 intersectionHit = true;
                 intersectionTriangleHit = crossSectionSourceInfo->triangle(firstPartTriangleIndex);
 
-                if (!dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()))
-                {
-                    RiuMainWindow::instance()->selectAsCurrentItem(crossSectionSourceInfo->crossSection());
-                }
-
+                bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
+               
+                RiuMainWindow::instance()->selectAsCurrentItem(crossSectionSourceInfo->crossSection(), allowActiveViewChange);
             }
             else if (intersectionBoxSourceInfo)
             {
