@@ -23,12 +23,13 @@
 
 #include <array>
 
-class RiuSelectionItem;
-class RimGeoMechView;
-class QwtRoundScaleDraw;
-class QwtPlotRescaler;
 class QWidget;
 class QwtPlotCurve;
+class QwtPlotRescaler;
+class QwtPlotTextLabel;
+class QwtRoundScaleDraw;
+class RimGeoMechView;
+class RiuSelectionItem;
 
 //==================================================================================================
 //
@@ -49,18 +50,6 @@ public:
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
     void clearPlot();
 
-protected:
-    virtual QSize sizeHint() const override;
-    virtual QSize minimumSizeHint() const override;
-
-    void redrawCircles();
-    void deleteCircles();
-
-    void redrawEnvelope();
-    void deleteEnvelope();
-
-    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
-    
 private:
     struct MohrCircle
     {
@@ -73,11 +62,26 @@ private:
     };
 
 private:
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
+
+    void redrawCircles();
+    void deleteCircles();
+
+    void redrawEnvelope();
+    void deleteEnvelope();
+
+    void addInfoLabel();
+    void deleteInfoLabel();
+
+    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
+    
     void setDefaults();
     void createMohrCircles();
 
     void setFrictionAngle(double frictionAngle);
     void setCohesion(double cohesion);
+    void setFactorOfSafety(double fos);
 
     void updateTransparentCurveOnPrincipals();
 
@@ -100,6 +104,8 @@ private:
     double m_frictionAngle;
     double m_cohesion;
     double m_factorOfSafety;
+
+    QwtPlotTextLabel* m_infoTextItem;
 
     QwtPlotRescaler* m_rescaler;
 };

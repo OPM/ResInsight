@@ -44,6 +44,7 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_rescaler.h"
 #include "qwt_plot_shapeitem.h"
+#include "qwt_plot_textlabel.h"
 
 #include <cmath>
 
@@ -102,6 +103,7 @@ void RiuMohrsCirclePlot::setPrincipalsAndRedrawPlot(double p1, double p2, double
 
     redrawEnvelope();
     redrawCircles();
+    addInfoLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,6 +142,7 @@ void RiuMohrsCirclePlot::clearPlot()
 {
     deleteCircles();
     deleteEnvelope();
+    deleteInfoLabel();
 
     this->replot();
 }
@@ -282,6 +285,46 @@ void RiuMohrsCirclePlot::deleteEnvelope()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::addInfoLabel()
+{
+    deleteInfoLabel();
+
+    QString textBuilder;
+
+    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg("Coming soon"));
+    textBuilder.append(QString("<b>Friction Angle</b>: %1<br>").arg(m_frictionAngle));
+    textBuilder.append(QString("<b>Cohesion</b>: %1<br>").arg(m_cohesion));
+    textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1<br>").arg(m_principal1));
+    textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1<br>").arg(m_principal2));
+    textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1<br>").arg(m_principal3));
+
+    QwtText text = textBuilder;
+
+    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
+
+    m_infoTextItem = new QwtPlotTextLabel();
+    m_infoTextItem->setText(text);
+    m_infoTextItem->attach(this);
+
+    this->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::deleteInfoLabel()
+{
+    if (m_infoTextItem)
+    {
+        m_infoTextItem->detach();
+        delete m_infoTextItem;
+        m_infoTextItem = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
@@ -305,10 +348,9 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
         clearPlot();
         return;
     }
-    
+
     setCohesion(geoMechView->geoMechCase()->cohesion());
     setFrictionAngle(geoMechView->geoMechCase()->frictionAngleDeg());
-
     RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
 
     size_t i, j, k;
@@ -317,23 +359,9 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     int elmId = femPart->elmId(cellIndex);
 
     QString title;
-    QString resultPos;
     QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
-
-    switch (geoMechView->cellResultResultDefinition()->resultPositionType())
-    {
-    case RIG_ELEMENT_NODAL:
-        resultPos = "Element Nodal";
-        break;
-
-    case RIG_INTEGRATION_POINT:
-        resultPos = "Integration Point";
-        break;
-    default:
-        break;
-    }
     
-    title += QString("%1, %2").arg(resultPos).arg(fieldName);
+    title += QString("%1").arg(fieldName);
     
     title += QString(", Element Id[%1], ijk[%2,%3,%4]").arg(elmId).arg(i).arg(j).arg(k);
     this->setTitle(title);
@@ -375,8 +403,13 @@ void RiuMohrsCirclePlot::setDefaults()
 
     m_envolopePlotItem = nullptr;
     m_transparentCurve = nullptr;
+
+    m_infoTextItem = nullptr;
+
     m_cohesion = HUGE_VAL;
     m_frictionAngle = HUGE_VAL; 
+
+    m_factorOfSafety = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,6 +444,14 @@ void RiuMohrsCirclePlot::setFrictionAngle(double frictionAngle)
 void RiuMohrsCirclePlot::setCohesion(double cohesion)
 {
     m_cohesion = cohesion;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::setFactorOfSafety(double fos)
+{
+    m_factorOfSafety = fos;
 }
 
 //--------------------------------------------------------------------------------------------------
