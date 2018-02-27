@@ -291,7 +291,7 @@ void RiuMohrsCirclePlot::addInfoLabel()
     textBuilder.append(QString("<b>Friction Angle</b>: %1<br>").arg(m_frictionAngle));
     textBuilder.append(QString("<b>Cohesion</b>: %1<br><br>").arg(m_cohesion));
 
-    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg(m_factorOfSafety));
+    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg(QString::number(m_factorOfSafety, 'f', 2)));
     textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1<br>").arg(m_principal1));
     textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1<br>").arg(m_principal2));
     textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1<br>").arg(m_principal3));
