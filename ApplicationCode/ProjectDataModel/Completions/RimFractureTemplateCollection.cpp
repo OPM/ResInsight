@@ -18,6 +18,8 @@
 
 #include "RimFractureTemplateCollection.h"
 
+#include "RiaLogging.h"
+
 #include "RigStatisticsMath.h"
 
 #include "RimCase.h"
@@ -125,6 +127,69 @@ void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName, c
     if (*maxValue) *maxValue = minMaxAccumulator.max;
     if (*posClosestToZero) *posClosestToZero = posNegAccumulator.pos;
     if (*negClosestToZero) *negClosestToZero = posNegAccumulator.neg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUnit()
+{
+    // If a fracture has different unit than the associated template, create a copy of template in correct unit
+
+    std::vector<RimFractureTemplate*> templatesToBeAdded;
+
+    for (RimFractureTemplate* fractureTemplate : fractureDefinitions())
+    {
+        if (fractureTemplate)
+        {
+            RimFractureTemplate* templateWithMatchingUnit = nullptr;
+
+            std::vector<caf::PdmObjectHandle*> referringObjects;
+            fractureTemplate->objectsWithReferringPtrFields(referringObjects);
+
+            for (auto refObj : referringObjects)
+            {
+                auto fracture = dynamic_cast<RimFracture*>(refObj);
+                if (fracture && fracture->fractureUnit() != fractureTemplate->fractureTemplateUnit())
+                {
+                    if (!templateWithMatchingUnit)
+                    {
+                        templateWithMatchingUnit = dynamic_cast<RimFractureTemplate*>(fractureTemplate->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+
+                        auto currentUnit = fractureTemplate->fractureTemplateUnit();
+                        auto neededUnit = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                        if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
+                        {
+                            neededUnit = RiaEclipseUnitTools::UNITS_FIELD;
+                        }
+                        else if (currentUnit == RiaEclipseUnitTools::UNITS_FIELD)
+                        {
+                            neededUnit = RiaEclipseUnitTools::UNITS_METRIC;
+                        }
+
+                        templateWithMatchingUnit->convertToUnitSystem(neededUnit);
+
+                        QString name = templateWithMatchingUnit->name();
+                        name += " (created to match fracture unit)";
+                        templateWithMatchingUnit->setName(name);
+
+                        templatesToBeAdded.push_back(templateWithMatchingUnit);
+                    }
+
+                    RiaLogging::warning("Detected fracture with different unit than fracture template. Creating copy of template "
+                                        "with matching unit.");
+
+                    CVF_ASSERT(templateWithMatchingUnit->fractureTemplateUnit() == fracture->fractureUnit());
+                    fracture->setFractureTemplateNoUpdate(templateWithMatchingUnit);
+                }
+            }
+        }
+    }
+
+    for (auto templateWithMatchingUnit : templatesToBeAdded)
+    {
+        fractureDefinitions.push_back(templateWithMatchingUnit);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

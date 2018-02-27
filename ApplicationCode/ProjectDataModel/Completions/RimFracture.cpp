@@ -345,6 +345,28 @@ cvf::Mat4d RimFracture::transformMatrix() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFracture::setFractureTemplateNoUpdate(RimFractureTemplate* fractureTemplate)
+{
+    if (fractureTemplate && fractureTemplate->fractureTemplateUnit() != fractureUnit())
+    {
+        QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
+
+        QString warningText =
+            QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                    "fracture template of unit '%1'")
+                .arg(fractureUnitText);
+
+        QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
+
+        return;
+    }
+
+    m_fractureTemplate = fractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords)
 {
     RimFractureTemplate* fractureDef = fractureTemplate();
@@ -622,21 +644,7 @@ size_t RimFracture::findAnchorEclipseCell(const RigMainGrid* mainGrid ) const
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
-    if (fractureTemplate && fractureTemplate->fractureTemplateUnit() != fractureUnit())
-    {
-        QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
-
-        QString warningText =
-            QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
-                    "fracture template of unit '%1'")
-                .arg(fractureUnitText);
-
-        QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
-
-        return;
-    }
-
-    m_fractureTemplate = fractureTemplate;
+    setFractureTemplateNoUpdate(fractureTemplate);
 
     if (!fractureTemplate)
     {

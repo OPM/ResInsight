@@ -511,6 +511,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
         
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
+        oilField->fractureDefinitionCollection()->createAndAssignTemplateCopyForNonMatchingUnit();
         oilField->fractureDefinitionCollection()->setDefaultConductivityResultIfEmpty();
 
         {
