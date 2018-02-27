@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (WellPathImportSsihub)
 
@@ -11,7 +11,7 @@ set( QOBJECT_HEADERS
 set( QT_UI_FILES   
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+if ( NOT CMAKE_AUTOMOC )
     qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
     qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 endif()
@@ -20,8 +20,6 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 
     ${CMAKE_CURRENT_SOURCE_DIR}/../FileInterface
-	${CMAKE_CURRENT_SOURCE_DIR}/../../Fwk/AppFwk/cafProjectDataModel 
-	${CMAKE_CURRENT_SOURCE_DIR}/../../Fwk/AppFwk/cafUserInterface
 )
 
 
@@ -43,3 +41,9 @@ add_library( ${PROJECT_NAME}
     ${FORM_FILES_CPP}
     ${HEADER_FILES}
 )
+
+target_link_libraries ( ${PROJECT_NAME}
+    cafUserInterface
+)
+
+source_group("" FILES ${PROJECT_FILES})

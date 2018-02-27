@@ -1,12 +1,9 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (RigGeoMechDataModel)
 
 include_directories(
 	${LibCore_SOURCE_DIR}
-        ${cafTensor_SOURCE_DIR}
-	../../ResultStatisticsCache
-	../OdbReader
 )
 
 
@@ -38,4 +35,11 @@ add_library( ${PROJECT_NAME}
     RimGeoMechGeometrySelectionItem.cpp
 )
 
-target_link_libraries( ${PROJECT_NAME} LibCore cafTensor ResultStatisticsCache)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries( ${PROJECT_NAME} LibCore cafTensor ResultStatisticsCache RifOdbReader)
+
+source_group("" FILES ${PROJECT_FILES})
