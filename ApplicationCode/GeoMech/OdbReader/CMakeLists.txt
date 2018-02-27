@@ -36,7 +36,6 @@ endif(MSVC)
 
 include_directories(
 	${RESINSIGHT_ODB_API_DIR}/include
-	${RigGeoMechDataModel_SOURCE_DIR}
 	${LibCore_SOURCE_DIR}
 )
 

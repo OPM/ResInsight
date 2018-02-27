@@ -33,3 +33,8 @@ target_link_libraries(custom-opm-flowdiag-app
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4190 /wd4267")
 endif()
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/opm-flowdiagnostics-applications
+)

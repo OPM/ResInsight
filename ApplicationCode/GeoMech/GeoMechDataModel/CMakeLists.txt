@@ -40,6 +40,16 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries( ${PROJECT_NAME} LibCore cafTensor ResultStatisticsCache RifOdbReader)
+target_link_libraries( ${PROJECT_NAME}
+  LibCore 
+  
+  cafPdmCvf
+  cafTensor 
+  cafUserInterface
+  CommonCode
+
+  ResultStatisticsCache 
+  RifOdbReader
+)
 
 source_group("" FILES ${PROJECT_FILES})

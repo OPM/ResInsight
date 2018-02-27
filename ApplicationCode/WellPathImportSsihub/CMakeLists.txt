@@ -43,7 +43,7 @@ add_library( ${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafUserInterface
+    cafUserInterface cafPdmCvf CommonCode
 )
 
 source_group("" FILES ${PROJECT_FILES})

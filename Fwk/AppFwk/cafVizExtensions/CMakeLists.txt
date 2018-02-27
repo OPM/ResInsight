@@ -11,7 +11,6 @@ include_directories(
     ${LibGuiQt_SOURCE_DIR}
     ${LibRender_SOURCE_DIR}
     ${LibViewing_SOURCE_DIR}
-	${CommonCode_SOURCE_DIR}
 )
 
 add_library( ${PROJECT_NAME}

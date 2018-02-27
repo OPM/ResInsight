@@ -54,6 +54,9 @@ target_link_libraries ( ${PROJECT_NAME}
     LibViewing
     LibRender
     LibGuiQt
+
+    cafAnimControl
+
     ${QT_LIBRARIES}
 )
 
