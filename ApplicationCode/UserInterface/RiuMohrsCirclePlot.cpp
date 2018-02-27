@@ -27,6 +27,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigFemResultPosEnum.h"
 #include "RigGeoMechCaseData.h"
 
 #include "RimGeoMechCase.h"
@@ -334,15 +335,10 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
 
     int frameIdx = geoMechView->currentTimeStep();
+    RigFemResultAddress address(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "");
 
-    RigFemResultAddress currentAddress = geoMechView->cellResult->resultAddress();
-    if (!(currentAddress.fieldName == "SE" || currentAddress.fieldName == "ST" || currentAddress.fieldName == "NE"))
-    {
-        clearPlot();
-        return;
-    }
     // TODO: All tensors are calculated every time this function is called. FIX
-    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(currentAddress, 0, frameIdx);
+    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(address, 0, frameIdx);
     if (vertexTensors.empty())
     {
         clearPlot();
@@ -356,14 +352,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
     size_t i, j, k;
     femPart->structGrid()->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
-    int elmId = femPart->elmId(cellIndex);
-
-    QString title;
-    QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
-    
-    title += QString("%1").arg(fieldName);
-    
-    title += QString(", Element Id[%1], ijk[%2,%3,%4]").arg(elmId).arg(i).arg(j).arg(k);
+    QString title = QString("SE, Element Id[%1], ijk[%2,%3,%4]").arg(femPart->elmId(cellIndex)).arg(i).arg(j).arg(k);
     this->setTitle(title);
 
     caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, 0)];
