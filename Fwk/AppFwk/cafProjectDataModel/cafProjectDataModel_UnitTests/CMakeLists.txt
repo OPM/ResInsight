@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 find_package ( Qt4 COMPONENTS QtCore QtGui )
 include (${QT_USE_FILE})
@@ -12,10 +12,9 @@ include_directories (
 set( PROJECT_FILES
 	cafPdmBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp
-        Child.cpp
-        Parent.cpp
-        TestObj.cpp
-
+    Child.cpp
+    Parent.cpp
+    TestObj.cpp
 )
 
 # add the executable 

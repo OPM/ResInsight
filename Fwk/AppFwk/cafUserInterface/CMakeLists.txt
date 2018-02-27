@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 # Qt
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
@@ -42,7 +42,7 @@ set( QOBJECT_HEADERS
     cafPdmUiDoubleValueEditor.h
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+if ( NOT CMAKE_AUTOMOC )
     qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
 endif()
 

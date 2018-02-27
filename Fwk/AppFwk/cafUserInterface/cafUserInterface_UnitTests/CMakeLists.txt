@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
 include (${QT_USE_FILE})
