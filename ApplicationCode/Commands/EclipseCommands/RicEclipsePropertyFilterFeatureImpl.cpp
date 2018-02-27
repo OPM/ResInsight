@@ -29,7 +29,7 @@
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -66,7 +66,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFi
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
+    Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
 
 }
 
@@ -83,7 +83,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
+    Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
 }
 
 //--------------------------------------------------------------------------------------------------

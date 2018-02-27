@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -100,7 +100,8 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
         } while (retryImport);
     }
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(observedData);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(observedData);
 }
 
 //--------------------------------------------------------------------------------------------------

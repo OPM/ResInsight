@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -90,7 +90,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
             }
         }
 
-        RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
+        Riu3DMainWindowTools::selectAsCurrentItem(fractureDef);
     }
 }
 

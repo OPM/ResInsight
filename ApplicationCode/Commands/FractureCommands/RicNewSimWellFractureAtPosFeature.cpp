@@ -34,7 +34,7 @@
 #include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 #include "RivSimWellPipeSourceInfo.h"
  
@@ -109,7 +109,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->setFractureTemplate(fracDef);
 
     simWell->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 
     activeView->scheduleCreateDisplayModelAndRedraw();
 

@@ -25,7 +25,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellLogCurve.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 
 #include "qwt_legend.h"
@@ -220,13 +220,15 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
         RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
-            RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem(selectedCurve);
 
             return;
         }
     }
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_plotTrackDefinition);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(m_plotTrackDefinition);
 }
 
 //--------------------------------------------------------------------------------------------------

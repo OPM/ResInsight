@@ -27,7 +27,7 @@
 #include "RimIntersectionBox.h"
 #include "RimSimWellInView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RivIntersectionBoxPartMgr.h"
 #include "RivIntersectionPartMgr.h"
@@ -177,7 +177,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate(RimIntersection* int
     syncronize2dIntersectionViews();
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(intersection);
+    Riu3DMainWindowTools::selectAsCurrentItem(intersection);
 
     Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
@@ -224,7 +224,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate(RimIntersectionBo
     m_intersectionBoxes.push_back(intersectionBox);
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
+    Riu3DMainWindowTools::selectAsCurrentItem(intersectionBox);
 
     Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);

@@ -31,7 +31,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -65,8 +65,8 @@ void RicDuplicateSummaryCurveFeature::onActionTriggered(bool isChecked)
     if (curve)
     {
         RimSummaryCurve* newCurve = RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(curve);
-
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::selectAsCurrentItem(newCurve);
     }
 }
 
