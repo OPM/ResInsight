@@ -34,7 +34,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -78,7 +78,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
 
     exportSettings.folder = defaultDir;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Well Segments", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Well Segments", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)

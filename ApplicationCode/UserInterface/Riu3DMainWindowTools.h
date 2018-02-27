@@ -29,6 +29,7 @@ namespace caf
 class Riu3DMainWindowTools
 {
 public:
+    static QWidget*        mainWindowWidget();
     static void            setActiveViewer(QWidget* subWindow) ;
     static void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
     static void            selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);

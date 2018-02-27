@@ -34,7 +34,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafUtils.h"
@@ -92,7 +92,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         exportSettings.fileName = outputFileName;
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Binary Eclipse Data to Text File", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Binary Eclipse Data to Text File", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)

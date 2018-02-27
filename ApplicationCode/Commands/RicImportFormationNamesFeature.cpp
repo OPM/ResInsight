@@ -33,7 +33,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -56,7 +56,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
@@ -96,7 +96,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 
     if (formationName)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(formationName);
+        Riu3DMainWindowTools::selectAsCurrentItem(formationName);
     }
 }
 

@@ -27,7 +27,7 @@
 #include "RimCalcScript.h"
 #include "RimScriptCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuTools.h"
 
 #include "cafUtils.h"
@@ -99,7 +99,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
         QFile file(fullPathFilenameNewScript);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to create file\n" + fullPathFilenameNewScript);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Script editor", "Failed to create file\n" + fullPathFilenameNewScript);
 
             return;
         }
@@ -108,7 +108,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 
         if (calcScript)
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(calcScript);
+            Riu3DMainWindowTools::selectAsCurrentItem(calcScript);
         }
 
         RiaApplication* app = RiaApplication::instance();
@@ -123,7 +123,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 
             if (!myProcess->waitForStarted(1000))
             {
-                QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
             }
         }
     }

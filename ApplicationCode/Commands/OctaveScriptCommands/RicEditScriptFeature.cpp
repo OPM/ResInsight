@@ -24,7 +24,7 @@
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -65,7 +65,7 @@ void RicEditScriptFeature::onActionTriggered(bool isChecked)
 
         if (!myProcess->waitForStarted(1000))
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
         }
     }
 }

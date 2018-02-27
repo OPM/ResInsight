@@ -40,7 +40,7 @@
 #include "RimTensorResults.h"
 #include "RimViewLinker.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -125,7 +125,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
         {
             QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-            QMessageBox::warning(RiuMainWindow::instance(), 
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
                             "File open error", 
                             displayMessage);
             m_geomechCase = nullptr;

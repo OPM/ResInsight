@@ -36,7 +36,7 @@
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -173,7 +173,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if (!mainCase->openReserviorCase())
     {
-        QMessageBox::warning(RiuMainWindow::instance(),
+        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                              "Error when opening project file",
                              "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
                              "Current working directory is: \n" +
