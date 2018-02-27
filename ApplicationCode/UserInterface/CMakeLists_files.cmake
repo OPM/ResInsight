@@ -70,6 +70,8 @@ ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuTools.h
 ${CEE_CURRENT_LIST_DIR}RiuMohrsCirclePlot.h
+${CEE_CURRENT_LIST_DIR}RiuPlotMainWindowTools.h
+${CEE_CURRENT_LIST_DIR}Riu3DMainWindowTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -135,6 +137,8 @@ ${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGridStatisticsHistogramWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMohrsCirclePlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuPlotMainWindowTools.cpp
+${CEE_CURRENT_LIST_DIR}Riu3DMainWindowTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
