@@ -83,6 +83,8 @@ private:
 
     void replotAndScaleAxis();
 
+    static bool isValidPrincipals(double p1, double p2, double p3);
+
 private:
     double m_principal1;
     double m_principal2;

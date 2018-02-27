@@ -79,12 +79,12 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::setPrincipals(double p1, double p2, double p3)
 {
-    CVF_ASSERT(p1 > p2);
-    CVF_ASSERT(p2 > p3);
-
-    m_principal1 = p1;
-    m_principal2 = p2;
-    m_principal3 = p3;
+    if (isValidPrincipals(p1, p2, p3))
+    {
+        m_principal1 = p1;
+        m_principal2 = p2;
+        m_principal3 = p3;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,6 +92,12 @@ void RiuMohrsCirclePlot::setPrincipals(double p1, double p2, double p3)
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::setPrincipalsAndRedrawPlot(double p1, double p2, double p3)
 {
+    if (!isValidPrincipals(p1, p2, p3))
+    {
+        clearPlot();
+        return;
+    }
+
     setPrincipals(p1, p2, p3);
 
     redrawEnvelope();
@@ -474,4 +480,30 @@ void RiuMohrsCirclePlot::replotAndScaleAxis()
     this->replot();
     m_rescaler->rescale();
     this->plotLayout()->setAlignCanvasToScales(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuMohrsCirclePlot::isValidPrincipals(double p1, double p2, double p3)
+{
+    //Inf
+    if (p1 == HUGE_VAL || p2 == HUGE_VAL || p3 == HUGE_VAL)
+    {
+        return false;
+    }
+    
+    //Nan
+    if ((p1 != p1) || (p2 != p2) || p3 != p3)
+    {
+        return false;
+    }
+
+    //Principal rules:
+    if ((p1 < p2) || (p2 < p3))
+    {
+        return false;
+    }
+
+    return true;
 }
