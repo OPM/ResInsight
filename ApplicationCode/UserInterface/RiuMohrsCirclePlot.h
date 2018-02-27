@@ -21,6 +21,8 @@
 #include "qwt_plot.h"
 #include "qwt_plot_item.h"
 
+#include "cafTensor3.h"
+
 #include <array>
 
 class QWidget;
@@ -87,6 +89,8 @@ private:
     void replotAndScaleAxis();
 
     static bool isValidPrincipals(double p1, double p2, double p3);
+    
+    float calculateFOS(const caf::Ten3f& tensor);
 
 private:
     double m_principal1;

@@ -291,7 +291,7 @@ void RiuMohrsCirclePlot::addInfoLabel()
     textBuilder.append(QString("<b>Friction Angle</b>: %1<br>").arg(m_frictionAngle));
     textBuilder.append(QString("<b>Cohesion</b>: %1<br><br>").arg(m_cohesion));
 
-    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg("Coming soon"));
+    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg(m_factorOfSafety));
     textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1<br>").arg(m_principal1));
     textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1<br>").arg(m_principal2));
     textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1<br>").arg(m_principal3));
@@ -360,6 +360,8 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, siz
 
     cvf::Vec3f principalDirs[3];
     cvf::Vec3f elmPrincipals = elmTensor.calculatePrincipals(principalDirs);
+
+    setFactorOfSafety(calculateFOS(elmTensor));
 
     setPrincipalsAndRedrawPlot(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
 }
@@ -528,4 +530,24 @@ bool RiuMohrsCirclePlot::isValidPrincipals(double p1, double p2, double p3)
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RiuMohrsCirclePlot::calculateFOS(const caf::Ten3f& tensor)
+{
+    cvf::Vec3f dirs[3];
+    cvf::Vec3f principals = tensor.calculatePrincipals(dirs);
+
+    float se1 = principals[0];
+    float se3 = principals[2];
+
+    float tanFricAng = tan(cvf::Math::toRadians(m_frictionAngle));
+    float cohPrTanFricAngle = (float)(m_cohesion / tanFricAng);
+
+    float pi_4 = 0.785398163397448309616f;
+    float rho = 2.0f * (atan(sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
+
+    return tanFricAng / tan(rho);
 }
