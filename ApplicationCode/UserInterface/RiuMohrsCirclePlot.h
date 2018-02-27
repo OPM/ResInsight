@@ -53,10 +53,9 @@ public:
 private:
     struct MohrCircle
     {
-        MohrCircle(size_t component, double radius, double centerX)
-            : component(component), radius(radius), centerX(centerX) {}
+        MohrCircle(double radius, double centerX)
+            : radius(radius), centerX(centerX) {}
         MohrCircle() {};
-        size_t component; //1, 2 or 3
         double radius;
         double centerX;
     };

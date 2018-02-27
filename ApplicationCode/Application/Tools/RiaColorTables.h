@@ -53,7 +53,6 @@ public:
     static const caf::ColorTable& wellLogPlotPaletteColors();
     static const caf::ColorTable& selectionPaletteColors();
     static const caf::ColorTable& timestepsPaletteColors();
-    static const caf::ColorTable& mohrsCirclePaletteColors();
 
     static cvf::Color3f undefinedCellColor();
     static cvf::Color3f perforationLengthColor();

@@ -21,8 +21,6 @@
 #include "RiuSelectionManager.h"
 #include "RiuSummaryQwtPlot.h"
 
-#include "RiaColorTables.h"
-
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -172,18 +170,14 @@ void RiuMohrsCirclePlot::redrawCircles()
     deleteCircles();
     createMohrCircles();
 
-    caf::ColorTable colors = RiaColorTables::mohrsCirclePaletteColors();
-
-    for (size_t i = 0; i < m_mohrCircles.size(); i++)
+    for (const MohrCircle& circle : m_mohrCircles)
     {
-        MohrCircle*       circle   = &m_mohrCircles[i];
         QwtPlotShapeItem* plotItem = new QwtPlotShapeItem("Circle");
 
         QPainterPath* circleDrawing = new QPainterPath();
-        QPointF       center(circle->centerX, 0);
-        circleDrawing->addEllipse(center, circle->radius, circle->radius);
+        QPointF       center(circle.centerX, 0);
+        circleDrawing->addEllipse(center, circle.radius, circle.radius);
 
-        plotItem->setPen(QPen(colors.cycledQColor(i)));
         plotItem->setShape(*circleDrawing);
         plotItem->setRenderHint(QwtPlotItem::RenderAntialiased, true);
         plotItem->attach(this);
@@ -294,9 +288,10 @@ void RiuMohrsCirclePlot::addInfoLabel()
 
     QString textBuilder;
 
-    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg("Coming soon"));
     textBuilder.append(QString("<b>Friction Angle</b>: %1<br>").arg(m_frictionAngle));
-    textBuilder.append(QString("<b>Cohesion</b>: %1<br>").arg(m_cohesion));
+    textBuilder.append(QString("<b>Cohesion</b>: %1<br><br>").arg(m_cohesion));
+
+    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg("Coming soon"));
     textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1<br>").arg(m_principal1));
     textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1<br>").arg(m_principal2));
     textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1<br>").arg(m_principal3));
@@ -398,7 +393,7 @@ void RiuMohrsCirclePlot::setDefaults()
     m_cohesion = HUGE_VAL;
     m_frictionAngle = HUGE_VAL; 
 
-    m_factorOfSafety = 0;
+    m_factorOfSafety = HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,15 +401,12 @@ void RiuMohrsCirclePlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::createMohrCircles()
 {
-    m_mohrCircles[0].component = 2;
     m_mohrCircles[0].radius    = (m_principal1 - m_principal3) / 2.0;
     m_mohrCircles[0].centerX   = (m_principal1 + m_principal3) / 2.0;
 
-    m_mohrCircles[1].component = 1;
     m_mohrCircles[1].radius    = (m_principal2 - m_principal3) / 2.0;
     m_mohrCircles[1].centerX   = (m_principal2 + m_principal3) / 2.0;
 
-    m_mohrCircles[2].component = 3;
     m_mohrCircles[2].radius    = (m_principal1 - m_principal2) / 2.0;
     m_mohrCircles[2].centerX   = (m_principal1 + m_principal2) / 2.0;
 }
