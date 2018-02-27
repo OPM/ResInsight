@@ -280,3 +280,8 @@ qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${MOC_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+

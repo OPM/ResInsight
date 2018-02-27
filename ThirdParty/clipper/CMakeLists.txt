@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (clipper)
 
@@ -11,3 +11,9 @@ add_library(${PROJECT_NAME}
   ${project_source_files}
 )
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+source_group("" FILES ${PROJECT_FILES})
