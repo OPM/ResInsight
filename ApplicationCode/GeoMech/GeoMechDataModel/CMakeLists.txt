@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (RigGeoMechDataModel)
 
-
 add_library( ${PROJECT_NAME}
 	RigFemPart.h
 	RigFemPart.cpp
@@ -36,7 +35,7 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries( ${PROJECT_NAME}
+set( LINK_LIBRARIES
   LibCore 
   
   cafPdmCvf
@@ -45,7 +44,10 @@ target_link_libraries( ${PROJECT_NAME}
   CommonCode
 
   ResultStatisticsCache 
-  RifOdbReader
+)
+
+target_link_libraries( ${PROJECT_NAME}
+  ${LINK_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})

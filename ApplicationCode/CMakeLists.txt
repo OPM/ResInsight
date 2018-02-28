@@ -151,6 +151,11 @@ list( APPEND CPP_SOURCES
 add_subdirectory(WellPathImportSsihub)
 add_subdirectory(ResultStatisticsCache)
 
+set( RI_LIBRARIES
+    WellPathImportSsihub
+	ResultStatisticsCache
+)
+
 #
 # Odb api
 #
@@ -163,6 +168,17 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
 endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
+
+if (RESINSIGHT_USE_ODB_API)
+    list( APPEND RI_LIBRARIES
+        RifOdbReader
+    )
+else()
+    list( APPEND RI_LIBRARIES
+        RigGeoMechDataModel
+    )
+endif()
+
 
 # 
 # HDF5  
@@ -288,10 +304,7 @@ endif ()
 set( LINK_LIBRARIES
     ${OPM_LIBRARIES}
         
-    WellPathImportSsihub
-
-	ResultStatisticsCache
-	RigGeoMechDataModel
+    ${RI_LIBRARIES}
 
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
@@ -308,11 +321,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         rt
     )
 endif()
-
-# Add the odb reader if we are compiling with odb support
-IF (${RESINSIGHT_USE_ODB_API})
-	set ( LINK_LIBRARIES ${LINK_LIBRARIES} RifOdbReader)
-ENDIF()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
