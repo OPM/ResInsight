@@ -1,52 +1,46 @@
 
-# Use this workaround until we're on 2.8.3 on all platforms and can use CMAKE_CURRENT_LIST_DIR directly 
-if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
-    set(CEE_CURRENT_LIST_DIR  ${CMAKE_CURRENT_LIST_DIR}/)
-endif()
-
-
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RiaArgumentParser.h
-${CEE_CURRENT_LIST_DIR}RiaDateStringParser.h
-${CEE_CURRENT_LIST_DIR}RiaColorTables.h
-${CEE_CURRENT_LIST_DIR}RiaColorTools.h
-${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.h
-${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.h
-${CEE_CURRENT_LIST_DIR}RiaImageFileCompare.h
-${CEE_CURRENT_LIST_DIR}RiaLogging.h
-${CEE_CURRENT_LIST_DIR}RiaProjectModifier.h
-${CEE_CURRENT_LIST_DIR}RiaRegressionTest.h
-${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.h
-${CEE_CURRENT_LIST_DIR}RiaQDateTimeTools.h
-${CEE_CURRENT_LIST_DIR}RiaSummaryTools.h
-${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.h
-${CEE_CURRENT_LIST_DIR}RiaStdStringTools.h
-${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.h
-${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.h
-${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools.h
-${CEE_CURRENT_LIST_DIR}RiaStringEncodingTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaArgumentParser.h
+${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser.h
+${CMAKE_CURRENT_LIST_DIR}/RiaColorTables.h
+${CMAKE_CURRENT_LIST_DIR}/RiaColorTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaImageCompareReporter.h
+${CMAKE_CURRENT_LIST_DIR}/RiaImageFileCompare.h
+${CMAKE_CURRENT_LIST_DIR}/RiaLogging.h
+${CMAKE_CURRENT_LIST_DIR}/RiaProjectModifier.h
+${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.h
+${CMAKE_CURRENT_LIST_DIR}/RiaImportEclipseCaseTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.h
+${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer.h
+${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RiaArgumentParser.cpp
-${CEE_CURRENT_LIST_DIR}RiaDateStringParser.cpp
-${CEE_CURRENT_LIST_DIR}RiaColorTables.cpp
-${CEE_CURRENT_LIST_DIR}RiaColorTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.cpp
-${CEE_CURRENT_LIST_DIR}RiaImageFileCompare.cpp
-${CEE_CURRENT_LIST_DIR}RiaLogging.cpp
-${CEE_CURRENT_LIST_DIR}RiaProjectModifier.cpp
-${CEE_CURRENT_LIST_DIR}RiaRegressionTest.cpp
-${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaQDateTimeTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaSummaryTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.cpp
-${CEE_CURRENT_LIST_DIR}RiaStdStringTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaSummaryCurveAnalyzer.cpp
-${CEE_CURRENT_LIST_DIR}RiaSimWellBranchTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaProjectFileVersionTools.cpp
-${CEE_CURRENT_LIST_DIR}RiaStringEncodingTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaArgumentParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaColorTables.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaColorTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaImageCompareReporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaImageFileCompare.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaLogging.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaProjectModifier.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaImportEclipseCaseTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -62,4 +56,4 @@ ${QT_MOC_HEADERS}
 )
 
 
-source_group( "Application\\Tools" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "Application\\Tools" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

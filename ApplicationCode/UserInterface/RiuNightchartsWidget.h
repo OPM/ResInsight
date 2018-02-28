@@ -19,7 +19,7 @@
 #pragma once
 
 
-#include "nightcharts/nightcharts.h"
+#include "nightcharts.h"
 
 #include "cafPdmPointer.h"
 

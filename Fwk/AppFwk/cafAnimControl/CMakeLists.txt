@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafAnimControl)
 
@@ -11,7 +11,7 @@ set( QOBJECT_HEADERS
     cafAnimationToolBar.h
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+if ( NOT CMAKE_AUTOMOC )
     qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
 endif()
 
@@ -30,8 +30,21 @@ set( QRC_FILES
     PARENT_SCOPE
 )
 
-add_library( ${PROJECT_NAME}
+set( PROJECT_FILES
+    cafFrameAnimationControl.h
     cafFrameAnimationControl.cpp
+    cafAnimationToolBar.h
     cafAnimationToolBar.cpp
+)
+
+add_library( ${PROJECT_NAME}
+ 	${PROJECT_FILES}
     ${MOC_FILES_CPP}
 )
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+source_group("" FILES ${PROJECT_FILES})

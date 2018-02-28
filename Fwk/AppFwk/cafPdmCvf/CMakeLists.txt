@@ -1,20 +1,10 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmCvf)
 
 # Qt
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
 include (${QT_USE_FILE})
-
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-)
-
 
 add_library( ${PROJECT_NAME}
     cafPdmCoreColor3f.h
@@ -39,11 +29,15 @@ add_library( ${PROJECT_NAME}
     cafPdmFieldCvfMat4d.h
 )
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 target_link_libraries ( ${PROJECT_NAME}
-    cafPdmCore
-    cafPdmUiCore
     cafUserInterface
-    cafProjectDataModel
     LibCore
     ${QT_LIBRARIES}
 )
+
+source_group("" FILES ${PROJECT_FILES})

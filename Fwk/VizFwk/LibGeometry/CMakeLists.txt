@@ -7,9 +7,6 @@ project(LibGeometry)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 
 
-include_directories(../LibCore)
-
-
 set(CEE_HEADER_FILES
 cvfArrowGenerator.h
 cvfBoundingBox.h
@@ -57,3 +54,14 @@ cvfVertexWelder.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+)
+
+set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+source_group("" FILES ${PROJECT_FILES})

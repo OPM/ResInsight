@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (NRLib)
 
@@ -6,8 +6,6 @@ include_directories(
        ${CMAKE_CURRENT_SOURCE_DIR}
        ${CMAKE_CURRENT_SOURCE_DIR}/nrlib
        ${CMAKE_CURRENT_SOURCE_DIR}/nrlib/well
-
-      ${boost-Subset_SOURCE_DIR}
 )
 
 file ( GLOB NRLIB_IOTOOLS_SRC
@@ -32,3 +30,11 @@ endif()
 
 add_subdirectory(well_UnitTests)
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/nrlib/well
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+  boost-Subset
+)

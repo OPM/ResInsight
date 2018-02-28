@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (CommonCode)
 
@@ -8,16 +8,6 @@ include (${QT_USE_FILE})
 
 # Open GL
 find_package( OpenGL )
-
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-
-	${cafPdmCore_SOURCE_DIR}
-)
 
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS    
@@ -54,3 +44,22 @@ add_library( ${PROJECT_NAME}
 
     ${MOC_FILES_CPP}
 )
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+    LibGeometry
+    LibViewing
+    LibRender
+    LibGuiQt
+
+    cafPdmCore
+
+    ${QT_LIBRARIES}
+)
+
+source_group("" FILES ${PROJECT_FILES})

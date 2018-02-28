@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
@@ -15,29 +15,10 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
 endif()
 
 include_directories(
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    ${cafProjectDataModel_SOURCE_DIR}
 
-    ${cafCommand_SOURCE_DIR}
-    ${cafViewer_SOURCE_DIR}
-    ${cafAnimControl_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-    ${cafPdmCvf_SOURCE_DIR}
-    ${CommonCode_SOURCE_DIR}
-    ${cafVizExtensions_SOURCE_DIR}
-    ${cafTensor_SOURCE_DIR}
-
-	${ResInsight_SOURCE_DIR}/ThirdParty
-    ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
-
-    ${boost-Subset_SOURCE_DIR}
-    ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
-    ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
-    ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
-
+    # required for compilation of gtest, should be refactored
+    ${ResInsight_SOURCE_DIR}/ThirdParty
+    
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
@@ -170,6 +151,11 @@ list( APPEND CPP_SOURCES
 add_subdirectory(WellPathImportSsihub)
 add_subdirectory(ResultStatisticsCache)
 
+set( RI_LIBRARIES
+    WellPathImportSsihub
+	ResultStatisticsCache
+)
+
 #
 # Odb api
 #
@@ -182,6 +168,16 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
 endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
+list( APPEND RI_LIBRARIES
+    RigGeoMechDataModel
+)
+
+if (RESINSIGHT_USE_ODB_API)
+    list( APPEND RI_LIBRARIES
+        RifOdbReader
+    )
+endif()
+
 
 # 
 # HDF5  
@@ -307,10 +303,7 @@ endif ()
 set( LINK_LIBRARIES
     ${OPM_LIBRARIES}
         
-    WellPathImportSsihub
-
-	ResultStatisticsCache
-	RigGeoMechDataModel
+    ${RI_LIBRARIES}
 
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
@@ -327,11 +320,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         rt
     )
 endif()
-
-# Add the odb reader if we are compiling with odb support
-IF (${RESINSIGHT_USE_ODB_API})
-	set ( LINK_LIBRARIES ${LINK_LIBRARIES} RifOdbReader)
-ENDIF()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
