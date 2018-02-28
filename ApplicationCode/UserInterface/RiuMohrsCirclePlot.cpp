@@ -18,6 +18,8 @@
 
 #include "RiuMohrsCirclePlot.h"
 
+#include "RiaColorTables.h"
+
 #include "RiuSelectionManager.h"
 #include "RiuSummaryQwtPlot.h"
 
@@ -38,6 +40,7 @@
 #include <QPainterPath>
 #include <QWidget>
 
+#include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_marker.h"
@@ -61,7 +64,28 @@
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
     : QwtPlot(parent)
 {
-    setDefaults();
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+
+    m_rescaler = new QwtPlotRescaler(this->canvas());
+    m_rescaler->setReferenceAxis(QwtPlot::yLeft);
+    m_rescaler->setAspectRatio(QwtPlot::xBottom, 1.0);
+    m_rescaler->setRescalePolicy(QwtPlotRescaler::Fixed);
+    m_rescaler->setEnabled(true);
+
+    enableAxis(QwtPlot::xBottom, true);
+    enableAxis(QwtPlot::yLeft, true);
+    enableAxis(QwtPlot::xTop, false);
+    enableAxis(QwtPlot::yRight, false);
+
+    setAxisTitle(QwtPlot::xBottom, "Effective Normal Stress");
+    setAxisTitle(QwtPlot::yLeft, "Shear Stress");
+
+    // The legend will be deleted in the destructor of the plot or when
+    // another legend is inserted.
+    QwtLegend* legend = new QwtLegend(this);
+    this->insertLegend(legend, BottomLegend);
+
+    // this->setTitle(QString("SE"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,39 +94,9 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 {
     deleteCircles();
+    deleteEnvelopes();
 
     delete m_rescaler;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setPrincipals(double p1, double p2, double p3)
-{
-    if (isValidPrincipals(p1, p2, p3))
-    {
-        m_principal1 = p1;
-        m_principal2 = p2;
-        m_principal3 = p3;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setPrincipalsAndRedrawPlot(double p1, double p2, double p3)
-{
-    if (!isValidPrincipals(p1, p2, p3))
-    {
-        clearPlot();
-        return;
-    }
-
-    setPrincipals(p1, p2, p3);
-
-    redrawEnvelope();
-    redrawCircles();
-    addInfoLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,16 +111,17 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
         this->clearPlot();
         return;
     }
-    
+
     RimGeoMechView* geoMechView = geoMechSelectionItem->m_view;
     CVF_ASSERT(geoMechView);
 
     if (this->isVisible())
     {
-        const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
-        const size_t cellIndex = geoMechSelectionItem->m_cellIndex;
-        
-        queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex);
+        const size_t       gridIndex = geoMechSelectionItem->m_gridIndex;
+        const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
+        const cvf::Color3f color     = geoMechSelectionItem->m_color;
+
+        queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
     }
     else
     {
@@ -139,9 +134,10 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::clearPlot()
 {
+    m_mohrsCiclesInfos.clear();
+
     deleteCircles();
-    deleteEnvelope();
-    deleteInfoLabel();
+    deleteEnvelopes();
 
     this->replot();
 }
@@ -165,27 +161,55 @@ QSize RiuMohrsCirclePlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::redrawCircles()
+void RiuMohrsCirclePlot::addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo)
 {
-    deleteCircles();
-    createMohrCircles();
+    const cvf::Vec3f& principals = mohrsCirclesInfo.principals;
 
-    for (const MohrCircle& circle : m_mohrCircles)
+    std::array<std::pair<double /*radius*/, double /*centerX*/>, 3> mohrsCircles;
+
+    mohrsCircles[0].first  = (principals[0] - principals[2]) / 2.0;
+    mohrsCircles[0].second = (principals[0] + principals[2]) / 2.0;
+
+    mohrsCircles[1].first  = (principals[1] - principals[2]) / 2.0;
+    mohrsCircles[1].second = (principals[1] + principals[2]) / 2.0;
+
+    mohrsCircles[2].first  = (principals[0] - principals[1]) / 2.0;
+    mohrsCircles[2].second = (principals[0] + principals[1]) / 2.0;
+
+    for (size_t i = 0; i < 3; i++)
     {
         QwtPlotShapeItem* plotItem = new QwtPlotShapeItem("Circle");
 
         QPainterPath* circleDrawing = new QPainterPath();
-        QPointF       center(circle.centerX, 0);
-        circleDrawing->addEllipse(center, circle.radius, circle.radius);
+        QPointF       center(mohrsCircles[i].second, 0);
+        circleDrawing->addEllipse(center, mohrsCircles[i].first, mohrsCircles[i].first);
 
+        plotItem->setPen(QColor(mohrsCirclesInfo.color.r(), mohrsCirclesInfo.color.g(), mohrsCirclesInfo.color.b()));
         plotItem->setShape(*circleDrawing);
         plotItem->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+
+        if (i == 0)
+        {
+            QString textBuilder;
+            textBuilder.append(QString("<b>FOS</b>: %1,").arg(QString::number(mohrsCirclesInfo.factorOfSafety, 'f', 2)));
+
+            textBuilder.append(QString("<b>Element Id</b>: %1, <b>ijk</b>[%2, %3, %4],")
+                                   .arg(mohrsCirclesInfo.elmIndex)
+                                   .arg(mohrsCirclesInfo.i)
+                                   .arg(mohrsCirclesInfo.j)
+                                   .arg(mohrsCirclesInfo.k));
+
+            textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1,").arg(principals[0]));
+            textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1,").arg(principals[1]));
+            textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1").arg(principals[2]));
+            plotItem->setTitle(textBuilder);
+            plotItem->setItemAttribute(QwtPlotItem::Legend);
+        }
+
         plotItem->attach(this);
 
         m_circlePlotItems.push_back(plotItem);
     }
-
-    replotAndScaleAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,289 +225,272 @@ void RiuMohrsCirclePlot::deleteCircles()
 
     m_circlePlotItems.clear();
 
-    if (m_transparentCurve)
+    for (size_t i = 0; i < m_transparentCurves.size(); i++)
     {
-        m_transparentCurve->detach();
-        delete m_transparentCurve;
-        m_transparentCurve = nullptr;
+        m_transparentCurves[i]->detach();
+        delete m_transparentCurves[i];
     }
+
+    m_transparentCurves.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::redrawEnvelope()
+void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechView* view)
 {
-    deleteEnvelope();
+    if (!view) return;
 
-    if (m_cohesion == HUGE_VAL || m_frictionAngle == HUGE_VAL)
+    double cohesion      = view->geoMechCase()->cohesion();
+    double frictionAngle = view->geoMechCase()->frictionAngleDeg();
+
+    if (cohesion == HUGE_VAL || frictionAngle == HUGE_VAL)
     {
-        this->replot();
         return;
     }
 
-    QwtPlotCurve* qwtCurve = new QwtPlotCurve();
-    
     std::vector<double> xVals;
     std::vector<double> yVals;
-    
-    double tanFrictionAngle = cvf::Math::abs(cvf::Math::tan(cvf::Math::toRadians(m_frictionAngle)));
+
+    double tanFrictionAngle = cvf::Math::abs(cvf::Math::tan(cvf::Math::toRadians(frictionAngle)));
 
     if (tanFrictionAngle == 0 || tanFrictionAngle == HUGE_VAL)
     {
-        this->replot();
-        delete qwtCurve;
         return;
     }
 
-    double x = m_cohesion/tanFrictionAngle;
-    if (m_principal1 < 0)
+    double x = cohesion / tanFrictionAngle;
+    if (principals[0] < 0)
     {
         xVals.push_back(x);
-        xVals.push_back(m_principal3*1.1);
+        xVals.push_back(principals[2] * 1.1);
     }
     else
     {
         xVals.push_back(-x);
-        xVals.push_back(m_principal1*1.1);
+        xVals.push_back(principals[0] * 1.1);
     }
 
     yVals.push_back(0);
-    yVals.push_back((x + cvf::Math::abs(m_principal1) * 1.05) * tanFrictionAngle);
+    yVals.push_back((x + cvf::Math::abs(principals[0]) * 1.05) * tanFrictionAngle);
+
+    // If envelope for the view already exists, check if a "larger" envelope should be created
+    if (m_envolopePlotItems.find(view) != m_envolopePlotItems.end())
+    {
+        if (yVals.back() <= m_envolopePlotItems[view]->maxYValue())
+        {
+            return;
+        }
+        else
+        {
+            m_envolopePlotItems[view]->detach();
+            delete m_envolopePlotItems[view];
+            m_envolopePlotItems.erase(view);
+        }
+    }
+
+    QwtPlotCurve* qwtCurve = new QwtPlotCurve();
 
     qwtCurve->setSamples(xVals.data(), yVals.data(), 2);
 
     qwtCurve->setStyle(QwtPlotCurve::Lines);
     qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
-    const QPen curvePen(QColor(236, 118, 0));
+    const QPen curvePen(envelopeColor(view));
     qwtCurve->setPen(curvePen);
+
+    qwtCurve->setTitle(QString("<b>Envelope for %1</b>, (<b>S<sub>0</sub></b>: %2, <b>&Phi;</b>: %3)")
+                           .arg(view->geoMechCase()->caseUserDescription)
+                           .arg(cohesion)
+                           .arg(frictionAngle));
 
     qwtCurve->attach(this);
 
-    m_envolopePlotItem = qwtCurve;
-    
-    replotAndScaleAxis();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::deleteEnvelope()
-{
-    if (m_envolopePlotItem)
-    {
-        m_envolopePlotItem->detach();
-        delete m_envolopePlotItem;
-        m_envolopePlotItem = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addInfoLabel()
-{
-    deleteInfoLabel();
-
-    QString textBuilder;
-
-    textBuilder.append(QString("<b>Friction Angle</b>: %1<br>").arg(m_frictionAngle));
-    textBuilder.append(QString("<b>Cohesion</b>: %1<br><br>").arg(m_cohesion));
-
-    textBuilder.append(QString("<b>Factor of Safety</b>: %1<br>").arg(QString::number(m_factorOfSafety, 'f', 2)));
-    textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1<br>").arg(m_principal1));
-    textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1<br>").arg(m_principal2));
-    textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1<br>").arg(m_principal3));
-
-    QwtText text = textBuilder;
-
-    text.setRenderFlags(Qt::AlignLeft | Qt::AlignTop);
-
-    m_infoTextItem = new QwtPlotTextLabel();
-    m_infoTextItem->setText(text);
-    m_infoTextItem->attach(this);
-
-    this->replot();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::deleteInfoLabel()
-{
-    if (m_infoTextItem)
-    {
-        m_infoTextItem->detach();
-        delete m_infoTextItem;
-        m_infoTextItem = nullptr;
-    }
+    m_envolopePlotItems[view] = qwtCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex)
+void RiuMohrsCirclePlot::deleteEnvelopes()
+{
+    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
+    {
+        envelope.second->detach();
+        delete envelope.second;
+    }
+
+    m_envolopePlotItems.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView,
+                                                size_t               gridIndex,
+                                                size_t               elmIndex,
+                                                const cvf::Color3ub& color)
 {
     CVF_ASSERT(geoMechView);
 
     RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
 
-    int frameIdx = geoMechView->currentTimeStep();
+    int                 frameIdx = geoMechView->currentTimeStep();
     RigFemResultAddress address(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "");
 
     // TODO: All tensors are calculated every time this function is called. FIX
     std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(address, 0, frameIdx);
     if (vertexTensors.empty())
     {
-        clearPlot();
         return;
     }
 
-    setCohesion(geoMechView->geoMechCase()->cohesion());
-    setFrictionAngle(geoMechView->geoMechCase()->frictionAngleDeg());
     RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
 
-    size_t i, j, k;
-    femPart->structGrid()->ijkFromCellIndex(cellIndex, &i, &j, &k);
-
-    QString title = QString("SE, Element Id[%1], ijk[%2,%3,%4]").arg(femPart->elmId(cellIndex)).arg(i).arg(j).arg(k);
-    this->setTitle(title);
-
-    caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, 0)];
+    // Calculate average tensor in element
+    caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)elmIndex, 0)];
     for (int i = 1; i < 8; i++)
     {
-        tensorSumOfElmNodes = tensorSumOfElmNodes + vertexTensors[femPart->elementNodeResultIdx((int)cellIndex, i)];
+        tensorSumOfElmNodes = tensorSumOfElmNodes + vertexTensors[femPart->elementNodeResultIdx((int)elmIndex, i)];
     }
-
     caf::Ten3f elmTensor = tensorSumOfElmNodes * (1.0 / 8.0);
 
-    cvf::Vec3f principalDirs[3];
-    cvf::Vec3f elmPrincipals = elmTensor.calculatePrincipals(principalDirs);
+    cvf::Vec3f dirs[3];
+    cvf::Vec3f principals = elmTensor.calculatePrincipals(dirs);
 
-    setFactorOfSafety(calculateFOS(elmTensor));
+    if (!isValidPrincipals(principals))
+    {
+        return;
+    }
 
-    setPrincipalsAndRedrawPlot(elmPrincipals[0], elmPrincipals[1], elmPrincipals[2]);
+    double cohesion      = geoMechView->geoMechCase()->cohesion();
+    double frictionAngle = geoMechView->geoMechCase()->frictionAngleDeg();
+
+    size_t i, j, k;
+    femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
+
+    MohrsCirclesInfo mohrsCircle;
+    mohrsCircle.color          = color;
+    mohrsCircle.elmIndex       = elmIndex;
+    mohrsCircle.factorOfSafety = calculateFOS(principals, cohesion, frictionAngle);
+    mohrsCircle.principals     = principals;
+    mohrsCircle.i              = i;
+    mohrsCircle.j              = j;
+    mohrsCircle.k              = k;
+
+    addMohrsCirclesInfo(mohrsCircle, geoMechView);
+    replotAndScaleAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setDefaults()
+void RiuMohrsCirclePlot::addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo, RimGeoMechView* view)
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    m_mohrsCiclesInfos.push_back(mohrsCircleInfo);
 
-    m_rescaler = new QwtPlotRescaler(this->canvas());
-    m_rescaler->setReferenceAxis(QwtPlot::yLeft);
-    m_rescaler->setAspectRatio(QwtPlot::xBottom, 1.0);
-    m_rescaler->setRescalePolicy(QwtPlotRescaler::Fixed);
-    m_rescaler->setEnabled(true);
-
-    enableAxis(QwtPlot::xBottom, true);
-    enableAxis(QwtPlot::yLeft, true);
-    enableAxis(QwtPlot::xTop, false);
-    enableAxis(QwtPlot::yRight, false);
-
-    setAxisTitle(QwtPlot::xBottom, "Effective Normal Stress");
-    setAxisTitle(QwtPlot::yLeft, "Shear Stress");
-
-    m_envolopePlotItem = nullptr;
-    m_transparentCurve = nullptr;
-
-    m_infoTextItem = nullptr;
-
-    m_cohesion = HUGE_VAL;
-    m_frictionAngle = HUGE_VAL; 
-
-    m_factorOfSafety = HUGE_VAL;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::createMohrCircles()
-{
-    m_mohrCircles[0].radius    = (m_principal1 - m_principal3) / 2.0;
-    m_mohrCircles[0].centerX   = (m_principal1 + m_principal3) / 2.0;
-
-    m_mohrCircles[1].radius    = (m_principal2 - m_principal3) / 2.0;
-    m_mohrCircles[1].centerX   = (m_principal2 + m_principal3) / 2.0;
-
-    m_mohrCircles[2].radius    = (m_principal1 - m_principal2) / 2.0;
-    m_mohrCircles[2].centerX   = (m_principal1 + m_principal2) / 2.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setFrictionAngle(double frictionAngle)
-{
-    m_frictionAngle = frictionAngle;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setCohesion(double cohesion)
-{
-    m_cohesion = cohesion;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::setFactorOfSafety(double fos)
-{
-    m_factorOfSafety = fos;
+    addEnvelope(mohrsCircleInfo.principals, view);
+    addMohrCircles(mohrsCircleInfo);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Add a transparent curve to make tooltip available on principals crossing the x-axis
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::updateTransparentCurveOnPrincipals()
+void RiuMohrsCirclePlot::updateTransparentCurvesOnPrincipals()
 {
-    if (m_transparentCurve)
+    for (size_t i = 0; i < m_transparentCurves.size(); i++)
     {
-        m_transparentCurve->detach();
-        delete m_transparentCurve;
+        m_transparentCurves[i]->detach();
+        delete m_transparentCurves[i];
     }
 
-    m_transparentCurve = new QwtPlotCurve();
+    m_transparentCurves.clear();
 
-    QVector<QPointF> qVectorPoints;
-    
-    qVectorPoints.push_back(QPointF(m_principal1, 0));
-    qVectorPoints.push_back(QPointF(m_principal2, 0));
-    qVectorPoints.push_back(QPointF(m_principal3, 0));
+    for (const MohrsCirclesInfo& mohrCircleInfo : m_mohrsCiclesInfos)
+    {
+        QwtPlotCurve* transparentCurve = new QwtPlotCurve();
 
-    m_transparentCurve->setSamples(qVectorPoints);
-    m_transparentCurve->setYAxis(QwtPlot::yLeft);
-    m_transparentCurve->setStyle(QwtPlotCurve::NoCurve);
-    m_transparentCurve->setLegendAttribute(QwtPlotCurve::LegendNoAttribute);
+        QVector<QPointF> qVectorPoints;
 
-    m_transparentCurve->attach(this);
+        qVectorPoints.push_back(QPointF(mohrCircleInfo.principals[0], 0));
+        qVectorPoints.push_back(QPointF(mohrCircleInfo.principals[1], 0));
+        qVectorPoints.push_back(QPointF(mohrCircleInfo.principals[2], 0));
+
+        transparentCurve->setSamples(qVectorPoints);
+        transparentCurve->setYAxis(QwtPlot::yLeft);
+        transparentCurve->setStyle(QwtPlotCurve::NoCurve);
+        transparentCurve->setLegendAttribute(QwtPlotCurve::LegendNoAttribute);
+
+        transparentCurve->attach(this);
+        m_transparentCurves.push_back(transparentCurve);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+double RiuMohrsCirclePlot::largestCircleRadiusInPlot() const
+{
+    double currentLargestDiameter = -HUGE_VAL;
+
+    for (const MohrsCirclesInfo& mohrCircleInfo : m_mohrsCiclesInfos)
+    {
+        if (mohrCircleInfo.principals[0] > currentLargestDiameter)
+        {
+            currentLargestDiameter = mohrCircleInfo.principals[0] - mohrCircleInfo.principals[2];
+        }
+    }
+
+    return currentLargestDiameter / 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuMohrsCirclePlot::smallestPrincipal() const
+{
+    double currentSmallestPrincipal = HUGE_VAL;
+
+    for (const MohrsCirclesInfo& mohrCircleInfo : m_mohrsCiclesInfos)
+    {
+        if (mohrCircleInfo.principals[2] < currentSmallestPrincipal)
+        {
+            currentSmallestPrincipal = mohrCircleInfo.principals[2];
+        }
+    }
+
+    return currentSmallestPrincipal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::replotAndScaleAxis()
 {
     double maxYEnvelope = -HUGE_VAL;
-    if (m_envolopePlotItem)
+
+    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
     {
-        maxYEnvelope = m_envolopePlotItem->maxYValue();
+        double tempMax = envelope.second->maxYValue();
+        if (tempMax > maxYEnvelope)
+        {
+            maxYEnvelope = tempMax;
+        }
     }
-    
-    double yHeight = std::max(maxYEnvelope, 0.6 * (m_principal1 - m_principal3));
-    
+
+    double yHeight = std::max(maxYEnvelope, 1.2 * largestCircleRadiusInPlot());
+
     this->setAxisScale(QwtPlot::yLeft, 0, yHeight);
 
-    double minXEvelope = 0;
+    double minXEvelope = HUGE_VAL;
 
-    if (m_envolopePlotItem)
+    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
     {
-        minXEvelope = m_envolopePlotItem->minXValue();
+        double tempMin = envelope.second->minXValue();
+        if (tempMin < minXEvelope)
+        {
+            minXEvelope = tempMin;
+        }
     }
 
     double xMin;
@@ -493,13 +500,13 @@ void RiuMohrsCirclePlot::replotAndScaleAxis()
     }
     else
     {
-        xMin = 1.1 * m_principal3;
+        xMin = 1.1 * smallestPrincipal();
     }
 
     // When using the rescaler, xMax is ignored
     this->setAxisScale(QwtPlot::xBottom, xMin, 0);
 
-    updateTransparentCurveOnPrincipals();
+    updateTransparentCurvesOnPrincipals();
 
     this->replot();
     m_rescaler->rescale();
@@ -507,23 +514,27 @@ void RiuMohrsCirclePlot::replotAndScaleAxis()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuMohrsCirclePlot::isValidPrincipals(double p1, double p2, double p3)
+bool RiuMohrsCirclePlot::isValidPrincipals(const cvf::Vec3f& principals)
 {
-    //Inf
+    float p1 = principals[0];
+    float p2 = principals[1];
+    float p3 = principals[2];
+
+    // Inf
     if (p1 == HUGE_VAL || p2 == HUGE_VAL || p3 == HUGE_VAL)
     {
         return false;
     }
-    
-    //Nan
+
+    // Nan
     if ((p1 != p1) || (p2 != p2) || p3 != p3)
     {
         return false;
     }
 
-    //Principal rules:
+    // Principal rules:
     if ((p1 < p2) || (p2 < p3))
     {
         return false;
@@ -533,21 +544,35 @@ bool RiuMohrsCirclePlot::isValidPrincipals(double p1, double p2, double p3)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-float RiuMohrsCirclePlot::calculateFOS(const caf::Ten3f& tensor)
+float RiuMohrsCirclePlot::calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion)
 {
-    cvf::Vec3f dirs[3];
-    cvf::Vec3f principals = tensor.calculatePrincipals(dirs);
-
     float se1 = principals[0];
     float se3 = principals[2];
 
-    float tanFricAng = tan(cvf::Math::toRadians(m_frictionAngle));
-    float cohPrTanFricAngle = (float)(m_cohesion / tanFricAng);
+    float tanFricAng        = tan(cvf::Math::toRadians(frictionAngle));
+    float cohPrTanFricAngle = (float)(cohesion / tanFricAng);
 
     float pi_4 = 0.785398163397448309616f;
-    float rho = 2.0f * (atan(sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
+    float rho  = 2.0f * (atan(sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
 
     return tanFricAng / tan(rho);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiuMohrsCirclePlot::envelopeColor(RimGeoMechView* view)
+{
+    if (m_envolopeColors.find(view) == m_envolopeColors.end())
+    {
+        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub(m_envolopePlotItems.size());
+
+        QColor color(cvfColor.r(), cvfColor.g(), cvfColor.b());
+
+        m_envolopeColors[view] = color;
+    }
+
+    return m_envolopeColors[view];
 }

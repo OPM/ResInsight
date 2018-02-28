@@ -20,13 +20,15 @@
 
 #include "qwt_plot.h"
 #include "qwt_plot_item.h"
+#include "qwt_plot_curve.h"
 
 #include "cafTensor3.h"
+
+#include "cvfColor3.h"
 
 #include <array>
 
 class QWidget;
-class QwtPlotCurve;
 class QwtPlotRescaler;
 class QwtPlotTextLabel;
 class QwtRoundScaleDraw;
@@ -46,69 +48,53 @@ public:
     RiuMohrsCirclePlot(QWidget* parent);
     ~RiuMohrsCirclePlot();
 
-    void setPrincipals(double p1, double p2, double p3);
-    void setPrincipalsAndRedrawPlot(double p1, double p2, double p3);
-
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
     void clearPlot();
 
-private:
-    struct MohrCircle
+public:
+    struct MohrsCirclesInfo
     {
-        MohrCircle(double radius, double centerX)
-            : radius(radius), centerX(centerX) {}
-        MohrCircle() {};
-        double radius;
-        double centerX;
+        cvf::Vec3f principals;
+        size_t elmIndex;
+        size_t i, j, k;
+        double factorOfSafety;
+        cvf::Color3ub color;
     };
 
 private:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
 
-    void redrawCircles();
+    void addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo);
     void deleteCircles();
 
-    void redrawEnvelope();
-    void deleteEnvelope();
+    void addEnvelope(const cvf::Vec3f& principals, RimGeoMechView* view);
+    void deleteEnvelopes();
 
-    void addInfoLabel();
-    void deleteInfoLabel();
-
-    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
+    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);
     
-    void setDefaults();
-    void createMohrCircles();
+    void addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo, RimGeoMechView* view);
 
-    void setFrictionAngle(double frictionAngle);
-    void setCohesion(double cohesion);
-    void setFactorOfSafety(double fos);
-
-    void updateTransparentCurveOnPrincipals();
+    void updateTransparentCurvesOnPrincipals();
+    double largestCircleRadiusInPlot() const;
+    double smallestPrincipal() const;
 
     void replotAndScaleAxis();
 
-    static bool isValidPrincipals(double p1, double p2, double p3);
+    static bool isValidPrincipals(const cvf::Vec3f& principals);
     
-    float calculateFOS(const caf::Ten3f& tensor);
+    static float calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion);
 
+    QColor envelopeColor(RimGeoMechView* view);
+    
 private:
-    double m_principal1;
-    double m_principal2;
-    double m_principal3;
-
-    std::array<MohrCircle, 3> m_mohrCircles;
-
-    std::vector<QwtPlotItem*> m_circlePlotItems;
+    std::vector<QwtPlotItem*>  m_circlePlotItems;
+    std::vector<QwtPlotCurve*> m_transparentCurves;
     
-    QwtPlotCurve* m_envolopePlotItem;
-    QwtPlotCurve* m_transparentCurve;
+    std::map<RimGeoMechView*, QwtPlotCurve*> m_envolopePlotItems;
+    std::map<RimGeoMechView*, QColor>        m_envolopeColors;
 
-    double m_frictionAngle;
-    double m_cohesion;
-    double m_factorOfSafety;
-
-    QwtPlotTextLabel* m_infoTextItem;
+    std::vector<MohrsCirclesInfo> m_mohrsCiclesInfos;
 
     QwtPlotRescaler* m_rescaler;
 };

@@ -90,6 +90,8 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnSelectionChanged(nullptr);
 
+    RiuMainWindow::instance()->mohrsCirclePlot()->updateOnSelectionChanged(nullptr);
+
     updateResultInfo(nullptr);
 
     scheduleUpdateForAllVisibleViews();
@@ -121,6 +123,8 @@ void RiuSelectionChangedHandler::handleItemAppended(const RiuSelectionItem* item
 void RiuSelectionChangedHandler::handleSetSelectedItem(const RiuSelectionItem* item) const
 {
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
+
+    RiuMainWindow::instance()->mohrsCirclePlot()->updateOnSelectionChanged(nullptr);
 
     handleItemAppended(item);
 }
