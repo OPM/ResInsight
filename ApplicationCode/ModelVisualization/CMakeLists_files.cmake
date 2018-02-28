@@ -36,14 +36,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivObjectSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionsPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivFishbonesSubsPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivTensorResultPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
-    list (APPEND SOURCE_GROUP_HEADER_FILES 
-        ${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.h
-    ) 
-endif() 
-
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.cpp
@@ -77,13 +71,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivObjectSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionsPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivFishbonesSubsPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivTensorResultPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

@@ -32,7 +32,7 @@
 #include "RimProject.h"
 #include "Rim3dView.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 
@@ -91,13 +91,13 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
             if (flowPlotColl)
             {
-                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+                RiuPlotMainWindowTools::showPlotMainWindow();
 
                 flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution(eclCase->defaultFlowDiagSolution());
                 flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
 
                 // Make sure the summary plot window is created and visible
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultFlowCharacteristicsPlot());
+                RiuPlotMainWindowTools::selectAsCurrentItem(flowPlotColl->defaultFlowCharacteristicsPlot());
             }
         }
     }

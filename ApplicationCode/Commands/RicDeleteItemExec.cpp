@@ -44,9 +44,7 @@
 
 #include "RiuMainPlotWindow.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include "cafNotificationCenter.h"
@@ -150,7 +148,6 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
         if (fracTemplateColl)
@@ -172,7 +169,6 @@ void RicDeleteItemExec::redo()
                 }
             }
         }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
         // Well paths

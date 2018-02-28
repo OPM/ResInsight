@@ -35,7 +35,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -54,7 +54,7 @@ void executeCommand(RimEclipseView* view)
     if (!view) return;
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)

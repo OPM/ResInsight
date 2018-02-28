@@ -25,7 +25,7 @@
 #include "RimGeoMechView.h"
 #include "Rim3dView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiaLogging.h"
 
 #include "cafSelectionManager.h"
@@ -43,7 +43,7 @@ void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMech
 
     if (newView)
     {
-        RiuMainWindow::instance()->setExpanded(newView);
+        Riu3DMainWindowTools::setExpanded(newView);
     }
 }
 

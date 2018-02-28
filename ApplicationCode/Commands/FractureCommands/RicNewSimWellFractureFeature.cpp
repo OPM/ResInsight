@@ -36,7 +36,7 @@
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
  
 #include "cafSelectionManager.h"
 
@@ -98,7 +98,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     fracture->updateFracturePositionFromLocation();
 
     eclipseWell->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 
     RimEclipseCase* eclipseCase = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseCase);

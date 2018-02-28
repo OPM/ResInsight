@@ -30,7 +30,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -118,7 +118,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 
     if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), exportSettings, "Export Completion Data", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, "Export Completion Data", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)

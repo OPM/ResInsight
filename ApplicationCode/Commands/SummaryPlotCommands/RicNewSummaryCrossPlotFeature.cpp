@@ -31,7 +31,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cvfAssert.h"
 
@@ -65,12 +65,9 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
         summaryCrossPlotColl->updateConnectedEditors();
         summaryPlot->loadDataAndUpdate();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->selectAsCurrentItem(summaryPlot);
-            mainPlotWindow->setExpanded(summaryPlot);
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::selectAsCurrentItem(summaryPlot);
+        RiuPlotMainWindowTools::setExpanded(summaryPlot);
     }
 }
 

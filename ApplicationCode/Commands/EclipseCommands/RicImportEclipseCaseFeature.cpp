@@ -25,7 +25,7 @@
 
 #include "RimEclipseCaseCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
   
@@ -50,7 +50,7 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
     if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
     app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
 

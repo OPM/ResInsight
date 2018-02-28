@@ -35,7 +35,7 @@
 
 #include "RifReaderEclipseRft.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
@@ -206,11 +206,11 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
     plotTrack->updateConnectedEditors();
 
     // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindowTools::showPlotMainWindow();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    plotwindow->selectAsCurrentItem(curve);
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     return curve;
 }
@@ -254,11 +254,11 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
     plotTrack->setFormationTrajectoryType(RimWellLogTrack::SIMULATION_WELL);
     plotTrack->updateConnectedEditors();
 
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindowTools::showPlotMainWindow();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    plotwindow->selectAsCurrentItem(curve);
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     return curve;
 }
@@ -279,8 +279,8 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve(RimWellLogTrack* plotTrack)
 
     plotTrack->updateConnectedEditors();
 
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    plotwindow->selectAsCurrentItem(curve);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     return curve;
 }

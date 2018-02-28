@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017  Statoil ASA
+//  Copyright (C) 2018-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,54 +16,47 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportEclipseCaseTimeStepFilterFeature.h"
-
+#include "RiuPlotMainWindowTools.h"
 #include "RiaApplication.h"
-#include "RiaImportEclipseCaseTools.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include <QAction>
-#include <QFileDialog>
-#include <QFileInfo>
-
-CAF_CMD_SOURCE_INIT(RicImportEclipseCaseTimeStepFilterFeature, "RicImportEclipseCaseTimeStepFilterFeature");
-
+#include "RiuMainPlotWindow.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseTimeStepFilterFeature::onActionTriggered(bool isChecked)
+void RiuPlotMainWindowTools::showPlotMainWindow()
 {
-    RiaApplication* app = RiaApplication::instance();
-
-    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-    if (!fileName.isEmpty())
-    {
-        defaultDir = QFileInfo(fileName).absolutePath();
-        app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
-
-        if (RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter(fileName))
-        {
-            app->addToRecentFiles(fileName);
-        }
-    }
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseTimeStepFilterFeature::setupActionLook(QAction* actionToSetup)
+void RiuPlotMainWindowTools::setActiveViewer(QWidget* subWindow)
 {
-    actionToSetup->setIcon(QIcon(":/Case48x48.png"));
-    actionToSetup->setText("Import Eclipse Case (Time Step Filtered)");
+    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+
+    if (mpw) mpw->setActiveViewer(subWindow);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportEclipseCaseTimeStepFilterFeature::isCommandEnabled()
+void RiuPlotMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expanded /*= true*/)
 {
-    return true;
+    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+
+    if (mpw) mpw->setExpanded(uiItem, expanded);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange /*= true*/)
+{
+    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+
+    if (mpw) mpw->selectAsCurrentItem(object, allowActiveViewChange);
+}
+
+
+

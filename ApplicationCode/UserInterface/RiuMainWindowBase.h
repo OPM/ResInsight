@@ -22,6 +22,13 @@
 
 struct RimMdiWindowGeometry;
 
+namespace caf
+{
+    class PdmObject;
+    class PdmUiTreeView;
+    class PdmUiItem;
+}
+
 //==================================================================================================
 ///  
 //==================================================================================================
@@ -43,6 +50,16 @@ public:
     void            loadWinGeoAndDockToolBarLayout();
     void            saveWinGeoAndDockToolBarLayout();
     void            showWindow();
+
+    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
+    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
+
+    void            selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
+
+protected:
+    caf::PdmUiTreeView*            m_projectTreeView;
+    bool                           m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control 
+                                                                         // whether to select the corresponding active view or not
 
 private:
     QString         registryFolderName();

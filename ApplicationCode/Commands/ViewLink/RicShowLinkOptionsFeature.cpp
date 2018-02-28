@@ -24,7 +24,7 @@
 #include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -61,7 +61,7 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
 
     RimViewController* viewController = activeView->viewController();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(viewController);
+    Riu3DMainWindowTools::selectAsCurrentItem(viewController);
 }
 
 //--------------------------------------------------------------------------------------------------

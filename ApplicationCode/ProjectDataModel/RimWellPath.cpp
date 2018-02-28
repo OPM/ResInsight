@@ -261,26 +261,22 @@ const RimWellPathCompletions* RimWellPath::completions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 RimWellPathFractureCollection* RimWellPath::fractureCollection()
 {
     CVF_ASSERT(m_completions);
 
     return m_completions->fractureCollection();
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 const RimWellPathFractureCollection * RimWellPath::fractureCollection() const
 {
     CVF_ASSERT(m_completions);
 
     return m_completions->fractureCollection();
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 

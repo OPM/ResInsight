@@ -29,7 +29,7 @@
 
 #include "RifPerforationIntervalReader.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -62,7 +62,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Path Perforation Intervals", defaultDir, "Well Path Perforation Intervals (*.ev);;All Files (*.*)");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Path Perforation Intervals", defaultDir, "Well Path Perforation Intervals (*.ev);;All Files (*.*)");
 
     if (wellPathFilePaths.size() < 1) return;
 
@@ -109,7 +109,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
 
     if (lastPerforationInterval)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(lastPerforationInterval);
+        Riu3DMainWindowTools::selectAsCurrentItem(lastPerforationInterval);
     }
 }
 

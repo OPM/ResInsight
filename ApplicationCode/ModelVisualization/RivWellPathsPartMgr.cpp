@@ -57,7 +57,6 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model)
 {
     if (!isWellPathVisible()) return;
@@ -69,7 +68,6 @@ void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* 
         partMgr->appendStaticFracturePartsToModel(model);
     }
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 ///

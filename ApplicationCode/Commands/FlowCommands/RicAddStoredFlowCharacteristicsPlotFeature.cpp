@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimFlowCharacteristicsPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -79,12 +79,10 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecke
 
             flowPlotColl->updateConnectedEditors();
 
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-            if (mainPlotWindow)
-            {
-                mainPlotWindow->selectAsCurrentItem(flowCharacteristicsPlot);
-                mainPlotWindow->setExpanded(flowCharacteristicsPlot);
-            }
+            RiuPlotMainWindowTools::showPlotMainWindow();
+           
+            RiuPlotMainWindowTools::selectAsCurrentItem(flowCharacteristicsPlot);
+            RiuPlotMainWindowTools::setExpanded(flowCharacteristicsPlot);
         }
     }
 }

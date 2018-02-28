@@ -22,7 +22,7 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManagerTools.h"
@@ -67,7 +67,7 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
                 QString text = QString("The intersection view only supports vertical intersections.\n" 
                                        "The intersection '%1' is not vertical but a converted version will be shown in the view .").arg(intersection->name());
 
-                QMessageBox::warning(RiuMainWindow::instance(), "New Intersection View", text);
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text);
             }
 
             Rim2dIntersectionView* intersectionView = intersection->correspondingIntersectionView();

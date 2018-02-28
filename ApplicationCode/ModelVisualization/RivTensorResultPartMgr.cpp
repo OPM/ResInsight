@@ -338,19 +338,18 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
     auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
-    if (vectorColors == RimTensorResults::MAGENTA_BROWN_BLACK || vectorColors == RimTensorResults::WHITE_GRAY_BLACK)
-    {
-
-        activeScalerMapper = discreteScalarMapper.p();
-        
-        createOneColorPerPrincipalScalarMapper(vectorColors, discreteScalarMapper.p());
-        createOneColorPerPrincipalTextureCoords(lineTexCoords.p(), tensorVisualizations, discreteScalarMapper.p());
-    }
-    else
+    if (vectorColors == RimTensorResults::RESULT_COLORS)
     {
         activeScalerMapper = m_rimReservoirView->tensorResults()->legendConfig()->scalarMapper();
 
         createResultColorTextureCoords(lineTexCoords.p(), tensorVisualizations, activeScalerMapper);
+    }
+    else
+    {
+        activeScalerMapper = discreteScalarMapper.p();
+
+        createOneColorPerPrincipalScalarMapper(vectorColors, discreteScalarMapper.p());
+        createOneColorPerPrincipalTextureCoords(lineTexCoords.p(), tensorVisualizations, discreteScalarMapper.p());
     }
 
     caf::ScalarMapperEffectGenerator surfEffGen(activeScalerMapper, caf::PO_1);
@@ -382,13 +381,18 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTen
 
     cvf::Color3ubArray arrowColors;
     arrowColors.resize(3);
-    if (colorSet == RimTensorResults::MAGENTA_BROWN_BLACK)
-    {
-        arrowColors = RiaColorTables::tensorMagentaBrownBlackPaletteColors().color3ubArray();
-    }
-    else if (colorSet == RimTensorResults::WHITE_GRAY_BLACK)
+
+    if (colorSet == RimTensorResults::WHITE_GRAY_BLACK)
     {
         arrowColors = RiaColorTables::tensorWhiteGrayBlackPaletteColors().color3ubArray();
+    }
+    else if (colorSet == RimTensorResults::ORANGE_BLUE_WHITE)
+    {
+        arrowColors = RiaColorTables::tensorOrangeBlueWhitePaletteColors().color3ubArray();
+    }
+    else if (colorSet == RimTensorResults::MAGENTA_BROWN_GRAY)
+    {
+        arrowColors = RiaColorTables::tensorsMagentaBrownGrayPaletteColors().color3ubArray();
     }
 
     scalarMapper->setColors(arrowColors);
@@ -453,7 +457,7 @@ bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
     {
         return false;
     }
-    if (!(address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "E"))
+    if (!(address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "NE"))
     {
         return false;
     }

@@ -32,10 +32,8 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RiuMainWindow.h"
 
@@ -462,7 +460,6 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (&wellPipeCoordType == changedField)
     {
         for (RimSimWellInView* w : wells)
@@ -473,7 +470,6 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------

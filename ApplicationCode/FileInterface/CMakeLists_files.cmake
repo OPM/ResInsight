@@ -37,16 +37,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
-    list (APPEND SOURCE_GROUP_HEADER_FILES 
-        ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
-    ) 
-endif() 
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseDataTableFormatter.cpp
@@ -84,16 +79,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

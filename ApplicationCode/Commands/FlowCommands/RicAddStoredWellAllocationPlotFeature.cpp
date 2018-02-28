@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -79,12 +79,8 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 
             flowPlotColl->updateConnectedEditors();
 
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-            if (mainPlotWindow)
-            {
-                mainPlotWindow->selectAsCurrentItem(wellAllocationPlot);
-                mainPlotWindow->setExpanded(wellAllocationPlot);
-            }
+            RiuPlotMainWindowTools::selectAsCurrentItem(wellAllocationPlot);
+            RiuPlotMainWindowTools::setExpanded(wellAllocationPlot);
         }
     }
 }

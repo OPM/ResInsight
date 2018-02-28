@@ -20,32 +20,28 @@
 
 #include "RimSimWellInView.h"
 
-#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigActiveCellInfo.h"
+#include "RigCell.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
-#include "RimSimWellInViewCollection.h"
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-#include "RimSimWellFractureCollection.h"
+#include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimSimWellFractureCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
 
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiTreeOrdering.h"
-
 #include "cvfMath.h"
-#include "RigCell.h"
-#include "RimEclipseCase.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigActiveCellInfo.h"
-#include "RimPropertyFilterCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
@@ -72,18 +68,14 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     CAF_PDM_InitFieldNoDefault(&simwellFractureCollection, "FractureCollection", "Fractures", "", "", "");
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     simwellFractureCollection= new RimSimWellFractureCollection();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +83,7 @@ RimSimWellInView::RimSimWellInView()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::~RimSimWellInView()
 {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (simwellFractureCollection()) delete simwellFractureCollection();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,13 +379,11 @@ void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures())
     {
         uiTreeOrdering.add(fracture);
     }
     uiTreeOrdering.skipRemainingChildren(true);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);

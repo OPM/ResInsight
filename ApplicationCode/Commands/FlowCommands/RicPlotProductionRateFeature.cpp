@@ -41,7 +41,6 @@
 #include "RiaSummaryTools.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
 

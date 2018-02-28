@@ -26,7 +26,7 @@
 #include "RimProject.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -53,7 +53,7 @@ void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
         RimEclipseStatisticsCase* newCase = addStatisticalCalculation(uiItem);
         if (newCase)
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(newCase);
+            Riu3DMainWindowTools::selectAsCurrentItem(newCase);
         }
     }
 }

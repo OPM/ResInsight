@@ -72,6 +72,7 @@ public:
 
     cvf::Mat4d                      transformMatrix() const; 
 
+    void                            setFractureTemplateNoUpdate(RimFractureTemplate* fractureTemplate);
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
     RimFractureTemplate*            fractureTemplate() const;
 

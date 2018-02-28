@@ -43,7 +43,8 @@ public:
     enum TensorColors
     {
         WHITE_GRAY_BLACK,
-        MAGENTA_BROWN_BLACK,
+        ORANGE_BLUE_WHITE,
+        MAGENTA_BROWN_GRAY,
         RESULT_COLORS
     };
 
@@ -81,6 +82,9 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            initAfterRead() override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
+    static QString                          uiFieldName(const QString& fieldName);
+    static QString                          fieldNameFromUi(const QString& uiFieldName);
 
 private:
     caf::PdmField<bool>                              m_showTensors;

@@ -27,7 +27,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
@@ -62,7 +62,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(perforationInterval);
+    Riu3DMainWindowTools::selectAsCurrentItem(perforationInterval);
 }
 
 //--------------------------------------------------------------------------------------------------

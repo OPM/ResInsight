@@ -278,29 +278,19 @@ list(APPEND THIRD_PARTY_LIBRARIES
 )
 
 ################################################################################
-# Prototype feature Fractures
+# Eigen
 ################################################################################
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" ON)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+include_directories(SYSTEM ThirdParty/Eigen-Subset)
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+################################################################################
+# clipper
+################################################################################
 
-    ################################################################################
-    # Eigen
-    ################################################################################
-    include_directories(SYSTEM ThirdParty/Eigen-Subset)
+add_subdirectory(ThirdParty/clipper)
 
-    ################################################################################
-    # clipper
-    ################################################################################
-
-    add_subdirectory(ThirdParty/clipper)
-
-    list(APPEND THIRD_PARTY_LIBRARIES
-        clipper
-    )
-
-endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES
+list(APPEND THIRD_PARTY_LIBRARIES
+    clipper
+)
 
 
 ################################################################################

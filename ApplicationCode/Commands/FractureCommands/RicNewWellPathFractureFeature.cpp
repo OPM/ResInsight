@@ -36,7 +36,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
@@ -93,7 +93,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     fracture->setFractureTemplate(fracDef);
 
     wellPath->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 
     RimProject* project = nullptr;
     fractureCollection->firstAncestorOrThisOfType(project);

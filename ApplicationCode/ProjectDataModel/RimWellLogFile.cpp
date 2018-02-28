@@ -29,7 +29,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiDateEditor.h"
 
@@ -124,9 +124,9 @@ RimWellLogFile* RimWellLogFile::readWellLogFile(const QString& logFilePath)
                 displayMessage += errorMessage;
             }
 
-            QMessageBox::warning(RiuMainWindow::instance(), 
-                "File open error", 
-                displayMessage);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                                 "File open error",
+                                 displayMessage);
 
             delete wellLogFile;
             wellLogFile = nullptr;

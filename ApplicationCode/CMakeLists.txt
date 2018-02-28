@@ -117,14 +117,8 @@ list( APPEND REFERENCED_CMAKE_FILES
 
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
-)
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND REFERENCED_CMAKE_FILES
     Commands/FractureCommands/CMakeLists_files.cmake
-    )
-endif()
-
+)
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
@@ -186,11 +180,6 @@ endif()
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
-endif()
-
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-	add_definitions(-DUSE_PROTOTYPE_FEATURE_FRACTURES)
 endif()
 
 
@@ -556,10 +545,6 @@ endif()
 
 if(RESINSIGHT_FOUND_HDF5)
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
-endif()
-
-if(RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_fractures")
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6

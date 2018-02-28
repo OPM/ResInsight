@@ -29,7 +29,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 
@@ -177,7 +177,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimGridView*>& views)
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setExpanded(proj->viewLinkerCollection());
+    Riu3DMainWindowTools::setExpanded(proj->viewLinkerCollection());
 
 }
 

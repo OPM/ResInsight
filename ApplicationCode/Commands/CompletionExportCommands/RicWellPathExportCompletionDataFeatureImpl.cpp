@@ -141,9 +141,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     }
 
     size_t maxProgress = usedWellPaths.size() * 3 +
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                          simWells.size() +
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
                          (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
                               ? usedWellPaths.size()
                               : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
@@ -175,7 +173,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         }
         progress.incrementProgress();
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         if (exportSettings.includeFractures())
         {
             std::vector<RigCompletionData> fractureCompletionData =
@@ -183,11 +180,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     wellPath, exportSettings, fractureTransmissibilityExportInformationStream.get());
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
         }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         progress.incrementProgress();
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (auto simWell : simWells)
     {
         std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(
@@ -195,7 +190,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
         progress.incrementProgress();
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 

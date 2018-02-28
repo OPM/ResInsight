@@ -248,8 +248,6 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
     }
     else if (stimPlanTemplate)
     {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-
         const RigFractureCell* cell         = getFractureCellAtDomainCoord(domainIntersectionPoint);
         RimStimPlanColors* stimPlanColors   = activeView.fractureColors;
 
@@ -267,8 +265,6 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
         // Cell index
         text.append("Cell Index: ");
         text.append(iText + ", " + jText + "\n");
-
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
     return text;

@@ -71,6 +71,9 @@ public:
 
     void                                    addElementPropertyFiles(const std::vector<caf::FilePath>& filenames);
 
+    double                                  cohesion() const;
+    double                                  frictionAngleDeg() const;
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 

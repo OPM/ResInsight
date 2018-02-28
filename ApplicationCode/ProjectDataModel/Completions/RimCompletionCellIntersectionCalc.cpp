@@ -38,7 +38,6 @@
 #include "RigWellPathIntersectionTools.h"
 #include "RigCellGeometryTools.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFracture.h"
 #include "RimWellPathFracture.h"
 #include "RimFractureTemplate.h"
@@ -47,7 +46,6 @@
 #include "RimSimWellFracture.h"
 #include "RigFractureGrid.h"
 #include "RigFractureCell.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include <QDateTime>
@@ -70,7 +68,6 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
         }
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimEclipseView* view : eclipseCase->reservoirViews())
     {
         for (RimSimWellInView* simWell : view->wellCollection()->wells())
@@ -81,7 +78,6 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
             }
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +111,6 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
         }
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (wellPath->fractureCollection()->isChecked())
     {
         for (const RimWellPathFracture* fracture : wellPath->fractureCollection()->fractures())
@@ -126,7 +121,6 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
             }
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     if (wellPath->perforationIntervalCollection()->isChecked())
     {
@@ -182,7 +176,6 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid* mainGrid, const RimFracture* fracture, std::vector<double>& values)
 {
     if (!fracture->fractureTemplate()) return;
@@ -251,4 +244,3 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
 
     }
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES

@@ -152,6 +152,14 @@ RiuMainWindow* RiuMainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RiuMainWindow::mainWindowName()
+{
+    return "RiuMainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot(RiaApplication::instance()->project());
@@ -1297,7 +1305,7 @@ void RiuMainWindow::selectedObjectsChanged()
 
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
-    if (uiItems.size() == 1)
+    if (uiItems.size() == 1 && m_allowActiveViewChangeFromSelection)
     {
         // Find the reservoir view or the Plot that the selected item is within 
 
@@ -1617,14 +1625,6 @@ void RiuMainWindow::updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectT
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
     showDockPanel(DOCK_PANEL_NAME_PROCESS_MONITOR);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectAsCurrentItem(const caf::PdmObject* object)
-{
-    m_projectTreeView->selectAsCurrentItem(object);
 }
 
 //--------------------------------------------------------------------------------------------------

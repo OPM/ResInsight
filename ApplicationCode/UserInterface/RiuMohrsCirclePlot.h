@@ -21,13 +21,17 @@
 #include "qwt_plot.h"
 #include "qwt_plot_item.h"
 
+#include "cafTensor3.h"
+
 #include <array>
 
-class RiuSelectionItem;
-class RimGeoMechView;
-class QwtRoundScaleDraw;
-class QwtPlotRescaler;
 class QWidget;
+class QwtPlotCurve;
+class QwtPlotRescaler;
+class QwtPlotTextLabel;
+class QwtRoundScaleDraw;
+class RimGeoMechView;
+class RiuSelectionItem;
 
 //==================================================================================================
 //
@@ -43,33 +47,50 @@ public:
     ~RiuMohrsCirclePlot();
 
     void setPrincipals(double p1, double p2, double p3);
-    void setPrincipalsAndRedrawCircles(double p1, double p2, double p3);
+    void setPrincipalsAndRedrawPlot(double p1, double p2, double p3);
 
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
     void clearPlot();
 
-protected:
+private:
+    struct MohrCircle
+    {
+        MohrCircle(double radius, double centerX)
+            : radius(radius), centerX(centerX) {}
+        MohrCircle() {};
+        double radius;
+        double centerX;
+    };
+
+private:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
 
     void redrawCircles();
     void deleteCircles();
 
+    void redrawEnvelope();
+    void deleteEnvelope();
+
+    void addInfoLabel();
+    void deleteInfoLabel();
+
     void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex);
     
-private:
-    struct MohrCircle
-    {
-        MohrCircle(size_t component, double radius, double centerX)
-            : component(component), radius(radius), centerX(centerX) {}
-        MohrCircle() {};
-        size_t component; //1, 2 or 3
-        double radius;
-        double centerX;
-    };
-private:
     void setDefaults();
     void createMohrCircles();
+
+    void setFrictionAngle(double frictionAngle);
+    void setCohesion(double cohesion);
+    void setFactorOfSafety(double fos);
+
+    void updateTransparentCurveOnPrincipals();
+
+    void replotAndScaleAxis();
+
+    static bool isValidPrincipals(double p1, double p2, double p3);
+    
+    float calculateFOS(const caf::Ten3f& tensor);
 
 private:
     double m_principal1;
@@ -79,6 +100,15 @@ private:
     std::array<MohrCircle, 3> m_mohrCircles;
 
     std::vector<QwtPlotItem*> m_circlePlotItems;
+    
+    QwtPlotCurve* m_envolopePlotItem;
+    QwtPlotCurve* m_transparentCurve;
+
+    double m_frictionAngle;
+    double m_cohesion;
+    double m_factorOfSafety;
+
+    QwtPlotTextLabel* m_infoTextItem;
 
     QwtPlotRescaler* m_rescaler;
 };

@@ -95,14 +95,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
 )
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
-    list (APPEND SOURCE_GROUP_HEADER_FILES 
-        ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
-        ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
-    ) 
-endif() 
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
@@ -200,14 +196,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

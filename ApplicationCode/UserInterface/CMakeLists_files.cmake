@@ -65,6 +65,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridStatisticsHistogramWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
+${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.h
+${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -130,6 +132,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridStatisticsHistogramWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

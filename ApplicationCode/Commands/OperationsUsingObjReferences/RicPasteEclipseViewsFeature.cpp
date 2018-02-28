@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RicPasteFeatureImpl.h"
 
@@ -112,7 +112,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         lastViewCopy = rimReservoirView;
     }
 
-    if (lastViewCopy) RiuMainWindow::instance()->selectAsCurrentItem(lastViewCopy);
+    if (lastViewCopy) Riu3DMainWindowTools::selectAsCurrentItem(lastViewCopy);
 }
 
 //--------------------------------------------------------------------------------------------------

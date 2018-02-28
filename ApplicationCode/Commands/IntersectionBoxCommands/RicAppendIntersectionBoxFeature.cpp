@@ -22,7 +22,7 @@
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimGridView.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -61,7 +61,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
         intersectionBox->setToDefaultSizeBox();
 
         coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
+        Riu3DMainWindowTools::selectAsCurrentItem(intersectionBox);
 
         RimGridView* rimView = nullptr;
         coll->firstAncestorOrThisOfTypeAsserted(rimView);

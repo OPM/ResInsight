@@ -39,7 +39,7 @@
 #include "RimWellPath.h"
 #include "RimPerforationCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
@@ -138,7 +138,7 @@ void RimWellPathCollection::readWellPathFiles()
             QString errorMessage;
             if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, m_wellPathImporter))
             {
-                QMessageBox::warning(RiuMainWindow::instance(),
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                      "File open error",
                                      errorMessage);
             }
@@ -159,7 +159,7 @@ void RimWellPathCollection::readWellPathFiles()
                         displayMessage += errorMessage;
                     }
 
-                    QMessageBox::warning(RiuMainWindow::instance(),
+                    QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                          "File open error",
                                          displayMessage);
                 }
@@ -367,7 +367,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 
     if (fileReadSuccess)
     {
-        QMessageBox::information(RiuMainWindow::instance(), "Well Picks Import", outputMessage);
+        QMessageBox::information(Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage);
         RiaLogging::info(outputMessage);
     }
 
@@ -489,7 +489,7 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(RiuMainWindow::instance(),
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                  "File open error",
                                  errorMessage);
         }
@@ -511,7 +511,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if (!wellPaths[wpIdx]->reloadWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(RiuMainWindow::instance(),
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                  "File open error",
                                  errorMessage);
         }

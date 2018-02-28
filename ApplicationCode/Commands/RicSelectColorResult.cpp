@@ -25,7 +25,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 
@@ -60,13 +60,13 @@ void RicSelectColorResult::onActionTriggered(bool isChecked)
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
     if (eclView)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(eclView->cellResult());
+        Riu3DMainWindowTools::selectAsCurrentItem(eclView->cellResult());
         return;
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(activeView);
     if (geoMechView)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(geoMechView->cellResult());
+        Riu3DMainWindowTools::selectAsCurrentItem(geoMechView->cellResult());
     }
 }

@@ -32,7 +32,7 @@
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
 #include "RigFemResultPosEnum.h"
@@ -72,9 +72,6 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QString snapshotFolderName)
 {
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
     RimProject* project = RiaApplication::instance()->project();
 
     if (project == nullptr) return;
@@ -108,7 +105,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
                 RiaApplication::instance()->setActiveReservoirView(riv);
 
                 RiuViewer* viewer = riv->viewer();
-                mainWnd->setActiveViewer(viewer->layoutWidget());
+                Riu3DMainWindowTools::setActiveViewer(viewer->layoutWidget());
 
                 RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
@@ -159,11 +156,7 @@ void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 
     if (currentActiveWidget)
     {
-        RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        if (mainWindow)
-        {
-            mainWindow->setActiveViewer(currentActiveWidget);
-        }
+        Riu3DMainWindowTools::setActiveViewer(currentActiveWidget);
     }
 }
 
