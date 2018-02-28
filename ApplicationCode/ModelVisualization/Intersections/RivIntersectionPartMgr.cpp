@@ -767,7 +767,7 @@ cvf::ref<cvf::Part> createStdLinePart(cvf::DrawableGeo* geometry,
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_rimCrossSection.isNull()) return;
+    if (m_rimCrossSection.isNull() || m_crossSectionGenerator.isNull()) return;
 
     // Get information on how to draw the pipe
 
@@ -775,6 +775,7 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
     double       pipeRadius = 1; 
     int          pipeCrossSectionVxCount = 6;
     cvf::Color3f wellPipeColor = cvf::Color3f::GRAY;
+    double       characteristicCellSize = 0;
 
     if ( m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL )
     {
@@ -790,7 +791,7 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
         wellPipeColor = simWellInView->wellPipeColor();
 
         createSourceInfoFunc = [&](size_t brIdx) { return new RivSimWellPipeSourceInfo(simWellInView, brIdx); };
-
+        characteristicCellSize = eclView->eclipseCase()->characteristicCellSize();
     }
     else if (m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH)
     {
@@ -853,6 +854,8 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
             {
                 (*cvfCoords)[cIdx].transformPoint(scaleTransform->worldTransform());
             }
+
+            (*cvfCoords)[0].z() += characteristicCellSize;
 
             pbd.m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
             auto surfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();

@@ -88,7 +88,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     cvf::Vec3d whEndPos;
     cvf::Vec3d whStartPos;
     {
-        well->wellHeadTopBottomPosition(frameIndex, &whEndPos, &whStartPos);
+        well->wellHeadTopBottomPosition(static_cast<int>(frameIndex), &whEndPos, &whStartPos);
 
         cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
         whEndPos   = transForm->transformToDisplayCoord(whEndPos);

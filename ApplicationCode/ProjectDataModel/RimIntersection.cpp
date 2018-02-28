@@ -435,6 +435,19 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * hori
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
     {
+        if (type == CS_SIMULATION_WELL && simulationWell())
+        {
+            cvf::Vec3d top, bottom;
+
+            simulationWell->wellHeadTopBottomPosition(-1, &top, &bottom);
+
+            for ( size_t lIdx = 0; lIdx < lines.size(); ++lIdx )
+            {
+                std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
+                polyLine.insert(polyLine.begin(), top);
+            }
+        }
+
         for (size_t lIdx = 0; lIdx < lines.size(); ++lIdx)
         {
             std::vector<cvf::Vec3d>& polyLine = lines[lIdx];

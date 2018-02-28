@@ -178,9 +178,9 @@ void RimSimWellInView::calculateWellPipeDynamicCenterLine(size_t                
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// frameIndex = -1 will use the static well frame
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
+void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
 {
 
     RimEclipseView* m_rimReservoirView;
@@ -188,10 +188,24 @@ void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* 
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
+    const RigWellResultFrame* wellResultFramePtr = nullptr;
+    const RigCell* whCellPtr = nullptr;
 
-    const RigWellResultFrame& wellResultFrame = this->simWellData()->wellResultFrame(frameIndex);
-    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.wellHeadOrStartCell());
+    if (frameIndex >= 0)
+    {
+        if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
+
+        wellResultFramePtr = &(this->simWellData()->wellResultFrame(frameIndex));
+        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+    }
+    else
+    {
+        wellResultFramePtr = &(this->simWellData()->staticWellCells());
+        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+    }
+
+    const RigWellResultFrame& wellResultFrame = *wellResultFramePtr;
+    const RigCell& whCell = *whCellPtr;
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
 
