@@ -342,14 +342,6 @@ add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibViewing)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGuiQt)
 
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-)
-
 list(APPEND VIZ_FWK_LIBRARIES
     LibGuiQt
     LibViewing

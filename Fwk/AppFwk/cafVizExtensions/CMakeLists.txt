@@ -5,14 +5,6 @@ project (cafVizExtensions)
 # Open GL
 find_package( OpenGL )
 
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-)
-
 add_library( ${PROJECT_NAME}
     cafDisplayCoordTransform.cpp
     cafDisplayCoordTransform.h

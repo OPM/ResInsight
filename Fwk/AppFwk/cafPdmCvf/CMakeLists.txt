@@ -6,10 +6,6 @@ project (cafPdmCvf)
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
 include (${QT_USE_FILE})
 
-include_directories(
-    ${LibCore_SOURCE_DIR}
-)
-
 add_library( ${PROJECT_NAME}
     cafPdmCoreColor3f.h
     cafPdmUiCoreColor3f.cpp

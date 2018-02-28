@@ -2,10 +2,6 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafTensor)
 
-include_directories (
-    ${LibCore_SOURCE_DIR}
-)
-
 set( PROJECT_FILES
 	cafTensor3.cpp
 	cafTensor3.h

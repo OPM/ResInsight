@@ -36,7 +36,6 @@ endif(MSVC)
 
 include_directories(
 	${RESINSIGHT_ODB_API_DIR}/include
-	${LibCore_SOURCE_DIR}
 )
 
 add_library( ${PROJECT_NAME}
