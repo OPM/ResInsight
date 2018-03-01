@@ -43,10 +43,8 @@
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_layout.h"
-#include "qwt_plot_marker.h"
 #include "qwt_plot_rescaler.h"
 #include "qwt_plot_shapeitem.h"
-#include "qwt_plot_textlabel.h"
 
 #include <cmath>
 
@@ -95,8 +93,10 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 {
     deleteCircles();
     deleteEnvelopes();
-
+    if (m_rescaler)
+    {
     delete m_rescaler;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ void RiuMohrsCirclePlot::addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo
         if (i == 0)
         {
             QString textBuilder;
-            textBuilder.append(QString("<b>FOS</b>: %1,").arg(QString::number(mohrsCirclesInfo.factorOfSafety, 'f', 2)));
+            textBuilder.append(QString("<b>FOS</b>: %1, ").arg(QString::number(mohrsCirclesInfo.factorOfSafety, 'f', 2)));
 
             textBuilder.append(QString("<b>Element Id</b>: %1, <b>ijk</b>[%2, %3, %4],")
                                    .arg(mohrsCirclesInfo.elmIndex)
@@ -199,9 +199,10 @@ void RiuMohrsCirclePlot::addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo
                                    .arg(mohrsCirclesInfo.j)
                                    .arg(mohrsCirclesInfo.k));
 
-            textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1,").arg(principals[0]));
-            textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1,").arg(principals[1]));
+            textBuilder.append(QString("<b>&sigma;<sub>1</sub></b>: %1, ").arg(principals[0]));
+            textBuilder.append(QString("<b>&sigma;<sub>2</sub></b>: %1, ").arg(principals[1]));
             textBuilder.append(QString("<b>&sigma;<sub>3</sub></b>: %1").arg(principals[2]));
+
             plotItem->setTitle(textBuilder);
             plotItem->setItemAttribute(QwtPlotItem::Legend);
         }
@@ -249,8 +250,8 @@ void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechVie
         return;
     }
 
-    std::vector<double> xVals;
-    std::vector<double> yVals;
+    double xVals[2];
+    double yVals[2];
 
     double tanFrictionAngle = cvf::Math::abs(cvf::Math::tan(cvf::Math::toRadians(frictionAngle)));
 
@@ -259,25 +260,29 @@ void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechVie
         return;
     }
 
+    yVals[0] = 0;
+
     double x = cohesion / tanFrictionAngle;
     if (principals[0] < 0)
     {
-        xVals.push_back(x);
-        xVals.push_back(principals[2] * 1.1);
+        xVals[0] = x;
+        xVals[1] = principals[2];
+
+        yVals[1] = (cohesion / x) * (x + principals[2]);
     }
     else
     {
-        xVals.push_back(-x);
-        xVals.push_back(principals[0] * 1.1);
+        xVals[0] = -x;
+        xVals[1] = principals[0];
+
+        yVals[1] = (cohesion / x) * (x + principals[0]);
     }
 
-    yVals.push_back(0);
-    yVals.push_back((x + cvf::Math::abs(principals[0]) * 1.05) * tanFrictionAngle);
 
     // If envelope for the view already exists, check if a "larger" envelope should be created
     if (m_envolopePlotItems.find(view) != m_envolopePlotItems.end())
     {
-        if (yVals.back() <= m_envolopePlotItems[view]->maxYValue())
+        if (yVals[1] <= m_envolopePlotItems[view]->maxYValue())
         {
             return;
         }
@@ -291,7 +296,7 @@ void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechVie
 
     QwtPlotCurve* qwtCurve = new QwtPlotCurve();
 
-    qwtCurve->setSamples(xVals.data(), yVals.data(), 2);
+    qwtCurve->setSamples(xVals, yVals, 2);
 
     qwtCurve->setStyle(QwtPlotCurve::Lines);
     qwtCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
@@ -364,7 +369,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
     }
 
     double cohesion      = geoMechView->geoMechCase()->cohesion();
-    double frictionAngle = geoMechView->geoMechCase()->frictionAngleDeg();
+    double frictionAngleDeg = geoMechView->geoMechCase()->frictionAngleDeg();
 
     size_t i, j, k;
     femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
@@ -372,7 +377,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
     MohrsCirclesInfo mohrsCircle;
     mohrsCircle.color          = color;
     mohrsCircle.elmIndex       = elmIndex;
-    mohrsCircle.factorOfSafety = calculateFOS(principals, cohesion, frictionAngle);
+    mohrsCircle.factorOfSafety = calculateFOS(principals, frictionAngleDeg, cohesion);
     mohrsCircle.principals     = principals;
     mohrsCircle.i              = i;
     mohrsCircle.j              = j;
@@ -508,7 +513,7 @@ void RiuMohrsCirclePlot::replotAndScaleAxis()
 
     updateTransparentCurvesOnPrincipals();
 
-    this->replot();
+     this->replot();
     m_rescaler->rescale();
     this->plotLayout()->setAlignCanvasToScales(true);
 }
@@ -551,13 +556,18 @@ float RiuMohrsCirclePlot::calculateFOS(const cvf::Vec3f& principals, double fric
     float se1 = principals[0];
     float se3 = principals[2];
 
-    float tanFricAng        = tan(cvf::Math::toRadians(frictionAngle));
-    float cohPrTanFricAngle = (float)(cohesion / tanFricAng);
+    if (cvf::Math::cos(frictionAngle) == 0)
+    {
+        return 0;
+    }
+
+    float tanFricAng = cvf::Math::tan(cvf::Math::toRadians(frictionAngle));
+    float cohPrTanFricAngle = 1.0f * cohesion / tanFricAng;
 
     float pi_4 = 0.785398163397448309616f;
-    float rho  = 2.0f * (atan(sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
+    float rho  = 2.0f * (cvf::Math::atan(cvf::Math::sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
 
-    return tanFricAng / tan(rho);
+    return tanFricAng / cvf::Math::tan(rho);
 }
 
 //--------------------------------------------------------------------------------------------------
