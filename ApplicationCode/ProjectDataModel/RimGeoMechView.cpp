@@ -301,7 +301,10 @@ void RimGeoMechView::updateCurrentTimeStep()
                     m_tensorPartMgr->appendDynamicGeometryPartsToModel(frameParts.p(), m_currentTimeStep);
                     frameParts->updateBoundingBoxesRecursive();
 
-                    frameScene->addModel(frameParts.p());
+                    if (frameParts->partCount() != 0)
+                    {
+                        frameScene->addModel(frameParts.p());
+                    }
                 }
             }
         }
