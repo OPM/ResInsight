@@ -360,7 +360,7 @@ RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
 
     if (eclipseView)
     {
-        return eclipseView->wellCollection;
+        return eclipseView->wellCollection();
     }
 
     return nullptr;

@@ -1479,7 +1479,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-    activeRiv->faultCollection->showFaultLabel.setValueWithFieldChanged(showLabels);
+    activeRiv->faultCollection()->showFaultLabel.setValueWithFieldChanged(showLabels);
 
     refreshDrawStyleActions();
 }

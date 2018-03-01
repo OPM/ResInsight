@@ -66,7 +66,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
         if (activeView)
         {
-            activeView->fractureColors->setDefaultResultName();
+            activeView->fractureColors()->setDefaultResultName();
         }
     }
 

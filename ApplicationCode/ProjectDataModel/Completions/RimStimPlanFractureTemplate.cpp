@@ -284,7 +284,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-    if (activeView) activeView->fractureColors->loadDataAndUpdate();
+    if (activeView) activeView->fractureColors()->loadDataAndUpdate();
 
     updateConnectedEditors();
 }

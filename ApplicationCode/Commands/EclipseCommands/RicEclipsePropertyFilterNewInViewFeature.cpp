@@ -45,7 +45,7 @@ bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     if (!eclView) return false;
 
-    RimEclipseCellColors* cellColors = eclView->cellResult().p();
+    RimEclipseCellColors* cellColors = eclView->cellResult();
     if (!cellColors) return false;
 
     if (RiaDefines::isPerCellFaceResult(cellColors->resultVariable())) return false;

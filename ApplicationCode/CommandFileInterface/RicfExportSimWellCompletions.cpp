@@ -105,15 +105,15 @@ void RicfExportSimWellCompletions::execute()
     std::vector<RimSimWellInView*> simWells;
     if (m_wellPathNames().empty())
     {
-        std::copy(view->wellCollection->wells.begin(),
-                  view->wellCollection->wells.end(),
+        std::copy(view->wellCollection()->wells.begin(),
+                  view->wellCollection()->wells.end(),
                   std::back_inserter(simWells));
     }
     else
     {
         for (const QString& wellPathName : m_wellPathNames())
         {
-            RimSimWellInView* simWell = view->wellCollection->findWell(wellPathName);
+            RimSimWellInView* simWell = view->wellCollection()->findWell(wellPathName);
             if (simWell)
             {
                 simWells.push_back(simWell);

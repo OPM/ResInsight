@@ -75,7 +75,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
         if (activeView)
         {
-            activeView->fractureColors->setDefaultResultName();
+            activeView->fractureColors()->setDefaultResultName();
         }
     }
 

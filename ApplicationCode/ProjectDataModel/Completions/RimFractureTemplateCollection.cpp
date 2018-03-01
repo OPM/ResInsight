@@ -332,7 +332,7 @@ void RimFractureTemplateCollection::initAfterRead()
         {
             if (setAllShowMeshToFalseOnAllEclipseViews)
             {
-                eclipseView->fractureColors->setShowStimPlanMesh(false);
+                eclipseView->fractureColors()->setShowStimPlanMesh(false);
                 continue;
             }
 
@@ -340,9 +340,9 @@ void RimFractureTemplateCollection::initAfterRead()
             std::map<RimStimPlanFractureTemplate*, bool> stimPlanFractureTemplatesInView;
 
             std::vector<RimFracture*> fractures;
-            if (eclipseView->wellCollection)
+            if (eclipseView->wellCollection())
             {
-                eclipseView->wellCollection->descendantsIncludingThisOfType(fractures);
+                eclipseView->wellCollection()->descendantsIncludingThisOfType(fractures);
             }
             if (fractures.empty()) continue;
 
@@ -361,7 +361,7 @@ void RimFractureTemplateCollection::initAfterRead()
 
             if (stimPlanFractureTemplatesInView.size() == 1)
             {
-                eclipseView->fractureColors->setShowStimPlanMesh(templateIt->first->showStimPlanMesh());
+                eclipseView->fractureColors()->setShowStimPlanMesh(templateIt->first->showStimPlanMesh());
             }
             else
             {
@@ -376,11 +376,11 @@ void RimFractureTemplateCollection::initAfterRead()
                 }
                 if (anySetShowStimPlanMeshIsSetToFalse)
                 {
-                    eclipseView->fractureColors->setShowStimPlanMesh(false);
+                    eclipseView->fractureColors()->setShowStimPlanMesh(false);
                 }
                 else
                 {
-                    eclipseView->fractureColors->setShowStimPlanMesh(true);
+                    eclipseView->fractureColors()->setShowStimPlanMesh(true);
                 }
             }
         }

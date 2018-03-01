@@ -75,24 +75,19 @@ class RimEclipseView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimEclipseView(void);
-    virtual ~RimEclipseView(void);
+    RimEclipseView();
+    virtual ~RimEclipseView();
 
-    // Fields containing child objects :
-
-    caf::PdmChildField<RimEclipseCellColors*>               cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>                  cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>              faultResultSettings;
-    caf::PdmChildField<RimStimPlanColors*>                  fractureColors;
-
-    caf::PdmChildField<RimSimWellInViewCollection*>         wellCollection;
-    caf::PdmChildField<RimFaultInViewCollection*>           faultCollection;
-
-    // Fields
-
-    caf::PdmField<bool>                             showInvalidCells;
-    caf::PdmField<bool>                             showInactiveCells;
-    caf::PdmField<bool>                             showMainGrid;
+    RimEclipseCellColors*                           cellResult() const;
+    RimCellEdgeColors*                              cellEdgeResult() const;
+    RimEclipseFaultColors*                          faultResultSettings() const;
+    RimStimPlanColors*                              fractureColors() const;
+    RimSimWellInViewCollection*                     wellCollection() const;
+    RimFaultInViewCollection*                       faultCollection() const;
+    
+    bool                                            showInvalidCells() const;
+    bool                                            showInactiveCells() const;
+    bool                                            showMainGrid() const;
 
     // Access internal objects
     virtual const RimPropertyFilterCollection*      propertyFilterCollection() const override;
@@ -113,7 +108,7 @@ public:
 
     // Display model generation
 
-    bool                                            isTimeStepDependentDataVisible() const;
+    bool                                            isTimeStepDependentDataVisible() const override;
 
     virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType) override;
     void                                            scheduleReservoirGridGeometryRegen();
@@ -173,6 +168,18 @@ private:
     void                                            setVisibleGridPartsWatertight();
 
 private:
+    caf::PdmField<bool>                             m_showInvalidCells;
+    caf::PdmField<bool>                             m_showInactiveCells;
+    caf::PdmField<bool>                             m_showMainGrid;
+
+    caf::PdmChildField<RimEclipseCellColors*>       m_cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>          m_cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>      m_faultResultSettings;
+    caf::PdmChildField<RimStimPlanColors*>          m_fractureColors;
+
+    caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
+
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
@@ -183,4 +190,3 @@ private:
 	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };
-

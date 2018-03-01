@@ -119,7 +119,7 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* 
     propertyFilter->firstAncestorOrThisOfTypeAsserted(reservoirView);
 
     propertyFilter->resultDefinition->setEclipseCase(reservoirView->eclipseCase());
-    propertyFilter->resultDefinition->simpleCopy(reservoirView->cellResult);
+    propertyFilter->resultDefinition->simpleCopy(reservoirView->cellResult());
 
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();

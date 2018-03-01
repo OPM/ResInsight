@@ -147,8 +147,8 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(activeView);
         if (eclipseView)
         {
-            multiSnapshot->eclipseResultType = eclipseView->cellResult->resultType();
-            multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult->resultVariable());
+            multiSnapshot->eclipseResultType = eclipseView->cellResult()->resultType();
+            multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult()->resultVariable());
 
         }
         multiSnapshot->timeStepStart = activeView->currentTimeStep();
