@@ -497,6 +497,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             if (rivObjectSourceInfo)
             {
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
+
                 {
                     bool blockSelectionOfFracture = false;
                     if (fracture)
@@ -586,7 +587,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             }
             else if (eclipseWellSourceInfo)
             {
-                RiuMainWindow::instance()->selectAsCurrentItem(eclipseWellSourceInfo->well());
+                bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
+
+                RiuMainWindow::instance()->selectAsCurrentItem(eclipseWellSourceInfo->well(), allowActiveViewChange);
             }
         }
 
