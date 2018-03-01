@@ -29,6 +29,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfVector3.h"
 
@@ -153,6 +154,13 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
     m_dFactorSummaryText.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height Scale Factor", "", "", "");
+    CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width Scale Factor", "", "", "");
+    CAF_PDM_InitField(&m_sizeScaleApplyButton, "SizeScaleApplyButton", false, "Apply", "", "", "");
+    m_sizeScaleApplyButton.xmlCapability()->disableIO();
+    m_sizeScaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_sizeScaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +304,14 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 {
     prepareFieldsForUiDisplay();
 
+    {
+        auto group = uiOrdering.addNewGroup("Scale Factors");
+        group->setCollapsedByDefault(false);
+        group->add(&m_heightScaleFactor);
+        group->add(&m_widthScaleFactor);
+        group->add(&m_sizeScaleApplyButton);
+    }
+
     auto nonDarcyFlowGroup = uiOrdering.addNewGroup("Non-Darcy Flow");
     nonDarcyFlowGroup->add(&m_nonDarcyFlowType);
     
@@ -361,6 +377,15 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
             QFont font("Monospace", 10);
             myAttr->font = font;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
+
+    if (field == &m_sizeScaleApplyButton)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
         }
     }
 }

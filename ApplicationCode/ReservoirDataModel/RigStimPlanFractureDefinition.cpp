@@ -133,6 +133,30 @@ double RigStimPlanFractureDefinition::maxY() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::scaleXs(double scaleFactor)
+{
+    // Scale using 0 as scaling anchor
+    for (double& x : m_Xs)
+    {
+        x *= scaleFactor;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::scaleYs(double scaleFactor, double wellPathIntersectionY)
+{
+    // Scale using wellPathIntersectionY as scaling anchor
+    for (double& y : m_Ys)
+    {
+        y = (y - wellPathIntersectionY) * scaleFactor + wellPathIntersectionY;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigStimPlanFractureDefinition::setTvdToTopPerf(double topPerfTvd)
 {
     m_topPerfTvd = topPerfTvd;

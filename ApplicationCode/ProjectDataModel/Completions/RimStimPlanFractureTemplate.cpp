@@ -151,6 +151,22 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             proj->createDisplayModelAndRedrawAllViews();
         }
     }
+
+    if (changedField == &m_sizeScaleApplyButton)
+    {
+        m_sizeScaleApplyButton = false;
+        loadDataAndUpdate();
+        //setDefaultsBasedOnXMLfile();
+
+        updateFractureGrid();
+
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +257,9 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
                                                                                  m_conductivityScalingFactor(),
+                                                                                 m_widthScaleFactor(),
+                                                                                 m_heightScaleFactor(),
+                                                                                 -m_wellPathDepthAtFracture(),
                                                                                  RifStimPlanXmlReader::MIRROR_AUTO,
                                                                                  fractureTemplateUnit(),
                                                                                  &errorMessage);

@@ -121,6 +121,8 @@ private:
     bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     double                                  minY() const;
     double                                  maxY() const;
+    void                                    scaleXs(double scaleFactor);
+    void                                    scaleYs(double scaleFactor, double wellPathIntersectionY);
 
 private:
     RiaEclipseUnitTools::UnitSystem         m_unitSet; // To be deleted

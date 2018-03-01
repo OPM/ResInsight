@@ -190,4 +190,8 @@ protected:
 
     caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
     caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
+
+    caf::PdmField<double>                              m_heightScaleFactor;
+    caf::PdmField<double>                              m_widthScaleFactor;
+    caf::PdmField<bool>                                m_sizeScaleApplyButton;
 };

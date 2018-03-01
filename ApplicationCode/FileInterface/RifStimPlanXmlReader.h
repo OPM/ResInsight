@@ -37,6 +37,9 @@ public:
 
     static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName,
                                                                        double conductivityScalingFactor,
+                                                                       double xScaleFactor,
+                                                                       double yScaleFactor,
+                                                                       double wellPathIntersectionY,
                                                                        MirrorMode mirrorMode,
                                                                        RiaEclipseUnitTools::UnitSystem requiredUnit,
                                                                        QString * errorMessage);

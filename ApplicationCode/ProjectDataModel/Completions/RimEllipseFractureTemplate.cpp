@@ -90,7 +90,8 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (   changedField == &m_halfLength
         || changedField == &m_height
         || changedField == &m_width
-        || changedField == &m_userDefinedEffectivePermeability)
+        || changedField == &m_userDefinedEffectivePermeability
+        || changedField == &m_sizeScaleApplyButton)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -116,8 +117,8 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
 {
     RigEllipsisTesselator tesselator(20);
 
-    float a = m_halfLength;
-    float b = m_height / 2.0f;
+    float a = m_halfLength * m_widthScaleFactor;
+    float b = m_height / 2.0f * m_heightScaleFactor;
 
     tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
 }
@@ -164,15 +165,17 @@ void RimEllipseFractureTemplate::changeUnits()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::setupFractureGridCells()
 {
-
     std::vector<RigFractureCell> fractureCells;
     std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(0, 0);
 
     int numberOfCellsX = 35;
     int numberOfCellsY = 35;
     
-    double cellSizeX = (m_halfLength * 2) / numberOfCellsX;
-    double cellSizeZ = m_height / numberOfCellsY;
+    double height = m_height * m_heightScaleFactor;
+    double halfLength = m_halfLength * m_widthScaleFactor;
+
+    double cellSizeX = (halfLength * 2) / numberOfCellsX * m_widthScaleFactor;
+    double cellSizeZ = height / numberOfCellsY * m_heightScaleFactor;
 
     double cellArea = cellSizeX * cellSizeZ;
     double areaTresholdForIncludingCell = 0.5 * cellArea;
@@ -182,10 +185,10 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
     {
         for (int j = 0; j < numberOfCellsX; j++)
         {
-            double X1 = - m_halfLength +  i    * cellSizeX;
-            double X2 = - m_halfLength + (i+1) * cellSizeX;
-            double Y1 = - m_height / 2 +  j    * cellSizeZ;
-            double Y2 = - m_height / 2 + (j+1) * cellSizeZ;
+            double X1 = - halfLength +  i    * cellSizeX;
+            double X2 = - halfLength + (i+1) * cellSizeX;
+            double Y1 = - height / 2 +  j    * cellSizeZ;
+            double Y2 = - height / 2 + (j+1) * cellSizeZ;
 
             std::vector<cvf::Vec3d> cellPolygon;
             cellPolygon.push_back(cvf::Vec3d(X1, Y1, 0.0));
