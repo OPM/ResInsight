@@ -38,6 +38,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRelocatePath-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools-Test
 )
 
 list(APPEND CODE_HEADER_FILES
