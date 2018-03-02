@@ -101,7 +101,8 @@ private:
     static bool isPressure(float principalValue);
     bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
 
-    std::array<cvf::Vec3f, 5> createArrowVertices(const TensorVisualization &tensorVisualization) const;
+    std::array<cvf::Vec3f, 5>   createArrowVertices(const TensorVisualization &tensorVisualization) const;
+    std::array<uint, 8>         createArrowIndices(uint startIndex) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;

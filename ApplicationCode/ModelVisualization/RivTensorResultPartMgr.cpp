@@ -168,6 +168,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
                         tensorVisualizations.push_back(TensorVisualization(
                             cvf::Vec3f(displayCoord), -result2, faceNormal, isPressure(elmPrincipals[1][elmIdx]), 2, elmPrincipals[1][elmIdx]));
                     }
+
                     if (isDrawable(result3, m_rimReservoirView->tensorResults()->showPrincipal3()))
                     {
                         tensorVisualizations.push_back(TensorVisualization(
@@ -304,14 +305,10 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
             vertices.push_back(vertex);
         }
 
-        indices.push_back(counter);
-        indices.push_back(counter + 1);
-        indices.push_back(counter + 2);
-        indices.push_back(counter + 3);
-        indices.push_back(counter + 3);
-        indices.push_back(counter + 4);
-        indices.push_back(counter + 4);
-        indices.push_back(counter + 2);
+        for (const uint& index : createArrowIndices(counter))
+        {
+            indices.push_back(index);
+        }
 
         counter += 5;
     }
@@ -561,4 +558,23 @@ std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const Tens
     vertices[4] = headTop;
 
     return vertices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::array<uint, 8> RivTensorResultPartMgr::createArrowIndices(uint startIndex) const
+{
+    std::array<uint, 8> indices;
+
+    indices[0] = startIndex;
+    indices[1] = startIndex + 1;
+    indices[2] = startIndex + 2;
+    indices[3] = startIndex + 3;
+    indices[4] = startIndex + 3;
+    indices[5] = startIndex + 4;
+    indices[6] = startIndex + 4;
+    indices[7] = startIndex + 2;
+
+    return indices;
 }

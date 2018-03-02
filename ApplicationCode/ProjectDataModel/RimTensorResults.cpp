@@ -224,7 +224,6 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 {
     if (changedField == &m_resultPositionTypeUiField)
     {
-        std::vector<std::string> fieldCompNames = getResultMetaDataForUIFieldSetting();
         if (m_resultPositionTypeUiField() == m_resultPositionType())
         {
             m_resultFieldNameUiField = uiFieldName(m_resultFieldName());
@@ -284,7 +283,6 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
         {
             options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldCompNames[oIdx]), QString::fromStdString(fieldCompNames[oIdx])));
         }
-
     }
 
     return options;
