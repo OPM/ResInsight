@@ -62,8 +62,8 @@ protected:
     RigMainGrid*                                    ownerCaseMainGrid() const;
 
 private:
-    void                                            updateBranchGeometry();
-    void                                            setBranchGeometry();
+    void                                            computeSimWellBranchesIfRequired();
+    void                                            computeSimWellBranchCenterLines();
 
 private:
     caf::PdmField<float>                            m_location;

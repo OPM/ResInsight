@@ -66,7 +66,7 @@ RimSimWellFracture::~RimSimWellFracture()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branchIndex)
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 
     double location = m_branchCenterLines[branchIndex].locationAlongWellCoords(position);
 
@@ -81,7 +81,7 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
     
     if (!fractureTemplate()) return;
     if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH 
@@ -117,7 +117,7 @@ double RimSimWellFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 double RimSimWellFracture::wellDipAtFracturePosition()
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
     double simWellDip = m_branchCenterLines[m_branchIndex].simWellDipAngle(fracturePosition());
     return simWellDip;
 }
@@ -127,7 +127,7 @@ double RimSimWellFracture::wellDipAtFracturePosition()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::loadDataAndUpdate()
 {
-    setBranchGeometry();
+    computeSimWellBranchCenterLines();
     updateFracturePositionFromLocation();
     updateAzimuthBasedOnWellAzimuthAngle();
 }
@@ -190,7 +190,7 @@ void RimSimWellFracture::recomputeWellCenterlineCoordinates()
 {
     m_branchCenterLines.clear();
 
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void RimSimWellFracture::recomputeWellCenterlineCoordinates()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::updateFracturePositionFromLocation()
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 
     if (m_branchCenterLines.size() > 0)
     {
@@ -258,7 +258,7 @@ void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
 
         if (myAttr)
         {
-            updateBranchGeometry();
+            computeSimWellBranchesIfRequired();
 
             if (m_branchCenterLines.size() > 0)
             {
@@ -283,7 +283,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
     {
         if (m_branchCenterLines.size() == 0)
         {
-            updateBranchGeometry();
+            computeSimWellBranchesIfRequired();
         }
 
         if (m_branchCenterLines.size() > 0)
@@ -318,18 +318,18 @@ RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::updateBranchGeometry()
+void RimSimWellFracture::computeSimWellBranchesIfRequired()
 {
     if (m_branchCenterLines.size() == 0)
     {
-        setBranchGeometry();
+        computeSimWellBranchCenterLines();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::setBranchGeometry()
+void RimSimWellFracture::computeSimWellBranchCenterLines()
 {
     m_branchCenterLines.clear();
 

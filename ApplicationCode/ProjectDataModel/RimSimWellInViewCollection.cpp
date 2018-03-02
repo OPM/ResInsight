@@ -32,7 +32,6 @@
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
@@ -470,10 +469,8 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
         for (RimSimWellInView* w : wells)
         {
-            for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
-            {
-                frac->recomputeWellCenterlineCoordinates();
-            }
+            w->simwellFractureCollection()->recomputeSimWellCenterlines();
+
         }
     }
 }

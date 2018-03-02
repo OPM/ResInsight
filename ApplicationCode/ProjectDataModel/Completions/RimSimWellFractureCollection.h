@@ -40,4 +40,5 @@ public:
 
     void                                            deleteFractures();
 
+    void recomputeSimWellCenterlines();
 };
