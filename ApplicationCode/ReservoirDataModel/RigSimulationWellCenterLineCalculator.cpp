@@ -40,13 +40,14 @@
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(RimSimWellInView* rimWell, 
-                                                                        std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                                        std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
+    RimSimWellInView*                             rimWell,
+    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
+    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds)
 {
     CVF_ASSERT(rimWell);
 
-    const RigSimWellData*  simWellData = rimWell->simWellData();
+    const RigSimWellData* simWellData = rimWell->simWellData();
 
     RimEclipseView* eclipseView;
     rimWell->firstAncestorOrThisOfType(eclipseView);
@@ -54,17 +55,17 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
     CVF_ASSERT(eclipseView);
 
     RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->eclipseCaseData();
-    bool isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
+    bool                isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
-    bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();
-    int timeStepIndex = -1;
+    bool useAllCellCenters = rimWell->isUsingCellCenterForPipe();
+    int  timeStepIndex     = -1;
 
     calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
                                              simWellData,
                                              timeStepIndex,
                                              isAutoDetectBranches,
                                              useAllCellCenters,
-                                             pipeBranchesCLCoords, 
+                                             pipeBranchesCLCoords,
                                              pipeBranchesCellIds);
 }
 
