@@ -353,7 +353,7 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
+RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
 {
     RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType(eclipseView);
@@ -411,12 +411,14 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * hori
         {
             updateSimulationWellCenterline();
 
-            if (0 <= m_branchIndex && m_branchIndex < static_cast<int>(m_simulationWellBranchCenterlines.size()))
+            int branchIndexToUse = branchIndex();
+
+            if (0 <= branchIndexToUse && branchIndexToUse < static_cast<int>(m_simulationWellBranchCenterlines.size()))
             {
-                lines.push_back(m_simulationWellBranchCenterlines[m_branchIndex]);
+                lines.push_back(m_simulationWellBranchCenterlines[branchIndexToUse]);
             }
 
-            if (m_branchIndex == -1)
+            if (branchIndexToUse == -1)
             {
                 lines = m_simulationWellBranchCenterlines;
             }
@@ -587,9 +589,9 @@ void RimIntersection::updateName()
     if (type == CS_SIMULATION_WELL && simulationWell())
     {
         name = simulationWell()->name();
-        if (m_branchIndex() != -1)
+        if (branchIndex() != -1)
         { 
-            name = name() + " Branch " + QString::number(m_branchIndex() + 1);
+            name = name() + " Branch " + QString::number(branchIndex() + 1);
         }
     }
     else if (type() == CS_WELL_PATH && wellPath())
@@ -656,6 +658,26 @@ void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine, double 
     }
  
     polyLine.swap(clippedPolyLine);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimIntersection::branchIndex() const
+{
+    RimSimWellInViewCollection* coll = simulationWellCollection();
+
+    if (coll && !coll->isAutoDetectingBranches())
+    {
+        return -1;
+    }
+
+    if (m_branchIndex >= m_simulationWellBranchCenterlines.size())
+    {
+        return -1;
+    }
+
+    return m_branchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -881,7 +903,6 @@ void RimIntersection::recomputeSimulationWellBranchData()
     {
         m_simulationWellBranchCenterlines.clear();
         updateSimulationWellCenterline();
-        m_branchIndex = -1;
 
         m_crossSectionPartMgr = nullptr;
     }

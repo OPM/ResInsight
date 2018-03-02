@@ -114,7 +114,10 @@ protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
                                             
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-                                            
+
+private:
+    int                                     branchIndex() const;
+
 private:                                    
     caf::PdmField<int>                      m_branchIndex;
     caf::PdmField<double>                   m_extentLength;
@@ -130,7 +133,7 @@ private:
     static void                             setPushButtonText(bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute);
     static void                             setBaseColor(bool enable, caf::PdmUiListEditorAttribute* attribute);
 
-    RimSimWellInViewCollection*             simulationWellCollection();
+    RimSimWellInViewCollection*             simulationWellCollection() const;
     void                                    updateAzimuthLine();
     void                                    updateSimulationWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
