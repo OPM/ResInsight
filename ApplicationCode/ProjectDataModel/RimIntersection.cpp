@@ -155,9 +155,7 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         || changedField == &isActive 
         || changedField == &type)
     {
-        m_wellBranchCenterlines.clear();
-        updateWellCenterline();
-        m_branchIndex = -1;
+        recomputeSimulationWellBranchData();
     }
 
     if (changedField == &simulationWell 
@@ -231,8 +229,8 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (type == CS_SIMULATION_WELL)
     {
         geometryGroup->add(&simulationWell);
-        updateWellCenterline();
-        if (simulationWell() && m_wellBranchCenterlines.size() > 1)
+        updateSimulationWellCenterline();
+        if (simulationWell() && m_simulationWellBranchCenterlines.size() > 1)
         {
             geometryGroup->add(&m_branchIndex);
         }
@@ -322,9 +320,9 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        updateWellCenterline();
+        updateSimulationWellCenterline();
 
-        size_t branchCount = m_wellBranchCenterlines.size();
+        size_t branchCount = m_simulationWellBranchCenterlines.size();
         
         options.push_back(caf::PdmOptionItemInfo("All", -1));
 
@@ -411,16 +409,16 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * hori
     {
         if (simulationWell())
         {
-            updateWellCenterline();
+            updateSimulationWellCenterline();
 
-            if (0 <= m_branchIndex && m_branchIndex < static_cast<int>(m_wellBranchCenterlines.size()))
+            if (0 <= m_branchIndex && m_branchIndex < static_cast<int>(m_simulationWellBranchCenterlines.size()))
             {
-                lines.push_back(m_wellBranchCenterlines[m_branchIndex]);
+                lines.push_back(m_simulationWellBranchCenterlines[m_branchIndex]);
             }
 
             if (m_branchIndex == -1)
             {
-                lines = m_wellBranchCenterlines;
+                lines = m_simulationWellBranchCenterlines;
             }
         }
     }
@@ -488,32 +486,35 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLinesForExtrusionDi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateWellCenterline() const
+void RimIntersection::updateSimulationWellCenterline() const
 {
     if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
     {
-        if (m_wellBranchCenterlines.size() == 0)
+        if (m_simulationWellBranchCenterlines.size() == 0)
         {
             RimEclipseCase* rimEclCase = nullptr;
             simulationWell->firstAncestorOrThisOfType(rimEclCase);
             if (rimEclCase)
             {
-                bool includeCellCenters = false;
-                bool detectBrances = true;
+                RimSimWellInViewCollection* simWellCollection = nullptr;
+                simulationWell->firstAncestorOrThisOfTypeAsserted(simWellCollection);
+
+                bool includeCellCenters = simulationWell->isUsingCellCenterForPipe();
+                bool detectBrances = simWellCollection->isAutoDetectingBranches;
 
                 RigEclipseCaseData* caseData = rimEclCase->eclipseCaseData();
                 auto branches = caseData->simulationWellBranches(simulationWell->name, includeCellCenters, detectBrances);
 
                 for (auto b : branches)
                 {
-                    m_wellBranchCenterlines.push_back(b->m_wellPathPoints);
+                    m_simulationWellBranchCenterlines.push_back(b->m_wellPathPoints);
                 }
             }
         }
     }
     else
     {
-        m_wellBranchCenterlines.clear();
+        m_simulationWellBranchCenterlines.clear();
     }
 }
 
@@ -882,6 +883,21 @@ double RimIntersection::lengthDown() const
 void RimIntersection::setLengthDown(double lengthDown)
 {
     m_lengthDown = lengthDown;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::recomputeSimulationWellBranchData()
+{
+    if (type() == CS_SIMULATION_WELL)
+    {
+        m_simulationWellBranchCenterlines.clear();
+        updateSimulationWellCenterline();
+        m_branchIndex = -1;
+
+        m_crossSectionPartMgr = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

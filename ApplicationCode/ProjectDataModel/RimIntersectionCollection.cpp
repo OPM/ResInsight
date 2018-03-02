@@ -19,8 +19,8 @@
 
 #include "RimIntersectionCollection.h"
 
-#include "Rim2dIntersectionViewCollection.h"
 #include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimIntersection.h"
@@ -165,6 +165,17 @@ std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
 std::vector<RimIntersectionBox*> RimIntersectionCollection::intersectionBoxes() const
 {
     return m_intersectionBoxes.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::recomputeSimWellBranchData()
+{
+    for (const auto& intersection : intersections())
+    {
+        intersection->recomputeSimulationWellBranchData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

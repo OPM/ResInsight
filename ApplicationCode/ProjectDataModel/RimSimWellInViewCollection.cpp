@@ -28,12 +28,14 @@
 #include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
-#include "RimSimWellInView.h"
-#include "RimWellAllocationPlot.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
+#include "RimSimWellInView.h"
+#include "RimWellAllocationPlot.h"
 
 #include "RiuMainWindow.h"
 
@@ -41,7 +43,6 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
-#include "RimEclipseResultCase.h"
 
 
 namespace caf
@@ -460,8 +461,13 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
 
-    if (&wellPipeCoordType == changedField)
+    if (&wellPipeCoordType == changedField || &isAutoDetectingBranches == changedField)
     {
+        if (m_reservoirView)
+        {
+            m_reservoirView->crossSectionCollection()->recomputeSimWellBranchData();
+        }
+
         for (RimSimWellInView* w : wells)
         {
             for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())

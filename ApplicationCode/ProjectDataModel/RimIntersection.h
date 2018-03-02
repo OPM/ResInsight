@@ -101,6 +101,8 @@ public:
     void                                                 setLengthUp(double heightUp);
     void                                                 setLengthDown(double heightDown);
 
+    void                                                 recomputeSimulationWellBranchData();
+
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
@@ -130,7 +132,7 @@ private:
 
     RimSimWellInViewCollection*             simulationWellCollection();
     void                                    updateAzimuthLine();
-    void                                    updateWellCenterline() const;
+    void                                    updateSimulationWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLinee, double * horizontalLengthAlongWellToClipPoint) const;
@@ -141,5 +143,5 @@ private:
     cvf::ref<RivIntersectionPartMgr>        m_crossSectionPartMgr;
     
     mutable 
-    std::vector< std::vector <cvf::Vec3d> > m_wellBranchCenterlines;
+    std::vector< std::vector <cvf::Vec3d> > m_simulationWellBranchCenterlines;
 };
