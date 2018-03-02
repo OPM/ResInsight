@@ -1385,7 +1385,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     if (oilfield && oilfield->fractureDefinitionCollection().notNull())
     {
-        if (!oilfield->fractureDefinitionCollection()->fractureDefinitions.empty())
+        if (!oilfield->fractureDefinitionCollection()->fractureTemplates().empty())
         {
             uiTreeOrdering.add(fractureColors());
         }

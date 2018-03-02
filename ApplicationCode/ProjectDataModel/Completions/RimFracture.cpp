@@ -416,7 +416,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
         {
             RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
 
-            for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+            for (RimFractureTemplate* fracDef : fracDefColl->fractureTemplates())
             {
                 QString displayText = fracDef->nameAndUnit();
                 if (fracDef->fractureTemplateUnit() != fractureUnit())

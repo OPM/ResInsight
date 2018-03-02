@@ -377,6 +377,7 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     }
     
     uiOrdering.add(&m_name);
+    uiOrdering.add(&m_id);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&m_halfLength);

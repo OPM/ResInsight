@@ -73,12 +73,12 @@ void RicPasteEllipseFractureFeature::onActionTriggered(bool isChecked)
 
     for (const auto& source : typedObjects)
     {
-        auto rimReservoirView = dynamic_cast<RimEllipseFractureTemplate*>(
+        auto templ = dynamic_cast<RimEllipseFractureTemplate*>(
             source->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
 
-        fractureTemplateColl->fractureDefinitions.push_back(rimReservoirView);
+        fractureTemplateColl->addFractureTemplate(templ);
 
-        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateColl, rimReservoirView);
+        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateColl, templ);
     }
 
     return;

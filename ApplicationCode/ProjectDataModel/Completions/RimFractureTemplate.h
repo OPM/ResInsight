@@ -104,6 +104,7 @@ public:
     RimFractureTemplate();
     virtual ~RimFractureTemplate();
 
+    int                             id() const;
     QString                         name() const;
     QString                         nameAndUnit() const;
 
@@ -142,7 +143,7 @@ public:
     virtual void                    loadDataAndUpdate() = 0;
 
     void                            disconnectAllFracturesAndRedrawViews() const;
-
+    void                            setId(int id);
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
@@ -161,6 +162,7 @@ private:
     double                          fractureWidth() const;
 
 protected:
+    caf::PdmField<int>                                 m_id;
     caf::PdmField<QString>                             m_name;
     caf::PdmProxyValueField<QString>                   m_nameAndUnit;
 

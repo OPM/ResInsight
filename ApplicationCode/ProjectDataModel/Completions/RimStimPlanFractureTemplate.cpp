@@ -734,6 +734,7 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon()
 void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_name);
+    uiOrdering.add(&m_id);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("Input");
     fileGroup->add(&m_stimPlanFileName);
