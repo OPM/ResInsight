@@ -87,23 +87,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 {
     std::vector<RigCompletionData> completionData;
 
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
-    
-    RimEclipseView* view = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted(view);
-    
-    size_t timeStep = view->currentTimeStep();
+    auto branches = well->wellPipeBranches();
 
-    well->calculateWellPipeDynamicCenterLine(timeStep, pipeBranchesCLCoords, pipeBranchesCellIds);
-
-    for (size_t branchIndex = 0; branchIndex < pipeBranchesCLCoords.size(); ++branchIndex)
+    for (size_t branchIndex = 0; branchIndex < branches.size(); ++branchIndex)
     {
-        RigSimulationWellCoordsAndMD coordsAndMD(pipeBranchesCLCoords[branchIndex]);
-        RigWellPath wellPathGeometry;
-        wellPathGeometry.m_wellPathPoints = coordsAndMD.wellPathPoints();
-        wellPathGeometry.m_measuredDepths = coordsAndMD.measuredDepths();
-
         std::vector<RimFracture*> fractures;
         for (RimSimWellFracture* fracture : well->simwellFractureCollection->simwellFractures())
         {
@@ -113,7 +100,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             }
         }
 
-        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(eclipseCase, well->name(), &wellPathGeometry, fractures, outputStreamForIntermediateResultsText);
+        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(eclipseCase, well->name(), branches[branchIndex], fractures, outputStreamForIntermediateResultsText);
 
         completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
     }

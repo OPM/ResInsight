@@ -156,25 +156,31 @@ caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
+{
+    RimSimWellInViewCollection* simWellCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(simWellCollection);
+
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    CVF_ASSERT(caseData);
+
+    bool includeCellCenters = this->isUsingCellCenterForPipe();
+    bool detectBrances      = simWellCollection->isAutoDetectingBranches;
+
+    return caseData->simulationWellBranches(this->name(), includeCellCenters, detectBrances);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds)
 {
     RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(this,
                                                                              pipeBranchesCLCoords, 
                                                                              pipeBranchesCellIds);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSimWellInView::calculateWellPipeDynamicCenterLine(size_t                                        timeStepIdx,
-                                                          std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds) const
-{
-    RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(this, 
-                                                                              static_cast<int>(timeStepIdx),
-                                                                              pipeBranchesCLCoords, 
-                                                                              pipeBranchesCellIds);
 }
 
 //--------------------------------------------------------------------------------------------------

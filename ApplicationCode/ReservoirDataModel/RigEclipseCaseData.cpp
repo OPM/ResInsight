@@ -474,7 +474,7 @@ bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName,
                                                                            bool           includeAllCellCenters,
-                                                                           bool           useAutoDetectionOfBranches)
+                                                                           bool           useAutoDetectionOfBranches) const
 {
     std::vector<const RigWellPath*> branches;
 

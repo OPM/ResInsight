@@ -490,25 +490,12 @@ void RimIntersection::updateSimulationWellCenterline() const
 {
     if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
     {
-        if (m_simulationWellBranchCenterlines.size() == 0)
+        if (m_simulationWellBranchCenterlines.empty())
         {
-            RimEclipseCase* rimEclCase = nullptr;
-            simulationWell->firstAncestorOrThisOfType(rimEclCase);
-            if (rimEclCase)
+            auto branches = simulationWell->wellPipeBranches();
+            for (const auto& branch : branches)
             {
-                RimSimWellInViewCollection* simWellCollection = nullptr;
-                simulationWell->firstAncestorOrThisOfTypeAsserted(simWellCollection);
-
-                bool includeCellCenters = simulationWell->isUsingCellCenterForPipe();
-                bool detectBrances = simWellCollection->isAutoDetectingBranches;
-
-                RigEclipseCaseData* caseData = rimEclCase->eclipseCaseData();
-                auto branches = caseData->simulationWellBranches(simulationWell->name, includeCellCenters, detectBrances);
-
-                for (auto b : branches)
-                {
-                    m_simulationWellBranchCenterlines.push_back(b->m_wellPathPoints);
-                }
+                m_simulationWellBranchCenterlines.push_back(branch->m_wellPathPoints);
             }
         }
     }

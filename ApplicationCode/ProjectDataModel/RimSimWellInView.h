@@ -37,6 +37,7 @@ class RigWellResultFrame;
 struct RigWellResultPoint;
 
 class RimSimWellFractureCollection;
+class RigWellPath;
 
 //==================================================================================================
 ///  
@@ -64,12 +65,10 @@ public:
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;
 
+    std::vector<const RigWellPath*>     wellPipeBranches() const;
+
     void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                                            std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
-
-    void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
-                                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const;
 
     void                                wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
     double                              pipeRadius();
