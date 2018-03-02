@@ -660,6 +660,15 @@ void RimFractureTemplate::setId(int id)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setScaleFactors(double width, double height)
+{
+    m_widthScaleFactor = width;
+    m_heightScaleFactor = height;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)

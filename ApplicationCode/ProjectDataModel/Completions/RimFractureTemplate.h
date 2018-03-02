@@ -144,6 +144,8 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
+    void                            setScaleFactors(double width, double height);
+    virtual void                    reload() {}
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;

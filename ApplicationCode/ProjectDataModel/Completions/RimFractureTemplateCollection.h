@@ -38,6 +38,7 @@ public:
     RimFractureTemplateCollection(void);
     virtual ~RimFractureTemplateCollection(void);
 
+    RimFractureTemplate*                        fractureTemplate(int id) const;
     std::vector<RimFractureTemplate*>           fractureTemplates() const;
     void                                        addFractureTemplate(RimFractureTemplate* templ);
     RiaEclipseUnitTools::UnitSystemType         defaultUnitSystemType() const;

@@ -91,6 +91,7 @@ public:
 
 
     void                                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+    virtual void                            reload() override;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

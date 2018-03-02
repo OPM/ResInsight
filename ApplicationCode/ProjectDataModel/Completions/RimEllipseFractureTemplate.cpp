@@ -93,16 +93,12 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
         || changedField == &m_userDefinedEffectivePermeability
         || changedField == &m_sizeScaleApplyButton)
     {
+        m_sizeScaleApplyButton = false;
+
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
-        RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
-        {
-            //Regenerate geometry
-            proj->createDisplayModelAndRedrawAllViews();
-            setupFractureGridCells();
-        }
+        reload();
     }
+
     if (changedField == &m_width || changedField == &m_userDefinedEffectivePermeability)
     {
         setupFractureGridCells();
@@ -320,6 +316,21 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
     propertyNamesAndUnits.push_back(std::make_pair(RiaDefines::conductivityResultName(), condUnit));
 
     return propertyNamesAndUnits;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::reload()
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        //Regenerate geometry
+        proj->createDisplayModelAndRedrawAllViews();
+        setupFractureGridCells();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

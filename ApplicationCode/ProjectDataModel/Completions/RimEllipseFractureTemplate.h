@@ -64,6 +64,7 @@ public:
 
     void                    loadDataAndUpdate() override;
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
+    virtual void            reload() override;
 
 protected:
     void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

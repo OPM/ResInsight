@@ -155,17 +155,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     if (changedField == &m_sizeScaleApplyButton)
     {
         m_sizeScaleApplyButton = false;
-        loadDataAndUpdate();
-        //setDefaultsBasedOnXMLfile();
-
-        updateFractureGrid();
-
-        RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
-        {
-            proj->createDisplayModelAndRedrawAllViews();
-        }
+        reload();
     }
 }
 
@@ -546,6 +536,22 @@ void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitS
     {
         m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::reload()
+{
+    loadDataAndUpdate();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

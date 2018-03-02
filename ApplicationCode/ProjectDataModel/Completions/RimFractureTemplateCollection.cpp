@@ -75,6 +75,18 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate(int id) const
+{
+    for (auto templ : m_fractureDefinitions)
+    {
+        if (templ->id() == id) return templ;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimFractureTemplate*> RimFractureTemplateCollection::fractureTemplates() const
 {
     std::vector<RimFractureTemplate*> templates;
