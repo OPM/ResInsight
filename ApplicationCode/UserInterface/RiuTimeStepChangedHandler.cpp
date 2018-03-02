@@ -17,11 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuTimeStepChangedHandler.h"
+
 #include "RiuMainWindow.h"
-#include "RiuRelativePermeabilityPlotPanel.h"
-#include "RiuRelativePermeabilityPlotUpdater.h"
+#include "RiuMohrsCirclePlot.h"
 #include "RiuPvtPlotPanel.h"
 #include "RiuPvtPlotUpdater.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuRelativePermeabilityPlotUpdater.h"
 
 #include "Rim3dView.h"
 
@@ -70,6 +72,9 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged(Rim3dView* changedView) co
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnTimeStepChanged(changedView);
+
+    RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
+    mohrsCirclePlot->updateOnTimeStepChanged(changedView);
 
     //tim.reportTimeMS("done");
 }

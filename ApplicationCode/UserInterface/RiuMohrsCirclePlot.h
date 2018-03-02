@@ -34,6 +34,8 @@ class QwtPlotTextLabel;
 class QwtRoundScaleDraw;
 class RimGeoMechView;
 class RiuSelectionItem;
+class Rim3dView;
+class RimGeoMechView;
 
 //==================================================================================================
 //
@@ -50,6 +52,8 @@ public:
 
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
     void clearPlot();
+
+    void updateOnTimeStepChanged(Rim3dView* changedView);
 
 public:
     struct MohrsCirclesInfo
@@ -86,6 +90,8 @@ private:
     static float calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion);
 
     QColor envelopeColor(RimGeoMechView* view);
+
+    void deletePlotItems();
     
 private:
     std::vector<QwtPlotItem*>  m_circlePlotItems;
@@ -95,6 +101,8 @@ private:
     std::map<RimGeoMechView*, QColor>        m_envolopeColors;
 
     std::vector<MohrsCirclesInfo> m_mohrsCiclesInfos;
+
+    RimGeoMechView* m_sourceGeoMechViewOfLastPlot;
 
     QwtPlotRescaler* m_rescaler;
 };

@@ -60,7 +60,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
-    : QwtPlot(parent)
+    : QwtPlot(parent), m_sourceGeoMechViewOfLastPlot(nullptr)
 {
     RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
 
@@ -91,11 +91,11 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 {
-    deleteCircles();
-    deleteEnvelopes();
+    deletePlotItems();
+
     if (m_rescaler)
     {
-    delete m_rescaler;
+        delete m_rescaler;
     }
 }
 
@@ -105,7 +105,9 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* selectionItem)
 {
     const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
-
+    
+    m_sourceGeoMechViewOfLastPlot = nullptr;
+    
     if (!geoMechSelectionItem)
     {
         this->clearPlot();
@@ -122,6 +124,8 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
         const cvf::Color3f color     = geoMechSelectionItem->m_color;
 
         queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
+        
+        m_sourceGeoMechViewOfLastPlot = geoMechView;
     }
     else
     {
@@ -134,12 +138,40 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::clearPlot()
 {
-    m_mohrsCiclesInfos.clear();
-
-    deleteCircles();
-    deleteEnvelopes();
+    deletePlotItems();
 
     this->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::updateOnTimeStepChanged(Rim3dView* changedView)
+{
+    if (!this->isVisible())
+    {
+        return;
+    }
+
+    // Don't update the plot if the view that changed time step is different from the view that was the source of the current plot
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(changedView);
+    if (!geoMechView || geoMechView != m_sourceGeoMechViewOfLastPlot)
+    {
+        return;
+    }
+
+    // Fetch the current global selection and only continue if the selection's view matches the view with time step change
+    const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
+    if (geoMechSelectionItem && geoMechSelectionItem->m_view == geoMechView)
+    {
+        const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
+        const size_t gridCellIndex = geoMechSelectionItem->m_cellIndex;
+        const cvf::Color3f color = geoMechSelectionItem->m_color;
+
+        deletePlotItems();
+
+        queryDataAndUpdatePlot(geoMechView, gridIndex, gridCellIndex, cvf::Color3ub(color));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +369,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
                                                 const cvf::Color3ub& color)
 {
     CVF_ASSERT(geoMechView);
+    m_sourceGeoMechViewOfLastPlot = geoMechView;
 
     RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
 
@@ -513,7 +546,8 @@ void RiuMohrsCirclePlot::replotAndScaleAxis()
 
     updateTransparentCurvesOnPrincipals();
 
-     this->replot();
+    //Replotting must be done before rescaling
+    this->replot();
     m_rescaler->rescale();
     this->plotLayout()->setAlignCanvasToScales(true);
 }
@@ -586,3 +620,15 @@ QColor RiuMohrsCirclePlot::envelopeColor(RimGeoMechView* view)
 
     return m_envolopeColors[view];
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::deletePlotItems()
+{
+    m_mohrsCiclesInfos.clear();
+
+    deleteCircles();
+    deleteEnvelopes();
+}
+
