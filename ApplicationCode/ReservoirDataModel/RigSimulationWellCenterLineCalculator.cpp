@@ -44,18 +44,6 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
-    calculateWellPipeDynamicCenterline(rimWell, -1, pipeBranchesCLCoords, pipeBranchesCellIds);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimSimWellInView* rimWell, 
-                                                                               int timeStepIndex, 
-                                                                               std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                                               std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
-{
     CVF_ASSERT(rimWell);
 
     const RigSimWellData*  simWellData = rimWell->simWellData();
@@ -69,6 +57,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
     bool isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
     bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();
+    int timeStepIndex = -1;
 
     calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
                                              simWellData,
