@@ -251,7 +251,14 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
         const RigFractureCell* cell         = getFractureCellAtDomainCoord(domainIntersectionPoint);
         RimStimPlanColors* stimPlanColors   = activeView.fractureColors();
 
-        QString condValueText   = cell ? QString::number(cell->getConductivtyValue()) : "-";
+        QString resultNameFromColors = activeView.fractureColors()->uiResultName();
+        QString resultUnitFromColors = activeView.fractureColors()->unit();
+
+        double resultValue = stimPlanTemplate->resultValueAtIJ(
+            resultNameFromColors, resultUnitFromColors, stimPlanTemplate->activeTimeStepIndex(), cell->getI(), cell->getJ());
+
+        QString resultValueText = QString("%1").arg(resultValue);
+
         QString iText           = cell ? QString::number(cell->getI()) : "-";
         QString jText           = cell ? QString::number(cell->getJ()) : "-";
 
@@ -260,7 +267,7 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
 
         QString resultName = stimPlanTemplate->mapUiResultNameToFileResultName(stimPlanColors->uiResultName());
         text.append(resultName + " ");
-        text.append(condValueText + "\n");
+        text.append(resultValueText + "\n");
 
         // Cell index
         text.append("Cell Index: ");

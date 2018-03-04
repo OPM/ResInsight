@@ -649,6 +649,26 @@ bool RimStimPlanFractureTemplate::hasConductivity() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j)
+{
+    auto values = resultValues(uiResultName, unitName, timeStepIndex);
+
+    if (values.empty()) return HUGE_VAL;
+
+    size_t adjustedI = i + 1;
+    size_t adjustedJ = j + 1;
+
+    if (adjustedI >= fractureGrid()->iCellCount() || adjustedJ >= fractureGrid()->jCellCount())
+    {
+        return HUGE_VAL;
+    }
+
+    return values[adjustedJ][adjustedI];
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::appendDataToResultStatistics(const QString& uiResultName, const QString& unit,

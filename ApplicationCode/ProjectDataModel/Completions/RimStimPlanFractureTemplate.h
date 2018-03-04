@@ -78,6 +78,7 @@ public:
     std::vector<std::vector<double>>        resultValues(const QString& uiResultName, const QString& unitName, size_t timeStepIndex) const;
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
+    double                                  resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j);
 
     void                                    appendDataToResultStatistics(const QString& uiResultName, 
                                                                          const QString& unit,
