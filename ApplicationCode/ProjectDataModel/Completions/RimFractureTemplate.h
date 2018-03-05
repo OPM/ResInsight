@@ -147,7 +147,7 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
-    void                            setScaleFactors(double width, double height, double dFactor);
+    void                            setScaleFactors(double width, double height, double dFactor, double conductivity);
     virtual void                    reload() {}
 
 protected:
@@ -156,6 +156,8 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+
+    virtual bool                    supportsConductivityScaling() const { return false; }
 
 private:
     void                            prepareFieldsForUiDisplay();
@@ -201,5 +203,6 @@ protected:
     caf::PdmField<double>                              m_heightScaleFactor;
     caf::PdmField<double>                              m_widthScaleFactor;
     caf::PdmField<double>                              m_dFactorScaleFactor;
+    caf::PdmField<double>                              m_conductivityScaleFactor;
     caf::PdmField<bool>                                m_scaleApplyButton;
 };

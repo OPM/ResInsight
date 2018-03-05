@@ -100,6 +100,8 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
+    virtual bool                            supportsConductivityScaling() const override { return true; }
+
 private:
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
@@ -118,7 +120,6 @@ private:
 
     caf::PdmField<QString>                  m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
-    caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
 

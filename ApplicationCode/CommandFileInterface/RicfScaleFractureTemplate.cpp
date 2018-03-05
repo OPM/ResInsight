@@ -33,10 +33,11 @@ CAF_PDM_SOURCE_INIT(RicfScaleFractureTemplate, "scaleFractureTemplate");
 //--------------------------------------------------------------------------------------------------
 RicfScaleFractureTemplate::RicfScaleFractureTemplate()
 {
-    RICF_InitField(&m_id,                   "id",  -1, "Id",  "", "", "");
-    RICF_InitField(&m_widthScaleFactor,     "width", 1.0, "WidthScaleFactor",  "", "", "");
-    RICF_InitField(&m_heightScaleFactor,    "height", 1.0, "HeightScaleFactor", "", "", "");
-    RICF_InitField(&m_dFactorScaleFactor,   "dFactor", 1.0, "DFactorScaleFactor", "", "", "");
+    RICF_InitField(&m_id,                       "id",  -1, "Id",  "", "", "");
+    RICF_InitField(&m_widthScaleFactor,         "width", 1.0, "WidthScaleFactor",  "", "", "");
+    RICF_InitField(&m_heightScaleFactor,        "height", 1.0, "HeightScaleFactor", "", "", "");
+    RICF_InitField(&m_dFactorScaleFactor,       "dFactor", 1.0, "DFactorScaleFactor", "", "", "");
+    RICF_InitField(&m_conductivityScaleFactor,  "conductivity", 1.0, "ConductivityScaleFactor", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +68,6 @@ void RicfScaleFractureTemplate::execute()
         return;
     }
 
-    templ->setScaleFactors(m_widthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor);
+    templ->setScaleFactors(m_widthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor, m_conductivityScaleFactor);
     templ->reload();
 }

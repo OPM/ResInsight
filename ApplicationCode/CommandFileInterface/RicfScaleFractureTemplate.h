@@ -43,4 +43,5 @@ private:
     caf::PdmField<double>           m_widthScaleFactor;
     caf::PdmField<double>           m_heightScaleFactor;
     caf::PdmField<double>           m_dFactorScaleFactor;
+    caf::PdmField<double>           m_conductivityScaleFactor;
 };

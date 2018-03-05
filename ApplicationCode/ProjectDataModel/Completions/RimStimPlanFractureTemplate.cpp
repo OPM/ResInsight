@@ -71,7 +71,6 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_borderPolygonResultName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_activeTimeStepIndex,           "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
-    CAF_PDM_InitField(&m_conductivityScalingFactor,     "ConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
     CAF_PDM_InitField(&m_conductivityResultNameOnFile,  "ConductivityResultName", QString(""), "Active Conductivity Result Name", "", "", "");
 
     CAF_PDM_InitField(&m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "");
@@ -130,15 +129,9 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
     }
 
-    if (&m_conductivityScalingFactor == changedField)
-    {
-        loadDataAndUpdate();
-    }
-
     if (&m_wellPathDepthAtFracture == changedField 
         || &m_borderPolygonResultName == changedField 
         || &m_activeTimeStepIndex == changedField 
-        || &m_conductivityScalingFactor == changedField
         || &m_stimPlanFileName == changedField
         || &m_conductivityResultNameOnFile == changedField)
     {
@@ -246,7 +239,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     if (m_readError) return;
 
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
-                                                                                 m_conductivityScalingFactor(),
+                                                                                 m_conductivityScaleFactor(),
                                                                                  m_widthScaleFactor(),
                                                                                  m_heightScaleFactor(),
                                                                                  -m_wellPathDepthAtFracture(),
@@ -791,7 +784,6 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_conductivityResultNameOnFile);
-    propertyGroup->add(&m_conductivityScalingFactor);
     propertyGroup->add(&m_conductivityType);
     propertyGroup->add(&m_skinFactor);
     propertyGroup->add(&m_perforationLength);

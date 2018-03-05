@@ -161,7 +161,9 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "");
     CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width", "", "", "");
     CAF_PDM_InitField(&m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "");
+    CAF_PDM_InitField(&m_conductivityScaleFactor, "ConductivityFactor", 1.0, "Conductivity", "", "The conductivity values read from file will be scaled with this parameters", "");
     CAF_PDM_InitField(&m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "");
+
     m_scaleApplyButton.xmlCapability()->disableIO();
     m_scaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_scaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -322,6 +324,11 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         group->add(&m_heightScaleFactor);
         group->add(&m_widthScaleFactor);
         group->add(&m_dFactorScaleFactor);
+
+        if (supportsConductivityScaling())
+        {
+            group->add(&m_conductivityScaleFactor);
+        }
         group->add(&m_scaleApplyButton);
     }
 
@@ -668,11 +675,12 @@ void RimFractureTemplate::setId(int id)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setScaleFactors(double width, double height, double dFactor)
+void RimFractureTemplate::setScaleFactors(double width, double height, double dFactor, double conductivity)
 {
     m_widthScaleFactor = width;
     m_heightScaleFactor = height;
     m_dFactorScaleFactor = dFactor;
+    m_conductivityScaleFactor = supportsConductivityScaling() ? conductivity : 1.0;
 }
 
 //--------------------------------------------------------------------------------------------------
