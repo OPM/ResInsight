@@ -686,6 +686,22 @@ void RimFractureTemplate::setScaleFactors(double width, double height, double dF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setContainmentTopKLayer(int topKLayer)
+{
+    m_fractureContainment->setTopKLayer(topKLayer);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setContainmentBaseKLayer(int baseKLayer)
+{
+    m_fractureContainment->setBaseKLayer(baseKLayer);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)

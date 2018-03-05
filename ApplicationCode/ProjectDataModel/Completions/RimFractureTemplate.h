@@ -150,6 +150,9 @@ public:
     void                            setScaleFactors(double width, double height, double dFactor, double conductivity);
     virtual void                    reload() {}
 
+    void                            setContainmentTopKLayer(int topKLayer);
+    void                            setContainmentBaseKLayer(int baseKLayer);
+
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
