@@ -62,8 +62,6 @@ public:
     bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE;}
     bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
 
-    bool isCompaction() const { return refKLayerIndex > NO_COMPACTION; }
-
     bool isValid() const
     {
         bool isTypeValid =     resultPosType == RIG_NODAL 
