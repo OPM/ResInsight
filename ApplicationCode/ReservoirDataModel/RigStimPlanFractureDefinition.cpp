@@ -155,7 +155,7 @@ void RigStimPlanFractureDefinition::scaleYs(double scaleFactor, double wellPathI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStimPlanFractureDefinition::setTvdToTopPerf(double topPerfTvd)
 {
@@ -276,21 +276,85 @@ std::vector<std::pair<QString, QString> > RigStimPlanFractureDefinition::getStim
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>>
+    RigStimPlanFractureDefinition::conductivityValuesAtTimeStep(const QString&                  resultName,
+                                                                int                             activeTimeStepIndex,
+                                                                RiaEclipseUnitTools::UnitSystem requiredUnitSet) const
+{
+    std::vector<std::vector<double>> conductivityValues;
+
+    QString conductivityUnitTextOnFile;
+
+    std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = this->getStimPlanPropertyNamesUnits();
+    for (auto properyNameUnit : propertyNamesUnitsOnFile)
+    {
+        if (resultName == properyNameUnit.first)
+        {
+            conductivityUnitTextOnFile = properyNameUnit.second;
+        }
+    }
+
+    if (conductivityUnitTextOnFile.isEmpty())
+    {
+        RiaLogging::error("Did not find unit for conductivity on file");
+
+        return conductivityValues;
+    }
+
+    conductivityValues = this->getDataAtTimeIndex(resultName, conductivityUnitTextOnFile, activeTimeStepIndex);
+
+    // Convert to the conductivity unit system used by the fracture template
+    // The conductivity value is used in the computations of transmissibility when exporting COMPDAT, and has unit md-m or md-ft
+    // This unit must match the unit used to represent coordinates of the grid used for export
+
+    QString conversionUnitText;
+    if (conductivityUnitTextOnFile == "md-m")
+    {
+        conversionUnitText = "m";
+    }
+    else if (conductivityUnitTextOnFile == "md-ft")
+    {
+        conversionUnitText = "ft";
+    }
+
+    for (auto& yValues : conductivityValues)
+    {
+        for (auto& xVal : yValues)
+        {
+            if (requiredUnitSet == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                xVal = RiaEclipseUnitTools::convertToFeet(xVal, conversionUnitText);
+            }
+            else if (requiredUnitSet == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                xVal = RiaEclipseUnitTools::convertToMeter(xVal, conversionUnitText);
+            }
+        }
+    }
+
+    return conductivityValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultName,
-                                                                            int activeTimeStepIndex, 
-                                                                            const QString& conductivityUnitText, 
-                                                                            double wellPathIntersectionAtFractureDepth)
+                                                                            int            activeTimeStepIndex,
+                                                                            double         wellPathIntersectionAtFractureDepth,
+                                                                            RiaEclipseUnitTools::UnitSystem requiredUnitSet)
 {
+    std::vector<std::vector<double>> conductivityValues = conductivityValuesAtTimeStep(resultName, activeTimeStepIndex, requiredUnitSet);
+    if (conductivityValues.empty())
+    {
+        return nullptr;
+    }
+
     std::vector<RigFractureCell> stimPlanCells;
     std::pair<size_t, size_t> wellCenterStimPlanCellIJ = std::make_pair(0, 0);
 
     bool wellCenterStimPlanCellFound = false;
-
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getDataAtTimeIndex(resultName, 
-                                                                                             conductivityUnitText, 
-                                                                                             activeTimeStepIndex);
 
     std::vector<double> yCoordsAtNodes = this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth);
     std::vector<double> xCoordsAtNodes = this->m_Xs;
@@ -311,9 +375,9 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
             cellPolygon.push_back(cvf::Vec3d(xCoords[i],     depthCoords[j + 1], 0.0));
 
             RigFractureCell stimPlanCell(cellPolygon, i, j);
-            if ( conductivityValuesAtTimeStep.size() > 0 ) //Assuming vector to be of correct length, or no values
+            if ( conductivityValues.size() > 0 ) //Assuming vector to be of correct length, or no values
             {
-                stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[j + 1][i + 1]);
+                stimPlanCell.setConductivityValue(conductivityValues[j + 1][i + 1]);
             }
             else
             {

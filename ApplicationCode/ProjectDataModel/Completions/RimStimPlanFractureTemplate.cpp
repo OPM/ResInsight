@@ -444,14 +444,30 @@ FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAt
             {
                 if (nameUnit.first == propertyNameForFractureWidth)
                 {
-                    auto data = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
-
-                    double width = data[wellCellIndex];
-
-                    if (fabs(width) > 1e-20)
+                    double widthInRequiredUnit = HUGE_VAL;
                     {
-                        values.m_width = width;
-                        values.m_permeability = conductivity / width;
+                        auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                        double widthInFileUnitSystem = resultValues[wellCellIndex];
+
+                        if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
+                        {
+                            QString unitText = nameUnit.second;
+
+                            widthInRequiredUnit = RiaEclipseUnitTools::convertToMeter(widthInFileUnitSystem, unitText);
+                        }
+                        else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
+                        {
+                            QString unitText = nameUnit.second;
+
+                            widthInRequiredUnit = RiaEclipseUnitTools::convertToFeet(widthInFileUnitSystem, unitText);
+                        }
+                    }
+
+                    if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
+                    {
+                        values.m_width = widthInRequiredUnit;
+                        values.m_permeability = conductivity / widthInRequiredUnit;
                     }
                 }
             }
@@ -662,6 +678,7 @@ double RimStimPlanFractureTemplate::resultValueAtIJ(const QString& uiResultName,
 
     if (adjustedI >= fractureGrid()->iCellCount() || adjustedJ >= fractureGrid()->jCellCount())
     {
+
         return HUGE_VAL;
     }
 
@@ -700,12 +717,10 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        QString condUnit = RiaDefines::unitStringConductivity(fractureTemplateUnit());
-
         m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_conductivityResultNameOnFile,
                                                                               m_activeTimeStepIndex,
-                                                                              condUnit,
-                                                                              m_wellPathDepthAtFracture);
+                                                                              m_wellPathDepthAtFracture,
+                                                                              m_fractureTemplateUnit());
     }
 }
 

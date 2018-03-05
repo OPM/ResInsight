@@ -55,7 +55,10 @@ public:
         return false;
     }
 
+    // Unit : meter or feet
     double m_width;
+
+    // Unit : mD (milliDarcy)
     double m_permeability;
 };
 

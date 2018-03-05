@@ -73,8 +73,8 @@ public:
     
     cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
                                                        int                                 activeTimeStepIndex,
-                                                       const QString&                      conductivityUnitText, 
-                                                       double                              wellPathIntersectionAtFractureDepth);
+                                                       double                              wellPathIntersectionAtFractureDepth,
+                                                       RiaEclipseUnitTools::UnitSystem     requiredUnitSet);
     
     void                            createFractureTriangleGeometry(double                          wellPathIntersectionAtFractureDepth,
                                                                    const QString&                  fractureUserName,
@@ -123,6 +123,10 @@ private:
     double                                  maxY() const;
     void                                    scaleXs(double scaleFactor);
     void                                    scaleYs(double scaleFactor, double wellPathIntersectionY);
+
+    std::vector<std::vector<double>>        conductivityValuesAtTimeStep(const QString&                  resultName,
+                                                                         int                             activeTimeStepIndex,
+                                                                         RiaEclipseUnitTools::UnitSystem requiredUnitSet) const;
 
 private:
     RiaEclipseUnitTools::UnitSystem         m_unitSet; // To be deleted
