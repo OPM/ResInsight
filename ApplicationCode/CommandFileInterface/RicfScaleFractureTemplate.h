@@ -42,4 +42,5 @@ private:
     caf::PdmField<int>              m_id;
     caf::PdmField<double>           m_widthScaleFactor;
     caf::PdmField<double>           m_heightScaleFactor;
+    caf::PdmField<double>           m_dFactorScaleFactor;
 };

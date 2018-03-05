@@ -152,9 +152,9 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
     }
 
-    if (changedField == &m_sizeScaleApplyButton)
+    if (changedField == &m_scaleApplyButton)
     {
-        m_sizeScaleApplyButton = false;
+        m_scaleApplyButton = false;
         reload();
     }
 }

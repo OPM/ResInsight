@@ -147,7 +147,7 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
-    void                            setScaleFactors(double width, double height);
+    void                            setScaleFactors(double width, double height, double dFactor);
     virtual void                    reload() {}
 
 protected:
@@ -200,5 +200,6 @@ protected:
 
     caf::PdmField<double>                              m_heightScaleFactor;
     caf::PdmField<double>                              m_widthScaleFactor;
-    caf::PdmField<bool>                                m_sizeScaleApplyButton;
+    caf::PdmField<double>                              m_dFactorScaleFactor;
+    caf::PdmField<bool>                                m_scaleApplyButton;
 };

@@ -91,9 +91,9 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
         || changedField == &m_height
         || changedField == &m_width
         || changedField == &m_userDefinedEffectivePermeability
-        || changedField == &m_sizeScaleApplyButton)
+        || changedField == &m_scaleApplyButton)
     {
-        m_sizeScaleApplyButton = false;
+        m_scaleApplyButton = false;
 
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         reload();

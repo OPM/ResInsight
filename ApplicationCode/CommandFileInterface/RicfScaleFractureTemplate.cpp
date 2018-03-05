@@ -36,6 +36,7 @@ RicfScaleFractureTemplate::RicfScaleFractureTemplate()
     RICF_InitField(&m_id,                   "id",  -1, "Id",  "", "", "");
     RICF_InitField(&m_widthScaleFactor,     "width", 1.0, "WidthScaleFactor",  "", "", "");
     RICF_InitField(&m_heightScaleFactor,    "height", 1.0, "HeightScaleFactor", "", "", "");
+    RICF_InitField(&m_dFactorScaleFactor,   "dFactor", 1.0, "DFactorScaleFactor", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +67,6 @@ void RicfScaleFractureTemplate::execute()
         return;
     }
 
-    templ->setScaleFactors(m_widthScaleFactor, m_heightScaleFactor);
+    templ->setScaleFactors(m_widthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor);
     templ->reload();
 }

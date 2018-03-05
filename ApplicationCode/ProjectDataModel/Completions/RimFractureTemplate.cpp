@@ -158,12 +158,13 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height Scale Factor", "", "", "");
-    CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width Scale Factor", "", "", "");
-    CAF_PDM_InitField(&m_sizeScaleApplyButton, "SizeScaleApplyButton", false, "Apply", "", "", "");
-    m_sizeScaleApplyButton.xmlCapability()->disableIO();
-    m_sizeScaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_sizeScaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "");
+    CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width", "", "", "");
+    CAF_PDM_InitField(&m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "");
+    CAF_PDM_InitField(&m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "");
+    m_scaleApplyButton.xmlCapability()->disableIO();
+    m_scaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_scaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,11 +317,12 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     prepareFieldsForUiDisplay();
 
     {
-        auto group = uiOrdering.addNewGroup("Scale Factors");
+        auto group = uiOrdering.addNewGroup("Sensitivity Scale Factors");
         group->setCollapsedByDefault(false);
         group->add(&m_heightScaleFactor);
         group->add(&m_widthScaleFactor);
-        group->add(&m_sizeScaleApplyButton);
+        group->add(&m_dFactorScaleFactor);
+        group->add(&m_scaleApplyButton);
     }
 
     auto nonDarcyFlowGroup = uiOrdering.addNewGroup("Non-Darcy Flow");
@@ -391,7 +393,7 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
         }
     }
 
-    if (field == &m_sizeScaleApplyButton)
+    if (field == &m_scaleApplyButton)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
@@ -572,26 +574,32 @@ double RimFractureTemplate::effectivePermeability() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::dFactor() const
 {
+    double d;
+
     if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
     {
-        return m_userDefinedDFactor;
+        d = m_userDefinedDFactor;
+    }
+    else
+    {
+        auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+        auto beta = m_inertialCoefficient;
+        auto effPerm = effectivePermeability();
+        auto gamma = m_relativeGasDensity;
+
+        auto radius = m_wellDiameter / 2.0;
+        auto mu = m_gasViscosity;
+        auto h = fractureWidth();
+
+        double numerator = alpha * beta * effPerm * gamma;
+        double denumerator = h * radius * mu;
+
+        if (denumerator < 1e-10) return HUGE_VAL;
+
+        d = numerator / denumerator;
     }
 
-    auto alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
-    auto beta    = m_inertialCoefficient;
-    auto effPerm = effectivePermeability();
-    auto gamma   = m_relativeGasDensity;
-    
-    auto radius  = m_wellDiameter / 2.0;
-    auto mu      = m_gasViscosity;
-    auto h       = fractureWidth();
-
-    double numerator   = alpha * beta * effPerm * gamma;
-    double denumerator = h * radius * mu;
-
-    if (denumerator < 1e-10) return HUGE_VAL;
-
-    return numerator / denumerator;
+    return d * m_dFactorScaleFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -660,10 +668,11 @@ void RimFractureTemplate::setId(int id)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setScaleFactors(double width, double height)
+void RimFractureTemplate::setScaleFactors(double width, double height, double dFactor)
 {
     m_widthScaleFactor = width;
     m_heightScaleFactor = height;
+    m_dFactorScaleFactor = dFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
