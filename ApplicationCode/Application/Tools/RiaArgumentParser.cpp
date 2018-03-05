@@ -70,6 +70,7 @@ bool RiaArgumentParser::parseArguments()
     progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("unittest",                  "",                                 "System command");
+    progOpt.registerOption("ignoreArgs",                "",                                 "Ignore all arguments. Mostly for testing purposes");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -104,6 +105,12 @@ bool RiaArgumentParser::parseArguments()
 
     // Handling of the actual command line options
     // --------------------------------------------------------
+
+    if (cvf::Option o = progOpt.option("ignoreArgs"))
+    {
+        return true;
+    }
+
     if (cvf::Option o = progOpt.option("regressiontest"))
     {
         CVF_ASSERT(o.valueCount() == 1);
