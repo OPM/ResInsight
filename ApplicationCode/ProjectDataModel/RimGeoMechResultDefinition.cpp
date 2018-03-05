@@ -108,7 +108,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_isCompactionUiField.xmlCapability()->setIOWritable(false);
     m_isCompactionUiField.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", 0, "Compaction Ref Layer", "", "", "");
+    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", 0, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
     m_compactionRefLayerUiField.xmlCapability()->setIOWritable(false);
     m_compactionRefLayerUiField.xmlCapability()->setIOReadable(false);
 
