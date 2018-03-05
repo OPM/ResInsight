@@ -69,6 +69,7 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
     }
 
     fractureTemplate->disconnectAllFracturesAndRedrawViews();
+    fractureTemplate->loadDataAndUpdate();
 
     fractureTemplate->updateConnectedEditors();
 }
