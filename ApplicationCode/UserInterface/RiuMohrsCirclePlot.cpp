@@ -38,7 +38,9 @@
 #include "cvfAssert.h"
 
 #include <QPainterPath>
+#include <QTimer>
 #include <QWidget>
+#include <qevent.h>
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
@@ -60,15 +62,11 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
-    : QwtPlot(parent), m_sourceGeoMechViewOfLastPlot(nullptr)
+    : QwtPlot(parent)
+    , m_sourceGeoMechViewOfLastPlot(nullptr)
+    , m_scheduleUpdateAxisScaleTimer(nullptr)
 {
     RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
-
-    m_rescaler = new QwtPlotRescaler(this->canvas());
-    m_rescaler->setReferenceAxis(QwtPlot::yLeft);
-    m_rescaler->setAspectRatio(QwtPlot::xBottom, 1.0);
-    m_rescaler->setRescalePolicy(QwtPlotRescaler::Fixed);
-    m_rescaler->setEnabled(true);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
@@ -92,11 +90,6 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 {
     deletePlotItems();
-
-    if (m_rescaler)
-    {
-        delete m_rescaler;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,9 +98,9 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* selectionItem)
 {
     const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
-    
+
     m_sourceGeoMechViewOfLastPlot = nullptr;
-    
+
     if (!geoMechSelectionItem)
     {
         this->clearPlot();
@@ -124,7 +117,7 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
         const cvf::Color3f color     = geoMechSelectionItem->m_color;
 
         queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
-        
+
         m_sourceGeoMechViewOfLastPlot = geoMechView;
     }
     else
@@ -144,7 +137,7 @@ void RiuMohrsCirclePlot::clearPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::updateOnTimeStepChanged(Rim3dView* changedView)
 {
@@ -161,12 +154,13 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged(Rim3dView* changedView)
     }
 
     // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
+    const RiuGeoMechSelectionItem* geoMechSelectionItem =
+        dynamic_cast<const RiuGeoMechSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
     if (geoMechSelectionItem && geoMechSelectionItem->m_view == geoMechView)
     {
-        const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
-        const size_t gridCellIndex = geoMechSelectionItem->m_cellIndex;
-        const cvf::Color3f color = geoMechSelectionItem->m_color;
+        const size_t       gridIndex     = geoMechSelectionItem->m_gridIndex;
+        const size_t       gridCellIndex = geoMechSelectionItem->m_cellIndex;
+        const cvf::Color3f color         = geoMechSelectionItem->m_color;
 
         deletePlotItems();
 
@@ -277,7 +271,7 @@ void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechVie
     double cohesion      = view->geoMechCase()->cohesion();
     double frictionAngle = view->geoMechCase()->frictionAngleDeg();
 
-    if (cohesion == HUGE_VAL || frictionAngle == HUGE_VAL)
+    if (cohesion == HUGE_VAL || frictionAngle == HUGE_VAL || frictionAngle >= 90)
     {
         return;
     }
@@ -292,24 +286,13 @@ void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechVie
         return;
     }
 
-    yVals[0] = 0;
-
     double x = cohesion / tanFrictionAngle;
-    if (principals[0] < 0)
-    {
-        xVals[0] = x;
-        xVals[1] = principals[2];
 
-        yVals[1] = (cohesion / x) * (x + principals[2]);
-    }
-    else
-    {
-        xVals[0] = -x;
-        xVals[1] = principals[0];
+    xVals[0] = -x;
+    xVals[1] = principals[0];
 
-        yVals[1] = (cohesion / x) * (x + principals[0]);
-    }
-
+    yVals[0] = 0;
+    yVals[1] = (cohesion / x) * (x + principals[0]);
 
     // If envelope for the view already exists, check if a "larger" envelope should be created
     if (m_envolopePlotItems.find(view) != m_envolopePlotItems.end())
@@ -401,23 +384,19 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
         return;
     }
 
-    double cohesion      = geoMechView->geoMechCase()->cohesion();
+    double cohesion         = geoMechView->geoMechCase()->cohesion();
     double frictionAngleDeg = geoMechView->geoMechCase()->frictionAngleDeg();
 
     size_t i, j, k;
     femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
 
-    MohrsCirclesInfo mohrsCircle;
-    mohrsCircle.color          = color;
-    mohrsCircle.elmIndex       = elmIndex;
-    mohrsCircle.factorOfSafety = calculateFOS(principals, frictionAngleDeg, cohesion);
-    mohrsCircle.principals     = principals;
-    mohrsCircle.i              = i;
-    mohrsCircle.j              = j;
-    mohrsCircle.k              = k;
+    MohrsCirclesInfo mohrsCircle(principals, elmIndex, i, j, k, calculateFOS(principals, frictionAngleDeg, cohesion), color);
 
     addMohrsCirclesInfo(mohrsCircle, geoMechView);
-    replotAndScaleAxis();
+
+    setAxesScaleAndReplot();
+    // Update axis scale is called one more time because the legend which is added on a later stage may disrupt the canvas
+    scheduleUpdateAxisScale();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,6 +408,7 @@ void RiuMohrsCirclePlot::addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircle
 
     addEnvelope(mohrsCircleInfo.principals, view);
     addMohrCircles(mohrsCircleInfo);
+    updateTransparentCurvesOnPrincipals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,53 +483,19 @@ double RiuMohrsCirclePlot::smallestPrincipal() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::replotAndScaleAxis()
+double RiuMohrsCirclePlot::largestPrincipal() const
 {
-    double maxYEnvelope = -HUGE_VAL;
+    double currentLargestPrincipal = -HUGE_VAL;
 
-    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
+    for (const MohrsCirclesInfo& mohrCircleInfo : m_mohrsCiclesInfos)
     {
-        double tempMax = envelope.second->maxYValue();
-        if (tempMax > maxYEnvelope)
+        if (mohrCircleInfo.principals[0] > currentLargestPrincipal)
         {
-            maxYEnvelope = tempMax;
+            currentLargestPrincipal = mohrCircleInfo.principals[0];
         }
     }
 
-    double yHeight = std::max(maxYEnvelope, 1.2 * largestCircleRadiusInPlot());
-
-    this->setAxisScale(QwtPlot::yLeft, 0, yHeight);
-
-    double minXEvelope = HUGE_VAL;
-
-    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
-    {
-        double tempMin = envelope.second->minXValue();
-        if (tempMin < minXEvelope)
-        {
-            minXEvelope = tempMin;
-        }
-    }
-
-    double xMin;
-    if (minXEvelope < 0)
-    {
-        xMin = minXEvelope;
-    }
-    else
-    {
-        xMin = 1.1 * smallestPrincipal();
-    }
-
-    // When using the rescaler, xMax is ignored
-    this->setAxisScale(QwtPlot::xBottom, xMin, 0);
-
-    updateTransparentCurvesOnPrincipals();
-
-    //Replotting must be done before rescaling
-    this->replot();
-    m_rescaler->rescale();
-    this->plotLayout()->setAlignCanvasToScales(true);
+    return currentLargestPrincipal;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -592,10 +538,10 @@ float RiuMohrsCirclePlot::calculateFOS(const cvf::Vec3f& principals, double fric
 
     if (cvf::Math::cos(frictionAngle) == 0)
     {
-        return 0;
+        return 0.0f;
     }
 
-    float tanFricAng = cvf::Math::tan(cvf::Math::toRadians(frictionAngle));
+    float tanFricAng        = cvf::Math::tan(cvf::Math::toRadians(frictionAngle));
     float cohPrTanFricAngle = 1.0f * cohesion / tanFricAng;
 
     float pi_4 = 0.785398163397448309616f;
@@ -622,7 +568,7 @@ QColor RiuMohrsCirclePlot::envelopeColor(RimGeoMechView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::deletePlotItems()
 {
@@ -632,3 +578,121 @@ void RiuMohrsCirclePlot::deletePlotItems()
     deleteEnvelopes();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::scheduleUpdateAxisScale()
+{
+    if (!m_scheduleUpdateAxisScaleTimer)
+    {
+        m_scheduleUpdateAxisScaleTimer = new QTimer(this);
+        connect(m_scheduleUpdateAxisScaleTimer, SIGNAL(timeout()), this, SLOT(setAxesScaleAndReplot()));
+    }
+
+    if (!m_scheduleUpdateAxisScaleTimer->isActive())
+    {
+        m_scheduleUpdateAxisScaleTimer->setSingleShot(true);
+        m_scheduleUpdateAxisScaleTimer->start(100);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::resizeEvent(QResizeEvent* e)
+{
+    setAxesScaleAndReplot();
+
+    // Update axis scale is called one more time because setAxesScaleAndReplot does not work the first
+    // time if the user does a very quick resizing of the window
+    scheduleUpdateAxisScale();
+    QwtPlot::resizeEvent(e);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::idealAxesEndPoints(double* xMin, double* xMax, double* yMax) const
+{
+    *xMin = HUGE_VAL;
+    *xMax = -HUGE_VAL;
+    *yMax = -HUGE_VAL;
+
+    double maxYEnvelope = -HUGE_VAL;
+    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
+    {
+        double tempMax = envelope.second->maxYValue();
+        if (tempMax > maxYEnvelope)
+        {
+            maxYEnvelope = tempMax;
+        }
+    }
+
+    *yMax = std::max(maxYEnvelope, 1.2 * largestCircleRadiusInPlot());
+
+    double minXEvelope = HUGE_VAL;
+    for (const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems)
+    {
+        double tempMin = envelope.second->minXValue();
+        if (tempMin < minXEvelope)
+        {
+            minXEvelope = tempMin;
+        }
+    }
+
+    if (minXEvelope < 0)
+    {
+        *xMin = minXEvelope;
+    }
+    else
+    {
+        *xMin = 1.1 * smallestPrincipal();
+    }
+
+    *xMax = 1.1 * largestPrincipal();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::setAxesScaleAndReplot()
+{
+    // yMin is always 0
+    double xMin, xMax, yMax;
+    idealAxesEndPoints(&xMin, &xMax, &yMax);
+
+    if (xMax == -HUGE_VAL || xMin == HUGE_VAL || yMax == -HUGE_VAL)
+    {
+        return;
+    }
+
+    int canvasHeight = this->canvas()->height();
+    int canvasWidth  = this->canvas()->width();
+
+    const double minPlotWidth  = xMax - xMin;
+    const double minPlotHeight = yMax;
+
+    double xMaxDisplayed = xMax;
+    double yMaxDisplayed = yMax;
+
+    double canvasWidthOverHeightRatio = (1.0 * canvasWidth) / (1.0 * canvasHeight);
+
+    // widthToKeepAspectRatio increases when canvas height is increased
+    double widthToKeepAspectRatio = minPlotHeight * canvasWidthOverHeightRatio;
+    // heightToKeepAspectRatio increases when canvas width is increased
+    double heightToKeepAspectRatio = minPlotWidth / canvasWidthOverHeightRatio;
+
+    if (widthToKeepAspectRatio > minPlotWidth)
+    {
+        xMaxDisplayed = widthToKeepAspectRatio + xMin;
+    }
+    else if (heightToKeepAspectRatio > minPlotHeight)
+    {
+        yMaxDisplayed = heightToKeepAspectRatio;
+    }
+
+    this->setAxisScale(QwtPlot::yLeft, 0, yMaxDisplayed);
+    this->setAxisScale(QwtPlot::xBottom, xMin, xMaxDisplayed);
+
+    this->replot();
+}

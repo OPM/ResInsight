@@ -19,8 +19,8 @@
 #pragma once
 
 #include "qwt_plot.h"
-#include "qwt_plot_item.h"
 #include "qwt_plot_curve.h"
+#include "qwt_plot_item.h"
 
 #include "cafTensor3.h"
 
@@ -28,14 +28,11 @@
 
 #include <array>
 
+class QTimer;
 class QWidget;
-class QwtPlotRescaler;
-class QwtPlotTextLabel;
-class QwtRoundScaleDraw;
-class RimGeoMechView;
-class RiuSelectionItem;
 class Rim3dView;
 class RimGeoMechView;
+class RiuSelectionItem;
 
 //==================================================================================================
 //
@@ -58,16 +55,34 @@ public:
 public:
     struct MohrsCirclesInfo
     {
-        cvf::Vec3f principals;
-        size_t elmIndex;
-        size_t i, j, k;
-        double factorOfSafety;
+        MohrsCirclesInfo(cvf::Vec3f    principals,
+                         size_t        elmIndex,
+                         size_t        i,
+                         size_t        j,
+                         size_t        k,
+                         double        factorOfSafety,
+                         cvf::Color3ub color)
+            : principals(principals)
+            , elmIndex(elmIndex)
+            , i(i)
+            , j(j)
+            , k(k)
+            , factorOfSafety(factorOfSafety)
+            , color(color) {}
+
+        cvf::Vec3f    principals;
+        size_t        elmIndex;
+        size_t        i, j, k;
+        double        factorOfSafety;
         cvf::Color3ub color;
     };
 
 private:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
+    virtual void  resizeEvent(QResizeEvent* e) override;
+
+    void idealAxesEndPoints(double* xMin, double* xMax, double* yMax) const;
 
     void addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo);
     void deleteCircles();
@@ -76,27 +91,32 @@ private:
     void deleteEnvelopes();
 
     void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);
-    
+
     void addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo, RimGeoMechView* view);
 
     void updateTransparentCurvesOnPrincipals();
+
     double largestCircleRadiusInPlot() const;
     double smallestPrincipal() const;
-
-    void replotAndScaleAxis();
+    double largestPrincipal() const;
 
     static bool isValidPrincipals(const cvf::Vec3f& principals);
-    
+
     static float calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion);
 
     QColor envelopeColor(RimGeoMechView* view);
 
     void deletePlotItems();
-    
+
+    void scheduleUpdateAxisScale();
+
+private slots:
+    void setAxesScaleAndReplot();
+
 private:
     std::vector<QwtPlotItem*>  m_circlePlotItems;
     std::vector<QwtPlotCurve*> m_transparentCurves;
-    
+
     std::map<RimGeoMechView*, QwtPlotCurve*> m_envolopePlotItems;
     std::map<RimGeoMechView*, QColor>        m_envolopeColors;
 
@@ -104,5 +124,5 @@ private:
 
     RimGeoMechView* m_sourceGeoMechViewOfLastPlot;
 
-    QwtPlotRescaler* m_rescaler;
+    QTimer* m_scheduleUpdateAxisScaleTimer;
 };
