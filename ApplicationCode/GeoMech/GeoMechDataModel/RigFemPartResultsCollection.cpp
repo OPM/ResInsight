@@ -776,14 +776,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partInde
 
         for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
         {
-            float se1 = se1Data[vIdx];
-            float se3 = se3Data[vIdx];
-            float pi_4 = 0.785398163397448309616f;
-            float rho = 2.0f * ( atan( sqrt(( se1 + cohPrTanFricAngle)/(se3 + cohPrTanFricAngle)) ) - pi_4);
-            
-            {
-                dstFrameData[vIdx] =  tan(rho)/tanFricAng;
-            }
+            dstFrameData[vIdx] = dsm(se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle);
         }
 
         frameCountProgress.incrementProgress();
@@ -2047,6 +2040,24 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 int RigFemPartResultsCollection::frameCount()
 {
     return static_cast<int>(stepNames().size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RigFemPartResultsCollection::dsm(float p1, float p3, float tanFricAng, float cohPrTanFricAngle)
+{
+    if (p1 == HUGE_VAL || p3 == HUGE_VAL)
+    {
+        return std::nan("");
+    }
+
+    CVF_ASSERT(p1 > p3);
+
+    float pi_4 = 0.785398163397448309616f;
+    float rho = 2.0f * (atan(sqrt((p1 + cohPrTanFricAngle) / (p3 + cohPrTanFricAngle))) - pi_4);
+
+    return tan(rho) / tanFricAng;
 }
 
 //--------------------------------------------------------------------------------------------------

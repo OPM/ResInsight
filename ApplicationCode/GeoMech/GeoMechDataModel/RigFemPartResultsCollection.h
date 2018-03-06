@@ -73,6 +73,7 @@ public:
     int                                              partCount() const;
     int                                              frameCount();
 
+    static float                                     dsm(float p1, float p3, float tanFricAng, float cohPrTanFricAngle);
 
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);

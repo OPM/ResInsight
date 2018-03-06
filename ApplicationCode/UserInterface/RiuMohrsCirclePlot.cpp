@@ -531,21 +531,20 @@ bool RiuMohrsCirclePlot::isValidPrincipals(const cvf::Vec3f& principals)
 //--------------------------------------------------------------------------------------------------
 float RiuMohrsCirclePlot::calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion)
 {
-    float se1 = principals[0];
-    float se3 = principals[2];
-
     if (cvf::Math::cos(frictionAngle) == 0)
     {
-        return 0.0f;
+        return std::nan("");
     }
+
+    float se1 = principals[0];
+    float se3 = principals[2];
 
     float tanFricAng        = cvf::Math::tan(cvf::Math::toRadians(frictionAngle));
     float cohPrTanFricAngle = 1.0f * cohesion / tanFricAng;
 
-    float pi_4 = 0.785398163397448309616f;
-    float rho  = 2.0f * (cvf::Math::atan(cvf::Math::sqrt((se1 + cohPrTanFricAngle) / (se3 + cohPrTanFricAngle))) - pi_4);
+    float dsm = RigFemPartResultsCollection::dsm(se1, se3, tanFricAng, cohPrTanFricAngle);
 
-    return tanFricAng / cvf::Math::tan(rho);
+    return 1.0f / dsm;
 }
 
 //--------------------------------------------------------------------------------------------------
