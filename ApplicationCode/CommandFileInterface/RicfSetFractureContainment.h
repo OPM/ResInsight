@@ -40,6 +40,6 @@ public:
 
 private:
     caf::PdmField<int>              m_id;
-    caf::PdmField<double>           m_topLayer;
-    caf::PdmField<double>           m_baseLayer;
+    caf::PdmField<int>              m_topLayer;
+    caf::PdmField<int>              m_baseLayer;
 };

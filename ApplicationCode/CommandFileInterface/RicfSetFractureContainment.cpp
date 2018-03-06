@@ -34,8 +34,8 @@ CAF_PDM_SOURCE_INIT(RicfSetFractureContainment, "setFractureContainment");
 RicfSetFractureContainment::RicfSetFractureContainment()
 {
     RICF_InitField(&m_id,           "id",  -1, "Id",  "", "", "");
-    RICF_InitField(&m_topLayer,     "topLayer", 1.0, "TopLayer",  "", "", "");
-    RICF_InitField(&m_baseLayer,    "baseLayer", 1.0, "BaseLayer", "", "", "");
+    RICF_InitField(&m_topLayer,     "topLayer", -1, "TopLayer",  "", "", "");
+    RICF_InitField(&m_baseLayer,    "baseLayer", -1, "BaseLayer", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,9 +43,9 @@ RicfSetFractureContainment::RicfSetFractureContainment()
 //--------------------------------------------------------------------------------------------------
 void RicfSetFractureContainment::execute()
 {
-    if (m_id < 0)
+    if (m_id < 0 || m_topLayer < 0 || m_baseLayer < 0)
     {
-        RiaLogging::error("setFractureContainment: Fracture template id not specified");
+        RiaLogging::error("setFractureContainment: Required argument missing");
         return;
     }
 
