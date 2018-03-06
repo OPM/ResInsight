@@ -677,6 +677,8 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::P
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    options = RimCase::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
     if (fieldNeedingOptions == &m_elementPropertyFileNameIndexUiSelection)
     {
         for (size_t i = 0; i < m_elementPropertyFileNames.v().size(); i++)
