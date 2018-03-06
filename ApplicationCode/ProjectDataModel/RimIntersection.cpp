@@ -672,7 +672,7 @@ int RimIntersection::branchIndex() const
         return -1;
     }
 
-    if (m_branchIndex >= m_simulationWellBranchCenterlines.size())
+    if (m_branchIndex >= static_cast<int>(m_simulationWellBranchCenterlines.size()))
     {
         return -1;
     }
