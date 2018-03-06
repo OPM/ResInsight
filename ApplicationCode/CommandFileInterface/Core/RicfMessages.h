@@ -37,6 +37,8 @@ public:
     void    addError(const QString& message);
 
     void    skipWhiteSpaceWithLineNumberCount(QTextStream& inputStream);
+    void    skipLineWithLineNumberCount(QTextStream& inputStream);
+    
     QChar   readCharWithLineNumberCount(QTextStream& inputStream);
     QChar   peekNextChar(QTextStream& inputStream);
 

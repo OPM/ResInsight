@@ -205,3 +205,63 @@ TEST(RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects)
         delete(obj);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RicfCommands, IgnoreCommentLines)
+{
+    QString commandString = R"(
+    replaceCase(newGridFile="/1.EGRID", caseId=1)
+    # replaceCase(newGridFile="/2.EGRID", caseId=2)
+
+    openProject(path="/home/user/ResInsightProject.rsp")
+    replaceCase(newGridFile="/3.EGRID", caseId=3)
+    # replaceCase(newGridFile="/4.EGRID", caseId=4)
+  
+    exportSnapshots()
+    replaceCase(newGridFile="/6.EGRID", caseId=6)
+    replaceCase(newGridFile="/7.EGRID", caseId=7)
+
+    closeProject()
+
+    )";
+
+    QTextStream inputStream(&commandString);
+    RicfMessages errors;
+
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
+    EXPECT_TRUE(errors.m_messages.empty());
+
+    EXPECT_EQ((size_t)7, objects.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RicfCommands, IgnoreCommentLinesShowErrorLine)
+{
+    QString commandString = R"(
+    replaceCase(newGridFile="/1.EGRID", caseId=1)
+    # replaceCase(newGridFile="/2.EGRID", caseId=2)
+
+    openProject(path="/home/user/ResInsightProject.rsp")
+    replaceCase(newGridFile="/3.EGRID", caseId=3)
+    # replaceCase(newGridFile="/4.EGRID", caseId=4)
+  
+
+    exportSnapshots()
+    sdareplaceCase(newGridFile="/6.EGRID", caseId=6)
+    replaceCase(newGridFile="/7.EGRID", caseId=7)
+
+    closeProject()
+
+    )";
+
+    QTextStream inputStream(&commandString);
+    RicfMessages errors;
+
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
+    EXPECT_EQ((size_t)1, errors.m_messages.size());
+    EXPECT_EQ((size_t)6, objects.size());
+}
