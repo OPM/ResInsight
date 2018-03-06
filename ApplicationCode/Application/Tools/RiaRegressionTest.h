@@ -32,6 +32,9 @@ public:
     RiaRegressionTest(void);
     virtual ~RiaRegressionTest(void);
 
+    void writeSettingsToApplicationStore() const;
+    void readSettingsFromApplicationStore();
+
 public:
     caf::PdmField<QString>  applicationWorkingFolder;
     caf::PdmField<QString>  regressionTestFolder;

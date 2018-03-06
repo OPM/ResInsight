@@ -1716,9 +1716,7 @@ void RiuMainWindow::slotCreateCommandObject()
 void RiuMainWindow::slotShowRegressionTestDialog()
 {
     RiaRegressionTest regTestConfig;
-
-    RiaApplication* app = RiaApplication::instance();
-    caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
+    regTestConfig.readSettingsFromApplicationStore();
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
     regressionTestDialog.resize(QSize(600, 300));
@@ -1726,7 +1724,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
-        caf::PdmSettings::writeFieldsToApplicationStore(&regTestConfig);
+        regTestConfig.writeSettingsToApplicationStore();
 
         QString currentApplicationPath = QDir::currentPath();
 
@@ -1734,6 +1732,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
 
         QStringList testFilter = regTestConfig.testFilter().split(";", QString::SkipEmptyParts);
 
+        RiaApplication* app = RiaApplication::instance();
         app->executeRegressionTests(regTestConfig.regressionTestFolder, &testFilter);
 
         QDir::setCurrent(currentApplicationPath);

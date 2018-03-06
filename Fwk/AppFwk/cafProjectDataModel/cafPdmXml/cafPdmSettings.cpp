@@ -94,7 +94,7 @@ void PdmSettings::readFieldsFromApplicationStore(caf::PdmObjectHandle* object, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, const QString context)
+void PdmSettings::writeFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString context)
 {
     CAF_ASSERT(object);
 

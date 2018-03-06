@@ -18,6 +18,7 @@
 
 #include "RiaRegressionTest.h"
 
+#include "cafPdmSettings.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -47,6 +48,22 @@ RiaRegressionTest::RiaRegressionTest(void)
 RiaRegressionTest::~RiaRegressionTest(void)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTest::writeSettingsToApplicationStore() const
+{
+    caf::PdmSettings::writeFieldsToApplicationStore(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTest::readSettingsFromApplicationStore()
+{
+    caf::PdmSettings::readFieldsFromApplicationStore(this);
 }
 
 //--------------------------------------------------------------------------------------------------
