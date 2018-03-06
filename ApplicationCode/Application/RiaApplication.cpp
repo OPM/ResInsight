@@ -28,6 +28,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
+#include "RiaRegressionTest.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
@@ -1994,6 +1995,18 @@ void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList*
 {
     m_runningRegressionTests = true;
 
+    RiaRegressionTest regressionTestConfig;
+    regressionTestConfig.readSettingsFromApplicationStore();
+
+    QString currentApplicationPath = QDir::currentPath();
+    if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
+    {
+        // Windows Only : The image compare tool requires current working directory to be at the folder
+        // containing the image compare tool
+
+        QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
+    }
+
     QString generatedFolderName = RegTestNames::generatedFolderName;
     QString diffFolderName      = RegTestNames::diffFolderName;    
     QString baseFolderName      = RegTestNames::baseFolderName;    
@@ -2188,6 +2201,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList*
 
     RiaLogging::info("\n");
     logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
+
+    QDir::setCurrent(currentApplicationPath);
 
     m_runningRegressionTests = false;
 }
@@ -2447,6 +2462,20 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath, Q
 
         mainWnd->loadWinGeoAndDockToolBarLayout();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::executeRegressionTests()
+{
+    RiaRegressionTest testConfig;
+    testConfig.readSettingsFromApplicationStore();
+
+    QString testPath = testConfig.regressionTestFolder();
+    QStringList testFilter = testConfig.testFilter().split(";", QString::SkipEmptyParts);
+
+    executeRegressionTests(testPath, &testFilter);
 }
 
 //--------------------------------------------------------------------------------------------------

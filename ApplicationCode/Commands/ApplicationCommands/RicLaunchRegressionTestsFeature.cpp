@@ -41,14 +41,7 @@ bool RicLaunchRegressionTestsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLaunchRegressionTestsFeature::onActionTriggered(bool isChecked)
 {
-    RiaRegressionTest regTestConfig;
-
-    caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
-
-    QStringList testFilter = regTestConfig.testFilter().split(";", QString::SkipEmptyParts);
-
-    // Launch regression test using the current test folder and test filter
-    RiaApplication::instance()->executeRegressionTests(regTestConfig.regressionTestFolder, &testFilter);
+    RiaApplication::instance()->executeRegressionTests();
 }
 
 //--------------------------------------------------------------------------------------------------

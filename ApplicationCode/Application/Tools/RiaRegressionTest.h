@@ -36,7 +36,7 @@ public:
     void readSettingsFromApplicationStore();
 
 public:
-    caf::PdmField<QString>  applicationWorkingFolder;
+    caf::PdmField<QString>  folderContainingCompareTool;
     caf::PdmField<QString>  regressionTestFolder;
     caf::PdmField<QString>  testFilter;
     caf::PdmField<bool>     showInteractiveDiffImages;

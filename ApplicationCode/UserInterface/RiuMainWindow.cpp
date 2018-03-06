@@ -1726,16 +1726,8 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         // Write preferences using QSettings and apply them to the application
         regTestConfig.writeSettingsToApplicationStore();
 
-        QString currentApplicationPath = QDir::currentPath();
-
-        QDir::setCurrent(regTestConfig.applicationWorkingFolder);
-
-        QStringList testFilter = regTestConfig.testFilter().split(";", QString::SkipEmptyParts);
-
         RiaApplication* app = RiaApplication::instance();
-        app->executeRegressionTests(regTestConfig.regressionTestFolder, &testFilter);
-
-        QDir::setCurrent(currentApplicationPath);
+        app->executeRegressionTests();
     }
 }
 

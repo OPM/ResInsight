@@ -99,6 +99,7 @@ public:
     bool                    parseArguments();
 
     void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
+    void                    executeRegressionTests();
 
     void                    setActiveReservoirView(Rim3dView*);
     Rim3dView*                activeReservoirView();
