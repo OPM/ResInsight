@@ -256,21 +256,6 @@ void RimFractureTemplateCollection::loadAndUpdateData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::setDefaultConductivityResultIfEmpty()
-{
-    for (RimFractureTemplate* f : m_fractureDefinitions())
-    {
-        RimStimPlanFractureTemplate* stimPlanFracture = dynamic_cast<RimStimPlanFractureTemplate*>(f);
-        if (stimPlanFracture)
-        {
-            stimPlanFracture->setDefaultConductivityResultIfEmpty();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     for (RimFractureTemplate* f : m_fractureDefinitions())

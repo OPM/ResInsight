@@ -250,6 +250,8 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
+        setDefaultConductivityResultIfEmpty();
+
         if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_UNKNOWN)
         {
             setFractureTemplateUnit(m_stimPlanFractureDefinitionData->unitSet());

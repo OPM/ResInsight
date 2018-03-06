@@ -86,7 +86,6 @@ public:
                                                                          PosNegAccumulator& posNegAccumulator) const override;
 
     QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
-    void                                    setDefaultConductivityResultIfEmpty();
 
     bool                                    showStimPlanMesh() const;
 
@@ -103,6 +102,7 @@ protected:
     virtual bool                            supportsConductivityScaling() const override { return true; }
 
 private:
+    void                                    setDefaultConductivityResultIfEmpty();
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
     void                                    setPerforationLength();

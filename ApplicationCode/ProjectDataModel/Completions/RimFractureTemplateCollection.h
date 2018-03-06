@@ -50,7 +50,6 @@ public:
 
     void                                        createAndAssignTemplateCopyForNonMatchingUnit();
     void                                        loadAndUpdateData();
-    void                                        setDefaultConductivityResultIfEmpty();
 
     void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
