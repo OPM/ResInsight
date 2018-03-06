@@ -72,6 +72,8 @@ RiaPreferences::RiaPreferences(void)
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
     appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "");
+    showTestToolbar.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
     includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -124,6 +126,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &showHud ||
             field == &appendClassNameToUiText ||
             field == &appendFieldKeywordToToolTipText ||
+            field == &showTestToolbar ||
             field == &includeFractureDebugInfoFile ||
             field == &showLasCurveWithoutTvdWarning)
     {
@@ -184,6 +187,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&appendClassNameToUiText);
         uiOrdering.add(&appendFieldKeywordToToolTipText);
+        uiOrdering.add(&showTestToolbar);
         uiOrdering.add(&includeFractureDebugInfoFile);
     }
 

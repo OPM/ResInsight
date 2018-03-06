@@ -13,6 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseProjectFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHelpFeatures.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditPreferencesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -29,6 +30,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseProjectFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHelpFeatures.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditPreferencesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

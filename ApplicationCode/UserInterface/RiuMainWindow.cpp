@@ -536,6 +536,15 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction(m_showWellCellsAction);
     }
 
+    RiaApplication* app = RiaApplication::instance();
+    if (app->preferences()->showTestToolbar())
+    {
+        QToolBar* toolbar = addToolBar(tr("Test"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicLaunchRegressionTestsFeature"));
+    }
+
     // Create animation toolbar
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
     addToolBar(m_animationToolBar);

@@ -68,6 +68,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     showHud;
     caf::PdmField<bool>     appendClassNameToUiText;
     caf::PdmField<bool>     appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>     showTestToolbar;
     caf::PdmField<bool>     includeFractureDebugInfoFile;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
