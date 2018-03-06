@@ -36,6 +36,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 #include "cvfRay.h"
+//#include "cvfTrace.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +85,9 @@ cvf::Mat4d calculateSectionLocalFlatteningCS(const cvf::Vec3d& p1, const cvf::Ve
     sectionLineDir.normalize();
 
     Vec3d Ey = Ez ^ sectionLineDir;
+    Ey.normalize();
     Vec3d Ex = Ey ^ Ez;
+    Ex.normalize();
 
     Ray extrusionRay; 
     extrusionRay.setOrigin(p1);
@@ -166,6 +169,27 @@ void RivIntersectionGeometryGenerator::calculateSegementTransformPrLinePoint()
             lIdx = idxToNextP;
         }
     }
+
+ //   for (auto mx: m_segementTransformPrLinePoint[0])
+ //   {
+ //       cvf::String text; 
+ //
+ //       for (int r = 0; r < 4; ++r)
+ //       {
+ //           for (int c = 0; c < 4; ++c)
+ //           {
+ //               text  += cvf::String::number(mx(r, c));
+ //
+ //               if (r * c < 9)
+ //               {
+ //                   text += " ";
+ //               }
+ //           }
+ //           text += "\n";
+ //       }
+ //
+ //       cvf::Trace::show( text ); 
+ //   }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,9 +236,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
         if (polyLine.size() < 2) continue;
 
         size_t lineCount = polyLine.size();
-        //size_t lIdx = 0;
-        //while ( lIdx < lineCount - 1)
-        for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
+        size_t lIdx = 0;
+        while ( lIdx < lineCount - 1)
         {
             size_t idxToNextP = indexToNextValidPoint(polyLine, m_extrusionDirection, lIdx);
             
@@ -406,7 +429,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     }
                 }
             }
-//            lIdx = idxToNextP;
+            lIdx = idxToNextP;
         }
     }
     m_triangleVxes->assign(triangleVertices);
