@@ -47,6 +47,8 @@ class TickMarkGenerator
 public:
     TickMarkGenerator(double min, double max, double minAllowedStepSize)
     {
+        if (minAllowedStepSize < 0.0) minAllowedStepSize = -minAllowedStepSize;
+
         double step = roundUpToLog_1_2_5_10(minAllowedStepSize);
 
         double startStepCount = ceil(min / step);
