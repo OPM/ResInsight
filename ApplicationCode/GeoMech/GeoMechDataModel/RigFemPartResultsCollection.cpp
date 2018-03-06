@@ -1485,7 +1485,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
             if (refElement.elementIdx != cvf::UNDEFINED_SIZE_T)
             {
                 float shortestDist = HUGE_VALF;
-                size_t closestNodeIdx = cvf::UNDEFINED_SIZE_T;
+                size_t closestRefNodeIdx = cvf::UNDEFINED_SIZE_T;
 
                 for (size_t nodeIdx : refElement.elementFaceNodeIdxs)
                 {
@@ -1493,11 +1493,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
                     if (dist < shortestDist)
                     {
                         shortestDist = dist;
-                        closestNodeIdx = nodeIdx;
+                        closestRefNodeIdx = nodeIdx;
                     }
                 }
 
-                compactionFrame[n] = u3Frames->frameData(t)[n] - u3Frames->frameData(t)[closestNodeIdx];
+                compactionFrame[n] = u3Frames->frameData(t)[closestRefNodeIdx] - u3Frames->frameData(t)[n];
             }
             else
             {
