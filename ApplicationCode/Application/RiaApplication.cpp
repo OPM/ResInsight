@@ -362,16 +362,15 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     RiaLogging::info(QString("Starting to open project file : '%1'").arg(projectFileName));
 
-    // Open the project file and read the serialized data. 
-    // Will initialize itself.
-
-    if (!caf::Utils::fileExists(projectFileName))
+    // Create a absolute path file name, as this is required for update of file references in the project modifier object
+    QString fullPathProjectFileName = caf::Utils::absoluteFileName(projectFileName);
+    if (!caf::Utils::fileExists(fullPathProjectFileName))
     {
-        RiaLogging::info(QString("File does not exist : '%1'").arg(projectFileName));
+        RiaLogging::info(QString("File does not exist : '%1'").arg(fullPathProjectFileName));
         return false;
     }
 
-    m_project->fileName = projectFileName;
+    m_project->fileName = fullPathProjectFileName;
     m_project->readFile();
 
     // Apply any modifications to the loaded project before we go ahead and load actual data
@@ -382,7 +381,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     // Propagate possible new location of project
 
-    m_project->setProjectFileNameAndUpdateDependencies(projectFileName);
+    m_project->setProjectFileNameAndUpdateDependencies(fullPathProjectFileName);
 
     // On error, delete everything, and bail out.
 
@@ -390,7 +389,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     {
         closeProject();
 
-        QString tmp = QString("Unknown project file version detected in file \n%1\n\nCould not open project.").arg(projectFileName);
+        QString tmp = QString("Unknown project file version detected in file \n%1\n\nCould not open project.").arg(fullPathProjectFileName);
         QMessageBox::warning(nullptr, "Error when opening project file", tmp);
 
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -437,7 +436,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     
     // VL check regarding specific order mentioned in comment above...
 
-    m_preferences->lastUsedProjectFileName = projectFileName;
+    m_preferences->lastUsedProjectFileName = fullPathProjectFileName;
     caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
