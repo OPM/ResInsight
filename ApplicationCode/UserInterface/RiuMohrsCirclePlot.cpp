@@ -555,7 +555,7 @@ QColor RiuMohrsCirclePlot::envelopeColor(RimGeoMechView* view)
 {
     if (m_envolopeColors.find(view) == m_envolopeColors.end())
     {
-        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub(m_envolopePlotItems.size());
+        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub(m_envolopeColors.size());
 
         QColor color(cvfColor.r(), cvfColor.g(), cvfColor.b());
 
