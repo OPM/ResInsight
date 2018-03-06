@@ -164,6 +164,7 @@ namespace RegTestNames
     const QString testFolderFilter      = "TestCase*";
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
+    const QString commandFileFilter     = "commandfile-*";
 };
 
 
@@ -1998,7 +1999,6 @@ void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList*
     QString baseFolderName      = RegTestNames::baseFolderName;    
     QString regTestProjectName  = RegTestNames::testProjectName; 
     QString regTestFolderFilter = RegTestNames::testFolderFilter;
-
     // Find all sub folders
     
     QDir testDir(testRootPath); // If string is empty it will end up as cwd
@@ -2090,6 +2090,39 @@ void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList*
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
+
+        // Detect any command files
+        QStringList filterList; 
+        filterList << RegTestNames::commandFileFilter;
+
+        QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
+        if (!commandFileEntries.empty())
+        {
+            QString currentApplicationPath = QDir::current().absolutePath();
+
+            // Set current path to the folder containing the command file, as this is required when using file references
+            // in the command file
+            QDir::setCurrent(folderList[dirIdx].filePath());
+
+            for (const auto& fileInfo : commandFileEntries)
+            {
+                QString commandFile = fileInfo.absoluteFilePath();
+
+                QFile file(commandFile);
+                if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+                {
+                    RiaLogging::error("Failed to open command file : " + commandFile);
+                }
+                else
+                {
+                    QTextStream in(&file);
+                    RicfCommandFileExecutor::instance()->executeCommands(in);
+                }
+            }
+    
+            QDir::setCurrent(currentApplicationPath);
+        }
+
 
         QString projectFileName;
         
