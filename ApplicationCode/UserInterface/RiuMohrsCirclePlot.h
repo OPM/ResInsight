@@ -47,12 +47,12 @@ public:
     RiuMohrsCirclePlot(QWidget* parent);
     ~RiuMohrsCirclePlot();
 
-    void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
+    void appendSelection(const RiuSelectionItem* selectionItem);
     void clearPlot();
 
     void updateOnTimeStepChanged(Rim3dView* changedView);
 
-public:
+private:
     struct MohrsCirclesInfo
     {
         MohrsCirclesInfo(cvf::Vec3f    principals,
@@ -87,7 +87,7 @@ private:
     void addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo);
     void deleteCircles();
 
-    void addEnvelope(const cvf::Vec3f& principals, RimGeoMechView* view);
+    void addEnvelopeCurve(const cvf::Vec3f& principals, RimGeoMechView* view);
     void deleteEnvelopes();
 
     void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);

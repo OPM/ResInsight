@@ -95,7 +95,7 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* selectionItem)
+void RiuMohrsCirclePlot::appendSelection(const RiuSelectionItem* selectionItem)
 {
     const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
 
@@ -103,7 +103,6 @@ void RiuMohrsCirclePlot::updateOnSelectionChanged(const RiuSelectionItem* select
 
     if (!geoMechSelectionItem)
     {
-        this->clearPlot();
         return;
     }
 
@@ -264,7 +263,7 @@ void RiuMohrsCirclePlot::deleteCircles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addEnvelope(const cvf::Vec3f& principals, RimGeoMechView* view)
+void RiuMohrsCirclePlot::addEnvelopeCurve(const cvf::Vec3f& principals, RimGeoMechView* view)
 {
     if (!view) return;
 
@@ -376,8 +375,7 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
     }
     caf::Ten3f elmTensor = tensorSumOfElmNodes * (1.0 / 8.0);
 
-    cvf::Vec3f dirs[3];
-    cvf::Vec3f principals = elmTensor.calculatePrincipals(dirs);
+    cvf::Vec3f principals = elmTensor.calculatePrincipals(nullptr);
 
     if (!isValidPrincipals(principals))
     {
@@ -406,7 +404,7 @@ void RiuMohrsCirclePlot::addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircle
 {
     m_mohrsCiclesInfos.push_back(mohrsCircleInfo);
 
-    addEnvelope(mohrsCircleInfo.principals, view);
+    addEnvelopeCurve(mohrsCircleInfo.principals, view);
     addMohrCircles(mohrsCircleInfo);
     updateTransparentCurvesOnPrincipals();
 }
