@@ -101,7 +101,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", 0, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
+    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", RigFemResultAddress::NO_COMPACTION, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
     m_compactionRefLayerUiField.xmlCapability()->setIOWritable(false);
     m_compactionRefLayerUiField.xmlCapability()->setIOReadable(false);
 
@@ -136,6 +136,11 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     {
         caf::PdmUiGroup * compactionGroup = uiOrdering.addNewGroup("Compaction Options");
         compactionGroup->add(&m_compactionRefLayerUiField);
+
+        if (m_compactionRefLayerUiField == RigFemResultAddress::NO_COMPACTION)
+        {
+            m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->reservoirIJKBoundingBox().first.z();
+        }
     }
 
     if (!m_isChangedByField)

@@ -182,6 +182,28 @@ void RigFemPartGrid::generateStructGridData()
         cvf::Vec3i ijk = m_ijkPrElement[elmIdx];
         m_elmIdxPrIJK.at(ijk[0], ijk[1],  ijk[2]) = elmIdx;
     }
+
+    // IJK bounding box
+    m_reservoirIJKBoundingBox.first = cvf::Vec3st(INT_MAX, INT_MAX, INT_MAX);
+    m_reservoirIJKBoundingBox.second = cvf::Vec3st(0, 0, 0);
+    cvf::Vec3st& min = m_reservoirIJKBoundingBox.first;
+    cvf::Vec3st& max = m_reservoirIJKBoundingBox.second;
+
+    for (int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx)
+    {
+        RigElementType elementType = m_femPart->elementType(elmIdx);
+        size_t i, j, k;
+        if (elementType == HEX8P && ijkFromCellIndex(elmIdx, &i, &j, &k))
+        {
+            if (i < min.x()) min.x() = i;
+            if (j < min.y()) min.y() = j;
+            if (k < min.z()) min.z() = k;
+            if (i > max.x()) max.x() = i;
+            if (j > max.y()) max.y() = j;
+            if (k > max.z()) max.z() = k;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,6 +307,14 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
     ijkMainFaceIndices[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
 
     return ijkMainFaceIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3st, cvf::Vec3st> RigFemPartGrid::reservoirIJKBoundingBox() const
+{
+    return m_reservoirIJKBoundingBox;
 }
 
 //--------------------------------------------------------------------------------------------------

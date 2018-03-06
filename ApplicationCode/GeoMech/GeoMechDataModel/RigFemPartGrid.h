@@ -38,6 +38,8 @@ public:
     virtual size_t      gridPointCountK() const;
  
     cvf::Vec3i          findMainIJKFaces(int elementIndex) const;
+    
+    std::pair<cvf::Vec3st, cvf::Vec3st> reservoirIJKBoundingBox() const;
 
  private:
     void                generateStructGridData();
@@ -93,7 +95,7 @@ private: // Unused, Not implemented
     };
 
     IJKArray m_elmIdxPrIJK; 
-
+    std::pair<cvf::Vec3st, cvf::Vec3st> m_reservoirIJKBoundingBox;
 };
 
 
