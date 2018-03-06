@@ -22,12 +22,15 @@
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 
+#include "RicNewEllipseFractureTemplateFeature.h"
+
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureExportSettings.h"
-#include "Rim3dView.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -58,20 +61,34 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
     RimFractureTemplate* fractureTemplate = nullptr;
     objHandle->firstAncestorOrThisOfType(fractureTemplate);
 
-    auto currentUnit = fractureTemplate->fractureTemplateUnit();
+    if (!fractureTemplate) return;
+
+    RimFractureTemplateCollection* fractureTemplateCollection = nullptr;
+    fractureTemplate->firstAncestorOrThisOfType(fractureTemplateCollection);
+
+    auto copyOfTemplate = dynamic_cast<RimFractureTemplate*>(
+        fractureTemplate->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+
+    fractureTemplateCollection->addFractureTemplate(copyOfTemplate);
+
+    RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateCollection, copyOfTemplate);
+
+    auto currentUnit = copyOfTemplate->fractureTemplateUnit();
     if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-       fractureTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
+       copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
     }
     else
     {
-       fractureTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
+       copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
     }
 
-    fractureTemplate->disconnectAllFracturesAndRedrawViews();
-    fractureTemplate->loadDataAndUpdate();
+    QString name = copyOfTemplate->name();
+    name += " (copy)";
+    copyOfTemplate->setName(name);
 
-    fractureTemplate->updateConnectedEditors();
+    copyOfTemplate->loadDataAndUpdate();
+    copyOfTemplate->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,18 +106,19 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
     objHandle->firstAncestorOrThisOfType(fractureTemplate);
     if (!fractureTemplate) return;
 
-    QString text = "Convert Values to ";
+    QString destinationUnit;
     if (fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        text += "Field";
+        destinationUnit += "Field";
     }
     else if (fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        text += "Metric";
+        destinationUnit += "Metric";
     }
+
+    QString text = QString("Create %1 Units Duplicate").arg(destinationUnit);
     
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    //TODO: Add unit to text
 
     actionToSetup->setText(text);
 }
