@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
+#include "RimCheckableObject.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -40,7 +40,7 @@ class RimFractureTemplateCollection;
 ///  
 ///  
 //==================================================================================================
-class RimStimPlanColors : public RimCheckableNamedObject
+class RimStimPlanColors : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 

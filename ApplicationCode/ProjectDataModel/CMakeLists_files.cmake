@@ -87,6 +87,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
+${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
@@ -188,6 +189,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp

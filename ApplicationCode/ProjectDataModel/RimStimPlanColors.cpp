@@ -64,7 +64,7 @@ static QString toString(const std::pair<QString, QString>& resultNameAndUnit);
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors::RimStimPlanColors()
 {
-    CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
+    CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
 
@@ -76,9 +76,6 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitField(&m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "");
-
-    setName("Fractures");
-    nameField()->uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
