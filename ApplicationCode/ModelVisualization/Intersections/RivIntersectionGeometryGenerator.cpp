@@ -144,14 +144,16 @@ void RivIntersectionGeometryGenerator::calculateSegementTransformPrLinePoint()
                 cvf::Vec3d p2 = polyLine[idxToNextP];
 
                 cvf::Mat4d sectionLocalCS = calculateSectionLocalFlatteningCS(p1, p2, m_extrusionDirection);
+                
                 if ( pLineIdx == 0 && lIdx == 0 ) previousSectionOrigo = sectionLocalCS.translation();
+
                 previousSectionFlattenedEndPosX += (sectionLocalCS.translation() - previousSectionOrigo).length();
                 previousSectionOrigo = sectionLocalCS.translation();
 
                 invSectionCS = sectionLocalCS.getInverted();
                 cvf::Vec3d flattenedTranslation(previousSectionFlattenedEndPosX, 0.0, 0.0);
 
-                invSectionCS.setTranslation(invSectionCS.translation() + flattenedTranslation - displayOffset);
+                invSectionCS.setTranslation(invSectionCS.translation() + flattenedTranslation );
             }
 
             size_t inc = 0;
@@ -210,6 +212,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
         if (polyLine.size() < 2) continue;
 
         size_t lineCount = polyLine.size();
+        //size_t lIdx = 0;
+        //while ( lIdx < lineCount - 1)
         for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
         {
             size_t idxToNextP = indexToNextValidPoint(polyLine, m_extrusionDirection, lIdx);
@@ -402,6 +406,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     }
                 }
             }
+//            lIdx = idxToNextP;
         }
     }
     m_triangleVxes->assign(triangleVertices);

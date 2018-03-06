@@ -392,11 +392,12 @@ void RimIntersection::updateAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * horizontalLengthAlongWellToPolylineStart) const
 {
-    CVF_ASSERT(horizontalLengthAlongWellToPolylineStart != nullptr);
+    if (horizontalLengthAlongWellToPolylineStart)  *horizontalLengthAlongWellToPolylineStart = 0.0;
 
     std::vector< std::vector <cvf::Vec3d> > lines;
+
     double horizontalProjectedLengthAlongWellPathToClipPoint = 0.0;
-    if (horizontalLengthAlongWellToPolylineStart)  *horizontalLengthAlongWellToPolylineStart = 0.0;
+
     if (type == CS_WELL_PATH)
     {
         if (wellPath() && wellPath->wellPathGeometry() )

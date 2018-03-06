@@ -60,6 +60,9 @@ public:
 
     cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const { return m_flatIntersectionPartMgr; }
 
+
+    virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
+
 protected:
     void                       updateLegends();
 

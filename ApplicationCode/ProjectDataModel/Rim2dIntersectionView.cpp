@@ -41,6 +41,7 @@
 #include "RimWellPath.h"
 
 #include <QDateTime>
+#include "cafDisplayCoordTransform.h"
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
@@ -285,6 +286,14 @@ void Rim2dIntersectionView::update3dInfo()
     m_viewer->setInfoText(overlayInfoText);
     m_viewer->showInfoText(true);
     m_viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<caf::DisplayCoordTransform> Rim2dIntersectionView::displayCoordTransform() const
+{
+   return new caf::DisplayCoordTransform();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -191,7 +191,7 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
             QString formattedText;
             if (m_2dIntersectionView)
             {
-                formattedText.sprintf("Horizontal length from well start: %.2f", domainCoord.x());
+                formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
                 text += formattedText + itemSeparator;
 
                 cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
