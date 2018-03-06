@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicConvertFractureTemplateUnitFeature : public caf::CmdFeature
+class RicCreateDuplicateTemplateInOtherUnitSystemFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

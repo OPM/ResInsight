@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicConvertFractureTemplateUnitFeature.h"
+#include "RicCreateDuplicateTemplateInOtherUnitSystemFeature.h"
 
 
 #include "RiaApplication.h"
@@ -45,12 +45,12 @@
 #include <QString>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT(RicConvertFractureTemplateUnitFeature, "RicConvertFractureTemplateUnitFeature");
+CAF_CMD_SOURCE_INIT(RicCreateDuplicateTemplateInOtherUnitSystemFeature, "RicConvertFractureTemplateUnitFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
+void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool isChecked)
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
@@ -94,7 +94,7 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSetup)
+void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook(QAction* actionToSetup)
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
@@ -126,7 +126,7 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicConvertFractureTemplateUnitFeature::isCommandEnabled()
+bool RicCreateDuplicateTemplateInOtherUnitSystemFeature::isCommandEnabled()
 {
     return true;
 }
