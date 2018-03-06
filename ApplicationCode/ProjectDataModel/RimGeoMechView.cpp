@@ -421,8 +421,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges(RimLegendConfig* legendConf
     legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
     legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-    QString legendTitle = "Tensors:\n" + caf::AppEnum<RigFemResultPosEnum>(tensorResults()->resultPositionType()).uiText() + "\n"
-                         + tensorResults()->resultFieldName();
+    QString legendTitle = "Tensors:\n" + RimTensorResults::uiFieldName(resFieldName);
 
     legendConfig->setTitle(legendTitle);
 }

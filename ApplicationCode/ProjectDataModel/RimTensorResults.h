@@ -69,8 +69,9 @@ public:
     TensorColors        vectorColors() const;
     ScaleMethod         scaleMethod() const;
 
-    RigFemResultPosEnum resultPositionType() const;
-    QString             resultFieldName() const;
+    static RigFemResultPosEnum resultPositionType();
+    QString                    resultFieldName() const;
+    static QString             uiFieldName(const QString& fieldName);
 
     caf::PdmChildField<RimLegendConfig*> legendConfig;
 
@@ -83,16 +84,13 @@ private:
     virtual void                            initAfterRead() override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    static QString                          uiFieldName(const QString& fieldName);
     static QString                          fieldNameFromUi(const QString& uiFieldName);
 
 private:
     caf::PdmField<bool>                              m_showTensors;
 
-    caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPositionType;
     caf::PdmField<QString>                           m_resultFieldName;
 
-    caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultFieldNameUiField;
 
     caf::PdmField<bool>                              m_principal1;

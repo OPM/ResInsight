@@ -59,21 +59,14 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::RimTensorResults()
 {
-    CAF_PDM_InitObject("Tensor Results", ":/CellResult.png", "", "");
+    CAF_PDM_InitObject("Element Tensor Results", ":/CellResult.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
     legendConfig.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType", "Result Position", "", "", "");
-    m_resultPositionType.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_resultFieldName, "ResultVariable", "Result Variable", "", "", "");
     m_resultFieldName.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
-    m_resultPositionTypeUiField.xmlCapability()->setIOWritable(false);
-    m_resultPositionTypeUiField.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitField(&m_resultFieldNameUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
     m_resultFieldNameUiField.xmlCapability()->setIOWritable(false);
@@ -93,9 +86,6 @@ RimTensorResults::RimTensorResults()
 
     m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultFieldNameUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-
-    m_resultPositionType = RIG_ELEMENT_NODAL;
-    m_resultPositionTypeUiField = m_resultPositionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +101,7 @@ RimTensorResults::~RimTensorResults()
 //--------------------------------------------------------------------------------------------------
 RigFemResultAddress RimTensorResults::selectedTensorResult() const
 {
-    return RigFemResultAddress(m_resultPositionType(), m_resultFieldName().toStdString(), "");
+    return RigFemResultAddress(resultPositionType(), m_resultFieldName().toStdString(), "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,9 +181,9 @@ RimTensorResults::ScaleMethod RimTensorResults::scaleMethod() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemResultPosEnum RimTensorResults::resultPositionType() const
+RigFemResultPosEnum RimTensorResults::resultPositionType()
 {
-    return m_resultPositionType();
+    return RIG_INTEGRATION_POINT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,21 +212,8 @@ std::vector<std::string> RimTensorResults::getResultMetaDataForUIFieldSetting()
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_resultPositionTypeUiField)
-    {
-        if (m_resultPositionTypeUiField() == m_resultPositionType())
-        {
-            m_resultFieldNameUiField = uiFieldName(m_resultFieldName());
-        }
-        else
-        {
-            m_resultFieldNameUiField = "";
-        }
-    }
-
     if (changedField == &m_resultFieldNameUiField)
     {
-        m_resultPositionType = m_resultPositionTypeUiField;
         m_resultFieldName = fieldNameFromUi(m_resultFieldNameUiField);
     }
     if (changedField == &m_showTensors)
@@ -265,17 +242,7 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if ( fieldNeedingOptions == &m_resultPositionTypeUiField)
-    {
-        using ResultEnum = caf::AppEnum<RigFemResultPosEnum>;
-
-        options.push_back(caf::PdmOptionItemInfo(ResultEnum::uiText(RigFemResultPosEnum::RIG_ELEMENT_NODAL),
-                                                RigFemResultPosEnum::RIG_ELEMENT_NODAL));
-
-        options.push_back(caf::PdmOptionItemInfo(ResultEnum::uiText(RigFemResultPosEnum::RIG_INTEGRATION_POINT),
-                                                 RigFemResultPosEnum::RIG_INTEGRATION_POINT));
-    }
-    else if (fieldNeedingOptions == &m_resultFieldNameUiField)
+    if (fieldNeedingOptions == &m_resultFieldNameUiField)
     {
         std::vector<std::string> fieldCompNames = getResultMetaDataForUIFieldSetting();
 
@@ -293,7 +260,6 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_resultPositionTypeUiField);
     uiOrdering.add(&m_resultFieldNameUiField);
 
     caf::PdmUiGroup* visibilityGroup = uiOrdering.addNewGroup("Visibility");
@@ -317,7 +283,6 @@ void RimTensorResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::initAfterRead()
 {
-    m_resultPositionTypeUiField = m_resultPositionType;
     m_resultFieldNameUiField = uiFieldName(m_resultFieldName());
 }
 
