@@ -20,6 +20,8 @@
 
 #include "RifEclipseInputFileTools.h"
 
+#include "RiaLogging.h"
+
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
@@ -90,6 +92,25 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
+        QString errorText = QString("Failed to import grid file '%1'\n").arg(fileName);
+
+        if (coordPos < 0)
+        {
+            errorText += "  Missing required keyword COORD";
+        }
+
+        if (zcornPos < 0)
+        {
+            errorText += "  Missing required keyword ZCORN";
+        }
+
+        if (specgridPos < 0)
+        {
+            errorText += "  Missing required keyword SPECGRID";
+        }
+
+        RiaLogging::error(errorText);
+
         return false;
     }
 
