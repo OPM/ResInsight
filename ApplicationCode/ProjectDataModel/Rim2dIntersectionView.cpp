@@ -177,6 +177,15 @@ void Rim2dIntersectionView::update3dInfo()
 
     RimEclipseView * eclView = nullptr;
     m_intersection->firstAncestorOrThisOfType(eclView);
+    if (eclView && !eclView->overlayInfoConfig()->isActive())
+    {
+        m_viewer->showInfoText(false);
+        m_viewer->showHistogram(false);
+        m_viewer->showAnimationProgress(false);
+
+        m_viewer->update();
+        return;
+    }
     if (eclView && eclView->overlayInfoConfig()->showCaseInfo())
     {
         overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";

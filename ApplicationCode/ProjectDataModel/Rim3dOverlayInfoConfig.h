@@ -79,9 +79,10 @@ public:
     void          showStatisticsInfoDialog(bool raise = true);
     QImage        statisticsDialogScreenShotImage();
 
-    bool          showAnimProgress();
-    bool          showCaseInfo();
-    bool          showResultInfo();
+    bool          showAnimProgress() const;
+    bool          showCaseInfo() const;
+    bool          showResultInfo() const;
+    bool          isActive() const;
 
     enum StatisticsTimeRangeType
     {
@@ -104,6 +105,8 @@ protected:
 private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
+
+    void update3DInfoIn2dViews() const;
 
     QString                                     timeStepText(RimEclipseView* eclipseView);
     QString                                     timeStepText(RimGeoMechView* geoMechView);

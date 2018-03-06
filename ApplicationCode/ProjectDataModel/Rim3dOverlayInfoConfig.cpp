@@ -232,7 +232,7 @@ QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dOverlayInfoConfig::showAnimProgress()
+bool Rim3dOverlayInfoConfig::showAnimProgress() const
 {
     return m_showAnimProgress;
 }
@@ -240,7 +240,7 @@ bool Rim3dOverlayInfoConfig::showAnimProgress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dOverlayInfoConfig::showCaseInfo()
+bool Rim3dOverlayInfoConfig::showCaseInfo() const
 {
     return m_showCaseInfo;
 }
@@ -248,9 +248,17 @@ bool Rim3dOverlayInfoConfig::showCaseInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dOverlayInfoConfig::showResultInfo()
+bool Rim3dOverlayInfoConfig::showResultInfo() const
 {
     return m_showResultInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::isActive() const
+{
+    return m_active;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,6 +695,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         m_viewDef->viewer()->showHistogram(false);
         m_viewDef->viewer()->showAnimationProgress(false);
 
+        update3DInfoIn2dViews();
         return;
     }
 
@@ -722,15 +731,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         m_gridStatisticsDialog->updateFromRimView(geoMechView);
     }
 
-    RimCase* rimCase;
-    firstAncestorOrThisOfType(rimCase);
-    if (rimCase)
-    {
-        for (Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views())
-        {
-            view->update3dInfo();
-        }
-    }
+    update3DInfoIn2dViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -866,6 +867,22 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             geoMechView->viewer()->showHistogram(true);
             geoMechView->viewer()->setHistogram(histData.min, histData.max, *histData.histogram);
             geoMechView->viewer()->setHistogramPercentiles(histData.p10, histData.p90, histData.mean);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::update3DInfoIn2dViews() const
+{
+    RimCase* rimCase;
+    firstAncestorOrThisOfType(rimCase);
+    if (rimCase)
+    {
+        for (Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views())
+        {
+            view->update3dInfo();
         }
     }
 }
