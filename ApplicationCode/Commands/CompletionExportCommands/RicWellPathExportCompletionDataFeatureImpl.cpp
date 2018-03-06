@@ -488,10 +488,9 @@ void RicWellPathExportCompletionDataFeatureImpl::printCompletionsToFile(
     if (completionsPerGrid.empty()) return;
 
     QDir exportFolder(folderName);
-
     if (!exportFolder.exists())
     {
-        bool createdPath = exportFolder.mkpath(folderName);
+        bool createdPath = exportFolder.mkpath(".");
         if (createdPath)
             RiaLogging::info("Created export folder " + folderName);
         else
