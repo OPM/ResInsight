@@ -41,7 +41,7 @@ class RifWellPathFormationsImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
-class Rim3dWellLogCurve;
+class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
 
 class RimFishbonesCollection;
@@ -50,6 +50,8 @@ class RimWellPathCompletions;
 class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
+class Rim3dWellLogCurveCollection;
+class Rim3dWellLogCurve;
 
 //==================================================================================================
 ///  
@@ -175,7 +177,7 @@ private:
 
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
     
-    caf::PdmChildArrayField<Rim3dWellLogCurve*> m_3dWellLogCurves;
+    caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 };

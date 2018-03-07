@@ -72,7 +72,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurve::Rim3dWellLogCurve()
 {
-    CAF_PDM_InitObject("3d Well Log Curve", "", "", "");
+    CAF_PDM_InitObject("3d Well Log Curve", ":/WellLogCurve16x16.png", "", "");
 
     CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);
@@ -83,6 +83,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
+    m_case = nullptr;
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "");
     m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
@@ -115,11 +116,7 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::setPropertiesFromView(Rim3dView* view)
 {
-    m_case = nullptr;
-    if (view)
-    {
-        m_case = view->ownerCase();
-    }
+    if (!view) return;
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

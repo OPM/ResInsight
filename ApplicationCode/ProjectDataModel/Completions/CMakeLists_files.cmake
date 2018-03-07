@@ -20,6 +20,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.h
 )
 
 
@@ -44,6 +45,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
