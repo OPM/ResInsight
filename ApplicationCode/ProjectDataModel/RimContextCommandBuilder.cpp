@@ -263,6 +263,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicAdd3dWellLogCurveFeature";
+
+            menuBuilder.addSeparator();
+
             menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
