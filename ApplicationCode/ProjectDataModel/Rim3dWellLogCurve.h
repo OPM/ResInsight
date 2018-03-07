@@ -1,0 +1,80 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2018-     Statoil ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
+#include "RimCase.h"
+
+class RimGeoMechResultDefinition;
+class RimEclipseResultDefinition;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class Rim3dWellLogCurve : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    enum DrawPlane
+    {
+        HORIZONTAL_LEFT,
+        HORIZONTAL_RIGHT,
+        VERTICAL_ABOVE,
+        VERTICAL_BELOW,
+        CAMERA_ALIGNED_SIDE1,
+        CAMERA_ALIGNED_SIDE2
+    };
+
+    enum DrawStyle
+    {
+        LINE,
+        FILLED
+    };
+
+    enum ColoringStyle
+    {
+        SINGLE_COLOR,
+        CURVE_VALUE,
+        OTHER_RESULT
+    };
+
+
+public:
+    Rim3dWellLogCurve();
+    virtual ~Rim3dWellLogCurve();
+
+private:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmField<int>                              m_timeStep;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
+
+    caf::PdmField<caf::AppEnum<DrawPlane>> m_drawPlane;
+    caf::PdmField<caf::AppEnum<DrawStyle>> m_drawStyle;
+    caf::PdmField<caf::AppEnum<ColoringStyle>> m_coloringStyle;
+};
