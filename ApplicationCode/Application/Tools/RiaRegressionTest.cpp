@@ -33,6 +33,9 @@ RiaRegressionTest::RiaRegressionTest(void)
     CAF_PDM_InitFieldNoDefault(&folderContainingCompareTool,        "workingFolder", "Folder containing <b>compare</b>", "", "Location of compare tool from Image Magic suite", "");
     folderContainingCompareTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
+    CAF_PDM_InitFieldNoDefault(&folderContainingDiffTool, "folderContainingDiffTool", "Folder containing <b>diff</b>", "", "Location of diff tool used for text compare", "");
+    folderContainingDiffTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "");
     regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
@@ -71,7 +74,7 @@ void RiaRegressionTest::readSettingsFromApplicationStore()
 //--------------------------------------------------------------------------------------------------
 void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &folderContainingCompareTool || field == &regressionTestFolder)
+    if (field == &folderContainingDiffTool || field == &folderContainingCompareTool || field == &regressionTestFolder)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
@@ -80,5 +83,3 @@ void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, 
         }
     }
 }
-
-

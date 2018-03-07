@@ -37,6 +37,7 @@ public:
 
 public:
     caf::PdmField<QString>  folderContainingCompareTool;
+    caf::PdmField<QString>  folderContainingDiffTool;
     caf::PdmField<QString>  regressionTestFolder;
     caf::PdmField<QString>  testFilter;
     caf::PdmField<bool>     showInteractiveDiffImages;
