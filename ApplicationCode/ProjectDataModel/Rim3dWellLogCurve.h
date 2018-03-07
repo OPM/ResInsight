@@ -64,12 +64,19 @@ public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
 
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    void setPropertiesFromView(Rim3dView* view);
+
+    virtual caf::PdmFieldHandle*            objectToggleField() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*            userDescriptionField() override;
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+
 private:
+    caf::PdmField<bool>                             m_showCurve;
     caf::PdmField<QString>                          m_name;
 
     caf::PdmPtrField<RimCase*>                      m_case;

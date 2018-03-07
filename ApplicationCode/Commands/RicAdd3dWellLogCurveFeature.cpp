@@ -53,6 +53,13 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered(bool isChecked)
     RimWellPath* selectedWellPath = RicWellLogTools::selectedWellPath();
 
     Rim3dWellLogCurve* rim3dWellLogCurve = new Rim3dWellLogCurve();
+    
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    if (view)
+    {
+        rim3dWellLogCurve->setPropertiesFromView(view);
+    }
+    
     selectedWellPath->add3dWellLogCurve(rim3dWellLogCurve);
     
     RiaApplication::instance()->project()->updateConnectedEditors();

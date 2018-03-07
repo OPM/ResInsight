@@ -22,7 +22,11 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
-
+#include "RimTools.h"
+#include "Rim3dView.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechView.h"
+#include "RimEclipseCellColors.h"
 
 //==================================================================================================
 ///  
@@ -70,6 +74,9 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 {
     CAF_PDM_InitObject("3d Well Log Curve", "", "", "");
 
+    CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
+    m_showCurve.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_drawPlane, "DrawPlane", "Draw Plane", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_drawStyle, "DrawStyle", "Draw Style", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coloringStyle, "ColoringStyle", "Coloring Style", "", "", "");
@@ -90,7 +97,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "");
 
-    CAF_PDM_InitField(&m_name, "Name", QString("3d Well Log Curve"), "3d Well Log Curve", "", "", "");
+    CAF_PDM_InitField(&m_name, "Name", QString("3D Well Log Curve"), "3d Well Log Curve", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
 }
 
@@ -101,6 +108,84 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 {
     delete m_geomResultDefinition;
     delete m_eclipseResultDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::setPropertiesFromView(Rim3dView* view)
+{
+    m_case = nullptr;
+    if (view)
+    {
+        m_case = view->ownerCase();
+    }
+
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+    m_geomResultDefinition->setGeoMechCase(geomCase);
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+    if (eclipseView)
+    {
+        m_eclipseResultDefinition->simpleCopy(eclipseView->cellResult());
+        m_timeStep = eclipseView->currentTimeStep();
+    }
+
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
+    if (geoMechView)
+    {
+        m_geomResultDefinition->setResultAddress(geoMechView->cellResultResultDefinition()->resultAddress());
+        m_timeStep = geoMechView->currentTimeStep();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
+{
+    return &m_showCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_case)
+    {
+        RimTools::caseOptionItems(&options);
+
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
+    else if (fieldNeedingOptions == &m_timeStep)
+    {
+        QStringList timeStepNames;
+
+        if (m_case)
+        {
+            timeStepNames = m_case->timeStepStrings();
+        }
+
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,3 +232,4 @@ void Rim3dWellLogCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     uiOrdering.skipRemainingFields();
 }
+
