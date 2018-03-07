@@ -65,6 +65,7 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem(Font* font)
 :   m_windowSize(600, 600),
     m_textColor(Color3::BLACK),
     m_lineColor(Color3::BLACK),
+    m_frameColor(Color3::WHITE),
     m_lineWidth(1),
     m_font(font),
     m_isSwitchingYAxisValueSign(true)
@@ -278,7 +279,9 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 
     // Bottom X - axis text
     {
-        const float textY = m_pixelSpacing + m_textSize.y()*0.5f;
+        const float textYTop = m_windowSize.y() - m_pixelSpacing - m_textSize.y()*0.5f;
+        const float textYBott = m_pixelSpacing + m_textSize.y()*0.5f;
+
         size_t numTicks = m_domainCoordsXValues.size();
         size_t i;
         for ( i = 0; i < numTicks; i++ )
@@ -291,14 +294,17 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
             valueString = String::number(tickValue);
             auto labelSize = m_font->textExtent(valueString);
 
-            Vec2f pos(textX - labelSize.x()*0.5f, textY);
+            Vec2f pos(textX - labelSize.x()*0.5f, textYBott);
+            textDrawer->addText(valueString, pos);
+            pos[1] = textYTop;
             textDrawer->addText(valueString, pos);
         }
     }
-
+ 
     // Right Y - axis texts
     {
-        const float textX = m_windowSize.x() - m_pixelSpacing - m_textSize.x();
+        const float textXRight = m_windowSize.x() - m_pixelSpacing - m_textSize.x();
+        const float textXLeft = m_frameBorderWidth - m_tickLineLength - m_pixelSpacing;
 
         size_t numTicks = m_domainCoordsYValues.size();
         size_t i;
@@ -312,29 +318,10 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
             valueString = String::number(tickValue);
             auto labelSize = m_font->textExtent(valueString);
 
-            Vec2f pos(textX, textY);
+            Vec2f pos(textXRight, textY);
             textDrawer->addText(valueString, pos);
-        }
-    }
-
-    // Left Y - axis texts
-    {
-        const float textX = m_frameBorderWidth - m_tickLineLength - m_pixelSpacing;
-
-        size_t numTicks = m_domainCoordsYValues.size();
-        size_t i;
-        for ( i = 0; i < numTicks; i++ )
-        {
-            float textY = static_cast<float>(m_windowTickYValues[i]);
-
-            double tickValue =  m_isSwitchingYAxisValueSign ? -m_domainCoordsYValues[i]: m_domainCoordsYValues[i];
-            String valueString;
-
-            valueString = String::number(tickValue);
-            auto labelSize = m_font->textExtent(valueString);
-
-            Vec2f pos(textX - labelSize.x(), textY);
-            textDrawer->addText(valueString, pos);
+            Vec2f posl(textXLeft - labelSize.x(), textY);
+            textDrawer->addText(valueString, posl);
         }
     }
 }
@@ -347,15 +334,22 @@ std::array<Vec3f, 8> RivWindowEdgeAxesOverlayItem::frameVertexArray()
     float windowWidth = static_cast<float>(m_windowSize.x());
     float windowHeight = static_cast<float>(m_windowSize.y());
 
+    //  3            2
+    //    7       6
+    //
+    //    4       5
+    //  0            1
+
     std::array<Vec3f, 8> vertexArray ={
-        Vec3f(0.0f                            , 0.0f               , 0.0f),
-        Vec3f(windowWidth                     , 0.0f               , 0.0f),
-        Vec3f(windowWidth                     , windowHeight       , 0.0f),
-        Vec3f(0.0f                            , windowHeight       , 0.0f),
-        Vec3f(m_frameBorderWidth              , m_frameBorderHeight, 0.0f),
-        Vec3f(windowWidth - m_frameBorderWidth, m_frameBorderHeight, 0.0f),
-        Vec3f(windowWidth - m_frameBorderWidth, windowHeight       , 0.0f),
-        Vec3f(m_frameBorderWidth              , windowHeight       , 0.0f),
+        Vec3f(0.0f                            , 0.0f                              , 0.0f),
+        Vec3f(windowWidth                     , 0.0f                              , 0.0f),
+        Vec3f(windowWidth                     , windowHeight                      , 0.0f),
+        Vec3f(0.0f                            , windowHeight                      , 0.0f),
+                                                                                  
+        Vec3f(m_frameBorderWidth              , m_frameBorderHeight               , 0.0f),
+        Vec3f(windowWidth - m_frameBorderWidth, m_frameBorderHeight               , 0.0f),
+        Vec3f(windowWidth - m_frameBorderWidth, windowHeight - m_frameBorderHeight, 0.0f),
+        Vec3f(m_frameBorderWidth              , windowHeight - m_frameBorderHeight, 0.0f),
     };
 
     return vertexArray;
@@ -380,7 +374,7 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
 
     std::array<Vec3f, 8> vertexArray = frameVertexArray();
 
-    glColor4fv(Vec4f(1.0f,1.0f,1.0f,0.5f).ptr());
+    glColor4fv(m_frameColor.ptr());
     glBegin(GL_TRIANGLE_FAN);
     glVertex3fv(vertexArray[0].ptr());
     glVertex3fv(vertexArray[1].ptr());
@@ -399,6 +393,12 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
     glVertex3fv(vertexArray[4].ptr());
     glVertex3fv(vertexArray[7].ptr());
     glEnd();
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3fv(vertexArray[2].ptr());
+    glVertex3fv(vertexArray[3].ptr());
+    glVertex3fv(vertexArray[7].ptr());
+    glVertex3fv(vertexArray[6].ptr());
+    glEnd();
 
 
     // Render Line around
@@ -413,6 +413,8 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
         glVertex3fv(vertexArray[5].ptr());
         glVertex3fv(vertexArray[5].ptr());
         glVertex3fv(vertexArray[6].ptr());
+        glVertex3fv(vertexArray[6].ptr());
+        glVertex3fv(vertexArray[7].ptr());
 
         // X - axis Tick lines
         for (double txpos : m_windowTickXValues)
@@ -424,6 +426,14 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
             p1[1] = m_frameBorderHeight;
             p2[0] = (float)txpos;
             p2[1] = m_frameBorderHeight - m_tickLineLength;
+
+            glVertex3fv(p1.ptr());
+            glVertex3fv(p2.ptr());
+
+            p1[0] = (float)txpos;
+            p1[1] = m_windowSize.y() - m_frameBorderHeight;
+            p2[0] = (float)txpos;
+            p2[1] = m_windowSize.y() - m_frameBorderHeight + m_tickLineLength;
 
             glVertex3fv(p1.ptr());
             glVertex3fv(p2.ptr());
@@ -503,16 +513,17 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
 
     // Draw frame background
 
-    UniformFloat backgroundColorUniform("u_color", Color4f(1.0f, 1.0f, 1.0f, 0.5f));
+    UniformFloat backgroundColorUniform("u_color", m_frameColor);
     shaderProgram->applyUniform(oglContext, backgroundColorUniform);
 
     // Triangle indices for the frame background
 
     static const ushort backgroundTriangleIndices[] = { 0, 1, 5,  0, 5, 4,
                                                         1, 2, 6,  1, 6, 5,
-                                                        3, 0, 4,  3, 4, 7 };
+                                                        3, 0, 4,  3, 4, 7,
+                                                        2, 3, 6,  3, 7, 6 };
 
-    glDrawRangeElements(GL_TRIANGLES, 0, 7, 18, GL_UNSIGNED_SHORT, backgroundTriangleIndices);
+    glDrawRangeElements(GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices);
 
 
     // Draw frame border lines
@@ -522,9 +533,10 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
 
     static const ushort frameLineIndices[] = { 7, 4, 
                                                4, 5, 
-                                               5, 6 };
+                                               5, 6,
+                                               6, 7 };
 
-    glDrawRangeElements(GL_LINES, 0, 7, 6, GL_UNSIGNED_SHORT, frameLineIndices);
+    glDrawRangeElements(GL_LINES, 0, 7, 8, GL_UNSIGNED_SHORT, frameLineIndices);
 
     // Render tickmarks
 
@@ -538,6 +550,13 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
         vertexArray[0][1] = m_frameBorderHeight;
         vertexArray[1][0] = (float)txpos;
         vertexArray[1][1] = m_frameBorderHeight - m_tickLineLength;
+
+        glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
+
+        vertexArray[0][0] = (float)txpos;
+        vertexArray[0][1] = m_windowSize.y() - m_frameBorderHeight;
+        vertexArray[1][0] = (float)txpos;
+        vertexArray[1][1] = m_windowSize.y() - m_frameBorderHeight + m_tickLineLength;
 
         glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
     }

@@ -347,22 +347,17 @@ void RiuViewer::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::paintOverlayItems(QPainter* painter)
 {
-    // No support for overlay items using SW rendering yet.
-    //if (!isShadersSupported())
-    //{
-    //    return;
-    //}
-
     int columnWidth = 200;
+
     int edgeAxisFrameBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth(): 0;
     int edgeAxisFrameBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight(): 0;
+
     int margin = 5;
-    int yPos = margin;
+    int yPos = margin + edgeAxisFrameBorderHeight;
 
     bool showAnimBar = false;
     if (isAnimationActive() && frameCount() > 1) showAnimBar = true;
 
-    //if (showAnimBar)       columnWidth = CVF_MAX(columnWidth, m_animationProgress->width());
     if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_infoLabel->sizeHint().width());
 
     int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
@@ -598,7 +593,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         for (auto catLegend : categoryLegends)
         {
             catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
-            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight - edgeAxisBorderHeight));
+            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight - 2*edgeAxisBorderHeight));
 
             xPos += categoryWidth + border;
         }

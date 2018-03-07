@@ -72,6 +72,7 @@ class RivWindowEdgeAxesOverlayItem : public cvf::OverlayItem
     using OpenGLContext = cvf::OpenGLContext;
     using Vec2i = cvf::Vec2i;
     using Color3f = cvf::Color3f;
+    using Color4f = cvf::Color4f;
     using String = cvf::String;
     using Vec2f = cvf::Vec2f;
     using Vec3f = cvf::Vec3f;
@@ -91,6 +92,7 @@ public:
     const Color3f&  textColor() const;
     void            setLineColor(const Color3f& lineColor);
     const Color3f&  lineColor() const;
+    void            setFrameColor(const Color4f& frameColor);
 
     int             frameBorderWidth()  { return static_cast<int>( m_frameBorderWidth); }
     int             frameBorderHeight() { return static_cast<int>( m_frameBorderHeight); }
@@ -116,6 +118,7 @@ private:
     Vec2ui              m_textSize;
     Color3f             m_textColor;
     Color3f             m_lineColor;
+    Color4f             m_frameColor;
     int                 m_lineWidth;
     cvf::ref<Font>      m_font;
 
