@@ -89,6 +89,9 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "");
+
+    CAF_PDM_InitField(&m_name, "Name", QString("3d Well Log Curve"), "3d Well Log Curve", "", "", "");
+    m_name.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +101,14 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 {
     delete m_geomResultDefinition;
     delete m_eclipseResultDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dWellLogCurve::userDescriptionField()
+{
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,8 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicAdd3dWellLogCurveFeature, "RicAdd3dWellLogCurveFeature");
@@ -48,9 +50,17 @@ bool RicAdd3dWellLogCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAdd3dWellLogCurveFeature::onActionTriggered(bool isChecked)
 {
-    Rim3dWellLogCurve* rim3dWellLogCurve = new Rim3dWellLogCurve;
+    RimWellPath* selectedWellPath = RicWellLogTools::selectedWellPath();
 
-    RicWellLogTools::selectedWellPath()->add3dWellLogCurve(rim3dWellLogCurve);
+    Rim3dWellLogCurve* rim3dWellLogCurve = new Rim3dWellLogCurve();
+    selectedWellPath->add3dWellLogCurve(rim3dWellLogCurve);
+    
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    Riu3DMainWindowTools::selectAsCurrentItem(rim3dWellLogCurve);
+    Riu3DMainWindowTools::setExpanded(selectedWellPath);
+
+    selectedWellPath->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

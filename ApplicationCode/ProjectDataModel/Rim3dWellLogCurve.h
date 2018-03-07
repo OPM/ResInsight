@@ -60,15 +60,18 @@ public:
         OTHER_RESULT
     };
 
-
 public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
+
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    caf::PdmField<QString>                          m_name;
+
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;

@@ -809,7 +809,6 @@ const RigWellPathFormations* RimWellPath::formationsGeometry() const
 void RimWellPath::add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve)
 {
     m_3dWellLogCurves.push_back(rim3dWellLogCurve);
-    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
