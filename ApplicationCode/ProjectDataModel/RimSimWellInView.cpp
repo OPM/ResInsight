@@ -35,6 +35,8 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimIntersection.h"
+#include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
 
@@ -42,6 +44,13 @@
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfMath.h"
+
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView);
+
 
 CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
@@ -110,6 +119,7 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             &wellPipeColor == changedField)
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
         else if (&showWell == changedField ||
                  &showWellCells == changedField ||
@@ -118,15 +128,14 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         {
             reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
         else if (   &pipeScaleFactor == changedField
                  || &wellHeadScaleFactor == changedField)
         {
-            if (reservoirView)
-            {
-                reservoirView->scheduleSimWellGeometryRegen();
-                reservoirView->scheduleCreateDisplayModelAndRedraw();
-            }
+            reservoirView->scheduleSimWellGeometryRegen();
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
     }
 
@@ -350,6 +359,18 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::schedule2dIntersectionViewUpdate()
+{
+     Rim2dIntersectionView* intersectionView = corresponding2dIntersectionView(this);
+    if (intersectionView)
+    {
+        intersectionView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -607,3 +628,28 @@ size_t RimSimWellInView::resultWellIndex() const
     return m_resultWellIndex;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView)
+{
+    Rim3dView* tdView;
+    simWellInView->firstAncestorOrThisOfType(tdView);
+
+    std::vector<RimIntersectionCollection*> intersectionColls;
+    if (tdView)
+    {
+        tdView->descendantsIncludingThisOfType(intersectionColls);
+        if (intersectionColls.size() == 1)
+        {
+            for (const auto intersection : intersectionColls[0]->intersections())
+            {
+                if (intersection->simulationWell() == simWellInView)
+                {
+                    return intersection->correspondingIntersectionView();
+                }
+            }
+        }
+    }
+    return nullptr;
+}

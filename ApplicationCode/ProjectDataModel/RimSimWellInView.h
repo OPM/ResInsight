@@ -103,6 +103,8 @@ private:
 
     bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
 
+    void                                schedule2dIntersectionViewUpdate();
+
 private:
     cvf::ref<RigSimWellData>            m_simWellData;
     size_t                              m_resultWellIndex;
