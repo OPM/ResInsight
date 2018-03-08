@@ -71,7 +71,7 @@ protected:
     void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    void                   setupFractureGridCells();
+    void                   assignConductivityToCellsInsideEllipse();
 
 
     FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;

@@ -59,7 +59,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&m_userDefinedEffectivePermeability,"Permeability",     0.0,   "Permeability [mD]", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
-    setupFractureGridCells();
+    assignConductivityToCellsInsideEllipse();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::loadDataAndUpdate()
 {
-    setupFractureGridCells();
+    assignConductivityToCellsInsideEllipse();
 
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (activeView) activeView->loadDataAndUpdate();
@@ -101,7 +101,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     if (changedField == &m_width || changedField == &m_userDefinedEffectivePermeability)
     {
-        setupFractureGridCells();
+        assignConductivityToCellsInsideEllipse();
     }
 }
 
@@ -159,7 +159,7 @@ void RimEllipseFractureTemplate::changeUnits()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::setupFractureGridCells()
+void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
 {
     std::vector<RigFractureCell> fractureCells;
     std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(0, 0);
@@ -329,7 +329,7 @@ void RimEllipseFractureTemplate::reload()
     {
         //Regenerate geometry
         proj->createDisplayModelAndRedrawAllViews();
-        setupFractureGridCells();
+        assignConductivityToCellsInsideEllipse();
     }
 }
 
