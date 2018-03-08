@@ -77,6 +77,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
     includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&showLegendBackground, "showLegendBackground", true, "Enable Legend Background", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
 
@@ -153,6 +155,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         defaultSettingsGroup->add(&defaultWellLabelColor);
         defaultSettingsGroup->add(&fontSizeInScene);
         defaultSettingsGroup->add(&defaultScaleFactorZ);
+        defaultSettingsGroup->add(&showLegendBackground);
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D Views");
         viewsGroup->add(&navigationPolicy);

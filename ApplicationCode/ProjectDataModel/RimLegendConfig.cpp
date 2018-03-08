@@ -48,6 +48,7 @@
 
 #include <cmath>
 #include "RimIntersectionCollection.h"
+#include "RiaPreferences.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -369,6 +370,10 @@ void RimLegendConfig::updateLegend()
    }
    m_scalarMapperLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
+   RiaApplication* app = RiaApplication::instance();
+   RiaPreferences* preferences = app->preferences();
+   m_scalarMapperLegend->enableBackground(preferences->showLegendBackground());
+   m_categoryLegend->enableBackground(preferences->showLegendBackground());
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
    {

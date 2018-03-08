@@ -35,6 +35,7 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
+#include "RiaPreferences.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
@@ -201,6 +202,10 @@ void RimTernaryLegendConfig::updateLegend()
     if (!m_legend.isNull())
     {
         m_legend->setRangeText(soilRange, sgasRange, swatRange);
+
+        RiaApplication* app = RiaApplication::instance();
+        RiaPreferences* preferences = app->preferences();
+        m_legend->enableBackground(preferences->showLegendBackground());
     }
 }
 

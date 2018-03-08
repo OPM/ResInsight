@@ -63,6 +63,7 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
     caf::PdmField<QString>  fontSizeInScene;
+    caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
