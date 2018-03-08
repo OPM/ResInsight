@@ -22,6 +22,7 @@
 #include "cvfOverlayItem.h"
 #include "cvfMatrix4.h"
 #include "cvfColor3.h"
+#include "cvfColor4.h"
 #include "cvfString.h"
 
 namespace cvf {
@@ -43,24 +44,37 @@ public:
 
     void setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange);
 
-    virtual cvf::Vec2ui  sizeHint();
-
-    virtual void    render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-    virtual void    renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-
     void            setSize(const cvf::Vec2ui& size);
     void            setAxisLabelsColor(const cvf::Color3f& color);
     void            setTitle(const cvf::String& title);
 
+    void            enableBackground(bool enable);
+    void            setBackgroundColor(const cvf::Color4f& backgroundColor); 
+    void            setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
 
 private:
-    void render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
-    void renderAxisImmediateMode(float upperY, cvf::OpenGLContext* oglContext);
+    cvf::Vec2ui     sizeHint() override;
+    void            render(cvf::OpenGLContext* oglContext, 
+                           const cvf::Vec2i& position, 
+                           const cvf::Vec2ui& size) override;
+    void            renderSoftware(cvf::OpenGLContext* oglContext, 
+                                   const cvf::Vec2i& position, 
+                                   const cvf::Vec2ui& size) override;
+
+    void            renderGeneric(cvf::OpenGLContext* oglContext, 
+                                  const cvf::Vec2i& position, 
+                                  const cvf::Vec2ui& size, 
+                                  bool software);
+    void            renderAxisImmediateMode(float upperY, float lowerBoundY, float border,  cvf::OpenGLContext* oglContext);
 
 private:
     cvf::Color3f        m_textColor;    // Text color 
     cvf::ref<cvf::Font> m_font;
     
+    bool                m_isBackgroundEnabled;
+    cvf::Color4f        m_backgroundColor;
+    cvf::Color4f        m_backgroundFrameColor;
+
     cvf::String         m_soilRange;
     cvf::String         m_sgasRange;
     cvf::String         m_swatRange;
