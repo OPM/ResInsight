@@ -27,6 +27,7 @@
 #endif
 
 #include "cvfScalarMapper.h"
+#include "cafInternalLegendRenderTools.h"
 
 
 using namespace cvf;
@@ -41,6 +42,9 @@ CategoryLegend::CategoryLegend(Font* font, const CategoryMapper* categoryMapper)
     : m_sizeHint(200, 200),
     m_textColor(Color3::BLACK),
     m_lineColor(Color3::BLACK),
+    m_backgroundColor(1.0f, 1.0f, 1.0f, 0.8f),
+    m_backgroundFrameColor(0.0f, 0.0f, 0.0f, 0.5f),
+    m_isBackgroundEnabled(true),
     m_lineWidth(1),
     m_font(font),
     m_categoryMapper(categoryMapper)
@@ -156,7 +160,10 @@ bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, c
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
+void CategoryLegend::renderGeneric(OpenGLContext* oglContext, 
+                                   const Vec2i& position, 
+                                   const Vec2ui& size, 
+                                   bool software)
 {
     if (size.x() <= 0 || size.y() <= 0)
     {
@@ -176,18 +183,30 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& posit
     layoutInfo(&layout);
 
     // Set up text drawer
+    float maxLegendRightPos = 0; 
     TextDrawer textDrawer(m_font.p());
-    setupTextDrawer(&textDrawer, &layout);
+    setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
+
+    Vec2f backgroundSize(maxLegendRightPos + 3.0f, (float)size.y());
 
     // Do the actual rendering
     if (software)
     {
+        if (m_isBackgroundEnabled) InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, 
+                                                                                            backgroundSize, 
+                                                                                            m_backgroundColor, 
+                                                                                            m_backgroundFrameColor);
         renderLegendImmediateMode(oglContext, &layout);
         textDrawer.renderSoftware(oglContext, camera);
     }
     else
     {
         const MatrixState matrixState(camera);
+        if (m_isBackgroundEnabled) InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, 
+                                                                                           matrixState, 
+                                                                                           backgroundSize, 
+                                                                                           m_backgroundColor, 
+                                                                                           m_backgroundFrameColor);
         renderLegendUsingShaders(oglContext, &layout, matrixState);
         textDrawer.render(oglContext, camera);
     }
@@ -198,7 +217,9 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& posit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout)
+void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, 
+                                     OverlayColorLegendLayoutInfo* layout, 
+                                     float* maxLegendRightPos)
 {
     if (m_categoryMapper.isNull())
     {
@@ -206,6 +227,8 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
     }
 
     CVF_ASSERT(layout);
+
+    float legendRight = 0.0f;
 
     textDrawer->setVerticalAlignment(TextDrawer::CENTER);
     textDrawer->setTextColor(m_textColor);
@@ -251,6 +274,9 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
         Vec2f pos(textX, textY);
         textDrawer->addText(displayText, pos);
 
+        float neededRightPos = pos.x() + m_font->textExtent(displayText).x();
+        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
+
         lastVisibleTextY = textY;
         m_visibleCategoryLabels.push_back(true);
     }
@@ -261,14 +287,21 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
         Vec2f pos(layout->margins.x(), titleY);
         textDrawer->addText(m_titleStrings[it], pos);
 
+        float neededRightPos = pos.x() + m_font->textExtent(m_titleStrings[it]).x();
+        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
+
         titleY -= layout->lineSpacing;
     }
+
+    *maxLegendRightPos = legendRight;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using shader programs
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState)
+void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext, 
+                                              OverlayColorLegendLayoutInfo* layout, 
+                                              const MatrixState& matrixState)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
@@ -528,6 +561,30 @@ void CategoryLegend::setLineColor(const Color3f& lineColor)
 void CategoryLegend::setLineWidth(int lineWidth)
 {
     m_lineWidth = lineWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryLegend::setBackgroundColor(const Color4f& backgroundColor)
+{
+    m_backgroundColor = backgroundColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryLegend::setBackgroundFrameColor(const Color4f& backgroundFrameColor)
+{
+    m_backgroundFrameColor = backgroundFrameColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryLegend::enableBackground(bool enable)
+{
+    m_isBackgroundEnabled = enable;
 }
 
 

@@ -36,6 +36,10 @@ public:
     void         setLineWidth(int lineWidth);
     void         setTitle(const cvf::String& title);
 
+    void            enableBackground(bool enable);
+    void            setBackgroundColor(const cvf::Color4f& backgroundColor); 
+    void            setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
+
     size_t       categoryCount() const;
 
 protected:
@@ -73,10 +77,18 @@ protected:
 
     void         layoutInfo(OverlayColorLegendLayoutInfo* layout);
 
-    void         renderGeneric(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
-    void         setupTextDrawer(cvf::TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
-    void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const cvf::MatrixState& matrixState);
-    void         renderLegendImmediateMode(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
+    void         renderGeneric(cvf::OpenGLContext* oglContext, 
+                               const cvf::Vec2i& position, 
+                               const cvf::Vec2ui& size, 
+                               bool software);
+    void         setupTextDrawer(cvf::TextDrawer* textDrawer, 
+                                 OverlayColorLegendLayoutInfo* layout, 
+                                 float* maxLegendRightPos);
+    void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, 
+                                          OverlayColorLegendLayoutInfo* layout,
+                                          const cvf::MatrixState& matrixState);
+    void         renderLegendImmediateMode(cvf::OpenGLContext* oglContext, 
+                                           OverlayColorLegendLayoutInfo* layout);
 
 protected:
     std::vector<bool>         m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
@@ -88,6 +100,10 @@ protected:
     int                       m_lineWidth;
     std::vector<cvf::String>  m_titleStrings;
     cvf::ref<cvf::Font>       m_font;
+
+    bool                      m_isBackgroundEnabled;
+    cvf::Color4f              m_backgroundColor;
+    cvf::Color4f              m_backgroundFrameColor;
 
     cvf::cref<CategoryMapper> m_categoryMapper;
 };
