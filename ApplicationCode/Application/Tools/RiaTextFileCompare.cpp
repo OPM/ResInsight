@@ -61,7 +61,7 @@ bool RiaTextFileCompare::runComparison(const QString& baseFolder, const QString&
     }
 
     // Run compare recursively with '-r'
-    QString args = "-r";
+    QString args = "-r -u";
 
     QString completeCommand = QString("\"%1\" %2 %3 %4").arg(fullFilePath).arg(baseFolder).arg(generatedFolder).arg(args);
 

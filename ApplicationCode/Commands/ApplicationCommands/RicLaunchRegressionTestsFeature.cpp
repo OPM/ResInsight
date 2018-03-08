@@ -18,8 +18,7 @@
 
 #include "RicLaunchRegressionTestsFeature.h"
 
-#include "RiaApplication.h"
-#include "RiaRegressionTest.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "cafPdmSettings.h"
 
@@ -41,7 +40,7 @@ bool RicLaunchRegressionTestsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLaunchRegressionTestsFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication::instance()->executeRegressionTests();
+    RiaRegressionTestRunner::instance()->executeRegressionTests();
 }
 
 //--------------------------------------------------------------------------------------------------

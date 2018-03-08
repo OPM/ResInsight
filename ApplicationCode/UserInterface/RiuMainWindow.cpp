@@ -24,6 +24,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -1726,8 +1727,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         // Write preferences using QSettings and apply them to the application
         regTestConfig.writeSettingsToApplicationStore();
 
-        RiaApplication* app = RiaApplication::instance();
-        app->executeRegressionTests();
+		RiaRegressionTestRunner::instance()->executeRegressionTests();
     }
 }
 

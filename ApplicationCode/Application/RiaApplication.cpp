@@ -22,99 +22,65 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
-#include "RiaImageCompareReporter.h"
-#include "RiaImageFileCompare.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
-#include "RiaRegressionTest.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 
-#include "RigGridManager.h"
-#include "RigEclipseCaseData.h"
-
+#include "RicImportInputEclipseCaseFeature.h"
+#include "RicImportSummaryCaseFeature.h"
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
 #include "Rim2dIntersectionViewCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCaseCollection.h"
-#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
-#include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimFaultInViewCollection.h"
-#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimRftPlotCollection.h"
-#include "RimPltPlotCollection.h"
-
-#include "RimEclipseCase.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
+#include "RimPltPlotCollection.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimScriptCollection.h"
+#include "RimRftPlotCollection.h"
+#include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RimWellAllocationPlot.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellRftPlot.h"
+#include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
 #include "RiuSelectionManager.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
-#include "RiuWellLogPlot.h"
-#include "RiuWellAllocationPlot.h"
-#include "RiuFlowCharacteristicsPlot.h"
-
-#include "RimFractureTemplateCollection.h"
-#include "RimWellPathFracture.h"
-#include "RimStimPlanColors.h"
-
-
-#include "RicImportInputEclipseCaseFeature.h"
-#include "RicImportSummaryCaseFeature.h"
-#include "ExportCommands/RicSnapshotViewToFileFeature.h"
-#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
-#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
-
-#include "RicfCommandFileExecutor.h"
-
-#include "cafFixedAtlasFont.h"
 
 #include "cafAppEnum.h"
-#include "cafCeetronPlusNavigation.h"
-#include "cafEffectCache.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
+#include "cafEffectGenerator.h"
+#include "cafFixedAtlasFont.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
@@ -126,22 +92,15 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
-#include <QAction>
-#include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
 #include <QMdiSubWindow>
 #include <QMessageBox>
-#include <QTimer>
-#include <QUrl>
 #include <QTreeView>
 
+#ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
-
-#ifdef WIN32
-#include <fcntl.h>
-#endif
-
+#endif // USE_UNIT_TESTS
 
 namespace caf
 {
@@ -158,14 +117,16 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 
 namespace RegTestNames
 {
-    const QString generatedFolderName   = "RegTestGeneratedImages";
-    const QString diffFolderName        = "RegTestDiffImages";
-    const QString baseFolderName        = "RegTestBaseImages";
-    const QString testProjectName       = "RegressionTest";
-    const QString testFolderFilter      = "TestCase*";
-    const QString imageCompareExeName   = "compare";
-    const QString reportFileName        = "ResInsightRegressionTestReport.html";
-    const QString commandFileFilter     = "commandfile-*";
+const QString generatedFilesFolderName = "RegTestGeneratedFiles";
+const QString baseFilesFolderName      = "RegTestBaseFiles";
+const QString generatedFolderName      = "RegTestGeneratedImages";
+const QString diffFolderName           = "RegTestDiffImages";
+const QString baseFolderName           = "RegTestBaseImages";
+const QString testProjectName          = "RegressionTest";
+const QString testFolderFilter         = "TestCase*";
+const QString imageCompareExeName      = "compare";
+const QString reportFileName           = "ResInsightRegressionTestReport.html";
+const QString commandFileFilter        = "commandfile-*";
 };
 
 
@@ -229,8 +190,6 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
-
-    m_runningRegressionTests = false;
 
     m_runningWorkerProcess = false;
 
@@ -1541,6 +1500,19 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
+{
+	// Wait until all command objects have completed
+	while (!m_commandQueueLock.tryLock())
+	{
+		processEvents();
+	}
+	m_commandQueueLock.unlock();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RiaApplication::scriptDirectories() const
 {
     return m_preferences->scriptDirectories();
@@ -1966,317 +1938,6 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void removeDirectoryWithContent(QDir dirToDelete )
-{
-    QStringList files = dirToDelete.entryList();
-    for (int fIdx = 0; fIdx < files.size(); ++fIdx)
-    {
-        dirToDelete.remove(files[fIdx]);
-    }
-    dirToDelete.rmdir(".");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
-{
-    double timeRunning = time.elapsed() / 1000.0;
-
-    QString timeText = QString("(%1 s) ").arg(timeRunning, 0, 'f', 1);
-
-    RiaLogging::info(timeText + msg);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList* testFilter)
-{
-    m_runningRegressionTests = true;
-
-    RiaRegressionTest regressionTestConfig;
-    regressionTestConfig.readSettingsFromApplicationStore();
-
-    QString currentApplicationPath = QDir::currentPath();
-    if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
-    {
-        // Windows Only : The image compare tool requires current working directory to be at the folder
-        // containing the image compare tool
-
-        QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
-    }
-
-    QString generatedFolderName = RegTestNames::generatedFolderName;
-    QString diffFolderName      = RegTestNames::diffFolderName;    
-    QString baseFolderName      = RegTestNames::baseFolderName;    
-    QString regTestProjectName  = RegTestNames::testProjectName; 
-    QString regTestFolderFilter = RegTestNames::testFolderFilter;
-    // Find all sub folders
-    
-    QDir testDir(testRootPath); // If string is empty it will end up as cwd
-    testDir.setFilter(QDir::Dirs);
-    QStringList dirNameFilter;
-    dirNameFilter.append(regTestFolderFilter);
-    testDir.setNameFilters(dirNameFilter);
-
-    QFileInfoList folderList = testDir.entryInfoList();
-
-    if (testFilter && testFilter->size() > 0)
-    {
-        QFileInfoList subset;
-
-        for (auto fi : folderList)
-        {
-            QString path = fi.path();
-            QString baseName = fi.baseName();
-
-            for (auto s : *testFilter)
-            {
-                QString trimmed = s.trimmed();
-                if (baseName.contains(trimmed))
-                {
-                    subset.push_back(fi);
-                }
-            }
-        }
-
-        folderList = subset;
-    }
-
-    // delete diff and generated images
-
-
-    for (int i = 0; i < folderList.size(); ++i)
-    {
-        QDir testCaseFolder(folderList[i].filePath());
-
-        QDir genDir(testCaseFolder.filePath(generatedFolderName));
-        removeDirectoryWithContent(genDir);
-
-        QDir diffDir(testCaseFolder.filePath(diffFolderName));
-        removeDirectoryWithContent(diffDir);
-
-        QDir baseDir(testCaseFolder.filePath(baseFolderName));
-    }
-
-    // Generate html report
-
-    RiaImageCompareReporter imageCompareReporter;
-
-    // Minor workaround
-    // Use registry to define if interactive diff images should be created
-    // Defined by user in RiaRegressionTest
-    {
-        QSettings settings;
-
-        bool useInteractiveDiff = settings.value("showInteractiveDiffImages").toBool();
-        if (useInteractiveDiff)
-        {
-            imageCompareReporter.showInteractiveOnly();
-        }
-    }
-
-    QTime timeStamp;
-    timeStamp.start();
-
-    logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
-
-    for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
-    {
-        QDir testCaseFolder(folderList[dirIdx].filePath());
-
-        QString testFolderName = testCaseFolder.dirName();
-        QString reportBaseFolderName       = testCaseFolder.filePath(baseFolderName);
-        QString reportGeneratedFolderName  = testCaseFolder.filePath(generatedFolderName);
-        QString reportDiffFolderName       = testCaseFolder.filePath(diffFolderName);
-
-        imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
-    }
-
-    QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
-    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString());
-
-    // Open HTML report
-    QDesktopServices::openUrl(htmlReportFileName);
-
-    for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
-    {
-        QDir testCaseFolder(folderList[dirIdx].filePath());
-
-        // Detect any command files
-        QStringList filterList; 
-        filterList << RegTestNames::commandFileFilter;
-
-        QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
-        if (!commandFileEntries.empty())
-        {
-            QString currentApplicationPath = QDir::current().absolutePath();
-
-            // Set current path to the folder containing the command file, as this is required when using file references
-            // in the command file
-            QDir::setCurrent(folderList[dirIdx].filePath());
-
-            for (const auto& fileInfo : commandFileEntries)
-            {
-                QString commandFile = fileInfo.absoluteFilePath();
-
-                QFile file(commandFile);
-                if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-                {
-                    RiaLogging::error("Failed to open command file : " + commandFile);
-                }
-                else
-                {
-                    QTextStream in(&file);
-                    RicfCommandFileExecutor::instance()->executeCommands(in);
-                }
-            }
-    
-            QDir::setCurrent(currentApplicationPath);
-        }
-
-
-        QString projectFileName;
-        
-        if (testCaseFolder.exists(regTestProjectName + ".rip"))
-        {
-            projectFileName = regTestProjectName + ".rip";
-        }
-
-        if (testCaseFolder.exists(regTestProjectName + ".rsp"))
-        {
-            projectFileName = regTestProjectName + ".rsp";
-        }
-
-        if (!projectFileName.isEmpty())
-        {
-            logInfoTextWithTimeInSeconds(timeStamp, "Initializing test :" + testCaseFolder.absolutePath());
-
-            loadProject(testCaseFolder.filePath(projectFileName));
-
-            // Wait until all command objects have completed
-            while (!m_commandQueueLock.tryLock())
-            {
-                processEvents();
-            }
-            m_commandQueueLock.unlock();
-
-            regressionTestConfigureProject();
-
-            resizeMaximizedPlotWindows();
-
-            QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(fullPathGeneratedFolder);
-
-            RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
-
-            QDir baseDir(testCaseFolder.filePath(baseFolderName));
-            QDir genDir(testCaseFolder.filePath(generatedFolderName));
-            QDir diffDir(testCaseFolder.filePath(diffFolderName));
-            if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-            baseDir.setFilter(QDir::Files);
-            QStringList baseImageFileNames = baseDir.entryList();
-
-            for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
-            {
-                QString fileName = baseImageFileNames[fIdx];
-                RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-                bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-                if (!ok)
-                {
-                    qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
-                }
-            }
-
-            closeProject();
-        
-            logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
-        }
-        else
-        {
-            RiaLogging::error("Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" + regTestProjectName + ".rsp");
-        }
-    }
-
-    RiaLogging::info("\n");
-    logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
-
-    QDir::setCurrent(currentApplicationPath);
-
-    m_runningRegressionTests = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::resizeMaximizedPlotWindows()
-{
-    std::vector<RimViewWindow*> viewWindows;
-    m_project->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
-
-    for (auto viewWindow : viewWindows)
-    {
-        if (viewWindow->isMdiWindow())
-        {
-            RimMdiWindowGeometry wndGeo = viewWindow->mdiWindowGeometry();
-            if (wndGeo.isMaximized)
-            {
-                QWidget* viewWidget = viewWindow->viewWidget();
-
-                if (viewWidget)
-                {
-                    QMdiSubWindow* mdiWindow = m_mainPlotWindow->findMdiSubWindow(viewWidget);
-                    if (mdiWindow)
-                    {
-                        mdiWindow->showNormal();
-
-                        viewWidget->resize(RiaApplication::regressionDefaultImageSize());
-                    }
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::updateRegressionTest(const QString& testRootPath)
-{
-    // Find all sub folders
-
-    QDir testDir(testRootPath); // If string is empty it will end up as cwd
-    testDir.setFilter(QDir::Dirs);
-    QStringList dirNameFilter;
-    dirNameFilter.append(RegTestNames::testFolderFilter);
-    testDir.setNameFilters(dirNameFilter);
-
-    QFileInfoList folderList = testDir.entryInfoList();
-
-    for (int i = 0; i < folderList.size(); ++i)
-    {
-        QDir testCaseFolder(folderList[i].filePath());
-
-        QDir baseDir(testCaseFolder.filePath(RegTestNames::baseFolderName));
-        removeDirectoryWithContent(baseDir);
-        testCaseFolder.mkdir(RegTestNames::baseFolderName);
-
-        QDir genDir(testCaseFolder.filePath(RegTestNames::generatedFolderName));
-
-        QStringList imageFileNames = genDir.entryList();
-
-        for (int fIdx = 0; fIdx < imageFileNames.size(); ++fIdx)
-        {
-            QString fileName = imageFileNames[fIdx];
-            QFile::copy(genDir.filePath(fileName), baseDir.filePath(fileName));
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::standardFont()
 {
     CVF_ASSERT(m_standardFont.notNull());
@@ -2437,93 +2098,6 @@ void RiaApplication::executeCommandObjects()
         // Unlock the command queue lock when the command queue is empty
         m_commandQueueLock.unlock();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::isRunningRegressionTests() const
-{
-    return m_runningRegressionTests;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter)
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (mainWnd)
-    {
-        mainWnd->hideAllDockWindows();
- 
-        mainWnd->setDefaultWindowSize();
-        runRegressionTest(regressionTestPath, testFilter);
-
-        mainWnd->loadWinGeoAndDockToolBarLayout();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::executeRegressionTests()
-{
-    RiaRegressionTest testConfig;
-    testConfig.readSettingsFromApplicationStore();
-
-    QString testPath = testConfig.regressionTestFolder();
-    QStringList testFilter = testConfig.testFilter().split(";", QString::SkipEmptyParts);
-
-    executeRegressionTests(testPath, &testFilter);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::regressionTestConfigureProject()
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    if (m_project.isNull()) return;
-
-    std::vector<RimCase*> projectCases;
-    m_project->allCases(projectCases);
-
-    for (size_t i = 0; i < projectCases.size(); i++)
-    {
-        RimCase* cas = projectCases[i];
-        if (!cas) continue;
-
-        std::vector<Rim3dView*> views = cas->views();
-
-        for (size_t j = 0; j < views.size(); j++)
-        {
-            Rim3dView* riv = views[j];
-
-            if (riv && riv->viewer())
-            {
-                // Make sure all views are maximized for snapshotting
-                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow(riv->viewer()->layoutWidget());
-                if (subWnd)
-                {
-                    subWnd->showMaximized();
-                }
-
-                // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize(RiaApplication::regressionDefaultImageSize());
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QSize RiaApplication::regressionDefaultImageSize()
-{
-    return QSize(1000, 745);
 }
 
 //--------------------------------------------------------------------------------------------------

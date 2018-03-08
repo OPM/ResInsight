@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaColorTools.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RimCase.h"
 #include "RimProject.h"
@@ -157,7 +158,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     m_viewerCommands = new RiuViewerCommands(this);
 
-    if (RiaApplication::instance()->isRunningRegressionTests())
+    if (RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
         QFont regTestFont = m_infoLabel->font();
         regTestFont.setPixelSize(11);
