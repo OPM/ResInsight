@@ -98,6 +98,11 @@
 #include <QMessageBox>
 #include <QTreeView>
 
+
+#ifndef WIN32
+#include <unistd.h>	// for usleep
+#endif //WIN32
+
 #ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
