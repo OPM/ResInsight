@@ -162,24 +162,23 @@ void RimEllipseFractureTemplate::changeUnits()
 void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
 {
     std::vector<RigFractureCell> fractureCells;
-    std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(0, 0);
 
-    int numberOfCellsX = 35;
-    int numberOfCellsY = 35;
+    int numberOfCellsI = 35;
+    int numberOfCellsJ = 35;
     
     double height = m_height * m_heightScaleFactor;
     double halfLength = m_halfLength * m_widthScaleFactor;
 
-    double cellSizeX = (halfLength * 2) / numberOfCellsX * m_widthScaleFactor;
-    double cellSizeZ = height / numberOfCellsY * m_heightScaleFactor;
+    double cellSizeX = (halfLength * 2) / numberOfCellsI * m_widthScaleFactor;
+    double cellSizeZ = height / numberOfCellsJ * m_heightScaleFactor;
 
     double cellArea = cellSizeX * cellSizeZ;
     double areaTresholdForIncludingCell = 0.5 * cellArea;
 
 
-    for (int i = 0; i < numberOfCellsX; i++)
+    for (int i = 0; i < numberOfCellsI; i++)
     {
-        for (int j = 0; j < numberOfCellsY; j++)
+        for (int j = 0; j < numberOfCellsJ; j++)
         {
             double X1 = - halfLength +  i    * cellSizeX;
             double X2 = - halfLength + (i+1) * cellSizeX;
@@ -211,24 +210,18 @@ void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
             RigFractureCell fractureCell(cellPolygon, i, j);
             fractureCell.setConductivityValue(cond);
 
-            if (cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0)
-            {
-                if (cellPolygon[1].y() < 0.0 && cellPolygon[2].y() > 0.0)
-                {
-                    wellCenterFractureCellIJ = std::make_pair(fractureCell.getI(), fractureCell.getJ());
-                    RiaLogging::debug(QString("Setting wellCenterFractureCell at cell %1, %2").
-                                      arg(QString::number(fractureCell.getI()), QString::number(fractureCell.getJ())));
-                }
-            }
-
             fractureCells.push_back(fractureCell);
         }
     }
     
     m_fractureGrid->setFractureCells(fractureCells);
+
+	// Set well intersection to center of ellipse
+    std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(numberOfCellsI / 2, numberOfCellsJ / 2);
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterFractureCellIJ);
-    m_fractureGrid->setICellCount(numberOfCellsX);
-    m_fractureGrid->setJCellCount(numberOfCellsY);
+    
+	m_fractureGrid->setICellCount(numberOfCellsI);
+    m_fractureGrid->setJCellCount(numberOfCellsJ);
 }
 
 //--------------------------------------------------------------------------------------------------
