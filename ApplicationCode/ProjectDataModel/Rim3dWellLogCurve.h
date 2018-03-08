@@ -66,14 +66,14 @@ public:
 
     void setPropertiesFromView(Rim3dView* view);
 
+private:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
 
-private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
+    virtual void initAfterRead() override;
 
 private:
     caf::PdmField<bool>                             m_showCurve;

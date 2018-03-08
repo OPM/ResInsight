@@ -18,15 +18,15 @@
 
 #include "Rim3dWellLogCurve.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
-#include "RimTools.h"
-#include "Rim3dView.h"
-#include "RimEclipseView.h"
 #include "RimGeoMechView.h"
-#include "RimEclipseCellColors.h"
+#include "RimTools.h"
 
 //==================================================================================================
 ///  
@@ -117,6 +117,8 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 void Rim3dWellLogCurve::setPropertiesFromView(Rim3dView* view)
 {
     if (!view) return;
+    
+    m_case = view->ownerCase();
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -208,7 +210,6 @@ void Rim3dWellLogCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     if (eclipseCase)
     {
         m_eclipseResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
-
     }
     else if (geomCase)
     {
@@ -222,11 +223,23 @@ void Rim3dWellLogCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
         curveDataGroup->add(&m_timeStep);
     }
 
-    caf::PdmUiGroup* formatGroup = uiOrdering.addNewGroup("Appearance");
-    formatGroup->add(&m_drawPlane);
-    formatGroup->add(&m_drawStyle);
-    formatGroup->add(&m_coloringStyle);
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_drawPlane);
+    appearanceGroup->add(&m_drawStyle);
+    appearanceGroup->add(&m_coloringStyle);
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::initAfterRead()
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
+    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+    m_geomResultDefinition->setGeoMechCase(geomCase);
 }
 

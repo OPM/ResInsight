@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 class Rim3dWellLogCurve;
 
@@ -38,5 +39,10 @@ public:
     bool has3dWellLogCurves() const;
     void add3dWellLogCurve(Rim3dWellLogCurve* curve);
 
+private:
+    virtual caf::PdmFieldHandle* objectToggleField() override;
+
+private:
+    caf::PdmField<bool>                         m_showCurves;
     caf::PdmChildArrayField<Rim3dWellLogCurve*> m_3dWellLogCurves;
 };

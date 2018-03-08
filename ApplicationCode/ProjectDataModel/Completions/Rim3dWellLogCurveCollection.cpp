@@ -29,9 +29,11 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 {
     CAF_PDM_InitObject("3D Track", ":/WellLogCurve16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_showCurves, "Show3dWellLogCurves", true, "Show 3d Well Log Curves", "", "", "");
+    m_showCurves.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "", "", "", "");
     m_3dWellLogCurves.uiCapability()->setUiTreeHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,4 +61,12 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
     {
         m_3dWellLogCurves.push_back(curve);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
+{
+    return &m_showCurves;
 }
