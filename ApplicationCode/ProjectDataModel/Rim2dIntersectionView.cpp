@@ -388,11 +388,7 @@ void Rim2dIntersectionView::createDisplayModel()
         m_viewer->addFrame(new cvf::Scene());
     }
 
-
-    if ( m_flatIntersectionPartMgr.isNull() || m_intersection() != m_flatIntersectionPartMgr->intersection())
-    {
-        m_flatIntersectionPartMgr = new RivIntersectionPartMgr(m_intersection(), true);
-    }
+    m_flatIntersectionPartMgr = new RivIntersectionPartMgr(m_intersection(), true);
 
     m_intersectionVizModel->removeAllParts();
     

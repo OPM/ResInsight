@@ -415,6 +415,8 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+            for (RimSimWellInView* w : wells) w->schedule2dIntersectionViewUpdate();
         }
         else if (&showWellsIntersectingVisibleCells == changedField)
         {

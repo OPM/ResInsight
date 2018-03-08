@@ -72,6 +72,9 @@ public:
 
     void                                wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
     double                              pipeRadius();
+
+    void                                schedule2dIntersectionViewUpdate();
+
     caf::PdmField<bool>                 showWell;
 
     caf::PdmField<QString>              name;
@@ -102,8 +105,6 @@ private:
     bool                                intersectsStaticWellCellsFilteredCells() const;
 
     bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
-
-    void                                schedule2dIntersectionViewUpdate();
 
 private:
     cvf::ref<RigSimWellData>            m_simWellData;
