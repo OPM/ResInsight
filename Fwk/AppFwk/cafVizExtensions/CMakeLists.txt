@@ -14,6 +14,10 @@ add_library( ${PROJECT_NAME}
     cafBoxManipulatorGeometryGenerator.h
     cafCategoryLegend.cpp
     cafCategoryLegend.h
+	cafOverlayScalarMapperLegend.h
+	cafOverlayScalarMapperLegend.cpp
+	cafInternalLegendRenderTools.h
+ 	cafInternalLegendRenderTools.cpp
     cafCategoryMapper.cpp
     cafCategoryMapper.h
     cafFixedAtlasFont.h

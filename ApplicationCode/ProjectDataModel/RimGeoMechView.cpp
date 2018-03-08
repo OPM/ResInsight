@@ -55,9 +55,9 @@
 #include "cafFrameAnimationControl.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
+#include "cafOverlayScalarMapperLegend.h"
 
 #include "cvfModelBasicList.h"
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 #include "cvfTransform.h"

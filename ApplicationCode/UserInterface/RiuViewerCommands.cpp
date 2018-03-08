@@ -81,11 +81,11 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
+#include "cafOverlayScalarMapperLegend.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
 #include "cvfOverlayAxisCross.h"
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfTransform.h"
 

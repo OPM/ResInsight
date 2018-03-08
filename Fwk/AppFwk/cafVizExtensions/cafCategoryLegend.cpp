@@ -39,7 +39,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 CategoryLegend::CategoryLegend(Font* font, const CategoryMapper* categoryMapper)
     : m_sizeHint(200, 200),
-    m_color(Color3::BLACK),
+    m_textColor(Color3::BLACK),
     m_lineColor(Color3::BLACK),
     m_lineWidth(1),
     m_font(font),
@@ -74,20 +74,11 @@ void CategoryLegend::setSizeHint(const Vec2ui& size)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set color of the text and lines to be rendered
+/// Set color of the text 
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::setColor(const Color3f& color)
+void CategoryLegend::setTextColor(const Color3f& color)
 {
-    m_color = color;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Returns the color of the text and lines
-//--------------------------------------------------------------------------------------------------
-const Color3f&  CategoryLegend::color() const
-{
-    return m_color;
+    m_textColor = color;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,25 +102,6 @@ void CategoryLegend::setTitle(const String& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String CategoryLegend::title() const
-{
-    String title;
-    for (size_t i = 0; i < m_titleStrings.size(); ++i)
-    {
-        title += m_titleStrings[i];
-
-        if (i != m_titleStrings.size() - 1)
-        {
-            title += "\n";
-        }
-    }
-
-    return title;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 size_t CategoryLegend::categoryCount() const
 {
     if (m_categoryMapper.notNull())
@@ -145,7 +117,7 @@ size_t CategoryLegend::categoryCount() const
 //--------------------------------------------------------------------------------------------------
 void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
-    render(oglContext, position, size, false);
+    renderGeneric(oglContext, position, size, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +125,7 @@ void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, co
 //--------------------------------------------------------------------------------------------------
 void CategoryLegend::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
-    render(oglContext, position, size, true);
+    renderGeneric(oglContext, position, size, true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +156,7 @@ bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, c
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
+void CategoryLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {
     if (size.x() <= 0 || size.y() <= 0)
     {
@@ -216,7 +188,7 @@ void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, co
     else
     {
         const MatrixState matrixState(camera);
-        renderLegend(oglContext, &layout, matrixState);
+        renderLegendUsingShaders(oglContext, &layout, matrixState);
         textDrawer.render(oglContext, camera);
     }
 
@@ -236,7 +208,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
     CVF_ASSERT(layout);
 
     textDrawer->setVerticalAlignment(TextDrawer::CENTER);
-    textDrawer->setTextColor(m_color);
+    textDrawer->setTextColor(m_textColor);
 
     m_visibleCategoryLabels.clear();
 
@@ -296,7 +268,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using shader programs
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState)
+void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
@@ -492,7 +464,7 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
         v0[1] = v1[1] = layout->legendRect.min().y() - 0.5f;
         v2[1] = v3[1] = layout->legendRect.max().y() - 0.5f;
 
-        glColor3fv(m_color.ptr());
+        glColor3fv(m_textColor.ptr());
         glBegin(GL_LINES);
         glVertex3fv(v0);
         glVertex3fv(v1);
@@ -553,26 +525,12 @@ void CategoryLegend::setLineColor(const Color3f& lineColor)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const Color3f& CategoryLegend::lineColor() const
-{
-    return m_lineColor;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void CategoryLegend::setLineWidth(int lineWidth)
 {
     m_lineWidth = lineWidth;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int CategoryLegend::lineWidth() const
-{
-    return m_lineWidth;
-}
+
 
 
 } // namespace cvf

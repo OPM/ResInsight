@@ -33,7 +33,6 @@ namespace cvf
     class ScalarMapperContinuousLog;
     class ScalarMapperContinuousLinear;
     class OverlayItem;
-    class OverlayScalarMapperLegend;
     class ScalarMapperDiscreteLinear;
     class ScalarMapperDiscreteLog;
     class ScalarMapper;
@@ -44,6 +43,7 @@ namespace caf
 {
     class CategoryLegend;
     class CategoryMapper;
+    class OverlayScalarMapperLegend;
 }
 
 class Rim3dView;
@@ -146,7 +146,7 @@ private:
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;
 
-    cvf::ref<cvf::OverlayScalarMapperLegend>    m_scalarMapperLegend;
+    cvf::ref<caf::OverlayScalarMapperLegend>    m_scalarMapperLegend;
     
     cvf::ref<caf::CategoryMapper>               m_categoryMapper;
     cvf::ref<caf::CategoryLegend>               m_categoryLegend;

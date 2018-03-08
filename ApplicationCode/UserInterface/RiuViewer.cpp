@@ -40,6 +40,7 @@
 #include "RiuViewerCommands.h"
 
 #include "cafCategoryLegend.h"
+#include "cafOverlayScalarMapperLegend.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -49,7 +50,6 @@
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
@@ -908,17 +908,17 @@ void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 
     cvf::Color3f contrastColor = computeContrastColor();
 
-    cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(legend);
+    caf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<caf::OverlayScalarMapperLegend*>(legend);
     if (scalarMapperLegend)
     {
-        scalarMapperLegend->setColor(contrastColor);
+        scalarMapperLegend->setTextColor(contrastColor);
         scalarMapperLegend->setLineColor(contrastColor);
     }
 
     caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(legend);
     if (categoryLegend)
     {
-        categoryLegend->setColor(contrastColor);
+        categoryLegend->setTextColor(contrastColor);
         categoryLegend->setLineColor(contrastColor);
     }
 

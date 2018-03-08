@@ -29,35 +29,21 @@ public:
     CategoryLegend(cvf::Font* font, const CategoryMapper* categoryMapper);
     virtual ~CategoryLegend();
 
-    virtual cvf::Vec2ui  sizeHint();
+    void         setSizeHint(const cvf::Vec2ui& size);
 
-    virtual void    render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-    virtual void    renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-    virtual bool    pick(int oglXCoord, int oglYCoord, const cvf::Vec2i& position, const cvf::Vec2ui& size);
+    void         setTextColor(const cvf::Color3f& color);
+    void         setLineColor(const cvf::Color3f& lineColor);
+    void         setLineWidth(int lineWidth);
+    void         setTitle(const cvf::String& title);
 
-
-    void            setSizeHint(const cvf::Vec2ui& size);
-
-    void            setColor(const cvf::Color3f& color);
-    const cvf::Color3f&  color() const;
-
-    void            setLineColor(const cvf::Color3f& lineColor);
-    const cvf::Color3f&  lineColor() const;
-    void            setLineWidth(int lineWidth);
-    int             lineWidth() const;
-
-    void            setTitle(const cvf::String& title);
-    cvf::String          title() const;
-
-    size_t          categoryCount() const;
+    size_t       categoryCount() const;
 
 protected:
+    cvf::Vec2ui sizeHint() override;
+    void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    void        renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    bool        pick(int oglXCoord, int oglYCoord, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
 
-    //==================================================================================================
-    //
-    // Helper for storing layout info
-    //
-    //==================================================================================================
     struct OverlayColorLegendLayoutInfo
     {
         OverlayColorLegendLayoutInfo(const cvf::Vec2i& pos, const cvf::Vec2ui& setSize)
@@ -85,24 +71,23 @@ protected:
         cvf::Vec2ui size;
     };
 
+    void         layoutInfo(OverlayColorLegendLayoutInfo* layout);
 
-    void         render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
-    virtual void renderLegend(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const cvf::MatrixState& matrixState);
-    virtual void renderLegendImmediateMode(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
-    virtual void setupTextDrawer(cvf::TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
-
-    void layoutInfo(OverlayColorLegendLayoutInfo* layout);
+    void         renderGeneric(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
+    void         setupTextDrawer(cvf::TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
+    void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const cvf::MatrixState& matrixState);
+    void         renderLegendImmediateMode(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
 
 protected:
-    std::vector<bool>        m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
-
-    cvf::Vec2ui              m_sizeHint;     // Pixel size of the color legend area
-
-    cvf::Color3f             m_color;
-    cvf::Color3f             m_lineColor;
-    int                      m_lineWidth;
-    std::vector<cvf::String> m_titleStrings;
-    cvf::ref<cvf::Font>      m_font;
+    std::vector<bool>         m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
+                              
+    cvf::Vec2ui               m_sizeHint;     // Pixel size of the color legend area
+                              
+    cvf::Color3f              m_textColor;
+    cvf::Color3f              m_lineColor;
+    int                       m_lineWidth;
+    std::vector<cvf::String>  m_titleStrings;
+    cvf::ref<cvf::Font>       m_font;
 
     cvf::cref<CategoryMapper> m_categoryMapper;
 };

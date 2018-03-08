@@ -82,10 +82,10 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafOverlayScalarMapperLegend.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 #include "cvfViewport.h" 

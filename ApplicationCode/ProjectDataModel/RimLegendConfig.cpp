@@ -32,6 +32,7 @@
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
+#include "cafOverlayScalarMapperLegend.h"
 
 #include "cafFactory.h"
 #include "cafPdmFieldCvfColor.h"
@@ -39,7 +40,6 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "cvfScalarMapperContinuousLog.h"
 #include "cvfScalarMapperDiscreteLinear.h"
@@ -143,7 +143,7 @@ RimLegendConfig::RimLegendConfig()
     m_categoryMapper = new caf::CategoryMapper;
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
     updateFieldVisibility();
@@ -359,7 +359,7 @@ void RimLegendConfig::updateLegend()
 
    // Using Fixed format 
    NumberFormatType nft = m_tickNumberFormat();
-   m_scalarMapperLegend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
+   m_scalarMapperLegend->setTickFormat((caf::OverlayScalarMapperLegend::NumberFormat)nft);
 
    // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
    int numDecimalDigits = m_precision();
@@ -510,7 +510,7 @@ void RimLegendConfig::recreateLegend()
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
     updateLegend();

@@ -54,7 +54,6 @@ namespace cvf {
     class Model;
     class OverlayImage;
     class OverlayItem;
-    class OverlayScalarMapperLegend;
     class RenderSequence;
     class Rendering;
     class Scene;
