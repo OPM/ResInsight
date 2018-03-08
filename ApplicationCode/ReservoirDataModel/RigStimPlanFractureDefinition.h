@@ -81,12 +81,6 @@ public:
                                                                    std::vector<cvf::Vec3f>*        vertices,
                                                                    std::vector<cvf::uint>*         triangleIndices);
     
-    std::vector<cvf::Vec3f>         createFractureBorderPolygon(const QString&                  resultName,
-                                                                const QString&                  resultUnit,
-                                                                int                             activeTimeStepIndex,
-                                                                double                          wellPathIntersectionAtFractureDepth,
-                                                                const QString&                  fractureUserName);
-
     const std::vector<double>&               timeSteps() const;
     void                                     addTimeStep(double time);
     size_t                                   totalNumberTimeSteps();

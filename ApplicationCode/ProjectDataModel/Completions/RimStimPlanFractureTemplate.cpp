@@ -746,20 +746,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon()
 {
-    if (m_stimPlanFractureDefinitionData.isNull()) return std::vector<cvf::Vec3f>();
-
-    QString parameterName = m_borderPolygonResultName;
-    QString parameterUnit = getUnitForStimPlanParameter(parameterName);
-  
-    if (m_stimPlanFractureDefinitionData.notNull())
-    {
-        return m_stimPlanFractureDefinitionData->createFractureBorderPolygon(parameterName,
-                                                                             parameterUnit,
-                                                                             m_activeTimeStepIndex,
-                                                                             m_wellPathDepthAtFracture,
-                                                                             name());
-    }
-
+    // Not implemented
     return std::vector<cvf::Vec3f>();
 }
 

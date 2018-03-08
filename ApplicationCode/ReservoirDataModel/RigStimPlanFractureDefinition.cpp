@@ -31,7 +31,6 @@
 
 #include <cmath>
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
@@ -408,13 +407,13 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
         RiaLogging::error("Did not find stim plan cell at well crossing!");
     }
 
-    cvf::ref<RigFractureGrid> m_fractureGrid = new RigFractureGrid;
-    m_fractureGrid->setFractureCells(stimPlanCells);
-    m_fractureGrid->setWellCenterFractureCellIJ(wellCenterStimPlanCellIJ);
-    m_fractureGrid->setICellCount(this->m_Xs.size() - 2);
-    m_fractureGrid->setJCellCount(this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth).size() - 2);
+    cvf::ref<RigFractureGrid> fractureGrid = new RigFractureGrid;
+    fractureGrid->setFractureCells(stimPlanCells);
+    fractureGrid->setWellCenterFractureCellIJ(wellCenterStimPlanCellIJ);
+    fractureGrid->setICellCount(this->m_Xs.size() - 2);
+    fractureGrid->setJCellCount(this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth).size() - 2);
 
-    return m_fractureGrid;
+    return fractureGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,68 +523,6 @@ void sortPolygon(std::vector<cvf::Vec3f> &polygon)
             }
         }
     }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolygon(const QString& resultName, 
-                                                                                   const QString& resultUnit, 
-                                                                                   int activeTimeStepIndex, 
-                                                                                   double wellPathIntersectionAtFractureDepth,
-                                                                                   const QString& fractureUserName)
-{
-    std::vector<cvf::Vec3f> polygon;
-
-    std::vector<std::vector<double>> dataAtTimeStep = this->getDataAtTimeIndex(resultName, resultUnit, activeTimeStepIndex);
-
-    std::vector<double> adjustedYs = this->adjustedYCoordsAroundWellPathPosition(wellPathIntersectionAtFractureDepth);
-
-    for ( int k = 0; k < static_cast<int>(dataAtTimeStep.size()); k++ )
-    {
-        for ( int i = 0; i < static_cast<int>(dataAtTimeStep[k].size()); i++ )
-        {
-            if ( (dataAtTimeStep[k])[i] < 1e-7 )  //polygon should consist of nodes with value 0
-            {
-                if ( (i > 0) && ((dataAtTimeStep[k])[(i - 1)] > 1e-7) ) //side neighbour cell different from 0
-                {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_Xs[i]),
-                                                 static_cast<float>(adjustedYs[k]), 0.0f));
-                }
-                else if ( (k < static_cast<int>(dataAtTimeStep.size()) - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7) )//cell below different from 0
-                {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_Xs[i]),
-                                                 static_cast<float>(adjustedYs[k]), 0.0f));
-                }
-                else if ( (k > 0) && ((dataAtTimeStep[k - 1])[(i)] > 1e-7) )//cell above different from 0
-                {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_Xs[i]),
-                                                 static_cast<float>(adjustedYs[k]), 0.0f));
-                }
-            }
-        }
-    }
-
-    sortPolygon(polygon);
-
-    std::vector<cvf::Vec3f> negPolygon;
-    for ( const cvf::Vec3f& node : polygon )
-    {
-        cvf::Vec3f negNode = node;
-        negNode.x() = -negNode.x();
-        negPolygon.insert(negPolygon.begin(), negNode);
-    }
-
-    for ( const cvf::Vec3f& negNode : negPolygon )
-    {
-        polygon.push_back(negNode);
-    }
-
-    //Adding first point last - to close the polygon
-    if ( polygon.size()>0 ) polygon.push_back(polygon[0]);
-
-    return polygon;
 }
 
 //--------------------------------------------------------------------------------------------------

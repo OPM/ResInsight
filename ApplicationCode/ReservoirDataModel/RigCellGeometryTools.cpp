@@ -458,6 +458,43 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine(const std::pair<cvf::Ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(std::vector<std::vector<cvf::Vec3d>> polygons)
+{
+    // Convert to int for clipper library and store as clipper "path"
+    std::vector<ClipperLib::Path> polygonPaths;
+    for (const std::vector<cvf::Vec3d>& polygon : polygons)
+    {
+        polygonPaths.emplace_back();
+        auto& p = polygonPaths.back();
+        for (const cvf::Vec3d& pp : polygon)
+        {
+            p.push_back(toClipperPoint(pp));
+        }
+    }
+
+    ClipperLib::Clipper clpr;
+    clpr.AddPaths(polygonPaths, ClipperLib::ptSubject, true);
+
+    ClipperLib::Paths solution;
+    clpr.Execute(ClipperLib::ctUnion, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    // Convert back to std::vector<std::vector<cvf::Vec3d> >
+    std::vector<cvf::Vec3d> unionPolygon;
+    for (ClipperLib::Path pathInSol : solution)
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for (ClipperLib::IntPoint IntPosition : pathInSol)
+        {
+            unionPolygon.push_back(fromClipperPoint(IntPosition));
+        }
+    }
+
+    return unionPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine, 
                                                                                        const std::vector<cvf::Vec3d>& polygon)
 {

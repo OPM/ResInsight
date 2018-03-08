@@ -667,7 +667,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimEclipseView& activeView)
 {
-    std::vector<cvf::Vec3f> borderPolygonLocalCS =  m_rimFracture->fractureTemplate()->fractureBorderPolygon();
+    std::vector<cvf::Vec3d> borderPolygonLocalCS =  fractureBorderPolygon();
     cvf::Mat4d frMx = m_rimFracture->transformMatrix();
 
     cvf::BoundingBox frBBox;
@@ -871,7 +871,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart(const RimEcli
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView) const
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView)
 {
     if (!stimPlanFracTemplate->fractureGrid()) return nullptr;
 
@@ -888,6 +888,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
                                                                                   resultUnitFromColors,
                                                                                   stimPlanFracTemplate->activeTimeStepIndex());
 
+    m_visibleFracturePolygons.clear();
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size() ; ++cIdx)
     {
         if (prCellResults[cIdx] > 1e-7)
@@ -898,6 +899,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
             {
                 stimPlanMeshVertices.push_back(static_cast<cvf::Vec3f>(cellCorner));
             }
+            m_visibleFracturePolygons.push_back(stimPlanCellPolygon);
         }
     }
 
@@ -907,7 +909,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     }
 
     cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
-    std::vector<cvf::Vec3f> stimPlanMeshVerticesDisplayCoords = transformToFractureDisplayCoords(stimPlanMeshVertices, 
+    std::vector<cvf::Vec3f> stimPlanMeshVerticesDisplayCoords = transformToFractureDisplayCoords(stimPlanMeshVertices,
                                                                                                  fractureXf, 
                                                                                                  *displayCoordTransform);
 
@@ -924,6 +926,14 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     stimPlanMeshGeo->addPrimitiveSet(prim.p());
 
     return stimPlanMeshGeo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RivWellFracturePartMgr::fractureBorderPolygon()
+{
+    return RigCellGeometryTools::unionOfPolygons(m_visibleFracturePolygons);
 }
 
 //--------------------------------------------------------------------------------------------------
