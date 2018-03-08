@@ -120,21 +120,6 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 }
 }
 
-namespace RegTestNames
-{
-const QString generatedFilesFolderName = "RegTestGeneratedFiles";
-const QString baseFilesFolderName      = "RegTestBaseFiles";
-const QString generatedFolderName      = "RegTestGeneratedImages";
-const QString diffFolderName           = "RegTestDiffImages";
-const QString baseFolderName           = "RegTestBaseImages";
-const QString testProjectName          = "RegressionTest";
-const QString testFolderFilter         = "TestCase*";
-const QString imageCompareExeName      = "compare";
-const QString reportFileName           = "ResInsightRegressionTestReport.html";
-const QString commandFileFilter        = "commandfile-*";
-};
-
-
 
 
 
