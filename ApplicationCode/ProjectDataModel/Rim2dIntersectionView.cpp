@@ -486,12 +486,12 @@ void Rim2dIntersectionView::updateLegends()
 
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {
-            m_ternaryLegendConfig()->setTitle("Cell Result:");
+            m_ternaryLegendConfig()->setTitle("Cell Result:\n");
             legend = m_ternaryLegendConfig()->legend();
         }
         else
         {
-            m_legendConfig()->setTitle("Cell Result:" + eclView->cellResult()->resultVariableUiShortName());
+            m_legendConfig()->setTitle("Cell Result:\n" + eclView->cellResult()->resultVariableUiShortName());
             legend = m_legendConfig()->legend();
         }
     }
