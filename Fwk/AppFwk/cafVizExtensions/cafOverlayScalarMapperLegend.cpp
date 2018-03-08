@@ -245,8 +245,8 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     float maxLegendRightPos = 0; 
     TextDrawer textDrawer(m_font.p());
     setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
-
-    Vec2f backgroundSize(maxLegendRightPos + 3.0f, (float)size.y());
+    
+    Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + 3.0f, (float)size.x()), (float)size.y());
 
     // Do the actual rendering
     if (software)

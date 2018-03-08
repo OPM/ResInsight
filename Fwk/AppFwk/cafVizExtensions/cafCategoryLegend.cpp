@@ -187,7 +187,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
     TextDrawer textDrawer(m_font.p());
     setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
 
-    Vec2f backgroundSize(maxLegendRightPos + 3.0f, (float)size.y());
+    Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + 3.0f, (float)size.x()), (float)size.y());
 
     // Do the actual rendering
     if (software)
