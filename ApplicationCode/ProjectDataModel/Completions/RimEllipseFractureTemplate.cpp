@@ -179,7 +179,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 
     for (int i = 0; i < numberOfCellsX; i++)
     {
-        for (int j = 0; j < numberOfCellsX; j++)
+        for (int j = 0; j < numberOfCellsY; j++)
         {
             double X1 = - halfLength +  i    * cellSizeX;
             double X2 = - halfLength + (i+1) * cellSizeX;
