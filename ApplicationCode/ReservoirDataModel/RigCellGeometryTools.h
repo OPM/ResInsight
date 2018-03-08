@@ -51,6 +51,8 @@ public:
 
     static double getLengthOfPolygonAlongLine(const std::pair<cvf::Vec3d, cvf::Vec3d>& line, const std::vector<cvf::Vec3d>& polygon);
 
+    static std::vector<cvf::Vec3d> unionOfPolygons(std::vector<std::vector<cvf::Vec3d>> polygons);
+
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine, 
                                                                             const std::vector<cvf::Vec3d>& polygon);

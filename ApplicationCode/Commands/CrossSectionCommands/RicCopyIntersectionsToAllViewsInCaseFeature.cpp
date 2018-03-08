@@ -222,6 +222,11 @@ RimCase* commonGridCase(std::vector<caf::PdmUiItem*> selectedItems)
     for (caf::PdmUiItem* item : selectedItems)
     {
         caf::PdmObjectHandle* obj = dynamic_cast<caf::PdmObjectHandle*>(item);
+        if (!obj)
+        {
+            continue;
+        }
+
         RimCase* itemCase = nullptr;
         obj->firstAncestorOrThisOfType(itemCase);
 

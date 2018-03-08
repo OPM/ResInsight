@@ -93,21 +93,20 @@ public:
 public:
     RiaApplication(int& argc, char** argv);
     ~RiaApplication();
-    static RiaApplication* instance();
+    
+	static RiaApplication* instance();
 
-    int                     parseArgumentsAndRunUnitTestsIfRequested();
-    bool                    parseArguments();
+    int                 parseArgumentsAndRunUnitTestsIfRequested();
+    bool                parseArguments();
 
-    void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
+    void                setActiveReservoirView(Rim3dView*);
+    Rim3dView*			activeReservoirView();
+    const Rim3dView*	activeReservoirView() const;
+    RimGridView*		activeGridView();
 
-    void                    setActiveReservoirView(Rim3dView*);
-    Rim3dView*                activeReservoirView();
-    const Rim3dView*          activeReservoirView() const;
-    RimGridView*              activeGridView();
+    RimViewWindow*      activePlotWindow() const;
 
-    RimViewWindow*          activePlotWindow() const;
-
-    RimProject*         project(); 
+    RimProject*			project(); 
 
     void                createMockModel();
     void                createResultsMockModel();
@@ -140,7 +139,6 @@ public:
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
-    void                runRegressionTest(const QString& testRootPath, QStringList* testFilter = nullptr);
 
     void                processNonGuiEvents();
 
@@ -179,8 +177,6 @@ public:
     void                addCommandObject(RimCommandObject* commandObject);
     void                executeCommandObjects();
 
-    bool                isRunningRegressionTests() const;
-
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
@@ -203,9 +199,10 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
+	void				waitUntilCommandObjectsHasBeenProcessed();
+
 
 private:
-
     void                    onProjectOpenedOrClosed();
     void                    setWindowCaptionFromAppState();
 
@@ -216,24 +213,15 @@ private:
     
     void                    storeTreeViewState();
 
-    void                    resizeMaximizedPlotWindows();
-    void                    updateRegressionTest(const QString& testRootPath);
-    void                    regressionTestConfigureProject();
-    static QSize            regressionDefaultImageSize();
-
     friend RiaArgumentParser;
     void                    setHelpText(const QString& helpText);
 
 private slots:
-    void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
- 
+    void					slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    caf::PdmPointer<Rim3dView>            m_activeReservoirView;
-
+    caf::PdmPointer<Rim3dView>			m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
-
 
     RiaSocketServer*                    m_socketServer;
 
@@ -258,7 +246,6 @@ private:
     QMutex                              m_commandQueueLock;
 
     QString                             m_helpText;
-    bool                                m_runningRegressionTests;
 
     bool                                m_runningWorkerProcess;
 

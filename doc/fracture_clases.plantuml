@@ -3,7 +3,7 @@
 Title Classes related to fractures
 
 note as N1
- Updated 2018-02-07
+ Updated 2018-03-07
 end note
 
 class RimFracture {
@@ -19,6 +19,10 @@ class RimWellPathFracture {
 RimFracture <|-- RimSimWellFracture
 RimFracture <|-- RimWellPathFracture
 
+RimFracture -> RimStimPlanFractureTemplate
+
+RimFracture -> RivWellFracturePartMgr
+RivWellFracturePartMgr ->RimFracture
 
 class RimFractureTemplate {
 RimDefines::UnitSystemType fractureTemplateUnit;

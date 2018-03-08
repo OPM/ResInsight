@@ -258,8 +258,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellLogCurveExtractionFeature";
-            menuBuilder << "RicNewWellPathIntersectionFeature";
             menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+
+            menuBuilder << "RicAdd3dWellLogCurveFeature";
+
+            menuBuilder << "RicNewWellPathIntersectionFeature";
 
             menuBuilder.addSeparator();
 

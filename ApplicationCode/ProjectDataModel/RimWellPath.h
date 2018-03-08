@@ -41,6 +41,7 @@ class RifWellPathFormationsImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
+class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
 
 class RimFishbonesCollection;
@@ -49,6 +50,8 @@ class RimWellPathCompletions;
 class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
+class Rim3dWellLogCurveCollection;
+class Rim3dWellLogCurve;
 
 //==================================================================================================
 ///  
@@ -74,6 +77,8 @@ public:
     bool                                reloadWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);
     bool                                hasFormations() const;
     const RigWellPathFormations*        formationsGeometry() const;
+
+    void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
 
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;
@@ -171,6 +176,8 @@ private:
     caf::PdmField<QString>              m_formationKeyInFile;
 
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
+    
+    caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 };

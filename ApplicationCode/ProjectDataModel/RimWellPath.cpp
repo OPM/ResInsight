@@ -29,6 +29,8 @@
 
 #include "RigWellPath.h"
 
+#include "Rim3dWellLogCurve.h"
+#include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -127,6 +129,10 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "");
     m_wellLogFiles.uiCapability()->setUiTreeHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track", "", "", "");
+    m_3dWellLogCurves = new Rim3dWellLogCurveCollection;
+    m_3dWellLogCurves.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitField(&m_formationKeyInFile, "WellPathFormationKeyInFile", QString(""), "Key in File", "", "", "");
     m_formationKeyInFile.uiCapability()->setUiReadOnly(true);
@@ -511,6 +517,11 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         uiTreeOrdering.add(&m_completions);
     }
 
+    if (m_3dWellLogCurves->has3dWellLogCurves())
+    {
+        uiTreeOrdering.add(&m_3dWellLogCurves);
+    }
+
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -788,6 +799,14 @@ bool RimWellPath::hasFormations() const
 const RigWellPathFormations* RimWellPath::formationsGeometry() const
 {
     return m_wellPathFormations.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve)
+{
+    m_3dWellLogCurves->add3dWellLogCurve(rim3dWellLogCurve);
 }
 
 //--------------------------------------------------------------------------------------------------

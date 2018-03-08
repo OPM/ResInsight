@@ -98,6 +98,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.h
 )
 
 
@@ -200,6 +201,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

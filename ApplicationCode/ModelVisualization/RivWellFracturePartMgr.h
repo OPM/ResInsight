@@ -30,10 +30,11 @@
 
 namespace cvf
 {
-     class ModelBasicList;
-     class DrawableGeo;
-     class Part;
-     class Color3f;
+    class ModelBasicList;
+    class DrawableGeo;
+    class Part;
+    class Color3f;
+	class ScalarMapper;
 }
 
 namespace caf
@@ -42,6 +43,7 @@ namespace caf
 }
 
 class RimFracture;
+class RimFractureTemplate;
 class RimStimPlanFractureTemplate;
 class RimEclipseView;
 class RigFractureCell;
@@ -74,9 +76,13 @@ private:
     void                                appendFracturePerforationLengthParts(const RimEclipseView& activeView, cvf::ModelBasicList* model);
 
     cvf::ref<cvf::Part>                 createStimPlanMeshPart(const RimEclipseView& activeView);
-    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView) const;
+    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView);
 
-    static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon, 
+    std::vector<cvf::Vec3d>             fractureBorderPolygon();
+
+	static cvf::ref<cvf::Part>			createScalarMapperPart(cvf::DrawableGeo* drawableGeo, const cvf::ScalarMapper* scalarMapper, RimFracture* fracture, bool disableLighting);
+	
+	static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon,
                                                                          cvf::Mat4d m, 
                                                                          const caf::DisplayCoordTransform& displayCoordTransform);
 
@@ -84,4 +90,6 @@ private:
 
 private:
     caf::PdmPointer<RimFracture>                    m_rimFracture;
+
+    std::vector<std::vector<cvf::Vec3d>>            m_visibleFracturePolygons;
 };

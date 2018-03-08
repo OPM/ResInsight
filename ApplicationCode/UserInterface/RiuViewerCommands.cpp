@@ -355,6 +355,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menuBuilder.addSeparator();
 
+                menuBuilder << "RicAdd3dWellLogCurveFeature";
+
+                menuBuilder.addSeparator();
+
                 menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
 
                 menuBuilder << "RicNewWellPathFractureAtPosFeature";

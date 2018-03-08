@@ -18,6 +18,7 @@
 
 #include "RiaRegressionTest.h"
 
+#include "cafPdmSettings.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -29,9 +30,12 @@ CAF_PDM_SOURCE_INIT(RiaRegressionTest, "RiaRegressionTest");
 //--------------------------------------------------------------------------------------------------
 RiaRegressionTest::RiaRegressionTest(void)
 {
-    CAF_PDM_InitFieldNoDefault(&applicationWorkingFolder,        "workingFolder", "Folder containing <b>compare</b>", "", "Location of compare tool from Image Magic suite", "");
-    applicationWorkingFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&folderContainingCompareTool,        "workingFolder", "Folder containing <b>compare</b>", "", "Location of compare tool from Image Magic suite", "");
+    folderContainingCompareTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
+    CAF_PDM_InitFieldNoDefault(&folderContainingDiffTool, "folderContainingDiffTool", "Folder containing <b>diff</b>", "", "Location of diff tool used for text compare", "");
+    folderContainingDiffTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "");
     regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
@@ -52,9 +56,25 @@ RiaRegressionTest::~RiaRegressionTest(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaRegressionTest::writeSettingsToApplicationStore() const
+{
+    caf::PdmSettings::writeFieldsToApplicationStore(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTest::readSettingsFromApplicationStore()
+{
+    caf::PdmSettings::readFieldsFromApplicationStore(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &applicationWorkingFolder || field == &regressionTestFolder)
+    if (field == &folderContainingDiffTool || field == &folderContainingCompareTool || field == &regressionTestFolder)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
@@ -63,5 +83,3 @@ void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, 
         }
     }
 }
-
-
