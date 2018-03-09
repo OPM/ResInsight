@@ -18,10 +18,12 @@
 
 #pragma once
 
-#include "cvfObject.h"
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfDrawableGeo.h"
 #include "cvfVector3.h"
+
+#include "cafPdmPointer.h"
 
 #include <vector>
 

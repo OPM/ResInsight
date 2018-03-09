@@ -18,7 +18,6 @@
 
 #include "Riv3dWellLogCurveGeomertyGenerator.h"
 
-#include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 
 //--------------------------------------------------------------------------------------------------

@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
-#include "cafPdmPointer.h"
 
 #include "Rim3dWellLogCurve.h"
 
