@@ -121,27 +121,31 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
     // FractureTransmissibilityExportInformation
     std::unique_ptr<QTextStream> fractureTransmissibilityExportInformationStream = nullptr;
-
-    QString fractureTransmisibillityExportInformationPath =
-        QDir(exportSettings.folder).filePath("FractureTransmissibilityExportInformation");
-    QFile fractureTransmissibilityExportInformationFile(fractureTransmisibillityExportInformationPath);
+    QFile                        fractureTransmissibilityExportInformationFile;
 
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
     if (prefs->includeFractureDebugInfoFile())
     {
+        QDir outputDir = QDir(exportSettings.folder);
+        outputDir.mkpath(".");
+
+        QString fractureTransmisibillityExportInformationPath =
+            QDir(exportSettings.folder).absoluteFilePath("FractureTransmissibilityExportInformation");
+
+        fractureTransmissibilityExportInformationFile.setFileName(fractureTransmisibillityExportInformationPath);
         if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly))
         {
             RiaLogging::error(QString("Export Completions Data: Could not open the file: %1")
                                   .arg(fractureTransmisibillityExportInformationPath));
-            return;
         }
-
-        fractureTransmissibilityExportInformationStream =
-            std::unique_ptr<QTextStream>(new QTextStream(&fractureTransmissibilityExportInformationFile));
+        else
+        {
+            fractureTransmissibilityExportInformationStream =
+                std::unique_ptr<QTextStream>(new QTextStream(&fractureTransmissibilityExportInformationFile));
+        }
     }
 
-    size_t maxProgress = usedWellPaths.size() * 3 +
-                         simWells.size() +
+    size_t maxProgress = usedWellPaths.size() * 3 + simWells.size() +
                          (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
                               ? usedWellPaths.size()
                               : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
