@@ -74,7 +74,6 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
 
     for (Rim3dWellLogCurve* rim3dWellLogCurve : rim3dWellLogCurves)
     {
-        std::vector<cvf::Vec3f> vertices = createCurveVertices(rim3dWellLogCurve);
         cvf::ref<cvf::Drawable> drawable = m_3dWellLogCurveGeometryGenerator->createDrawable(vertices, indices);
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 0, 0, 0.5), caf::PO_1);
