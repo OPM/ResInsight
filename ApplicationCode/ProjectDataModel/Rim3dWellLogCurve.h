@@ -66,6 +66,8 @@ public:
 
     void setPropertiesFromView(Rim3dView* view);
 
+    DrawPlane drawPlane() const;
+
 private:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
