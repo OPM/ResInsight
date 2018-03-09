@@ -44,7 +44,7 @@ public:
 
     void append3dWellLogCurvesToModel(cvf::ModelBasicList* model, 
                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                      std::vector<Rim3dWellLogCurve*>*  rim3dWellLogCurves);
+                                      std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves);
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;

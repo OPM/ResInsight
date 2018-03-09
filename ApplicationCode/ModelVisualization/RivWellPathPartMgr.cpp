@@ -419,7 +419,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     appendPerforationsToModel(timeStamp, model, displayCoordTransform, characteristicCellSize);
 
     m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath->wellPathGeometry());
-    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, &m_rimWellPath->vectorOf3dWellLogCurves());
+    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, m_rimWellPath->vectorOf3dWellLogCurves());
 }
 
 //--------------------------------------------------------------------------------------------------

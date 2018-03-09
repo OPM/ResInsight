@@ -41,9 +41,9 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RigWellPath* wellPathGeometry
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
-                                                            std::vector<Rim3dWellLogCurve*>*  rim3dWellLogCurves)
+                                                            std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves)
 {
-    if (rim3dWellLogCurves->empty()) return;
+    if (rim3dWellLogCurves.empty()) return;
 
     m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator;
 
@@ -71,8 +71,10 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
         if (i % 2 == 0) counter++;
     }
 
-    for (Rim3dWellLogCurve* rim3dWellLogCurve : *rim3dWellLogCurves)
+
+    for (Rim3dWellLogCurve* rim3dWellLogCurve : rim3dWellLogCurves)
     {
+        std::vector<cvf::Vec3f> vertices = createCurveVertices(rim3dWellLogCurve);
         cvf::ref<cvf::Drawable> drawable = m_3dWellLogCurveGeometryGenerator->createDrawable(vertices, indices);
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 0, 0, 0.5), caf::PO_1);
