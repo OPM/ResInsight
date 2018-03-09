@@ -35,6 +35,7 @@
 //##################################################################################################
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfOpenGLContext.h"
 #include "cvfMatrixState.h"
 #include "cvfColor4.h"
