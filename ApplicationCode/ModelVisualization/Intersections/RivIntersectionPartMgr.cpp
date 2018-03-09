@@ -974,9 +974,9 @@ const RimIntersection* RivIntersectionPartMgr::intersection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RivIntersectionPartMgr::unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm)
+cvf::Mat4d RivIntersectionPartMgr::unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat)
 {
-    return m_crossSectionGenerator->unflattenTransformMatrix(intersectionPointUtm);
+    return m_crossSectionGenerator->unflattenTransformMatrix(intersectionPointFlat);
 }
 
 //--------------------------------------------------------------------------------------------------

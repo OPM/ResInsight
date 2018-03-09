@@ -76,7 +76,7 @@ public:
 
     const RimIntersection* intersection() const;
 
-    cvf::Mat4d unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm);
+    cvf::Mat4d unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat);
 
 public:
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 

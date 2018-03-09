@@ -75,7 +75,7 @@ public:
 
     RimIntersection*            crossSection() const;
 
-    cvf::Mat4d                  unflattenTransformMatrix(const cvf::Vec3d& intersectionPointUtm);
+    cvf::Mat4d                  unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat);
 
 private:
     void                        calculateArrays();
