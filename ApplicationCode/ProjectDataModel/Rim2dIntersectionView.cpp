@@ -293,7 +293,9 @@ void Rim2dIntersectionView::update3dInfo()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<caf::DisplayCoordTransform> Rim2dIntersectionView::displayCoordTransform() const
 {
-   return new caf::DisplayCoordTransform();
+   cvf::ref<caf::DisplayCoordTransform> dispTx = new caf::DisplayCoordTransform();
+   dispTx->setScale(cvf::Vec3d(1.0, 1.0, scaleZ()));
+   return dispTx;
 }
 
 //--------------------------------------------------------------------------------------------------
