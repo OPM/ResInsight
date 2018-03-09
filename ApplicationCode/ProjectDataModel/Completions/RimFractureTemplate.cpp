@@ -622,13 +622,13 @@ double RimFractureTemplate::kh() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
-    if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         m_perforationLength = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
         m_wellDiameter      = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
         m_fractureWidth     = RiaEclipseUnitTools::feetToMeter(m_fractureWidth);
     }
-    else if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         m_perforationLength = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
         m_wellDiameter      = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
