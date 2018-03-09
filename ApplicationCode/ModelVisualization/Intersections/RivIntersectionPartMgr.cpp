@@ -43,6 +43,7 @@
 
 #include "RivHexGridIntersectionTools.h"
 #include "RivIntersectionGeometryGenerator.h"
+#include "RivObjectSourceInfo.h"
 #include "RivIntersectionSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
@@ -812,7 +813,7 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
         pipeCrossSectionVxCount = wellPathColl->wellPathCrossSectionVertexCount();
         wellPipeColor = wellPath->wellPathColor();
 
-        createSourceInfoFunc = [&](size_t brIdx) { return new RivWellPathSourceInfo(wellPath, m_rimCrossSection->correspondingIntersectionView()); };
+        createSourceInfoFunc = [&](size_t brIdx) { return new RivObjectSourceInfo(wellPath); };  //Temporary fix to avoid crash
     }
 
     // Create pipe geometry
