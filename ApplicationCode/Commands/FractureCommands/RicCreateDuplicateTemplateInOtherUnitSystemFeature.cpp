@@ -71,9 +71,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool 
 
     fractureTemplateCollection->addFractureTemplate(copyOfTemplate);
 
-    RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateCollection, copyOfTemplate);
-
-    auto currentUnit = copyOfTemplate->fractureTemplateUnit();
+	auto currentUnit = copyOfTemplate->fractureTemplateUnit();
     if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
        copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
@@ -89,6 +87,8 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool 
 
     copyOfTemplate->loadDataAndUpdate();
     copyOfTemplate->updateConnectedEditors();
+
+	RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateCollection, copyOfTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------
