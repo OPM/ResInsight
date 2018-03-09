@@ -22,6 +22,8 @@
 
 #include "RiaEclipseUnitTools.h"
 
+#include "Rim3dWellLogCurve.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -51,7 +53,6 @@ class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
 class Rim3dWellLogCurveCollection;
-class Rim3dWellLogCurve;
 
 //==================================================================================================
 ///  
@@ -79,6 +80,7 @@ public:
     const RigWellPathFormations*        formationsGeometry() const;
 
     void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
+    std::vector<Rim3dWellLogCurve*>     vectorOf3dWellLogCurves() const;
 
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;

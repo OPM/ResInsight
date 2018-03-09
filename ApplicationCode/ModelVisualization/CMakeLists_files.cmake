@@ -37,6 +37,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionsPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivFishbonesSubsPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivTensorResultPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogPlanePartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogCurveGeomertyGenerator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -72,6 +74,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionsPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivFishbonesSubsPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivTensorResultPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogPlanePartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogCurveGeomertyGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

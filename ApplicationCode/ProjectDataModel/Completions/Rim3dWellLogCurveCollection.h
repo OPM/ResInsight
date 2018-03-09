@@ -39,6 +39,8 @@ public:
     bool has3dWellLogCurves() const;
     void add3dWellLogCurve(Rim3dWellLogCurve* curve);
 
+    std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
+
 private:
     virtual caf::PdmFieldHandle* objectToggleField() override;
 

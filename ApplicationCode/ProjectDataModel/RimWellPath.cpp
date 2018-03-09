@@ -812,6 +812,14 @@ void RimWellPath::add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<Rim3dWellLogCurve*> RimWellPath::vectorOf3dWellLogCurves() const
+{
+    return m_3dWellLogCurves->vectorOf3dWellLogCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPath::fromFilePath(QString filePath)
 {
     RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);

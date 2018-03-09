@@ -45,6 +45,7 @@ class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
 class Rim3dView;
+class Riv3dWellLogPlanePartMgr;
 
 class QDateTime;
 
@@ -105,4 +106,6 @@ private:
     cvf::ref<cvf::Part>                 m_centerLinePart;
     cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
     cvf::ref<cvf::Part>                 m_wellLabelPart;
+
+    cvf::ref<Riv3dWellLogPlanePartMgr>  m_3dWellLogCurvePartMgr;
 };

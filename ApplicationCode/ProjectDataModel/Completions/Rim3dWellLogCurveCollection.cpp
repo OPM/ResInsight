@@ -66,6 +66,20 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<Rim3dWellLogCurve*> Rim3dWellLogCurveCollection::vectorOf3dWellLogCurves() const
+{
+    std::vector<Rim3dWellLogCurve*> curves;
+    for (auto& wellLogCurve : m_3dWellLogCurves)
+    {
+        curves.push_back(wellLogCurve);
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 {
     return &m_showCurves;

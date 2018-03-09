@@ -40,15 +40,14 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathFracture.h"
 
+#include "Riv3dWellLogPlanePartMgr.h"
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
-#include "RivWellPathSourceInfo.h"
-
-#include "RivPartPriority.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
+#include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -418,6 +417,9 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
         return;
 
     appendPerforationsToModel(timeStamp, model, displayCoordTransform, characteristicCellSize);
+
+    m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath->wellPathGeometry());
+    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, &m_rimWellPath->vectorOf3dWellLogCurves());
 }
 
 //--------------------------------------------------------------------------------------------------
