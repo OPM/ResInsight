@@ -25,6 +25,8 @@
 
 #include "cafPdmPointer.h"
 
+#include "Rim3dWellLogCurve.h"
+
 #include <vector>
 
 namespace caf
@@ -32,10 +34,25 @@ namespace caf
     class DisplayCoordTransform;
 }
 
+class RigWellPath;
+
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogCurveGeometryGenerator() = default;
+    Riv3dWellLogCurveGeometryGenerator(RigWellPath* wellPathGeometry) : m_wellPathGeometry(wellPathGeometry) {};
 
-    cvf::ref<cvf::DrawableGeo> createDrawable(const std::vector<cvf::Vec3f>& vertices, const std::vector<cvf::uint>& indices ) const;
+    cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const;
+    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const;
+
+private:
+    std::vector<cvf::Vec3f> createCurveVertices(const Rim3dWellLogCurve* rim3dWellLogCurve,
+                                                const caf::DisplayCoordTransform* displayCoordTransform) const;
+
+    std::vector<cvf::uint> createPolylineIndices(size_t vertexCount) const;
+
+    cvf::Vec3d normalBetweenPoints(const cvf::Vec3d& pt1, const cvf::Vec3d& pt2, const cvf::Vec3d& z) const;
+    cvf::Vec3d zForDrawPlane(const Rim3dWellLogCurve::DrawPlane& drawPlane) const;
+
+private:
+    cvf::ref<RigWellPath> m_wellPathGeometry;
 };

@@ -20,7 +20,6 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include "Rim3dWellLogCurve.h"
 
@@ -31,7 +30,6 @@
 namespace cvf
 {
     class ModelBasicList;
-    class Part;
 }
 
 namespace caf
@@ -50,10 +48,6 @@ public:
     void append3dWellLogCurvesToModel(cvf::ModelBasicList* model, 
                                       const caf::DisplayCoordTransform* displayCoordTransform,
                                       std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves);
-private:
-    std::vector<cvf::Vec3f> createCurveVertices(const Rim3dWellLogCurve* rim3dWellLogCurve,
-                                                const caf::DisplayCoordTransform* displayCoordTransform);
-    std::vector<cvf::uint>  createPolylineIndices(size_t vertexCount);
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
