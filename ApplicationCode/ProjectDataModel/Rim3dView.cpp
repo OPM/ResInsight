@@ -668,10 +668,10 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
     }
 
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
-        currentTimeStamp,
-        this->ownerCase()->characteristicCellSize(),
-        wellPathClipBoundingBox,
-        transForm.p());
+                                                              currentTimeStamp,
+                                                              this->ownerCase()->characteristicCellSize(),
+                                                              wellPathClipBoundingBox,
+                                                              transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }

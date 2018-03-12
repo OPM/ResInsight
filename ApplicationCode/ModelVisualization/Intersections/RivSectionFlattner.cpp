@@ -26,7 +26,9 @@
 /// 
 /// Returns size_t(-1) if no point is found
 //--------------------------------------------------------------------------------------------------
-size_t RivSectionFlattner::indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine, const cvf::Vec3d extrDir, size_t idxToStartOfLineSegment)
+size_t RivSectionFlattner::indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine, 
+                                                 const cvf::Vec3d extrDir, 
+                                                 size_t idxToStartOfLineSegment)
 {
     size_t lineCount = polyLine.size();
     if ( !(idxToStartOfLineSegment + 1 < lineCount) ) return -1;
@@ -51,7 +53,10 @@ size_t RivSectionFlattner::indexToNextValidPoint(const std::vector<cvf::Vec3d>& 
 //--------------------------------------------------------------------------------------------------
 /// Returns one CS pr point, valid for the next segment
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Mat4d> RivSectionFlattner::calculateFlatteningCSsForPolyline(const std::vector<cvf::Vec3d> & polyLine, const cvf::Vec3d& extrusionDir, const cvf::Vec3d& startOffset, cvf::Vec3d* endOffset)
+std::vector<cvf::Mat4d> RivSectionFlattner::calculateFlatteningCSsForPolyline(const std::vector<cvf::Vec3d> & polyLine, 
+                                                                              const cvf::Vec3d& extrusionDir, 
+                                                                              const cvf::Vec3d& startOffset, 
+                                                                              cvf::Vec3d* endOffset)
 {
     CVF_ASSERT(endOffset);
     size_t pointCount = polyLine.size();

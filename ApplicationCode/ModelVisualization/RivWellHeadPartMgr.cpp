@@ -103,6 +103,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame(frameIndex);
 
     double pipeRadius = m_rimWell->pipeRadius();
+    int pipeCrossSectionVxCount = m_rimWell->pipeCrossSectionVertexCount();
 
     if (wellResultFrame.m_isOpen)
     {
@@ -125,7 +126,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         cvf::ref<RivPipeGeometryGenerator> pipeGeomGenerator = new RivPipeGeometryGenerator;
         pipeGeomGenerator->setPipeCenterCoords(wellHeadPipeCoords.p());
-        pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
+        pipeGeomGenerator->setCrossSectionVertexCount(pipeCrossSectionVxCount);
 
 
         pipeGeomGenerator->setRadius(pipeRadius);
@@ -207,7 +208,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     gen.setShaftRelativeRadius(0.5f);
     gen.setHeadRelativeRadius(1.0f);
     gen.setHeadRelativeLength(0.4f);
-    gen.setNumSlices(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
+    gen.setNumSlices(pipeCrossSectionVxCount);
     gen.generate(&builder);
 
     cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
