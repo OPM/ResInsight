@@ -51,16 +51,17 @@
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
 #include "cafDisplayCoordTransform.h"
+#include "RivSectionFlattner.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well, bool isFlattened)
+    : m_rimReservoirView(reservoirView)
+    , m_needsTransformUpdate(true)
+    , m_isFlattened(isFlattened)
 {
-    m_rimReservoirView = reservoirView;
-    m_rimWell      = well;
-    m_needsTransformUpdate = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +108,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
     int crossSectionVertexCount = m_rimWell->pipeCrossSectionVertexCount();
     cvf::ref<caf::DisplayCoordTransform> displayCoordXf =  m_rimReservoirView->displayCoordTransform();
 
+    cvf::Vec3d flattenedStartOffset =  cvf::Vec3d::ZERO;
+
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
         cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, brIdx);
@@ -123,14 +126,27 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
-        
-        // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
 
-        for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
-        {
-            (*cvfCoords)[cIdx] = displayCoordXf->transformToDisplayCoord((*cvfCoords)[cIdx]);
+        if (m_isFlattened)
+        {        
+            std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattner::calculateFlatteningCSsForPolyline(m_pipeBranchesCLCoords[brIdx],
+                                                                                                        cvf::Vec3d(0, 0, 1),
+                                                                                                        flattenedStartOffset,
+                                                                                                        &flattenedStartOffset);
+            for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
+            {
+                (*cvfCoords)[cIdx] = ((*cvfCoords)[cIdx]).getTransformedPoint(flatningCSs[cIdx]);
+            }
         }
+        else
+        {
+            // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
 
+            for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
+            {
+                (*cvfCoords)[cIdx] = displayCoordXf->transformToDisplayCoord((*cvfCoords)[cIdx]);
+            }
+        }
         pbd.m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
         pbd.m_surfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
         pbd.m_centerLineDrawable = pbd.m_pipeGeomGenerator->createCenterLine();

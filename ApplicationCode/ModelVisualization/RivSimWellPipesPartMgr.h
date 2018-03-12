@@ -44,7 +44,7 @@ class RimSimWellInView;
 class RivSimWellPipesPartMgr : public cvf::Object
 {
 public:
-    RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
+    RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well, bool isFlattened = false);
     ~RivSimWellPipesPartMgr();
 
     void setScaleTransform(cvf::Transform * scaleTransform);
@@ -60,6 +60,7 @@ private:
     
     cvf::ref<cvf::Transform>    m_scaleTransform; 
     bool                        m_needsTransformUpdate;
+    bool                        m_isFlattened; 
 
     void buildWellPipeParts();
 
