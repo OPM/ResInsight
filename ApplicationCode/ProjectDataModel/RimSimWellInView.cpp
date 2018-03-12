@@ -284,6 +284,16 @@ double RimSimWellInView::pipeRadius()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RimSimWellInView::pipeCrossSectionVertexCount()
+{
+    RimSimWellInViewCollection* simWellCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(simWellCollection);
+    return simWellCollection->pipeCrossSectionVertexCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
 {
     if (this->simWellData() == nullptr) return false;

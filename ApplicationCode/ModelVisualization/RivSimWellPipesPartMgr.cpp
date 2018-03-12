@@ -104,6 +104,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
     m_rimWell->calculateWellPipeStaticCenterLine(m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
     double pipeRadius =  m_rimWell->pipeRadius();
+    int crossSectionVertexCount = m_rimWell->pipeCrossSectionVertexCount();
+    cvf::ref<caf::DisplayCoordTransform> displayCoordXf =  m_rimReservoirView->displayCoordTransform();
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
@@ -117,13 +119,12 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
         pbd.m_pipeGeomGenerator = new RivPipeGeometryGenerator;
 
         pbd.m_pipeGeomGenerator->setRadius(pipeRadius);
-        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
+        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(crossSectionVertexCount);
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
         
         // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
-       cvf::ref<caf::DisplayCoordTransform> displayCoordXf =  m_rimReservoirView->displayCoordTransform();
 
         for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
         {

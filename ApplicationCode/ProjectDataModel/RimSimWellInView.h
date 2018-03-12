@@ -72,6 +72,7 @@ public:
 
     void                                wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
     double                              pipeRadius();
+    int                                 pipeCrossSectionVertexCount();
 
     void                                schedule2dIntersectionViewUpdate();
 
