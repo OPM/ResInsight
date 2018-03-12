@@ -50,6 +50,7 @@
 #include "cvfRay.h"
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
+#include "cafDisplayCoordTransform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -122,14 +123,11 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
         
         // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
-        const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
+       cvf::ref<caf::DisplayCoordTransform> displayCoordXf =  m_rimReservoirView->displayCoordTransform();
 
         for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
         {
-            cvf::Vec4d transfCoord = m_scaleTransform->worldTransform()* cvf::Vec4d((*cvfCoords)[cIdx] - mainGrid->displayModelOffset(), 1);
-            (*cvfCoords)[cIdx][0] = transfCoord[0];
-            (*cvfCoords)[cIdx][1] = transfCoord[1];
-            (*cvfCoords)[cIdx][2] = transfCoord[2];
+            (*cvfCoords)[cIdx] = displayCoordXf->transformToDisplayCoord((*cvfCoords)[cIdx]);
         }
 
         pbd.m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
