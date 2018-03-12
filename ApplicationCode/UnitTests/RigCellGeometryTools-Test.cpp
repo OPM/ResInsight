@@ -295,7 +295,7 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
 }
 
 
-#include "CompletionExportCommands/RigWellPathStimplanIntersector.h"
+#include "Completions/RigWellPathStimplanIntersector.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

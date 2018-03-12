@@ -87,6 +87,10 @@ private:
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
                                                             double characteristicCellSize);
 
+    void                          appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList* model,
+                                                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                         double characteristicCellSize);
+
 
     void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
                                                      double characteristicCellSize,

@@ -23,7 +23,9 @@
 
 #include "RiaApplication.h"
 
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
@@ -201,6 +203,28 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
             model->addPart(part.p());
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
+                                                                const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                double                            characteristicCellSize)
+{
+    RimEclipseCase* eclipseCase = nullptr;
+
+    m_rimView->firstAncestorOrThisOfType(eclipseCase);
+    if (!eclipseCase) return;
+    if (!eclipseCase->eclipseCaseData()) return;
+
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    const RigVirtualPerforationTransmissibilities* trans = eclipseCaseData->virtualPerforationTransmissibilities();
+	if (trans)
+	{
+
+	}
 }
 
 //--------------------------------------------------------------------------------------------------

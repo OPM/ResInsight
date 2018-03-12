@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "CompletionExportCommands/RigTransmissibilityCondenser.h"
+#include "Completions/RigTransmissibilityCondenser.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

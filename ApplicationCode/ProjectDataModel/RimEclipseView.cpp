@@ -59,6 +59,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimVirtualPerforationResults.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -124,6 +125,10 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault(&m_fractureColors, "StimPlanColors", "Fracture", "", "", "");
     m_fractureColors = new RimStimPlanColors();
     m_fractureColors.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_virtualPerforationResult, "VirtualPerforationResult", "Virtual Perforation Result", "", "", "");
+    m_virtualPerforationResult = new RimVirtualPerforationResults();
+    m_virtualPerforationResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     m_wellCollection = new RimSimWellInViewCollection;
@@ -1413,6 +1418,8 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
             uiTreeOrdering.add(fractureColors());
         }
     }
+
+    uiTreeOrdering.add(m_virtualPerforationResult);
 
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(crossSectionCollection());

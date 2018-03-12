@@ -57,6 +57,7 @@
 
 #include "cvfPlane.h"
 
+#include "RigVirtualPerforationTransmissibilities.h"
 #include <QDir>
 
 //--------------------------------------------------------------------------------------------------
@@ -313,6 +314,146 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             progress.incrementProgress();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+/*
+void RicWellPathExportCompletionDataFeatureImpl::computeVirtualPerfTrans(
+    RigVirtualPerforationTransmissibilities* virtualPerfTrans,
+    RimEclipseCase*                          eclipseCase,
+    const std::vector<RimWellPath*>&         inputWellPaths)
+{
+    CVF_ASSERT(eclipseCase);
+
+    std::vector<RimWellPath*> usedWellPaths;
+
+    {
+        for (RimWellPath* wellPath : inputWellPaths)
+        {
+            if (wellPath->unitSystem() == eclipseCase->eclipseCaseData()->unitsType())
+            {
+                usedWellPaths.push_back(wellPath);
+            }
+            else
+            {
+                RiaLogging::error("Well path unit systems must match unit system of chosen eclipse case.");
+            }
+        }
+    }
+
+    RicExportCompletionDataSettingsUi exportSettings;
+    exportSettings.caseToApply         = eclipseCase;
+    exportSettings.includeFishbones    = true;
+    exportSettings.includePerforations = true;
+    exportSettings.includeFractures    = true;
+
+    bool anyPerforationsPresent = false;
+    for (const auto& w : usedWellPaths)
+    {
+        if (!w->perforationIntervalCollection()->perforations().empty())
+        {
+            anyPerforationsPresent = true;
+        }
+    }
+
+    for (auto wellPath : usedWellPaths)
+    {
+        std::vector<RigCompletionData> completionsPerEclipseCell;
+
+        // Compute completions that do not change between time steps
+
+        if (exportSettings.includeFishbones)
+        {
+            std::vector<RigCompletionData> completionData =
+                RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(
+                    wellPath, exportSettings);
+
+            std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+        }
+
+        if (exportSettings.includeFractures())
+        {
+            std::vector<RigCompletionData> completionData =
+                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, nullptr);
+
+            std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+        }
+
+        if (!anyPerforationsPresent)
+        {
+            virtualPerfTrans->appendCompletionDataForWellPath(wellPath, completionsPerEclipseCell);
+        }
+        else
+        {
+            for (size_t i = 0; i < eclipseCase->timeStepDates().size(); i++)
+            {
+                // Update time step in export settings
+                exportSettings.timeStep = static_cast<int>(i);
+
+                if (exportSettings.includePerforations)
+                {
+                    std::vector<RigCompletionData> completionData = generatePerforationsCompdatValues(wellPath, exportSettings);
+
+                    std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+                }
+
+                //virtualPerfTrans->appendCompletionDataForWellPath(wellPath, completionsPerEclipseCell);
+            }
+        }
+    }
+}
+*/
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeCompletionsForWellPath(
+    RimWellPath*                             wellPath,
+    const RicExportCompletionDataSettingsUi& exportSettings)
+{
+    std::vector<RigCompletionData> completionsPerEclipseCell;
+    {
+        // Compute completions that do not change between time steps
+
+        if (exportSettings.includeFishbones)
+        {
+            std::vector<RigCompletionData> completionData =
+                RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(
+                    wellPath, exportSettings);
+
+            std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+        }
+
+        if (exportSettings.includeFractures())
+        {
+            std::vector<RigCompletionData> completionData =
+                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, nullptr);
+
+            std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+        }
+
+        {
+/*
+            for (size_t i = 0; i < exportSettings.caseToApply()->timeStepDates().size(); i++)
+            {
+                // Update time step in export settings
+                exportSettings.timeStep = static_cast<int>(i);
+
+                if (exportSettings.includePerforations)
+                {
+                    std::vector<RigCompletionData> completionData = generatePerforationsCompdatValues(wellPath, exportSettings);
+
+                    std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
+                }
+
+                // virtualPerfTrans->appendCompletionDataForWellPath(wellPath, completionsPerEclipseCell);
+            }
+*/
+        }
+    }
+    return completionsPerEclipseCell;
 }
 
 //==================================================================================================

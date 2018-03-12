@@ -54,6 +54,7 @@ class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimSimWellInViewCollection;
 class RimStimPlanColors;
+class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivIntersectionPartMgr;
@@ -176,6 +177,7 @@ private:
     caf::PdmChildField<RimCellEdgeColors*>          m_cellEdgeResult;
     caf::PdmChildField<RimEclipseFaultColors*>      m_faultResultSettings;
     caf::PdmChildField<RimStimPlanColors*>          m_fractureColors;
+	caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
 
     caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;

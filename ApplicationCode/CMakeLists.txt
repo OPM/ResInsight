@@ -41,6 +41,7 @@ include_directories(
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
@@ -80,6 +81,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
+    ReservoirDataModel/Completions/CMakeLists_files.cmake
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
