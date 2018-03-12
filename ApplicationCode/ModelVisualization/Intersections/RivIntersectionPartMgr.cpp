@@ -647,7 +647,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
     if (m_rimCrossSection->direction() == RimIntersection::CS_TWO_POINTS)
     {
         {
-            cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
+            cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongExtrusionLineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
             if (polylineGeo.notNull())
             {
                 if (useBufferObjects)
@@ -679,7 +679,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
             }
         }
 
-        cvf::ref<cvf::DrawableGeo> polylinePointsGeo = m_crossSectionGenerator->createPointsFromPolylineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
+        cvf::ref<cvf::DrawableGeo> polylinePointsGeo = m_crossSectionGenerator->createPointsFromExtrusionLineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
         if (polylinePointsGeo.notNull())
         {
             if (useBufferObjects)

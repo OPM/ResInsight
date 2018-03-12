@@ -477,13 +477,9 @@ RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLinesForExtrusionDirection() const
+std::vector <cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 {
-    std::vector< std::vector <cvf::Vec3d> > lines;
-
-    lines.push_back(m_customExtrusionPoints);
-
-    return lines;
+    return m_customExtrusionPoints;
 }
 
 //--------------------------------------------------------------------------------------------------

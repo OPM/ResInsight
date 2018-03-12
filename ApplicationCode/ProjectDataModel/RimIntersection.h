@@ -90,7 +90,7 @@ public:
     Rim2dIntersectionView*                               correspondingIntersectionView();
     RivIntersectionPartMgr*                              intersectionPartMgr();
 
-    std::vector< std::vector <cvf::Vec3d> >              polyLinesForExtrusionDirection() const;
+    std::vector <cvf::Vec3d>                             polyLinesForExtrusionDirection() const;
     void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);
 
     void                                                 appendPointToAzimuthLine(const cvf::Vec3d& point);

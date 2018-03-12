@@ -23,11 +23,13 @@
 #include "RigResultAccessor.h"
 
 #include "RimIntersection.h"
+#include "Rim3dView.h"
 
 #include "RivHexGridIntersectionTools.h"
 #include "RivIntersectionPartMgr.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryTools.h"
@@ -39,6 +41,16 @@
 
 #include "RivSectionFlattner.h"
 
+
+cvf::ref<caf::DisplayCoordTransform> displayCoordTransform(const RimIntersection* intersection)
+{
+    Rim3dView* rimView = nullptr;
+    intersection->firstAncestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+    return transForm;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// isFlattened means to transform each flat section of the intersection onto the XZ plane
@@ -402,12 +414,26 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPoly
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine)
+{
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform(crossSection());
+    std::vector<cvf::Vec3d> displayCoords;
+
+    for (const auto& pt : extrusionLine)
+    {
+        displayCoords.push_back(transform->translateToDisplayCoord(pt));
+    }
+    
+    return createLineAlongPolylineDrawable(std::vector<std::vector<cvf::Vec3d>>({ displayCoords }));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines)
 {
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
-
-    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
 
     for (size_t pLineIdx = 0; pLineIdx < polyLines.size(); ++pLineIdx)
     {
@@ -450,6 +476,21 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPol
     return createPointsFromPolylineDrawable(m_flattenedOrOffsettedPolyLines);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine)
+{
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform(crossSection());
+    std::vector<cvf::Vec3d> displayCoords;
+    
+    for (const auto& pt : extrusionLine)
+    {
+        displayCoords.push_back(transform->translateToDisplayCoord(pt));
+    }
+    
+    return createPointsFromPolylineDrawable(std::vector<std::vector<cvf::Vec3d>>({displayCoords}));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -457,8 +498,6 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPol
 cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines)
 {
     std::vector<cvf::Vec3f> vertices;
-
-    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
 
     for (size_t pLineIdx = 0; pLineIdx < polyLines.size(); ++pLineIdx)
     {

@@ -61,10 +61,9 @@ public:
     cvf::ref<cvf::DrawableGeo>  generateSurface();
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
     cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable();
+    cvf::ref<cvf::DrawableGeo>  createLineAlongExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
     cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable();
-
-    cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
-    cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
+    cvf::ref<cvf::DrawableGeo>  createPointsFromExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
 
     const std::vector<std::vector<cvf::Vec3d> >&     flattenedOrOffsettedPolyLines() { return m_flattenedOrOffsettedPolyLines; }
 
@@ -78,13 +77,16 @@ public:
     cvf::Mat4d                  unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat);
 
 private:
+    cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
+    cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
+
     void                        calculateArrays();
     void                        calculateSegementTransformPrLinePoint();
     void                        calculateFlattenedOrOffsetedPolyline();
 
-    static size_t               indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine,
-                                                      const cvf::Vec3d extrDir,
-                                                      size_t idxToStartOfLineSegment);
+    //static size_t               indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine,
+    //                                                  const cvf::Vec3d extrDir,
+    //                                                  size_t idxToStartOfLineSegment);
 
     RimIntersection*                            m_crossSection;
     cvf::cref<RivIntersectionHexGridInterface>  m_hexGrid;
