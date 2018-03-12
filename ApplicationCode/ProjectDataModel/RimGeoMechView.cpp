@@ -231,7 +231,7 @@ void RimGeoMechView::createDisplayModel()
    // Cross sections
 
    m_crossSectionVizModel->removeAllParts();
-   m_crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
+   m_crossSectionCollection->appendPartsToModel(*this, m_crossSectionVizModel.p(), scaleTransform());
    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame

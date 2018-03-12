@@ -915,9 +915,11 @@ void RivIntersectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionPartMgr::appendPolylinePartsToModel(Rim3dView &view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_rimCrossSection->inputPolyLineFromViewerEnabled)
+    Rim2dIntersectionView* curr2dView = dynamic_cast<Rim2dIntersectionView*>(&view);
+
+    if (m_rimCrossSection->inputPolyLineFromViewerEnabled || (curr2dView && curr2dView->showDefiningPoints()))
     {
         if (m_highlightLineAlongPolyline.notNull())
         {
@@ -947,7 +949,7 @@ void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* mod
         }
     }
 
-    if (m_rimCrossSection->inputTwoAzimuthPointsFromViewerEnabled)
+    if (m_rimCrossSection->inputTwoAzimuthPointsFromViewerEnabled || (curr2dView && curr2dView->showDefiningPoints()))
     {
         if (m_highlightLineAlongPolyline.notNull())
         {

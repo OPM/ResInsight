@@ -102,6 +102,7 @@ public:
     void                                                 setLengthDown(double heightDown);
 
     void                                                 recomputeSimulationWellBranchData();
+    bool                                                 hasDefiningPoints() const;
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();

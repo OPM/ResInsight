@@ -477,7 +477,7 @@ void RimEclipseView::createDisplayModel()
     // Cross sections
 
     m_crossSectionVizModel->removeAllParts();
-    m_crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
+    m_crossSectionCollection->appendPartsToModel(*this, m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
     m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
     // Well path model

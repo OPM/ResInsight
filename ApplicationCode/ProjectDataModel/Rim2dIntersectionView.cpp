@@ -72,6 +72,8 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     m_ternaryLegendConfig.xmlCapability()->disableIO();
     m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
+    CAF_PDM_InitField(&m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points", "", "", "");
+
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
@@ -301,6 +303,14 @@ cvf::ref<caf::DisplayCoordTransform> Rim2dIntersectionView::displayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::showDefiningPoints() const
+{
+    return m_showDefiningPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                            bool* useOptionsOnly)
 {
@@ -396,7 +406,7 @@ void Rim2dIntersectionView::createDisplayModel()
     
     m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel(m_intersectionVizModel.p(), scaleTransform());
     m_flatIntersectionPartMgr->appendMeshLinePartsToModel(m_intersectionVizModel.p(), scaleTransform());
-    m_flatIntersectionPartMgr->appendPolylinePartsToModel(m_intersectionVizModel.p(), scaleTransform());
+    m_flatIntersectionPartMgr->appendPolylinePartsToModel(*this, m_intersectionVizModel.p(), scaleTransform());
     m_flatIntersectionPartMgr->appendWellPipePartsToModel(m_intersectionVizModel.p(), scaleTransform());
 
     m_flatIntersectionPartMgr->applySingleColorEffect();
@@ -572,7 +582,8 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 {
     Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == & m_intersection)
+    if (changedField == & m_intersection ||
+        changedField == &m_showDefiningPoints)
     {
         this->loadDataAndUpdate();
     }
@@ -587,4 +598,10 @@ void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add(&m_intersection);
 
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
+
+    if (m_intersection->hasDefiningPoints())
+    {
+        caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup("Defining Points");
+        plGroup->add(&m_showDefiningPoints);
+    }
 }

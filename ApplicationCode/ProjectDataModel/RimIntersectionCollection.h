@@ -23,6 +23,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
+class Rim3dView;
 class RimIntersection;
 class RimIntersectionBox;
 class RimEclipseCellColors;
@@ -70,7 +71,7 @@ public:
     void updateCellResultColor(size_t timeStepIndex, 
                                const cvf::ScalarMapper* scalarColorMapper, 
                                const RivTernaryScalarMapper* ternaryColorMapper);
-    void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void appendPartsToModel(Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
     std::vector<RimIntersection*>       intersections() const;
     std::vector<RimIntersectionBox*>    intersectionBoxes() const;

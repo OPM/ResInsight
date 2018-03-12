@@ -122,7 +122,7 @@ void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RimIntersectionCollection::appendPartsToModel(Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (!isActive) return;
 
@@ -132,7 +132,7 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
         {
             cs->intersectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
             cs->intersectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
-            cs->intersectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
+            cs->intersectionPartMgr()->appendPolylinePartsToModel(view, model, scaleTransform);
         }
     }
 

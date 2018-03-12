@@ -44,6 +44,7 @@ class RigFemResultAddress;
 class RigGeoMechCaseData;
 class RigMainGrid;
 class RigResultAccessor;
+class Rim3dView;
 class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimIntersection;
@@ -71,7 +72,7 @@ public:
 
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
-    void appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void appendPolylinePartsToModel(Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendWellPipePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
     const RimIntersection* intersection() const;

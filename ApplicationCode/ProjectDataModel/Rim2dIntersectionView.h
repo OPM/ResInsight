@@ -63,6 +63,8 @@ public:
 
     virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
+    bool                       showDefiningPoints() const;
+
 protected:
     void                       updateLegends();
 
@@ -96,5 +98,5 @@ protected:
     cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
     cvf::ref<cvf::Transform>           m_scaleTransform;
 
-
+    caf::PdmField<bool>                m_showDefiningPoints;
 };
