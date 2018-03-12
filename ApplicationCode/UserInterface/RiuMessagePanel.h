@@ -40,7 +40,7 @@ public:
     explicit RiuMessagePanel(QDockWidget* parent);
 
     void            addMessage(RILogLevel messageLevel, const QString& msg);
-    virtual QSize	sizeHint () const;
+    virtual QSize    sizeHint () const;
 
 private slots:
     void            slotShowContextMenu(const QPoint& pos);

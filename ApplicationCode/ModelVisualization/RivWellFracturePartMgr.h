@@ -34,7 +34,7 @@ namespace cvf
     class DrawableGeo;
     class Part;
     class Color3f;
-	class ScalarMapper;
+    class ScalarMapper;
 }
 
 namespace caf
@@ -80,9 +80,9 @@ private:
 
     std::vector<cvf::Vec3d>             fractureBorderPolygon();
 
-	static cvf::ref<cvf::Part>			createScalarMapperPart(cvf::DrawableGeo* drawableGeo, const cvf::ScalarMapper* scalarMapper, RimFracture* fracture, bool disableLighting);
-	
-	static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon,
+    static cvf::ref<cvf::Part>            createScalarMapperPart(cvf::DrawableGeo* drawableGeo, const cvf::ScalarMapper* scalarMapper, RimFracture* fracture, bool disableLighting);
+    
+    static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon,
                                                                          cvf::Mat4d m, 
                                                                          const caf::DisplayCoordTransform& displayCoordTransform);
 

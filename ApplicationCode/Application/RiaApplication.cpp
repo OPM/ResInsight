@@ -100,7 +100,7 @@
 
 
 #ifndef WIN32
-#include <unistd.h>	// for usleep
+#include <unistd.h>    // for usleep
 #endif //WIN32
 
 #ifdef USE_UNIT_TESTS
@@ -1492,12 +1492,12 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 {
-	// Wait until all command objects have completed
-	while (!m_commandQueueLock.tryLock())
-	{
-		processEvents();
-	}
-	m_commandQueueLock.unlock();
+    // Wait until all command objects have completed
+    while (!m_commandQueueLock.tryLock())
+    {
+        processEvents();
+    }
+    m_commandQueueLock.unlock();
 }
 
 //--------------------------------------------------------------------------------------------------

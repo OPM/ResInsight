@@ -61,7 +61,7 @@ bool RiaTextFileCompare::runComparison(const QString& baseFolder, const QString&
     }
 
     // Command line arguments used when invoking 'diff'
-	// See https://docs.freebsd.org/info/diff/diff.info.diff_Options.html
+    // See https://docs.freebsd.org/info/diff/diff.info.diff_Options.html
     QString args = "-r -u --strip-trailing-cr";
 
     QString completeCommand = QString("\"%1\" %2 %3 %4").arg(fullFilePath).arg(baseFolder).arg(generatedFolder).arg(args);

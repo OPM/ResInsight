@@ -525,7 +525,7 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities)
 {
-	m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
+    m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerfo
 //--------------------------------------------------------------------------------------------------
 const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
 {
-	return m_virtualPerforationTransmissibilities;
+    return m_virtualPerforationTransmissibilities;
 }
 
 //--------------------------------------------------------------------------------------------------

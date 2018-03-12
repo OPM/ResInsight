@@ -177,36 +177,36 @@ std::string RiaImageCompareReporter::cssString() const
 
     html += "";
     html += ".image-slider {";
-	    html += "position:relative;";
-	    html += "display: inline-block;";
-	    html += "line-height: 0;";
+        html += "position:relative;";
+        html += "display: inline-block;";
+        html += "line-height: 0;";
     html += "}";
 
     html += ".image-slider > div {";
-	    html += "position: absolute;";
-	    html += "top: 0; bottom: 0; left: 0;";
-	    html += "width: 25px;";
-	    html += "max-width: 100%;";
-	    html += "overflow: hidden;";
-	    html += "resize: horizontal;";
+        html += "position: absolute;";
+        html += "top: 0; bottom: 0; left: 0;";
+        html += "width: 25px;";
+        html += "max-width: 100%;";
+        html += "overflow: hidden;";
+        html += "resize: horizontal;";
     html += "}";
 
     html += ".image-slider > div:before {";
-	    html += "content: '';";
-	    html += "position: absolute;";
-	    html += "right: 0; bottom: 0;";
-	    html += "width: 23px; height: 23px;";
-	    html += "padding: 5px;";
-	    html += "background: linear-gradient(-45deg, gray 50%, transparent 0);";
-	    html += "background-clip: content-box;";
-	    html += "cursor: ew-resize;";
-	    html += "-webkit-filter: drop-shadow(0 0 6px black);";
-	    html += "filter: drop-shadow(0 0 6px black);";
+        html += "content: '';";
+        html += "position: absolute;";
+        html += "right: 0; bottom: 0;";
+        html += "width: 23px; height: 23px;";
+        html += "padding: 5px;";
+        html += "background: linear-gradient(-45deg, gray 50%, transparent 0);";
+        html += "background-clip: content-box;";
+        html += "cursor: ew-resize;";
+        html += "-webkit-filter: drop-shadow(0 0 6px black);";
+        html += "filter: drop-shadow(0 0 6px black);";
     html += "}";
 
     html += ".image-slider img {";
-	    html += "user-select: none;";
-	    html += "max-width: 1000px;";
+        html += "user-select: none;";
+        html += "max-width: 1000px;";
     html += "}";
 
     html += "</style>";

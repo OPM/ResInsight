@@ -40,8 +40,8 @@ public:
 
     void setCompletionData(const std::vector<RigCompletionData>& completions);
 
-	const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-		multipleCompletionsPerEclipseCell() const;
+    const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
+        multipleCompletionsPerEclipseCell() const;
 
 private:
     std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> m_multipleCompletionsPerEclipseCell;

@@ -98,7 +98,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_trackball->endNavigation();
 
                     m_isNavigating = false;
-					if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
+                    if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
                     m_hasMovedMouseDuringNavigation = false;
        
                 }

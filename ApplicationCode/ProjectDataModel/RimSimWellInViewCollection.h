@@ -109,8 +109,8 @@ public:
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
-	
-	caf::PdmChildArrayField<RimSimWellInView*>     wells;
+    
+    caf::PdmChildArrayField<RimSimWellInView*>     wells;
 
     RimSimWellInView*                   findWell(QString name);
     bool                                hasVisibleWellCells();

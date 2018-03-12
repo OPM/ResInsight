@@ -256,38 +256,38 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
 
                 if (fib.exists() && fig.exists())
                 {
-					{
-						QString headerText = testCaseFolder.dirName();
+                    {
+                        QString headerText = testCaseFolder.dirName();
 
-						html += "<table>\n";
-						html += "  <tr>\n";
-						html += "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " + headerText + " </font></b> </td>\n";
-						html += "  </tr>\n";
+                        html += "<table>\n";
+                        html += "  <tr>\n";
+                        html += "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " + headerText + " </font></b> </td>\n";
+                        html += "  </tr>\n";
 
-						textFileCompare.runComparison(baseFilesFolderName, generatedFilesFolderName);
-	
-						QString diff = textFileCompare.diffOutput();
-						if (diff.isEmpty())
-						{
-							html += "  <tr>\n";
-							html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"green\">No text diff detected</font> </td> \n";
-							html += "  </tr>\n";
-						}
-						else
-						{
-							html += "  <tr>\n";
-							html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"red\">Text diff detected - output from diff tool : </font> </td> \n";
-							html += "  </tr>\n";
-						}
+                        textFileCompare.runComparison(baseFilesFolderName, generatedFilesFolderName);
+    
+                        QString diff = textFileCompare.diffOutput();
+                        if (diff.isEmpty())
+                        {
+                            html += "  <tr>\n";
+                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"green\">No text diff detected</font> </td> \n";
+                            html += "  </tr>\n";
+                        }
+                        else
+                        {
+                            html += "  <tr>\n";
+                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"red\">Text diff detected - output from diff tool : </font> </td> \n";
+                            html += "  </tr>\n";
+                        }
 
-						// Table end
-						html += "</table>\n";
+                        // Table end
+                        html += "</table>\n";
 
-						if (!diff.isEmpty())
-						{
-							html += QString("<code> %1 </code>").arg(diff);
-						}
-					}
+                        if (!diff.isEmpty())
+                        {
+                            html += QString("<code> %1 </code>").arg(diff);
+                        }
+                    }
 
                     QFile file(htmlReportFileName);
                     if (file.open(QIODevice::Append | QIODevice::Text))

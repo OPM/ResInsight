@@ -48,7 +48,7 @@ void CompletionDataFrame::setCompletionData(const std::vector<RigCompletionData>
 //--------------------------------------------------------------------------------------------------
 const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& CompletionDataFrame::multipleCompletionsPerEclipseCell() const
 {
-	return m_multipleCompletionsPerEclipseCell;
+    return m_multipleCompletionsPerEclipseCell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,22 +69,22 @@ void RigVirtualPerforationTransmissibilities::appendCompletionDataForWellPath(
     const std::vector<RigCompletionData>& completions)
 {
 /*
-	auto item = m_mapFromWellToCompletionData.find(wellPath);
-	if (item != m_mapFromWellToCompletionData.end())
-	{
-		item->second.setCompletionData
-	}
+    auto item = m_mapFromWellToCompletionData.find(wellPath);
+    if (item != m_mapFromWellToCompletionData.end())
+    {
+        item->second.setCompletionData
+    }
 
-	auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell());
-	if (it != m_multipleCompletionsPerEclipseCell.end())
-	{
-		it->second.push_back(completion);
-	}
-	else
-	{
-		m_multipleCompletionsPerEclipseCell.insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>(
-			completion.completionDataGridCell(), std::vector<RigCompletionData>{completion}));
-	}
+    auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell());
+    if (it != m_multipleCompletionsPerEclipseCell.end())
+    {
+        it->second.push_back(completion);
+    }
+    else
+    {
+        m_multipleCompletionsPerEclipseCell.insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>(
+            completion.completionDataGridCell(), std::vector<RigCompletionData>{completion}));
+    }
 */
 
 }
@@ -97,11 +97,11 @@ const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
 {
     static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> dummy;
 
-	auto item = m_mapFromWellToCompletionData.find(wellPath);
-	if (item != m_mapFromWellToCompletionData.end())
-	{
-		return item->second[timeStepIndex].multipleCompletionsPerEclipseCell();
-	}
-	
+    auto item = m_mapFromWellToCompletionData.find(wellPath);
+    if (item != m_mapFromWellToCompletionData.end())
+    {
+        return item->second[timeStepIndex].multipleCompletionsPerEclipseCell();
+    }
+    
     return dummy;
 }

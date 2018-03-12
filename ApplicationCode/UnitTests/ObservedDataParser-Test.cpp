@@ -299,7 +299,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
     out << "        OP-1    OP-1    OP-1    OP-1    OP-1    OP-1    \n";
     out << "\n";
     out << "\n";
-    out << "1386    2003.170    1.0E-12	   1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12  --comment \n";
+    out << "1386    2003.170    1.0E-12       1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12  --comment \n";
     out << "1436    2003.307    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12 --comment\n";
     out << "1574    2003.685    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
     out << "1636    2003.855    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";

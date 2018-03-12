@@ -75,7 +75,7 @@ public:
     void                tileWindows();
     bool                isAnyMdiSubWindowVisible();
     QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
-	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
+    QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     void                addToTemporaryWidgets(QWidget* widget);
 

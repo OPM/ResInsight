@@ -111,8 +111,8 @@ public:
                                                                        bool includeAllCellCenters,
                                                                        bool useAutoDetectionOfBranches) const;
 
-	void										setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities);
-	const RigVirtualPerforationTransmissibilities*    virtualPerforationTransmissibilities() const;
+    void                                        setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities);
+    const RigVirtualPerforationTransmissibilities*    virtualPerforationTransmissibilities() const;
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -131,7 +131,7 @@ private:
 
     cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
 
-    RigVirtualPerforationTransmissibilities*	m_virtualPerforationTransmissibilities;
+    RigVirtualPerforationTransmissibilities*    m_virtualPerforationTransmissibilities;
 
     cvf::Collection<RigSimWellData>             m_simWellData;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether the cell is a well cell or not

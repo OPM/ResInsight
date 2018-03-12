@@ -156,8 +156,8 @@ RimEclipseView::RimEclipseView()
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
-	
-	m_eclipseCase = nullptr;
+    
+    m_eclipseCase = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

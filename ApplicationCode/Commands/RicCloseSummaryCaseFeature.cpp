@@ -43,8 +43,8 @@ CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature");
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
-	actionToSetup->setText("Close Summary Case");
-	actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setText("Close Summary Case");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,8 +103,8 @@ bool RicCloseSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
-	std::vector<RimSummaryCase*> selection;
-	caf::SelectionManager::instance()->objectsByType(&selection);
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
     CVF_ASSERT(selection.size() > 0);
     
     RicCloseSummaryCaseFeature::deleteSummaryCases(selection);

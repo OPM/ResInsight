@@ -73,11 +73,11 @@ private:
         {
             if (!(*m_cellVisibilities)[cIdx]) continue;
 
-			size_t cellResultIndex = cIdx;
-			if (m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex))
-			{
-				cellResultIndex = actCellInfo->cellResultIndex(cIdx);
-			}
+            size_t cellResultIndex = cIdx;
+            if (m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex))
+            {
+                cellResultIndex = actCellInfo->cellResultIndex(cIdx);
+            }
 
             if (cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size())
             {

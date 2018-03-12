@@ -221,10 +221,10 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicL
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
     const RigVirtualPerforationTransmissibilities* trans = eclipseCaseData->virtualPerforationTransmissibilities();
-	if (trans)
-	{
+    if (trans)
+    {
 
-	}
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

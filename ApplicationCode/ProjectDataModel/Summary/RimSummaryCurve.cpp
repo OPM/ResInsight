@@ -171,7 +171,7 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
 {
-	m_yValuesSummaryCase = sumCase;
+    m_yValuesSummaryCase = sumCase;
 }
 
 //--------------------------------------------------------------------------------------------------

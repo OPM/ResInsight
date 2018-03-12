@@ -907,7 +907,7 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 {
-	return m_mdiArea->subWindowList(order);
+    return m_mdiArea->subWindowList(order);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1727,7 +1727,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         // Write preferences using QSettings and apply them to the application
         regTestConfig.writeSettingsToApplicationStore();
 
-		RiaRegressionTestRunner::instance()->executeRegressionTests();
+        RiaRegressionTestRunner::instance()->executeRegressionTests();
     }
 }
 

@@ -1,58 +1,58 @@
 <RCC>
     <qresource prefix="/">
-		<file>AppLogo48x48.png</file>
-		<file>Default.png</file>
-		<file>NorthViewArrow.png</file>
-		<file>SouthViewArrow.png</file>
-		<file>EastViewArrow.png</file>
-		<file>WestViewArrow.png</file>
-		<file>UpViewArrow.png</file>
-		<file>DownViewArrow.png</file>
-		<file>CellFilter_Values.png</file>
-		<file>CellFilter_Range.png</file>
-		<file>CellResult.png</file>
-		<file>EdgeResult_1.png</file>
-		<file>EdgeResult_2.png</file>
-		<file>Legend.png</file>
-		<file>Plus.png</file>
-		<file>Minus.png</file>
-		<file>Save.png</file>
-		<file>Well.png</file>
-		<file>WellCollection.png</file>
+        <file>AppLogo48x48.png</file>
+        <file>Default.png</file>
+        <file>NorthViewArrow.png</file>
+        <file>SouthViewArrow.png</file>
+        <file>EastViewArrow.png</file>
+        <file>WestViewArrow.png</file>
+        <file>UpViewArrow.png</file>
+        <file>DownViewArrow.png</file>
+        <file>CellFilter_Values.png</file>
+        <file>CellFilter_Range.png</file>
+        <file>CellResult.png</file>
+        <file>EdgeResult_1.png</file>
+        <file>EdgeResult_2.png</file>
+        <file>Legend.png</file>
+        <file>Plus.png</file>
+        <file>Minus.png</file>
+        <file>Save.png</file>
+        <file>Well.png</file>
+        <file>WellCollection.png</file>
         <file>octave.png</file>
         <file>Folder.png</file>
         <file>EclipseInput48x48.png</file>
-		<file>Cases16x16.png</file>
-		<file>CreateGridCaseGroup16x16.png</file>
-		<file>GridCaseGroup16x16.png</file>
-		<file>Histogram16x16.png</file>
-		<file>Histograms16x16.png</file>
-		<file>ZoomAll16x16.png</file>
-		<file>draw_style_lines_24x24.png</file>
-		<file>draw_style_meshlines_24x24.png</file>
-		<file>draw_style_meshoutlines_24x24.png</file>
-		<file>draw_style_outlines_24x24.png</file>
-		<file>draw_style_surface_24x24.png</file>
-		<file>disable_lighting_24x24.png</file>
-		<file>SnapShot.png</file>
-		<file>SnapShotSave.png</file>
-		<file>SnapShotSaveViews.png</file>
-		<file>draw_style_faults_24x24.png</file>
+        <file>Cases16x16.png</file>
+        <file>CreateGridCaseGroup16x16.png</file>
+        <file>GridCaseGroup16x16.png</file>
+        <file>Histogram16x16.png</file>
+        <file>Histograms16x16.png</file>
+        <file>ZoomAll16x16.png</file>
+        <file>draw_style_lines_24x24.png</file>
+        <file>draw_style_meshlines_24x24.png</file>
+        <file>draw_style_meshoutlines_24x24.png</file>
+        <file>draw_style_outlines_24x24.png</file>
+        <file>draw_style_surface_24x24.png</file>
+        <file>disable_lighting_24x24.png</file>
+        <file>SnapShot.png</file>
+        <file>SnapShotSave.png</file>
+        <file>SnapShotSaveViews.png</file>
+        <file>draw_style_faults_24x24.png</file>
         <file>draw_style_faults_label_24x24.png</file>
         <file>Case48x48.png</file>
-		<file>GridModels.png</file>
-		<file>draw_style_WellCellsToRangeFilter_24x24.png</file>
-		<file>draw_style_surface_w_fault_mesh_24x24.png</file>
-		<file>InfoBox16x16.png</file>
-		<file>GeoMechCase48x48.png</file>
+        <file>GridModels.png</file>
+        <file>draw_style_WellCellsToRangeFilter_24x24.png</file>
+        <file>draw_style_surface_w_fault_mesh_24x24.png</file>
+        <file>InfoBox16x16.png</file>
+        <file>GeoMechCase48x48.png</file>
         <file>GeoMechCases48x48.png</file>
         <file>chain.png</file>
         <file>TileWindows24x24.png</file>
-		<file>LasFile16x16.png</file>
-		<file>WellLogTrack16x16.png</file>
-		<file>WellLogPlot16x16.png</file>
-		<file>WellLogPlots16x16.png</file>
-		<file>WellLogCurve16x16.png</file>
+        <file>LasFile16x16.png</file>
+        <file>WellLogTrack16x16.png</file>
+        <file>WellLogPlot16x16.png</file>
+        <file>WellLogPlots16x16.png</file>
+        <file>WellLogCurve16x16.png</file>
         <file>CrossSection16x16.png</file>
         <file>CrossSections16x16.png</file>
         <file>Refresh-32.png</file>

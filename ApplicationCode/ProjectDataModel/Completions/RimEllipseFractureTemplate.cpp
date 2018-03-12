@@ -216,11 +216,11 @@ void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
     
     m_fractureGrid->setFractureCells(fractureCells);
 
-	// Set well intersection to center of ellipse
+    // Set well intersection to center of ellipse
     std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(numberOfCellsI / 2, numberOfCellsJ / 2);
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterFractureCellIJ);
     
-	m_fractureGrid->setICellCount(numberOfCellsI);
+    m_fractureGrid->setICellCount(numberOfCellsI);
     m_fractureGrid->setJCellCount(numberOfCellsJ);
 }
 

@@ -164,7 +164,7 @@ private:
     caf::PdmField<QString>                              m_userDefinedPlotTitle;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
-	caf::PdmChildField<RimSummaryCurveCollection*>		m_summaryCurveCollection;
+    caf::PdmChildField<RimSummaryCurveCollection*>        m_summaryCurveCollection;
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
     caf::PdmField<bool>                                 m_isAutoZoom;

@@ -94,19 +94,19 @@ public:
     RiaApplication(int& argc, char** argv);
     ~RiaApplication();
     
-	static RiaApplication* instance();
+    static RiaApplication* instance();
 
     int                 parseArgumentsAndRunUnitTestsIfRequested();
     bool                parseArguments();
 
     void                setActiveReservoirView(Rim3dView*);
-    Rim3dView*			activeReservoirView();
-    const Rim3dView*	activeReservoirView() const;
-    RimGridView*		activeGridView();
+    Rim3dView*            activeReservoirView();
+    const Rim3dView*    activeReservoirView() const;
+    RimGridView*        activeGridView();
 
     RimViewWindow*      activePlotWindow() const;
 
-    RimProject*			project(); 
+    RimProject*            project(); 
 
     void                createMockModel();
     void                createResultsMockModel();
@@ -199,7 +199,7 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-	void				waitUntilCommandObjectsHasBeenProcessed();
+    void                waitUntilCommandObjectsHasBeenProcessed();
 
 
 private:
@@ -217,10 +217,10 @@ private:
     void                    setHelpText(const QString& helpText);
 
 private slots:
-    void					slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    caf::PdmPointer<Rim3dView>			m_activeReservoirView;
+    caf::PdmPointer<Rim3dView>            m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
     RiaSocketServer*                    m_socketServer;

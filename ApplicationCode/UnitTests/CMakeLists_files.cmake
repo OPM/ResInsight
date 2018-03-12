@@ -1,6 +1,6 @@
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
-				${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
+                ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
 )
 
 set (SOURCE_GROUP_HEADER_FILES

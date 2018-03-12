@@ -115,17 +115,17 @@ RimPlotCurve::RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::~RimPlotCurve()
 {
-	if (m_qwtPlotCurve)
-	{
-		m_qwtPlotCurve->detach();
-		delete m_qwtPlotCurve;
-		m_qwtPlotCurve = nullptr;
-	}
+    if (m_qwtPlotCurve)
+    {
+        m_qwtPlotCurve->detach();
+        delete m_qwtPlotCurve;
+        m_qwtPlotCurve = nullptr;
+    }
 
-	if (m_parentQwtPlot)
-	{
-		m_parentQwtPlot->replot();
-	}
+    if (m_parentQwtPlot)
+    {
+        m_parentQwtPlot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

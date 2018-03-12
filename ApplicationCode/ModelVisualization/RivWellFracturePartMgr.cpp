@@ -341,7 +341,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
         std::vector<cvf::Vec3f> nodeCoords;
         std::vector<cvf::uint> triangleIndices;
 
-		m_rimFracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
+        m_rimFracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
 
         cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
         std::vector<cvf::Vec3f> nodeDisplayCoords = transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
@@ -411,7 +411,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint> triangleIndices;
 
-	stimPlanFracTemplate->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
+    stimPlanFracTemplate->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
 
     if (triangleIndices.empty() || nodeCoords.empty())
     {
@@ -489,7 +489,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         }
         geo->setTextureCoordArray(textureCoords.p());
 
-		cvf::ref<cvf::Part> surfacePart = createScalarMapperPart(geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled());
+        cvf::ref<cvf::Part> surfacePart = createScalarMapperPart(geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled());
 
         return surfacePart;
     }
@@ -625,9 +625,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         cvf::ref<cvf::DrawableGeo> geo = buildDrawableGeoFromTriangles(triIndicesToInclude, nodeDisplayCoords);
         geo->setTextureCoordArray(textureCoords.p());
 
-		cvf::ref<cvf::Part> surfacePart = createScalarMapperPart(geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled());
+        cvf::ref<cvf::Part> surfacePart = createScalarMapperPart(geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled());
 
-		return surfacePart;
+        return surfacePart;
     }
     else 
     {

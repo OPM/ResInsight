@@ -31,7 +31,7 @@ class RimSummaryCaseCollection : public caf::PdmObject
 public:
     RimSummaryCaseCollection();
     virtual ~RimSummaryCaseCollection();
-	
+    
     void                removeCase(RimSummaryCase* summaryCase);
     void                addCase(RimSummaryCase* summaryCase);
 

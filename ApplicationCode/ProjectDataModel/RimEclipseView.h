@@ -177,7 +177,7 @@ private:
     caf::PdmChildField<RimCellEdgeColors*>          m_cellEdgeResult;
     caf::PdmChildField<RimEclipseFaultColors*>      m_faultResultSettings;
     caf::PdmChildField<RimStimPlanColors*>          m_fractureColors;
-	caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
+    caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
 
     caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
@@ -189,6 +189,6 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
-	
+    
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

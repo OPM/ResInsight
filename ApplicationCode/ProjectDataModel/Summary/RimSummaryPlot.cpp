@@ -79,11 +79,11 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault(&m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
-	CAF_PDM_InitFieldNoDefault(&m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "");
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden(true);
     m_summaryCurveCollection = new RimSummaryCurveCollection;
 
-	CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
     m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "");
@@ -1302,7 +1302,7 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
 
         if ( m_summaryCurveCollection )
         {
-        	m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
+            m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
         }
    }
 
