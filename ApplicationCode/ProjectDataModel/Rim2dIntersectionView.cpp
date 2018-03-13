@@ -472,8 +472,9 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
             cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
             simWellModelBasicList->setName(name);
 
-            m_flatSimWellPipePartMgr->setDisplayCoordTransform(this->displayCoordTransform().p());
-            m_flatSimWellPipePartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
+            m_flatSimWellPipePartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), 
+                                                                        m_currentTimeStep, 
+                                                                        this->displayCoordTransform().p());
             
             simWellModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(simWellModelBasicList.p());

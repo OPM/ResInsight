@@ -60,7 +60,6 @@
 //--------------------------------------------------------------------------------------------------
 RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dIntersectionView * intersectionView)
     : m_rimWell(well)
-    , m_needsToRebuildGeometry(true)
     , m_intersectionView(intersectionView)
 {
 }
@@ -71,24 +70,6 @@ RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dInte
 RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 {
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::setDisplayCoordTransform(caf::DisplayCoordTransform* displayXf)
-{
-    m_displayCoordTransform = displayXf;
-
-    scheduleGeometryRegen();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::scheduleGeometryRegen()
-{
-    m_needsToRebuildGeometry = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +86,7 @@ Rim3dView* RivSimWellPipesPartMgr::viewWithSettings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::buildWellPipeParts()
+void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform* displayXf)
 {
     if (!this->viewWithSettings()) return;
 
@@ -151,7 +132,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
             for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
             {
                 (*cvfCoords)[cIdx] = ((*cvfCoords)[cIdx]).getTransformedPoint(flatningCSs[cIdx]);
-                (*cvfCoords)[cIdx] = m_displayCoordTransform->scaleToDisplaySize((*cvfCoords)[cIdx]);
+                (*cvfCoords)[cIdx] = displayXf->scaleToDisplaySize((*cvfCoords)[cIdx]);
             }
         }
         else
@@ -160,7 +141,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
             for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
             {
-                (*cvfCoords)[cIdx] = m_displayCoordTransform->transformToDisplayCoord((*cvfCoords)[cIdx]);
+                (*cvfCoords)[cIdx] = displayXf->transformToDisplayCoord((*cvfCoords)[cIdx]);
             }
         }
 
@@ -202,19 +183,20 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
         if (m_intersectionView) flattenedStartOffset += { 2*m_intersectionView->intersection()->extentLength(), 0.0, 0.0};
     }
 
-    m_needsToRebuildGeometry = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                               size_t frameIndex, 
+                                                               const caf::DisplayCoordTransform* displayXf)
 {
     if (!viewWithSettings()) return;
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    if (m_needsToRebuildGeometry) buildWellPipeParts();
+    buildWellPipeParts(displayXf);
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)

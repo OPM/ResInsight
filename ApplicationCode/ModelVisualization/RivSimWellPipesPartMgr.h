@@ -54,22 +54,17 @@ public:
 
     ~RivSimWellPipesPartMgr();
 
-    void       setDisplayCoordTransform(caf::DisplayCoordTransform* displayXf);
-    void       scheduleGeometryRegen();
-               
-    void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
+    void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                 size_t frameIndex, 
+                                                 const caf::DisplayCoordTransform* displayXf);
     void       updatePipeResultColor(size_t frameIndex);
 
 private:
     Rim3dView* viewWithSettings();
-    void       buildWellPipeParts();
+    void       buildWellPipeParts(const caf::DisplayCoordTransform* displayXf);
 
     caf::PdmPointer<RimSimWellInView>       m_rimWell;
     caf::PdmPointer<Rim2dIntersectionView>  m_intersectionView;
-    bool                                    m_isFlattened; 
-
-    cvf::ref<caf::DisplayCoordTransform>    m_displayCoordTransform;
-    bool                                    m_needsToRebuildGeometry;
 
     struct RivPipeBranchData
     {

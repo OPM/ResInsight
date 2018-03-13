@@ -74,16 +74,6 @@ void RivReservoirSimWellsPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivReservoirSimWellsPartMgr::scheduleGeometryRegen()
 {
-    for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-    {
-        m_wellPipesPartMgrs[wIdx]->scheduleGeometryRegen();
-    }
-
-    for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
-    {
-        //m_wellHeadPartMgrs[wIdx]->scheduleGeometryRegen(scaleTransform);
-    }
-
     m_wellSpheresPartMgrs.clear();
 }
 
@@ -93,16 +83,6 @@ void RivReservoirSimWellsPartMgr::scheduleGeometryRegen()
 void RivReservoirSimWellsPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
 {
     m_scaleTransform = scaleTransform;
-
-    for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-    {
-        m_wellPipesPartMgrs[wIdx]->setDisplayCoordTransform(m_reservoirView->displayCoordTransform().p());
-    }
-
-    for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
-    {
-        m_wellHeadPartMgrs[wIdx]->setScaleTransform(scaleTransform);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,18 +100,21 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
         {
             RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr( m_reservoirView->wellCollection()->wells[i], false);
             m_wellPipesPartMgrs.push_back(wppmgr);
-            wppmgr->setDisplayCoordTransform(m_reservoirView->displayCoordTransform().p());
 
-            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
+            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView->wellCollection()->wells[i]);
             m_wellHeadPartMgrs.push_back(wellHeadMgr);
-            wellHeadMgr->setScaleTransform(m_scaleTransform.p());
+           
         }
     }
 
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
-        m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-        m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+        m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, 
+                                                                     frameIndex,
+                                                                     m_reservoirView->displayCoordTransform().p());
+        m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, 
+                                                                    frameIndex, 
+                                                                    m_reservoirView->displayCoordTransform().p());
     }
 
     // Well spheres

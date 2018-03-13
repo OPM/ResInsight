@@ -56,10 +56,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimSimWellInView* well)
+: m_rimWell(well)
 {
-    m_rimReservoirView = reservoirView;
-    m_rimWell = well;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,30 +72,26 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
+void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex, 
+                                            const caf::DisplayCoordTransform * displayXf)
 {
     clearAllGeometry();
 
-    if (m_rimReservoirView.isNull()) return;
+    if (!viewWithSettings()) return;
     
-    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
-
     RimSimWellInView* well = m_rimWell;
     
-    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
+    double characteristicCellSize = viewWithSettings()->ownerCase()->characteristicCellSize();
 
     cvf::Vec3d whEndPos;
     cvf::Vec3d whStartPos;
     {
         well->wellHeadTopBottomPosition(static_cast<int>(frameIndex), &whEndPos, &whStartPos);
 
-        cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
-        whEndPos   = transForm->transformToDisplayCoord(whEndPos);
-        whStartPos = transForm->transformToDisplayCoord(whStartPos);
+        whEndPos   = displayXf->transformToDisplayCoord(whEndPos);
+        whStartPos = displayXf->transformToDisplayCoord(whStartPos);
         whEndPos.z() += characteristicCellSize;
     }
-
-    
 
     if (!well->simWellData()->hasWellResult(frameIndex)) return;
 
@@ -141,7 +136,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setDrawable(pipeSurface.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), caf::PO_1);
-            if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+            if (viewWithSettings() && viewWithSettings()->isLightingDisabled())
             {
                 surfaceGen.enableLighting(false);
             }
@@ -170,7 +165,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         }
     }
 
-    double arrowLength = characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     if (wellResultFrame.m_isOpen)
     {
@@ -269,7 +264,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         }
 
         caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);
-        if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+        if (viewWithSettings() && viewWithSettings()->isLightingDisabled())
         {
             surfaceGen.enableLighting(false);
         }
@@ -291,7 +286,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-        drawableText->setTextColor(m_rimReservoirView->wellCollection()->wellLabelColor());
+        drawableText->setTextColor(simWellInViewCollection()->wellLabelColor());
 
         cvf::String cvfString = cvfqt::Utils::toString(m_rimWell->name());
 
@@ -326,18 +321,16 @@ void RivWellHeadPartMgr::clearAllGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                           size_t frameIndex, 
+                                                           const caf::DisplayCoordTransform * displayXf)
 {
-    if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
-
-    RimSimWellInViewCollection* wellCollection = nullptr;
-    m_rimWell->firstAncestorOrThisOfType(wellCollection);
-    if (!wellCollection) return;
+    if (!viewWithSettings()) return;
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellHeadParts(frameIndex);
+    buildWellHeadParts(frameIndex, displayXf);
 
     // Always add pipe part of well head
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
@@ -356,4 +349,25 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim3dView* RivWellHeadPartMgr::viewWithSettings()
+{
+    Rim3dView* view = nullptr;
+    if (m_rimWell) m_rimWell->firstAncestorOrThisOfType(view);
+
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSimWellInViewCollection* RivWellHeadPartMgr::simWellInViewCollection()
+{
+    RimSimWellInViewCollection* wellCollection = nullptr;
+    if (m_rimWell)  m_rimWell->firstAncestorOrThisOfType(wellCollection);
+
+    return wellCollection;
+}
 
