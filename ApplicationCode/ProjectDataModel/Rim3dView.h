@@ -151,6 +151,8 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
 
 protected:
+    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
+
     virtual void                            setDefaultView();
     void                                    disableGridBoxField();
     void                                    disablePerspectiveProjectionField();

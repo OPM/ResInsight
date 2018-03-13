@@ -83,9 +83,9 @@ RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection,
 
     m_crossSectionFacesTextureCoords = new cvf::Vec2fArray;
     
-    double horizontalLengthAlongWellToPolylineStart;
+    cvf::Vec3d flattenedPolylineStartPoint;
 
-    std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines(&horizontalLengthAlongWellToPolylineStart);
+    std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines(&flattenedPolylineStartPoint);
     if (polyLines.size() > 0)
     {
         cvf::Vec3d direction = m_rimCrossSection->extrusionDirection();
@@ -95,7 +95,7 @@ RivIntersectionPartMgr::RivIntersectionPartMgr(RimIntersection* rimCrossSection,
                                                                        direction, 
                                                                        hexGrid.p(), 
                                                                        m_isFlattened, 
-                                                                       horizontalLengthAlongWellToPolylineStart);
+                                                                       flattenedPolylineStartPoint);
     }
 }
 
@@ -778,7 +778,7 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
     cvf::Color3f wellPipeColor = cvf::Color3f::GRAY;
     double       characteristicCellSize = 0;
 
-    if ( m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL )
+    if ( false)//m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL )
     {
         RimSimWellInView * simWellInView = m_rimCrossSection->simulationWell();
 
@@ -818,8 +818,9 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
 
     // Create pipe geometry
 
-    if (   m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL
-        || m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH )
+    if (   //m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL
+        //|| 
+        m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH )
     {
         std::vector<std::vector<cvf::Vec3d> > polyLines = m_crossSectionGenerator->flattenedOrOffsettedPolyLines();
         

@@ -42,6 +42,7 @@
 
 #include <QDateTime>
 #include "cafDisplayCoordTransform.h"
+#include "RivSimWellPipesPartMgr.h"
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
@@ -402,6 +403,20 @@ void Rim2dIntersectionView::createDisplayModel()
 
     m_flatIntersectionPartMgr->applySingleColorEffect();
 
+    m_flatSimWellPipePartMgr = nullptr;
+
+    if ( m_intersection->type() == RimIntersection::CS_SIMULATION_WELL
+        && m_intersection->simulationWell() )
+    {
+        RimEclipseView* eclipseView = nullptr;
+        m_intersection->firstAncestorOrThisOfType(eclipseView);
+
+        if ( eclipseView )
+        {
+            m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr(m_intersection->simulationWell(), this); 
+        }
+    }
+
     m_viewer->addStaticModelOnce(m_intersectionVizModel.p());
     
     m_intersectionVizModel->updateBoundingBoxesRecursive();
@@ -445,6 +460,27 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 {
     update3dInfo();
     updateLegends();
+
+    if ( m_flatSimWellPipePartMgr.notNull() )
+    {
+        cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+        if (frameScene)
+        {
+            cvf::String name = "SimWellPipeMod";
+            Rim3dView::removeModelByName(frameScene, name);
+            
+            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+            simWellModelBasicList->setName(name);
+
+            m_flatSimWellPipePartMgr->setDisplayCoordTransform(this->displayCoordTransform().p());
+            m_flatSimWellPipePartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
+            
+            simWellModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel(simWellModelBasicList.p());
+
+            m_flatSimWellPipePartMgr->updatePipeResultColor(m_currentTimeStep);
+        }
+    }
 
     if ((this->hasUserRequestedAnimation() && this->hasResults()))
     {

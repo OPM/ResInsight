@@ -47,7 +47,6 @@ public:
     RimViewLinker*                                    assosiatedViewLinker() const override;
                                                       
 protected:                                            
-    static void                                       removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
                                                       
     virtual void                                      onTimeStepChanged() override;
     virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;

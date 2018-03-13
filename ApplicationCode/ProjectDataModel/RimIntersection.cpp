@@ -390,9 +390,9 @@ void RimIntersection::updateAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * horizontalLengthAlongWellToPolylineStart) const
+std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * flattenedPolylineStartPoint) const
 {
-    if (horizontalLengthAlongWellToPolylineStart)  *horizontalLengthAlongWellToPolylineStart = 0.0;
+    if (flattenedPolylineStartPoint)  *flattenedPolylineStartPoint = cvf::Vec3d::ZERO;
 
     std::vector< std::vector <cvf::Vec3d> > lines;
 
@@ -455,12 +455,19 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(double * hori
             addExtents(polyLine);
         }
 
-        if (horizontalLengthAlongWellToPolylineStart) 
+        if (flattenedPolylineStartPoint && lines.size() && lines[0].size() > 1) 
         {
-            *horizontalLengthAlongWellToPolylineStart = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
+            (*flattenedPolylineStartPoint)[0] = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
+            (*flattenedPolylineStartPoint)[2] = lines[0][1].z(); // Depth of first point in first polyline
         }
     }
-
+    else
+    {
+        if ( flattenedPolylineStartPoint && lines.size() && lines[0].size() )
+        {
+            (*flattenedPolylineStartPoint)[2] = lines[0][0].z(); // Depth of first point in first polyline
+        }
+    }
     return lines;
 }
 
@@ -889,6 +896,14 @@ double RimIntersection::lengthDown() const
 void RimIntersection::setLengthDown(double lengthDown)
 {
     m_lengthDown = lengthDown;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimIntersection::extentLength()
+{
+    return m_extentLength();
 }
 
 //--------------------------------------------------------------------------------------------------

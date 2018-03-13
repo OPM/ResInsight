@@ -61,13 +61,13 @@ RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimIntersect
                                                                     const cvf::Vec3d& extrusionDirection, 
                                                                     const RivIntersectionHexGridInterface* grid,
                                                                     bool isFlattened,
-                                                                    double horizontalLengthAlongWellToPolylineStart)
+                                                                    const cvf::Vec3d& flattenedPolylineStartPoint)
                                                                    : m_crossSection(crossSection),
                                                                    m_polyLines(polylines), 
                                                                    m_extrusionDirection(extrusionDirection), 
                                                                    m_hexGrid(grid),
                                                                    m_isFlattened(isFlattened),
-                                                                   m_horizontalLengthAlongWellToPolylineStart(horizontalLengthAlongWellToPolylineStart)
+                                                                   m_flattenedPolylineStartPoint(flattenedPolylineStartPoint)
 {
     m_triangleVxes = new cvf::Vec3fArray;
     m_cellBorderLineVxes = new cvf::Vec3fArray;
@@ -91,7 +91,7 @@ void RivIntersectionGeometryGenerator::calculateSegementTransformPrLinePoint()
     {
         if ( !(m_polyLines.size() && m_polyLines.back().size()) ) return;
 
-        cvf::Vec3d startOffset ={ m_horizontalLengthAlongWellToPolylineStart, 0.0, m_polyLines[0][0].z() };
+        cvf::Vec3d startOffset = m_flattenedPolylineStartPoint;
 
         for ( size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx )
         {

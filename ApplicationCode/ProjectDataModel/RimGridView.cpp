@@ -267,26 +267,6 @@ Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGridView::removeModelByName(cvf::Scene* scene, const cvf::String& modelName)
-{
-    std::vector<cvf::Model*> modelsToBeRemoved;
-    for (cvf::uint i = 0; i < scene->modelCount(); i++)
-    {
-        if (scene->model(i)->name() == modelName)
-        {
-            modelsToBeRemoved.push_back(scene->model(i));
-        }
-    }
-
-    for (size_t i = 0; i < modelsToBeRemoved.size(); i++)
-    {
-        scene->removeModel(modelsToBeRemoved[i]);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimGridView::onTimeStepChanged()
 {
     if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())

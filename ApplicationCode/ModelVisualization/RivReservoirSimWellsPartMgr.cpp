@@ -36,6 +36,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfTransform.h"
 
@@ -95,7 +96,7 @@ void RivReservoirSimWellsPartMgr::setScaleTransform(cvf::Transform * scaleTransf
 
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
-        m_wellPipesPartMgrs[wIdx]->setScaleTransform(scaleTransform);
+        m_wellPipesPartMgrs[wIdx]->setDisplayCoordTransform(m_reservoirView->displayCoordTransform().p());
     }
 
     for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
@@ -117,9 +118,9 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 
         for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
         {
-            RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
+            RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr( m_reservoirView->wellCollection()->wells[i], false);
             m_wellPipesPartMgrs.push_back(wppmgr);
-            wppmgr->setScaleTransform(m_scaleTransform.p());
+            wppmgr->setDisplayCoordTransform(m_reservoirView->displayCoordTransform().p());
 
             RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
             m_wellHeadPartMgrs.push_back(wellHeadMgr);

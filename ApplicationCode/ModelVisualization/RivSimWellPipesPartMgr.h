@@ -37,36 +37,43 @@ namespace cvf
     class DrawableGeo;
 }
 
+namespace caf
+{
+    class DisplayCoordTransform;
+}
+
 class RivPipeGeometryGenerator;
-class RimEclipseView;
+class Rim3dView;
 class RimSimWellInView;
+class Rim2dIntersectionView;
 
 class RivSimWellPipesPartMgr : public cvf::Object
 {
 public:
-    RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well, bool isFlattened = false);
+    RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dIntersectionView * intersectionView = nullptr);
+
     ~RivSimWellPipesPartMgr();
 
-    void setScaleTransform(cvf::Transform * scaleTransform);
-
-    void scheduleGeometryRegen();
-
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-    void updatePipeResultColor(size_t frameIndex);
+    void       setDisplayCoordTransform(caf::DisplayCoordTransform* displayXf);
+    void       scheduleGeometryRegen();
+               
+    void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
+    void       updatePipeResultColor(size_t frameIndex);
 
 private:
-    caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimSimWellInView>            m_rimWell;
-    
-    cvf::ref<cvf::Transform>    m_scaleTransform; 
-    bool                        m_needsTransformUpdate;
-    bool                        m_isFlattened; 
+    Rim3dView* viewWithSettings();
+    void       buildWellPipeParts();
 
-    void buildWellPipeParts();
+    caf::PdmPointer<RimSimWellInView>       m_rimWell;
+    caf::PdmPointer<Rim2dIntersectionView>  m_intersectionView;
+    bool                                    m_isFlattened; 
+
+    cvf::ref<caf::DisplayCoordTransform>    m_displayCoordTransform;
+    bool                                    m_needsToRebuildGeometry;
 
     struct RivPipeBranchData
     {
-        std::vector <RigWellResultPoint>     m_cellIds;
+        std::vector <RigWellResultPoint>    m_cellIds;
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
 
         cvf::ref<cvf::Part>                 m_surfacePart;
@@ -77,9 +84,7 @@ private:
 
     };
 
-    RivPipeBranchData* pipeBranchData(size_t branchIndex);
-
-    std::list<RivPipeBranchData> m_wellBranches;
+    std::list<RivPipeBranchData>            m_wellBranches;
 
     std::vector< std::vector <cvf::Vec3d> > m_pipeBranchesCLCoords;
 };

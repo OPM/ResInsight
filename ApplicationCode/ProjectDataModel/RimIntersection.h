@@ -84,7 +84,7 @@ public:
     caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;
     caf::PdmField< bool >                                inputTwoAzimuthPointsFromViewerEnabled;
 
-    std::vector< std::vector <cvf::Vec3d> >              polyLines(double * horizontalLengthAlongWellToPolylineStart = nullptr) const;
+    std::vector< std::vector <cvf::Vec3d> >              polyLines(cvf::Vec3d * flattenedPolylineStartPoint = nullptr) const;
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
     Rim2dIntersectionView*                               correspondingIntersectionView();
@@ -100,7 +100,7 @@ public:
     double                                               lengthDown() const;
     void                                                 setLengthUp(double heightUp);
     void                                                 setLengthDown(double heightDown);
-
+    double                                               extentLength();
     void                                                 recomputeSimulationWellBranchData();
     bool                                                 hasDefiningPoints() const;
 

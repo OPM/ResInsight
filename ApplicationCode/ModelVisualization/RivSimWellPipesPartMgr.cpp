@@ -31,7 +31,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
+#include "Rim3dView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -52,15 +52,16 @@
 #include "cvfTransform.h"
 #include "cafDisplayCoordTransform.h"
 #include "RivSectionFlattner.h"
-
+#include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well, bool isFlattened)
-    : m_rimReservoirView(reservoirView)
-    , m_needsTransformUpdate(true)
-    , m_isFlattened(isFlattened)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dIntersectionView * intersectionView)
+    : m_rimWell(well)
+    , m_needsToRebuildGeometry(true)
+    , m_intersectionView(intersectionView)
 {
 }
 
@@ -75,10 +76,10 @@ RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
+void RivSimWellPipesPartMgr::setDisplayCoordTransform(caf::DisplayCoordTransform* displayXf)
 {
-    m_scaleTransform = scaleTransform;
-    
+    m_displayCoordTransform = displayXf;
+
     scheduleGeometryRegen();
 }
 
@@ -87,7 +88,18 @@ void RivSimWellPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
 //--------------------------------------------------------------------------------------------------
 void RivSimWellPipesPartMgr::scheduleGeometryRegen()
 {
-    m_needsTransformUpdate = true;
+    m_needsToRebuildGeometry = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim3dView* RivSimWellPipesPartMgr::viewWithSettings()
+{
+    Rim3dView* view = nullptr;
+    if (m_rimWell) m_rimWell->firstAncestorOrThisOfType(view);
+    
+    return view;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +107,7 @@ void RivSimWellPipesPartMgr::scheduleGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 void RivSimWellPipesPartMgr::buildWellPipeParts()
 {
-    if (m_rimReservoirView.isNull()) return;
+    if (!this->viewWithSettings()) return;
 
     m_wellBranches.clear();
 
@@ -106,9 +118,12 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
     double pipeRadius =  m_rimWell->pipeRadius();
     int crossSectionVertexCount = m_rimWell->pipeCrossSectionVertexCount();
-    cvf::ref<caf::DisplayCoordTransform> displayCoordXf =  m_rimReservoirView->displayCoordTransform();
 
-    cvf::Vec3d flattenedStartOffset =  cvf::Vec3d::ZERO;
+    cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
+    if ( m_pipeBranchesCLCoords.size() && m_pipeBranchesCLCoords[0].size() )
+    {
+        flattenedStartOffset = { 0.0, 0.0, m_pipeBranchesCLCoords[0][0].z() }; 
+    }
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
@@ -127,15 +142,16 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
 
-        if (m_isFlattened)
+        if (m_intersectionView)
         {        
             std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattner::calculateFlatteningCSsForPolyline(m_pipeBranchesCLCoords[brIdx],
-                                                                                                        cvf::Vec3d(0, 0, 1),
+                                                                                                        cvf::Vec3d::Z_AXIS,
                                                                                                         flattenedStartOffset,
                                                                                                         &flattenedStartOffset);
             for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
             {
                 (*cvfCoords)[cIdx] = ((*cvfCoords)[cIdx]).getTransformedPoint(flatningCSs[cIdx]);
+                (*cvfCoords)[cIdx] = m_displayCoordTransform->scaleToDisplaySize((*cvfCoords)[cIdx]);
             }
         }
         else
@@ -144,16 +160,17 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
             for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
             {
-                (*cvfCoords)[cIdx] = displayCoordXf->transformToDisplayCoord((*cvfCoords)[cIdx]);
+                (*cvfCoords)[cIdx] = m_displayCoordTransform->transformToDisplayCoord((*cvfCoords)[cIdx]);
             }
         }
+
         pbd.m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
         pbd.m_surfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
         pbd.m_centerLineDrawable = pbd.m_pipeGeomGenerator->createCenterLine();
 
         if (pbd.m_surfaceDrawable.notNull())
         {
-            pbd.m_surfacePart = new cvf::Part;
+            pbd.m_surfacePart = new cvf::Part(0,"SimWellPipeSurface");
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWell->wellPipeColor()), caf::PO_1);
@@ -166,7 +183,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
         if (pbd.m_centerLineDrawable.notNull())
         {
-            pbd.m_centerLinePart = new cvf::Part;
+            pbd.m_centerLinePart = new cvf::Part(0,"SimWellPipeCenterLine");
             pbd.m_centerLinePart->setDrawable(pbd.m_centerLineDrawable.p());
 
             caf::MeshEffectGenerator gen(m_rimWell->wellPipeColor());
@@ -181,31 +198,11 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
             pbd.m_pipeGeomGenerator->setRadius(pipeRadius * 1.1);
             pbd.m_largeSurfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
         }
+
+        if (m_intersectionView) flattenedStartOffset += { 2*m_intersectionView->intersection()->extentLength(), 0.0, 0.0};
     }
 
-    m_needsTransformUpdate = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchData(size_t branchIndex)
-{
-    if (branchIndex < m_wellBranches.size())
-    {
-        size_t i = 0;
-
-        auto brIt = m_wellBranches.begin();
-        while (i < branchIndex)
-        {
-            brIt++;
-            i++;
-        }
-
-        return &(*brIt);
-    }
-
-    return nullptr;
+    m_needsToRebuildGeometry = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,11 +210,11 @@ RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchDat
 //--------------------------------------------------------------------------------------------------
 void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (m_rimReservoirView.isNull()) return;
-    if (m_rimWell.isNull()) return;
+    if (!viewWithSettings()) return;
+
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    if (m_needsTransformUpdate) buildWellPipeParts();
+    if (m_needsToRebuildGeometry) buildWellPipeParts();
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
@@ -269,7 +266,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
 
-    if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+    if (viewWithSettings() && viewWithSettings()->isLightingDisabled())
     {
         surfEffGen.disableLighting(true);
     }
