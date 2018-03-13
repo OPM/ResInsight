@@ -474,7 +474,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 
     const size_t lastOriginalCoordIdx = m_originalPipeCenterCoords->size() - 1;
 
-    size_t firstSegmentWithLength = findFirstSegmentWithLenght(squareDistanceTolerance);
+    size_t firstSegmentWithLength = findFirstSegmentWithLength(squareDistanceTolerance);
 
     // Return if we have only zero-length segments
 
@@ -562,7 +562,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivPipeGeometryGenerator::findFirstSegmentWithLenght(double squareDistanceTolerance)
+size_t RivPipeGeometryGenerator::findFirstSegmentWithLength(double squareDistanceTolerance)
 {
     size_t segIdx;
     for ( segIdx = 0; segIdx < m_originalPipeCenterCoords->size() - 1; segIdx++ )
