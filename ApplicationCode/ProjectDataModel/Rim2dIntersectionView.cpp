@@ -361,16 +361,7 @@ int Rim2dIntersectionView::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::isWindowVisible()
 {
-    if (m_showWindow())
-    {
-        Rim2dIntersectionViewCollection* viewColl = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(viewColl);
-        return viewColl->isActive();
-    }
-    else 
-    {
-        return false;
-    }
+    return m_showWindow();
 }
 
 //--------------------------------------------------------------------------------------------------

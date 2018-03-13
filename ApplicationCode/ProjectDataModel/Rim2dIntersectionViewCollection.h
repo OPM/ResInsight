@@ -31,16 +31,11 @@ public:
     Rim2dIntersectionViewCollection();
     virtual ~Rim2dIntersectionViewCollection();
 
-    bool                                isActive() { return m_isActive();}
     void                                syncFromExistingIntersections( bool doUpdate );
 
     std::vector<Rim2dIntersectionView*> views(); 
 
 private:
-    virtual caf::PdmFieldHandle*        objectToggleField() override { return &m_isActive; }
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-    caf::PdmField<bool>                             m_isActive;
     caf::PdmChildArrayField<Rim2dIntersectionView*> m_intersectionViews;
 };
 
