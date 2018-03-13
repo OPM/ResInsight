@@ -18,22 +18,26 @@
 
 #include "Riv3dWellLogCurveGeomertyGenerator.h"
 
+#include "RigCurveDataTools.h"
 #include "RigWellPath.h"
 
-#include "cvfPrimitiveSetIndexedUInt.h"
 #include "cafDisplayCoordTransform.h"
-
+#include "cvfPrimitiveSetIndexedUInt.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const
+cvf::ref<cvf::DrawableGeo>
+    Riv3dWellLogCurveGeometryGenerator::createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        const Rim3dWellLogCurve*          rim3dWellLogCurve) const
 {
-    std::vector<cvf::Vec3f> vertices = createCurveVertices(rim3dWellLogCurve, displayCoordTransform);
-    std::vector<cvf::uint> indices = createPolylineIndices(vertices.size());
+    std::vector<cvf::Vec3f> vertices;
+    std::vector<cvf::uint>  indices;
+
+    createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, &vertices, &indices);
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
@@ -47,9 +51,10 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createCurveLine(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                          const Rim3dWellLogCurve* rim3dWellLogCurve) const
 {
     std::vector<cvf::Vec3d> wellPathPoints = m_wellPathGeometry->m_wellPathPoints;
 
@@ -82,7 +87,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     }
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
@@ -96,60 +101,88 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> Riv3dWellLogCurveGeometryGenerator::createCurveVertices(const Rim3dWellLogCurve* rim3dWellLogCurve, const caf::DisplayCoordTransform* displayCoordTransform) const
+void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
+                                                                       const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                       std::vector<cvf::Vec3f>*          vertices,
+                                                                       std::vector<cvf::uint>*           indices) const
 {
-    std::vector<cvf::Vec3d> wellPathPoints;
-    wellPathPoints = m_wellPathGeometry->m_wellPathPoints;
+    std::vector<double> resultValues;
+    std::vector<double> mds;
+    rim3dWellLogCurve->resultValuesAndMds(&resultValues, &mds);
 
-    std::vector<cvf::Vec3f> vertices;
-    vertices.resize(wellPathPoints.size());
+    CVF_ASSERT(resultValues.size() == mds.size());
+
+    std::vector<cvf::Vec3d> wellPathPoints;
+    wellPathPoints.reserve(mds.size());
+
+    for (double md : mds)
+    {
+        wellPathPoints.push_back(m_wellPathGeometry->interpolatedPointAlongWellPath(md));
+    }
+
+    vertices->resize(wellPathPoints.size());
 
     std::vector<cvf::Vec3d> curveNormals;
     curveNormals.reserve(wellPathPoints.size());
-
 
     for (size_t i = 0; i < wellPathPoints.size() - 1; i += 2)
     {
         cvf::Vec3d z = zForDrawPlane(rim3dWellLogCurve->drawPlane());
 
-        cvf::Vec3d y = normalBetweenPoints(wellPathPoints[i], wellPathPoints[i+1], z);
+        cvf::Vec3d y = normalBetweenPoints(wellPathPoints[i], wellPathPoints[i + 1], z);
 
         curveNormals.push_back(y);
         curveNormals.push_back(y);
     }
+
+    double maxResult = -HUGE_VAL;
+    double minResult = HUGE_VAL;
+
+    for (double result : resultValues)
+    {
+        if (!RigCurveDataTools::isValidValue(result, false)) continue;
+
+        maxResult = std::max(result, maxResult);
+        minResult = std::min(result, minResult);
+    }
+
+    double range  = maxResult - minResult;
+    double factor = 60.0 / range;
 
     for (size_t i = 0; i < curveNormals.size(); i++)
     {
-        vertices[i] = cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(wellPathPoints[i] + curveNormals[i] * 30));
+        cvf::Vec3d result(0, 0, 0);
+
+        if (RigCurveDataTools::isValidValue(resultValues[i], false))
+        {
+            result = resultValues[i] * factor * curveNormals[i];
+        }
+
+        (*vertices)[i] =
+            cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(wellPathPoints[i] + curveNormals[i] * 30 + result));
     }
 
-    return vertices;
-}
+    std::vector<std::pair<size_t, size_t>> valuesIntervals =
+        RigCurveDataTools::calculateIntervalsOfValidValues(resultValues, false);
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::uint> Riv3dWellLogCurveGeometryGenerator::createPolylineIndices(size_t vertexCount) const
-{
-    std::vector<cvf::uint> indices;
-    indices.resize((vertexCount - 1) * 2);
-
-    cvf::uint counter = 0;
-    for (size_t i = 0; i < indices.size(); i++)
+    for (const std::pair<size_t, size_t>& interval : valuesIntervals)
     {
-        indices[i] = counter;
-        if (i % 2 == 0) counter++;
+        for (size_t i = interval.first; i < interval.second; i++)
+        {
+            indices->push_back(cvf::uint(i));
+            indices->push_back(cvf::uint(i + 1));
+        }
     }
-
-    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::normalBetweenPoints(const cvf::Vec3d& pt1, const cvf::Vec3d& pt2, const cvf::Vec3d& z) const
+cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::normalBetweenPoints(const cvf::Vec3d& pt1,
+                                                                   const cvf::Vec3d& pt2,
+                                                                   const cvf::Vec3d& z) const
 {
     cvf::Vec3d x = (pt2 - pt1).getNormalized();
 
@@ -157,7 +190,7 @@ cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::normalBetweenPoints(const cvf::Ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::zForDrawPlane(const Rim3dWellLogCurve::DrawPlane& drawPlane) const
 {
@@ -179,7 +212,7 @@ cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::zForDrawPlane(const Rim3dWellLogC
     }
     else
     {
-        //Default: Horizontal left
+        // Default: Horizontal left
         return cvf::Vec3d(0, 0, -1);
     }
 }

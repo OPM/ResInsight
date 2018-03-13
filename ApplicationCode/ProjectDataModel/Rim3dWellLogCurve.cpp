@@ -18,6 +18,10 @@
 
 #include "Rim3dWellLogCurve.h"
 
+#include "RiaApplication.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigGeoMechWellLogExtractor.h"
+#include "RigResultAccessorFactory.h"
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -26,7 +30,10 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellLogPlotCollection.h"
 
 //==================================================================================================
 ///  
@@ -151,6 +158,68 @@ Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, std::vector<double>* measuredDepthValues) const
+{
+    CAF_ASSERT(resultValues != nullptr);
+    CAF_ASSERT(measuredDepthValues != nullptr);
+
+    RimProject* proj = RiaApplication::instance()->project();
+
+    RimMainPlotCollection* mainPlotCollection = proj->mainPlotCollection;
+    if (!mainPlotCollection) return;
+
+    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+    if (!wellLogCollection) return;
+    
+    cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
+    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
+
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
+
+    if (eclipseCase)
+    {
+        eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, eclipseCase);
+    }
+    else
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case());
+        if (geomCase)
+        {
+            geomExtractor = wellLogCollection->findOrCreateExtractor(wellPath, geomCase);
+        }
+    }
+
+    if (eclExtractor.notNull() && eclipseCase)
+    {
+        *measuredDepthValues = eclExtractor->measuredDepth();
+
+        m_eclipseResultDefinition->loadResult();
+
+        cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(),
+                                                                                                  0,
+                                                                                                  m_timeStep,
+                                                                                                  m_eclipseResultDefinition);
+        if (resAcc.notNull())
+        {
+            eclExtractor->curveData(resAcc.p(), resultValues);
+        }
+    }
+    else if (geomExtractor.notNull())
+    {
+        *measuredDepthValues = geomExtractor->measuredDepth();
+
+        m_geomResultDefinition->loadResult();
+
+        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, resultValues);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 {
     return &m_showCurve;
@@ -222,7 +291,6 @@ void Rim3dWellLogCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     else if (geomCase)
     {
         m_geomResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
-
     }
 
     if ((eclipseCase && m_eclipseResultDefinition->hasDynamicResult())

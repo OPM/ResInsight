@@ -68,6 +68,8 @@ public:
 
     DrawPlane drawPlane() const;
 
+    void resultValuesAndMds(std::vector<double>* resultValues, std::vector<double>* measuredDepthValues) const;
+
 private:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

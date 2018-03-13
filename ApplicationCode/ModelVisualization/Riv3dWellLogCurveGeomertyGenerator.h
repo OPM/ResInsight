@@ -45,10 +45,10 @@ public:
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const;
 
 private:
-    std::vector<cvf::Vec3f> createCurveVertices(const Rim3dWellLogCurve* rim3dWellLogCurve,
-                                                const caf::DisplayCoordTransform* displayCoordTransform) const;
-
-    std::vector<cvf::uint> createPolylineIndices(size_t vertexCount) const;
+    void createCurveVerticesAndIndices(const Rim3dWellLogCurve* rim3dWellLogCurve,
+                                       const caf::DisplayCoordTransform* displayCoordTransform,
+                                       std::vector<cvf::Vec3f>* vertices,
+                                       std::vector<cvf::uint>* indices) const;
 
     cvf::Vec3d normalBetweenPoints(const cvf::Vec3d& pt1, const cvf::Vec3d& pt2, const cvf::Vec3d& z) const;
     cvf::Vec3d zForDrawPlane(const Rim3dWellLogCurve::DrawPlane& drawPlane) const;

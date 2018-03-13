@@ -60,8 +60,6 @@ public:
     static std::vector<std::pair<size_t, size_t>> computePolyLineStartStopIndices(const CurveIntervals& intervals);
 
 public:
-    // Helper methods, available as public to be able to access from unit tests
-
     static bool isValidValue(double value, bool allowPositiveValuesOnly);
 };
 
