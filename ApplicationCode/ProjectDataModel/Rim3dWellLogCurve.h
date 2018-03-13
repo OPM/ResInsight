@@ -64,9 +64,12 @@ public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
 
+    void updateCurveIn3dView();
+
     void setPropertiesFromView(Rim3dView* view);
 
     DrawPlane drawPlane() const;
+    bool toggleState() const;
 
     void resultValuesAndMds(std::vector<double>* resultValues, std::vector<double>* measuredDepthValues) const;
 

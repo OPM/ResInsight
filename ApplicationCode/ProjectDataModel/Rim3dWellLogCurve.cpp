@@ -121,6 +121,16 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::updateCurveIn3dView()
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::setPropertiesFromView(Rim3dView* view)
 {
     if (!view) return;
@@ -153,6 +163,14 @@ void Rim3dWellLogCurve::setPropertiesFromView(Rim3dView* view)
 Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 {
     return m_drawPlane();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dWellLogCurve::toggleState() const
+{
+    return m_showCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +248,16 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    if (changedField == &m_showCurve)
+    {
+        proj->reloadCompletionTypeResultsInAllViews();
+    }
+    else
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
