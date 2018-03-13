@@ -561,14 +561,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
         if (catLegend)
         {
-            if (catLegend->categoryCount() > categoryThreshold)
-            {
-                categoryLegends.push_back(catLegend);
-            }
-            else
-            {
-                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
-            }
+            categoryLegends.push_back(catLegend);
         }
         else
         {
@@ -594,8 +587,15 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         for (auto catLegend : categoryLegends)
         {
             catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
-            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight - 2*edgeAxisBorderHeight));
 
+            if (catLegend->categoryCount() > categoryThreshold)
+            {
+                catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2 * border - axisCrossHeight - 2 * edgeAxisBorderHeight));
+            }
+            else
+            {
+                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
+            }
             xPos += categoryWidth + border;
         }
 
