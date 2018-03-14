@@ -1,37 +1,38 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimVirtualPerforationResults.h"
 
-#include "RimLegendConfig.h"
 #include "RimEclipseView.h"
-
-
+#include "RimLegendConfig.h"
 
 CAF_PDM_SOURCE_INIT(RimVirtualPerforationResults, "RimVirtualPerforationResults");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimVirtualPerforationResults::RimVirtualPerforationResults()
 {
-    CAF_PDM_InitObject("Virtual Perforation Results", ":/CellResult.png", "", "");
+    // clang-format off
+
+    QString connectionFactorUiName = "Well Connection Factors";
+
+    CAF_PDM_InitObject(connectionFactorUiName, ":/CellResult.png", "", "");
 
     CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    true,   "", "", "", "");
     CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      0.2,    "Geometry Scale Factor", "", "", "");
@@ -40,19 +41,18 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
     m_legendConfig.uiCapability()->setUiHidden(true);
 
     m_legendConfig = new RimLegendConfig();
-    m_legendConfig->setTitle("Virtual Connection Factor");
+    m_legendConfig->setTitle(connectionFactorUiName);
+
+    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimVirtualPerforationResults::~RimVirtualPerforationResults()
-{
-
-}
+RimVirtualPerforationResults::~RimVirtualPerforationResults() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimVirtualPerforationResults::isActive() const
 {
@@ -60,7 +60,7 @@ bool RimVirtualPerforationResults::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimVirtualPerforationResults::geometryScaleFactor() const
 {
@@ -68,7 +68,7 @@ double RimVirtualPerforationResults::geometryScaleFactor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimLegendConfig* RimVirtualPerforationResults::legendConfig() const
 {
@@ -76,10 +76,17 @@ RimLegendConfig* RimVirtualPerforationResults::legendConfig() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
+    if (changedField == &m_isActive)
+    {
+        updateUiIconFromToggleField();
+    }
+
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(eclView);
 
@@ -87,7 +94,7 @@ void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimVirtualPerforationResults::objectToggleField()
 {
@@ -95,9 +102,10 @@ caf::PdmFieldHandle* RimVirtualPerforationResults::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimVirtualPerforationResults::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimVirtualPerforationResults::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                  bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -106,7 +114,7 @@ QList<caf::PdmOptionItemInfo> RimVirtualPerforationResults::calculateValueOption
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -115,3 +123,10 @@ void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::P
     uiOrdering.skipRemainingFields(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimVirtualPerforationResults::initAfterRead()
+{
+    updateUiIconFromToggleField();
+}

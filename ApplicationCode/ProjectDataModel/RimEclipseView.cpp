@@ -126,7 +126,7 @@ RimEclipseView::RimEclipseView()
     m_fractureColors = new RimStimPlanColors();
     m_fractureColors.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_virtualPerforationResult, "VirtualPerforationResult", "Virtual Perforation Result", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_virtualPerforationResult, "VirtualPerforationResult", "", "", "", "");
     m_virtualPerforationResult = new RimVirtualPerforationResults();
     m_virtualPerforationResult.uiCapability()->setUiHidden(true);
 

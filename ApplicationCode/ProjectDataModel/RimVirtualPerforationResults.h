@@ -43,11 +43,13 @@ public:
     double  geometryScaleFactor() const;
     RimLegendConfig* legendConfig() const;
 
+
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            initAfterRead() override;
 
 private:
     caf::PdmField<bool>                     m_isActive;
