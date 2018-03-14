@@ -24,8 +24,6 @@
 
 #include "cafPdmPointer.h"
 
-#include <list>
-#include <utility>
 #include <vector>
 
 namespace cvf

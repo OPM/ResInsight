@@ -19,10 +19,12 @@
 #include "RivVirtualConnFactorPartMgr.h"
 
 #include "RiaApplication.h"
+#include "RiaExtractionTools.h"
 
 #include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
@@ -34,8 +36,6 @@
 
 #include "RiuViewer.h"
 
-#include "RiaExtractionTools.h"
-#include "RigWellLogExtractor.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
