@@ -61,6 +61,8 @@ private:
                                                         double                                            radius,
                                                         cvf::ScalarMapper*                                scalarMapper);
 
+    static void createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, double radius, double thickness);
+
 private:
     caf::PdmPointer<RimWellPath>                  m_rimWell;
     caf::PdmPointer<RimVirtualPerforationResults> m_virtualPerforationResult;

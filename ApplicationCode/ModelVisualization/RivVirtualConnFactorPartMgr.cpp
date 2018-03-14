@@ -120,18 +120,17 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pai
                                                             double                                      radius,
                                                             cvf::ScalarMapper*                          scalarMapper)
 {
-    cvf::GeometryBuilderTriangles builder;
-    cvf::GeometryUtils::createSphere(radius, 5, 5, &builder);
+    std::vector<cvf::Vec3f> verticesForOneObject;
+    std::vector<cvf::uint>  indicesForOneObject;
 
-    auto sphereVertices = builder.vertices();
-    auto sphereIndices  = builder.triangles();
+    RivVirtualConnFactorPartMgr::createStarGeometry(&verticesForOneObject, &indicesForOneObject, radius, radius * 0.3);
 
     cvf::ref<cvf::Vec3fArray> vertices      = new cvf::Vec3fArray;
     cvf::ref<cvf::UIntArray>  indices       = new cvf::UIntArray;
     cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
 
-    auto indexCount  = centerColorPairs.size() * sphereIndices->size();
-    auto vertexCount = centerColorPairs.size() * sphereVertices->size();
+    auto indexCount  = centerColorPairs.size() * indicesForOneObject.size();
+    auto vertexCount = centerColorPairs.size() * verticesForOneObject.size();
     indices->reserve(indexCount);
     vertices->reserve(vertexCount);
     textureCoords->reserve(vertexCount);
@@ -142,7 +141,7 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pai
     {
         cvf::uint indexOffset = static_cast<cvf::uint>(vertices->size());
 
-        for (const auto& v : *sphereVertices)
+        for (const auto& v : verticesForOneObject)
         {
             vertices->add(centerColorPair.first + v);
 
@@ -156,7 +155,7 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pai
             }
         }
 
-        for (const auto& i : *sphereIndices)
+        for (const auto& i : indicesForOneObject)
         {
             indices->add(i + indexOffset);
         }
@@ -174,11 +173,116 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pai
     part->setDrawable(drawable.p());
 
     caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
-    bool                             disableLighting = false;
+
+    bool disableLighting = true;
     effGen.disableLighting(disableLighting);
 
     cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
     part->setEffect(eff.p());
 
     return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivVirtualConnFactorPartMgr::createStarGeometry(std::vector<cvf::Vec3f>* vertices,
+                                                     std::vector<cvf::uint>*  indices,
+                                                     double                   radius,
+                                                     double                   thickness)
+{
+    auto p0 = cvf::Vec3f::Z_AXIS * radius;
+    auto p2 = cvf::Vec3f::X_AXIS * -radius;
+    auto p4 = -p0;
+    auto p6 = -p2;
+
+    double innerFactor = 5.0;
+
+    auto p1 = (p0 + p2) / innerFactor;
+    auto p3 = (p2 + p4) / innerFactor;
+
+    auto p5 = -p1;
+    auto p7 = -p3;
+
+    auto p8 = cvf::Vec3f::Y_AXIS * thickness;
+    auto p9 = -p8;
+
+    vertices->push_back(p0);
+    vertices->push_back(p1);
+    vertices->push_back(p2);
+    vertices->push_back(p3);
+    vertices->push_back(p4);
+    vertices->push_back(p5);
+    vertices->push_back(p6);
+    vertices->push_back(p7);
+    vertices->push_back(p8);
+    vertices->push_back(p9);
+
+    // Top
+    indices->push_back(0);
+    indices->push_back(1);
+    indices->push_back(8);
+
+    indices->push_back(0);
+    indices->push_back(8);
+    indices->push_back(7);
+
+    indices->push_back(0);
+    indices->push_back(9);
+    indices->push_back(1);
+
+    indices->push_back(0);
+    indices->push_back(7);
+    indices->push_back(9);
+
+    // Left
+    indices->push_back(2);
+    indices->push_back(3);
+    indices->push_back(8);
+
+    indices->push_back(2);
+    indices->push_back(8);
+    indices->push_back(1);
+
+    indices->push_back(2);
+    indices->push_back(9);
+    indices->push_back(3);
+
+    indices->push_back(2);
+    indices->push_back(1);
+    indices->push_back(9);
+
+    // Bottom
+    indices->push_back(4);
+    indices->push_back(5);
+    indices->push_back(8);
+
+    indices->push_back(4);
+    indices->push_back(8);
+    indices->push_back(3);
+
+    indices->push_back(4);
+    indices->push_back(9);
+    indices->push_back(5);
+
+    indices->push_back(4);
+    indices->push_back(3);
+    indices->push_back(9);
+
+    // Right
+    indices->push_back(6);
+    indices->push_back(7);
+    indices->push_back(8);
+
+    indices->push_back(6);
+    indices->push_back(8);
+    indices->push_back(5);
+
+    indices->push_back(6);
+    indices->push_back(9);
+    indices->push_back(7);
+
+    indices->push_back(6);
+    indices->push_back(5);
+    indices->push_back(9);
 }
