@@ -50,6 +50,7 @@
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
 #include "cafDisplayCoordTransform.h"
+#include "RivSectionFlattner.h"
 
 
 
@@ -73,7 +74,8 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex, 
-                                            const caf::DisplayCoordTransform * displayXf)
+                                            const caf::DisplayCoordTransform * displayXf, 
+                                            bool doFlatten)
 {
     clearAllGeometry();
 
@@ -88,9 +90,22 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
     {
         well->wellHeadTopBottomPosition(static_cast<int>(frameIndex), &whEndPos, &whStartPos);
 
-        whEndPos   = displayXf->transformToDisplayCoord(whEndPos);
-        whStartPos = displayXf->transformToDisplayCoord(whStartPos);
-        whEndPos.z() += characteristicCellSize;
+        if (doFlatten)
+        {
+            whEndPos.x() = 0.0;
+            whEndPos.y() = 0.0;
+            whStartPos.x() = 0.0;
+            whStartPos.y() = 0.0;
+            whEndPos   = displayXf->scaleToDisplaySize(whEndPos);
+            whStartPos = displayXf->scaleToDisplaySize(whStartPos);
+            whEndPos.z() += characteristicCellSize;
+        }
+        else
+        {
+            whEndPos   = displayXf->transformToDisplayCoord(whEndPos);
+            whStartPos = displayXf->transformToDisplayCoord(whStartPos);
+            whEndPos.z() += characteristicCellSize;
+        }
     }
 
     if (!well->simWellData()->hasWellResult(frameIndex)) return;
@@ -162,6 +177,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
             part->setSourceInfo(sourceInfo.p());
 
             m_wellHeadPipeCenterPart = part;
+            part->updateBoundingBox();
+            CVF_ASSERT(part->boundingBox().isValid());
         }
     }
 
@@ -330,7 +347,7 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellHeadParts(frameIndex, displayXf);
+    buildWellHeadParts(frameIndex, displayXf, false);
 
     // Always add pipe part of well head
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
@@ -342,6 +359,37 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
         model->addPart(m_wellHeadLabelPart.p());
     }
     
+    if (m_rimWell->showWellHead() &&
+        m_wellHeadArrowPart.notNull())
+    {
+        model->addPart(m_wellHeadArrowPart.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                           size_t frameIndex, 
+                                                           const caf::DisplayCoordTransform * displayXf)
+{
+    if (m_rimWell.isNull()) return;
+    if (!viewWithSettings()) return;
+
+    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
+
+    buildWellHeadParts(frameIndex, displayXf, true);
+
+    // Always add pipe part of well head
+    if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
+    if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
+
+    if (m_rimWell->showWellLabel() && 
+        m_wellHeadLabelPart.notNull())
+    {
+        model->addPart(m_wellHeadLabelPart.p());
+    }
+
     if (m_rimWell->showWellHead() &&
         m_wellHeadArrowPart.notNull())
     {

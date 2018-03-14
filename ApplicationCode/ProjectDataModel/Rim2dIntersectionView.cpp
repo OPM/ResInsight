@@ -482,15 +482,12 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
                                                                                      m_intersection->extentLength(), 
                                                                                      m_intersection->branchIndex());
 
+                m_flatWellHeadPartMgr->appendFlattenedDynamicGeometryPartsToModel(simWellModelBasicList.p(),
+                                                                                  m_currentTimeStep,
+                                                                                  this->displayCoordTransform().p());
                 simWellModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel(simWellModelBasicList.p());
-
                 m_flatSimWellPipePartMgr->updatePipeResultColor(m_currentTimeStep);
-            
-                //m_flatWellHeadPartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), 
-                //                                                         m_currentTimeStep, 
-                //                                                         this->displayCoordTransform().p());
-                //
             }
         }
     }

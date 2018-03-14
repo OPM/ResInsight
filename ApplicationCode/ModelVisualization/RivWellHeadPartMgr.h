@@ -48,11 +48,16 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                            size_t frameIndex, 
                                            const caf::DisplayCoordTransform * displayXf);
+    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                    size_t frameIndex,
+                                                    const caf::DisplayCoordTransform * displayXf);
+
 
 
 private:
     void                            buildWellHeadParts(size_t frameIndex, 
-                                                       const caf::DisplayCoordTransform * displayXf);
+                                                       const caf::DisplayCoordTransform * displayXf, 
+                                                       bool doFlatten);
     void                            clearAllGeometry();
     Rim3dView*                      viewWithSettings();
     RimSimWellInViewCollection*     simWellInViewCollection();
