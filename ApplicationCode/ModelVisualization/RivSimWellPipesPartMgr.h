@@ -62,6 +62,8 @@ public:
  
     void       updatePipeResultColor(size_t frameIndex);
 
+    std::vector<double> flattenedBranchWellHeadOffsets();
+
 private:
     Rim3dView* viewWithSettings();
     void       buildWellPipeParts(const caf::DisplayCoordTransform* displayXf, 
@@ -87,4 +89,5 @@ private:
     std::list<RivPipeBranchData>            m_wellBranches;
 
     std::vector< std::vector <cvf::Vec3d> > m_pipeBranchesCLCoords;
+    std::vector<double> m_flattenedBranchWellHeadOffsets;
 };

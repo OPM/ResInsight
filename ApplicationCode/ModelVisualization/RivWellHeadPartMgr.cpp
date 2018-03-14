@@ -75,7 +75,8 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex, 
                                             const caf::DisplayCoordTransform * displayXf, 
-                                            bool doFlatten)
+                                            bool doFlatten, 
+                                            double xOffset)
 {
     clearAllGeometry();
 
@@ -92,9 +93,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
         if (doFlatten)
         {
-            whEndPos.x() = 0.0;
+            whEndPos.x() = xOffset;
             whEndPos.y() = 0.0;
-            whStartPos.x() = 0.0;
+            whStartPos.x() = xOffset;
             whStartPos.y() = 0.0;
             whEndPos   = displayXf->scaleToDisplaySize(whEndPos);
             whStartPos = displayXf->scaleToDisplaySize(whStartPos);
@@ -347,7 +348,7 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellHeadParts(frameIndex, displayXf, false);
+    buildWellHeadParts(frameIndex, displayXf, false, 0.0);
 
     // Always add pipe part of well head
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
@@ -371,14 +372,15 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                            size_t frameIndex, 
-                                                           const caf::DisplayCoordTransform * displayXf)
+                                                           const caf::DisplayCoordTransform * displayXf,
+                                                           double xOffset)
 {
     if (m_rimWell.isNull()) return;
     if (!viewWithSettings()) return;
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellHeadParts(frameIndex, displayXf, true);
+    buildWellHeadParts(frameIndex, displayXf, true, xOffset);
 
     // Always add pipe part of well head
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());

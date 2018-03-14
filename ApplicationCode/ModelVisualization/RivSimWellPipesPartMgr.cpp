@@ -132,7 +132,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
     if (!this->viewWithSettings()) return;
 
     m_wellBranches.clear();
-
+    m_flattenedBranchWellHeadOffsets.clear();
     m_pipeBranchesCLCoords.clear();
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
@@ -177,6 +177,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
         
         flattenedStartOffset.z() = m_pipeBranchesCLCoords[brIdx][0].z();
+        
+        m_flattenedBranchWellHeadOffsets.push_back(flattenedStartOffset.x());
 
         if (doFlatten)
         {        
@@ -396,5 +398,13 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             brIt->m_centerLinePart->setEffect(scalarMapperMeshEffect.p());
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RivSimWellPipesPartMgr::flattenedBranchWellHeadOffsets()
+{
+    return m_flattenedBranchWellHeadOffsets;
 }
 
