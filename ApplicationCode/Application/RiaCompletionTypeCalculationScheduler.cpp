@@ -93,6 +93,7 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
     for (RimEclipseCase* eclipseCase : uniqueCases)
     {
         eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
+        eclipseCase->deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
     }
 
     m_eclipseCasesToRecalculate.clear();

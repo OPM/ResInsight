@@ -343,10 +343,6 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 {
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
 
-    // TODO: Remove
-    rigEclipseCase->setVirtualPerforationTransmissibilities(nullptr);
-
-
     if (rigEclipseCase->virtualPerforationTransmissibilities() == nullptr)
     {
         cvf::ref<RigVirtualPerforationTransmissibilities> perfTrans = new RigVirtualPerforationTransmissibilities;
