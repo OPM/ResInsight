@@ -18,10 +18,12 @@
 
 #include "Rim3dWellLogCurve.h"
 
-#include "RiaApplication.h"
+#include "RiaExtractionTools.h"
+
 #include "RigEclipseWellLogExtractor.h"
 #include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -181,14 +183,6 @@ void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, st
     CAF_ASSERT(resultValues != nullptr);
     CAF_ASSERT(measuredDepthValues != nullptr);
 
-    RimProject* proj = RiaApplication::instance()->project();
-
-    RimMainPlotCollection* mainPlotCollection = proj->mainPlotCollection;
-    if (!mainPlotCollection) return;
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-    if (!wellLogCollection) return;
-    
     cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
     cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
 
@@ -199,14 +193,14 @@ void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, st
 
     if (eclipseCase)
     {
-        eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, eclipseCase);
+        eclExtractor = RiaExtractionTools::wellLogExtractorEclipseCase(wellPath, eclipseCase);
     }
     else
     {
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case());
         if (geomCase)
         {
-            geomExtractor = wellLogCollection->findOrCreateExtractor(wellPath, geomCase);
+            geomExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase(wellPath, geomCase);
         }
     }
 

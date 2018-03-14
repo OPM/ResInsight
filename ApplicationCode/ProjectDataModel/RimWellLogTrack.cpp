@@ -59,6 +59,7 @@
 
 #include "qwt_scale_engine.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaExtractionTools.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -1043,26 +1044,6 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogTrack::createWellPathExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath)
-{
-    if (!wellLogCollection) return nullptr;
-
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-    return (wellLogCollection->findOrCreateExtractor(wellPath, eclipseCase));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogTrack::createGeoMechExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath)
-{
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
-    return (wellLogCollection->findOrCreateExtractor(wellPath, geomCase));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor)
 {
     CurveSamplingPointData curveData;
@@ -1252,9 +1233,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            eclWellLogExtractor = RimWellLogTrack::createWellPathExtractor(wellLogCollection, 
-                                                                           m_formationCase, 
-                                                                           m_formationWellPathForSourceCase);
+            eclWellLogExtractor = RiaExtractionTools::wellLogExtractorEclipseCase(m_formationWellPathForSourceCase,
+                                                                                  dynamic_cast<RimEclipseCase*>(m_formationCase()));
         }
 
         if (eclWellLogExtractor)
@@ -1271,7 +1251,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPathForSourceCase);
+            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase(m_formationWellPathForSourceCase,
+                                                                                  dynamic_cast<RimGeoMechCase*>(m_formationCase()));
             if (!geoMechWellLogExtractor) return;
 
             std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
