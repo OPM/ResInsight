@@ -44,7 +44,7 @@ public:
 
     void                       setVisible(bool isVisible);
     void                       setIntersection(RimIntersection* intersection);
-    RimIntersection*           intersection();
+    RimIntersection*           intersection() const;
 
     virtual bool               isUsingFormationNames() const override;
     virtual void               scheduleGeometryRegen(RivCellSetEnum geometryType) override;

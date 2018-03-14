@@ -160,6 +160,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
+    // Check type of view
+    RimGridView* gridView = dynamic_cast<RimGridView*>(m_reservoirView.p());
+    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>(m_reservoirView.p());
+
     cvf::HitItemCollection hitItems;
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
@@ -187,10 +191,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
-        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        if (activeView)
+        if (m_reservoirView.p())
         {
-            cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+            cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView.p()->displayCoordTransform();
             m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
         }
 
@@ -228,10 +231,17 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem(crossSectionSourceInfo->crossSection());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 
-                menuBuilder << "RicHideIntersectionFeature";
-                menuBuilder.addSeparator();
-                menuBuilder << "RicNewIntersectionViewFeature";
-                menuBuilder.addSeparator();
+                if (gridView)
+                {
+                    menuBuilder << "RicHideIntersectionFeature";
+                    menuBuilder.addSeparator();
+                    menuBuilder << "RicNewIntersectionViewFeature";
+                    menuBuilder.addSeparator();
+                }
+                else if (int2dView)
+                {
+                    menuBuilder << "RicSelectColorResult";
+                }
             }
             else if (intersectionBoxSourceInfo)
             {
@@ -245,50 +255,53 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder.addSeparator();
             }
 
-            // IJK -slice commands
-            RimViewController* viewController = nullptr;
-            if (m_reservoirView) viewController = m_reservoirView->viewController();    
-
-            if (!viewController || !viewController->isRangeFiltersControlled())
+            if (gridView)
             {
-                size_t i, j, k;
-                ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
+                // IJK -slice commands
+                RimViewController* viewController = nullptr;
+                if (m_reservoirView) viewController = m_reservoirView->viewController();
 
-                QVariantList iSliceList;
-                iSliceList.push_back(0);
-                iSliceList.push_back(CVF_MAX(static_cast<int>(i + 1), 1));
-                    
-                QVariantList jSliceList;
-                jSliceList.push_back(1); 
-                jSliceList.push_back(CVF_MAX(static_cast<int>(j + 1), 1));
+                if (!viewController || !viewController->isRangeFiltersControlled())
+                {
+                    size_t i, j, k;
+                    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
-                QVariantList kSliceList;
-                kSliceList.push_back(2); 
-                kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
+                    QVariantList iSliceList;
+                    iSliceList.push_back(0);
+                    iSliceList.push_back(CVF_MAX(static_cast<int>(i + 1), 1));
 
-                menuBuilder.subMenuStart("Range Filter Slice", QIcon(":/CellFilter_Range.png"));
+                    QVariantList jSliceList;
+                    jSliceList.push_back(1);
+                    jSliceList.push_back(CVF_MAX(static_cast<int>(j + 1), 1));
 
-                menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "I-slice Range Filter", iSliceList);
-                menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "J-slice Range Filter", jSliceList);
-                menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "K-slice Range Filter", kSliceList);
+                    QVariantList kSliceList;
+                    kSliceList.push_back(2);
+                    kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
 
-                menuBuilder.subMenuEnd();
+                    menuBuilder.subMenuStart("Range Filter Slice", QIcon(":/CellFilter_Range.png"));
+
+                    menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "I-slice Range Filter", iSliceList);
+                    menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "J-slice Range Filter", jSliceList);
+                    menuBuilder.addCmdFeatureWithUserData("RicNewSliceRangeFilterFeature", "K-slice Range Filter", kSliceList);
+
+                    menuBuilder.subMenuEnd();
+                }
+
+                menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
+                menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
+
+                menuBuilder.addSeparator();
+
+                menuBuilder.subMenuStart("Intersections", QIcon(":/IntersectionXPlane16x16.png"));
+
+                menuBuilder << "RicNewPolylineIntersectionFeature";
+                menuBuilder << "RicNewAzimuthDipIntersectionFeature";
+                menuBuilder << "RicIntersectionBoxAtPosFeature";
+
+                menuBuilder << "RicIntersectionBoxXSliceFeature";
+                menuBuilder << "RicIntersectionBoxYSliceFeature";
+                menuBuilder << "RicIntersectionBoxZSliceFeature";
             }
-
-            menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
-            menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
-
-            menuBuilder.addSeparator();
-
-            menuBuilder.subMenuStart("Intersections", QIcon(":/IntersectionXPlane16x16.png"));
-
-            menuBuilder << "RicNewPolylineIntersectionFeature";
-            menuBuilder << "RicNewAzimuthDipIntersectionFeature";
-            menuBuilder << "RicIntersectionBoxAtPosFeature";
-            
-            menuBuilder << "RicIntersectionBoxXSliceFeature";
-            menuBuilder << "RicIntersectionBoxYSliceFeature";
-            menuBuilder << "RicIntersectionBoxZSliceFeature";
 
             menuBuilder.subMenuEnd();
 
@@ -414,18 +427,31 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // View Link commands
     if (!firstHitPart)
     {
-        menuBuilder << "RicLinkViewFeature";
-        menuBuilder << "RicShowLinkOptionsFeature";
-        menuBuilder << "RicSetMasterViewFeature";
-        menuBuilder << "RicUnLinkViewFeature";
+        if (gridView)
+        {
+            menuBuilder << "RicLinkViewFeature";
+            menuBuilder << "RicShowLinkOptionsFeature";
+            menuBuilder << "RicSetMasterViewFeature";
+            menuBuilder << "RicUnLinkViewFeature";
+        }
+        else if (int2dView)
+        {
+            menuBuilder << "RicSelectColorResult";
+        }
     }
 
-    menuBuilder.addSeparator();
-    menuBuilder << "RicNewGridTimeHistoryCurveFeature";
-    menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
-    menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
-    menuBuilder << "RicShowGridStatisticsFeature";
-    menuBuilder << "RicSelectColorResult";
+    if (gridView)
+    {
+        menuBuilder.addSeparator();
+        menuBuilder << "RicNewGridTimeHistoryCurveFeature";
+        menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
+        menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
+        menuBuilder << "RicShowGridStatisticsFeature";
+        menuBuilder << "RicSelectColorResult";
+    }
+    else if (int2dView)
+    {
+    }
 
     menuBuilder.appendToMenu(&menu);
 

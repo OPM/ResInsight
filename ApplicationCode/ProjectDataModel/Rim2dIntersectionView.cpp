@@ -120,7 +120,7 @@ void Rim2dIntersectionView::setIntersection(RimIntersection* intersection)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIntersection* Rim2dIntersectionView::intersection()
+RimIntersection* Rim2dIntersectionView::intersection() const
 {
     return m_intersection();
 }

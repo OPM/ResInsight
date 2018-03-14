@@ -116,10 +116,10 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
     RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
 
-    RiuSimWellSelectionItem* simWellSelectionItem = static_cast<RiuSimWellSelectionItem*>(selItem);
+    RiuSimWellSelectionItem* simWellSelectionItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelectionItem) return true;
 
-    RiuWellPathSelectionItem* wellPathSelectionItem = static_cast<RiuWellPathSelectionItem*>(selItem);
+    RiuWellPathSelectionItem* wellPathSelectionItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
     if (wellPathSelectionItem) return true;
 
     return false;
