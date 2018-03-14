@@ -114,30 +114,30 @@ const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
+void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue,
+                                                            double* maxValue,
+                                                            double* posClosestToZero,
+                                                            double* negClosestToZero) const
 {
     MinMaxAccumulator minMaxAccumulator;
     PosNegAccumulator posNegAccumulator;
 
     for (const auto& item : m_mapFromWellToCompletionData)
     {
-        auto completionDataFrame = item.second;
-        for (const auto& data : completionDataFrame)
-        {
-            for (const auto& data : completionDataFrame)
-            {
-                auto compl = data.multipleCompletionsPerEclipseCell();
-                for (const auto& c : compl)
-                {
-                    for (const auto& d : c.second)
-                    {
-                        double trans = d.transmissibility();
+        auto dataForWellPath = item.second;
 
-                        minMaxAccumulator.addValue(trans);
-                        posNegAccumulator.addValue(trans);
-                    }
+        for (const auto& timeStepFrame : dataForWellPath)
+        {
+            for (const auto& allCompletionsForWell : timeStepFrame.multipleCompletionsPerEclipseCell())
+            {
+                for (const auto& completionData : allCompletionsForWell.second)
+                {
+                    double transmissibility = completionData.transmissibility();
+
+                    minMaxAccumulator.addValue(transmissibility);
+                    posNegAccumulator.addValue(transmissibility);
                 }
             }
         }
