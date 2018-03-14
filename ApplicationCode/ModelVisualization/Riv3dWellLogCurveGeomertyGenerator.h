@@ -50,9 +50,8 @@ private:
                                        std::vector<cvf::Vec3f>* vertices,
                                        std::vector<cvf::uint>* indices) const;
 
-    cvf::Vec3d normalBetweenPoints(const cvf::Vec3d& pt1, const cvf::Vec3d& pt2, const cvf::Vec3d& z) const;
-    cvf::Vec3d zForDrawPlane(const Rim3dWellLogCurve::DrawPlane& drawPlane) const;
-
+    static std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane drawPlane,
+                                                         const std::vector<cvf::Vec3d>& wellPathPoints);
 private:
     cvf::ref<RigWellPath> m_wellPathGeometry;
 };

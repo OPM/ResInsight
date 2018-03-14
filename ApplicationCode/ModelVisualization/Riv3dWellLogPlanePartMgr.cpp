@@ -71,6 +71,10 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     //TODO: Atm, only the grid for the first curve is drawn.
     cvf::ref<cvf::Drawable> gridDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, rim3dWellLogCurves[0]);
 
+    if (!gridDrawable->boundingBox().isValid())
+    {
+        return;
+    }
     caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 255, 0, 1), caf::PO_1);
     cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
 
