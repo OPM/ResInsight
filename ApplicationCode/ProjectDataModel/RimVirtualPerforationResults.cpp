@@ -19,6 +19,7 @@
 #include "RimVirtualPerforationResults.h"
 
 #include "RimLegendConfig.h"
+#include "RimEclipseView.h"
 
 
 
@@ -32,11 +33,14 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
 {
     CAF_PDM_InitObject("Virtual Perforation Results", ":/CellResult.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
-    this->legendConfig = new RimLegendConfig();
-    legendConfig.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    true,   "", "", "", "");
+    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      0.2,    "Geometry Scale Factor", "", "", "");
 
-    CAF_PDM_InitField(&m_showTensors, "ShowTensors", true, "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    m_legendConfig.uiCapability()->setUiHidden(true);
+
+    m_legendConfig = new RimLegendConfig();
+    m_legendConfig->setTitle("Virtual Connection Factor");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,9 +54,36 @@ RimVirtualPerforationResults::~RimVirtualPerforationResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimVirtualPerforationResults::isActive() const
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimVirtualPerforationResults::geometryScaleFactor() const
+{
+    return m_geometryScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig* RimVirtualPerforationResults::legendConfig() const
+{
+    return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(eclView);
 
+    eclView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +91,7 @@ void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimVirtualPerforationResults::objectToggleField()
 {
-    return &m_showTensors;
+    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +110,8 @@ QList<caf::PdmOptionItemInfo> RimVirtualPerforationResults::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_geometryScaleFactor);
+
     uiOrdering.skipRemainingFields(true);
 }
 

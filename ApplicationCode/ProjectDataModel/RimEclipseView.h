@@ -85,7 +85,8 @@ public:
     RimStimPlanColors*                              fractureColors() const;
     RimSimWellInViewCollection*                     wellCollection() const;
     RimFaultInViewCollection*                       faultCollection() const;
-    
+    RimVirtualPerforationResults*                   virtualPerforationResult() const;
+
     bool                                            showInvalidCells() const;
     bool                                            showInactiveCells() const;
     bool                                            showMainGrid() const;
@@ -117,6 +118,9 @@ public:
     void                                            updateDisplayModelForWellResults();
     
     void                                            calculateCompletionTypeAndRedrawIfRequired();
+
+    bool                                            isVirtualConnectionFactorGeometryVisible() const;
+
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
     const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;

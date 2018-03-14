@@ -146,8 +146,12 @@ public:
                                                                    const std::vector<RimSimWellInView*>& simWells, 
                                                                    const RicExportCompletionDataSettingsUi& exportSettings);
 
-    static std::vector<RigCompletionData>        computeCompletionsForWellPath(RimWellPath*                             wellPath,
-                                                                              const RicExportCompletionDataSettingsUi& exportSettings);
+    static std::vector<RigCompletionData>        computeStaticCompletionsForWellPath(RimWellPath* wellPath,
+                                                                                     RimEclipseCase* eclipseCase);
+
+    static std::vector<RigCompletionData>        computeDynamicCompletionsForWellPath(RimWellPath* wellPath,
+                                                                                      RimEclipseCase* eclipseCase,
+                                                                                      size_t timeStepIndex);
 
 private:
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,

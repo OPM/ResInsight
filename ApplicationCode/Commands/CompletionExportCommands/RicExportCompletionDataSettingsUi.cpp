@@ -55,13 +55,6 @@ CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataS
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected)
-{
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
@@ -71,7 +64,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
-    
+
     CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
@@ -79,8 +72,18 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Include Fractures", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
-    m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
+    m_onlyWellPathCollectionSelected = false;
     m_displayForSimWell = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected)
+{
+    RicExportCompletionDataSettingsUi();
+
+    setOnlyWellPathCollectionSelected(onlyWellPathCollectionSelected);
 }
 
 //--------------------------------------------------------------------------------------------------

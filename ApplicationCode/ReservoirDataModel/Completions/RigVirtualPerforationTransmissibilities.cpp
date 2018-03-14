@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigStatisticsMath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,9 +45,10 @@ void CompletionDataFrame::setCompletionData(const std::vector<RigCompletionData>
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& CompletionDataFrame::multipleCompletionsPerEclipseCell() const
+const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
+    CompletionDataFrame::multipleCompletionsPerEclipseCell() const
 {
     return m_multipleCompletionsPerEclipseCell;
 }
@@ -64,29 +66,28 @@ RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilitie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigVirtualPerforationTransmissibilities::appendCompletionDataForWellPath(
-    RimWellPath*                          wellPath,
-    const std::vector<RigCompletionData>& completions)
+void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
+    RimWellPath*                                 wellPath,
+    std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
 {
-/*
     auto item = m_mapFromWellToCompletionData.find(wellPath);
-    if (item != m_mapFromWellToCompletionData.end())
-    {
-        item->second.setCompletionData
-    }
 
-    auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell());
-    if (it != m_multipleCompletionsPerEclipseCell.end())
-    {
-        it->second.push_back(completion);
-    }
-    else
-    {
-        m_multipleCompletionsPerEclipseCell.insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>(
-            completion.completionDataGridCell(), std::vector<RigCompletionData>{completion}));
-    }
-*/
+    CVF_ASSERT(item == m_mapFromWellToCompletionData.end());
 
+    {
+        std::vector<CompletionDataFrame> values;
+
+        for (const auto& c : completionsPerTimeStep)
+        {
+            CompletionDataFrame oneTimeStep;
+            oneTimeStep.setCompletionData(c);
+            values.push_back(oneTimeStep);
+        }
+
+        auto pair = std::pair<RimWellPath*, std::vector<CompletionDataFrame>>(wellPath, values);
+
+        m_mapFromWellToCompletionData.insert(pair);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,8 +101,50 @@ const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
     auto item = m_mapFromWellToCompletionData.find(wellPath);
     if (item != m_mapFromWellToCompletionData.end())
     {
-        return item->second[timeStepIndex].multipleCompletionsPerEclipseCell();
+        size_t indexToUse = timeStepIndex;
+        if (item->second.size() == 1)
+        {
+            indexToUse = 0;
+        }
+
+        return item->second[indexToUse].multipleCompletionsPerEclipseCell();
     }
-    
+
     return dummy;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
+{
+    MinMaxAccumulator minMaxAccumulator;
+    PosNegAccumulator posNegAccumulator;
+
+    for (const auto& item : m_mapFromWellToCompletionData)
+    {
+        auto completionDataFrame = item.second;
+        for (const auto& data : completionDataFrame)
+        {
+            for (const auto& data : completionDataFrame)
+            {
+                auto compl = data.multipleCompletionsPerEclipseCell();
+                for (const auto& c : compl)
+                {
+                    for (const auto& d : c.second)
+                    {
+                        double trans = d.transmissibility();
+
+                        minMaxAccumulator.addValue(trans);
+                        posNegAccumulator.addValue(trans);
+                    }
+                }
+            }
+        }
+    }
+
+    if (*minValue) *minValue = minMaxAccumulator.min;
+    if (*maxValue) *maxValue = minMaxAccumulator.max;
+    if (*posClosestToZero) *posClosestToZero = posNegAccumulator.pos;
+    if (*negClosestToZero) *negClosestToZero = posNegAccumulator.neg;
 }

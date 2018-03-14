@@ -44,6 +44,7 @@ class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseView;
+class RigVirtualPerforationTransmissibilities;
 
 
 //==================================================================================================
@@ -87,6 +88,9 @@ public:
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
     void                                        recalculateCompletionTypeAndRedrawAllViews();
+    
+    void                                            deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
+    const RigVirtualPerforationTransmissibilities*  computeAndGetVirtualPerforationTransmissibilities();
 
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }

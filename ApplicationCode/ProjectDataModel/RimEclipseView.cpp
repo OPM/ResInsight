@@ -228,6 +228,14 @@ RimFaultInViewCollection* RimEclipseView::faultCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimVirtualPerforationResults* RimEclipseView::virtualPerforationResult() const
+{
+    return m_virtualPerforationResult();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::clampCurrentTimestep()
@@ -1070,6 +1078,13 @@ void RimEclipseView::updateLegends()
             m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
         }
     }
+    
+    if (m_virtualPerforationResult->isActive())
+    {
+        RimLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
+        
+        m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1371,6 +1386,20 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     {
         this->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView::isVirtualConnectionFactorGeometryVisible() const
+{
+    if (!m_showWindow()) return false;
+
+    if (!m_virtualPerforationResult->isActive()) return false;
+
+    // TODO: Consider check if no well paths are visible
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

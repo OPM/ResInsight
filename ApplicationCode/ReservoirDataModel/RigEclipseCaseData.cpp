@@ -533,7 +533,7 @@ void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerfo
 //--------------------------------------------------------------------------------------------------
 const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
 {
-    return m_virtualPerforationTransmissibilities;
+    return m_virtualPerforationTransmissibilities.p();
 }
 
 //--------------------------------------------------------------------------------------------------

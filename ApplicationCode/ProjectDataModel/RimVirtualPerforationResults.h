@@ -35,10 +35,13 @@ class RimVirtualPerforationResults : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-
 public:
     RimVirtualPerforationResults();
     virtual ~RimVirtualPerforationResults();
+
+    bool    isActive() const;
+    double  geometryScaleFactor() const;
+    RimLegendConfig* legendConfig() const;
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -47,7 +50,8 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    caf::PdmField<bool>                              m_showTensors;
+    caf::PdmField<bool>                     m_isActive;
+    caf::PdmField<double>                   m_geometryScaleFactor;
 
-    caf::PdmChildField<RimLegendConfig*> legendConfig;
+    caf::PdmChildField<RimLegendConfig*>    m_legendConfig;
 };

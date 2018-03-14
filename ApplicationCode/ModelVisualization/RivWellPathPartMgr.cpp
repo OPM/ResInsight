@@ -51,6 +51,8 @@
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
 
+#include "RiuViewer.h"
+
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cvfDrawableGeo.h"
@@ -61,6 +63,7 @@
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
+#include "RivVirtualConnFactorPartMgr.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -212,18 +215,21 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicL
                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
                                                                 double                            characteristicCellSize)
 {
+    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(m_rimView.p());
+    if (!eclView) return;
+
+    if (!eclView->isVirtualConnectionFactorGeometryVisible()) return;
+
     RimEclipseCase* eclipseCase = nullptr;
-
-    m_rimView->firstAncestorOrThisOfType(eclipseCase);
+    eclView->firstAncestorOrThisOfType(eclipseCase);
     if (!eclipseCase) return;
-    if (!eclipseCase->eclipseCaseData()) return;
 
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    const RigVirtualPerforationTransmissibilities* trans = eclipseCaseData->virtualPerforationTransmissibilities();
+    const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (trans)
     {
+        m_virtualConnectionFactorPartMgr = new RivVirtualConnFactorPartMgr(m_rimWellPath, eclView->virtualPerforationResult());
 
+        m_virtualConnectionFactorPartMgr->appendDynamicGeometryPartsToModel(model, 0);
     }
 }
 
@@ -416,6 +422,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
+    appendVirtualTransmissibilitiesToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
