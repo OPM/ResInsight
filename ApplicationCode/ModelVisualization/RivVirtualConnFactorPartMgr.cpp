@@ -20,8 +20,10 @@
 
 #include "RiaApplication.h"
 
+#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -32,6 +34,8 @@
 
 #include "RiuViewer.h"
 
+#include "RiaExtractionTools.h"
+#include "RigWellLogExtractor.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
@@ -80,17 +84,43 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 
     auto conn = trans->multipleCompletionsPerEclipseCell(m_rimWell, frameIndex);
 
-    std::vector<std::pair<cvf::Vec3f, double>> centerColorPairs;
+    std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections;
+    {
+        RigEclipseWellLogExtractor* extractor = RiaExtractionTools::wellLogExtractorEclipseCase(m_rimWell, eclipseCase);
+        if (extractor)
+        {
+            wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
+        }
+    }
 
+    std::vector<std::pair<cvf::Vec3f, double>> centerColorPairs;
     for (const auto& cell : conn)
     {
         size_t gridIndex = cell.first.globalCellIndex();
 
-        const RigCell& rigCell      = mainGrid->cell(gridIndex);
-        cvf::Vec3d     center       = rigCell.center();
-        cvf::Vec3d     displayCoord = coordTransform->transformToDisplayCoord(center);
+        const RigCell& rigCell = mainGrid->cell(gridIndex);
 
-        cvf::Color3f color = cvf::Color3f::BLUE;
+        cvf::Vec3d locationInDomainCoord = rigCell.center();
+
+        if (!wellPathCellIntersections.empty())
+        {
+            for (const auto& intersectionInfo : wellPathCellIntersections)
+            {
+                if (intersectionInfo.globCellIndex == cell.first.globalCellIndex())
+                {
+                    double startMD = intersectionInfo.startMD;
+                    double endMD   = intersectionInfo.endMD;
+
+                    double middleMD = (startMD + endMD) / 2.0;
+
+                    locationInDomainCoord = m_rimWell->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+
+                    continue;
+                }
+            }
+        }
+
+        cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
 
         double transmissibility = HUGE_VAL;
         if (!cell.second.empty())
