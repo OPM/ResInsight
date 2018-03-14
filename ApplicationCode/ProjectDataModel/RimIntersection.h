@@ -104,6 +104,7 @@ public:
     void                                                 recomputeSimulationWellBranchData();
     bool                                                 hasDefiningPoints() const;
 
+    int                                                  branchIndex() const;
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
@@ -117,7 +118,6 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
-    int                                     branchIndex() const;
 
 private:                                    
     caf::PdmField<int>                      m_branchIndex;

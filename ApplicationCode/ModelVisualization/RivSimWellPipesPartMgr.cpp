@@ -58,9 +58,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dIntersectionView * intersectionView)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimSimWellInView* well)
     : m_rimWell(well)
-    , m_intersectionView(intersectionView)
 {
 }
 
@@ -86,7 +85,68 @@ Rim3dView* RivSimWellPipesPartMgr::viewWithSettings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform* displayXf)
+void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                               size_t frameIndex, 
+                                                               const caf::DisplayCoordTransform* displayXf)
+{
+    if (!viewWithSettings()) return;
+
+    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
+
+    buildWellPipeParts(displayXf, false, 0.0, -1);
+
+    std::list<RivPipeBranchData>::iterator it;
+    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
+    {
+        if (it->m_surfacePart.notNull())
+        {
+            model->addPart(it->m_surfacePart.p());
+        }
+
+        if (it->m_centerLinePart.notNull())
+        {
+            model->addPart(it->m_centerLinePart.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                        size_t frameIndex, 
+                                                                        const caf::DisplayCoordTransform* displayXf, 
+                                                                        double flattenedIntersectionExtentLength,
+                                                                        int branchIndex)
+{
+    if (!viewWithSettings()) return;
+
+    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
+
+    buildWellPipeParts(displayXf, true, flattenedIntersectionExtentLength, branchIndex);
+
+    std::list<RivPipeBranchData>::iterator it;
+    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
+    {
+        if (it->m_surfacePart.notNull())
+        {
+            model->addPart(it->m_surfacePart.p());
+        }
+
+        if (it->m_centerLinePart.notNull())
+        {
+            model->addPart(it->m_centerLinePart.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform* displayXf,
+                                                bool doFlatten, 
+                                                double flattenedIntersectionExtentLength,
+                                                int branchIndex)
 {
     if (!this->viewWithSettings()) return;
 
@@ -100,13 +160,25 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
     double pipeRadius =  m_rimWell->pipeRadius();
     int crossSectionVertexCount = m_rimWell->pipeCrossSectionVertexCount();
 
-    cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
-    if ( m_pipeBranchesCLCoords.size() && m_pipeBranchesCLCoords[0].size() )
+    // Take branch selection into account
+    size_t branchIdxStart = 0;
+    size_t branchIdxStop = pipeBranchesCellIds.size();
+    if (m_pipeBranchesCLCoords.size() > 1)
     {
-        flattenedStartOffset = { 0.0, 0.0, m_pipeBranchesCLCoords[0][0].z() }; 
+        if (branchIndex >= 0 && branchIndex < branchIdxStop)
+        {
+            branchIdxStart = branchIndex;
+            branchIdxStop  = branchIdxStart + 1;
+        }
     }
 
-    for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
+    cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
+    if ( m_pipeBranchesCLCoords.size() > branchIdxStart && m_pipeBranchesCLCoords[branchIdxStart].size() )
+    {
+        flattenedStartOffset = { 0.0, 0.0, m_pipeBranchesCLCoords[branchIdxStart][0].z() }; 
+    }
+
+    for (size_t brIdx = branchIdxStart; brIdx <branchIdxStop; ++brIdx)
     {
         cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, brIdx);
 
@@ -122,8 +194,10 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
+        
+        flattenedStartOffset.z() = m_pipeBranchesCLCoords[brIdx][0].z();
 
-        if (m_intersectionView)
+        if (doFlatten)
         {        
             std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattner::calculateFlatteningCSsForPolyline(m_pipeBranchesCLCoords[brIdx],
                                                                                                         cvf::Vec3d::Z_AXIS,
@@ -180,37 +254,9 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
             pbd.m_largeSurfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
         }
 
-        if (m_intersectionView) flattenedStartOffset += { 2*m_intersectionView->intersection()->extentLength(), 0.0, 0.0};
+        if (doFlatten) flattenedStartOffset += { 2*flattenedIntersectionExtentLength, 0.0, 0.0};
     }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                               size_t frameIndex, 
-                                                               const caf::DisplayCoordTransform* displayXf)
-{
-    if (!viewWithSettings()) return;
-
-    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
-
-    buildWellPipeParts(displayXf);
-
-    std::list<RivPipeBranchData>::iterator it;
-    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
-    {
-        if (it->m_surfacePart.notNull())
-        {
-            model->addPart(it->m_surfacePart.p());
-        }
-
-        if (it->m_centerLinePart.notNull())
-        {
-            model->addPart(it->m_centerLinePart.p());
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

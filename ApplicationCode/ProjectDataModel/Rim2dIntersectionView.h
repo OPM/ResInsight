@@ -26,6 +26,7 @@ class RimIntersection;
 class RimLegendConfig;
 class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
+class RivWellHeadPartMgr;
 
 namespace cvf
 {
@@ -97,6 +98,7 @@ protected:
 
     cvf::ref<RivIntersectionPartMgr>   m_flatIntersectionPartMgr;
     cvf::ref<RivSimWellPipesPartMgr>   m_flatSimWellPipePartMgr;
+    cvf::ref<RivWellHeadPartMgr>       m_flatWellHeadPartMgr;
     cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
     cvf::ref<cvf::Transform>           m_scaleTransform;
 

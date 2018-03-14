@@ -50,21 +50,29 @@ class Rim2dIntersectionView;
 class RivSimWellPipesPartMgr : public cvf::Object
 {
 public:
-    RivSimWellPipesPartMgr(RimSimWellInView* well, Rim2dIntersectionView * intersectionView = nullptr);
+    RivSimWellPipesPartMgr(RimSimWellInView* well);
 
     ~RivSimWellPipesPartMgr();
 
     void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                  size_t frameIndex, 
                                                  const caf::DisplayCoordTransform* displayXf);
+    void       appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                          size_t frameIndex,
+                                                          const caf::DisplayCoordTransform* displayXf,
+                                                          double flattenedIntersectionExtentLength,
+                                                          int branchIndex);
+ 
     void       updatePipeResultColor(size_t frameIndex);
 
 private:
     Rim3dView* viewWithSettings();
-    void       buildWellPipeParts(const caf::DisplayCoordTransform* displayXf);
+    void       buildWellPipeParts(const caf::DisplayCoordTransform* displayXf, 
+                                  bool doFlatten, 
+                                  double flattenedIntersectionExtentLength,
+                                  int branchIndex);
 
     caf::PdmPointer<RimSimWellInView>       m_rimWell;
-    caf::PdmPointer<Rim2dIntersectionView>  m_intersectionView;
 
     struct RivPipeBranchData
     {

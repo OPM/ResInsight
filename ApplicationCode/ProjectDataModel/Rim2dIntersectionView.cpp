@@ -43,6 +43,7 @@
 #include <QDateTime>
 #include "cafDisplayCoordTransform.h"
 #include "RivSimWellPipesPartMgr.h"
+#include "RivWellHeadPartMgr.h"
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
@@ -404,6 +405,7 @@ void Rim2dIntersectionView::createDisplayModel()
     m_flatIntersectionPartMgr->applySingleColorEffect();
 
     m_flatSimWellPipePartMgr = nullptr;
+    m_flatWellHeadPartMgr = nullptr;
 
     if ( m_intersection->type() == RimIntersection::CS_SIMULATION_WELL
         && m_intersection->simulationWell() )
@@ -413,7 +415,8 @@ void Rim2dIntersectionView::createDisplayModel()
 
         if ( eclipseView )
         {
-            m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr(m_intersection->simulationWell(), this); 
+            m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr(m_intersection->simulationWell()); 
+            m_flatWellHeadPartMgr = new RivWellHeadPartMgr(m_intersection->simulationWell());
         }
     }
 
@@ -466,20 +469,29 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::String name = "SimWellPipeMod";
-            Rim3dView::removeModelByName(frameScene, name);
-            
-            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
-            simWellModelBasicList->setName(name);
+            {
+                cvf::String name = "SimWellPipeMod";
+                Rim3dView::removeModelByName(frameScene, name);
 
-            m_flatSimWellPipePartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), 
-                                                                        m_currentTimeStep, 
-                                                                        this->displayCoordTransform().p());
-            
-            simWellModelBasicList->updateBoundingBoxesRecursive();
-            frameScene->addModel(simWellModelBasicList.p());
+                cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+                simWellModelBasicList->setName(name);
 
-            m_flatSimWellPipePartMgr->updatePipeResultColor(m_currentTimeStep);
+                m_flatSimWellPipePartMgr->appendFlattenedDynamicGeometryPartsToModel(simWellModelBasicList.p(),
+                                                                                     m_currentTimeStep,
+                                                                                     this->displayCoordTransform().p(),
+                                                                                     m_intersection->extentLength(), 
+                                                                                     m_intersection->branchIndex());
+
+                simWellModelBasicList->updateBoundingBoxesRecursive();
+                frameScene->addModel(simWellModelBasicList.p());
+
+                m_flatSimWellPipePartMgr->updatePipeResultColor(m_currentTimeStep);
+            
+                //m_flatWellHeadPartMgr->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), 
+                //                                                         m_currentTimeStep, 
+                //                                                         this->displayCoordTransform().p());
+                //
+            }
         }
     }
 

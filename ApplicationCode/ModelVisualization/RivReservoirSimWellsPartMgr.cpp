@@ -98,7 +98,7 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 
         for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
         {
-            RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr( m_reservoirView->wellCollection()->wells[i], false);
+            RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr( m_reservoirView->wellCollection()->wells[i]);
             m_wellPipesPartMgrs.push_back(wppmgr);
 
             RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView->wellCollection()->wells[i]);

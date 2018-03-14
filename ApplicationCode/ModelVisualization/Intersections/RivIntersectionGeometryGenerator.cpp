@@ -96,6 +96,7 @@ void RivIntersectionGeometryGenerator::calculateSegementTransformPrLinePoint()
         for ( size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx )
         {
             const std::vector<cvf::Vec3d>& polyLine = m_polyLines[pLineIdx];
+            startOffset.z() = polyLine[0].z();
             m_segementTransformPrLinePoint.emplace_back(RivSectionFlattner::calculateFlatteningCSsForPolyline(polyLine,
                                                                                                                m_extrusionDirection,
                                                                                                                startOffset,
