@@ -20,40 +20,21 @@
 
 #include "RivSimWellPipesPartMgr.h"
 
-#include "RigEclipseCaseData.h"
-#include "RigCell.h"
-#include "RigMainGrid.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dView.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivWellPathSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
+#include "RivSectionFlattner.h"
 
 #include "cafEffectGenerator.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfRay.h"
 #include "cvfScalarMapperDiscreteLinear.h"
-#include "cvfTransform.h"
-#include "cafDisplayCoordTransform.h"
-#include "RivSectionFlattner.h"
-#include "Rim2dIntersectionView.h"
-#include "RimIntersection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

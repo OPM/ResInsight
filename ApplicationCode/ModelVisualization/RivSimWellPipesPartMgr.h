@@ -32,8 +32,6 @@ namespace cvf
 {
     class Part;
     class ModelBasicList;
-    class Transform;
-    class Effect;
     class DrawableGeo;
 }
 
@@ -45,7 +43,6 @@ namespace caf
 class RivPipeGeometryGenerator;
 class Rim3dView;
 class RimSimWellInView;
-class Rim2dIntersectionView;
 
 class RivSimWellPipesPartMgr : public cvf::Object
 {
