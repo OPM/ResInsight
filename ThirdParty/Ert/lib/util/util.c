@@ -2896,6 +2896,11 @@ bool util_ftruncate(FILE * stream , long size) {
 */
 
 bool util_same_file(const char * file1 , const char * file2) {
+
+#ifdef _WINDOWS
+    if (file1 == NULL || file2 == NULL) return false;
+    return stricmp(file1, file2) == 0;
+#else
   stat_type buffer1 , buffer2;
   int stat1,stat2;
 
@@ -2909,6 +2914,7 @@ bool util_same_file(const char * file1 , const char * file2) {
       return false;
   } else
     return false;  // Files which do not exist are no equal!
+#endif
 }
 
 
