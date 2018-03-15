@@ -34,7 +34,7 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
 
     CAF_PDM_InitObject(connectionFactorUiName, ":/CellResult.png", "", "");
 
-    CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    true,   "", "", "", "");
+    CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    false,   "", "", "", "");
     CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      0.2,    "Geometry Scale Factor", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
