@@ -262,7 +262,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.addSeparator();
 
+            menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
+
             menuBuilder << "RicAdd3dWellLogCurveFeature";
+            menuBuilder << "RicAdd3dWellLogFileCurveFeature";
+
+            menuBuilder.subMenuEnd();
 
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
