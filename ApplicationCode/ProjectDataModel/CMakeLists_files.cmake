@@ -100,6 +100,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogFileCurve.h
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
 )
 
@@ -205,6 +206,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogFileCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
 )
 

@@ -24,21 +24,24 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-class RimWellLogFile;
+class Rim3dView;
+class RimCase;
+class RimGeoMechResultDefinition;
+class RimEclipseResultDefinition;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class Rim3dWellLogFileCurve : public Rim3dWellLogCurve
+class Rim3dWellLogExtractionCurve : public Rim3dWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    Rim3dWellLogFileCurve();
-    virtual ~Rim3dWellLogFileCurve();
+    Rim3dWellLogExtractionCurve();
+    virtual ~Rim3dWellLogExtractionCurve();
 
-    void         setDefaultFileCurveDataInfo();
+    void         setPropertiesFromView(Rim3dView* view);
     virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
 
 private:
@@ -46,8 +49,12 @@ private:
                                                                 bool*                      useOptionsOnly) override;
 
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void initAfterRead() override;
 
 private:
-    caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmField<QString>            m_wellLogChannnelName;
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmField<int>                              m_timeStep;
+
+    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
 };

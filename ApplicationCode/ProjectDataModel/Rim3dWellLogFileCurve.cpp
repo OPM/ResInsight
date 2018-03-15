@@ -82,6 +82,9 @@ void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogFileCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
 {
+    CAF_ASSERT(values != nullptr);
+    CAF_ASSERT(measuredDepthValues != nullptr);
+
     if (m_wellLogFile)
     {
         RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();

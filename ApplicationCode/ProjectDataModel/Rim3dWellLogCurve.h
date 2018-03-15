@@ -19,14 +19,8 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-
-#include "RimCase.h"
-
-class RimGeoMechResultDefinition;
-class RimEclipseResultDefinition;
 
 //==================================================================================================
 ///
@@ -66,36 +60,24 @@ public:
 
     void updateCurveIn3dView();
 
-    void setPropertiesFromView(Rim3dView* view);
-
     DrawPlane drawPlane() const;
     bool toggleState() const;
 
-    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const;
+    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
 
 protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void initAfterRead() override;
-
-    void appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    void                                    appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
 protected:
     caf::PdmField<QString>                          m_name;
+    caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
+    caf::PdmField<caf::AppEnum<DrawStyle>>          m_drawStyle;
+    caf::PdmField<caf::AppEnum<ColoringStyle>>      m_coloringStyle;
 
 private:
     caf::PdmField<bool>                             m_showCurve;
-
-    caf::PdmPtrField<RimCase*>                      m_case;
-    caf::PdmField<int>                              m_timeStep;
-    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
-    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
-
-    caf::PdmField<caf::AppEnum<DrawPlane>> m_drawPlane;
-    caf::PdmField<caf::AppEnum<DrawStyle>> m_drawStyle;
-    caf::PdmField<caf::AppEnum<ColoringStyle>> m_coloringStyle;
 };

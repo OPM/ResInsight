@@ -22,7 +22,7 @@
 
 #include "RicWellLogTools.h"
 
-#include "Rim3dWellLogCurve.h"
+#include "Rim3dWellLogExtractionCurve.h"
 #include "RimCase.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -52,19 +52,19 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered(bool isChecked)
 {
     RimWellPath* selectedWellPath = RicWellLogTools::selectedWellPath();
 
-    Rim3dWellLogCurve* rim3dWellLogCurve = new Rim3dWellLogCurve();
+    Rim3dWellLogExtractionCurve* rim3dWellLogExtractionCurve = new Rim3dWellLogExtractionCurve();
     
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (view)
     {
-        rim3dWellLogCurve->setPropertiesFromView(view);
+        rim3dWellLogExtractionCurve->setPropertiesFromView(view);
     }
     
-    selectedWellPath->add3dWellLogCurve(rim3dWellLogCurve);
+    selectedWellPath->add3dWellLogCurve(rim3dWellLogExtractionCurve);
     
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    Riu3DMainWindowTools::selectAsCurrentItem(rim3dWellLogCurve);
+    Riu3DMainWindowTools::selectAsCurrentItem(rim3dWellLogExtractionCurve);
     Riu3DMainWindowTools::setExpanded(selectedWellPath);
 
     selectedWellPath->updateConnectedEditors();
