@@ -144,7 +144,9 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 
         auto scalarMapper = m_virtualPerforationResult->legendConfig()->scalarMapper();
 
-        cvf::ref<cvf::Part> part = RivVirtualConnFactorPartMgr::createPart(centerColorPairs, radius, scalarMapper);
+        bool                disableLighting = eclView->isLightingDisabled();
+        cvf::ref<cvf::Part> part =
+            RivVirtualConnFactorPartMgr::createPart(centerColorPairs, radius, scalarMapper, disableLighting);
 
         model->addPart(part.p());
     }
@@ -155,7 +157,8 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<CompletionVizData>& vizDataItems,
                                                             double                          radius,
-                                                            cvf::ScalarMapper*              scalarMapper)
+                                                            cvf::ScalarMapper*              scalarMapper,
+                                                            bool                            disableLighting)
 {
     std::vector<cvf::Vec3f> verticesForOneObject;
     std::vector<cvf::uint>  indicesForOneObject;
@@ -215,7 +218,6 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<Completi
 
     caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
 
-    bool disableLighting = true;
     effGen.disableLighting(disableLighting);
 
     cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
@@ -340,9 +342,9 @@ cvf::Mat4f RivVirtualConnFactorPartMgr::rotationMatrixBetweenVectors(const cvf::
     rotAxis.normalize();
 
     // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp(v1*v2, -1.0, 1.0);
-    const double angle = Math::acos(dotProduct);
-    Mat4d rotMat = Mat4d::fromRotation(rotAxis, angle);
+    const double dotProduct = Math::clamp(v1 * v2, -1.0, 1.0);
+    const double angle      = Math::acos(dotProduct);
+    Mat4d        rotMat     = Mat4d::fromRotation(rotAxis, angle);
 
     Mat4f myMat(rotMat);
 

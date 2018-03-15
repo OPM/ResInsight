@@ -73,7 +73,8 @@ public:
 private:
     static cvf::ref<cvf::Part> createPart(std::vector<CompletionVizData>& centerColorPairs, 
                                           double radius, 
-                                          cvf::ScalarMapper* scalarMapper);
+                                          cvf::ScalarMapper* scalarMapper,
+                                          bool disableLighting);
 
     static void createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, double radius, double thickness);
 
