@@ -93,7 +93,7 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
         }
     }
 
-    std::vector<std::pair<cvf::Vec3f, double>> centerColorPairs;
+    std::vector<CompletionVizData> centerColorPairs;
     for (const auto& cell : conn)
     {
         size_t gridIndex = cell.first.globalCellIndex();
@@ -101,6 +101,7 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
         const RigCell& rigCell = mainGrid->cell(gridIndex);
 
         cvf::Vec3d locationInDomainCoord = rigCell.center();
+        cvf::Vec3d wellPathDirection     = cvf::Vec3d::X_AXIS;
 
         if (!wellPathCellIntersections.empty())
         {
@@ -115,6 +116,12 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 
                     locationInDomainCoord = m_rimWell->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
 
+                    cvf::Vec3d p1;
+                    cvf::Vec3d p2;
+                    m_rimWell->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
+
+                    wellPathDirection = (p2 - p1).getNormalized();
+
                     continue;
                 }
             }
@@ -128,7 +135,7 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
             transmissibility = cell.second.front().transmissibility();
         }
 
-        centerColorPairs.push_back(std::make_pair(cvf::Vec3f(displayCoord), transmissibility));
+        centerColorPairs.push_back(CompletionVizData(displayCoord, wellPathDirection, transmissibility));
     }
 
     if (!centerColorPairs.empty())
@@ -146,9 +153,9 @@ void RivVirtualConnFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pair<cvf::Vec3f, double>>& centerColorPairs,
-                                                            double                                      radius,
-                                                            cvf::ScalarMapper*                          scalarMapper)
+cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<CompletionVizData>& vizDataItems,
+                                                            double                          radius,
+                                                            cvf::ScalarMapper*              scalarMapper)
 {
     std::vector<cvf::Vec3f> verticesForOneObject;
     std::vector<cvf::uint>  indicesForOneObject;
@@ -159,29 +166,33 @@ cvf::ref<cvf::Part> RivVirtualConnFactorPartMgr::createPart(std::vector<std::pai
     cvf::ref<cvf::UIntArray>  indices       = new cvf::UIntArray;
     cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
 
-    auto indexCount  = centerColorPairs.size() * indicesForOneObject.size();
-    auto vertexCount = centerColorPairs.size() * verticesForOneObject.size();
+    auto indexCount  = vizDataItems.size() * indicesForOneObject.size();
+    auto vertexCount = vizDataItems.size() * verticesForOneObject.size();
     indices->reserve(indexCount);
     vertices->reserve(vertexCount);
     textureCoords->reserve(vertexCount);
 
     textureCoords->setAll(cvf::Vec2f(0.5f, 1.0f));
 
-    for (const auto& centerColorPair : centerColorPairs)
+    for (const auto& item : vizDataItems)
     {
+        auto rotMatrix = rotationMatrixBetweenVectors(cvf::Vec3d::Y_AXIS, item.m_direction);
+
         cvf::uint indexOffset = static_cast<cvf::uint>(vertices->size());
 
         for (const auto& v : verticesForOneObject)
         {
-            vertices->add(centerColorPair.first + v);
+            auto rotatedPoint = v.getTransformedPoint(rotMatrix);
 
-            if (centerColorPair.second == HUGE_VAL)
+            vertices->add(cvf::Vec3f(item.m_anchor) + rotatedPoint);
+
+            if (item.m_connectionFactor == HUGE_VAL)
             {
                 textureCoords->add(cvf::Vec2f(0.5f, 1.0f));
             }
             else
             {
-                textureCoords->add(scalarMapper->mapToTextureCoord(centerColorPair.second));
+                textureCoords->add(scalarMapper->mapToTextureCoord(item.m_connectionFactor));
             }
         }
 
@@ -315,4 +326,25 @@ void RivVirtualConnFactorPartMgr::createStarGeometry(std::vector<cvf::Vec3f>* ve
     indices->push_back(6);
     indices->push_back(5);
     indices->push_back(9);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Taken from OverlayNavigationCube::computeNewUpVector
+/// Consider move to geometry util class
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4f RivVirtualConnFactorPartMgr::rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2)
+{
+    using namespace cvf;
+
+    Vec3d rotAxis = v1 ^ v2;
+    rotAxis.normalize();
+
+    // Guard acos against out-of-domain input
+    const double dotProduct = Math::clamp(v1*v2, -1.0, 1.0);
+    const double angle = Math::acos(dotProduct);
+    Mat4d rotMat = Mat4d::fromRotation(rotAxis, angle);
+
+    Mat4f myMat(rotMat);
+
+    return myMat;
 }

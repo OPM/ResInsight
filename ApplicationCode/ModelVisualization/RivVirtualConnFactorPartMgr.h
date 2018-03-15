@@ -21,6 +21,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "cvfMatrix4.h"
 
 #include "cafPdmPointer.h"
 
@@ -41,6 +42,21 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+struct CompletionVizData
+{
+    CompletionVizData(cvf::Vec3d anchor, cvf::Vec3d direction, double connectionFactor)
+        : m_anchor(anchor)
+        , m_direction(direction)
+        , m_connectionFactor(connectionFactor)
+    {
+    }
+
+    cvf::Vec3d m_anchor;
+    cvf::Vec3d m_direction;
+    double     m_connectionFactor;
+};
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 /// Based on RivWellSpheresPartMgr
@@ -55,11 +71,13 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 
 private:
-    static cvf::ref<cvf::Part> createPart(std::vector<std::pair<cvf::Vec3f, double>>& centerColorPairs,
-                                                        double                                            radius,
-                                                        cvf::ScalarMapper*                                scalarMapper);
+    static cvf::ref<cvf::Part> createPart(std::vector<CompletionVizData>& centerColorPairs, 
+                                          double radius, 
+                                          cvf::ScalarMapper* scalarMapper);
 
     static void createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, double radius, double thickness);
+
+    static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
 
 private:
     caf::PdmPointer<RimWellPath>                  m_rimWell;
