@@ -178,9 +178,9 @@ bool Rim3dWellLogCurve::toggleState() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, std::vector<double>* measuredDepthValues) const
+void Rim3dWellLogCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
 {
-    CAF_ASSERT(resultValues != nullptr);
+    CAF_ASSERT(values != nullptr);
     CAF_ASSERT(measuredDepthValues != nullptr);
 
     cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
@@ -216,7 +216,7 @@ void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, st
                                                                                                   m_eclipseResultDefinition);
         if (resAcc.notNull())
         {
-            eclExtractor->curveData(resAcc.p(), resultValues);
+            eclExtractor->curveData(resAcc.p(), values);
         }
     }
     else if (geomExtractor.notNull())
@@ -225,7 +225,7 @@ void Rim3dWellLogCurve::resultValuesAndMds(std::vector<double>* resultValues, st
 
         m_geomResultDefinition->loadResult();
 
-        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, resultValues);
+        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, values);
     }
 }
 
@@ -321,9 +321,7 @@ void Rim3dWellLogCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_drawPlane);
-    appearanceGroup->add(&m_drawStyle);
-    appearanceGroup->add(&m_coloringStyle);
+    appearanceUiOrdering(*appearanceGroup);
 
     uiOrdering.skipRemainingFields();
 }
@@ -338,5 +336,15 @@ void Rim3dWellLogCurve::initAfterRead()
 
     m_eclipseResultDefinition->setEclipseCase(eclipseCase);
     m_geomResultDefinition->setGeoMechCase(geomCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_drawPlane);
+    uiOrdering.add(&m_drawStyle);
+    uiOrdering.add(&m_coloringStyle);
 }
 

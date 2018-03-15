@@ -71,9 +71,9 @@ public:
     DrawPlane drawPlane() const;
     bool toggleState() const;
 
-    void resultValuesAndMds(std::vector<double>* resultValues, std::vector<double>* measuredDepthValues) const;
+    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const;
 
-private:
+protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -82,9 +82,13 @@ private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void initAfterRead() override;
 
+    void appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
+
+protected:
+    caf::PdmField<QString>                          m_name;
+
 private:
     caf::PdmField<bool>                             m_showCurve;
-    caf::PdmField<QString>                          m_name;
 
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;

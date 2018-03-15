@@ -103,10 +103,13 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim
                                                                        std::vector<cvf::Vec3f>*          vertices,
                                                                        std::vector<cvf::uint>*           indices) const
 {
+    if (m_wellPathGeometry.isNull()) return;
+
     std::vector<double> resultValues;
     std::vector<double> mds;
-    rim3dWellLogCurve->resultValuesAndMds(&resultValues, &mds);
+    rim3dWellLogCurve->curveValuesAndMds(&resultValues, &mds);
 
+    if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == mds.size());
 
     cvf::Vec3d globalDirection =
