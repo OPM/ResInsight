@@ -67,7 +67,6 @@ public:
     void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                    const QDateTime& timeStamp,
                                                                     double characteristicCellSize, 
                                                                     const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                     const caf::DisplayCoordTransform* displayCoordTransform);
@@ -83,8 +82,7 @@ private:
                                                                  const caf::DisplayCoordTransform* displayCoordTransform,
                                                                  double characteristicCellSize);
 
-    void                          appendPerforationsToModel(const QDateTime& currentViewDate,
-                                                            cvf::ModelBasicList* model,
+    void                          appendPerforationsToModel(cvf::ModelBasicList* model,
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
                                                             double characteristicCellSize);
 

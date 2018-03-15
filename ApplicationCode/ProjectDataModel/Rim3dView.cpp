@@ -681,15 +681,7 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
 
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-    QDateTime currentTimeStamp;
-    std::vector<QDateTime> timeStamps = ownerCase()->timeStepDates();
-    if (currentTimeStep() < static_cast<int>(timeStamps.size()))
-    {
-        currentTimeStamp = timeStamps[currentTimeStep()];
-    }
-
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
-                                                              currentTimeStamp,
                                                               this->ownerCase()->characteristicCellSize(),
                                                               wellPathClipBoundingBox,
                                                               transForm.p());

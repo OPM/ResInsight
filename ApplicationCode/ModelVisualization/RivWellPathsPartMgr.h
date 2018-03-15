@@ -64,7 +64,6 @@ public:
     void    appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
     void    appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                              const QDateTime& timeStamp,
                                               double characteristicCellSize, 
                                               const cvf::BoundingBox& wellPathClipBoundingBox,
                                               const caf::DisplayCoordTransform* displayCoordTransform);

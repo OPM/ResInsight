@@ -74,7 +74,6 @@ void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* 
 ///
 //--------------------------------------------------------------------------------------------------
 void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                            const QDateTime& timeStamp,
                                                             double                            characteristicCellSize,
                                                             const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                             const caf::DisplayCoordTransform* displayCoordTransform)
@@ -86,7 +85,6 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
     for (auto& partMgr : m_wellPatshsPartMgrs)
     {
         partMgr->appendDynamicGeometryPartsToModel(model, 
-                                                   timeStamp, 
                                                    characteristicCellSize, 
                                                    wellPathClipBoundingBox,
                                                    displayCoordTransform);
