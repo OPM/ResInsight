@@ -282,9 +282,9 @@ RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileName(const QString& fileName)
+RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileName(const QString& fileName, bool includeRestartFiles)
 {
-    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+    RimFileSummaryCase* newSumCase = new RimFileSummaryCase(includeRestartFiles);
 
     this->m_cases.push_back(newSumCase);
     newSumCase->setSummaryHeaderFileName(fileName);

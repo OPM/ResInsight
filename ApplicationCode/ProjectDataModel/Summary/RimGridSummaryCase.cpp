@@ -175,7 +175,7 @@ void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename());
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), true /* read restart files */);
 }
 
 //--------------------------------------------------------------------------------------------------

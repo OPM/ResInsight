@@ -45,7 +45,7 @@ public:
 
     void                createSummaryCasesFromRelevantEclipseResultCases();
     RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
-    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
+    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName, bool includeRestartFiles);
     
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;

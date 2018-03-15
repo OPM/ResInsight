@@ -39,9 +39,17 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFileSummaryCase::RimFileSummaryCase()
+RimFileSummaryCase::RimFileSummaryCase() : m_includeRestartFiles(false)
 {
- 
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFileSummaryCase::RimFileSummaryCase(bool includeRestartFiles)
+{
+    m_includeRestartFiles = includeRestartFiles;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,22 +91,17 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename());
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName)
+RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles)
 {
-    QString headerFileNameStd;
-    QStringList dataFileNames;
-    QString nativeSumHeadFileName = QDir::toNativeSeparators(headerFileName);
-    RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileNameStd, &dataFileNames);
-
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    if (!summaryFileReader->open(headerFileNameStd, dataFileNames))
+    if (!summaryFileReader->open(headerFileName, includeRestartFiles))
     {
         RiaLogging::warning(QString("Failed to open summary file %1").arg(headerFileName));
 

@@ -65,6 +65,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 )
 
 
@@ -128,6 +129,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 )
 
 
@@ -142,6 +144,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 )
 
 source_group( "CommandFeature" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

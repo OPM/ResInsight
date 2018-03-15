@@ -34,6 +34,7 @@ class RimFileSummaryCase: public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimFileSummaryCase();
+    RimFileSummaryCase(bool includeRestartFiles);
     virtual ~RimFileSummaryCase();
 
     virtual QString        summaryHeaderFilename() const  override;
@@ -43,8 +44,9 @@ public:
     virtual void            createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface* summaryReader() override;
 
-    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader(const QString& headerFileName);
+    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles);
 
 private:
     cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
+    bool                              m_includeRestartFiles;
 };

@@ -21,12 +21,28 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
+#include <QString>
+
 #include <string>
 #include <vector>
 #include <map>
 
-class QString;
 class QStringList;
+
+
+//==================================================================================================
+//
+//
+//==================================================================================================
+class RifRestartFileInfo
+{
+public:
+    RifRestartFileInfo() : startDate(0), endDate(0) {}
+
+    QString  fileName;
+    time_t   startDate;
+    time_t   endDate;
+};
 
 //==================================================================================================
 //
@@ -38,7 +54,9 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    bool                                open(const QString& headerFileName, const QStringList& dataFileNames);
+    bool                                open(const QString& headerFileName, bool includeRestartFiles);
+
+    std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
@@ -49,6 +67,7 @@ private:
     int                                 timeStepCount() const;
     int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const;
     void                                buildMetaData();
+    RifRestartFileInfo                  getRestartFile(const QString& headerFileName);
 
 private:
     // Taken from ecl_sum.h

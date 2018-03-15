@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RicSummaryCaseRestartDialog.h"
+
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -31,8 +33,6 @@
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
-
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -99,19 +99,23 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
-    sumCaseColl->updateAllRequiredEditors();
+    RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(fileName);
 
-    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
+    if (result.ok)
     {
-        mainPlotWindow->selectAsCurrentItem(sumCase);
+        RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName, result.option == RicSummaryCaseRestartDialog::READ_ALL);
+        sumCaseColl->updateAllRequiredEditors();
 
-        mainPlotWindow->updateSummaryPlotToolBar();
+        RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+        if (mainPlotWindow)
+        {
+            mainPlotWindow->selectAsCurrentItem(sumCase);
+
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
+
+        app->addToRecentFiles(fileName);
     }
-    
-    app->addToRecentFiles(fileName);
-
     return true;
 }
 
