@@ -47,6 +47,7 @@
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
+#include "RivWellConnectionFactorPartMgr.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
@@ -63,7 +64,6 @@
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
-#include "RivVirtualConnFactorPartMgr.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
     size_t timeStepIndex = m_rimView->currentTimeStep();
 
     std::vector<QDateTime> timeStamps = eclipseCase->timeStepDates();
-    if (timeStepIndex < static_cast<int>(timeStamps.size()))
+    if (timeStepIndex < timeStamps.size())
     {
         currentTimeStamp = timeStamps[timeStepIndex];
     }
@@ -238,11 +238,11 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicL
     const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (trans)
     {
-        m_virtualConnectionFactorPartMgr = new RivVirtualConnFactorPartMgr(m_rimWellPath, eclView->virtualPerforationResult());
+        m_wellConnectionFactorPartMgr = new RivWellConnectionFactorPartMgr(m_rimWellPath, eclView->virtualPerforationResult());
 
         size_t timeStepIndex = m_rimView->currentTimeStep();
 
-        m_virtualConnectionFactorPartMgr->appendDynamicGeometryPartsToModel(model, timeStepIndex);
+        m_wellConnectionFactorPartMgr->appendDynamicGeometryPartsToModel(model, timeStepIndex);
     }
 }
 

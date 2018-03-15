@@ -19,68 +19,56 @@
 #pragma once
 
 #include "cvfBase.h"
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "cvfMatrix4.h"
-
-#include "cafPdmPointer.h"
 
 #include <vector>
 
 namespace cvf
 {
-class Part;
-class ModelBasicList;
-class ScalarMapper;
+class DrawableGeo;
 } // namespace cvf
 
-class RimWellPath;
-class RimVirtualPerforationResults;
-
-namespace caf
-{
-class DisplayCoordTransform;
-}
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 struct CompletionVizData
 {
-    CompletionVizData(cvf::Vec3d anchor, cvf::Vec3d direction, double connectionFactor)
+    CompletionVizData(const cvf::Vec3d& anchor, const cvf::Vec3d& direction, double connectionFactor, size_t globalCellIndex)
         : m_anchor(anchor)
         , m_direction(direction)
         , m_connectionFactor(connectionFactor)
+        , m_globalCellIndex(globalCellIndex)
     {
     }
 
     cvf::Vec3d m_anchor;
     cvf::Vec3d m_direction;
     double     m_connectionFactor;
+    size_t     m_globalCellIndex;
 };
 
-
 //--------------------------------------------------------------------------------------------------
 ///
-/// Based on RivWellSpheresPartMgr
-///
 //--------------------------------------------------------------------------------------------------
-class RivVirtualConnFactorPartMgr : public cvf::Object
+class RivWellConnectionFactorGeometryGenerator : public cvf::Object
 {
 public:
-    RivVirtualConnFactorPartMgr(RimWellPath* well, RimVirtualPerforationResults* virtualPerforationResult);
-    ~RivVirtualConnFactorPartMgr();
+    RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& centerColorPairs, float radius);
+    ~RivWellConnectionFactorGeometryGenerator();
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
+    cvf::ref<cvf::DrawableGeo> createPipeSurface();
+
+    size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
 
 private:
-    static cvf::ref<cvf::Part> createPart(std::vector<CompletionVizData>& centerColorPairs, 
-                                          double radius, 
-                                          cvf::ScalarMapper* scalarMapper,
-                                          bool disableLighting);
-
-    static void createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, double radius, double thickness);
-
     static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
+    static void
+        createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness);
 
 private:
-    caf::PdmPointer<RimWellPath>                  m_rimWell;
-    caf::PdmPointer<RimVirtualPerforationResults> m_virtualPerforationResult;
+    std::vector<CompletionVizData> m_centerColorPairs;
+    float                          m_radius;
+    size_t                         m_trianglesPerConnection;
 };
