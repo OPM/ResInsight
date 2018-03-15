@@ -64,6 +64,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
+    m_currentFile = new QLabel();
     m_readAllRadioButton = new QRadioButton(this);
     m_notReadRadionButton = new QRadioButton(this);
     m_separateCasesRadionButton = new QRadioButton(this);
@@ -82,6 +83,11 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
+    QGroupBox* currentFileGroup = new QGroupBox("Current Summary File");
+    QVBoxLayout* currentFileLayout = new QVBoxLayout();
+    currentFileLayout->addWidget(m_currentFile);
+    currentFileGroup->setLayout(currentFileLayout);
+
     QGroupBox* filesGroup = new QGroupBox("Found Restart Files");
     m_filesGridLayout = new QGridLayout();
     filesGroup->setLayout(m_filesGridLayout);
@@ -93,6 +99,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     optionsLayout->addWidget(m_separateCasesRadionButton);
     optionsGroup->setLayout(optionsLayout);
 
+    dialogLayout->addWidget(currentFileGroup);
     dialogLayout->addWidget(filesGroup);
     dialogLayout->addWidget(optionsGroup);
     dialogLayout->addWidget(m_buttons);
@@ -116,7 +123,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
     dialog.setWindowTitle("Summary Case Restart Files");
     dialog.m_readAllRadioButton->setChecked(true);
-    
+    dialog.m_currentFile->setText(summaryHeaderFile);
+
     std::vector<RifRestartFileInfo> files = dialog.getRestartFiles(summaryHeaderFile);
     for (const auto& file : files)
     {

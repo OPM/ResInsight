@@ -63,7 +63,9 @@ private slots:
     void slotDialogCancelClicked();
 
 private:
-    QGridLayout *                       m_filesGridLayout;
+    QLabel*                             m_currentFile;
+
+    QGridLayout*                        m_filesGridLayout;
 
     QRadioButton*                       m_readAllRadioButton;
     QRadioButton*                       m_notReadRadionButton;
