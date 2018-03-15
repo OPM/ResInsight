@@ -38,6 +38,11 @@ cvf::ref<cvf::DrawableGeo>
 
     createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, &vertices, &indices);
 
+    if (vertices.empty() || indices.empty())
+    {
+        return nullptr;
+    }
+
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
     cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
@@ -58,6 +63,10 @@ cvf::ref<cvf::DrawableGeo>
 cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
                                                                           const Rim3dWellLogCurve* rim3dWellLogCurve) const
 {
+    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
+
+    if (m_wellPathGeometry.isNull()) return drawable;
+    
     std::vector<cvf::Vec3d> wellPathPoints = m_wellPathGeometry->m_wellPathPoints;
 
     cvf::Vec3d globalDirection = (wellPathPoints.back() - wellPathPoints.front()).getNormalized();
@@ -84,7 +93,6 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
     cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
     indexedUInt->setIndices(indexArray.p());
     drawable->addPrimitiveSet(indexedUInt.p());

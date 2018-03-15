@@ -46,6 +46,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
                                                             std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves)
 {
     if (rim3dWellLogCurves.empty()) return;
+    if (m_wellPathGeometry.isNull()) return;
 
     m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPathGeometry.p());
 
@@ -54,6 +55,11 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
         if (!rim3dWellLogCurve->toggleState()) continue;
         
         cvf::ref<cvf::Drawable> curveDrawable = m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, rim3dWellLogCurve);
+
+        if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
+        {
+            continue;
+        }
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 0, 0, 0.5), caf::PO_1);
         cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
@@ -71,10 +77,11 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     //TODO: Atm, only the grid for the first curve is drawn.
     cvf::ref<cvf::Drawable> gridDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, rim3dWellLogCurves[0]);
 
-    if (!gridDrawable->boundingBox().isValid())
+    if (gridDrawable.isNull() || !gridDrawable->boundingBox().isValid())
     {
         return;
     }
+
     caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 255, 0, 1), caf::PO_1);
     cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
 
