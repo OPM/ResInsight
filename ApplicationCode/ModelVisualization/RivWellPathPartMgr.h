@@ -59,41 +59,45 @@ public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view);
     ~RivWellPathPartMgr();
 
-    void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                   double characteristicCellSize,
-                                                                   const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+    void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                          const caf::DisplayCoordTransform* displayCoordTransform,
+                                          double                            characteristicCellSize,
+                                          const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
-    void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                    double characteristicCellSize, 
-                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                           size_t                            timeStepIndex,
+                                           const caf::DisplayCoordTransform* displayCoordTransform,
+                                           double                            characteristicCellSize,
+                                           const cvf::BoundingBox&           wellPathClipBoundingBox);
+    
+    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
-    size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
+    size_t segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
-    void                          appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
-                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                 double characteristicCellSize);
+    void appendFishboneSubsPartsToModel(cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize);
 
-    void                          appendImportedFishbonesToModel(cvf::ModelBasicList* model,
-                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                 double characteristicCellSize);
+    void appendImportedFishbonesToModel(cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize);
 
-    void                          appendPerforationsToModel(cvf::ModelBasicList* model,
-                                                            const caf::DisplayCoordTransform* displayCoordTransform,
-                                                            double characteristicCellSize);
+    void appendPerforationsToModel(cvf::ModelBasicList*              model,
+                                   size_t                            timeStepIndex,
+                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                   double                            characteristicCellSize);
 
-    void                          appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList* model,
-                                                                         const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                         double characteristicCellSize);
+    void appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
+                                                size_t                            timeStepIndex,
+                                                const caf::DisplayCoordTransform* displayCoordTransform,
+                                                double                            characteristicCellSize);
 
+    void buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
+                            double                            characteristicCellSize,
+                            const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                     double characteristicCellSize,
-                                                     const cvf::BoundingBox& wellPathClipBoundingBox);
 
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection();

@@ -160,6 +160,7 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* mod
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, 
+                                                   size_t timeStepIndex,
                                                    const caf::DisplayCoordTransform* displayCoordTransform, 
                                                    double characteristicCellSize)
 {
@@ -172,15 +173,19 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
     if (!wellPathGeometry) return;
 
     QDateTime currentTimeStamp;
-    RimEclipseCase* eclipseCase = nullptr;
-    m_rimView->firstAncestorOrThisOfTypeAsserted(eclipseCase);
-
-    size_t timeStepIndex = m_rimView->currentTimeStep();
-
-    std::vector<QDateTime> timeStamps = eclipseCase->timeStepDates();
-    if (timeStepIndex < timeStamps.size())
+    if (m_rimView)
     {
-        currentTimeStamp = timeStamps[timeStepIndex];
+        RimCase* rimCase = nullptr;
+        m_rimView->firstAncestorOrThisOfType(rimCase);
+
+        if (rimCase)
+        {
+            std::vector<QDateTime> timeStamps = rimCase->timeStepDates();
+            if (timeStepIndex < timeStamps.size())
+            {
+                currentTimeStamp = timeStamps[timeStepIndex];
+            }
+        }
     }
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
@@ -197,7 +202,7 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
         if (!perforation->isChecked()) continue;
         if (perforation->startMD() > perforation->endMD()) continue;
 
-        if (currentTimeStamp.isValid() && !perforation->isActiveOnDate(currentTimeStamp)) continue;
+        if (!perforation->isActiveOnDate(currentTimeStamp)) continue;
 
         using namespace std;
         pair<vector<cvf::Vec3d>, vector<double> >  displayCoordsAndMD = wellPathGeometry->clippedPointSubset(perforation->startMD(), 
@@ -223,6 +228,7 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
+                                                                size_t timeStepIndex,
                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
                                                                 double                            characteristicCellSize)
 {
@@ -239,8 +245,6 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicL
     if (trans)
     {
         m_wellConnectionFactorPartMgr = new RivWellConnectionFactorPartMgr(m_rimWellPath, eclView->virtualPerforationResult());
-
-        size_t timeStepIndex = m_rimView->currentTimeStep();
 
         m_wellConnectionFactorPartMgr->appendDynamicGeometryPartsToModel(model, timeStepIndex);
     }
@@ -401,10 +405,10 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                          double characteristicCellSize,
-                                                          const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                          const caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                          const caf::DisplayCoordTransform* displayCoordTransform,
+                                                          double                            characteristicCellSize,
+                                                          const cvf::BoundingBox&           wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -440,10 +444,11 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           double characteristicCellSize,
-                                                           const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                           const caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                           size_t                            timeStepIndex,
+                                                           const caf::DisplayCoordTransform* displayCoordTransform,
+                                                           double                            characteristicCellSize,
+                                                           const cvf::BoundingBox&           wellPathClipBoundingBox)
 {
     CVF_ASSERT(model);
 
@@ -458,8 +463,8 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false)
         return;
 
-    appendPerforationsToModel(model, displayCoordTransform, characteristicCellSize);
-    appendVirtualTransmissibilitiesToModel(model, displayCoordTransform, characteristicCellSize);
+    appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
+    appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
 
     m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath->wellPathGeometry());
     m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, m_rimWellPath->vectorOf3dWellLogCurves());

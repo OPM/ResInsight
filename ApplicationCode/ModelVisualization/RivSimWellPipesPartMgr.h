@@ -54,6 +54,7 @@ public:
     void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                  size_t frameIndex, 
                                                  const caf::DisplayCoordTransform* displayXf);
+    
     void       appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
                                                           size_t frameIndex,
                                                           const caf::DisplayCoordTransform* displayXf,
