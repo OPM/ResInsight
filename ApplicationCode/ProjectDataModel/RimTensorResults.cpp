@@ -65,14 +65,14 @@ RimTensorResults::RimTensorResults()
     this->legendConfig = new RimLegendConfig();
     legendConfig.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_resultFieldName, "ResultVariable", "Result Variable", "", "", "");
+    CAF_PDM_InitField(&m_resultFieldName, "ResultVariable", QString("ST"), "Value", "", "", "");
     m_resultFieldName.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_resultFieldNameUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
+    CAF_PDM_InitField(&m_resultFieldNameUiField, "ResultVariableUI", QString("ST"), "Value", "", "", "");
     m_resultFieldNameUiField.xmlCapability()->setIOWritable(false);
     m_resultFieldNameUiField.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitField(&m_showTensors, "ShowTensors", true, "", "", "", "");
+    CAF_PDM_InitField(&m_showTensors, "ShowTensors", false, "", "", "", "");
 
     CAF_PDM_InitField(&m_principal1, "Principal1", true, "Principal 1", "", "", "");
     CAF_PDM_InitField(&m_principal2, "Principal2", true, "Principal 2", "", "", "");
