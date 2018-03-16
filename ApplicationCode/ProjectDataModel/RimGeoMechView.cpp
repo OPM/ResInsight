@@ -385,7 +385,7 @@ void RimGeoMechView::updateLegends()
 
         updateTensorLegendTextAndRanges(m_tensorResults->legendConfig(), m_currentTimeStep());
 
-        if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS)
+        if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS && tensorResults()->showTensors())
         {
             m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->legendConfig->legend());
         }

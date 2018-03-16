@@ -93,7 +93,6 @@ RimTensorResults::RimTensorResults()
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::~RimTensorResults()
 {
-    delete legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +109,7 @@ RigFemResultAddress RimTensorResults::selectedTensorResult() const
 void RimTensorResults::setShowTensors(bool enableTensors)
 {
     m_showTensors = enableTensors;
+
     updateConnectedEditors();
     updateUiIconFromState(enableTensors);
 }
