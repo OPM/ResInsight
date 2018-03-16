@@ -93,7 +93,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
     std::vector<size_t> mapFromConnectionIndexToGlobalCellIndex;
 
-    std::vector<CompletionVizData> centerColorPairs;
+    std::vector<CompletionVizData> completionVizDataItems;
     for (const auto& cell : conn)
     {
         size_t gridIndex = cell.first.globalCellIndex();
@@ -135,16 +135,16 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             transmissibility = cell.second.front().transmissibility();
         }
 
-        centerColorPairs.push_back(
+        completionVizDataItems.push_back(
             CompletionVizData(displayCoord, wellPathDirection, transmissibility, cell.first.globalCellIndex()));
         mapFromConnectionIndexToGlobalCellIndex.push_back(cell.first.globalCellIndex());
     }
 
-    if (!centerColorPairs.empty())
+    if (!completionVizDataItems.empty())
     {
         double radius = mainGrid->characteristicIJCellSize() * m_virtualPerforationResult->geometryScaleFactor();
 
-        m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(centerColorPairs, radius);
+        m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(completionVizDataItems, radius);
         auto drawable       = m_geometryGenerator->createSurfaceGeometry();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -156,11 +156,11 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
         {
             textureCoords->reserve(drawable->vertexArray()->size());
-            size_t verticesPerItem = drawable->vertexArray()->size() / centerColorPairs.size();
+            size_t verticesPerItem = drawable->vertexArray()->size() / completionVizDataItems.size();
 
             textureCoords->setAll(cvf::Vec2f(0.5f, 1.0f));
 
-            for (const auto& item : centerColorPairs)
+            for (const auto& item : completionVizDataItems)
             {
                 cvf::Vec2f textureCoord = cvf::Vec2f(0.5f, 1.0f);
                 if (item.m_connectionFactor != HUGE_VAL)
