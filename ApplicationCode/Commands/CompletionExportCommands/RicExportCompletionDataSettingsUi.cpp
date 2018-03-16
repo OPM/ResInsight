@@ -79,16 +79,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected)
-{
-    RicExportCompletionDataSettingsUi();
-
-    setOnlyWellPathCollectionSelected(onlyWellPathCollectionSelected);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::setOnlyWellPathCollectionSelected(bool onlyWellPathCollectionSelected)
 {
     m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;

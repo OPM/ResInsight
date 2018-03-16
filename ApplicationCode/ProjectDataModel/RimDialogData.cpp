@@ -34,7 +34,8 @@ RimDialogData::RimDialogData()
     m_exportCarfin = new RicExportCarfinUi;
 
     CAF_PDM_InitFieldNoDefault(&m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "");
-    m_exportCompletionData = new RicExportCompletionDataSettingsUi(false);
+    m_exportCompletionData = new RicExportCompletionDataSettingsUi();
+    m_exportCompletionData->setOnlyWellPathCollectionSelected(false);
 }
 
 //--------------------------------------------------------------------------------------------------

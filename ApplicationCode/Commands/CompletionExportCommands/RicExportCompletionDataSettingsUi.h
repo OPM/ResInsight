@@ -53,7 +53,6 @@ public:
 
 
     RicExportCompletionDataSettingsUi();
-    RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected);
 
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<WellSelectionType>        wellSelection;
