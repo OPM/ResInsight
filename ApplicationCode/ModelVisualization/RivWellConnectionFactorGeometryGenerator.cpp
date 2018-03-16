@@ -25,6 +25,105 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
+    std::vector<CompletionVizData>& centerColorPairs,
+    float                           radius)
+    : m_centerColorPairs(centerColorPairs)
+    , m_radius(radius)
+    , m_trianglesPerConnection(0)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfaceGeometry()
+{
+    std::vector<cvf::Vec3f> verticesForOneObject;
+    std::vector<cvf::uint>  indicesForOneObject;
+
+    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(
+        &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
+
+    m_trianglesPerConnection = indicesForOneObject.size() / 3;
+
+    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+    cvf::ref<cvf::UIntArray>  indices  = new cvf::UIntArray;
+
+    auto indexCount  = m_centerColorPairs.size() * indicesForOneObject.size();
+    auto vertexCount = m_centerColorPairs.size() * verticesForOneObject.size();
+    indices->reserve(indexCount);
+    vertices->reserve(vertexCount);
+
+    for (const auto& item : m_centerColorPairs)
+    {
+        auto rotMatrix = rotationMatrixBetweenVectors(cvf::Vec3d::Y_AXIS, item.m_direction);
+
+        cvf::uint indexOffset = static_cast<cvf::uint>(vertices->size());
+
+        for (const auto& v : verticesForOneObject)
+        {
+            auto rotatedPoint = v.getTransformedPoint(rotMatrix);
+
+            vertices->add(cvf::Vec3f(item.m_anchor) + rotatedPoint);
+        }
+
+        for (const auto& i : indicesForOneObject)
+        {
+            indices->add(i + indexOffset);
+        }
+    }
+
+    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
+    drawable->setVertexArray(vertices.p());
+
+    drawable->addPrimitiveSet(new cvf::PrimitiveSetIndexedUInt(cvf::PT_TRIANGLES, indices.p()));
+    drawable->computeNormals();
+
+    return drawable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
+{
+    if (m_trianglesPerConnection == 0) return 0;
+
+    size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
+
+    return m_centerColorPairs[connectionIndex].m_globalCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Taken from OverlayNavigationCube::computeNewUpVector
+/// Consider move to geometry util class
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2)
+{
+    using namespace cvf;
+
+    Vec3d rotAxis = v1 ^ v2;
+    rotAxis.normalize();
+
+    // Guard acos against out-of-domain input
+    const double dotProduct = Math::clamp(v1 * v2, -1.0, 1.0);
+    const double angle      = Math::acos(dotProduct);
+    Mat4d        rotMat     = Mat4d::fromRotation(rotAxis, angle);
+
+    Mat4f myMat(rotMat);
+
+    return myMat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivWellConnectionFactorGeometryGenerator::createStarGeometry(std::vector<cvf::Vec3f>* vertices,
                                                                   std::vector<cvf::uint>*  indices,
                                                                   float                    radius,
@@ -134,6 +233,9 @@ void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(std:
                                                                             float                    radius,
                                                                             float                    thickness)
 {
+    // Suggested improvement
+    // As the nodes are duplicated, it will be possible create only vertices and then use DrawableGeo::setFromTriangleVertexArray
+
     auto p0 = cvf::Vec3f::Y_AXIS * thickness;
     auto p1 = -p0;
     auto p2 = cvf::Vec3f::Z_AXIS * radius;
@@ -178,105 +280,4 @@ void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(std:
     indices->push_back(9);
     indices->push_back(10);
     indices->push_back(11);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
-    std::vector<CompletionVizData>& centerColorPairs,
-    float                           radius)
-    : m_centerColorPairs(centerColorPairs)
-    , m_radius(radius)
-    , m_trianglesPerConnection(0)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfaceGeometry()
-{
-    std::vector<cvf::Vec3f> verticesForOneObject;
-    std::vector<cvf::uint>  indicesForOneObject;
-
-    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(
-        &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
-    //     RivWellConnectionFactorGeometryGenerator::createStarGeometry(
-    //         &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
-
-    m_trianglesPerConnection = indicesForOneObject.size() / 3;
-
-    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
-    cvf::ref<cvf::UIntArray>  indices  = new cvf::UIntArray;
-
-    auto indexCount  = m_centerColorPairs.size() * indicesForOneObject.size();
-    auto vertexCount = m_centerColorPairs.size() * verticesForOneObject.size();
-    indices->reserve(indexCount);
-    vertices->reserve(vertexCount);
-
-    for (const auto& item : m_centerColorPairs)
-    {
-        auto rotMatrix = rotationMatrixBetweenVectors(cvf::Vec3d::Y_AXIS, item.m_direction);
-
-        cvf::uint indexOffset = static_cast<cvf::uint>(vertices->size());
-
-        for (const auto& v : verticesForOneObject)
-        {
-            auto rotatedPoint = v.getTransformedPoint(rotMatrix);
-
-            vertices->add(cvf::Vec3f(item.m_anchor) + rotatedPoint);
-        }
-
-        for (const auto& i : indicesForOneObject)
-        {
-            indices->add(i + indexOffset);
-        }
-    }
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-    drawable->setVertexArray(vertices.p());
-
-    drawable->addPrimitiveSet(new cvf::PrimitiveSetIndexedUInt(cvf::PT_TRIANGLES, indices.p()));
-    drawable->computeNormals();
-
-    return drawable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
-{
-    if (m_trianglesPerConnection == 0) return 0;
-
-    size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
-
-    return m_centerColorPairs[connectionIndex].m_globalCellIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Taken from OverlayNavigationCube::computeNewUpVector
-/// Consider move to geometry util class
-//--------------------------------------------------------------------------------------------------
-cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2)
-{
-    using namespace cvf;
-
-    Vec3d rotAxis = v1 ^ v2;
-    rotAxis.normalize();
-
-    // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp(v1 * v2, -1.0, 1.0);
-    const double angle      = Math::acos(dotProduct);
-    Mat4d        rotMat     = Mat4d::fromRotation(rotAxis, angle);
-
-    Mat4f myMat(rotMat);
-
-    return myMat;
 }
