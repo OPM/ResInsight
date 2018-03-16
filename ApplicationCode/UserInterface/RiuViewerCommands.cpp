@@ -76,7 +76,6 @@
 #include "RivWellConnectionSourceInfo.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathSourceInfo.h"
-
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFeatureMenuBuilder.h"

@@ -129,6 +129,60 @@ void RivWellConnectionFactorGeometryGenerator::createStarGeometry(std::vector<cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(std::vector<cvf::Vec3f>* vertices,
+                                                                            std::vector<cvf::uint>*  indices,
+                                                                            float                    radius,
+                                                                            float                    thickness)
+{
+    auto p0 = cvf::Vec3f::Y_AXIS * thickness;
+    auto p1 = -p0;
+    auto p2 = cvf::Vec3f::Z_AXIS * radius;
+
+    auto p3 = p0;
+    auto p4 = p1;
+    auto p5 = cvf::Vec3f::X_AXIS * radius;
+
+    auto p6 = p0;
+    auto p7 = p1;
+    auto p8 = -p2;
+
+    auto p9  = p0;
+    auto p10 = p1;
+    auto p11 = -p5;
+
+    vertices->push_back(p0);
+    vertices->push_back(p1);
+    vertices->push_back(p2);
+    vertices->push_back(p3);
+    vertices->push_back(p4);
+    vertices->push_back(p5);
+    vertices->push_back(p6);
+    vertices->push_back(p7);
+    vertices->push_back(p8);
+    vertices->push_back(p9);
+    vertices->push_back(p10);
+    vertices->push_back(p11);
+
+    indices->push_back(0);
+    indices->push_back(1);
+    indices->push_back(2);
+
+    indices->push_back(3);
+    indices->push_back(4);
+    indices->push_back(5);
+
+    indices->push_back(6);
+    indices->push_back(7);
+    indices->push_back(8);
+
+    indices->push_back(9);
+    indices->push_back(10);
+    indices->push_back(11);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
     std::vector<CompletionVizData>& centerColorPairs,
     float                           radius)
@@ -146,13 +200,15 @@ RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenera
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createPipeSurface()
+cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfaceGeometry()
 {
     std::vector<cvf::Vec3f> verticesForOneObject;
     std::vector<cvf::uint>  indicesForOneObject;
 
-    RivWellConnectionFactorGeometryGenerator::createStarGeometry(
+    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(
         &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
+    //     RivWellConnectionFactorGeometryGenerator::createStarGeometry(
+    //         &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
 
     m_trianglesPerConnection = indicesForOneObject.size() / 3;
 

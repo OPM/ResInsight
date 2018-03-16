@@ -58,7 +58,7 @@ public:
     RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& centerColorPairs, float radius);
     ~RivWellConnectionFactorGeometryGenerator();
 
-    cvf::ref<cvf::DrawableGeo> createPipeSurface();
+    cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
 
     size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
 
@@ -66,6 +66,11 @@ private:
     static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
     static void
         createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness);
+
+    static void createSimplifiedStarGeometry(std::vector<cvf::Vec3f>* vertices,
+                                             std::vector<cvf::uint>*  indices,
+                                             float                    radius,
+                                             float                    thickness);
 
 private:
     std::vector<CompletionVizData> m_centerColorPairs;

@@ -145,7 +145,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         double radius = mainGrid->characteristicIJCellSize() * m_virtualPerforationResult->geometryScaleFactor();
 
         m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(centerColorPairs, radius);
-        auto drawable       = m_geometryGenerator->createPipeSurface();
+        auto drawable       = m_geometryGenerator->createSurfaceGeometry();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(drawable.p());
