@@ -154,6 +154,8 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createPipeS
     RivWellConnectionFactorGeometryGenerator::createStarGeometry(
         &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
 
+    m_trianglesPerConnection = indicesForOneObject.size() / 3;
+
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
     cvf::ref<cvf::UIntArray>  indices  = new cvf::UIntArray;
 
@@ -195,6 +197,8 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createPipeS
 //--------------------------------------------------------------------------------------------------
 size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
 {
+    if (m_trianglesPerConnection == 0) return 0;
+
     size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
 
     return m_centerColorPairs[connectionIndex].m_globalCellIndex;

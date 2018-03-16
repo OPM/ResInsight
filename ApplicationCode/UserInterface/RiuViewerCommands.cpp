@@ -34,6 +34,7 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 
 #include "RiaDefines.h"
 #include "RimCellEdgeColors.h"
@@ -72,8 +73,9 @@
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
-#include "RivWellPathSourceInfo.h"
+#include "RivWellConnectionSourceInfo.h"
 #include "RivWellFracturePartMgr.h"
+#include "RivWellPathSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
@@ -528,6 +530,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
             const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
+            const RivWellConnectionSourceInfo* wellConnectionSourceInfo = dynamic_cast<const RivWellConnectionSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivObjectSourceInfo)
             {
@@ -625,6 +628,60 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
 
                 RiuMainWindow::instance()->selectAsCurrentItem(eclipseWellSourceInfo->well(), allowActiveViewChange);
+            }
+            else if (wellConnectionSourceInfo)
+            {
+                bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
+
+                size_t globalCellIndex = wellConnectionSourceInfo->globalCellIndexFromTriangleIndex(firstPartTriangleIndex);
+
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+                if (eclipseView)
+                {
+                    RimEclipseCase* eclipseCase = nullptr;
+                    eclipseView->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+                    
+                    if (eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities())
+                    {
+                        auto connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
+                        size_t timeStep = eclipseView->currentTimeStep();
+
+                        const auto& completionData = connectionFactors->multipleCompletionsPerEclipseCell(wellConnectionSourceInfo->wellPath(), timeStep);
+
+                        for (const auto& compData : completionData)
+                        {
+                            if (compData.first.globalCellIndex() == globalCellIndex)
+                            {
+                                auto completionDataItems = compData.second;
+
+                                if (!completionDataItems.empty())
+                                {
+                                    QString resultInfoText;
+
+                                    // For now, only report the fist completion and not the combined completion if more than one
+                                    // completion contributes into a cell
+
+                                    resultInfoText += QString("Well Connection Factor : %1").arg(completionDataItems[0].transmissibility());
+                                    resultInfoText += "<br><br>Details : <br>";
+
+                                    for (const auto& completionData : completionDataItems)
+                                    {
+                                        for (const auto& metaData : completionData.metadata())
+                                        {
+                                            resultInfoText += QString("<b>Name</b> %1 <b>Description</b> %2 <br>").arg(metaData.name).arg(metaData.comment);
+                                        }
+                                    }
+
+                                    RiuMainWindow::instance()->setResultInfo(resultInfoText);
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                RiuMainWindow::instance()->selectAsCurrentItem(wellConnectionSourceInfo->wellPath(), allowActiveViewChange);
             }
         }
 
