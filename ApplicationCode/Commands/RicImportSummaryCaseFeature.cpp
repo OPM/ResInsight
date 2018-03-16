@@ -99,7 +99,7 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(fileName);
+    RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(fileName, false);
 
     if (result.ok)
     {

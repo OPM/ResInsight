@@ -22,6 +22,8 @@
 
 #include <QString>
 
+class RicSummaryCaseRestartDialogResult;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -32,7 +34,7 @@ class RicImportSummaryCasesFeature : public caf::CmdFeature
 public:
     RicImportSummaryCasesFeature() : m_pathFilter("*"), m_fileNameFilter("*") { }
 
-    static bool createAndAddSummaryCaseFromFile(const QString& fileName);
+    static bool createAndAddSummaryCaseFromFile(const QString& fileName, RicSummaryCaseRestartDialogResult *lastResult);
 
 protected:
     // Overrides

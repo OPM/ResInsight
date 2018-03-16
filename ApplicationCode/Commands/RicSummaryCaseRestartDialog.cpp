@@ -37,6 +37,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QRadioButton>
@@ -68,6 +69,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_readAllRadioButton = new QRadioButton(this);
     m_notReadRadionButton = new QRadioButton(this);
     m_separateCasesRadionButton = new QRadioButton(this);
+    m_applyToAllCheckBox = new QCheckBox(this);
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -79,7 +81,8 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_readAllRadioButton->setText("Import All Restart Files");
     m_notReadRadionButton->setText("Do Not Import Restart Files");
     m_separateCasesRadionButton->setText("Import Restart Files as Separate Cases");
-    
+    m_applyToAllCheckBox->setText("Apply to All Files");
+
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
@@ -99,10 +102,14 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     optionsLayout->addWidget(m_separateCasesRadionButton);
     optionsGroup->setLayout(optionsLayout);
 
+    QHBoxLayout* buttonsLayout = new QHBoxLayout();
+    buttonsLayout->addWidget(m_applyToAllCheckBox);
+    buttonsLayout->addWidget(m_buttons);
+
     dialogLayout->addWidget(currentFileGroup);
     dialogLayout->addWidget(filesGroup);
     dialogLayout->addWidget(optionsGroup);
-    dialogLayout->addWidget(m_buttons);
+    dialogLayout->addLayout(buttonsLayout);
 
     setLayout(dialogLayout);
 }
@@ -117,13 +124,16 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile, QWidget *parent)
+RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile,
+                                                                          bool showApplyToAllWidget,
+                                                                          QWidget *parent)
 {
     RicSummaryCaseRestartDialog  dialog(parent);
 
     dialog.setWindowTitle("Summary Case Restart Files");
     dialog.m_readAllRadioButton->setChecked(true);
     dialog.m_currentFile->setText(summaryHeaderFile);
+    dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
 
     std::vector<RifRestartFileInfo> files = dialog.getRestartFiles(summaryHeaderFile);
     for (const auto& file : files)
@@ -134,13 +144,13 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     // If no restart files are found, do not show dialog
     if (files.empty())
     {
-        return RicSummaryCaseRestartDialogResult(true, READ_ALL);
+        return RicSummaryCaseRestartDialogResult(true, READ_ALL, false);
     }
 
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
     dialog.exec();
 
-    return RicSummaryCaseRestartDialogResult(dialog.result() == QDialog::Accepted, dialog.selectedOption());
+    return RicSummaryCaseRestartDialogResult(dialog.result() == QDialog::Accepted, dialog.selectedOption(), dialog.applyToAllSelected());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +162,14 @@ RicSummaryCaseRestartDialog::ReadOptions RicSummaryCaseRestartDialog::selectedOp
         m_notReadRadionButton->isChecked() ?        NOT_READ :
         m_separateCasesRadionButton->isChecked() ?  SEPARATE_CASES :
                                                     READ_ALL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicSummaryCaseRestartDialog::applyToAllSelected() const
+{
+    return m_applyToAllCheckBox->isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------

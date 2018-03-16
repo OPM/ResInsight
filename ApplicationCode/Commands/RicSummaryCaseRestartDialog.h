@@ -35,6 +35,7 @@ class QPushButton;
 class QMainWindow;
 class QListWidget;
 class QGridLayout;
+class QCheckBox;
 class RicSummaryCaseRestartDialogResult;
 
 //==================================================================================================
@@ -50,9 +51,12 @@ public:
     RicSummaryCaseRestartDialog(QWidget* parent);
     ~RicSummaryCaseRestartDialog();
 
-    static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile, QWidget *parent = nullptr);
+    static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile,
+                                                           bool showApplyToAllWidget,
+                                                           QWidget *parent = nullptr);
 
     ReadOptions                                 selectedOption() const;
+    bool                                        applyToAllSelected() const;
 
 private:
     void                                        appendToFileList(const RifRestartFileInfo& fileInfo);
@@ -71,6 +75,7 @@ private:
     QRadioButton*                       m_notReadRadionButton;
     QRadioButton*                       m_separateCasesRadionButton;
 
+    QCheckBox*                          m_applyToAllCheckBox;
     QDialogButtonBox*                   m_buttons;
 };
 
@@ -81,10 +86,16 @@ private:
 class RicSummaryCaseRestartDialogResult
 {
 public:
-    RicSummaryCaseRestartDialogResult(bool ok, 
-                                 RicSummaryCaseRestartDialog::ReadOptions option) :
-        ok(ok), option(option) {}
+    RicSummaryCaseRestartDialogResult() :
+        ok(false), option(RicSummaryCaseRestartDialog::READ_ALL), applyToAll(false) {}
+
+    RicSummaryCaseRestartDialogResult(bool _ok,
+                                      RicSummaryCaseRestartDialog::ReadOptions _option,
+                                      bool _applyToAll) :
+        ok(_ok), option(_option), applyToAll(_applyToAll) {
+    }
 
     bool            ok;
     RicSummaryCaseRestartDialog::ReadOptions  option;
+    bool            applyToAll;
 };
