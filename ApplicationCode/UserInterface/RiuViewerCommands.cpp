@@ -62,6 +62,7 @@
 #include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
+#include "RiuResultTextBuilder.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -657,11 +658,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                                 if (!completionDataItems.empty())
                                 {
                                     QString resultInfoText;
+                                    resultInfoText += QString("<b>Well Connection Factor :</b> %1<br><br>").arg(connectionFactor);
 
-                                    // For now, only report the fist completion and not the combined completion if more than one
-                                    // completion contributes into a cell
+                                    {
+                                        RiuResultTextBuilder textBuilder(eclipseView, globalCellIndex, eclipseView->currentTimeStep());
 
-                                    resultInfoText += QString("Well Connection Factor : %1").arg(connectionFactor);
+                                        resultInfoText += textBuilder.geometrySelectionText("<br>");
+                                    }
+
                                     resultInfoText += "<br><br>Details : <br>";
 
                                     for (const auto& completionData : completionDataItems)

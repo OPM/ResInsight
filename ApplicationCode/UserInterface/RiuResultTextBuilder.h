@@ -42,6 +42,8 @@ class RiuResultTextBuilder
 {
 public:
     RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
+    RiuResultTextBuilder(RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex);
+
     void setFace(cvf::StructGridInterface::FaceType face);
     void setNncIndex(size_t nncIndex);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);

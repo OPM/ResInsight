@@ -64,6 +64,44 @@ RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex)
+{
+    CVF_ASSERT(reservoirView);
+
+    m_reservoirView = reservoirView;
+
+    m_gridIndex = 0;
+    m_cellIndex = 0;
+
+    RimEclipseCase* eclipseCase = nullptr;
+    reservoirView->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase && eclipseCase->eclipseCaseData())
+    {
+        RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+        RigMainGrid* mainGrid = caseData->mainGrid();
+
+        const RigCell& cell = caseData->mainGrid()->globalCellArray()[reservoirCellIndex];
+
+        for (size_t i = 0; i < mainGrid->gridCount(); i++)
+        {
+            if (mainGrid->gridByIndex(i) == cell.hostGrid())
+            {
+                m_gridIndex = i;
+                m_cellIndex = cell.gridLocalCellIndex();
+            }
+        }
+    }
+
+    m_timeStepIndex = timeStepIndex;
+
+    m_nncIndex = cvf::UNDEFINED_SIZE_T;
+    m_intersectionPoint = cvf::Vec3d::UNDEFINED;
+    m_face = cvf::StructGridInterface::NO_FACE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuResultTextBuilder::setNncIndex(size_t nncIndex)
 {
     m_nncIndex = nncIndex;
@@ -169,11 +207,14 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                     j++;
                     k++;
 
-                    cvf::StructGridInterface::FaceEnum faceEnum(m_face);
+                    if (m_face != cvf::StructGridInterface::NO_FACE)
+                    {
+                        cvf::StructGridInterface::FaceEnum faceEnum(m_face);
 
-                    QString faceText = faceEnum.text();
+                        QString faceText = faceEnum.text();
 
-                    text += QString("Face : %1").arg(faceText) + itemSeparator;
+                        text += QString("Face : %1").arg(faceText) + itemSeparator;
+                    }
 
                     QString gridName = QString::fromStdString(grid->gridName());
                     text += QString("Grid : %1 [%2]").arg(gridName).arg(m_gridIndex) + itemSeparator;
@@ -185,27 +226,30 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 }
             }
             
-            cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
-
-            QString formattedText;
-            if (m_2dIntersectionView)
+            if (m_intersectionPoint != cvf::Vec3d::UNDEFINED)
             {
-                formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
-                text += formattedText + itemSeparator;
+                cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
 
-                cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
-                if (!t.isZero())
+                QString formattedText;
+                if (m_2dIntersectionView)
                 {
-                    cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
-                    formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
+                    text += formattedText + itemSeparator;
+
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
+                    if (!t.isZero())
+                    {
+                        cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
+                        formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
+                        text += formattedText;
+                    }
+                }
+                else
+                {
+                    formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
                     text += formattedText;
                 }
-            }
-            else
-            {
-                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
-                text += formattedText;
             }
         }
     }
