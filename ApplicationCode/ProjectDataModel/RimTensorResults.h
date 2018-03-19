@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 #include "RigFemResultPosEnum.h"
+#include "RimLegendConfig.h"
 
 #include <QList>
 
@@ -69,11 +70,13 @@ public:
     TensorColors        vectorColors() const;
     ScaleMethod         scaleMethod() const;
 
+    void                mappingRange(double *min, double* max) const;
+
     static RigFemResultPosEnum resultPositionType();
     QString                    resultFieldName() const;
     static QString             uiFieldName(const QString& fieldName);
 
-    caf::PdmChildField<RimLegendConfig*> legendConfig;
+    caf::PdmChildField<RimLegendConfig*> arrowColorLegendConfig;
 
 private:
     std::vector<std::string>                getResultMetaDataForUIFieldSetting();
@@ -83,6 +86,7 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            initAfterRead() override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     static QString                          fieldNameFromUi(const QString& uiFieldName);
 
@@ -103,4 +107,5 @@ private:
 
     caf::PdmField<caf::AppEnum<ScaleMethod>>         m_scaleMethod;
     caf::PdmField<float>                             m_sizeScale;
+    caf::PdmField<RimLegendConfig::RangeModeEnum>    m_rangeMode;
 };

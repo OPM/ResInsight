@@ -22,11 +22,13 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
 
@@ -47,8 +49,6 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
-#include "RimIntersectionCollection.h"
-#include "RiaPreferences.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -57,8 +57,8 @@ namespace caf {
     template<>
     void AppEnum<RimLegendConfig::RangeModeType>::setUp()
     {
-        addItem(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS,    "AUTOMATIC_ALLTIMESTEPS",       "All Timesteps");
-        addItem(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,"AUTOMATIC_CURRENT_TIMESTEP",   "Current Timestep");
+        addItem(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS,    "AUTOMATIC_ALLTIMESTEPS",       "Min and Max for All Timesteps");
+        addItem(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,"AUTOMATIC_CURRENT_TIMESTEP",   "Min and Max for Current Timestep");
         addItem(RimLegendConfig::USER_DEFINED,              "USER_DEFINED_MAX_MIN",         "User Defined Range");
         setDefault(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS);
     }

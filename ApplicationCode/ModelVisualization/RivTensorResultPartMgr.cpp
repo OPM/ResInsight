@@ -108,12 +108,18 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
         RigFemPartNodes nodes = part->nodes();
 
-        double min, max;
-        resultCollection->minMaxScalarValuesOverAllTensorComponents(address, (int)frameIndex, &min, &max);
-
-        if (max == 0) max = 1;
         float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
-        float arrowResultScaling   = arrowConstantScaling / cvf::Math::abs(max);
+
+        double min, max;
+        m_rimReservoirView->tensorResults()->mappingRange(&min, &max);
+        
+        double maxAbsResult = 1.0;
+        if (min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE)
+        {
+            maxAbsResult = std::max(cvf::Math::abs(max), cvf::Math::abs(min));
+        }
+
+        float arrowResultScaling = arrowConstantScaling / maxAbsResult;
 
         cvf::ref<RivGeoMechPartMgrCache> partMgrCache = m_rimReservoirView->vizLogic()->partMgrCache();
 
@@ -337,7 +343,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
     if (vectorColors == RimTensorResults::RESULT_COLORS)
     {
-        activeScalerMapper = m_rimReservoirView->tensorResults()->legendConfig()->scalarMapper();
+        activeScalerMapper = m_rimReservoirView->tensorResults()->arrowColorLegendConfig()->scalarMapper();
 
         createResultColorTextureCoords(lineTexCoords.p(), tensorVisualizations, activeScalerMapper);
     }

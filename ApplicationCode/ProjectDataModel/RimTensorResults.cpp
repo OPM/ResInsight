@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,51 +19,52 @@
 #include "RimTensorResults.h"
 
 #include "RigFemResultAddress.h"
+#include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimLegendConfig.h"
+
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmUiListEditor.h"
-
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimTensorResults, "RimTensorResults");
 
-
 namespace caf
 {
-    template<>
-    void AppEnum< RimTensorResults::TensorColors >::setUp()
-    {
-        addItem(RimTensorResults::WHITE_GRAY_BLACK , "WHITE_GRAY_BLACK", "White, Gray, Black");
-        addItem(RimTensorResults::ORANGE_BLUE_WHITE, "ORANGE_BLUE_WHITE", "Orange, Blue, White");
-        addItem(RimTensorResults::MAGENTA_BROWN_GRAY, "MAGENTA_BROWN_GRAY", "Magenta, Brown, Gray");
-        addItem(RimTensorResults::RESULT_COLORS, "RESULT_COLORS", "Result Colors");
+template<>
+void AppEnum<RimTensorResults::TensorColors>::setUp()
+{
+    addItem(RimTensorResults::WHITE_GRAY_BLACK, "WHITE_GRAY_BLACK", "White, Gray, Black");
+    addItem(RimTensorResults::ORANGE_BLUE_WHITE, "ORANGE_BLUE_WHITE", "Orange, Blue, White");
+    addItem(RimTensorResults::MAGENTA_BROWN_GRAY, "MAGENTA_BROWN_GRAY", "Magenta, Brown, Gray");
+    addItem(RimTensorResults::RESULT_COLORS, "RESULT_COLORS", "Result Colors");
 
-        setDefault(RimTensorResults::WHITE_GRAY_BLACK);
-    }
-
-    template<>
-    void AppEnum< RimTensorResults::ScaleMethod >::setUp()
-    {
-        addItem(RimTensorResults::RESULT, "RESULT", "Result");
-        addItem(RimTensorResults::CONSTANT, "CONSTANT", "Constant");
-
-        setDefault(RimTensorResults::RESULT);
-    }
+    setDefault(RimTensorResults::WHITE_GRAY_BLACK);
 }
 
+template<>
+void AppEnum<RimTensorResults::ScaleMethod>::setUp()
+{
+    addItem(RimTensorResults::RESULT, "RESULT", "Result");
+    addItem(RimTensorResults::CONSTANT, "CONSTANT", "Constant");
+
+    setDefault(RimTensorResults::RESULT);
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::RimTensorResults()
 {
     CAF_PDM_InitObject("Element Tensor Results", ":/CellResult.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
-    this->legendConfig = new RimLegendConfig();
-    legendConfig.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&arrowColorLegendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    this->arrowColorLegendConfig = new RimLegendConfig();
+    arrowColorLegendConfig.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_resultFieldName, "ResultVariable", QString("ST"), "Value", "", "", "");
     m_resultFieldName.uiCapability()->setUiHidden(true);
@@ -83,20 +84,25 @@ RimTensorResults::RimTensorResults()
     CAF_PDM_InitFieldNoDefault(&m_vectorColor, "VectorColor", "Color", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_scaleMethod, "ScaleMethod", "Scale Method", "", "", "");
     CAF_PDM_InitField(&m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "");
+    CAF_PDM_InitField(&m_rangeMode,
+                      "RangeType",
+                      RimLegendConfig::RangeModeEnum(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS),
+                      "Range Type",
+                      "",
+                      "Switches between automatic and user defined range",
+                      "");
 
     m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultFieldNameUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimTensorResults::~RimTensorResults()
-{
-}
+RimTensorResults::~RimTensorResults() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigFemResultAddress RimTensorResults::selectedTensorResult() const
 {
@@ -104,7 +110,7 @@ RigFemResultAddress RimTensorResults::selectedTensorResult() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::setShowTensors(bool enableTensors)
 {
@@ -115,7 +121,7 @@ void RimTensorResults::setShowTensors(bool enableTensors)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTensorResults::showTensors() const
 {
@@ -123,7 +129,7 @@ bool RimTensorResults::showTensors() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTensorResults::showPrincipal1() const
 {
@@ -131,7 +137,7 @@ bool RimTensorResults::showPrincipal1() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTensorResults::showPrincipal2() const
 {
@@ -139,7 +145,7 @@ bool RimTensorResults::showPrincipal2() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTensorResults::showPrincipal3() const
 {
@@ -147,7 +153,7 @@ bool RimTensorResults::showPrincipal3() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float RimTensorResults::threshold() const
 {
@@ -155,7 +161,7 @@ float RimTensorResults::threshold() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float RimTensorResults::sizeScale() const
 {
@@ -163,7 +169,7 @@ float RimTensorResults::sizeScale() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::TensorColors RimTensorResults::vectorColors() const
 {
@@ -171,7 +177,7 @@ RimTensorResults::TensorColors RimTensorResults::vectorColors() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::ScaleMethod RimTensorResults::scaleMethod() const
 {
@@ -179,7 +185,37 @@ RimTensorResults::ScaleMethod RimTensorResults::scaleMethod() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimTensorResults::mappingRange(double* min, double* max) const
+{
+    *min = cvf::UNDEFINED_DOUBLE;
+    *max = cvf::UNDEFINED_DOUBLE;
+
+    if (scaleMethod() == RESULT)
+    {
+        Rim3dView* view = nullptr;
+        firstAncestorOrThisOfType(view);
+
+        int currentTimeStep = view->currentTimeStep();
+
+        RimGeoMechView*              geoMechView      = dynamic_cast<RimGeoMechView*>(view);
+        RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
+        if (!resultCollection) return;
+
+        if (m_rangeMode == RimLegendConfig::AUTOMATIC_ALLTIMESTEPS)
+        {
+            resultCollection->minMaxScalarValuesOverAllTensorComponents(selectedTensorResult(), min, max);
+        }
+        else if (m_rangeMode == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
+        {
+            resultCollection->minMaxScalarValuesOverAllTensorComponents(selectedTensorResult(), currentTimeStep, min, max);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RigFemResultPosEnum RimTensorResults::resultPositionType()
 {
@@ -187,7 +223,7 @@ RigFemResultPosEnum RimTensorResults::resultPositionType()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTensorResults::resultFieldName() const
 {
@@ -195,7 +231,7 @@ QString RimTensorResults::resultFieldName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RimTensorResults::getResultMetaDataForUIFieldSetting()
 {
@@ -208,15 +244,17 @@ std::vector<std::string> RimTensorResults::getResultMetaDataForUIFieldSetting()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                        const QVariant&            oldValue,
+                                        const QVariant&            newValue)
 {
     if (changedField == &m_resultFieldNameUiField)
     {
         m_resultFieldName = fieldNameFromUi(m_resultFieldNameUiField);
     }
-    if (changedField == &m_showTensors)
+    else if (changedField == &m_showTensors)
     {
         setShowTensors(m_showTensors);
     }
@@ -227,7 +265,7 @@ void RimTensorResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimTensorResults::objectToggleField()
 {
@@ -235,9 +273,10 @@ caf::PdmFieldHandle* RimTensorResults::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                      bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -248,15 +287,24 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
 
         for (size_t oIdx = 0; oIdx < fieldCompNames.size(); ++oIdx)
         {
-            options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldCompNames[oIdx]), QString::fromStdString(fieldCompNames[oIdx])));
+            options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldCompNames[oIdx]),
+                                                     QString::fromStdString(fieldCompNames[oIdx])));
         }
+    }
+    else if (fieldNeedingOptions == &m_rangeMode)
+    {
+        options.push_back(caf::PdmOptionItemInfo(RimLegendConfig::RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS),
+                                                 RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+        options.push_back(
+            caf::PdmOptionItemInfo(RimLegendConfig::RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP),
+                                   RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
     }
 
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -272,14 +320,19 @@ void RimTensorResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     vectorColorsGroup->add(&m_vectorColor);
 
     caf::PdmUiGroup* vectorSizeGroup = uiOrdering.addNewGroup("Vector Size");
-    vectorSizeGroup->add(&m_scaleMethod);
     vectorSizeGroup->add(&m_sizeScale);
+    vectorSizeGroup->add(&m_scaleMethod);
+
+    if (m_scaleMethod == RESULT)
+    {
+        vectorSizeGroup->add(&m_rangeMode);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTensorResults::initAfterRead()
 {
@@ -287,9 +340,11 @@ void RimTensorResults::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTensorResults::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimTensorResults::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_resultFieldNameUiField)
     {
@@ -302,7 +357,7 @@ void RimTensorResults::defineEditorAttribute(const caf::PdmFieldHandle* field, Q
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTensorResults::uiFieldName(const QString& fieldName)
 {
@@ -315,7 +370,7 @@ QString RimTensorResults::uiFieldName(const QString& fieldName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTensorResults::fieldNameFromUi(const QString& uiFieldName)
 {
@@ -325,4 +380,15 @@ QString RimTensorResults::fieldNameFromUi(const QString& uiFieldName)
     }
 
     return uiFieldName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTensorResults::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    if (m_vectorColor() != RESULT_COLORS)
+    {
+        uiTreeOrdering.skipRemainingChildren();
+    }
 }
