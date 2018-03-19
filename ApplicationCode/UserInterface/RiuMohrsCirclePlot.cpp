@@ -115,7 +115,8 @@ void RiuMohrsCirclePlot::appendSelection(const RiuSelectionItem* selectionItem)
         const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
         const cvf::Color3f color     = geoMechSelectionItem->m_color;
 
-        queryDataAndUpdatePlot(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
+        queryData(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
+        updatePlot();
 
         m_sourceGeoMechViewOfLastPlot = geoMechView;
     }
@@ -152,19 +153,15 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged(Rim3dView* changedView)
         return;
     }
 
-    // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuGeoMechSelectionItem* geoMechSelectionItem =
-        dynamic_cast<const RiuGeoMechSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
-    if (geoMechSelectionItem && geoMechSelectionItem->m_view == geoMechView)
+    std::vector<MohrsCirclesInfo> mohrsCiclesInfosCopy = m_mohrsCiclesInfos;
+    deletePlotItems();
+
+    for (const MohrsCirclesInfo& mohrInfo : mohrsCiclesInfosCopy)
     {
-        const size_t       gridIndex     = geoMechSelectionItem->m_gridIndex;
-        const size_t       gridCellIndex = geoMechSelectionItem->m_cellIndex;
-        const cvf::Color3f color         = geoMechSelectionItem->m_color;
-
-        deletePlotItems();
-
-        queryDataAndUpdatePlot(geoMechView, gridIndex, gridCellIndex, cvf::Color3ub(color));
+        queryData(mohrInfo.view, mohrInfo.gridIndex, mohrInfo.elmIndex, mohrInfo.color);
     }
+
+    updatePlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,10 +342,10 @@ void RiuMohrsCirclePlot::deleteEnvelopes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView,
-                                                size_t               gridIndex,
-                                                size_t               elmIndex,
-                                                const cvf::Color3ub& color)
+void RiuMohrsCirclePlot::queryData(RimGeoMechView*      geoMechView,
+                                   size_t               gridIndex,
+                                   size_t               elmIndex,
+                                   const cvf::Color3ub& color)
 {
     CVF_ASSERT(geoMechView);
     m_sourceGeoMechViewOfLastPlot = geoMechView;
@@ -388,10 +385,16 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
     size_t i, j, k;
     femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
 
-    MohrsCirclesInfo mohrsCircle(principals, elmIndex, i, j, k, calculateFOS(principals, frictionAngleDeg, cohesion), color);
+    MohrsCirclesInfo mohrsCircle(principals, gridIndex, elmIndex, i, j, k, geoMechView, calculateFOS(principals, frictionAngleDeg, cohesion), color);
 
-    addMohrsCirclesInfo(mohrsCircle, geoMechView);
+    addMohrsCirclesInfo(mohrsCircle);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMohrsCirclePlot::updatePlot()
+{
     setAxesScaleAndReplot();
     // Update axis scale is called one more time because the legend which is added on a later stage may disrupt the canvas
     scheduleUpdateAxisScale();
@@ -400,11 +403,11 @@ void RiuMohrsCirclePlot::queryDataAndUpdatePlot(RimGeoMechView*      geoMechView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo, RimGeoMechView* view)
+void RiuMohrsCirclePlot::addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo)
 {
     m_mohrsCiclesInfos.push_back(mohrsCircleInfo);
 
-    addEnvelopeCurve(mohrsCircleInfo.principals, view);
+    addEnvelopeCurve(mohrsCircleInfo.principals, mohrsCircleInfo.view);
     addMohrCircles(mohrsCircleInfo);
     updateTransparentCurvesOnPrincipals();
 }

@@ -55,26 +55,32 @@ public:
 private:
     struct MohrsCirclesInfo
     {
-        MohrsCirclesInfo(cvf::Vec3f    principals,
-                         size_t        elmIndex,
-                         size_t        i,
-                         size_t        j,
-                         size_t        k,
-                         double        factorOfSafety,
-                         cvf::Color3ub color)
+        MohrsCirclesInfo(cvf::Vec3f      principals,
+                         size_t          gridIndex,
+                         size_t          elmIndex,
+                         size_t          i,
+                         size_t          j,
+                         size_t          k,
+                         RimGeoMechView* view,
+                         double          factorOfSafety,
+                         cvf::Color3ub   color)
             : principals(principals)
+            , gridIndex(gridIndex)
             , elmIndex(elmIndex)
             , i(i)
             , j(j)
             , k(k)
+            , view(view)
             , factorOfSafety(factorOfSafety)
             , color(color) {}
 
-        cvf::Vec3f    principals;
-        size_t        elmIndex;
-        size_t        i, j, k;
-        double        factorOfSafety;
-        cvf::Color3ub color;
+        cvf::Vec3f      principals;
+        size_t          gridIndex;
+        size_t          elmIndex;
+        size_t          i, j, k;
+        RimGeoMechView* view;
+        double          factorOfSafety;
+        cvf::Color3ub   color;
     };
 
 private:
@@ -90,9 +96,10 @@ private:
     void addEnvelopeCurve(const cvf::Vec3f& principals, RimGeoMechView* view);
     void deleteEnvelopes();
 
-    void queryDataAndUpdatePlot(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);
+    void queryData(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);
+    void updatePlot();
 
-    void addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo, RimGeoMechView* view);
+    void addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo);
 
     void updateTransparentCurvesOnPrincipals();
 
