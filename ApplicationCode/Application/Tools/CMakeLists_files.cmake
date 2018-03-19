@@ -23,6 +23,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextStringTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -49,6 +50,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextStringTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -18,6 +18,7 @@
 
 #include "RifReaderEclipseSummary.h"
 #include "RiaStringEncodingTools.h"
+#include "RiaFilePathTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifEclipseSummaryTools.h"
 
@@ -416,7 +417,7 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& header
         QString restartBase = QDir(restartCase).dirName();
 
         char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
-        restartFile.fileName = QDir::toNativeSeparators(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
+        restartFile.fileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
         util_safe_free(smspec_header);
 
         ecl_sum = openEclSum(headerFileName, false);

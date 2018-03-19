@@ -56,6 +56,7 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* prefs = app->preferences();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
 
     RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(nullptr, "Import Summary Cases", defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
@@ -72,9 +73,19 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     QStringList fileNames = result.files;
     if (fileNames.isEmpty()) return;
 
-    std::vector<RicSummaryCaseFileInfo> fileInfos = getFilesToImportWithDialog(fileNames, true);
+    std::vector<RicSummaryCaseFileInfo> fileInfos;
+    if (prefs->summaryRestartFilesImportMode == RiaPreferences::ASK_USER)
+    {
+        fileInfos = getFilesToImportWithDialog(fileNames, true);
+    }
+    else
+    {
+        fileInfos = getFilesToImportFromPrefs(fileNames, prefs->summaryRestartFilesImportMode);
+    }
 
     createAndAddSummaryCaseFromFileInfo(fileInfos);
+
+    if (fileInfos.size() > 0) RiaApplication::instance()->addToRecentFiles(fileInfos.front().fileName);
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
@@ -111,8 +122,6 @@ std::vector<RicSummaryCaseFileInfo> RicImportSummaryCasesFeature::getFilesToImpo
 
         if (result.ok)
         {
-            if(result.files.size() > 0) RiaApplication::instance()->addToRecentFiles(result.files.front());
-
             for (const QString& file : result.files)
             {
                 RicSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::READ_ALL);
@@ -123,6 +132,38 @@ std::vector<RicSummaryCaseFileInfo> RicImportSummaryCasesFeature::getFilesToImpo
             }
         }
         lastResult = result;
+    }
+    return std::vector<RicSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RicSummaryCaseFileInfo> RicImportSummaryCasesFeature::getFilesToImportFromPrefs(const QStringList& initialFiles,
+                                                                                            RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode)
+{
+    std::set<RicSummaryCaseFileInfo> filesToImport;
+    RicSummaryCaseRestartDialogResult lastResult;
+
+    for (const QString& file : initialFiles)
+    {
+        if (summaryRestartMode == RiaPreferences::IMPORT)
+        {
+            filesToImport.insert(RicSummaryCaseFileInfo(file, true));
+        }
+        else if (summaryRestartMode == RiaPreferences::NOT_IMPORT)
+        {
+            filesToImport.insert(RicSummaryCaseFileInfo(file, false));
+        }
+        else if (summaryRestartMode == RiaPreferences::SEPARATE_CASES)
+        {
+            filesToImport.insert(RicSummaryCaseFileInfo(file, false));
+
+            RifReaderEclipseSummary reader;
+            std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file);
+            for (const auto& fi : restartFileInfos)
+                filesToImport.insert(RicSummaryCaseFileInfo(fi.fileName, false));
+        }
     }
     return std::vector<RicSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
 }
@@ -149,8 +190,21 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileInfo(const std
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileWithDialog(const QString& fileName)
 {
+    RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* prefs = app->preferences();
+
     QStringList fileNames({ fileName });
-    std::vector<RicSummaryCaseFileInfo> fileInfos = getFilesToImportWithDialog(fileNames, false);
+    std::vector<RicSummaryCaseFileInfo> fileInfos;
+    if (prefs->summaryRestartFilesImportMode == RiaPreferences::ASK_USER)
+    {
+        fileInfos = getFilesToImportWithDialog(fileNames, false);
+    }
+    else
+    {
+        fileInfos = getFilesToImportFromPrefs(fileNames, prefs->summaryRestartFilesImportMode);
+    }
+
+
     bool res = createAndAddSummaryCaseFromFileInfo(fileInfos);
     RiaApplication::instance()->addToRecentFiles(fileName);
     return res;

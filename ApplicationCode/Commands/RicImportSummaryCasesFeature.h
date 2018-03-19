@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaPreferences.h"
+
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -53,6 +55,9 @@ public:
 
     static std::vector<RicSummaryCaseFileInfo> getFilesToImportWithDialog(const QStringList& initialFiles,
                                                                           bool enableApplyToAllField);
+
+    static std::vector<RicSummaryCaseFileInfo> getFilesToImportFromPrefs(const QStringList& initialFiles,
+                                                                         RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode);
 
     static bool createAndAddSummaryCaseFromFileInfo(const std::vector<RicSummaryCaseFileInfo>& fileInfos);
     static bool createAndAddSummaryCaseFromFileWithDialog(const QString& fileName);

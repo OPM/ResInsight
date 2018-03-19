@@ -22,6 +22,7 @@
 #include "ExportCommands/RicSnapshotFilenameGenerator.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -57,15 +58,6 @@
 #define DEFAULT_DIALOG_WIDTH        550
 #define DEFAULT_DIALOG_INIT_HEIGHT  150
 
-//--------------------------------------------------------------------------------------------------
-/// Internal variables
-//--------------------------------------------------------------------------------------------------
-static QString SEPARATOR = "/";
-
-//--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
-static QString      toInternalSeparator(const QString& path);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -164,12 +156,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         return RicSummaryCaseRestartDialogResult(false, READ_SINGLE, QStringList(), false);
     }
 
-    QStringList files({ toInternalSeparator(summaryHeaderFile) });
+    QStringList files({ RiaFilePathTools::toInternalSeparator(summaryHeaderFile) });
     if (dialog.selectedOption() == SEPARATE_CASES)
     {
         for (const auto& fileInfo : fileInfos)
         {
-            files.push_back(toInternalSeparator(fileInfo.fileName));
+            files.push_back(RiaFilePathTools::toInternalSeparator(fileInfo.fileName));
         }
     }
     return RicSummaryCaseRestartDialogResult(true, dialog.selectedOption(), files, dialog.applyToAllSelected());
@@ -244,20 +236,3 @@ void RicSummaryCaseRestartDialog::slotDialogCancelClicked()
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString toInternalSeparator(const QString& path)
-{
-    QString currNativeSep = QDir::separator();
-
-    if (currNativeSep == "/")
-    {
-        // On Linux like system -> Do not convert separators
-        return path;
-    }
-
-    // On other systems (i.e. Windows) -> Convert to internal separator (/)
-    QString output = path;
-    return output.replace(QString("\\"), SEPARATOR);
-}

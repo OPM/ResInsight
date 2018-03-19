@@ -53,6 +53,7 @@ bool RicImportSummaryCaseFeature::isCommandEnabled()
 void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* prefs = app->preferences();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
     QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Import Summary Case", defaultDir, "Eclipse Summary File (*.SMSPEC);;All Files (*.*)");
 
@@ -63,7 +64,15 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     if (fileNames.isEmpty()) return;
 
-    std::vector<RicSummaryCaseFileInfo> fileInfos = RicImportSummaryCasesFeature::getFilesToImportWithDialog(fileNames, true);
+    std::vector<RicSummaryCaseFileInfo> fileInfos;
+    if (prefs->summaryRestartFilesImportMode == RiaPreferences::ASK_USER)
+    {
+        fileInfos = RicImportSummaryCasesFeature::getFilesToImportWithDialog(fileNames, true);
+    }
+    else
+    {
+        fileInfos = RicImportSummaryCasesFeature::getFilesToImportFromPrefs(fileNames, prefs->summaryRestartFilesImportMode);
+    }
 
     RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileInfo(fileInfos);
 
