@@ -72,15 +72,9 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     QStringList fileNames = result.files;
     if (fileNames.isEmpty()) return;
 
-    RimProject*                     proj = app->project();
-    RimSummaryCaseMainCollection*   sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
-    if (!sumCaseColl) return;
+    std::vector<RicSummaryCaseFileInfo> fileInfos = getFilesToImportWithDialog(fileNames, true);
 
-    RicSummaryCaseRestartDialogResult savedDialogResult;
-    for (auto f : fileNames)
-    {
-        RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFile(f, &savedDialogResult);
-    }
+    createAndAddSummaryCaseFromFileInfo(fileInfos);
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
@@ -103,33 +97,84 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFile(const QString& fileName, RicSummaryCaseRestartDialogResult *savedDialogResult)
+std::vector<RicSummaryCaseFileInfo> RicImportSummaryCasesFeature::getFilesToImportWithDialog(const QStringList& initialFiles,
+                                                                                             bool enableApplyToAllField)
+{
+    std::set<RicSummaryCaseFileInfo> filesToImport;
+    RicSummaryCaseRestartDialogResult lastResult;
+
+    for (const QString& file : initialFiles)
+    {
+        RicSummaryCaseRestartDialogResult result;
+        if (lastResult.applyToAll)  result = lastResult;
+        else                        result = RicSummaryCaseRestartDialog::openDialog(file, enableApplyToAllField);
+
+        if (result.ok)
+        {
+            if(result.files.size() > 0) RiaApplication::instance()->addToRecentFiles(result.files.front());
+
+            for (const QString& file : result.files)
+            {
+                RicSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::READ_ALL);
+                if (filesToImport.count(fi) == 0)
+                {
+                    filesToImport.insert(fi);
+                }
+            }
+        }
+        lastResult = result;
+    }
+    return std::vector<RicSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileInfo(const std::vector<RicSummaryCaseFileInfo>& fileInfos)
+{
+    RiaApplication*                 app = RiaApplication::instance();
+    RimProject*                     proj = app->project();
+    RimSummaryCaseMainCollection*   sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    if (!sumCaseColl) return false;
+
+    for (const auto& fi : fileInfos)
+    {
+        createAndAddSummaryCaseFromFile(fi.fileName, fi.includeRestartFiles);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileWithDialog(const QString& fileName)
+{
+    QStringList fileNames({ fileName });
+    std::vector<RicSummaryCaseFileInfo> fileInfos = getFilesToImportWithDialog(fileNames, false);
+    bool res = createAndAddSummaryCaseFromFileInfo(fileInfos);
+    RiaApplication::instance()->addToRecentFiles(fileName);
+    return res;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFile(const QString& fileName, bool includeRestartFiles)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    RicSummaryCaseRestartDialogResult result;
-    if (savedDialogResult->applyToAll)  result = *savedDialogResult;
-    else                                result = RicSummaryCaseRestartDialog::openDialog(fileName, true);
+    RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName, includeRestartFiles);
+    sumCaseColl->updateAllRequiredEditors();
 
-    if (result.ok)
+    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow)
     {
-        RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName, result.option == RicSummaryCaseRestartDialog::READ_ALL);
-        sumCaseColl->updateAllRequiredEditors();
+        mainPlotWindow->selectAsCurrentItem(sumCase);
 
-        RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->selectAsCurrentItem(sumCase);
-
-            mainPlotWindow->updateSummaryPlotToolBar();
-        }
-
-        app->addToRecentFiles(fileName);
-
-        *savedDialogResult = result;
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
     return true;
 }

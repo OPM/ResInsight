@@ -46,7 +46,7 @@ class RicSummaryCaseRestartDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum ReadOptions { READ_ALL, NOT_READ, SEPARATE_CASES };
+    enum ReadOptions { READ_SINGLE, READ_ALL, SEPARATE_CASES };
 
     RicSummaryCaseRestartDialog(QWidget* parent);
     ~RicSummaryCaseRestartDialog();
@@ -91,11 +91,13 @@ public:
 
     RicSummaryCaseRestartDialogResult(bool _ok,
                                       RicSummaryCaseRestartDialog::ReadOptions _option,
+                                      QStringList _files,
                                       bool _applyToAll) :
-        ok(_ok), option(_option), applyToAll(_applyToAll) {
+        ok(_ok), option(_option), files(_files), applyToAll(_applyToAll) {
     }
 
-    bool            ok;
-    RicSummaryCaseRestartDialog::ReadOptions  option;
-    bool            applyToAll;
+    bool                                        ok;
+    RicSummaryCaseRestartDialog::ReadOptions    option;
+    QStringList                                 files;
+    bool                                        applyToAll;
 };

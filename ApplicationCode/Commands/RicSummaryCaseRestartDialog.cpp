@@ -57,6 +57,15 @@
 #define DEFAULT_DIALOG_WIDTH        550
 #define DEFAULT_DIALOG_INIT_HEIGHT  150
 
+//--------------------------------------------------------------------------------------------------
+/// Internal variables
+//--------------------------------------------------------------------------------------------------
+static QString SEPARATOR = "/";
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+static QString      toInternalSeparator(const QString& path);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -130,27 +139,40 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 {
     RicSummaryCaseRestartDialog  dialog(parent);
 
+    std::vector<RifRestartFileInfo> fileInfos = dialog.getRestartFiles(summaryHeaderFile);
+    for (const auto& fileInfo : fileInfos)
+    {
+        dialog.appendToFileList(fileInfo);
+    }
+
+    // If no restart files are found, do not show dialog
+    if (fileInfos.empty())
+    {
+        return RicSummaryCaseRestartDialogResult(true, READ_SINGLE, QStringList({ summaryHeaderFile }), false);
+    }
+
     dialog.setWindowTitle("Summary Case Restart Files");
     dialog.m_readAllRadioButton->setChecked(true);
     dialog.m_currentFile->setText(summaryHeaderFile);
     dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
-
-    std::vector<RifRestartFileInfo> files = dialog.getRestartFiles(summaryHeaderFile);
-    for (const auto& file : files)
-    {
-        dialog.appendToFileList(file);
-    }
-
-    // If no restart files are found, do not show dialog
-    if (files.empty())
-    {
-        return RicSummaryCaseRestartDialogResult(true, READ_ALL, false);
-    }
-
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
     dialog.exec();
 
-    return RicSummaryCaseRestartDialogResult(dialog.result() == QDialog::Accepted, dialog.selectedOption(), dialog.applyToAllSelected());
+
+    if (dialog.result() != QDialog::Accepted)
+    {
+        return RicSummaryCaseRestartDialogResult(false, READ_SINGLE, QStringList(), false);
+    }
+
+    QStringList files({ toInternalSeparator(summaryHeaderFile) });
+    if (dialog.selectedOption() == SEPARATE_CASES)
+    {
+        for (const auto& fileInfo : fileInfos)
+        {
+            files.push_back(toInternalSeparator(fileInfo.fileName));
+        }
+    }
+    return RicSummaryCaseRestartDialogResult(true, dialog.selectedOption(), files, dialog.applyToAllSelected());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,9 +181,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 RicSummaryCaseRestartDialog::ReadOptions RicSummaryCaseRestartDialog::selectedOption() const
 {
     return
-        m_notReadRadionButton->isChecked() ?        NOT_READ :
+        m_readAllRadioButton->isChecked() ?         READ_ALL :
         m_separateCasesRadionButton->isChecked() ?  SEPARATE_CASES :
-                                                    READ_ALL;
+                                                    READ_SINGLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,4 +238,26 @@ void RicSummaryCaseRestartDialog::slotDialogOkClicked()
 void RicSummaryCaseRestartDialog::slotDialogCancelClicked()
 {
     reject();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString toInternalSeparator(const QString& path)
+{
+    QString currNativeSep = QDir::separator();
+
+    if (currNativeSep == "/")
+    {
+        // On Linux like system -> Do not convert separators
+        return path;
+    }
+
+    // On other systems (i.e. Windows) -> Convert to internal separator (/)
+    QString output = path;
+    return output.replace(QString("\\"), SEPARATOR);
 }

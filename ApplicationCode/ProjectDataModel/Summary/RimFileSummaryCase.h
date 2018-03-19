@@ -20,7 +20,7 @@
 #include "RimSummaryCase.h"
 
 #include "cvfObject.h"
-
+#include "cafPdmField.h"
 
 class RifReaderEclipseSummary;
 
@@ -34,7 +34,6 @@ class RimFileSummaryCase: public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimFileSummaryCase();
-    RimFileSummaryCase(bool includeRestartFiles);
     virtual ~RimFileSummaryCase();
 
     virtual QString        summaryHeaderFilename() const  override;
@@ -44,9 +43,11 @@ public:
     virtual void            createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface* summaryReader() override;
 
+    void                    setIncludeRestartFiles(bool includeRestartFiles);
+
     static RifReaderEclipseSummary* findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles);
 
 private:
     cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
-    bool                              m_includeRestartFiles;
+    caf::PdmField<bool>               m_includeRestartFiles;
 };

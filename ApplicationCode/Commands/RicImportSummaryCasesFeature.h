@@ -24,6 +24,23 @@
 
 class RicSummaryCaseRestartDialogResult;
 
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicSummaryCaseFileInfo
+{
+public:
+    RicSummaryCaseFileInfo(const QString _fileName, bool _includeRestartFiles) : 
+        fileName(_fileName), includeRestartFiles(_includeRestartFiles) {}
+
+    QString fileName;
+    bool    includeRestartFiles;
+
+    bool operator<(const RicSummaryCaseFileInfo& other) const { return fileName < other.fileName; }
+    bool operator==(const RicSummaryCaseFileInfo& other) const { return fileName == other.fileName; }
+};
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -34,7 +51,14 @@ class RicImportSummaryCasesFeature : public caf::CmdFeature
 public:
     RicImportSummaryCasesFeature() : m_pathFilter("*"), m_fileNameFilter("*") { }
 
-    static bool createAndAddSummaryCaseFromFile(const QString& fileName, RicSummaryCaseRestartDialogResult *lastResult);
+    static std::vector<RicSummaryCaseFileInfo> getFilesToImportWithDialog(const QStringList& initialFiles,
+                                                                          bool enableApplyToAllField);
+
+    static bool createAndAddSummaryCaseFromFileInfo(const std::vector<RicSummaryCaseFileInfo>& fileInfos);
+    static bool createAndAddSummaryCaseFromFileWithDialog(const QString& fileName);
+
+private:
+    static bool createAndAddSummaryCaseFromFile(const QString& fileName, bool includeRestartFiles);
 
 protected:
     // Overrides

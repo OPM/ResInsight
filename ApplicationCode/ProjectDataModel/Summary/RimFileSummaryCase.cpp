@@ -39,17 +39,10 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFileSummaryCase::RimFileSummaryCase() : m_includeRestartFiles(false)
+RimFileSummaryCase::RimFileSummaryCase()
 {
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimFileSummaryCase::RimFileSummaryCase(bool includeRestartFiles)
-{
-    m_includeRestartFiles = includeRestartFiles;
+    CAF_PDM_InitField(&m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "");
+    m_includeRestartFiles.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,4 +111,12 @@ RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(con
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
     return m_summaryFileReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
+{
+    m_includeRestartFiles = includeRestartFiles;
 }

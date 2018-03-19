@@ -29,9 +29,6 @@ class RicImportSummaryCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static bool createAndAddSummaryCaseFromFile(const QString& fileName);
-
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;

@@ -31,7 +31,7 @@
 #include "RiaViewRedrawScheduler.h"
 
 #include "RicImportInputEclipseCaseFeature.h"
-#include "RicImportSummaryCaseFeature.h"
+#include "RicImportSummaryCasesFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
 #include "Rim2dIntersectionViewCollection.h"
@@ -1872,7 +1872,7 @@ bool RiaApplication::openFile(const QString& fileName)
     }
     else if (fileName.contains(".smspec", Qt::CaseInsensitive))
     {
-        loadingSucceded = RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(fileName);
+        loadingSucceded = RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileWithDialog(fileName);
         if (loadingSucceded)
         {
             getOrCreateAndShowMainPlotWindow();
