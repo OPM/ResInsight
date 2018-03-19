@@ -91,8 +91,6 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         }
     }
 
-    std::vector<size_t> mapFromConnectionIndexToGlobalCellIndex;
-
     std::vector<CompletionVizData> completionVizDataItems;
     for (const auto& cell : conn)
     {
@@ -100,44 +98,53 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
         const RigCell& rigCell = mainGrid->cell(gridIndex);
 
-        cvf::Vec3d locationInDomainCoord = rigCell.center();
-        cvf::Vec3d wellPathDirection     = cvf::Vec3d::X_AXIS;
+        std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> locationAndDirection;
 
-        if (!wellPathCellIntersections.empty())
+        for (const auto& intersectionInfo : wellPathCellIntersections)
         {
-            for (const auto& intersectionInfo : wellPathCellIntersections)
+            if (intersectionInfo.globCellIndex == cell.first.globalCellIndex())
             {
-                if (intersectionInfo.globCellIndex == cell.first.globalCellIndex())
-                {
-                    double startMD = intersectionInfo.startMD;
-                    double endMD   = intersectionInfo.endMD;
+                double startMD = intersectionInfo.startMD;
+                double endMD   = intersectionInfo.endMD;
 
-                    double middleMD = (startMD + endMD) / 2.0;
+                double middleMD = (startMD + endMD) / 2.0;
 
-                    locationInDomainCoord = m_rimWell->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+                cvf::Vec3d defaultLocationInDomainCoord = m_rimWell->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
 
-                    cvf::Vec3d p1;
-                    cvf::Vec3d p2;
-                    m_rimWell->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
+                cvf::Vec3d p1;
+                cvf::Vec3d p2;
+                m_rimWell->wellPathGeometry()->twoClosestPoints(defaultLocationInDomainCoord, &p1, &p2);
 
-                    wellPathDirection = (p2 - p1).getNormalized();
+                cvf::Vec3d defaultWellPathDirection = (p2 - p1).getNormalized();
 
-                    continue;
-                }
+                locationAndDirection.push_back(std::make_pair(defaultLocationInDomainCoord, defaultWellPathDirection));
+            }
+            else if (!locationAndDirection.empty())
+            {
+                continue;
             }
         }
 
-        cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
-
-        double transmissibility = HUGE_VAL;
-        if (!cell.second.empty())
+        for (size_t i = 0; i < cell.second.size(); i++)
         {
-            transmissibility = cell.second.front().transmissibility();
-        }
+            const RigCompletionData& completionData = cell.second[i];
 
-        completionVizDataItems.push_back(
-            CompletionVizData(displayCoord, wellPathDirection, transmissibility, cell.first.globalCellIndex()));
-        mapFromConnectionIndexToGlobalCellIndex.push_back(cell.first.globalCellIndex());
+            double transmissibility = completionData.transmissibility();
+
+            cvf::Vec3d locationInDomainCoord = rigCell.center();
+            cvf::Vec3d wellPathDirection     = cvf::Vec3d::X_AXIS;
+
+            if (i < locationAndDirection.size())
+            {
+                locationInDomainCoord = locationAndDirection[i].first;
+                wellPathDirection     = locationAndDirection[i].second;
+            }
+
+            cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
+
+            completionVizDataItems.push_back(
+                CompletionVizData(displayCoord, wellPathDirection, transmissibility, cell.first.globalCellIndex()));
+        }
     }
 
     if (!completionVizDataItems.empty())

@@ -60,9 +60,11 @@ public:
 
     cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
 
+    double connectionFactor(cvf::uint triangleIndex) const;
     size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
 
 private:
+    size_t mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const;
     static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
     static void
         createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness);
@@ -73,7 +75,7 @@ private:
                                              float                    thickness);
 
 private:
-    std::vector<CompletionVizData> m_centerColorPairs;
+    std::vector<CompletionVizData> m_completionVizData;
     float                          m_radius;
     size_t                         m_trianglesPerConnection;
 };

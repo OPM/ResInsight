@@ -48,3 +48,13 @@ size_t RivWellConnectionSourceInfo::globalCellIndexFromTriangleIndex(cvf::uint t
 
     return m_geometryGenerator->globalCellIndexFromTriangleIndex(triangleIndex);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RivWellConnectionSourceInfo::connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const
+{
+    if (m_geometryGenerator.isNull()) return 0.0;
+
+    return m_geometryGenerator->connectionFactor(triangleIndex);
+}

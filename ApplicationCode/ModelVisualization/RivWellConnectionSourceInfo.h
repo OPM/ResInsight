@@ -39,6 +39,7 @@ public:
     RimWellPath* wellPath() const;
 
     size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
+    double connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const;
 
 private:
     caf::PdmPointer<RimWellPath>                       m_wellPath;

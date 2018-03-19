@@ -633,6 +633,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
 
                 size_t globalCellIndex = wellConnectionSourceInfo->globalCellIndexFromTriangleIndex(firstPartTriangleIndex);
+                double connectionFactor = wellConnectionSourceInfo->connectionFactorFromTriangleIndex(firstPartTriangleIndex);
 
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
                 if (eclipseView)
@@ -660,7 +661,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                                     // For now, only report the fist completion and not the combined completion if more than one
                                     // completion contributes into a cell
 
-                                    resultInfoText += QString("Well Connection Factor : %1").arg(completionDataItems[0].transmissibility());
+                                    resultInfoText += QString("Well Connection Factor : %1").arg(connectionFactor);
                                     resultInfoText += "<br><br>Details : <br>";
 
                                     for (const auto& completionData : completionDataItems)

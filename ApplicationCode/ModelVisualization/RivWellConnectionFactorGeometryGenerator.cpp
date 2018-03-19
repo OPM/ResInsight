@@ -28,7 +28,7 @@
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
     std::vector<CompletionVizData>& centerColorPairs,
     float                           radius)
-    : m_centerColorPairs(centerColorPairs)
+    : m_completionVizData(centerColorPairs)
     , m_radius(radius)
     , m_trianglesPerConnection(0)
 {
@@ -55,12 +55,12 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
     cvf::ref<cvf::UIntArray>  indices  = new cvf::UIntArray;
 
-    auto indexCount  = m_centerColorPairs.size() * indicesForOneObject.size();
-    auto vertexCount = m_centerColorPairs.size() * verticesForOneObject.size();
+    auto indexCount  = m_completionVizData.size() * indicesForOneObject.size();
+    auto vertexCount = m_completionVizData.size() * verticesForOneObject.size();
     indices->reserve(indexCount);
     vertices->reserve(vertexCount);
 
-    for (const auto& item : m_centerColorPairs)
+    for (const auto& item : m_completionVizData)
     {
         auto rotMatrix = rotationMatrixBetweenVectors(cvf::Vec3d::Y_AXIS, item.m_direction);
 
@@ -89,15 +89,35 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RivWellConnectionFactorGeometryGenerator::connectionFactor(cvf::uint triangleIndex) const
+{
+    size_t connectionIndex = mapFromTriangleToConnectionIndex(triangleIndex);
+
+    return m_completionVizData[connectionIndex].m_connectionFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
+{
+    size_t connectionIndex = mapFromTriangleToConnectionIndex(triangleIndex);
+
+    return m_completionVizData[connectionIndex].m_globalCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const
 {
     if (m_trianglesPerConnection == 0) return 0;
 
     size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
 
-    return m_centerColorPairs[connectionIndex].m_globalCellIndex;
+    return connectionIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
