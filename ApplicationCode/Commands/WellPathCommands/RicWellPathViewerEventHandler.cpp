@@ -24,6 +24,7 @@
 #include "Rim3dView.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPath.h"
+#include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
 
@@ -34,6 +35,7 @@
 
 #include "cvfPart.h"
 #include "cvfVector3.h"
+#include "RivIntersectionPartMgr.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +107,16 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
 
         cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
         cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_globalIntersectionPoint);
+
+        auto intersectionView = dynamic_cast<Rim2dIntersectionView*>(rimView);
+        if (intersectionView)
+        {
+            cvf::Mat4d unflatXf = intersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(domainCoord);
+            if (!unflatXf.isZero())
+            {
+                domainCoord = domainCoord.getTransformedPoint(unflatXf);
+            }
+        }
 
         double measuredDepth = wellPathSourceInfo->measuredDepth(wellPathTriangleIndex, domainCoord);
 
