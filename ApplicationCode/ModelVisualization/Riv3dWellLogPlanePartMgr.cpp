@@ -93,6 +93,8 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double gridIntervalSize)
 {
+    if (m_3dWellLogCurveGeometryGenerator.isNull()) return;
+
     caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 
     {
