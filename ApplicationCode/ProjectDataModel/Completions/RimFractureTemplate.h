@@ -44,6 +44,7 @@ public:
     FractureWidthAndConductivity()
         : m_width(0.0)
         , m_permeability(0.0)
+        , m_conductivity(HUGE_VAL)
     {
     }
 
@@ -60,6 +61,8 @@ public:
 
     // Unit : mD (milliDarcy)
     double m_permeability;
+
+    double m_conductivity;
 };
 
 //==================================================================================================

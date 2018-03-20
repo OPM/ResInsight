@@ -611,6 +611,16 @@ double RimFractureTemplate::dFactor() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::kh() const
 {
+    // kh           = permeability * h
+    // conductivity = permeability * h
+
+    auto values = widthAndConductivityAtWellPathIntersection();
+    if (values.m_conductivity != HUGE_VAL)
+    {
+        // If conductivity is found in stim plan file, use this directly
+        return values.m_conductivity;
+    }
+    
     return effectivePermeability() * fractureWidth();
 }
 
