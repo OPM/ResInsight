@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT(RimFractureTemplateCollection, "FractureDefinitionCollection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplateCollection::RimFractureTemplateCollection(void)
+RimFractureTemplateCollection::RimFractureTemplateCollection()
 {
     CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplates16x16.png", "", "");
 
@@ -60,8 +60,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection(void)
     m_fractureDefinitions.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_nextValidFractureTemplateId, "NextValidFractureTemplateId", 0, "", "", "", "");
-    m_fractureDefinitions.uiCapability()->setUiHidden(true);
-
+    m_nextValidFractureTemplateId.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +76,7 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate(int id) const
 {
-    for (auto templ : m_fractureDefinitions)
+    for (const auto& templ : m_fractureDefinitions)
     {
         if (templ->id() == id) return templ;
     }
@@ -391,5 +390,6 @@ int RimFractureTemplateCollection::nextFractureTemplateId()
 {
     int newId = m_nextValidFractureTemplateId;
     m_nextValidFractureTemplateId = m_nextValidFractureTemplateId + 1;
+
     return newId;
 }

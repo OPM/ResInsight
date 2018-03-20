@@ -35,8 +35,8 @@ class RimFractureTemplateCollection : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureTemplateCollection(void);
-    virtual ~RimFractureTemplateCollection(void);
+    RimFractureTemplateCollection();
+    virtual ~RimFractureTemplateCollection();
 
     RimFractureTemplate*                        fractureTemplate(int id) const;
     std::vector<RimFractureTemplate*>           fractureTemplates() const;
