@@ -150,6 +150,24 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RifReaderEclipseSummary::getFileInfo(const QString& headerFileName)
+{
+    RifRestartFileInfo          fileInfo;
+    ecl_sum_type*               ecl_sum = openEclSum(headerFileName, false);
+    std::vector<time_t>         timeSteps = getTimeSteps(ecl_sum);
+    if (timeSteps.size() > 0)
+    {
+        fileInfo.fileName = headerFileName;
+        fileInfo.startDate = timeSteps.front();
+        fileInfo.endDate = timeSteps.back();
+    }
+    closeEclSum(ecl_sum);
+    return fileInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
     if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR
@@ -402,8 +420,6 @@ time_t getStartDate(ecl_file_type * header)
 //--------------------------------------------------------------------------------------------------
 RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& headerFileName)
 {
-    RifRestartFileInfo restartFile;
-
     ecl_sum_type* ecl_sum = openEclSum(headerFileName, true);
 
     const ecl_smspec_type* smspec = ecl_sum ? ecl_sum_get_smspec(ecl_sum) : nullptr;
@@ -415,21 +431,14 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& header
     {
         QString path = QFileInfo(headerFileName).dir().path();
         QString restartBase = QDir(restartCase).dirName();
-
+        
         char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
-        restartFile.fileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
+        QString restartFileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
         util_safe_free(smspec_header);
 
-        ecl_sum = openEclSum(headerFileName, false);
-        std::vector<time_t> timeSteps = getTimeSteps(ecl_sum);
-        if (timeSteps.size() > 0)
-        {
-            restartFile.startDate = timeSteps.front();
-            restartFile.endDate = timeSteps.back();
-        }
-        closeEclSum(ecl_sum);
+        return getFileInfo(restartFileName);
     }
-    return restartFile;
+    return RifRestartFileInfo();
 }
 
 //--------------------------------------------------------------------------------------------------

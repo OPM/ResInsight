@@ -57,6 +57,7 @@ public:
     bool                                open(const QString& headerFileName, bool includeRestartFiles);
 
     std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName);
+    RifRestartFileInfo                  getFileInfo(const QString& headerFileName);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 

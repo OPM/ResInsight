@@ -66,7 +66,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_currentFile = new QLabel();
+    m_currentFileGridLayout = new QGridLayout();
     m_readAllRadioButton = new QRadioButton(this);
     m_notReadRadionButton = new QRadioButton(this);
     m_separateCasesRadionButton = new QRadioButton(this);
@@ -88,9 +88,8 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
     QGroupBox* currentFileGroup = new QGroupBox("Current Summary File");
-    QVBoxLayout* currentFileLayout = new QVBoxLayout();
-    currentFileLayout->addWidget(m_currentFile);
-    currentFileGroup->setLayout(currentFileLayout);
+    m_currentFileGridLayout = new QGridLayout();
+    currentFileGroup->setLayout(m_currentFileGridLayout);
 
     QGroupBox* filesGroup = new QGroupBox("Found Restart Files");
     m_filesGridLayout = new QGridLayout();
@@ -132,10 +131,13 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 {
     RicSummaryCaseRestartDialog  dialog(parent);
 
+    RifRestartFileInfo currentFileInfo = dialog.getFileInfo(summaryHeaderFile);
+    dialog.appendFileInfoToGridLayout(*dialog.m_currentFileGridLayout, currentFileInfo);
+
     std::vector<RifRestartFileInfo> fileInfos = dialog.getRestartFiles(summaryHeaderFile);
     for (const auto& fileInfo : fileInfos)
     {
-        dialog.appendToFileList(fileInfo);
+        dialog.appendFileInfoToGridLayout(*dialog.m_filesGridLayout, fileInfo);
     }
 
     // If no restart files are found, do not show dialog
@@ -154,7 +156,6 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     {
         dialog.setWindowTitle("Summary Case Restart Files");
         dialog.m_readAllRadioButton->setChecked(true);
-        dialog.m_currentFile->setText(summaryHeaderFile);
         dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
@@ -203,13 +204,13 @@ bool RicSummaryCaseRestartDialog::applyToAllSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::appendToFileList(const RifRestartFileInfo& fileInfo)
+void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout& gridLayout, const RifRestartFileInfo& fileInfo)
 {
     QDateTime startDate = QDateTime::fromTime_t(fileInfo.startDate);
     QString startDateString = startDate.toString(RimTools::dateFormatString());
     QDateTime endDate = QDateTime::fromTime_t(fileInfo.endDate);
     QString endDateString = endDate.toString(RimTools::dateFormatString());
-    int rowCount = m_filesGridLayout->rowCount();
+    int rowCount = gridLayout.rowCount();
 
     QLabel* fileNameLabel = new QLabel();
     QLabel* dateLabel = new QLabel();
@@ -217,8 +218,11 @@ void RicSummaryCaseRestartDialog::appendToFileList(const RifRestartFileInfo& fil
     dateLabel->setText(startDateString + " - " + endDateString);
 
     fileNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_filesGridLayout->addWidget(fileNameLabel, rowCount, 0);
-    m_filesGridLayout->addWidget(dateLabel, rowCount, 1);
+    gridLayout.addWidget(fileNameLabel, rowCount, 0);
+    gridLayout.addWidget(dateLabel, rowCount, 1);
+
+    // Full path in tooltip
+    fileNameLabel->setToolTip(fileInfo.fileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +232,15 @@ std::vector<RifRestartFileInfo> RicSummaryCaseRestartDialog::getRestartFiles(con
 {
     RifReaderEclipseSummary reader;
     return reader.getRestartFiles(summaryHeaderFile);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo(const QString& summaryHeaderFile)
+{
+    RifReaderEclipseSummary reader;
+    return reader.getFileInfo(summaryHeaderFile);
 }
 
 //--------------------------------------------------------------------------------------------------
