@@ -78,8 +78,8 @@ namespace caf
     void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
     {
         addItem(RimFractureTemplate::NON_DARCY_NONE,        "None",         "None");
-        addItem(RimFractureTemplate::NON_DARCY_COMPUTED,    "Computed",     "Compute D-factor from Parameters");
-        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED,"UserDefined",  "By User Defined D-factor");
+        addItem(RimFractureTemplate::NON_DARCY_COMPUTED,    "Computed",     "Compute D-factor");
+        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED,"UserDefined",  "User Defined D-factor");
 
         setDefault(RimFractureTemplate::NON_DARCY_NONE);
     }
@@ -136,7 +136,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitFieldNoDefault(&m_fractureWidthType,    "FractureWidthType",     "Type", "", "", "");
     CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.01,    "Fracture Width (h)");
 
-    CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html>");
+    CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]");
 
     CAF_PDM_InitFieldNoDefault(&m_permeabilityType,         "PermeabilityType",     "Type", "", "", "");
     CAF_PDM_InitField_Basic(&m_relativePermeability,        "RelativePermeability", 1.0,    "Relative Permeability");
