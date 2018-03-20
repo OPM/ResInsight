@@ -33,6 +33,19 @@
 
 
 //--------------------------------------------------------------------------------------------------
+/// Internal function
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+bool vectorContains(const std::vector<T>& vector, T item)
+{
+    for (const auto& i : vector)
+    {
+        if (i == item) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
@@ -76,7 +89,7 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
 std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const QStringList& initialFiles,
                                                                                                 bool enableApplyToAllField)
 {
-    std::set<RifSummaryCaseFileInfo> filesToImport;
+    std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
     for (const QString& file : initialFiles)
@@ -87,9 +100,9 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
             for (const QString& file : result.files)
             {
                 RifSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::READ_ALL);
-                if (filesToImport.count(fi) == 0)
+                if (!vectorContains(filesToImport, fi))
                 {
-                    filesToImport.insert(fi);
+                    filesToImport.push_back(fi);
                 }
             }
         }

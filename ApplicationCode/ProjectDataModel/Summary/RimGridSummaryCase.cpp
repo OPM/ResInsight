@@ -51,6 +51,8 @@ RimGridSummaryCase::RimGridSummaryCase()
     m_eclipseGridFileName.uiCapability()->setUiReadOnly(true);
     m_eclipseGridFileName.xmlCapability()->setIOWritable(false);
 
+    CAF_PDM_InitField(&m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "");
+    m_includeRestartFiles.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +177,7 @@ void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), true /* read restart files */);
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,5 +186,13 @@ void RimGridSummaryCase::createSummaryReaderInterface()
 RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 {
     return m_summaryFileReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
+{
+    m_includeRestartFiles = includeRestartFiles;
 }
 

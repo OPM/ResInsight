@@ -127,7 +127,8 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
             if (!sumCaseColl->findSummaryCaseFromEclipseResultCase(rimResultReservoir))
             {
-                RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
+                std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createAndAddSummaryCasesFromEclipseResultCase(rimResultReservoir);
+                RimSummaryCase*              newSumCase = !newSumCases.empty() ? newSumCases.front() : nullptr;
 
                 if (newSumCase)
                 {
