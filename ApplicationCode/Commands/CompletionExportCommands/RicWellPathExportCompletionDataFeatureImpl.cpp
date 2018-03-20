@@ -354,7 +354,7 @@ std::vector<RigCompletionData>
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
     RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath(RimWellPath*    wellPath,
@@ -719,9 +719,15 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
             .addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK());
         switch (data.connectionState())
         {
-            case OPEN: formatter.add("OPEN"); break;
-            case SHUT: formatter.add("SHUT"); break;
-            case AUTO: formatter.add("AUTO"); break;
+            case OPEN:
+                formatter.add("OPEN");
+                break;
+            case SHUT:
+                formatter.add("SHUT");
+                break;
+            case AUTO:
+                formatter.add("AUTO");
+                break;
         }
 
         if (RigCompletionData::isDefaultValue(data.saturation()))
@@ -755,10 +761,18 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
 
             switch (data.direction())
             {
-                case DIR_I: formatter.add("'X'"); break;
-                case DIR_J: formatter.add("'Y'"); break;
-                case DIR_K: formatter.add("'Z'"); break;
-                default: formatter.add("'Z'"); break;
+                case DIR_I:
+                    formatter.add("'X'");
+                    break;
+                case DIR_J:
+                    formatter.add("'Y'");
+                    break;
+                case DIR_K:
+                    formatter.add("'Z'");
+                    break;
+                default:
+                    formatter.add("'Z'");
+                    break;
             }
         }
         else
@@ -890,9 +904,9 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 
                 completion.setTransAndWPImultBackgroundDataFromPerforation(
                     transmissibility, interval->skinFactor(), interval->diameter(unitSystem), direction);
-                completion.addMetadata("Perforation",
-                                       QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()) +
-                                           QString(" : ") + QString::number(transmissibility));
+                completion.addMetadata("Perforation Completion",
+                                       QString("MD In: %1 - MD Out: %2").arg(cell.startMD).arg(cell.endMD) +
+                                           QString(" Transmissibility: ") + QString::number(transmissibility));
                 completionData.push_back(completion);
             }
         }
