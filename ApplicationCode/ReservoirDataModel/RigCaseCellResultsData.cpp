@@ -633,6 +633,7 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
 
     m_cellScalarResults[scalarResultIndex].clear();
+    recalculateStatistics(scalarResultIndex);
 
     //m_resultInfos[scalarResultIndex].m_resultType = RiaDefines::REMOVED;
 }
