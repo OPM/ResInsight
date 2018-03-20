@@ -27,15 +27,17 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 
-
-template<>
-void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
+namespace caf 
 {
-    addItem(RiaPreferences::ASK_USER,       "ASK_USER",         "Ask user");
-    addItem(RiaPreferences::IMPORT,         "IMPORT",           "Always import");
-    addItem(RiaPreferences::NOT_IMPORT,     "NOT_IMPORT",       "Never import");
-    addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES",   "Import as separate summary cases");
-    setDefault(RiaPreferences::ASK_USER);
+    template<>
+    void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
+    {
+        addItem(RiaPreferences::ASK_USER, "ASK_USER", "Ask user");
+        addItem(RiaPreferences::IMPORT, "IMPORT", "Always import");
+        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Never import");
+        addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Import as separate summary cases");
+        setDefault(RiaPreferences::ASK_USER);
+    }
 }
 
 
