@@ -19,7 +19,6 @@
 #pragma once
 
 #include "Rim3dView.h"
-#include "RivIntersectionPartMgr.h"
 #include "cafPdmPtrField.h"
 
 class RimIntersection;
@@ -27,6 +26,8 @@ class RimLegendConfig;
 class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
+class RivWellPathPartMgr;
+class RivIntersectionPartMgr;
 
 namespace cvf
 {
@@ -60,7 +61,7 @@ public:
 
     void                       update3dInfo();
 
-    cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const { return m_flatIntersectionPartMgr; }
+    cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const;
 
 
     virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
@@ -99,6 +100,7 @@ protected:
     cvf::ref<RivIntersectionPartMgr>   m_flatIntersectionPartMgr;
     cvf::ref<RivSimWellPipesPartMgr>   m_flatSimWellPipePartMgr;
     cvf::ref<RivWellHeadPartMgr>       m_flatWellHeadPartMgr;
+    cvf::ref<RivWellPathPartMgr>       m_flatWellpathPartMgr;
     cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
     cvf::ref<cvf::Transform>           m_scaleTransform;
 

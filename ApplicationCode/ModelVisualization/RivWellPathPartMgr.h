@@ -64,6 +64,10 @@ public:
                                           double                            characteristicCellSize,
                                           const cvf::BoundingBox&           wellPathClipBoundingBox);
 
+    void appendFlattenedStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                                   double                            characteristicCellSize,
+                                                   const cvf::BoundingBox&           wellPathClipBoundingBox);
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
                                            size_t                            timeStepIndex,
@@ -96,7 +100,8 @@ private:
 
     void buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
                             double                            characteristicCellSize,
-                            const cvf::BoundingBox&           wellPathClipBoundingBox);
+                            const cvf::BoundingBox&           wellPathClipBoundingBox, 
+                            bool                              doFlatten);
 
 
     void                          clearAllBranchData();

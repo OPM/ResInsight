@@ -48,6 +48,7 @@
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
+#include "RivSectionFlattner.h"
 #include "RivWellConnectionFactorPartMgr.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
@@ -256,7 +257,8 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel(cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
                                             double characteristicCellSize, 
-                                            const cvf::BoundingBox& wellPathClipBoundingBox)
+                                            const cvf::BoundingBox& wellPathClipBoundingBox, 
+                                            bool doFlatten)
 {
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -264,111 +266,162 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if (!wellPathGeometry) return;
 
-    if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
+    const std::vector<cvf::Vec3d>& wellpathCenterLine = wellPathGeometry->m_wellPathPoints;
+     
+    if (wellpathCenterLine.size() < 2) return;
 
     clearAllBranchData();
+
     double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
 
-    cvf::Vec3d textPosition;
-
     // Generate the well path geometry as a line and pipe structure
+
+    m_pipeGeomGenerator = new RivPipeGeometryGenerator;
+
+    m_pipeGeomGenerator->setRadius(wellPathRadius);
+    m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
+
+    double horizontalLengthAlongWellToClipPoint = 0.0;
+
+    std::vector<cvf::Vec3d> clippedWellPathCenterLine;
+
+    // Skip visualization if outside the domain of this case
     {
-        m_pipeGeomGenerator = new RivPipeGeometryGenerator;
+        cvf::Vec3d casemax = wellPathClipBoundingBox.max();
+        cvf::Vec3d casemin = wellPathClipBoundingBox.min();
+        cvf::Vec3d caseext = wellPathClipBoundingBox.extent();
 
-        m_pipeGeomGenerator->setRadius(wellPathRadius);
-        m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());      
+        // Add up to the sealevel
+        cvf::BoundingBox relevantWellpathBBox = wellPathClipBoundingBox;
+        relevantWellpathBBox.add(cvf::Vec3d(casemax.x(), casemax.y(), 0.0));
 
-        cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
-        if (wellPathCollection->wellPathClip)
+        // Add some sideways leeway
+
+        cvf::Vec3d addSize = 3.0*cvf::Vec3d(caseext.x(), caseext.y(), 0.0);
+        relevantWellpathBBox.add(casemax + addSize);
+        relevantWellpathBBox.add(casemin - addSize);
+
+        if ( !RigWellPath::isPolylineTouchingBBox(wellpathCenterLine, relevantWellpathBBox) )
         {
-            size_t firstVisibleSegmentIndex = cvf::UNDEFINED_SIZE_T;
-            for (size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
+            return;
+        }
+    }
+
+    if ( wellPathCollection->wellPathClip )
+    {
+        double maxZClipHeight =  wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+        clippedWellPathCenterLine =  RigWellPath::clipPolylineStartAboveZ(wellpathCenterLine,
+                                                                          maxZClipHeight,
+                                                                          &horizontalLengthAlongWellToClipPoint);
+
+        #if 0
+        size_t firstVisibleSegmentIndex = cvf::UNDEFINED_SIZE_T;
+        for ( size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++ )
+        {
+            cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
+            if ( point.z() < (wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance) )
             {
-                cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
-                if (point.z() < (wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance))
-                {
-                    firstVisibleSegmentIndex = idx;
-                    break;
-                }
+                firstVisibleSegmentIndex = idx;
+                break;
+            }
+        }
+
+
+
+        if ( firstVisibleSegmentIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            if ( firstVisibleSegmentIndex > 0 )
+            {
+                double wellPathStartPoint = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+                double stepsize = (wellPathStartPoint - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z()) /
+                    (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex].z() - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z());
+
+                cvf::Vec3d newPoint = wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1] +
+                    stepsize * (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex] - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1]);
+
+                clippedPoints.push_back(newPoint);
+                m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex - 1);
+            }
+            else
+            {
+                m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex);
             }
 
-            std::vector<cvf::Vec3d> clippedPoints;
-
-            if (firstVisibleSegmentIndex != cvf::UNDEFINED_SIZE_T)
+            for ( size_t idx = firstVisibleSegmentIndex; idx < wellPathGeometry->m_wellPathPoints.size(); idx++ )
             {
-                if (firstVisibleSegmentIndex > 0)
-                {
-                    double wellPathStartPoint = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
-                    double stepsize = (wellPathStartPoint - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z()) / 
-                                      (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex].z() - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z());
-
-                    cvf::Vec3d newPoint = wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1] +
-                                          stepsize * (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex] - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1]);
-
-                    clippedPoints.push_back(newPoint);
-                    m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex - 1);
-                }
-                else
-                {
-                    m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex);
-                }
-
-                for (size_t idx = firstVisibleSegmentIndex; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
-                {
-                    clippedPoints.push_back(wellPathGeometry->m_wellPathPoints[idx]);
-                }
-
+                clippedPoints.push_back(wellPathGeometry->m_wellPathPoints[idx]);
             }
 
-            if (clippedPoints.size() < 2) return;
-
-            cvfCoords->assign(clippedPoints);
         }
-        else
+        #endif
+
+    }
+    else
+    {
+        clippedWellPathCenterLine =  wellpathCenterLine;
+    }
+
+    if ( clippedWellPathCenterLine.size() < 2 ) return;
+
+    cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray(clippedWellPathCenterLine.size());
+
+    // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
+
+    if ( doFlatten )
+    {
+        cvf::Vec3d dummy;
+        std::vector<cvf::Mat4d> flatningCSs =
+            RivSectionFlattner::calculateFlatteningCSsForPolyline(clippedWellPathCenterLine,
+                                                                  cvf::Vec3d::Z_AXIS,
+                                                                  { horizontalLengthAlongWellToClipPoint, 0.0, clippedWellPathCenterLine[0].z() },
+                                                                  &dummy);
+
+        for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
         {
-            cvfCoords->assign(wellPathGeometry->m_wellPathPoints);
+            auto clpoint = clippedWellPathCenterLine[cIdx].getTransformedPoint(flatningCSs[cIdx]);
+            (*cvfCoords)[cIdx] = displayCoordTransform->scaleToDisplaySize(clpoint);
         }
-        
-        // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
-        for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
+    }
+    else
+    {
+        for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
         {
-            (*cvfCoords)[cIdx] = displayCoordTransform->transformToDisplayCoord((*cvfCoords)[cIdx]);
+            (*cvfCoords)[cIdx] = displayCoordTransform->transformToDisplayCoord(clippedWellPathCenterLine[cIdx]);
         }
+    }
 
-        textPosition = cvfCoords->get(0);
+    m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
+    m_surfaceDrawable = m_pipeGeomGenerator->createPipeSurface();
+    m_centerLineDrawable = m_pipeGeomGenerator->createCenterLine();
 
-        m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
-        m_surfaceDrawable = m_pipeGeomGenerator->createPipeSurface();
-        m_centerLineDrawable = m_pipeGeomGenerator->createCenterLine();
+    if ( m_surfaceDrawable.notNull() )
+    {
+        m_surfacePart = new cvf::Part;
+        m_surfacePart->setDrawable(m_surfaceDrawable.p());
 
-        if (m_surfaceDrawable.notNull())
-        {
-            m_surfacePart = new cvf::Part;
-            m_surfacePart->setDrawable(m_surfaceDrawable.p());
-            
-            RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath, m_rimView);
-            m_surfacePart->setSourceInfo(sourceInfo);
+        RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath, m_rimView);
+        m_surfacePart->setSourceInfo(sourceInfo);
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
-            m_surfacePart->setEffect(eff.p());
-        }
+        m_surfacePart->setEffect(eff.p());
+    }
 
-        if (m_centerLineDrawable.notNull())
-        {
-            m_centerLinePart = new cvf::Part;
-            m_centerLinePart->setDrawable(m_centerLineDrawable.p());
+    if ( m_centerLineDrawable.notNull() )
+    {
+        m_centerLinePart = new cvf::Part;
+        m_centerLinePart->setDrawable(m_centerLineDrawable.p());
 
-            caf::MeshEffectGenerator gen(m_rimWellPath->wellPathColor());
-            cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
+        caf::MeshEffectGenerator gen(m_rimWellPath->wellPathColor());
+        cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
 
-            m_centerLinePart->setEffect(eff.p());
-        }
+        m_centerLinePart->setEffect(eff.p());
     }
 
     // Generate label with well-path name
 
+    cvf::Vec3d textPosition = cvfCoords->get(0);
     textPosition.z() += 2.2 * characteristicCellSize; 
 
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
@@ -421,7 +474,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
         return;
 
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
-    buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
+    buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, false);
 
     if (m_surfacePart.notNull())
     {
@@ -440,6 +493,33 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform, 
+                                                                   double characteristicCellSize, 
+                                                                   const cvf::BoundingBox& wellPathClipBoundingBox)
+{
+    // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
+    buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, true);
+
+    if (m_surfacePart.notNull())
+    {
+        model->addPart(m_surfacePart.p());
+    }
+
+    if (m_centerLinePart.notNull())
+    {
+        model->addPart(m_centerLinePart.p());
+    }
+
+    if (m_wellLabelPart.notNull())
+    {
+        model->addPart(m_wellLabelPart.p());
+    } 
 }
 
 //--------------------------------------------------------------------------------------------------

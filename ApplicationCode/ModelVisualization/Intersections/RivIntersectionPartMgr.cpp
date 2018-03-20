@@ -794,7 +794,7 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
         createSourceInfoFunc = [&](size_t brIdx) { return new RivSimWellPipeSourceInfo(simWellInView, brIdx); };
         characteristicCellSize = eclView->eclipseCase()->characteristicCellSize();
     }
-    else if (m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH)
+    else if (false)//m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH)
     {
         RimWellPath* wellPath = m_rimCrossSection->wellPath();
 
@@ -816,9 +816,10 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
 
     // Create pipe geometry
 
-    if (   //m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL
+    if ( false  //m_rimCrossSection->type() == RimIntersection::CS_SIMULATION_WELL
         //|| 
-        m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH )
+        //m_rimCrossSection->type() == RimIntersection::CS_WELL_PATH
+         )
     {
         std::vector<std::vector<cvf::Vec3d> > polyLines = m_crossSectionGenerator->flattenedOrOffsettedPolyLines();
         

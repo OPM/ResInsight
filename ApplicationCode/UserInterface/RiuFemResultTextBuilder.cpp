@@ -31,6 +31,7 @@
 #include "RimGeoMechView.h"
 #include "Rim2dIntersectionView.h"
 #include "RiuGeoMechXfTensorResultAccessor.h"
+#include "RivIntersectionPartMgr.h"
 
 
 

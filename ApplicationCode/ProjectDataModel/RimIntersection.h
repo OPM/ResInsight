@@ -139,7 +139,6 @@ private:
     void                                    updateSimulationWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
-    void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLinee, double * horizontalLengthAlongWellToClipPoint) const;
     void                                    updateName();
     void                                    rebuildGeometryAndScheduleCreateDisplayModel();
     static double                           azimuthInRadians(cvf::Vec3d vec);

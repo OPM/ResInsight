@@ -23,6 +23,11 @@
 #include "cvfMath.h"
 #include "cvfVector3.h"
 
+namespace cvf
+{
+    class BoundingBox;
+}
+
 #include <vector>
 
 
@@ -48,6 +53,12 @@ public:
                                 clippedPointSubset(double startMD, double endMD) const;
 
     std::vector<cvf::Vec3d>     wellPathPointsIncludingInterpolatedIntersectionPoint(double intersectionMeasuredDepth) const;
+
+    static bool                 isPolylineTouchingBBox(const std::vector<cvf::Vec3d> &polyLine, 
+                                                       const cvf::BoundingBox& caseBB);
+    static std::vector<cvf::Vec3d> clipPolylineStartAboveZ(const std::vector<cvf::Vec3d> &polyLine,
+                                                           double maxZ,
+                                                           double * horizontalLengthAlongWellToClipPoint);
 
 private:
     bool    m_hasDatumElevation;

@@ -403,7 +403,14 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
         if (wellPath() && wellPath->wellPathGeometry() )
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
-            clipToReservoir(lines[0], &horizontalProjectedLengthAlongWellPathToClipPoint);
+            RimCase* ownerCase = nullptr;
+            this->firstAncestorOrThisOfType(ownerCase);
+            if (ownerCase)
+            {
+                lines[0] = RigWellPath::clipPolylineStartAboveZ(lines[0], 
+                                                   ownerCase->activeCellsBoundingBox().max().z(), 
+                                                   &horizontalProjectedLengthAlongWellPathToClipPoint);
+            }
         }
     }
     else if (type == CS_SIMULATION_WELL)
@@ -603,65 +610,6 @@ void RimIntersection::updateName()
         name = wellPath()->name();
     }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine, double * horizontalLengthAlongWellToClipPoint) const
-{
-    CVF_ASSERT(horizontalLengthAlongWellToClipPoint != nullptr);
-
-    *horizontalLengthAlongWellToClipPoint = 0.0;
-    RimCase* ownerCase = nullptr;
-    firstAncestorOrThisOfType(ownerCase);
-    
-    std::vector<cvf::Vec3d> clippedPolyLine;
-
-    if (ownerCase)
-    {
-        cvf::BoundingBox caseBB = ownerCase->activeCellsBoundingBox();
-        bool hasEnteredReservoirBB = false;
-        for (size_t vxIdx = 0 ; vxIdx < polyLine.size(); ++vxIdx)
-        {
-            if (!caseBB.contains(polyLine[vxIdx]))
-            { 
-                if (vxIdx > 0)
-                {
-                    cvf::Vec3d segment = polyLine[vxIdx] - polyLine[vxIdx-1];
-                    segment[2] = 0.0;
-                    *horizontalLengthAlongWellToClipPoint += segment.length();
-                }
-                continue;
-            }
-
-            if (!hasEnteredReservoirBB)
-            {
-                if (vxIdx > 0)
-                {
-                    // clip line, and add vx to start
-                    cvf::Plane topPlane;
-                    topPlane.setFromPointAndNormal(caseBB.max(), cvf::Vec3d::Z_AXIS);
-                    cvf::Vec3d intersection;
-                
-                    if (topPlane.intersect(polyLine[vxIdx-1], polyLine[vxIdx], &intersection))
-                    {
-                        cvf::Vec3d segment = intersection - polyLine[vxIdx-1];
-                        segment[2] = 0.0;
-                        *horizontalLengthAlongWellToClipPoint += segment.length();
-
-                        clippedPolyLine.push_back(intersection);
-                    }
-                }
-
-                hasEnteredReservoirBB = true;
-            }
-
-            clippedPolyLine.push_back(polyLine[vxIdx]);
-        }
-    }
- 
-    polyLine.swap(clippedPolyLine);
 }
 
 //--------------------------------------------------------------------------------------------------
