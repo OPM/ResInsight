@@ -32,6 +32,7 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include <cmath>
 
 class RigFractureGrid;
 class RimFractureContainment;
