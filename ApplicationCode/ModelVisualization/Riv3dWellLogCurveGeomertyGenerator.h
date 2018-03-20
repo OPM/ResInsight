@@ -44,9 +44,10 @@ public:
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
                                                const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
-    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
-                                          const Rim3dWellLogCurve*          rim3dWellLogCurve,
-                                          double                            gridIntervalSize) const;
+
+    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+                                          const Rim3dWellLogCurve::DrawPlane drawPlane,
+                                          double                             gridIntervalSize) const;
 
 private:
     void createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,

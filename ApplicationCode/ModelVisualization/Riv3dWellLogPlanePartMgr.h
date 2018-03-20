@@ -30,6 +30,9 @@
 namespace cvf
 {
     class ModelBasicList;
+    class Drawable;
+    class Effect;
+    class Part;
 }
 
 namespace caf
@@ -49,6 +52,11 @@ public:
                                       const caf::DisplayCoordTransform* displayCoordTransform,
                                       std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves);
 
+    void appendGridToModel(cvf::ModelBasicList* model,
+                           const caf::DisplayCoordTransform* displayCoordTransform,
+                           double gridIntervalSize);
+private:
+    cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
     cvf::ref<RigWellPath> m_wellPathGeometry;

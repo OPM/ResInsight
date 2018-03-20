@@ -61,8 +61,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
             continue;
         }
 
-        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 0, 0, 0.5), caf::PO_1);
-        cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
+        caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.9f, 0.0f, 0.0f));
+        cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(curveDrawable.p());
@@ -73,24 +73,48 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
             model->addPart(part.p());
         }
     }
+}
 
-    //TODO: Atm, only the grid for the first curve is drawn.
-    cvf::ref<cvf::Drawable> gridDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, rim3dWellLogCurves[0], 200);
+cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable, cvf::Effect* effect)
+{
+    cvf::ref<cvf::Part> part = new cvf::Part;
 
-    if (gridDrawable.isNull() || !gridDrawable->boundingBox().isValid())
+    if (drawable && drawable->boundingBox().isValid())
     {
-        return;
+        part->setDrawable(drawable);
+        part->setEffect(effect);
     }
 
-    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(255, 255, 0, 1), caf::PO_1);
-    cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
+    return part;
+}
 
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable(gridDrawable.p());
-    part->setEffect(effect.p());
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double gridIntervalSize)
+{
+    caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 
-    if (part.notNull())
     {
-        model->addPart(part.p());
+        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, Rim3dWellLogCurve::HORIZONTAL_LEFT, gridIntervalSize);
+
+        cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+        cvf::ref<cvf::Part> part = createPart(gridHorizontalDrawable.p(), effect.p());
+
+        if (part.notNull())
+        {
+            model->addPart(part.p());
+        }
+    }
+    {
+        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, Rim3dWellLogCurve::HORIZONTAL_RIGHT, gridIntervalSize);
+
+        cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+        cvf::ref<cvf::Part> part = createPart(gridHorizontalDrawable.p(), effect.p());
+
+        if (part.notNull())
+        {
+            model->addPart(part.p());
+        }
     }
 }

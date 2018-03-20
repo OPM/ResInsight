@@ -28,6 +28,7 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
+#include "Rim3dWellLogCurveCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFishboneWellPath.h"
@@ -457,17 +458,26 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 
     if (m_rimWellPath.isNull()) return;
 
-    if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
-        return;
+    if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
 
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false)
+    {
         return;
+    }
 
     appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
     appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
 
+    if (!m_rimWellPath->rim3dWellLogCurveCollection()) return;
+    if (!m_rimWellPath->rim3dWellLogCurveCollection()->showPlot()) return;
+
     m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath->wellPathGeometry());
     m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, m_rimWellPath->vectorOf3dWellLogCurves());
+
+    if (m_rimWellPath->rim3dWellLogCurveCollection()->showGrid())
+    {
+        m_3dWellLogCurvePartMgr->appendGridToModel(model, displayCoordTransform, 200);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

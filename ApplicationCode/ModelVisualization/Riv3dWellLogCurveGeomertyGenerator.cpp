@@ -61,7 +61,7 @@ cvf::ref<cvf::DrawableGeo>
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                          const Rim3dWellLogCurve* rim3dWellLogCurve,
+                                                                          const Rim3dWellLogCurve::DrawPlane drawPlane,
                                                                           double gridIntervalSize) const
 {
     CVF_ASSERT(gridIntervalSize > 0);
@@ -89,7 +89,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
         md += gridIntervalSize;
     }
 
-    pointNormals = calculatePointNormals(rim3dWellLogCurve->drawPlane(), gridPoints);
+    pointNormals = calculatePointNormals(drawPlane, gridPoints);
     if (pointNormals.size() != gridPoints.size()) return nullptr;
 
     std::vector<cvf::Vec3f> vertices;
