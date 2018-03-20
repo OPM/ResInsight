@@ -19,8 +19,8 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfDrawableGeo.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
@@ -31,7 +31,7 @@
 
 namespace caf
 {
-    class DisplayCoordTransform;
+class DisplayCoordTransform;
 }
 
 class RigWellPath;
@@ -39,19 +39,24 @@ class RigWellPath;
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogCurveGeometryGenerator(RigWellPath* wellPathGeometry) : m_wellPathGeometry(wellPathGeometry) {};
+    Riv3dWellLogCurveGeometryGenerator(RigWellPath* wellPathGeometry)
+        : m_wellPathGeometry(wellPathGeometry){};
 
-    cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const;
-    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform* displayCoordTransform, const Rim3dWellLogCurve* rim3dWellLogCurve) const;
+    cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
+                                               const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
+    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
+                                          const Rim3dWellLogCurve*          rim3dWellLogCurve,
+                                          double                            gridIntervalSize) const;
 
 private:
-    void createCurveVerticesAndIndices(const Rim3dWellLogCurve* rim3dWellLogCurve,
+    void createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                        const caf::DisplayCoordTransform* displayCoordTransform,
-                                       std::vector<cvf::Vec3f>* vertices,
-                                       std::vector<cvf::uint>* indices) const;
+                                       std::vector<cvf::Vec3f>*          vertices,
+                                       std::vector<cvf::uint>*           indices) const;
 
-    static std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane drawPlane,
+    static std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
                                                          const std::vector<cvf::Vec3d>& wellPathPoints);
+
 private:
     cvf::ref<RigWellPath> m_wellPathGeometry;
 };

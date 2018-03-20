@@ -75,7 +75,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     }
 
     //TODO: Atm, only the grid for the first curve is drawn.
-    cvf::ref<cvf::Drawable> gridDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, rim3dWellLogCurves[0]);
+    cvf::ref<cvf::Drawable> gridDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, rim3dWellLogCurves[0], 200);
 
     if (gridDrawable.isNull() || !gridDrawable->boundingBox().isValid())
     {

@@ -61,30 +61,92 @@ cvf::ref<cvf::DrawableGeo>
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                          const Rim3dWellLogCurve* rim3dWellLogCurve) const
+                                                                          const Rim3dWellLogCurve* rim3dWellLogCurve,
+                                                                          double gridIntervalSize) const
 {
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
+    CVF_ASSERT(gridIntervalSize > 0);
 
-    if (m_wellPathGeometry.isNull()) return drawable;
-    
+    if (m_wellPathGeometry.isNull()) return nullptr;
+
     std::vector<cvf::Vec3d> wellPathPoints = m_wellPathGeometry->m_wellPathPoints;
+    if (wellPathPoints.empty()) return nullptr;
+    
+    const cvf::Vec3d globalDirection = (wellPathPoints.back() - wellPathPoints.front()).getNormalized();
+    const cvf::Vec3d up(0, 0, 1);
 
-    cvf::Vec3d globalDirection = (wellPathPoints.back() - wellPathPoints.front()).getNormalized();
+    std::vector<cvf::Vec3d> pointNormals;
+    std::vector<cvf::Vec3d> gridPoints;
 
-    std::vector<cvf::Vec3d> pointNormals = calculatePointNormals(rim3dWellLogCurve->drawPlane(), wellPathPoints);
+    double firstMd = m_wellPathGeometry->m_measuredDepths.front();
+    double lastMd  = m_wellPathGeometry->m_measuredDepths.back();
+    if (m_wellPathGeometry->m_measuredDepths.empty()) return nullptr;
+
+    double md = firstMd;
+    while (md <= lastMd)
+    {
+        cvf::Vec3d point = m_wellPathGeometry->interpolatedPointAlongWellPath(md);
+        gridPoints.push_back(point);
+
+        cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
+        cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
+        m_wellPathGeometry->twoClosestPoints(point, &p1, &p2);
+        if (p1.isUndefined() || p2.isUndefined()) continue;
+        
+        cvf::Vec3d vecAlongPath = (p2 - p1).getNormalized();
+
+        double dotProduct = up * vecAlongPath;
+
+        cvf::Vec3d Ex;
+
+        if (cvf::Math::abs(dotProduct) > 0.7071)
+        {
+            Ex = globalDirection;
+        }
+        else
+        {
+            Ex = vecAlongPath;
+        }
+
+        cvf::Vec3d Ey = (up ^ Ex).getNormalized();
+        cvf::Vec3d Ez = (Ex ^ Ey).getNormalized();
+
+        cvf::Vec3d normal;
+
+        switch (rim3dWellLogCurve->drawPlane())
+        {
+            case Rim3dWellLogCurve::HORIZONTAL_LEFT:
+                normal = -Ey;
+                break;
+            case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
+                normal = Ey;
+                break;
+            case Rim3dWellLogCurve::VERTICAL_ABOVE:
+                normal = Ez;
+                break;
+            case Rim3dWellLogCurve::VERTICAL_BELOW:
+                normal = -Ez;
+                break;
+            default:
+                break;
+        }
+
+        pointNormals.push_back(normal);
+        
+        md += gridIntervalSize;
+    }
 
     std::vector<cvf::Vec3f> vertices;
-    vertices.reserve(wellPathPoints.size());
+    vertices.reserve(gridPoints.size() * 2);
 
     std::vector<cvf::uint> indices;
-    indices.reserve(wellPathPoints.size());
+    indices.reserve(gridPoints.size() * 2);
 
     cvf::uint counter = 0;
 
-    for (size_t i = 0; i < pointNormals.size(); i += 2)
+    for (size_t i = 0; i < pointNormals.size(); i++)
     {
-        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(wellPathPoints[i])));
-        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(wellPathPoints[i] + pointNormals[i] * 100)));
+        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(gridPoints[i])));
+        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(gridPoints[i] + pointNormals[i] * 100)));
 
         indices.push_back(counter++);
         indices.push_back(counter++);
@@ -93,6 +155,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
     cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
+    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
     indexedUInt->setIndices(indexArray.p());
     drawable->addPrimitiveSet(indexedUInt.p());
@@ -184,9 +247,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d>
-    Riv3dWellLogCurveGeometryGenerator::calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
-                                                              const std::vector<cvf::Vec3d>& wellPathPoints)
+std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
+                                                                                  const std::vector<cvf::Vec3d>& wellPathPoints)
 {
     std::vector<cvf::Vec3d> lineSegmentNormals;
 
@@ -196,11 +258,11 @@ std::vector<cvf::Vec3d>
     }
 
     lineSegmentNormals.reserve(wellPathPoints.size() - 1);
-    
+
     const cvf::Vec3d globalDirection = (wellPathPoints.back() - wellPathPoints.front()).getNormalized();
     const cvf::Vec3d up(0, 0, 1);
 
-    for (size_t i = 0; i < wellPathPoints.size() - 1; i += 2)
+    for (size_t i = 0; i < wellPathPoints.size() - 1; i++)
     {
         cvf::Vec3d vecAlongPath = (wellPathPoints[i + 1] - wellPathPoints[i]).getNormalized();
 
@@ -224,19 +286,20 @@ std::vector<cvf::Vec3d>
 
         switch (drawPlane)
         {
-            case Rim3dWellLogCurve::HORIZONTAL_LEFT: 
-                normal = -Ey; 
+            case Rim3dWellLogCurve::HORIZONTAL_LEFT:
+                normal = -Ey;
                 break;
-            case Rim3dWellLogCurve::HORIZONTAL_RIGHT: 
-                normal = Ey; 
+            case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
+                normal = Ey;
                 break;
-            case Rim3dWellLogCurve::VERTICAL_ABOVE: 
-                normal = Ez; 
+            case Rim3dWellLogCurve::VERTICAL_ABOVE:
+                normal = Ez;
                 break;
             case Rim3dWellLogCurve::VERTICAL_BELOW:
-                normal = -Ez; 
+                normal = -Ez;
                 break;
-            default: break;
+            default:
+                break;
         }
 
         lineSegmentNormals.push_back(normal);

@@ -169,7 +169,7 @@ void RigWellPath::twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, c
         }
     }
 
-    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    if (closestIndex != cvf::UNDEFINED_SIZE_T)
     {
         if (closestIndex > 0)
         {
