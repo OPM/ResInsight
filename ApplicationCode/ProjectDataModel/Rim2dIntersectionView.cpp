@@ -411,7 +411,6 @@ void Rim2dIntersectionView::createDisplayModel()
     m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel(m_intersectionVizModel.p(), scaleTransform());
     m_flatIntersectionPartMgr->appendMeshLinePartsToModel(m_intersectionVizModel.p(), scaleTransform());
     m_flatIntersectionPartMgr->appendPolylinePartsToModel(*this, m_intersectionVizModel.p(), scaleTransform());
-    m_flatIntersectionPartMgr->appendWellPipePartsToModel(m_intersectionVizModel.p(), scaleTransform());
 
     m_flatIntersectionPartMgr->applySingleColorEffect();
 

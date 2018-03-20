@@ -73,7 +73,6 @@ public:
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendPolylinePartsToModel(Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
-    void appendWellPipePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
     const RimIntersection* intersection() const;
 
