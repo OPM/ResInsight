@@ -503,6 +503,29 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
         }
     }
 
+    if ( m_flatWellpathPartMgr.notNull() )
+    {
+        cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+        if (frameScene)
+        {
+            {
+                cvf::String name = "WellPipeDynMod";
+                Rim3dView::removeModelByName(frameScene, name);
+                cvf::ref<cvf::ModelBasicList> dynWellPathModel = new cvf::ModelBasicList;
+                dynWellPathModel->setName(name);
+
+                m_flatWellpathPartMgr->appendFlattenedDynamicGeometryPartsToModel(dynWellPathModel.p(),
+                                                                                  m_currentTimeStep,
+                                                                                  this->displayCoordTransform().p(),
+                                                                                  this->ownerCase()->characteristicCellSize(),
+                                                                                  this->ownerCase()->activeCellsBoundingBox());
+                dynWellPathModel->updateBoundingBoxesRecursive();
+                frameScene->addModel(dynWellPathModel.p());
+            }
+        }
+    }
+
+
     if ((this->hasUserRequestedAnimation() && this->hasResults()))
     {
         m_flatIntersectionPartMgr->updateCellResultColor(m_currentTimeStep, 

@@ -164,7 +164,8 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* mod
 void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, 
                                                    size_t timeStepIndex,
                                                    const caf::DisplayCoordTransform* displayCoordTransform, 
-                                                   double characteristicCellSize)
+                                                   double characteristicCellSize,
+                                                   bool doFlatten)
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
@@ -201,23 +202,53 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
     m_rimWellPath->descendantsIncludingThisOfType(perforations);
     for (RimPerforationInterval* perforation : perforations)
     {
+        using namespace std;
+
         if (!perforation->isChecked()) continue;
         if (perforation->startMD() > perforation->endMD()) continue;
 
         if (!perforation->isActiveOnDate(currentTimeStamp)) continue;
+        
+        double horizontalLengthAlongWellPath = 0.0;
+        vector<cvf::Vec3d> perfIntervalCL;
+        {
+            pair<vector<cvf::Vec3d>, vector<double> >  perfintervalCoordsAndMD = wellPathGeometry->clippedPointSubset(perforation->startMD(),
+                                                                                                                      perforation->endMD(),
+                                                                                                                      &horizontalLengthAlongWellPath);
+            perfIntervalCL = perfintervalCoordsAndMD.first;
+        }
 
-        using namespace std;
-        pair<vector<cvf::Vec3d>, vector<double> >  displayCoordsAndMD = wellPathGeometry->clippedPointSubset(perforation->startMD(), 
-                                                                                                             perforation->endMD());
- 
-        if (displayCoordsAndMD.first.size() < 2) continue;
+        if (perfIntervalCL.size() < 2) continue;
 
-        for (cvf::Vec3d& point : displayCoordsAndMD.first) point = displayCoordTransform->transformToDisplayCoord(point);
+
+        vector<cvf::Vec3d> perfIntervalCLDiplayCS;
+        if ( doFlatten )
+        {
+            cvf::Vec3d dummy;
+            vector<cvf::Mat4d> flatningCSs =
+                RivSectionFlattner::calculateFlatteningCSsForPolyline(perfIntervalCL,
+                                                                      cvf::Vec3d::Z_AXIS,
+                                                                      { horizontalLengthAlongWellPath, 0.0, perfIntervalCL[0].z() },
+                                                                      &dummy);
+
+            for ( size_t cIdx = 0; cIdx < perfIntervalCL.size(); ++cIdx )
+            {
+                auto clpoint = perfIntervalCL[cIdx].getTransformedPoint(flatningCSs[cIdx]);
+                perfIntervalCLDiplayCS.push_back( displayCoordTransform->scaleToDisplaySize(clpoint));
+            }
+        }
+        else
+        {
+            for ( cvf::Vec3d& point : perfIntervalCL )
+            { 
+                perfIntervalCLDiplayCS.push_back( displayCoordTransform->transformToDisplayCoord(point));
+            }
+        }
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
 
         cvf::Collection<cvf::Part> parts;
-        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoordsAndMD.first, cvf::Color3f::GREEN, perforationRadius);
+        geoGenerator.cylinderWithCenterLineParts(&parts, perfIntervalCLDiplayCS, cvf::Color3f::GREEN, perforationRadius);
         for (auto part : parts)
         {
             part->setSourceInfo(objectSourceInfo.p());
@@ -503,7 +534,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
         return;
     }
 
-    appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
+    appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, false);
     appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
 
     if (!m_rimWellPath->rim3dWellLogCurveCollection()) return;
@@ -519,6 +550,25 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     {
         m_3dWellLogCurvePartMgr->appendGridToModel(model, displayCoordTransform, 200);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                    size_t timeStepIndex, 
+                                                                    const caf::DisplayCoordTransform* displayCoordTransform, 
+                                                                    double characteristicCellSize, 
+                                                                    const cvf::BoundingBox& wellPathClipBoundingBox)
+{
+    CVF_ASSERT(model);
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if (!wellPathCollection) return;
+
+    if (m_rimWellPath.isNull()) return;
+
+    appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, true);
 }
 
 //--------------------------------------------------------------------------------------------------

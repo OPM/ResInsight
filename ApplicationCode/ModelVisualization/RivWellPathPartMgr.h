@@ -74,7 +74,13 @@ public:
                                            const caf::DisplayCoordTransform* displayCoordTransform,
                                            double                            characteristicCellSize,
                                            const cvf::BoundingBox&           wellPathClipBoundingBox);
-    
+
+    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                    size_t                            timeStepIndex,
+                                                    const caf::DisplayCoordTransform* displayCoordTransform,
+                                                    double                            characteristicCellSize,
+                                                    const cvf::BoundingBox&           wellPathClipBoundingBox);
+
     void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
     size_t segmentIndexFromTriangleIndex(size_t triangleIndex);
@@ -91,7 +97,8 @@ private:
     void appendPerforationsToModel(cvf::ModelBasicList*              model,
                                    size_t                            timeStepIndex,
                                    const caf::DisplayCoordTransform* displayCoordTransform,
-                                   double                            characteristicCellSize);
+                                   double                            characteristicCellSize,
+                                   bool                              doFlatten);
 
     void appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
                                                 size_t                            timeStepIndex,
