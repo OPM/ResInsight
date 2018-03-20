@@ -134,7 +134,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_userDefinedDFactor,            "UserDefinedDFactor",      1.0, "D Factor", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureWidthType,    "FractureWidthType",     "Type", "", "", "");
-    CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.1,    "Fracture Width (h)");
+    CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.01,    "Fracture Width (h)");
 
     CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html>");
 
