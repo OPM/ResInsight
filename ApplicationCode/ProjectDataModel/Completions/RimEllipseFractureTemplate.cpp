@@ -283,7 +283,8 @@ double RimEllipseFractureTemplate::conductivity() const
         //Conductivity should be md-ft, but width is in inches 
         cond = m_userDefinedEffectivePermeability * RiaEclipseUnitTools::inchToFeet(m_width);
     }
-    return cond;
+
+    return m_conductivityScaleFactor * cond;
 }
 
 //--------------------------------------------------------------------------------------------------

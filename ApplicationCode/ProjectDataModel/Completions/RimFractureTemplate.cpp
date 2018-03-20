@@ -324,11 +324,8 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         group->add(&m_heightScaleFactor);
         group->add(&m_widthScaleFactor);
         group->add(&m_dFactorScaleFactor);
+        group->add(&m_conductivityScaleFactor);
 
-        if (supportsConductivityScaling())
-        {
-            group->add(&m_conductivityScaleFactor);
-        }
         group->add(&m_scaleApplyButton);
     }
 
@@ -680,7 +677,7 @@ void RimFractureTemplate::setScaleFactors(double width, double height, double dF
     m_widthScaleFactor = width;
     m_heightScaleFactor = height;
     m_dFactorScaleFactor = dFactor;
-    m_conductivityScaleFactor = supportsConductivityScaling() ? conductivity : 1.0;
+    m_conductivityScaleFactor = conductivity;
 }
 
 //--------------------------------------------------------------------------------------------------

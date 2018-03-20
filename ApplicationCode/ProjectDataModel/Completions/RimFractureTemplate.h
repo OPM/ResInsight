@@ -160,8 +160,6 @@ protected:
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
-    virtual bool                    supportsConductivityScaling() const { return false; }
-
 private:
     void                            prepareFieldsForUiDisplay();
     virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const = 0;
