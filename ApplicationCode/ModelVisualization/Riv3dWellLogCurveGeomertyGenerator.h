@@ -54,8 +54,8 @@ private:
                                        std::vector<cvf::Vec3f>*          vertices,
                                        std::vector<cvf::uint>*           indices) const;
 
-    static std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
-                                                         const std::vector<cvf::Vec3d>& wellPathPoints);
+    std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
+                                                  const std::vector<cvf::Vec3d>& points) const;
 
 private:
     cvf::ref<RigWellPath> m_wellPathGeometry;
