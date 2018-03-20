@@ -49,7 +49,10 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     if (rim3dWellLogCurves.empty()) return;
     if (m_wellPath.isNull()) return;
 
-    m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p(), m_gridView);
+    if (m_3dWellLogCurveGeometryGenerator.isNull())
+    {
+        m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p(), m_gridView);
+    }
 
     for (Rim3dWellLogCurve* rim3dWellLogCurve : rim3dWellLogCurves)
     {
@@ -94,7 +97,10 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double gridIntervalSize)
 {
-    if (m_3dWellLogCurveGeometryGenerator.isNull()) return;
+    if (m_3dWellLogCurveGeometryGenerator.isNull())
+    {
+        m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p(), m_gridView);
+    }
 
     caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 

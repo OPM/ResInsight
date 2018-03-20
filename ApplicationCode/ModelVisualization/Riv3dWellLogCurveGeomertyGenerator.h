@@ -62,7 +62,8 @@ private:
 
     std::vector<cvf::Vec3d> calculateWellPathSegmentNormals(Rim3dWellLogCurve::DrawPlane drawPlane) const;
 
-    double wellPathRadius() const;
+    double wellPathCenterToPlotStartOffset() const;
+    double gridWidth() const;
 
     const RigWellPath* wellPathGeometry() const;
 
