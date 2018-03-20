@@ -38,6 +38,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -80,6 +81,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp

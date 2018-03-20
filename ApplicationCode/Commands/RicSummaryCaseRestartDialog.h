@@ -53,6 +53,7 @@ public:
 
     static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile,
                                                            bool showApplyToAllWidget,
+                                                           RicSummaryCaseRestartDialogResult *lastResult = nullptr,
                                                            QWidget *parent = nullptr);
 
     ReadOptions                                 selectedOption() const;

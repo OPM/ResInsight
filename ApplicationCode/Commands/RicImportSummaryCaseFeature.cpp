@@ -64,17 +64,10 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     if (fileNames.isEmpty()) return;
 
-    std::vector<RicSummaryCaseFileInfo> fileInfos;
-    if (prefs->summaryRestartFilesImportMode == RiaPreferences::ASK_USER)
+    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames))
     {
-        fileInfos = RicImportSummaryCasesFeature::getFilesToImportWithDialog(fileNames, true);
+        for(const auto& fileName : fileNames) RiaApplication::instance()->addToRecentFiles(fileName);
     }
-    else
-    {
-        fileInfos = RicImportSummaryCasesFeature::getFilesToImportFromPrefs(fileNames, prefs->summaryRestartFilesImportMode);
-    }
-
-    RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileInfo(fileInfos);
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);

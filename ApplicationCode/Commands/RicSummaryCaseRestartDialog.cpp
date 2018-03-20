@@ -127,6 +127,7 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile,
                                                                           bool showApplyToAllWidget,
+                                                                          RicSummaryCaseRestartDialogResult *lastResult,
                                                                           QWidget *parent)
 {
     RicSummaryCaseRestartDialog  dialog(parent);
@@ -143,28 +144,41 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         return RicSummaryCaseRestartDialogResult(true, READ_SINGLE, QStringList({ summaryHeaderFile }), false);
     }
 
-    dialog.setWindowTitle("Summary Case Restart Files");
-    dialog.m_readAllRadioButton->setChecked(true);
-    dialog.m_currentFile->setText(summaryHeaderFile);
-    dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
-    dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
-    dialog.exec();
+    RicSummaryCaseRestartDialogResult dialogResult;
+    if (lastResult && lastResult->applyToAll)
+    {
+        dialogResult = *lastResult;
+        dialogResult.files.clear();
+    }
+    else
+    {
+        dialog.setWindowTitle("Summary Case Restart Files");
+        dialog.m_readAllRadioButton->setChecked(true);
+        dialog.m_currentFile->setText(summaryHeaderFile);
+        dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
+        dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
+        dialog.exec();
 
+        dialogResult = RicSummaryCaseRestartDialogResult(dialog.result() == QDialog::Accepted,
+                                                         dialog.selectedOption(),
+                                                         {},
+                                                         dialog.applyToAllSelected());
+    }
 
-    if (dialog.result() != QDialog::Accepted)
+    if (!dialogResult.ok)
     {
         return RicSummaryCaseRestartDialogResult(false, READ_SINGLE, QStringList(), false);
     }
 
-    QStringList files({ RiaFilePathTools::toInternalSeparator(summaryHeaderFile) });
-    if (dialog.selectedOption() == SEPARATE_CASES)
+    dialogResult.files.push_back(RiaFilePathTools::toInternalSeparator(summaryHeaderFile));
+    if (dialogResult.option == SEPARATE_CASES)
     {
         for (const auto& fileInfo : fileInfos)
         {
-            files.push_back(RiaFilePathTools::toInternalSeparator(fileInfo.fileName));
+            dialogResult.files.push_back(RiaFilePathTools::toInternalSeparator(fileInfo.fileName));
         }
     }
-    return RicSummaryCaseRestartDialogResult(true, dialog.selectedOption(), files, dialog.applyToAllSelected());
+    return dialogResult;
 }
 
 //--------------------------------------------------------------------------------------------------

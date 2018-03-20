@@ -1872,7 +1872,7 @@ bool RiaApplication::openFile(const QString& fileName)
     }
     else if (fileName.contains(".smspec", Qt::CaseInsensitive))
     {
-        loadingSucceded = RicImportSummaryCasesFeature::createAndAddSummaryCaseFromFileWithDialog(fileName);
+        loadingSucceded = RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(QStringList({ fileName }));
         if (loadingSucceded)
         {
             getOrCreateAndShowMainPlotWindow();

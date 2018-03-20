@@ -18,6 +18,7 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "RifEclipseSummaryTools.h"
+#include "RifSummaryCaseRestartSelector.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
@@ -267,8 +268,18 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
 {
     QString gridFileName = eclResCase->gridFileName();
-    if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName)))
+    QString summaryHeaderFile;
+    bool formatted;
+
+    RifEclipseSummaryTools::findSummaryHeaderFile(QDir::toNativeSeparators(gridFileName), &summaryHeaderFile, &formatted);
+
+    if(!summaryHeaderFile.isEmpty())
     {
+        // Activate when after discussing how grid case and summary case(s) are going to be related
+        //
+        //RifSummaryCaseRestartSelector       fileSelector;
+        //std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.getFilesToImport(QStringList({ summaryHeaderFile }));
+
         RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
         this->m_cases.push_back(newSumCase);
         newSumCase->setAssociatedEclipseCase(eclResCase);
@@ -282,17 +293,26 @@ RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileName(const QString& fileName, bool includeRestartFiles)
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCasesFromFiles(const QStringList& inputFileNames)
 {
-    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+    std::vector<RimSummaryCase*>        sumCases;
+    RifSummaryCaseRestartSelector       fileSelector;
+    std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.getFilesToImport(inputFileNames);
 
-    this->m_cases.push_back(newSumCase);
-    newSumCase->setIncludeRestartFiles(includeRestartFiles);
-    newSumCase->setSummaryHeaderFileName(fileName);
-    newSumCase->createSummaryReaderInterface();
-    newSumCase->updateOptionSensitivity();
+    for (const RifSummaryCaseFileInfo& fileInfo : importFileInfos)
+    {
+        RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
-    return newSumCase;
+        this->m_cases.push_back(newSumCase);
+        newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles);
+        newSumCase->setSummaryHeaderFileName(fileInfo.fileName);
+        newSumCase->createSummaryReaderInterface();
+        newSumCase->updateOptionSensitivity();
+
+        sumCases.push_back(newSumCase);
+    }
+
+    return sumCases;
 }
 
 //--------------------------------------------------------------------------------------------------
