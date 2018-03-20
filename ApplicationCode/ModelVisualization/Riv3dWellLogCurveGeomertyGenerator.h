@@ -35,12 +35,14 @@ class DisplayCoordTransform;
 }
 
 class RigWellPath;
+class RimGridView;
+class RimWellPath;
 
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogCurveGeometryGenerator(RigWellPath* wellPathGeometry)
-        : m_wellPathGeometry(wellPathGeometry){};
+    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath, RimGridView* gridView)
+        : m_wellPath(wellPath), m_gridView(gridView) {};
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
                                                const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
@@ -58,6 +60,13 @@ private:
     std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
                                                   const std::vector<cvf::Vec3d>& points) const;
 
+    std::vector<cvf::Vec3d> calculateWellPathSegmentNormals(Rim3dWellLogCurve::DrawPlane drawPlane) const;
+
+    double wellPathRadius() const;
+
+    const RigWellPath* wellPathGeometry() const;
+
 private:
-    cvf::ref<RigWellPath> m_wellPathGeometry;
+    caf::PdmPointer<RimWellPath> m_wellPath;
+    caf::PdmPointer<RimGridView> m_gridView;
 };

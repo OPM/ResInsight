@@ -18,7 +18,8 @@
 
 #include "Riv3dWellLogPlanePartMgr.h"
 
-#include "RigWellPath.h"
+#include "RimGridView.h"
+#include "RimWellPath.h"
 
 #include "Riv3dWellLogCurveGeomertyGenerator.h"
 
@@ -33,8 +34,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RigWellPath* wellPathGeometry)
-    :m_wellPathGeometry(wellPathGeometry)
+Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGridView* gridView)
+    :m_wellPath(wellPath), m_gridView(gridView)
 {
 }
 
@@ -46,9 +47,9 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
                                                             std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves)
 {
     if (rim3dWellLogCurves.empty()) return;
-    if (m_wellPathGeometry.isNull()) return;
+    if (m_wellPath.isNull()) return;
 
-    m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPathGeometry.p());
+    m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p(), m_gridView);
 
     for (Rim3dWellLogCurve* rim3dWellLogCurve : rim3dWellLogCurves)
     {

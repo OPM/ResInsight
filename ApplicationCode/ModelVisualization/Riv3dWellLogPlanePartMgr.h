@@ -40,13 +40,14 @@ namespace caf
     class DisplayCoordTransform;
 }
 
+class RimGridView;
+class RimWellPath;
 class Riv3dWellLogCurveGeometryGenerator;
-class RigWellPath;
 
 class Riv3dWellLogPlanePartMgr : public cvf::Object
 {
 public:
-    Riv3dWellLogPlanePartMgr(RigWellPath* wellPathGeometry);
+    Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGridView* gridView);
 
     void append3dWellLogCurvesToModel(cvf::ModelBasicList* model, 
                                       const caf::DisplayCoordTransform* displayCoordTransform,
@@ -59,5 +60,7 @@ private:
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
-    cvf::ref<RigWellPath> m_wellPathGeometry;
+
+    caf::PdmPointer<RimWellPath> m_wellPath;
+    caf::PdmPointer<RimGridView> m_gridView;
 };

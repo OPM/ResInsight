@@ -800,8 +800,6 @@ void RivIntersectionPartMgr::appendWellPipePartsToModel(cvf::ModelBasicList* mod
 
         if (!wellPath) return;
 
-        RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-
         RimGridView* gridView = nullptr;
         m_rimCrossSection->firstAncestorOrThisOfTypeAsserted(gridView);
         double cellSize = gridView->ownerCase()->characteristicCellSize();
