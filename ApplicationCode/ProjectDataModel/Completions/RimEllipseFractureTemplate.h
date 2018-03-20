@@ -46,8 +46,7 @@ public:
     RimEllipseFractureTemplate();
     virtual ~RimEllipseFractureTemplate();
 
-    void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                     std::vector<cvf::uint>* polygonIndices) override;
+    void fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices) override;
 
     std::vector<cvf::Vec3f> fractureBorderPolygon() override;
     void                    changeUnits();
@@ -72,7 +71,6 @@ protected:
 
 private:
     void                   assignConductivityToCellsInsideEllipse();
-
 
     FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;
 

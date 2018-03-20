@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT(RimEllipseFractureTemplate, "RimEllipseFractureTemplate");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
+RimEllipseFractureTemplate::RimEllipseFractureTemplate()
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
@@ -195,11 +195,11 @@ void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
 
             std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon();
             std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
-            for (auto v : ellipseFracPolygon) ellipseFracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
+            for (const auto& v : ellipseFracPolygon) ellipseFracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
             std::vector<std::vector<cvf::Vec3d> >clippedFracturePolygons = RigCellGeometryTools::intersectPolygons(cellPolygon, ellipseFracPolygonDouble);
-            if (clippedFracturePolygons.size() > 0)
+            if (!clippedFracturePolygons.empty())
             {
-                for (auto clippedFracturePolygon : clippedFracturePolygons)
+                for (const auto& clippedFracturePolygon : clippedFracturePolygons)
                 {
                     double areaCutPolygon = cvf::GeometryTools::polygonAreaNormal3D(clippedFracturePolygon).length();
                     if (areaCutPolygon < areaTresholdForIncludingCell) cond = 0.0; //Cell is excluded from calculation, cond is set to zero. Must be included for indexing to be correct
