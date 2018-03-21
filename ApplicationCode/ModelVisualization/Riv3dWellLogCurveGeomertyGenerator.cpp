@@ -38,12 +38,13 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo>
     Riv3dWellLogCurveGeometryGenerator::createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                         const Rim3dWellLogCurve*          rim3dWellLogCurve) const
 {
     std::vector<cvf::Vec3f> vertices;
     std::vector<cvf::uint>  indices;
 
-    createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, &vertices, &indices);
+    createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, wellPathClipBoundingBox, &vertices, &indices);
 
     if (vertices.empty() || indices.empty())
     {
@@ -181,10 +182,13 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                       const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                        std::vector<cvf::Vec3f>*          vertices,
                                                                        std::vector<cvf::uint>*           indices) const
 {
     if (!wellPathGeometry()) return;
+    if (wellPathGeometry()->m_wellPathPoints.empty()) return;
+    if (!wellPathClipBoundingBox.isValid()) return;
 
     std::vector<double> resultValues;
     std::vector<double> mds;
@@ -193,16 +197,35 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim
     if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == mds.size());
 
-    cvf::Vec3d globalDirection =
-        (wellPathGeometry()->m_wellPathPoints.back() - wellPathGeometry()->m_wellPathPoints.front()).getNormalized();
+    RimWellPathCollection* wellPathCollection = nullptr;
+    m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
+
+    double maxZClipHeight = wellPathGeometry()->m_wellPathPoints.front().z();
+    if (wellPathCollection->wellPathClip)
+    {
+        maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+    }
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
-    interpolatedWellPathPoints.reserve(mds.size());
 
-    for (double md : mds)
+    for (auto rit = mds.rbegin(); rit != mds.rend(); rit++)
     {
-        interpolatedWellPathPoints.push_back(wellPathGeometry()->interpolatedPointAlongWellPath(md));
+        cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(*rit);
+        if (point.z() > maxZClipHeight) break;
+
+        interpolatedWellPathPoints.push_back(point);
     }
+
+    if (interpolatedWellPathPoints.size() % 2 != 0)
+    {
+        interpolatedWellPathPoints.pop_back();
+    }
+    
+    std::reverse(interpolatedWellPathPoints.begin(), interpolatedWellPathPoints.end());
+
+    if (interpolatedWellPathPoints.empty()) return;
+
+    resultValues.erase(resultValues.begin(), resultValues.end() - interpolatedWellPathPoints.size());
 
     std::vector<cvf::Vec3d> pointNormals = calculatePointNormals(rim3dWellLogCurve->drawPlane(), interpolatedWellPathPoints);
     if (interpolatedWellPathPoints.size() != pointNormals.size()) return;
@@ -258,9 +281,12 @@ std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::calculatePointNormal
     std::vector<cvf::Vec3d> pointNormals;
 
     if (!wellPathGeometry()) return pointNormals;
+    if (points.empty()) return pointNormals;
+
     pointNormals.reserve(points.size());
 
-    const cvf::Vec3d globalDirection = (points.back() - points.front()).getNormalized();
+    const cvf::Vec3d globalDirection =
+        (wellPathGeometry()->m_wellPathPoints.back() - wellPathGeometry()->m_wellPathPoints.front()).getNormalized();
     const cvf::Vec3d up(0, 0, 1);
 
     for (const cvf::Vec3d point : points)

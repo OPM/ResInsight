@@ -52,7 +52,7 @@ public:
 
     void append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                      std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves);
+                                      const cvf::BoundingBox&           wellPathClipBoundingBox);
 
     void appendGridToModel(cvf::ModelBasicList*              model,
                            const caf::DisplayCoordTransform* displayCoordTransform,

@@ -545,7 +545,9 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (!gridView) return;
 
     m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath, gridView);
-    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, displayCoordTransform, m_rimWellPath->vectorOf3dWellLogCurves());
+    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, 
+                                                          displayCoordTransform,
+                                                          wellPathClipBoundingBox);
 
     if (m_rimWellPath->rim3dWellLogCurveCollection()->showGrid())
     {

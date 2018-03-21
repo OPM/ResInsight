@@ -46,8 +46,9 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGri
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
-                                                            std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves)
+                                                            const cvf::BoundingBox&           wellPathClipBoundingBox)
 {
+    std::vector<Rim3dWellLogCurve*> rim3dWellLogCurves = m_wellPath->vectorOf3dWellLogCurves();
     if (rim3dWellLogCurves.empty()) return;
     if (m_wellPath.isNull()) return;
 
@@ -61,7 +62,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
         if (!rim3dWellLogCurve->toggleState()) continue;
 
         cvf::ref<cvf::Drawable> curveDrawable =
-            m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, rim3dWellLogCurve);
+            m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve);
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
         {
