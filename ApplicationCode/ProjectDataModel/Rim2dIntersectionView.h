@@ -62,7 +62,7 @@ public:
     void                       update3dInfo();
 
     cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const;
-
+    cvf::Vec3d                 transformToUtm(const cvf::Vec3d& unscaledPointInFlatDomain) const;
 
     virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 

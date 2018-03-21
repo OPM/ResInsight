@@ -305,6 +305,16 @@ cvf::ref<RivIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d Rim2dIntersectionView::transformToUtm(const cvf::Vec3d& unscaledPointInFlatDomain) const
+{
+    cvf::Mat4d unflatXf = this->flatIntersectionPartMgr()->unflattenTransformMatrix(unscaledPointInFlatDomain);
+
+    return unscaledPointInFlatDomain.getTransformedPoint(unflatXf);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<caf::DisplayCoordTransform> Rim2dIntersectionView::displayCoordTransform() const
 {
    cvf::ref<caf::DisplayCoordTransform> dispTx = new caf::DisplayCoordTransform();
