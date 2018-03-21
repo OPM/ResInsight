@@ -21,12 +21,15 @@
 #include "RimCase.h"
 #include "RimGridView.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RigCurveDataTools.h"
 #include "RigWellPath.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+
+#include "cvfBoundingBox.h"
 
 #include <cmath>
 
@@ -35,12 +38,13 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo>
     Riv3dWellLogCurveGeometryGenerator::createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                         const Rim3dWellLogCurve*          rim3dWellLogCurve) const
 {
     std::vector<cvf::Vec3f> vertices;
     std::vector<cvf::uint>  indices;
 
-    createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, &vertices, &indices);
+    createCurveVerticesAndIndices(rim3dWellLogCurve, displayCoordTransform, wellPathClipBoundingBox, &vertices, &indices);
 
     if (vertices.empty() || indices.empty())
     {
@@ -65,33 +69,53 @@ cvf::ref<cvf::DrawableGeo>
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                          const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                           const Rim3dWellLogCurve::DrawPlane drawPlane,
                                                                           double gridIntervalSize) const
 {
     CVF_ASSERT(gridIntervalSize > 0);
 
     if (!wellPathGeometry()) return nullptr;
+    if (!wellPathClipBoundingBox.isValid()) return nullptr;
+
+    RimWellPathCollection* wellPathCollection = nullptr;
+    m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
 
     std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
     if (wellPathPoints.empty()) return nullptr;
 
-    const cvf::Vec3d globalDirection = (wellPathPoints.back() - wellPathPoints.front()).getNormalized();
-    const cvf::Vec3d up(0, 0, 1);
+    size_t originalWellPathSize = wellPathPoints.size();
 
-    std::vector<cvf::Vec3d> pointNormals;
+    if (wellPathCollection->wellPathClip)
+    {
+        double horizontalLengthAlongWellToClipPoint;
+        double maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+        size_t indexToFirstVisibleSegment; 
+        wellPathPoints =
+            RigWellPath::clipPolylineStartAboveZ(wellPathPoints, 
+                                                 maxZClipHeight, 
+                                                 &horizontalLengthAlongWellToClipPoint, 
+                                                 &indexToFirstVisibleSegment);
+    }
+    if (wellPathPoints.empty()) return nullptr;
+
     std::vector<cvf::Vec3d> gridPoints;
 
-    double firstMd = wellPathGeometry()->m_measuredDepths.front();
-    double lastMd  = wellPathGeometry()->m_measuredDepths.back();
     if (wellPathGeometry()->m_measuredDepths.empty()) return nullptr;
 
-    double md = firstMd;
-    while (md <= lastMd)
+    size_t newStartIndex = originalWellPathSize - wellPathPoints.size();
+    double firstMd       = wellPathGeometry()->m_measuredDepths.at(newStartIndex);
+    double lastMd        = wellPathGeometry()->m_measuredDepths.back();
+
+    double md = lastMd;
+    while (md >= firstMd)
     {
         cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
         gridPoints.push_back(point);
-        md += gridIntervalSize;
+        md -= gridIntervalSize;
     }
+
+    std::vector<cvf::Vec3d> pointNormals;
 
     pointNormals = calculatePointNormals(drawPlane, gridPoints);
     if (pointNormals.size() != gridPoints.size()) return nullptr;
@@ -103,7 +127,6 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     indices.reserve(gridPoints.size() * 2);
 
     cvf::uint counter = 0;
-
     double offsetFromWellPathCenter = wellPathCenterToPlotStartOffset();
 
     // Normal lines
@@ -118,7 +141,9 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
         indices.push_back(counter++);
     }
 
+    // calculateWellPathSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
     std::vector<cvf::Vec3d> wellPathSegmentNormals = calculateWellPathSegmentNormals(drawPlane);
+    wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
     // Line along and close to well
     for (size_t i = 0; i < wellPathPoints.size(); i++)
@@ -161,10 +186,13 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                       const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                        std::vector<cvf::Vec3f>*          vertices,
                                                                        std::vector<cvf::uint>*           indices) const
 {
     if (!wellPathGeometry()) return;
+    if (wellPathGeometry()->m_wellPathPoints.empty()) return;
+    if (!wellPathClipBoundingBox.isValid()) return;
 
     std::vector<double> resultValues;
     std::vector<double> mds;
@@ -173,16 +201,35 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim
     if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == mds.size());
 
-    cvf::Vec3d globalDirection =
-        (wellPathGeometry()->m_wellPathPoints.back() - wellPathGeometry()->m_wellPathPoints.front()).getNormalized();
+    RimWellPathCollection* wellPathCollection = nullptr;
+    m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
+
+    double maxZClipHeight = wellPathGeometry()->m_wellPathPoints.front().z();
+    if (wellPathCollection->wellPathClip)
+    {
+        maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+    }
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
-    interpolatedWellPathPoints.reserve(mds.size());
 
-    for (double md : mds)
+    for (auto rit = mds.rbegin(); rit != mds.rend(); rit++)
     {
-        interpolatedWellPathPoints.push_back(wellPathGeometry()->interpolatedPointAlongWellPath(md));
+        cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(*rit);
+        if (point.z() > maxZClipHeight) break;
+
+        interpolatedWellPathPoints.push_back(point);
     }
+
+    if (interpolatedWellPathPoints.size() % 2 != 0)
+    {
+        interpolatedWellPathPoints.pop_back();
+    }
+    
+    std::reverse(interpolatedWellPathPoints.begin(), interpolatedWellPathPoints.end());
+
+    if (interpolatedWellPathPoints.empty()) return;
+
+    resultValues.erase(resultValues.begin(), resultValues.end() - interpolatedWellPathPoints.size());
 
     std::vector<cvf::Vec3d> pointNormals = calculatePointNormals(rim3dWellLogCurve->drawPlane(), interpolatedWellPathPoints);
     if (interpolatedWellPathPoints.size() != pointNormals.size()) return;
@@ -201,7 +248,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const Rim
     vertices->resize(interpolatedWellPathPoints.size());
 
     double plotRangeToResultRangeFactor = gridWidth() / (maxResult - minResult);
-    double offsetFromWellPathCenter = wellPathCenterToPlotStartOffset();
+    double offsetFromWellPathCenter     = wellPathCenterToPlotStartOffset();
 
     for (size_t i = 0; i < pointNormals.size(); i++)
     {
@@ -238,9 +285,12 @@ std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::calculatePointNormal
     std::vector<cvf::Vec3d> pointNormals;
 
     if (!wellPathGeometry()) return pointNormals;
+    if (points.empty()) return pointNormals;
+
     pointNormals.reserve(points.size());
 
-    const cvf::Vec3d globalDirection = (points.back() - points.front()).getNormalized();
+    const cvf::Vec3d globalDirection =
+        (wellPathGeometry()->m_wellPathPoints.back() - wellPathGeometry()->m_wellPathPoints.front()).getNormalized();
     const cvf::Vec3d up(0, 0, 1);
 
     for (const cvf::Vec3d point : points)
@@ -369,7 +419,7 @@ double Riv3dWellLogCurveGeometryGenerator::wellPathCenterToPlotStartOffset() con
 {
     double cellSize = m_gridView->ownerCase()->characteristicCellSize();
 
-    return m_wellPath->wellPathRadius(cellSize) * 1.2;
+    return m_wellPath->wellPathRadius(cellSize) * 2;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,7 +427,7 @@ double Riv3dWellLogCurveGeometryGenerator::wellPathCenterToPlotStartOffset() con
 //--------------------------------------------------------------------------------------------------
 double Riv3dWellLogCurveGeometryGenerator::gridWidth() const
 {
-    return 100;
+    return 400;
 }
 
 //--------------------------------------------------------------------------------------------------

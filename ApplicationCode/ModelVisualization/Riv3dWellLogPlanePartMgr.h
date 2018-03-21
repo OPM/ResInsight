@@ -29,15 +29,16 @@
 
 namespace cvf
 {
-    class ModelBasicList;
-    class Drawable;
-    class Effect;
-    class Part;
-}
+class ModelBasicList;
+class Drawable;
+class Effect;
+class Part;
+class BoundingBox;
+} // namespace cvf
 
 namespace caf
 {
-    class DisplayCoordTransform;
+class DisplayCoordTransform;
 }
 
 class RimGridView;
@@ -49,15 +50,18 @@ class Riv3dWellLogPlanePartMgr : public cvf::Object
 public:
     Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGridView* gridView);
 
-    void append3dWellLogCurvesToModel(cvf::ModelBasicList* model, 
+    void append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                      std::vector<Rim3dWellLogCurve*>   rim3dWellLogCurves);
+                                      const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void appendGridToModel(cvf::ModelBasicList* model,
+    void appendGridToModel(cvf::ModelBasicList*              model,
                            const caf::DisplayCoordTransform* displayCoordTransform,
-                           double gridIntervalSize);
+                           const cvf::BoundingBox&           wellPathClipBoundingBox,
+                           double                            gridIntervalSize);
+
 private:
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
+
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
 

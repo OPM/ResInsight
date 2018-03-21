@@ -34,6 +34,11 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+namespace cvf
+{
+class BoundingBox;
+}
+
 class RigWellPath;
 class RimGridView;
 class RimWellPath;
@@ -45,15 +50,18 @@ public:
         : m_wellPath(wellPath), m_gridView(gridView) {};
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
+                                               const cvf::BoundingBox&            wellPathClipBoundingBox,
                                                const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
 
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+                                          const cvf::BoundingBox&            wellPathClipBoundingBox,
                                           const Rim3dWellLogCurve::DrawPlane drawPlane,
                                           double                             gridIntervalSize) const;
 
 private:
     void createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                       const cvf::BoundingBox&           wellPathClipBoundingBox,
                                        std::vector<cvf::Vec3f>*          vertices,
                                        std::vector<cvf::uint>*           indices) const;
 
