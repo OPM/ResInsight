@@ -415,7 +415,7 @@ double Riv3dWellLogCurveGeometryGenerator::wellPathCenterToPlotStartOffset() con
 {
     double cellSize = m_gridView->ownerCase()->characteristicCellSize();
 
-    return m_wellPath->wellPathRadius(cellSize) * 1.2;
+    return m_wellPath->wellPathRadius(cellSize) * 2;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,7 +423,7 @@ double Riv3dWellLogCurveGeometryGenerator::wellPathCenterToPlotStartOffset() con
 //--------------------------------------------------------------------------------------------------
 double Riv3dWellLogCurveGeometryGenerator::gridWidth() const
 {
-    return 100;
+    return 400;
 }
 
 //--------------------------------------------------------------------------------------------------
