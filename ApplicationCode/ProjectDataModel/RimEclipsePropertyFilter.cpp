@@ -389,12 +389,19 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
-                        std::vector<QString> ctNames;
-                        for (QString ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        std::vector<std::pair<QString, int>> categoryNameAndValues;
                         {
-                            ctNames.push_back(ctName);
+                            const std::vector<int>& visibleCatetories = results->uniqueCellScalarValues(resultDefinition->scalarResultIndex());
+                            for (auto categoryValue : visibleCatetories)
+                            {
+                                if (caf::AppEnum<RiaDefines::CompletionType>::isValid(categoryValue))
+                                {
+                                    auto text = caf::AppEnum<RiaDefines::CompletionType>::uiText(RiaDefines::CompletionType(categoryValue));
+                                    categoryNameAndValues.push_back(std::make_pair(text, categoryValue));
+                                }
+                            }
                         }
-                        setCategoryNames(ctNames);
+                        setCategoryNamesAndValues(categoryNameAndValues);
                     }
                     else
                     {
