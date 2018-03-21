@@ -24,6 +24,8 @@
 #include "RimCase.h"
 #include "RimWellPath.h"
 #include "Rim3dView.h"
+#include "RivPipeGeometryGenerator.h"
+
 #include "RimWellPathCollection.h"
 
 #include "RivWellPathPartMgr.h"
@@ -33,10 +35,19 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath, Rim3dView* view)
+RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath, RivPipeGeometryGenerator* pipeGeomGenerator)
+    : m_wellPath(wellPath)
+    , m_pipeGeomGenerator(pipeGeomGenerator)
 {
-    m_wellPath = wellPath;
-    m_view = view;
+  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivWellPathSourceInfo::~RivWellPathSourceInfo()
+{
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +77,7 @@ double RivWellPathSourceInfo::measuredDepth(size_t triangleIndex, const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivWellPathSourceInfo::trueVerticalDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
+cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm = 0.0;
@@ -105,6 +116,6 @@ void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const c
 //--------------------------------------------------------------------------------------------------
 size_t RivWellPathSourceInfo::segmentIndex(size_t triangleIndex) const
 {
-    return m_view->wellPathSegmentIndexFromTriangleIndex(triangleIndex, m_wellPath);
+    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex);
 }
 

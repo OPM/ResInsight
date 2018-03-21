@@ -83,8 +83,6 @@ public:
 
     void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
-    size_t segmentIndexFromTriangleIndex(size_t triangleIndex);
-
 private:
     void appendFishboneSubsPartsToModel(cvf::ModelBasicList*              model,
                                         const caf::DisplayCoordTransform* displayCoordTransform,

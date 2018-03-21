@@ -68,8 +68,6 @@ public:
     
     void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
 
-    size_t segmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const;
-
 private:
     void                   clearGeometryCache();
     void                   scheduleGeometryRegen();

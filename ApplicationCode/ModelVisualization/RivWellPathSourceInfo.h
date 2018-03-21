@@ -26,7 +26,7 @@
 #include "cvfVector3.h"
 
 class RimWellPath;
-class Rim3dView;
+class RivPipeGeometryGenerator;
 
 //==================================================================================================
 ///  
@@ -34,19 +34,22 @@ class Rim3dView;
 class RivWellPathSourceInfo : public cvf::Object
 {
 public:
-    explicit RivWellPathSourceInfo(RimWellPath* wellPath, Rim3dView* view);
+    explicit RivWellPathSourceInfo(RimWellPath* wellPath, RivPipeGeometryGenerator* pipeGeomGenerator);
+    ~RivWellPathSourceInfo();
 
     RimWellPath* wellPath() const;
 
     size_t segmentIndex(size_t triangleIndex) const;
     double measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
-    cvf::Vec3d trueVerticalDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
+    cvf::Vec3d closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
 
 private:
-    void normalizedIntersection(size_t triangleIndex, const cvf::Vec3d& globalIntersection,
-        size_t* firstSegmentIndex, double* normalizedSegmentIntersection) const;
+    void normalizedIntersection(size_t triangleIndex, 
+                                const cvf::Vec3d& globalIntersection,
+                                size_t* firstSegmentIndex, 
+                                double* normalizedSegmentIntersection) const;
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
-    caf::PdmPointer<Rim3dView> m_view;
+    cvf::ref<RivPipeGeometryGenerator> m_pipeGeomGenerator;
 };

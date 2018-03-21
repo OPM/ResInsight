@@ -343,9 +343,12 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 if (firstPartTriangleIndex != cvf::UNDEFINED_UINT)
                 {
-                    double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
-                    cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
-                    RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
+                    cvf::Vec3d pickedPositionInUTM = m_currentPickPositionInDomainCoords;
+                    if (int2dView) pickedPositionInUTM = int2dView->transformToUtm(pickedPositionInUTM);
+
+                    double measuredDepth         = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, pickedPositionInUTM);
+                    cvf::Vec3d closestPointOnCenterLine = wellPathSourceInfo->closestPointOnCenterLine(firstPartTriangleIndex, pickedPositionInUTM);
+                    RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, closestPointOnCenterLine, measuredDepth);
                     RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 }
 

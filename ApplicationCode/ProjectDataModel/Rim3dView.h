@@ -146,8 +146,6 @@ public:
 
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const override;
 
-    size_t                                  wellPathSegmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const; 
-
     virtual RimCase*                        ownerCase() const = 0;
 
 protected:

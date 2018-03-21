@@ -865,14 +865,6 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t Rim3dView::wellPathSegmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const
-{
-    return m_wellPathsPartManager->segmentIndexFromTriangleIndex(triangleIndex, wellPath);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::viewWidget()
 {
     if ( m_viewer ) return m_viewer->layoutWidget();

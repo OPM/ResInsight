@@ -590,14 +590,6 @@ void RivWellPathPartMgr::clearAllBranchData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
-{
-    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
 {
     if (!m_rimWellPath) return nullptr;

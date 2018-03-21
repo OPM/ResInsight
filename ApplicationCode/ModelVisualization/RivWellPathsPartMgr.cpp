@@ -96,17 +96,6 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RivWellPathsPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex, RimWellPath* wellPath) const
-{
-    auto it = m_mapFromViewToIndex.find(wellPath);
-    if (it == m_mapFromViewToIndex.end()) return -1;
-
-    return it->second->segmentIndexFromTriangleIndex(triangleIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivWellPathsPartMgr::clearGeometryCache()
 {
     m_wellPatshsPartMgrs.clear();
