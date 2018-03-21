@@ -26,6 +26,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfColor3.h"
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
@@ -35,7 +36,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGridView* gridView)
-    :m_wellPath(wellPath), m_gridView(gridView)
+    : m_wellPath(wellPath)
+    , m_gridView(gridView)
 {
 }
 
@@ -57,8 +59,9 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     for (Rim3dWellLogCurve* rim3dWellLogCurve : rim3dWellLogCurves)
     {
         if (!rim3dWellLogCurve->toggleState()) continue;
-        
-        cvf::ref<cvf::Drawable> curveDrawable = m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, rim3dWellLogCurve);
+
+        cvf::ref<cvf::Drawable> curveDrawable =
+            m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, rim3dWellLogCurve);
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
         {
@@ -66,7 +69,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
         }
 
         caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.9f, 0.0f, 0.0f));
-        cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+        cvf::ref<cvf::Effect>    effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(curveDrawable.p());
@@ -93,9 +96,12 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double gridIntervalSize)
+void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*              model,
+                                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                                 const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                 double                            gridIntervalSize)
 {
     if (m_3dWellLogCurveGeometryGenerator.isNull())
     {
@@ -105,10 +111,11 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, con
     caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 
     {
-        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, Rim3dWellLogCurve::HORIZONTAL_LEFT, gridIntervalSize);
+        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(
+            displayCoordTransform, wellPathClipBoundingBox, Rim3dWellLogCurve::HORIZONTAL_LEFT, gridIntervalSize);
 
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
-        cvf::ref<cvf::Part> part = createPart(gridHorizontalDrawable.p(), effect.p());
+        cvf::ref<cvf::Part>   part   = createPart(gridHorizontalDrawable.p(), effect.p());
 
         if (part.notNull())
         {
@@ -116,10 +123,11 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList* model, con
         }
     }
     {
-        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform, Rim3dWellLogCurve::HORIZONTAL_RIGHT, gridIntervalSize);
+        cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(
+            displayCoordTransform, wellPathClipBoundingBox, Rim3dWellLogCurve::HORIZONTAL_RIGHT, gridIntervalSize);
 
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
-        cvf::ref<cvf::Part> part = createPart(gridHorizontalDrawable.p(), effect.p());
+        cvf::ref<cvf::Part>   part   = createPart(gridHorizontalDrawable.p(), effect.p());
 
         if (part.notNull())
         {

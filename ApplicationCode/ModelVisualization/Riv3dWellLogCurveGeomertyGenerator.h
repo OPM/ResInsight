@@ -34,6 +34,11 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+namespace cvf
+{
+class BoundingBox;
+}
+
 class RigWellPath;
 class RimGridView;
 class RimWellPath;
@@ -48,6 +53,7 @@ public:
                                                const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
 
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+                                          const cvf::BoundingBox&            wellPathClipBoundingBox,
                                           const Rim3dWellLogCurve::DrawPlane drawPlane,
                                           double                             gridIntervalSize) const;
 
