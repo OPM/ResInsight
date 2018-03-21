@@ -565,34 +565,27 @@ RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
 //--------------------------------------------------------------------------------------------------
 cvf::Mat4d RivIntersectionGeometryGenerator::unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat)
 {
-    cvf::Vec3d startPt = cvf::Vec3d::ZERO;
+    cvf::Mat4d flattenMx =  cvf::Mat4d::IDENTITY;
 
-    int polyLineIdx = -1;
-    int segIdx = -1;
-    for (size_t pLineIdx = 0; pLineIdx < m_flattenedOrOffsettedPolyLines.size(); pLineIdx++)
+    for ( size_t pLineIdx = 0; pLineIdx < m_flattenedOrOffsettedPolyLines.size(); pLineIdx++ )
     {
-        std::vector<cvf::Vec3d> polyLine = m_flattenedOrOffsettedPolyLines[pLineIdx];
+        const std::vector<cvf::Vec3d>& polyLine = m_flattenedOrOffsettedPolyLines[pLineIdx];
         for(size_t pIdx = 0; pIdx < polyLine.size(); pIdx++)
         {
-            // Assumes ascending sorted list
-            if (pIdx > 0 && intersectionPointFlat.x() < polyLine[pIdx].x())
+            if (polyLine[pIdx].x() >= intersectionPointFlat.x() )
             {
-                polyLineIdx = static_cast<int>(pLineIdx);
-                segIdx = static_cast<int>(pIdx) - 1;
-                startPt = polyLine[segIdx];
+                size_t csIdx = pIdx > 0 ? pIdx - 1: 0;
+                flattenMx = m_segementTransformPrLinePoint[pLineIdx][csIdx];
                 break;
             }
+            else if (pIdx == polyLine.size() - 1)
+            {
+                flattenMx = m_segementTransformPrLinePoint[pLineIdx][pIdx];
+            }
         }
-
-        if (!startPt.isZero()) break;
     }
 
-    if (polyLineIdx > -1 && segIdx > -1)
-    {
-        cvf::Mat4d t = m_segementTransformPrLinePoint[polyLineIdx][segIdx];
-        return t.getInverted();                                                 // Check for invertible?
-    }
-    return cvf::Mat4d::ZERO;
+    return flattenMx.getInverted();
 }
 
 //--------------------------------------------------------------------------------------------------
