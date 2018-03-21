@@ -70,7 +70,7 @@ cvf::ref<cvf::DrawableGeo>
 cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
                                                                           const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                           const Rim3dWellLogCurve::DrawPlane drawPlane,
-                                                                          double                             gridIntervalSize) const
+                                                                          double gridIntervalSize) const
 {
     CVF_ASSERT(gridIntervalSize > 0);
 
@@ -94,7 +94,6 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     }
     if (wellPathPoints.empty()) return nullptr;
 
-    std::vector<cvf::Vec3d> pointNormals;
     std::vector<cvf::Vec3d> gridPoints;
 
     if (wellPathGeometry()->m_measuredDepths.empty()) return nullptr;
@@ -111,6 +110,8 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
         md -= gridIntervalSize;
     }
 
+    std::vector<cvf::Vec3d> pointNormals;
+
     pointNormals = calculatePointNormals(drawPlane, gridPoints);
     if (pointNormals.size() != gridPoints.size()) return nullptr;
 
@@ -121,7 +122,6 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     indices.reserve(gridPoints.size() * 2);
 
     cvf::uint counter = 0;
-
     double offsetFromWellPathCenter = wellPathCenterToPlotStartOffset();
 
     // Normal lines
@@ -136,7 +136,9 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
         indices.push_back(counter++);
     }
 
+    // calculateWellPathSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
     std::vector<cvf::Vec3d> wellPathSegmentNormals = calculateWellPathSegmentNormals(drawPlane);
+    wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
     // Line along and close to well
     for (size_t i = 0; i < wellPathPoints.size(); i++)
