@@ -236,7 +236,7 @@ class RiuWellPathSelectionItem : public RiuSelectionItem
 {
 public:
     explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
-                                      const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                      const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
                                       double measuredDepth);
 
     virtual ~RiuWellPathSelectionItem() {};
