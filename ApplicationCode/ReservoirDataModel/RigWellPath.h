@@ -61,7 +61,8 @@ public:
                                                        const cvf::BoundingBox& caseBB);
     static std::vector<cvf::Vec3d> clipPolylineStartAboveZ(const std::vector<cvf::Vec3d> &polyLine,
                                                            double maxZ,
-                                                           double * horizontalLengthAlongWellToClipPoint);
+                                                           double * horizontalLengthAlongWellToClipPoint,
+                                                           size_t * indexToFirstVisibleSegment);
 
 private:
     bool    m_hasDatumElevation;

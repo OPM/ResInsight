@@ -312,7 +312,6 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
     m_pipeGeomGenerator->setRadius(wellPathRadius);
     m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
 
-    double horizontalLengthAlongWellToClipPoint = 0.0;
 
     std::vector<cvf::Vec3d> clippedWellPathCenterLine;
 
@@ -338,12 +337,15 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
         }
     }
 
+    double horizontalLengthAlongWellToClipPoint = 0.0;
+    size_t idxToFirstVisibleSegment = 0;
     if ( wellPathCollection->wellPathClip )
     {
         double maxZClipHeight =  wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
         clippedWellPathCenterLine =  RigWellPath::clipPolylineStartAboveZ(wellpathCenterLine,
                                                                           maxZClipHeight,
-                                                                          &horizontalLengthAlongWellToClipPoint);
+                                                                          &horizontalLengthAlongWellToClipPoint,
+                                                                          &idxToFirstVisibleSegment);
     }
     else
     {
@@ -379,6 +381,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
         }
     }
 
+    m_pipeGeomGenerator->setFirstVisibleSegmentIndex(idxToFirstVisibleSegment);
     m_pipeGeomGenerator->setPipeCenterCoords(cvfCoords.p());
     m_surfaceDrawable = m_pipeGeomGenerator->createPipeSurface();
     m_centerLineDrawable = m_pipeGeomGenerator->createCenterLine();
@@ -388,7 +391,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
         m_surfacePart = new cvf::Part;
         m_surfacePart->setDrawable(m_surfaceDrawable.p());
 
-        RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath, m_rimView);
+        RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath, m_pipeGeomGenerator.p());
         m_surfacePart->setSourceInfo(sourceInfo);
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);

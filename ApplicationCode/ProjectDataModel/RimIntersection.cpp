@@ -407,9 +407,11 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
             this->firstAncestorOrThisOfType(ownerCase);
             if (ownerCase)
             {
-                lines[0] = RigWellPath::clipPolylineStartAboveZ(lines[0], 
-                                                   ownerCase->activeCellsBoundingBox().max().z(), 
-                                                   &horizontalProjectedLengthAlongWellPathToClipPoint);
+                size_t dummy;
+                lines[0] = RigWellPath::clipPolylineStartAboveZ(lines[0],
+                                                                ownerCase->activeCellsBoundingBox().max().z(),
+                                                                &horizontalProjectedLengthAlongWellPathToClipPoint,
+                                                                &dummy);
             }
         }
     }

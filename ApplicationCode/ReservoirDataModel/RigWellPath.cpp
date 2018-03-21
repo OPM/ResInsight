@@ -292,13 +292,17 @@ bool RigWellPath::isPolylineTouchingBBox(const std::vector<cvf::Vec3d> &polyLine
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ(const std::vector<cvf::Vec3d>& polyLine,
                                                              double maxZ,
-                                                             double * horizontalLengthAlongWellToClipPoint)
+                                                             double * horizontalLengthAlongWellToClipPoint,
+                                                             size_t * indexToFirstVisibleSegment)
 {
-    CVF_ASSERT(horizontalLengthAlongWellToClipPoint != nullptr);
+    CVF_ASSERT(horizontalLengthAlongWellToClipPoint);
+    CVF_ASSERT(indexToFirstVisibleSegment);
 
     // Find first visible point, and accumulate distance along wellpath
     
     *horizontalLengthAlongWellToClipPoint = 0.0;
+    *indexToFirstVisibleSegment = cvf::UNDEFINED_SIZE_T;
+
     size_t firstVisiblePointIndex = cvf::UNDEFINED_SIZE_T;
 
     for ( size_t vxIdx = 0 ; vxIdx < polyLine.size(); ++vxIdx )
@@ -345,8 +349,14 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ(const std::vector<c
 
             clippedPolyLine.push_back(intersection);
         }
-    }
 
+        *indexToFirstVisibleSegment = firstVisiblePointIndex - 1;
+    }
+    else
+    {
+        *indexToFirstVisibleSegment = 0;
+    }
+    
     // Add the rest of the polyline
 
     for (  size_t vxIdx = firstVisiblePointIndex; vxIdx < polyLine.size(); ++vxIdx )
