@@ -46,9 +46,7 @@ class RimWellPath;
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath, RimGridView* gridView)
-        : m_wellPath(wellPath)
-        , m_gridView(gridView){};
+    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath, RimGridView* gridView);
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
                                                const cvf::BoundingBox&           wellPathClipBoundingBox,
