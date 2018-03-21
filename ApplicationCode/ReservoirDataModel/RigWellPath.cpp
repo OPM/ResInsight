@@ -91,7 +91,8 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth, dou
                                      (m_measuredDepths.at(vxIdx) - m_measuredDepths.at(vxIdx - 1));
             cvf::Vec3d segment = m_wellPathPoints[vxIdx] - m_wellPathPoints[vxIdx-1];
 
-            wellPathPoint = m_wellPathPoints[vxIdx - 1] + segmentFraction * segment;
+            segment *= segmentFraction;
+            wellPathPoint = m_wellPathPoints[vxIdx - 1] + segment;
 
             if ( horizontalLengthAlongWellToStartClipPoint )
             {
