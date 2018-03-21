@@ -105,8 +105,8 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
                     filesToImport.push_back(fi);
                 }
             }
+            lastResult = result;
         }
-        lastResult = result;
     }
     return std::vector<RifSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
 }

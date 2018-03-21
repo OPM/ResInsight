@@ -40,10 +40,14 @@
 std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
 {
     std::vector<time_t> timeSteps;
-    for (int time_index = 0; time_index < ecl_sum_get_data_length(ecl_sum); time_index++)
+
+    if (ecl_sum)
     {
-        time_t sim_time = ecl_sum_iget_sim_time(ecl_sum, time_index);
-        timeSteps.push_back(sim_time);
+        for (int time_index = 0; time_index < ecl_sum_get_data_length(ecl_sum); time_index++)
+        {
+            time_t sim_time = ecl_sum_iget_sim_time(ecl_sum, time_index);
+            timeSteps.push_back(sim_time);
+        }
     }
     return timeSteps;
 }

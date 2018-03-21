@@ -132,6 +132,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     RicSummaryCaseRestartDialog  dialog(parent);
 
     RifRestartFileInfo currentFileInfo = dialog.getFileInfo(summaryHeaderFile);
+    if (!currentFileInfo.valid())
+    {
+        return RicSummaryCaseRestartDialogResult();
+    }
+
     dialog.appendFileInfoToGridLayout(*dialog.m_currentFileGridLayout, currentFileInfo);
 
     std::vector<RifRestartFileInfo> fileInfos = dialog.getRestartFiles(summaryHeaderFile);
