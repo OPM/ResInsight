@@ -574,6 +574,7 @@ void RicWellPathExportCompletionDataFeatureImpl::printCompletionsToFile(
 
     QTextStream                  stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
+    formatter.setColumnSpacing(3);
 
     for (const auto& gridCompletions : completionsPerGrid)
     {

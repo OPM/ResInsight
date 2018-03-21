@@ -106,6 +106,8 @@ public:
     RifEclipseDataTableFormatter(QTextStream& out);
     virtual ~RifEclipseDataTableFormatter();
 
+    void setColumnSpacing(int spacing);
+
     RifEclipseDataTableFormatter&     keyword(const QString keyword);
     RifEclipseDataTableFormatter&     header(std::vector<RifEclipseOutputTableColumn> tableHeader);
     RifEclipseDataTableFormatter&     add(const QString str);
