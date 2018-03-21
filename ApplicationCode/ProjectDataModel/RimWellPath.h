@@ -80,7 +80,6 @@ public:
     const RigWellPathFormations*        formationsGeometry() const;
 
     void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
-    std::vector<Rim3dWellLogCurve*>     vectorOf3dWellLogCurves() const;
     Rim3dWellLogCurveCollection*        rim3dWellLogCurveCollection() const;
 
     virtual caf::PdmFieldHandle*        userDescriptionField() override;

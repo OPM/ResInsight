@@ -50,16 +50,19 @@ class Riv3dWellLogPlanePartMgr : public cvf::Object
 public:
     Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGridView* gridView);
 
+    void appendPlaneToModel(cvf::ModelBasicList*              model,
+                            const caf::DisplayCoordTransform* displayCoordTransform,
+                            const cvf::BoundingBox&           wellPathClipBoundingBox);
+private:
     void append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
                                       const caf::DisplayCoordTransform* displayCoordTransform,
                                       const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void appendGridToModel(cvf::ModelBasicList*              model,
-                           const caf::DisplayCoordTransform* displayCoordTransform,
-                           const cvf::BoundingBox&           wellPathClipBoundingBox,
-                           double                            gridIntervalSize);
-
-private:
+    void appendGridToModel(cvf::ModelBasicList*                 model,
+                           const caf::DisplayCoordTransform*    displayCoordTransform,
+                           const cvf::BoundingBox&              wellPathClipBoundingBox,
+                           const Rim3dWellLogCurve::DrawPlane&  drawPlane,
+                           double                               gridIntervalSize);
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
 private:

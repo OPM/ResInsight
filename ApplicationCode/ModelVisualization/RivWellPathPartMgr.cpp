@@ -540,22 +540,11 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, false);
     appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
 
-    if (!m_rimWellPath->rim3dWellLogCurveCollection()) return;
-    if (!m_rimWellPath->rim3dWellLogCurveCollection()->showPlot()) return;
-    if (m_rimWellPath->vectorOf3dWellLogCurves().empty()) return;
-
     RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
     if (!gridView) return;
 
-    m_3dWellLogCurvePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath, gridView);
-    m_3dWellLogCurvePartMgr->append3dWellLogCurvesToModel(model, 
-                                                          displayCoordTransform,
-                                                          wellPathClipBoundingBox);
-
-    if (m_rimWellPath->rim3dWellLogCurveCollection()->showGrid())
-    {
-        m_3dWellLogCurvePartMgr->appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, 800);
-    }
+    m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath, gridView);
+    m_3dWellLogPlanePartMgr->appendPlaneToModel(model, displayCoordTransform, wellPathClipBoundingBox);
 }
 
 //--------------------------------------------------------------------------------------------------

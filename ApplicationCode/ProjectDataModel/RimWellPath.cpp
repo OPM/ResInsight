@@ -812,14 +812,6 @@ void RimWellPath::add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<Rim3dWellLogCurve*> RimWellPath::vectorOf3dWellLogCurves() const
-{
-    return m_3dWellLogCurves->vectorOf3dWellLogCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection* RimWellPath::rim3dWellLogCurveCollection() const
 {
     return m_3dWellLogCurves();

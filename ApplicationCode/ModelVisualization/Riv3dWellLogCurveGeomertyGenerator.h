@@ -47,10 +47,11 @@ class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
     Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath, RimGridView* gridView)
-        : m_wellPath(wellPath), m_gridView(gridView) {};
+        : m_wellPath(wellPath)
+        , m_gridView(gridView){};
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
-                                               const cvf::BoundingBox&            wellPathClipBoundingBox,
+                                               const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
 
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
@@ -59,21 +60,30 @@ public:
                                           double                             gridIntervalSize) const;
 
 private:
+    enum VertexOrganization
+    {
+        LINE_SEGMENTS,
+        POLYLINE
+    };
+
+private:
     void createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
                                        std::vector<cvf::Vec3f>*          vertices,
                                        std::vector<cvf::uint>*           indices) const;
 
-    std::vector<cvf::Vec3d> calculatePointNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
-                                                  const std::vector<cvf::Vec3d>& points) const;
-
-    std::vector<cvf::Vec3d> calculateWellPathSegmentNormals(Rim3dWellLogCurve::DrawPlane drawPlane) const;
+    std::vector<cvf::Vec3d> calculateLineSegmentNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
+                                                        const std::vector<cvf::Vec3d>& vertices,
+                                                        VertexOrganization             organization) const;
 
     double wellPathCenterToPlotStartOffset() const;
     double gridWidth() const;
 
     const RigWellPath* wellPathGeometry() const;
+
+    void calculatePairsOfClosestPointsAlongWellPath(std::vector<cvf::Vec3d>* closestWellPathPoints,
+                                                    std::vector<cvf::Vec3d>& points) const;
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;

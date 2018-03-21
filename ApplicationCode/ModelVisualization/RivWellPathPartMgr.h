@@ -124,6 +124,6 @@ private:
     cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
     cvf::ref<cvf::Part>                 m_wellLabelPart;
 
-    cvf::ref<Riv3dWellLogPlanePartMgr>          m_3dWellLogCurvePartMgr;
+    cvf::ref<Riv3dWellLogPlanePartMgr>          m_3dWellLogPlanePartMgr;
     cvf::ref<RivWellConnectionFactorPartMgr>    m_wellConnectionFactorPartMgr;
 };
