@@ -539,6 +539,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 
     if (!m_rimWellPath->rim3dWellLogCurveCollection()) return;
     if (!m_rimWellPath->rim3dWellLogCurveCollection()->showPlot()) return;
+    if (m_rimWellPath->vectorOf3dWellLogCurves().empty()) return;
 
     RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
     if (!gridView) return;
