@@ -25,8 +25,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "Rim3dWellLogCurve.h"
-
 #include <vector>
 
 namespace caf
@@ -50,11 +48,13 @@ public:
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
                                                const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                               const Rim3dWellLogCurve*          rim3dWellLogCurve) const;
+                                               const std::vector<double>&        resultValues,
+                                               const std::vector<double>&        resultMds,
+                                               double                            rotationAngle) const;
 
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
                                           const cvf::BoundingBox&            wellPathClipBoundingBox,
-                                          const Rim3dWellLogCurve::DrawPlane drawPlane,
+                                          double                             angle,
                                           double                             gridIntervalSize) const;
 
 private:
@@ -65,13 +65,15 @@ private:
     };
 
 private:
-    void createCurveVerticesAndIndices(const Rim3dWellLogCurve*          rim3dWellLogCurve,
+    void createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
+                                       const std::vector<double>&        resultMds,
+                                       double                            angle,
                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
                                        std::vector<cvf::Vec3f>*          vertices,
                                        std::vector<cvf::uint>*           indices) const;
 
-    std::vector<cvf::Vec3d> calculateLineSegmentNormals(Rim3dWellLogCurve::DrawPlane   drawPlane,
+    std::vector<cvf::Vec3d> calculateLineSegmentNormals(double                         angle,
                                                         const std::vector<cvf::Vec3d>& vertices,
                                                         VertexOrganization             organization) const;
 

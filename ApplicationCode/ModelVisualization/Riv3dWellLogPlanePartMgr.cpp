@@ -50,9 +50,9 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
                                                   const cvf::BoundingBox&           wellPathClipBoundingBox)
 {
     if (m_wellPath.isNull()) return;
-    
+
     if (!m_wellPath->rim3dWellLogCurveCollection()) return;
-    
+
     if (!m_wellPath->rim3dWellLogCurveCollection()->showPlot()) return;
 
     if (m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty()) return;
@@ -95,8 +95,12 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     {
         if (!rim3dWellLogCurve->toggleState()) continue;
 
-        cvf::ref<cvf::Drawable> curveDrawable =
-            m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve);
+        std::vector<double> resultValues;
+        std::vector<double> resultMds;
+        rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+
+        cvf::ref<cvf::Drawable> curveDrawable = m_3dWellLogCurveGeometryGenerator->createCurveLine(
+            displayCoordTransform, wellPathClipBoundingBox, resultValues, resultMds, angle(rim3dWellLogCurve->drawPlane()));
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
         {
@@ -133,11 +137,31 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*                   model,
-                                                 const caf::DisplayCoordTransform*      displayCoordTransform,
-                                                 const cvf::BoundingBox&                wellPathClipBoundingBox,
-                                                 const Rim3dWellLogCurve::DrawPlane&    drawPlane,
-                                                 double                                 gridIntervalSize)
+double Riv3dWellLogPlanePartMgr::angle(const Rim3dWellLogCurve::DrawPlane& drawPlane)
+{
+    switch (drawPlane)
+    {
+        case Rim3dWellLogCurve::HORIZONTAL_LEFT:
+            return cvf::PI_D;
+        case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
+            return 0.0;
+        case Rim3dWellLogCurve::VERTICAL_ABOVE:
+            return cvf::PI_D / 2.0;
+        case Rim3dWellLogCurve::VERTICAL_BELOW:
+            return -cvf::PI_D / 2.0;
+        default:
+            return 0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*                model,
+                                                 const caf::DisplayCoordTransform*   displayCoordTransform,
+                                                 const cvf::BoundingBox&             wellPathClipBoundingBox,
+                                                 const Rim3dWellLogCurve::DrawPlane& drawPlane,
+                                                 double                              gridIntervalSize)
 {
     if (m_wellPath.isNull()) return;
 
@@ -150,7 +174,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
 
     {
         cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(
-            displayCoordTransform, wellPathClipBoundingBox, drawPlane, gridIntervalSize);
+            displayCoordTransform, wellPathClipBoundingBox, angle(drawPlane), gridIntervalSize);
 
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
         cvf::ref<cvf::Part>   part   = createPart(gridHorizontalDrawable.p(), effect.p());
