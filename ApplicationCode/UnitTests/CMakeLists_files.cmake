@@ -40,6 +40,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRelocatePath-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEnsambleParametersReader-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

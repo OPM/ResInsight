@@ -3,6 +3,7 @@
 #include "RiaTestDataDirectory.h"
 
 #include "RifElementPropertyTableReader.h"
+#include "RifFileParseTools.h"
 
 #include <QString>
 #include <numeric>
