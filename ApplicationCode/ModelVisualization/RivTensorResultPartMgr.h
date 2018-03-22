@@ -56,19 +56,19 @@ public:
 private:
     struct TensorVisualization
     {
-        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, size_t princial, float principalValue)
+        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, int princial, float principalValue)
             : vertex(vertex)
             , result(result)
             , faceNormal(faceNormal)
             , isPressure(isPressure)
-            , princial(princial)
+            , princialNumber(princial)
             , principalValue(principalValue) {};
 
         cvf::Vec3f vertex;
         cvf::Vec3f result;
         cvf::Vec3f faceNormal;
         bool       isPressure;
-        size_t     princial;
+        int        princialNumber;
         float      principalValue;
     };
 
