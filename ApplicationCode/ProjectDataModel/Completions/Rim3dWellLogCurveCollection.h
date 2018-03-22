@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -33,6 +34,13 @@ class Rim3dWellLogCurveCollection : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
+    enum PlanePosition
+    {
+        ALONG_WELLPATH,
+        ON_WELLPATH
+    };
+
+public:
     Rim3dWellLogCurveCollection();
     virtual ~Rim3dWellLogCurveCollection();
 
@@ -42,14 +50,20 @@ public:
     bool isShowingGrid() const;
     bool isShowingPlot() const;
 
+    PlanePosition planePosition() const;
+
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
 
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle* objectToggleField() override;
+    virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<bool>                         m_showPlot;
+
     caf::PdmField<bool>                         m_showGrid;
+    caf::PdmField<caf::AppEnum<PlanePosition>>  m_planePosition;
+
     caf::PdmChildArrayField<Rim3dWellLogCurve*> m_3dWellLogCurves;
 };

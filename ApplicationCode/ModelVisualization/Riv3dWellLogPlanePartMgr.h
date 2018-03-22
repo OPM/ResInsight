@@ -22,6 +22,7 @@
 #include "cvfObject.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "Rim3dWellLogCurveCollection.h"
 
 #include "cafPdmPointer.h"
 
@@ -68,7 +69,7 @@ private:
 
     static double planeAngle(const Rim3dWellLogCurve::DrawPlane& drawPlane);
 
-    double wellPathCenterToPlotStartOffset() const;
+    double wellPathCenterToPlotStartOffset(Rim3dWellLogCurveCollection::PlanePosition planePosition) const;
     double planeWidth() const;
 
 private:
