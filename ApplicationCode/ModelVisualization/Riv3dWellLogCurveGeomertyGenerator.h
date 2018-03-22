@@ -38,23 +38,28 @@ class BoundingBox;
 }
 
 class RigWellPath;
-class RimGridView;
 class RimWellPath;
 
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath, RimGridView* gridView);
+    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath);
 
     cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
                                                const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                const std::vector<double>&        resultValues,
                                                const std::vector<double>&        resultMds,
-                                               double                            rotationAngle) const;
+                                               double                            planeAngle,
+                                               double                            planeOffsetFromWellPathCenter,
+                                               double                            planeWidth) const;
+
+
 
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
                                           const cvf::BoundingBox&            wellPathClipBoundingBox,
-                                          double                             angle,
+                                          double                             planeAngle,
+                                          double                             planeOffsetFromWellPathCenter,
+                                          double                             planeWidth,
                                           double                             gridIntervalSize) const;
 
 private:
@@ -67,7 +72,9 @@ private:
 private:
     void createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
                                        const std::vector<double>&        resultMds,
-                                       double                            angle,
+                                       double                            planeAngle,
+                                       double                            planeOffsetFromWellPathCenter,
+                                       double                            planeWidth,
                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
                                        std::vector<cvf::Vec3f>*          vertices,
@@ -77,9 +84,6 @@ private:
                                                         const std::vector<cvf::Vec3d>& vertices,
                                                         VertexOrganization             organization) const;
 
-    double wellPathCenterToPlotStartOffset() const;
-    double gridWidth() const;
-
     const RigWellPath* wellPathGeometry() const;
 
     void calculatePairsOfClosestPointsAlongWellPath(std::vector<cvf::Vec3d>* closestWellPathPoints,
@@ -87,5 +91,4 @@ private:
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
-    caf::PdmPointer<RimGridView> m_gridView;
 };

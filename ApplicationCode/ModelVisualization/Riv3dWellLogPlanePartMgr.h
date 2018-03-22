@@ -34,7 +34,7 @@ class Drawable;
 class Effect;
 class Part;
 class BoundingBox;
-} // namespace cvf
+}
 
 namespace caf
 {
@@ -63,9 +63,15 @@ private:
                            const cvf::BoundingBox&              wellPathClipBoundingBox,
                            const Rim3dWellLogCurve::DrawPlane&  drawPlane,
                            double                               gridIntervalSize);
+
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
     static double angle(const Rim3dWellLogCurve::DrawPlane& drawPlane);
+
+    double wellPathCenterToPlotStartOffset() const;
+    double planeWidth() const;
+
+    void create3dWellLogCurveGeometryGenerator();
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
