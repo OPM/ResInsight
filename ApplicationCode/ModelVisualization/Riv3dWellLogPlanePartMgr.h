@@ -46,6 +46,7 @@ class DisplayCoordTransform;
 class RimGridView;
 class RimWellPath;
 class Riv3dWellLogCurveGeometryGenerator;
+class Riv3dWellLogGridGeometryGenerator;
 
 class Riv3dWellLogPlanePartMgr : public cvf::Object
 {
@@ -77,6 +78,7 @@ private:
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
+    cvf::ref<Riv3dWellLogGridGeometryGenerator>  m_3dWellLogGridGeometryGenerator;
 
     caf::PdmPointer<RimWellPath> m_wellPath;
     caf::PdmPointer<RimGridView> m_gridView;

@@ -27,6 +27,7 @@
 #include "RimWellPath.h"
 
 #include "Riv3dWellLogCurveGeomertyGenerator.h"
+#include "Riv3dWellLogGridGeomertyGenerator.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -46,6 +47,7 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGri
 {
     CVF_ASSERT(m_wellPath.notNull());
     m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p());
+    m_3dWellLogGridGeometryGenerator = new Riv3dWellLogGridGeometryGenerator(m_wellPath.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,12 +224,12 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 
     cvf::ref<cvf::Drawable> gridHorizontalDrawable =
-        m_3dWellLogCurveGeometryGenerator->createGrid(displayCoordTransform,
-                                                      wellPathClipBoundingBox,
-                                                      planeAngle(drawPlane),
-                                                      wellPathCenterToPlotStartOffset(planePosition),
-                                                      planeWidth(),
-                                                      gridIntervalSize);
+        m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
+                                                     wellPathClipBoundingBox,
+                                                     planeAngle(drawPlane),
+                                                     wellPathCenterToPlotStartOffset(planePosition),
+                                                     planeWidth(),
+                                                     gridIntervalSize);
 
     cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
     cvf::ref<cvf::Part>   part   = createPart(gridHorizontalDrawable.p(), effect.p());

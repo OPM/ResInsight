@@ -52,20 +52,6 @@ public:
                                                double                            planeAngle,
                                                double                            planeOffsetFromWellPathCenter,
                                                double                            planeWidth) const;
-
-    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
-                                          const cvf::BoundingBox&            wellPathClipBoundingBox,
-                                          double                             planeAngle,
-                                          double                             planeOffsetFromWellPathCenter,
-                                          double                             planeWidth,
-                                          double                             gridIntervalSize) const;
-private:
-    enum VertexOrganization
-    {
-        LINE_SEGMENTS,
-        POLYLINE
-    };
-
 private:
     void createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
                                        const std::vector<double>&        resultMds,
@@ -77,14 +63,7 @@ private:
                                        std::vector<cvf::Vec3f>*          vertices,
                                        std::vector<cvf::uint>*           indices) const;
 
-    std::vector<cvf::Vec3d> calculateLineSegmentNormals(double                         angle,
-                                                        const std::vector<cvf::Vec3d>& vertices,
-                                                        VertexOrganization             organization) const;
-
     const RigWellPath* wellPathGeometry() const;
-
-    void calculatePairsOfClosestSamplingPointsAlongWellPath(std::vector<cvf::Vec3d>* closestWellPathPoints,
-                                                            std::vector<cvf::Vec3d>& points) const;
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;

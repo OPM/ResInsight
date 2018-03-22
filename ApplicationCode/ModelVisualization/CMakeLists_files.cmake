@@ -42,6 +42,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogCurveGeomertyGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorGeometryGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionSourceInfo.h
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogGridGeomertyGenerator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -82,6 +83,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogCurveGeomertyGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorGeometryGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionSourceInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogGridGeomertyGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
