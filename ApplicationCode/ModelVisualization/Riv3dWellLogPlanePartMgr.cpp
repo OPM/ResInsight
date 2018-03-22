@@ -18,6 +18,8 @@
 
 #include "Riv3dWellLogPlanePartMgr.h"
 
+#include "RiaColorTables.h"
+
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimCase.h"
@@ -93,8 +95,11 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
     Rim3dWellLogCurveCollection::PlanePosition planePosition   = curveCollection->planePosition();
 
+    size_t colorIndex = 0;
+
     for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
+        colorIndex++;
         if (!rim3dWellLogCurve->isShowingCurve()) continue;
 
         std::vector<double> resultValues;
@@ -115,7 +120,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
             continue;
         }
 
-        caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.9f, 0.0f, 0.0f));
+        caf::MeshEffectGenerator meshEffectGen(curveColor(colorIndex));
+        meshEffectGen.setLineWidth(2.0f);
         cvf::ref<cvf::Effect>    effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -191,6 +197,14 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
     double cellSize = m_gridView->ownerCase()->characteristicCellSize();
 
     return cellSize * 4;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f Riv3dWellLogPlanePartMgr::curveColor(size_t index)
+{
+    return RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index);
 }
 
 //--------------------------------------------------------------------------------------------------

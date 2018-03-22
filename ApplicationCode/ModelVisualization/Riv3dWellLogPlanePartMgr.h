@@ -35,6 +35,7 @@ class Drawable;
 class Effect;
 class Part;
 class BoundingBox;
+class Color3f;
 }
 
 namespace caf
@@ -71,6 +72,8 @@ private:
 
     double wellPathCenterToPlotStartOffset(Rim3dWellLogCurveCollection::PlanePosition planePosition) const;
     double planeWidth() const;
+
+    cvf::Color3f curveColor(size_t index);
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
