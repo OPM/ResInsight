@@ -18,7 +18,9 @@
 
 #include "Riv3dWellLogPlanePartMgr.h"
 
+#include "Rim3dView.h"
 #include "Rim3dWellLogCurveCollection.h"
+#include "RimCase.h"
 #include "RimGridView.h"
 #include "RimWellPath.h"
 
@@ -32,8 +34,6 @@
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "Rim3dView.h"
-#include "RimCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,6 +42,8 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGri
     : m_wellPath(wellPath)
     , m_gridView(gridView)
 {
+    CVF_ASSERT(m_wellPath.notNull());
+    m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,24 +57,24 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
 
     if (!m_wellPath->rim3dWellLogCurveCollection()) return;
 
-    if (!m_wellPath->rim3dWellLogCurveCollection()->showPlot()) return;
+    if (!m_wellPath->rim3dWellLogCurveCollection()->isShowingPlot()) return;
 
     if (m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty()) return;
 
     append3dWellLogCurvesToModel(model, displayCoordTransform, wellPathClipBoundingBox);
 
-    if (m_wellPath->rim3dWellLogCurveCollection()->showGrid())
+    if (m_wellPath->rim3dWellLogCurveCollection()->isShowingGrid())
     {
-        std::map<Rim3dWellLogCurve::DrawPlane, bool> drawPlanes;
+        std::set<Rim3dWellLogCurve::DrawPlane> drawPlanes;
 
         for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
         {
-            drawPlanes[rim3dWellLogCurve->drawPlane()];
+            drawPlanes.insert(rim3dWellLogCurve->drawPlane());
         }
 
-        for (const std::pair<Rim3dWellLogCurve::DrawPlane, bool>& drawPlane : drawPlanes)
+        for (const Rim3dWellLogCurve::DrawPlane& drawPlane : drawPlanes)
         {
-            appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, drawPlane.first, 400);
+            appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, drawPlane, planeWidth());
         }
     }
 }
@@ -88,18 +90,16 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     if (!m_wellPath->rim3dWellLogCurveCollection()) return;
     if (m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty()) return;
     
-    create3dWellLogCurveGeometryGenerator();
-
     for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
-        if (!rim3dWellLogCurve->toggleState()) continue;
+        if (!rim3dWellLogCurve->isShowingCurve()) continue;
 
         std::vector<double> resultValues;
         std::vector<double> resultMds;
         rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
 
         cvf::ref<cvf::Drawable> curveDrawable = m_3dWellLogCurveGeometryGenerator->createCurveLine(
-            displayCoordTransform, wellPathClipBoundingBox, resultValues, resultMds, angle(rim3dWellLogCurve->drawPlane()), wellPathCenterToPlotStartOffset(), planeWidth());
+            displayCoordTransform, wellPathClipBoundingBox, resultValues, resultMds, planeAngle(rim3dWellLogCurve->drawPlane()), wellPathCenterToPlotStartOffset(), planeWidth());
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
         {
@@ -136,7 +136,7 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Riv3dWellLogPlanePartMgr::angle(const Rim3dWellLogCurve::DrawPlane& drawPlane)
+double Riv3dWellLogPlanePartMgr::planeAngle(const Rim3dWellLogCurve::DrawPlane& drawPlane)
 {
     switch (drawPlane)
     {
@@ -177,18 +177,6 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
     return cellSize * 4;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void Riv3dWellLogPlanePartMgr::create3dWellLogCurveGeometryGenerator()
-{
-    if (m_wellPath.isNull()) return;
-
-    if (m_3dWellLogCurveGeometryGenerator.isNull())
-    {
-        m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p());
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -199,12 +187,10 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
                                                  const Rim3dWellLogCurve::DrawPlane& drawPlane,
                                                  double                              gridIntervalSize)
 {
-    create3dWellLogCurveGeometryGenerator();
-
     caf::MeshEffectGenerator meshEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
 
     cvf::ref<cvf::Drawable> gridHorizontalDrawable = m_3dWellLogCurveGeometryGenerator->createGrid(
-        displayCoordTransform, wellPathClipBoundingBox, angle(drawPlane), wellPathCenterToPlotStartOffset(), planeWidth(), gridIntervalSize);
+        displayCoordTransform, wellPathClipBoundingBox, planeAngle(drawPlane), wellPathCenterToPlotStartOffset(), planeWidth(), gridIntervalSize);
 
     cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
     cvf::ref<cvf::Part>   part = createPart(gridHorizontalDrawable.p(), effect.p());

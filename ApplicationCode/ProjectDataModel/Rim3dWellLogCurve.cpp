@@ -105,7 +105,7 @@ Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurve::toggleState() const
+bool Rim3dWellLogCurve::isShowingCurve() const
 {
     return m_showCurve;
 }

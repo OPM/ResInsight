@@ -54,8 +54,15 @@ cvf::ref<cvf::DrawableGeo>
     std::vector<cvf::Vec3f> vertices;
     std::vector<cvf::uint>  indices;
 
-    createCurveVerticesAndIndices(
-        resultValues, resultMds, planeAngle, planeOffsetFromWellPathCenter, planeWidth, displayCoordTransform, wellPathClipBoundingBox, &vertices, &indices);
+    createCurveVerticesAndIndices(resultValues,
+                                  resultMds,
+                                  planeAngle,
+                                  planeOffsetFromWellPathCenter,
+                                  planeWidth,
+                                  displayCoordTransform,
+                                  wellPathClipBoundingBox,
+                                  &vertices,
+                                  &indices);
 
     if (vertices.empty() || indices.empty())
     {
@@ -128,7 +135,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     std::vector<cvf::Vec3d> pointNormals;
 
     std::vector<cvf::Vec3d> closestPoints;
-    calculatePairsOfClosestPointsAlongWellPath(&closestPoints, gridPoints);
+    calculatePairsOfClosestSamplingPointsAlongWellPath(&closestPoints, gridPoints);
 
     pointNormals = calculateLineSegmentNormals(planeAngle, closestPoints, LINE_SEGMENTS);
     if (pointNormals.size() != gridPoints.size()) return nullptr;
@@ -140,8 +147,6 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::createGrid(const 
     indices.reserve(gridPoints.size() * 2);
 
     cvf::uint indexCounter = 0;
-
-    //double planeOffsetFromWellPathCenter = wellPathCenterToPlotStartOffset();
 
     // Normal lines
     for (size_t i = 0; i < pointNormals.size(); i++)
@@ -242,11 +247,6 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
     }
     if (interpolatedWellPathPoints.empty()) return;
 
-    if (interpolatedWellPathPoints.size() % 2 != 0)
-    {
-        interpolatedWellPathPoints.pop_back();
-    }
-
     // Reverse list, since it was filled in the opposite order
     std::reverse(interpolatedWellPathPoints.begin(), interpolatedWellPathPoints.end());
 
@@ -255,7 +255,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
                                                           resultValues.end());
 
     std::vector<cvf::Vec3d> pairsOfWellPathPoints;
-    calculatePairsOfClosestPointsAlongWellPath(&pairsOfWellPathPoints, interpolatedWellPathPoints);
+    calculatePairsOfClosestSamplingPointsAlongWellPath(&pairsOfWellPathPoints, interpolatedWellPathPoints);
 
     std::vector<cvf::Vec3d> pointNormals = calculateLineSegmentNormals(planeAngle, pairsOfWellPathPoints, LINE_SEGMENTS);
     if (interpolatedWellPathPoints.size() != pointNormals.size()) return;
@@ -354,7 +354,6 @@ std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::calculateLineSegment
         }
 
         cvf::Vec3d Ey = (up ^ Ex).getNormalized();
-        cvf::Vec3d Ez = (Ex ^ Ey).getNormalized();
 
         cvf::Mat3d rotation;
         normal = Ey.getTransformedVector(rotation.fromRotation(Ex, angle));
@@ -381,7 +380,7 @@ const RigWellPath* Riv3dWellLogCurveGeometryGenerator::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogCurveGeometryGenerator::calculatePairsOfClosestPointsAlongWellPath(
+void Riv3dWellLogCurveGeometryGenerator::calculatePairsOfClosestSamplingPointsAlongWellPath(
     std::vector<cvf::Vec3d>* closestWellPathPoints,
     std::vector<cvf::Vec3d>& points) const
 {

@@ -39,11 +39,10 @@ public:
     bool has3dWellLogCurves() const;
     void add3dWellLogCurve(Rim3dWellLogCurve* curve);
 
-    bool showGrid() const;
-    bool showPlot() const;
+    bool isShowingGrid() const;
+    bool isShowingPlot() const;
 
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
-
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

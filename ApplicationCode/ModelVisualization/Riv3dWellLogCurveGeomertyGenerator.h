@@ -53,15 +53,12 @@ public:
                                                double                            planeOffsetFromWellPathCenter,
                                                double                            planeWidth) const;
 
-
-
     cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
                                           const cvf::BoundingBox&            wellPathClipBoundingBox,
                                           double                             planeAngle,
                                           double                             planeOffsetFromWellPathCenter,
                                           double                             planeWidth,
                                           double                             gridIntervalSize) const;
-
 private:
     enum VertexOrganization
     {
@@ -86,8 +83,8 @@ private:
 
     const RigWellPath* wellPathGeometry() const;
 
-    void calculatePairsOfClosestPointsAlongWellPath(std::vector<cvf::Vec3d>* closestWellPathPoints,
-                                                    std::vector<cvf::Vec3d>& points) const;
+    void calculatePairsOfClosestSamplingPointsAlongWellPath(std::vector<cvf::Vec3d>* closestWellPathPoints,
+                                                            std::vector<cvf::Vec3d>& points) const;
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;

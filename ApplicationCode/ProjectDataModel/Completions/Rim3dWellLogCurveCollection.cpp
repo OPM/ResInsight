@@ -69,7 +69,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurveCollection::showGrid() const
+bool Rim3dWellLogCurveCollection::isShowingGrid() const
 {
     return m_showGrid;
 }
@@ -77,7 +77,7 @@ bool Rim3dWellLogCurveCollection::showGrid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurveCollection::showPlot() const
+bool Rim3dWellLogCurveCollection::isShowingPlot() const
 {
     return m_showPlot;
 }

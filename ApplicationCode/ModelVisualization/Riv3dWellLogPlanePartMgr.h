@@ -66,12 +66,10 @@ private:
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
-    static double angle(const Rim3dWellLogCurve::DrawPlane& drawPlane);
+    static double planeAngle(const Rim3dWellLogCurve::DrawPlane& drawPlane);
 
     double wellPathCenterToPlotStartOffset() const;
     double planeWidth() const;
-
-    void create3dWellLogCurveGeometryGenerator();
 
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
