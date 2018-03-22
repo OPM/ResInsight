@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifElementPropertyTableReader.h"
+#include "RifFileParseTools.h"
 
 #include "RiaLogging.h"
 #include "RiuMainWindow.h"
@@ -36,7 +37,6 @@
 //--------------------------------------------------------------------------------------------------
 static QFile* openFile(const QString &fileName);
 static void closeFile(QFile *file);
-static QStringList splitLineAndTrim(const QString& line, const QString& separator);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -70,7 +70,7 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QSt
 
                 if (!metadataBlockFound) continue;
 
-                QStringList cols = splitLineAndTrim(line, ",");
+                QStringList cols = RifFileParseTools::splitLineAndTrim(line, ",");
 
                 metadata.fileName = fileName;
                 for (QString s : cols)
@@ -119,7 +119,7 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
             while (!stream.atEnd())
             {
                 QString     line = stream.readLine();
-                QStringList cols = splitLineAndTrim(line, ",");
+                QStringList cols = RifFileParseTools::splitLineAndTrim(line, ",");
                 lineNo++;
 
                 if (!dataBlockFound)
@@ -200,17 +200,4 @@ void closeFile(QFile *file)
         file->close();
         delete file;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QStringList splitLineAndTrim(const QString& line, const QString& separator)
-{
-    QStringList cols = line.split(separator);
-    for (QString& col : cols)
-    {
-        col = col.trimmed();
-    }
-    return cols;
 }

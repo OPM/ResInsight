@@ -20,6 +20,7 @@
 
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
+#include "RifFileParseTools.h"
 
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
@@ -136,7 +137,7 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
 
         outStream << "<tr>";
         int iCol = 0;
-        QStringList cols = splitLineAndTrim(line, parseOptions.cellSeparator);
+        QStringList cols = RifFileParseTools::splitLineAndTrim(line, parseOptions.cellSeparator);
         for (const QString& cellData : cols)
         {
             if (cellData == parseOptions.timeSeriesColumnName && header)
@@ -187,7 +188,7 @@ bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiD
         QString line = dataStream->readLine();
         if (line.trimmed().isEmpty()) continue;
 
-        QStringList lineColumns = splitLineAndTrim(line, parseOptions.cellSeparator);
+        QStringList lineColumns = RifFileParseTools::splitLineAndTrim(line, parseOptions.cellSeparator);
 
         int colCount = lineColumns.size();
 
@@ -230,7 +231,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
         QString line = dataStream->readLine();
         if(line.trimmed().isEmpty()) continue;
 
-        QStringList lineColumns = splitLineAndTrim(line, parseOptions.cellSeparator);
+        QStringList lineColumns = RifFileParseTools::splitLineAndTrim(line, parseOptions.cellSeparator);
 
         if(lineColumns.size() != colCount)
         {
@@ -342,19 +343,6 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RifCsvUserDataParser::splitLineAndTrim(const QString& line, const QString& separator)
-{
-    QStringList cols = line.split(separator);
-    for (QString& col : cols)
-    {
-        col = col.trimmed();
-    }
-    return cols;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QDateTime RifCsvUserDataParser::tryParseDateTime(const std::string& colData, const QString& format)
 {
     return RiaQDateTimeTools::fromString(QString::fromStdString(colData), format);
@@ -386,9 +374,9 @@ QString RifCsvUserDataParser::tryDetermineCellSeparator()
 
     for (const QString& line : lines)
     {
-        totColumnCountTab       += splitLineAndTrim(line, "\t").size();
-        totColumnCountSemicolon += splitLineAndTrim(line, ";").size();
-        totColumnCountComma     += splitLineAndTrim(line, ",").size();
+        totColumnCountTab       += RifFileParseTools::splitLineAndTrim(line, "\t").size();
+        totColumnCountSemicolon += RifFileParseTools::splitLineAndTrim(line, ";").size();
+        totColumnCountComma     += RifFileParseTools::splitLineAndTrim(line, ",").size();
     }
 
     double avgColumnCountTab        = (double)totColumnCountTab / lines.size();
@@ -421,7 +409,7 @@ QString RifCsvUserDataParser::tryDetermineDecimalSeparator(const QString& cellSe
         QString line = dataStream->readLine();
         if (line.isEmpty()) continue;
 
-        for (const QString& cellData : splitLineAndTrim(line, cellSeparator))
+        for (const QString& cellData : RifFileParseTools::splitLineAndTrim(line, cellSeparator))
         {
             bool parseOk;
             QLocale locale;

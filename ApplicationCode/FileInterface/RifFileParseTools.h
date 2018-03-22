@@ -18,51 +18,25 @@
 
 #pragma once
 
-#include <map>
-#include <utility>
-#include <vector>
-
-#include "cvfBase.h"
-#include "cvfObject.h"
-
 #include <QString>
-
-class RifElementPropertyTable;
-class RifElementPropertyMetadata;
-
-//==================================================================================================
-///
-//==================================================================================================
-class RifElementPropertyTableReader : cvf::Object
-{
-public:
-    static RifElementPropertyMetadata   readMetadata(const QString& filePath);
-    static void                         readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table);
-};
+#include <QStringList>
 
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RifElementPropertyMetadata
+class RifFileParseTools
 {
 public:
-    QString                 fileName;
-    std::vector<QString>    dataColumns;
+    static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
 };
-
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RifElementPropertyTable
+class FileParseException
 {
 public:
-    RifElementPropertyTable() : hasData(false) {}
-
-    RifElementPropertyMetadata      metadata;
-    bool                            hasData;
-    std::vector<int>                elementIds;
-    std::vector<std::vector<float>> data;
+    FileParseException(const QString &message) : message(message) {}
+    QString  message;
 };
-

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,51 +18,67 @@
 
 #pragma once
 
-#include <map>
-#include <utility>
-#include <vector>
+#include "RiaPreferences.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RifSummaryCaseRestartSelector.h"
 
 #include <QString>
+#include <QTextStream>
 
-class RifElementPropertyTable;
-class RifElementPropertyMetadata;
+#include <string>
+#include <vector>
+#include <map>
+
+class QStringList;
+class QTextStream;
+class QFile;
 
 //==================================================================================================
-///
+//
+//
 //==================================================================================================
-class RifElementPropertyTableReader : cvf::Object
+class RifEnsambleParameters
 {
 public:
-    static RifElementPropertyMetadata   readMetadata(const QString& filePath);
-    static void                         readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table);
+    void                        addParameter(const QString& name, double value);
+    std::map<QString, double>   parameters() const;
+
+private:
+    std::map<QString, double> m_parameters;
 };
 
-
 //==================================================================================================
-///
+//
+//
 //==================================================================================================
-class RifElementPropertyMetadata
+class RifEnsambleParametersReader
 {
 public:
-    QString                 fileName;
-    std::vector<QString>    dataColumns;
+    RifEnsambleParametersReader(const QString& fileName);
+    ~RifEnsambleParametersReader();
+
+    void                            parse();
+    const RifEnsambleParameters&    parameters() const;
+
+private:
+    QTextStream*                    openDataStream();
+    void                            closeDataStream();
+    bool                            openFile();
+    void                            closeFile();
+private:
+    RifEnsambleParameters   m_parameters;
+
+    QString                 m_fileName;
+    QFile*                  m_file;
+    QTextStream*            m_textStream;
 };
 
-
 //==================================================================================================
-///
+//
+//
 //==================================================================================================
-class RifElementPropertyTable
+class RifEnsambleParametersFileLocator
 {
 public:
-    RifElementPropertyTable() : hasData(false) {}
-
-    RifElementPropertyMetadata      metadata;
-    bool                            hasData;
-    std::vector<int>                elementIds;
-    std::vector<std::vector<float>> data;
+    static QString locate(const QString& modelPath);
 };
-
