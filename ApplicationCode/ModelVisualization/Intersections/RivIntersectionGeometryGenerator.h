@@ -60,6 +60,8 @@ public:
     // Generate geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
+    cvf::ref<cvf::DrawableGeo>  createFaultMeshDrawable();
+
     cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable();
     cvf::ref<cvf::DrawableGeo>  createLineAlongExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
     cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable();
@@ -98,6 +100,7 @@ private:
     // Output arrays                            
     cvf::ref<cvf::Vec3fArray>                   m_triangleVxes;
     cvf::ref<cvf::Vec3fArray>                   m_cellBorderLineVxes;
+    cvf::ref<cvf::Vec3fArray>                   m_faultCellBorderLineVxes;
     std::vector<size_t>                         m_triangleToCellIdxMap;
     std::vector<RivIntersectionVertexWeights>   m_triVxToCellCornerWeights;
     std::vector<std::vector<cvf::Vec3d> >       m_flattenedOrOffsettedPolyLines;

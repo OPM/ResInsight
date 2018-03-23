@@ -24,11 +24,12 @@
 #include "cvfBoundingBox.h"
 
 #include <vector>
+#include "cvfStructGrid.h"
 
 class RigActiveCellInfo;
 class RigFemPart;
 class RigMainGrid;
-
+class RigFault;
 
 //--------------------------------------------------------------------------------------------------
 /// Interface definition used to compute the geometry for planes intersecting a grid
@@ -42,6 +43,8 @@ public:
     virtual bool useCell(size_t cellIndex) const = 0;
     virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const = 0;
     virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const = 0;
+    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+                                                              cvf::StructGridInterface::FaceType face) const = 0;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +61,8 @@ public:
     virtual bool useCell(size_t cellIndex) const;
     virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
     virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
+    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+                                                              cvf::StructGridInterface::FaceType face) const override;
 
 private:
     cvf::cref<RigMainGrid>       m_mainGrid;
@@ -79,6 +84,8 @@ public:
     virtual bool useCell(size_t cellIndex) const;
     virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
     virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
+    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+                                                              cvf::StructGridInterface::FaceType face) const override;
 
 private:
     cvf::cref<RigFemPart>      m_femPart;

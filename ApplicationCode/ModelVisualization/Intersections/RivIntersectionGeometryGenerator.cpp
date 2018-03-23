@@ -71,6 +71,8 @@ RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimIntersect
 {
     m_triangleVxes = new cvf::Vec3fArray;
     m_cellBorderLineVxes = new cvf::Vec3fArray;
+    m_faultCellBorderLineVxes = new cvf::Vec3fArray;
+
     if (m_isFlattened) m_extrusionDirection = -cvf::Vec3d::Z_AXIS;
 }
 
@@ -152,6 +154,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
     m_extrusionDirection.normalize();
     std::vector<cvf::Vec3f> triangleVertices;
     std::vector<cvf::Vec3f> cellBorderLineVxes;
+    std::vector<cvf::Vec3f> faultCellBorderLineVxes;
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
     
@@ -315,21 +318,46 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
                     // Accumulate mesh lines
                     #define isFace( faceEnum ) (0 <= faceEnum && faceEnum <= 5 )
+                    using FaceType = cvf::StructGridInterface::FaceType;
 
-                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx]) )
+                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx]) )
                     {
-                        cellBorderLineVxes.emplace_back(p0);
-                        cellBorderLineVxes.emplace_back(p1);
+                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx]) )
+                        {
+                            faultCellBorderLineVxes.emplace_back(p0);
+                            faultCellBorderLineVxes.emplace_back(p1);
+                        }
+                        else
+                        {
+                            cellBorderLineVxes.emplace_back(p0);
+                            cellBorderLineVxes.emplace_back(p1);
+                        }
                     }
-                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
+                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
                     {
-                        cellBorderLineVxes.emplace_back(p1);
-                        cellBorderLineVxes.emplace_back(p2);
+                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
+                        {
+                            faultCellBorderLineVxes.emplace_back(p1);
+                            faultCellBorderLineVxes.emplace_back(p2);
+                        }
+                        else
+                        {
+                            cellBorderLineVxes.emplace_back(p1);
+                            cellBorderLineVxes.emplace_back(p2);
+                        }
                     }
-                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
+                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
                     {
-                        cellBorderLineVxes.emplace_back(p2);
-                        cellBorderLineVxes.emplace_back(p0);
+                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
+                        {
+                            faultCellBorderLineVxes.emplace_back(p2);
+                            faultCellBorderLineVxes.emplace_back(p0);
+                        }
+                        else
+                        {
+                            cellBorderLineVxes.emplace_back(p2);
+                            cellBorderLineVxes.emplace_back(p0);
+                        }
                     }
 
                     // Mapping to cell index
@@ -352,9 +380,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
                             m_triVxToCellCornerWeights.push_back(
                                 RivIntersectionVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
-                                cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
-                                cvx.normDistFromEdgeVx1));
-
+                                                             cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                                                             cvx.normDistFromEdgeVx1));
                         }
                     }
                 }
@@ -364,6 +391,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
     }
     m_triangleVxes->assign(triangleVertices);
     m_cellBorderLineVxes->assign(cellBorderLineVxes);
+    m_faultCellBorderLineVxes->assign(faultCellBorderLineVxes);
 }
 
 
@@ -404,6 +432,24 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createMeshDrawable(
     return geo;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createFaultMeshDrawable()
+{
+    if (!(m_faultCellBorderLineVxes.notNull() && m_faultCellBorderLineVxes->size() != 0)) return nullptr;
+
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+    geo->setVertexArray(m_faultCellBorderLineVxes.p());
+
+
+    cvf::ref<cvf::PrimitiveSetDirect> prim = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
+    prim->setIndexCount(m_faultCellBorderLineVxes->size());
+
+    geo->addPrimitiveSet(prim.p());
+    return geo;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

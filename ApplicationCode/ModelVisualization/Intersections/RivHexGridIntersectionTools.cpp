@@ -92,6 +92,15 @@ void RivEclipseIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t corn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+                                                                              cvf::StructGridInterface::FaceType face) const
+{
+    return m_mainGrid->findFaultFromCellIndexAndCellFace(reservoirCellIndex, face);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RivFemIntersectionGrid::RivFemIntersectionGrid(const RigFemPart * femPart) : m_femPart(femPart)
 {
 
@@ -170,5 +179,14 @@ void RivFemIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIn
     cornerIndices[5] = m_femPart->elementNodeResultIdx(elmIdx, 5);
     cornerIndices[6] = m_femPart->elementNodeResultIdx(elmIdx, 6);
     cornerIndices[7] = m_femPart->elementNodeResultIdx(elmIdx, 7);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+                                                                          cvf::StructGridInterface::FaceType face) const
+{
+    return nullptr;
 }
 

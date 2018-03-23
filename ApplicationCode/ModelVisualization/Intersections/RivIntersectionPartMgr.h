@@ -121,6 +121,8 @@ private:
     cvf::ref<RivIntersectionGeometryGenerator>   m_crossSectionGenerator;
     cvf::ref<cvf::Part>         m_crossSectionFaces;
     cvf::ref<cvf::Part>         m_crossSectionGridLines;
+    cvf::ref<cvf::Part>         m_crossSectionFaultGridLines;
+    
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
 
     cvf::ref<cvf::Part>         m_highlightLineAlongPolyline;

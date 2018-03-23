@@ -70,6 +70,8 @@
 #include "cvfTransform.h"
 
 #include <functional>
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -116,15 +118,24 @@ void RivIntersectionPartMgr::applySingleColorEffect()
     }
 
     // Update mesh colors as well, in case of change
-    //RiaPreferences* prefs = RiaApplication::instance()->preferences();
-
-    cvf::ref<cvf::Effect> eff;
-    caf::MeshEffectGenerator CrossSectionEffGen(cvf::Color3::WHITE);//prefs->defaultCrossSectionGridLineColors());
-    eff = CrossSectionEffGen.generateCachedEffect();
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     if (m_crossSectionGridLines.notNull())
     {
+        cvf::ref<cvf::Effect> eff;
+        caf::MeshEffectGenerator CrossSectionEffGen(prefs->defaultGridLineColors());
+        eff = CrossSectionEffGen.generateCachedEffect();
+
         m_crossSectionGridLines->setEffect(eff.p());
+    }
+
+    if (m_crossSectionFaultGridLines.notNull())
+    {
+        cvf::ref<cvf::Effect> eff;
+        caf::MeshEffectGenerator CrossSectionEffGen(prefs->defaultFaultGridLineColors());
+        eff = CrossSectionEffGen.generateCachedEffect();
+
+        m_crossSectionFaultGridLines->setEffect(eff.p());
     }
 }
 
@@ -546,6 +557,27 @@ void RivIntersectionPartMgr::generatePartGeometry()
         }
     }
 
+    // Mesh geometry
+    {
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_crossSectionGenerator->createFaultMeshDrawable();
+        if (geoMesh.notNull())
+        {
+            if (useBufferObjects)
+            {
+                geoMesh->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("Cross Section faultmesh");
+            part->setDrawable(geoMesh.p());
+
+            part->updateBoundingBox();
+            part->setEnableMask(meshFaultBit);
+            part->setPriority(RivPartPriority::PartType::FaultMeshLines);
+
+            m_crossSectionFaultGridLines = part;
+        }
+    }
     createPolyLineParts(useBufferObjects);
 
     createExtrusionDirParts(useBufferObjects);
@@ -795,6 +827,12 @@ void RivIntersectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
     {
         m_crossSectionGridLines->setTransform(scaleTransform);
         model->addPart(m_crossSectionGridLines.p());
+    }
+
+    if (m_crossSectionFaultGridLines.notNull())
+    {
+        m_crossSectionFaultGridLines->setTransform(scaleTransform);
+        model->addPart(m_crossSectionFaultGridLines.p());
     }
 }
 
