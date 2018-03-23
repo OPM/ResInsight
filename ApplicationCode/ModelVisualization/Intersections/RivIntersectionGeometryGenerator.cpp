@@ -229,8 +229,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
             std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
             hexPlaneCutTriangleVxes.reserve(5*3);
-            std::vector<bool> isTriangleEdgeCellContour;
-            isTriangleEdgeCellContour.reserve(5*3);
+            std::vector<int> cellFaceForEachTriangleEdge;
+            cellFaceForEachTriangleEdge.reserve(5*3);
             cvf::Vec3d cellCorners[8];
             size_t cornerIndices[8];
 
@@ -247,10 +247,10 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                 m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
 
                 caf::HexGridIntersectionTools::planeHexIntersectionMC(plane,
-                                       cellCorners,
-                                       cornerIndices,
-                                       &hexPlaneCutTriangleVxes,
-                                       &isTriangleEdgeCellContour);
+                                                                      cellCorners,
+                                                                      cornerIndices,
+                                                                      &hexPlaneCutTriangleVxes,
+                                                                      &cellFaceForEachTriangleEdge);
 
                 if (m_crossSection->type == RimIntersection::CS_AZIMUTHLINE)
                 {
@@ -284,14 +284,14 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                 }
 
                 std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
-                std::vector<bool> isClippedTriEdgeCellContour;
+                std::vector<int> cellFaceForEachClippedTriangleEdge;
 
                 caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, 
-                                                                                     isTriangleEdgeCellContour, 
+                                                                                     cellFaceForEachTriangleEdge, 
                                                                                      p1Plane, 
                                                                                      p2Plane,
                                                                                      &clippedTriangleVxes, 
-                                                                                     &isClippedTriEdgeCellContour);
+                                                                                     &cellFaceForEachClippedTriangleEdge);
 
                 size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
 
@@ -314,18 +314,19 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
 
                     // Accumulate mesh lines
+                    #define isFace( faceEnum ) (0 <= faceEnum && faceEnum <= 5 )
 
-                    if (isClippedTriEdgeCellContour[triVxIdx])
+                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx]) )
                     {
                         cellBorderLineVxes.emplace_back(p0);
                         cellBorderLineVxes.emplace_back(p1);
                     }
-                    if (isClippedTriEdgeCellContour[triVxIdx+1])
+                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
                     {
                         cellBorderLineVxes.emplace_back(p1);
                         cellBorderLineVxes.emplace_back(p2);
                     }
-                    if (isClippedTriEdgeCellContour[triVxIdx+2])
+                    if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
                     {
                         cellBorderLineVxes.emplace_back(p2);
                         cellBorderLineVxes.emplace_back(p0);
