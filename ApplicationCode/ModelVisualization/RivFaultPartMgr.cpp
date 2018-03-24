@@ -705,8 +705,9 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
         cvf::Color3f nncColor = m_defaultColor;
         nncColor.r() +=  (1.0 - nncColor.r()) * 0.2;
         nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
-        nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
+        nncColor.b() +=  (1.0 - nncColor.b()) * 0.2;
 
+        CVF_ASSERT(nncColor.isValid());
         cvf::ref<cvf::Effect> nncEffect;
 
         if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)

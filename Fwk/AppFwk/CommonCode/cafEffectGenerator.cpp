@@ -259,6 +259,8 @@ void EffectGenerator::releaseUnreferencedEffects()
 //--------------------------------------------------------------------------------------------------
 SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset)
 {
+    CVF_ASSERT(color.isValid());
+
     m_color = color;
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
@@ -271,6 +273,8 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
 //--------------------------------------------------------------------------------------------------
 SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset)
 {
+    CVF_ASSERT(color.isValid());
+
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
