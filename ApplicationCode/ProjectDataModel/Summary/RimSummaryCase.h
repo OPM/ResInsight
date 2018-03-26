@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RigCaseRealizationParameters.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -52,6 +54,9 @@ public:
 
     bool                isObservedData();
 
+    void                setCaseRealizationParameters(cvf::ref<RigCaseRealizationParameters> crlParameters);
+    cvf::ref<RigCaseRealizationParameters> caseRealizationParameters() const;
+
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                updateTreeItemName();
@@ -60,6 +65,8 @@ protected:
     caf::PdmField<bool>             m_useAutoShortName;
     caf::PdmField<QString>          m_summaryHeaderFilename;
     bool                            m_isObservedData;
+    
+    cvf::ref<RigCaseRealizationParameters> m_crlParameters;
 
 private:
     virtual void        initAfterRead() override;

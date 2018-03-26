@@ -19,6 +19,7 @@
 
 #include "RifEclipseSummaryTools.h"
 #include "RifSummaryCaseRestartSelector.h"
+#include "RifCaseRealizationParametersReader.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
@@ -32,6 +33,27 @@
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseMainCollection,"SummaryCaseCollection");
+
+//--------------------------------------------------------------------------------------------------
+/// Internal function
+//--------------------------------------------------------------------------------------------------
+void addCaseRealizationParametersIfFound(RimSummaryCase& sumCase, const QString modelFolderOrFile)
+{
+    QString parametersFile = RifCaseRealizationParametersFileLocator::locate(modelFolderOrFile);
+    if (!parametersFile.isEmpty())
+    {
+        RifCaseRealizationParametersReader reader(parametersFile);
+
+        // Try parse case realization parameters
+        try
+        {
+            reader.parse();
+            sumCase.setCaseRealizationParameters(reader.parameters());
+        }
+        catch (...) {}
+    }
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -288,6 +310,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
             newSumCase->setAssociatedEclipseCase(eclResCase);
             newSumCase->createSummaryReaderInterface();
             newSumCase->updateOptionSensitivity();
+            addCaseRealizationParametersIfFound(*newSumCase, importFileInfos.front().fileName);
             sumCases.push_back(newSumCase);
 
             // Remove the processed element and add 'orphan' summary cases
@@ -302,7 +325,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
                 newSumCase->setSummaryHeaderFileName(fileInfo.fileName);
                 newSumCase->createSummaryReaderInterface();
                 newSumCase->updateOptionSensitivity();
-
+                addCaseRealizationParametersIfFound(*newSumCase, fileInfo.fileName);
                 sumCases.push_back(newSumCase);
             }
         }
@@ -329,7 +352,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
         newSumCase->setSummaryHeaderFileName(fileInfo.fileName);
         newSumCase->createSummaryReaderInterface();
         newSumCase->updateOptionSensitivity();
-
+        addCaseRealizationParametersIfFound(*newSumCase, fileInfo.fileName);
         sumCases.push_back(newSumCase);
     }
 

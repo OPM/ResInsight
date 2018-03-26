@@ -86,6 +86,22 @@ bool RimSummaryCase::isObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setCaseRealizationParameters(cvf::ref<RigCaseRealizationParameters> crlParameters)
+{
+    m_crlParameters = crlParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigCaseRealizationParameters> RimSummaryCase::caseRealizationParameters() const
+{
+    return m_crlParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_useAutoShortName)

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,29 +18,24 @@
 
 #pragma once
 
-#include "RifSummaryCaseRestartSelector.h"
-#include "RifEnsambleParameters.h"
+#include "cvfObject.h"
 
 #include <QString>
 
-
-class QStringList;
-class QTextStream;
-class QFile;
+#include <map>
+#include <memory>
 
 
 //==================================================================================================
 //
-//  UNDER CONSTRUCTION
+//
 //==================================================================================================
-class RifEnsambleParametersReader
+class RigCaseRealizationParameters : public cvf::Object
 {
 public:
-    RifEnsambleParametersReader(const QString& modelDirectory);
-    ~RifEnsambleParametersReader();
-
-    RifEnsambleParametersPtr import();
+    void                        addParameter(const QString& name, double value);
+    std::map<QString, double>   parameters() const;
 
 private:
-    QString m_modelDirectory;
+    std::map<QString, double>   m_parameters;
 };
