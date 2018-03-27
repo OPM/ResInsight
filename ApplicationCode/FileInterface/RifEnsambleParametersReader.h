@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RifSummaryCaseRestartSelector.h"
-#include "RifEnsambleParameters.h"
 
 #include <QString>
 
@@ -39,7 +38,7 @@ public:
     RifEnsambleParametersReader(const QString& modelDirectory);
     ~RifEnsambleParametersReader();
 
-    RifEnsambleParametersPtr import();
+    //RifEnsambleParameters import();
 
 private:
     QString m_modelDirectory;

@@ -46,11 +46,11 @@ RifEnsambleParametersReader::~RifEnsambleParametersReader()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEnsambleParametersPtr RifEnsambleParametersReader::import()
-{
-    RifEnsambleParametersPtr parameters;
-
-
-    return nullptr;
-}
+//RifEnsambleParameters RifEnsambleParametersReader::import()
+//{
+//    RifEnsambleParameters parameters;
+//
+//
+//    return ;
+//}
 
