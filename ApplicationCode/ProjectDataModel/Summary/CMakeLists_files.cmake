@@ -29,6 +29,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotSourceStepping.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCsvUserData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsambleCurveSetCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsambleCurveSet.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -61,6 +63,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotSourceStepping.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCsvUserData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsambleCurveSetCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsambleCurveSet.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
