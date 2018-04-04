@@ -525,10 +525,15 @@ void RimLegendConfig::applyPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
-    if (!m_scalarMapperLegend.isNull())
-      m_scalarMapperLegend->enableBackground(preferences->showLegendBackground());
-    if (!m_categoryLegend.isNull())
-      m_categoryLegend->enableBackground(preferences->showLegendBackground());
+    
+    if (m_scalarMapperLegend.notNull())
+    {
+        m_scalarMapperLegend->enableBackground(preferences->showLegendBackground());
+    }
+    if (m_categoryLegend.notNull())
+    {
+        m_categoryLegend->enableBackground(preferences->showLegendBackground());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

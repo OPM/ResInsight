@@ -247,7 +247,7 @@ void RimTernaryLegendConfig::recreateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::applyPreferences()
 {
-    if (!m_legend.isNull())
+    if (m_legend.notNull())
     {
         RiaApplication* app = RiaApplication::instance();
         RiaPreferences* preferences = app->preferences();
