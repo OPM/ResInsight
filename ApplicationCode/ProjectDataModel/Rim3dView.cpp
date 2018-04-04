@@ -23,7 +23,7 @@
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
 
-#include "RimEclipseCase.h"
+#include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -47,7 +47,6 @@
 #include "cvfTransform.h"
 #include "cvfViewport.h"
 
-#include <QDateTime>
 #include <climits>
 #include "cvfScene.h"
 
@@ -430,33 +429,10 @@ void Rim3dView::setupBeforeSave()
 
 //--------------------------------------------------------------------------------------------------
 /// 
-// Surf: No Fault Surf
-//  Mesh -------------
-//    No F  F     G
-// Fault F  F     G
-//  Mesh G  G     G
-//
-//--------------------------------------------------------------------------------------------------
-bool Rim3dView::isGridVisualizationMode() const
-{
-    return (   this->surfaceMode() == SURFACE 
-            || this->meshMode()    == FULL_MESH);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshOnlyDrawstyle()
 {
-    if (isGridVisualizationMode())
-    {
-        meshMode.setValueWithFieldChanged(FULL_MESH);
-    }
-    else
-    {
-        meshMode.setValueWithFieldChanged(FAULTS_MESH);
-    }
-
+    meshMode.setValueWithFieldChanged(FULL_MESH);
     surfaceMode.setValueWithFieldChanged(NO_SURFACE);
 }
 
@@ -465,16 +441,8 @@ void Rim3dView::setMeshOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshSurfDrawstyle()
 {
-    if (isGridVisualizationMode())
-    {
-        surfaceMode.setValueWithFieldChanged(SURFACE);
-        meshMode.setValueWithFieldChanged(FULL_MESH);
-    }
-    else
-    {
-        surfaceMode.setValueWithFieldChanged(FAULTS);
-        meshMode.setValueWithFieldChanged(FAULTS_MESH);
-    }
+    surfaceMode.setValueWithFieldChanged(SURFACE);
+    meshMode.setValueWithFieldChanged(FULL_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,20 +450,7 @@ void Rim3dView::setMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setFaultMeshSurfDrawstyle()
 {
-    // Surf: No Fault Surf
-    //  Mesh -------------
-    //    No FF  FF    SF
-    // Fault FF  FF    SF
-    //  Mesh SF  SF    SF
-    if (this->isGridVisualizationMode())
-    {
-        surfaceMode.setValueWithFieldChanged(SURFACE);
-    }
-    else
-    {
-        surfaceMode.setValueWithFieldChanged(FAULTS);
-    }
-
+    surfaceMode.setValueWithFieldChanged(SURFACE);
     meshMode.setValueWithFieldChanged(FAULTS_MESH);
 }
 
@@ -504,15 +459,7 @@ void Rim3dView::setFaultMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setSurfOnlyDrawstyle()
 {
-    if (isGridVisualizationMode())
-    {
-        surfaceMode.setValueWithFieldChanged(SURFACE);
-    }
-    else
-    {
-        surfaceMode.setValueWithFieldChanged(FAULTS);
-    }
-
+    surfaceMode.setValueWithFieldChanged(SURFACE);
     meshMode.setValueWithFieldChanged(NO_MESH);
 }
 
@@ -794,9 +741,20 @@ void Rim3dView::updateDisplayModelVisibility()
     const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
     const cvf::uint uintFaultBit        = faultBit;
     const cvf::uint uintMeshFaultBit    = meshFaultBit;
+    const cvf::uint uintIntersectionCellFaceBit    = intersectionCellFaceBit; 
+    const cvf::uint uintIntersectionCellMeshBit    = intersectionCellMeshBit; 
+    const cvf::uint uintIntersectionFaultMeshBit   = intersectionFaultMeshBit;
 
     // Initialize the mask to show everything except the the bits controlled here
-    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
+    unsigned int mask = 
+        0xffffffff
+        & ~uintSurfaceBit
+        & ~uintFaultBit
+        & ~uintMeshSurfaceBit
+        & ~uintMeshFaultBit 
+        & ~intersectionCellFaceBit
+        & ~intersectionCellMeshBit
+        & ~intersectionFaultMeshBit;
 
     // Then turn the appropriate bits on according to the user settings
 
@@ -804,20 +762,25 @@ void Rim3dView::updateDisplayModelVisibility()
     {
         mask |= uintSurfaceBit;
         mask |= uintFaultBit;
+        mask |= intersectionCellFaceBit;
     }
     else if (surfaceMode == FAULTS)
     {
         mask |= uintFaultBit;
+        mask |= intersectionCellFaceBit;
     }
 
     if (meshMode == FULL_MESH)
     {
         mask |= uintMeshSurfaceBit;
         mask |= uintMeshFaultBit;
+        mask |= intersectionCellMeshBit;
+        mask |= intersectionFaultMeshBit;
     }
     else if (meshMode == FAULTS_MESH)
     {
         mask |= uintMeshFaultBit;
+        mask |= intersectionFaultMeshBit;
     }
 
     m_viewer->setEnableMask(mask);

@@ -109,7 +109,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     // Parts that is overridden by the grid settings
     bool forceDisplayOfFault = false;
-    if (!faultCollection->showFaultsOutsideFilters())
+    if (!faultCollection->isShowingFaultsAndFaultsOutsideFilters())
     {
         forceDisplayOfFault = isShowingGrid;
     }

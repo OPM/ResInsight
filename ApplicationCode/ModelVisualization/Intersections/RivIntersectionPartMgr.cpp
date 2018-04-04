@@ -528,14 +528,14 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(faultBit);
+            part->setEnableMask(intersectionCellFaceBit);
             part->setPriority(RivPartPriority::PartType::Intersection);
 
             m_crossSectionFaces = part;
         }
     }
 
-    // Mesh geometry
+    // Cell Mesh geometry
     {
         cvf::ref<cvf::DrawableGeo> geoMesh = m_crossSectionGenerator->createMeshDrawable();
         if (geoMesh.notNull())
@@ -550,14 +550,14 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->setDrawable(geoMesh.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(meshFaultBit);
+            part->setEnableMask(intersectionCellMeshBit);
             part->setPriority(RivPartPriority::PartType::MeshLines);
 
             m_crossSectionGridLines = part;
         }
     }
 
-    // Mesh geometry
+    // Fault Mesh geometry
     {
         cvf::ref<cvf::DrawableGeo> geoMesh = m_crossSectionGenerator->createFaultMeshDrawable();
         if (geoMesh.notNull())
@@ -572,7 +572,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->setDrawable(geoMesh.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(meshFaultBit);
+            part->setEnableMask(intersectionFaultMeshBit);
             part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
             m_crossSectionFaultGridLines = part;

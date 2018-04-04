@@ -305,6 +305,14 @@ cvf::ref<RivIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::isGridVisualizationMode() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d Rim2dIntersectionView::transformToUtm(const cvf::Vec3d& unscaledPointInFlatDomain) const
 {
     cvf::Mat4d unflatXf = this->flatIntersectionPartMgr()->unflattenTransformMatrix(unscaledPointInFlatDomain);

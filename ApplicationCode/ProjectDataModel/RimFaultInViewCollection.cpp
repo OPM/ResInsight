@@ -377,7 +377,7 @@ void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFaultInViewCollection::showFaultsOutsideFilters() const
+bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 {
     if (!showFaultCollection) return false;
 

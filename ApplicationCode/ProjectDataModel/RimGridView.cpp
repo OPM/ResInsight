@@ -34,6 +34,7 @@
 
 #include "cvfModel.h"
 #include "cvfScene.h"
+#include "RiuMainWindow.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimGridView, "GenericGridView"); // Do not use. Abstract class 
@@ -107,19 +108,14 @@ RimGridView::~RimGridView(void)
 //--------------------------------------------------------------------------------------------------
 void RimGridView::showGridCells(bool enableGridCells)
 {
-    if (!enableGridCells)
-    {
-        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(FAULTS);
-        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(FAULTS_MESH);
-    }
-    else
-    {
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
-        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
-    }
 
     m_gridCollection->isActive = enableGridCells;
+
+    createDisplayModel();
+    updateDisplayModelVisibility();
+    RiuMainWindow::instance()->refreshDrawStyleActions();
+    RiuMainWindow::instance()->refreshAnimationActions();
+
     m_gridCollection->updateConnectedEditors();
     m_gridCollection->updateUiIconFromState(enableGridCells);
 }
@@ -254,6 +250,14 @@ RimViewLinker* RimGridView::assosiatedViewLinker() const
     }
 
     return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGridView::isGridVisualizationMode() const
+{
+    return this->m_gridCollection->isActive();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -71,6 +71,7 @@ public:
 protected:
     void                       updateLegends();
 
+    virtual bool               isGridVisualizationMode() const override;
     virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
     virtual void               createDisplayModel() override;
     virtual void               createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;

@@ -399,7 +399,8 @@ void RimEclipseView::createDisplayModel()
     
 
     if (!this->eclipsePropertyFilterCollection()->hasActiveFilters()
-        || this->viewController() && this->viewController()->isVisibleCellsOveridden())
+        || ( this->viewController()
+             && this->viewController()->isVisibleCellsOveridden()) )
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
@@ -452,28 +453,41 @@ void RimEclipseView::createDisplayModel()
         {
             for (size_t gtIdx = 0; gtIdx < geometryTypesToAdd.size(); ++gtIdx)
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices); 
+                if ( isGridVisualizationMode() )
+                {
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices);
+                }
+                else
+                {
+                    m_reservoirGridPartManager->ensureStaticGeometryPartsCreated( geometryTypesToAdd[gtIdx]);
+                }
             }
         }
-
         // Set static colors 
         this->updateStaticCellColors();
+    }
+    else 
+    {
+        std::vector<RivCellSetEnum> empty;
+        setVisibleGridParts(empty);
     }
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
-    if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if (   faultCollection()->showFaultCollection()
+        || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
         setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
             for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
             {
                 if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS) continue;
+           
                 m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryType);
             }
 
@@ -569,10 +583,18 @@ void RimEclipseView::updateCurrentTimeStep()
         this->indicesToVisibleGrids(&gridIndices);
 
         geometriesToRecolor.push_back( PROPERTY_FILTERED);
-        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
-
         geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
-        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+
+        if ( isGridVisualizationMode() )
+        {
+            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
+            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+        }
+        else
+        {
+            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated(PROPERTY_FILTERED, m_currentTimeStep);
+            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated(PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
+        }
 
         setVisibleGridParts(geometriesToRecolor);
         setVisibleGridPartsWatertight();
@@ -590,7 +612,7 @@ void RimEclipseView::updateCurrentTimeStep()
             }
         }
 
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
         if (faultLabelType == PROPERTY_FILTERED)
         {
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), faultLabelType, m_currentTimeStep);
@@ -614,7 +636,7 @@ void RimEclipseView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices); 
 
-                if (!faultCollection()->showFaultsOutsideFilters())
+                if (!faultCollection()->isShowingFaultsAndFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE); 
                 }
@@ -623,7 +645,7 @@ void RimEclipseView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), INACTIVE, gridIndices);
 
-                if (!faultCollection()->showFaultsOutsideFilters())
+                if (!faultCollection()->isShowingFaultsAndFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), INACTIVE);
                 }
@@ -1475,7 +1497,7 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
     std::set<RivCellSetEnum> faultGeoTypes;
     faultGeoTypes.insert(m_visibleGridParts.begin(), m_visibleGridParts.end());
 
-    if (faultCollection()->showFaultsOutsideFilters())
+    if (faultCollection()->isShowingFaultsAndFaultsOutsideFilters())
     {
         faultGeoTypes.insert(ACTIVE);
         faultGeoTypes.insert(ALL_WELL_CELLS);

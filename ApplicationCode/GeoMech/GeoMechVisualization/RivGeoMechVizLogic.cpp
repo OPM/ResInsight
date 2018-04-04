@@ -147,19 +147,21 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
     }
-    else if (timeStepIndex >= 0 && m_geomechView->geoMechPropertyFilterCollection()->hasActiveFilters())
+    else if ( m_geomechView->isGridVisualizationMode() )
     {
-        visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
+        if ( timeStepIndex >= 0 && m_geomechView->geoMechPropertyFilterCollection()->hasActiveFilters() )
+        {
+            visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
+        }
+        else if ( m_geomechView->rangeFilterCollection()->hasActiveFilters() )
+        {
+            visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, -1));
+        }
+        else
+        {
+            visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(ALL_CELLS, -1));
+        }
     }
-    else if (m_geomechView->rangeFilterCollection()->hasActiveFilters())
-    {
-        visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, -1));
-    }
-    else
-    {
-        visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(ALL_CELLS, -1));
-    }
-
     return visiblePartMgrs;
 }
 
