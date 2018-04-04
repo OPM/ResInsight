@@ -99,6 +99,7 @@ public:
 
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                                        recreateLegend();
+    void                                        applyPreferences();
 
     void                                        setColorRangeMode(ColorRangesType colorMode);
     ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
