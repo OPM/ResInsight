@@ -280,6 +280,9 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
     if (!legendConfig) legendConfig = this->legendConfig();
     if (!ternaryLegendConfig) ternaryLegendConfig = this->ternaryLegendConfig();
 
+    if (legendConfig) legendConfig->applyPreferences();
+    if (ternaryLegendConfig) ternaryLegendConfig->applyPreferences();
+
     if ( this->hasResult() )
     {
         if ( this->isFlowDiagOrInjectionFlooding() )
