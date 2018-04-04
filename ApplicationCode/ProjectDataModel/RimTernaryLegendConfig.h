@@ -70,7 +70,8 @@ public:
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
     void                recreateLegend();
-    
+    void                applyPreferences();
+
     const RivTernarySaturationOverlayItem*    legend() const;
     RivTernarySaturationOverlayItem*          legend();
     void                                      setTitle(const QString& title);

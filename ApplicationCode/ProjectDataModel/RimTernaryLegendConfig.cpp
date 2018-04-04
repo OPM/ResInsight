@@ -202,11 +202,9 @@ void RimTernaryLegendConfig::updateLegend()
     if (!m_legend.isNull())
     {
         m_legend->setRangeText(soilRange, sgasRange, swatRange);
-
-        RiaApplication* app = RiaApplication::instance();
-        RiaPreferences* preferences = app->preferences();
-        m_legend->enableBackground(preferences->showLegendBackground());
     }
+
+    applyPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,6 +240,19 @@ void RimTernaryLegendConfig::recreateLegend()
     m_legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Retrieve preferences and apply to the current legend
+//--------------------------------------------------------------------------------------------------
+void RimTernaryLegendConfig::applyPreferences()
+{
+    if (!m_legend.isNull())
+    {
+        RiaApplication* app = RiaApplication::instance();
+        RiaPreferences* preferences = app->preferences();
+        m_legend->enableBackground(preferences->showLegendBackground());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
