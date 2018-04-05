@@ -74,7 +74,7 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged(Rim3dView* changedView) co
     pvtPlotUpdater->updateOnTimeStepChanged(changedView);
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
-    mohrsCirclePlot->updateOnTimeStepChanged(changedView);
+    if (mohrsCirclePlot) mohrsCirclePlot->updateOnTimeStepChanged(changedView);
 
     //tim.reportTimeMS("done");
 }

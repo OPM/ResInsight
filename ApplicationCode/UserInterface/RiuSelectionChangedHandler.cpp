@@ -90,7 +90,8 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnSelectionChanged(nullptr);
 
-    RiuMainWindow::instance()->mohrsCirclePlot()->clearPlot();
+    RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
+    if (mohrsCirclePlot) mohrsCirclePlot->clearPlot();
 
     updateResultInfo(nullptr);
 
@@ -110,7 +111,8 @@ void RiuSelectionChangedHandler::handleItemAppended(const RiuSelectionItem* item
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnSelectionChanged(item);
 
-    RiuMainWindow::instance()->mohrsCirclePlot()->appendSelection(item);
+    RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
+    if (mohrsCirclePlot) mohrsCirclePlot->appendSelection(item);
 
     updateResultInfo(item);
 
@@ -124,7 +126,8 @@ void RiuSelectionChangedHandler::handleSetSelectedItem(const RiuSelectionItem* i
 {
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
-    RiuMainWindow::instance()->mohrsCirclePlot()->clearPlot();
+    RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
+    if (mohrsCirclePlot) mohrsCirclePlot->clearPlot();
 
     handleItemAppended(item);
 }
