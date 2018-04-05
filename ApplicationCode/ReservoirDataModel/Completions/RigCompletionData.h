@@ -70,6 +70,7 @@ public:
 
     RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue);
     ~RigCompletionData();
+
     RigCompletionData(const RigCompletionData& other);
 
     bool operator<(const RigCompletionData& other) const;
@@ -78,6 +79,7 @@ public:
     void        setFromFracture(double transmissibility, double skinFactor, double diameter);
     void        setSecondOrderingValue(double orderingValue);
     void        setDiameter(double diameter);
+    void        setTransmissibility(double transmissibility);
     
     void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                              double skinFactor, 

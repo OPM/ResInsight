@@ -18,6 +18,7 @@
 
 #include "RimVirtualPerforationResults.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimLegendConfig.h"
 
@@ -35,7 +36,7 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
     CAF_PDM_InitObject(connectionFactorUiName, ":/CellResult.png", "", "");
 
     CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    false,   "", "", "", "");
-    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      0.2,    "Geometry Scale Factor", "", "", "");
+    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      1.0,    "Geometry Scale Factor", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     m_legendConfig.uiCapability()->setUiHidden(true);
@@ -78,6 +79,19 @@ RimLegendConfig* RimVirtualPerforationResults::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimVirtualPerforationResults::loadData()
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase)
+    {
+        eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue)
@@ -85,6 +99,8 @@ void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* c
     if (changedField == &m_isActive)
     {
         updateUiIconFromToggleField();
+
+        loadData();
     }
 
     RimEclipseView* eclView = nullptr;
@@ -124,7 +140,7 @@ void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::initAfterRead()
 {

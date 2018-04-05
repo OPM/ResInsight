@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigVirtualPerforationTransmissibilities.h"
+
 #include "RigStatisticsMath.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +117,33 @@ const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigVirtualPerforationTransmissibilities::setCompletionDataForSimWell(
+    const RigSimWellData*                        simWellData,
+    std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
+{
+    m_mapFromSimWellToCompletionData[simWellData] = completionsPerTimeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigCompletionData>&
+    RigVirtualPerforationTransmissibilities::completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const
+{
+    static std::vector<RigCompletionData> dummayVector;
+
+    auto item = m_mapFromSimWellToCompletionData.find(simWellData);
+    if (item != m_mapFromSimWellToCompletionData.end())
+    {
+        return item->second[timeStepIndex];
+    }
+
+    return dummayVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue,
                                                             double* maxValue,
                                                             double* posClosestToZero,
@@ -139,6 +167,22 @@ void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue,
                     minMaxAccumulator.addValue(transmissibility);
                     posNegAccumulator.addValue(transmissibility);
                 }
+            }
+        }
+    }
+
+    for (const auto& item : m_mapFromSimWellToCompletionData)
+    {
+        auto dataForSimWell = item.second;
+
+        for (const auto& timeStepFrame : dataForSimWell)
+        {
+            for (const auto& completionData : timeStepFrame)
+            {
+                double transmissibility = completionData.transmissibility();
+
+                minMaxAccumulator.addValue(transmissibility);
+                posNegAccumulator.addValue(transmissibility);
             }
         }
     }

@@ -39,10 +39,11 @@ public:
     RimVirtualPerforationResults();
     virtual ~RimVirtualPerforationResults();
 
-    bool    isActive() const;
-    double  geometryScaleFactor() const;
+    bool             isActive() const;
+    double           geometryScaleFactor() const;
     RimLegendConfig* legendConfig() const;
 
+    void             loadData();
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

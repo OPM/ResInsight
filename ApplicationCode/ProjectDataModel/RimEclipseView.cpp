@@ -33,6 +33,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -310,8 +311,6 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         scheduleCreateDisplayModelAndRedraw();
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -843,6 +842,11 @@ void RimEclipseView::onLoadDataAndUpdate()
         }
     }
 
+    if (this->isVirtualConnectionFactorGeometryVisible())
+    {
+        m_virtualPerforationResult->loadData();
+    }
+
     this->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -1103,6 +1107,8 @@ void RimEclipseView::updateLegends()
     
     if (m_virtualPerforationResult->isActive())
     {
+        updateVirtualConnectionLegendRanges();
+
         RimLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
         
         m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend());
@@ -1591,6 +1597,33 @@ void RimEclipseView::resetLegendsInViewer()
     if (cellResultNormalLegendConfig) m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
 
     m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::updateVirtualConnectionLegendRanges()
+{
+    if (!eclipseCase()) return;
+
+    const RigVirtualPerforationTransmissibilities* virtualTransmissibilities = eclipseCase()->computeAndGetVirtualPerforationTransmissibilities();
+    if (virtualTransmissibilities)
+    {
+        double minValue = HUGE_VAL;
+        double maxValue = -HUGE_VAL;
+        double posClosestToZero = HUGE_VAL;
+        double negClosestToZero = -HUGE_VAL;
+
+        virtualTransmissibilities->computeMinMax(&minValue, &maxValue, &posClosestToZero, &negClosestToZero);
+
+        if (minValue != HUGE_VAL)
+        {
+            RimLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
+
+            legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
+            legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

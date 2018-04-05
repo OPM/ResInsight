@@ -394,31 +394,39 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
             }
         }
 
-        rigEclipseCase->setVirtualPerforationTransmissibilities(perfTrans.p());
-
+        ;
+        for (const auto& wellRes : rigEclipseCase->wellResults())
         {
-            double minValue         = HUGE_VAL;
-            double maxValue         = -HUGE_VAL;
-            double posClosestToZero = HUGE_VAL;
-            double negClosestToZero = -HUGE_VAL;
-
-            perfTrans->computeMinMax(&minValue, &maxValue, &posClosestToZero, &negClosestToZero);
-
-            if (minValue != HUGE_VAL)
+            std::vector<std::vector<RigCompletionData>> completionsPerTimeStep;
+            for (size_t i = 0; i < timeStepDates().size(); i++)
             {
-                for (const auto& v : views())
-                {
-                    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(v);
-                    if (eclView)
-                    {
-                        RimLegendConfig* legendConfig = eclView->virtualPerforationResult()->legendConfig();
+                std::vector<RigCompletionData> completionData;
 
-                        legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
-                        legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);
+                if (wellRes->hasWellResult(i))
+                {
+                    for (const auto& wellResultBranch : wellRes->wellResultFrame(i).m_wellResultBranches)
+                    {
+                        for (const auto& r : wellResultBranch.m_branchResultPoints)
+                        {
+                            if (r.isValid() && r.m_isOpen)
+                            {
+                                RigCompletionData compData(wellRes->m_wellName, RigCompletionDataGridCell(r.m_gridCellIndex, rigEclipseCase->mainGrid()), 0);
+                                compData.setTransmissibility(r.connectionFactor());
+
+                                completionData.push_back(compData);
+                            }
+                        }
                     }
+
                 }
+
+                completionsPerTimeStep.push_back(completionData);
+
+                perfTrans->setCompletionDataForSimWell(wellRes.p(), completionsPerTimeStep);
             }
         }
+
+        rigEclipseCase->setVirtualPerforationTransmissibilities(perfTrans.p());
     }
 
     return rigEclipseCase->virtualPerforationTransmissibilities();

@@ -162,6 +162,7 @@ private:
     void                                            updateLegends();
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer() override;
+    void                                            updateVirtualConnectionLegendRanges();
 
     std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
     void                                            updateFaultColors();

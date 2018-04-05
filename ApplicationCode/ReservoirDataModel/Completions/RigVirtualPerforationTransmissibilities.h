@@ -28,6 +28,7 @@
 
 class RigCompletionData;
 class RigCompletionDataGridCell;
+class RigSimWellData;
 class RimWellPath;
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +61,13 @@ public:
     const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
         multipleCompletionsPerEclipseCell(RimWellPath* wellPath, size_t timeStepIndex) const;
 
+    void setCompletionDataForSimWell(const RigSimWellData* simWellData, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+    
+    const std::vector<RigCompletionData>&
+        completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const;
+
     void computeMinMax(double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
 private:
     std::map<RimWellPath*, std::vector<CompletionDataFrame>> m_mapFromWellToCompletionData;
+    std::map<const RigSimWellData*, std::vector<std::vector<RigCompletionData>>> m_mapFromSimWellToCompletionData;
 };
