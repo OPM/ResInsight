@@ -370,11 +370,6 @@ void RimLegendConfig::updateLegend()
    }
    m_scalarMapperLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
-   RiaApplication* app = RiaApplication::instance();
-   RiaPreferences* preferences = app->preferences();
-   m_scalarMapperLegend->enableBackground(preferences->showLegendBackground());
-   m_categoryLegend->enableBackground(preferences->showLegendBackground());
-
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
    {
        m_userDefinedMaxValue.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
@@ -392,6 +387,8 @@ void RimLegendConfig::updateLegend()
    {
         m_userDefinedMinValue.uiCapability()->setUiName(QString());
    }
+
+   applyPreferences();
 }
 
 
@@ -519,6 +516,24 @@ void RimLegendConfig::recreateLegend()
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Retrieve preferences and apply to the current legend(s)
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::applyPreferences()
+{
+    RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* preferences = app->preferences();
+    
+    if (m_scalarMapperLegend.notNull())
+    {
+        m_scalarMapperLegend->enableBackground(preferences->showLegendBackground());
+    }
+    if (m_categoryLegend.notNull())
+    {
+        m_categoryLegend->enableBackground(preferences->showLegendBackground());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
