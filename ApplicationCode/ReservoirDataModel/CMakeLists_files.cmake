@@ -63,6 +63,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
+${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.h
 )
 
@@ -126,6 +127,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.cpp
 )
 

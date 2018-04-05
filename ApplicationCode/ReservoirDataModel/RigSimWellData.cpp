@@ -25,6 +25,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigSimWellData::RigSimWellData()
+    : m_isMultiSegmentWell(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigWellResultFrame& RigSimWellData::wellResultFrame(size_t resultTimeStepIndex) const
 {
     CVF_ASSERT(resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size());
