@@ -185,7 +185,7 @@ double Riv3dWellLogPlanePartMgr::wellPathCenterToPlotStartOffset(Rim3dWellLogCur
     }
     else
     {
-        return -cellSize * 2;
+        return -0.5*planeWidth();
     }
 }
 
@@ -198,7 +198,7 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
 
     double cellSize = m_gridView->ownerCase()->characteristicCellSize();
 
-    return cellSize * 4;
+    return cellSize * 1.0;
 }
 
 //--------------------------------------------------------------------------------------------------
