@@ -165,7 +165,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
     size_t branchIdxStop = pipeBranchesCellIds.size();
     if (m_pipeBranchesCLCoords.size() > 1)
     {
-        if (branchIndex >= 0 && branchIndex < branchIdxStop)
+        if (branchIndex >= 0 && branchIndex < static_cast<int>(branchIdxStop))
         {
             branchIdxStart = branchIndex;
             branchIdxStop  = branchIdxStart + 1;
