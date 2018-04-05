@@ -573,7 +573,7 @@ void Rim2dIntersectionView::updateLegends()
     RimGeoMechView * geoView = nullptr;
     m_intersection->firstAncestorOrThisOfType(geoView);
 
-    cvf::OverlayItem* legend = nullptr;
+    caf::TitledOverlayFrame* legend = nullptr;
 
     if (eclView)
     {

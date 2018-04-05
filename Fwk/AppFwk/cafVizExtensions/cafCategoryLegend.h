@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "cafTitledOverlayFrame.h"
 #include "cvfBase.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
@@ -23,27 +24,15 @@ class CategoryMapper;
 //
 //
 //==================================================================================================
-class CategoryLegend : public cvf::OverlayItem
+class CategoryLegend : public caf::TitledOverlayFrame
 {
 public:
     CategoryLegend(cvf::Font* font, const CategoryMapper* categoryMapper);
     virtual ~CategoryLegend();
 
-    void         setSizeHint(const cvf::Vec2ui& size);
-
-    void         setTextColor(const cvf::Color3f& color);
-    void         setLineColor(const cvf::Color3f& lineColor);
-    void         setLineWidth(int lineWidth);
-    void         setTitle(const cvf::String& title);
-
-    void            enableBackground(bool enable);
-    void            setBackgroundColor(const cvf::Color4f& backgroundColor); 
-    void            setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
-
     size_t       categoryCount() const;
 
 protected:
-    cvf::Vec2ui sizeHint() override;
     void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
     void        renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
     bool        pick(int oglXCoord, int oglYCoord, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
@@ -92,19 +81,7 @@ protected:
 
 protected:
     std::vector<bool>         m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
-                              
-    cvf::Vec2ui               m_sizeHint;     // Pixel size of the color legend area
-                              
-    cvf::Color3f              m_textColor;
-    cvf::Color3f              m_lineColor;
-    int                       m_lineWidth;
-    std::vector<cvf::String>  m_titleStrings;
-    cvf::ref<cvf::Font>       m_font;
-
-    bool                      m_isBackgroundEnabled;
-    cvf::Color4f              m_backgroundColor;
-    cvf::Color4f              m_backgroundFrameColor;
-
+                                  
     cvf::cref<CategoryMapper> m_categoryMapper;
 };
 

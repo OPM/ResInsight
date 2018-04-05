@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaColorTools.h"
+#include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
 #include "RimCase.h"
@@ -40,6 +41,7 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
 #include "cafOverlayScalarMapperLegend.h"
 #include "cafCeetronPlusNavigation.h"
@@ -534,9 +536,13 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
+void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend)
 {
+    RiaApplication* app = RiaApplication::instance();
+    CVF_ASSERT(app);
+    RiaPreferences* preferences = app->preferences();
     cvf::Rendering* firstRendering = m_mainRendering.p();
+    CVF_ASSERT(preferences);
     CVF_ASSERT(firstRendering);
 
     if (legend)
@@ -544,7 +550,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         updateLegendTextAndTickMarkColor(legend);
 
         firstRendering->addOverlayItem(legend);
-
+        legend->enableBackground(preferences->showLegendBackground());
         m_visibleLegends.push_back(legend);
     }
 
@@ -552,7 +558,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
     const size_t categoryThreshold = 13;
 
     std::vector<caf::CategoryLegend*> categoryLegends;
-    std::vector<cvf::OverlayItem*> overlayItems;
+    std::vector<caf::TitledOverlayFrame*> overlayItems;
     for (auto legend : m_visibleLegends)
     {
         legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);

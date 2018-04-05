@@ -83,16 +83,9 @@ using namespace cvf;
 /// Constructor
 //--------------------------------------------------------------------------------------------------
 OverlayScalarMapperLegend::OverlayScalarMapperLegend(Font* font)
-:   m_sizeHint(200, 200),
-    m_textColor(Color3::BLACK),
-    m_lineColor(Color3::BLACK),
-    m_backgroundColor(1.0f, 1.0f, 1.0f, 0.8f),
-    m_backgroundFrameColor(0.0f, 0.0f, 0.0f, 0.5f),
-    m_isBackgroundEnabled(true),
-    m_lineWidth(1),
-    m_font(font),
-    m_tickNumberPrecision(4),
-    m_numberFormat(AUTO)
+:   TitledOverlayFrame(font, 200, 200)
+    , m_tickNumberPrecision(4)
+    , m_numberFormat(AUTO)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -112,16 +105,6 @@ OverlayScalarMapperLegend::~OverlayScalarMapperLegend()
     // Empty destructor to avoid errors with undefined types when cvf::ref's destructor gets called
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui OverlayScalarMapperLegend::sizeHint()
-{
-    return m_sizeHint;
-}
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -135,43 +118,6 @@ void OverlayScalarMapperLegend::setScalarMapper(const ScalarMapper* scalarMapper
         m_scalarMapper->majorTickValues(&levelValues);
 
         m_tickValues.assign(levelValues);
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setSizeHint(const Vec2ui& size)
-{
-    m_sizeHint = size;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Set color of the text 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setTextColor(const Color3f& color)
-{
-    m_textColor = color;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Set the title (text that will be rendered above the legend)
-/// 
-/// The legend supports multi-line titles. Separate each line with a '\n' character
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setTitle(const String& title)
-{
-    // Title
-    if (title.isEmpty())
-    {
-        m_titleStrings.clear();
-    }
-    else
-    {
-        m_titleStrings = title.split("\n");
     }
 }
 
@@ -243,7 +189,7 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
 
     // Set up text drawer
     float maxLegendRightPos = 0; 
-    TextDrawer textDrawer(m_font.p());
+    TextDrawer textDrawer(this->font());
     setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
     
     Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + 3.0f, (float)size.x()), (float)size.y());
@@ -251,14 +197,14 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     // Do the actual rendering
     if (software)
     {
-       if (m_isBackgroundEnabled) InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, backgroundSize, m_backgroundColor, m_backgroundFrameColor);
+       if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, backgroundSize, this->backgroundColor(), this->backgroundFrameColor());
         renderLegendImmediateMode(oglContext, &layout);
         textDrawer.renderSoftware(oglContext, camera);
     }
     else
     {
         const MatrixState matrixState(camera);
-        if (m_isBackgroundEnabled) InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, matrixState, backgroundSize, m_backgroundColor, m_backgroundFrameColor);
+        if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, matrixState, backgroundSize, this->backgroundColor(), this->backgroundFrameColor());
         renderLegendUsingShaders(oglContext, &layout, matrixState);
         textDrawer.render(oglContext, camera);
     }
@@ -277,7 +223,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
     float legendRight = 0.0f;
 
     textDrawer->setVerticalAlignment(TextDrawer::CENTER);
-    textDrawer->setTextColor(m_textColor);
+    textDrawer->setTextColor(this->textColor());
 
     m_visibleTickLabels.clear();
 
@@ -330,7 +276,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
         Vec2f pos(textX, textY);
         textDrawer->addText(valueString, pos);
 
-        float neededRightPos = pos.x() + m_font->textExtent(valueString).x();
+        float neededRightPos = pos.x() + this->font()->textExtent(valueString).x();
         legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
 
         lastVisibleTextY = textY;
@@ -338,12 +284,12 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
     }
 
     float titleY = static_cast<float>(layout->size.y()) - layout->margins.y() - layout->charHeight/2.0f;
-    for (it = 0; it < m_titleStrings.size(); it++)
+    for (it = 0; it < this->titleStrings().size(); it++)
     {
         Vec2f pos(layout->margins.x(), titleY);
-        textDrawer->addText(m_titleStrings[it], pos);
+        textDrawer->addText(this->titleStrings()[it], pos);
 
-        float neededRightPos = pos.x() + m_font->textExtent(m_titleStrings[it]).x();
+        float neededRightPos = pos.x() + this->font()->textExtent(this->titleStrings()[it]).x();
         legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
 
 
@@ -367,7 +313,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
 
     RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
-    RenderStateLine line(static_cast<float>(m_lineWidth));
+    RenderStateLine line(static_cast<float>(this->lineWidth()));
     line.applyOpenGL(oglContext);
 
     // All vertices. Initialized here to set Z to zero once and for all.
@@ -449,7 +395,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
         v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
         static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0};
 
-        UniformFloat uniformColor("u_color", Color4f(m_lineColor));
+        UniformFloat uniformColor("u_color", Color4f(this->lineColor()));
         shaderProgram->applyUniform(oglContext, uniformColor);
 
 #ifdef CVF_OPENGL_ES
@@ -482,7 +428,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
                 // Dynamic coordinates for  tickmarks-lines
                 v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
 
-                UniformFloat uniformColor("u_color", Color4f(m_lineColor));
+                UniformFloat uniformColor("u_color", Color4f(this->lineColor()));
                 shaderProgram->applyUniform(oglContext, uniformColor);
                 const ushort * linesConnects;
 
@@ -597,7 +543,7 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
         v0[1] = v1[1] = layout->legendRect.min().y()-0.5f;
         v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
 
-        glColor3fv(m_textColor.ptr());
+        glColor3fv(this->textColor().ptr());
         glBegin(GL_LINES);
         glVertex3fv(v0);
         glVertex3fv(v1);
@@ -631,7 +577,7 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
             // Dynamic coordinates for  tickmarks-lines
             v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
 
-            glColor3fv(m_textColor.ptr());
+            glColor3fv(this->textColor().ptr());
             glBegin(GL_LINES);
             if ( m_visibleTickLabels[ic])
             {
@@ -664,13 +610,13 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
 {
     CVF_TIGHT_ASSERT(layout);
 
-    ref<Glyph> glyph = m_font->getGlyph(L'A');
+    ref<Glyph> glyph = this->font()->getGlyph(L'A');
     layout->charHeight = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
     layout->margins = Vec2f(4.0f, 4.0f);
 
     float legendWidth = 25.0f;
-    float legendHeight = static_cast<float>(layout->size.y()) - 2*layout->margins.y() - static_cast<float>(m_titleStrings.size())*layout->lineSpacing - layout->lineSpacing;
+    float legendHeight = static_cast<float>(layout->size.y()) - 2*layout->margins.y() - static_cast<float>(this->titleStrings().size())*layout->lineSpacing - layout->lineSpacing;
     layout->legendRect = Rectf(layout->margins.x(), layout->margins.y() + layout->charHeight/2.0f, legendWidth, legendHeight);
 
     if (layout->legendRect.width() < 1 || layout->legendRect.height() < 1)
@@ -702,46 +648,6 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
             layout->tickPixelPos->set(i, layout->legendRect.height());  // Make sure we get a value at the top even if the scalarmapper range is zero
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setLineColor(const Color3f& lineColor)
-{
-    m_lineColor = lineColor;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setBackgroundColor(const Color4f& backgroundColor)
-{
-    m_backgroundColor = backgroundColor;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setBackgroundFrameColor(const Color4f& backgroundFrameColor)
-{
-    m_backgroundFrameColor = backgroundFrameColor;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::enableBackground(bool enable)
-{
-    m_isBackgroundEnabled = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setLineWidth(int lineWidth)
-{
-    m_lineWidth = lineWidth;
 }
 
 //--------------------------------------------------------------------------------------------------

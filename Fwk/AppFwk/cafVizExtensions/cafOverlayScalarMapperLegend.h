@@ -37,6 +37,7 @@
 
 #pragma once
 
+#include "cafTitledOverlayFrame.h"
 #include "cvfOverlayItem.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
@@ -59,7 +60,7 @@ namespace caf {
 // Overlay color legend
 //
 //==================================================================================================
-class OverlayScalarMapperLegend : public cvf::OverlayItem
+class OverlayScalarMapperLegend : public caf::TitledOverlayFrame
 {
     using Font = cvf::Font;
     using ScalarMapper = cvf::ScalarMapper;
@@ -81,25 +82,11 @@ public:
 
     void            setScalarMapper(const ScalarMapper* scalarMapper);
 
-    void            setSizeHint(const Vec2ui& size);
-
-    void            setTextColor(const Color3f& color);
-    void            setLineColor(const Color3f& lineColor);
-
-    void            setLineWidth(int lineWidth);
-
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
 
-    void            enableBackground(bool enable);
-    void            setBackgroundColor(const Color4f& backgroundColor); 
-    void            setBackgroundFrameColor(const Color4f& backgroundFrameColor);
-
-    void            setTitle(const String& title);
-
 protected:
-    Vec2ui          sizeHint() override;
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     bool            pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size) override;
@@ -146,19 +133,6 @@ protected:
     std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
     int                 m_tickNumberPrecision;
     NumberFormat        m_numberFormat;
-
-    Vec2ui              m_sizeHint;     // Pixel size of the color legend area
-    
-    Color3f             m_textColor;
-    Color3f             m_lineColor;
-    bool                m_isBackgroundEnabled;
-    Color4f             m_backgroundColor;
-    Color4f             m_backgroundFrameColor;
-
-    int                 m_lineWidth;
-
-    std::vector<String> m_titleStrings;
-    cvf::ref<Font>      m_font;
 
     cvf::cref<ScalarMapper> m_scalarMapper;
 };

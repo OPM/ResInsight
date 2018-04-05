@@ -32,6 +32,7 @@
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
 
+#include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
 #include "cafOverlayScalarMapperLegend.h"
@@ -675,7 +676,7 @@ void RimLegendConfig::setTitle(const QString& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OverlayItem* RimLegendConfig::legend()
+caf::TitledOverlayFrame* RimLegendConfig::legend()
 {
     if (m_currentScalarMapper == m_categoryMapper)
     {
