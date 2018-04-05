@@ -1490,7 +1490,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
                     }
                 }
 
-                compactionFrame[n] = u3Frames->frameData(t)[closestRefNodeIdx] - u3Frames->frameData(t)[n];
+                cvf::Vec3f currentNodeCoord = part->nodes().coordinates[n];
+                if(currentNodeCoord.z() >= refElement.intersectionPoint.z())
+                    compactionFrame[n] = -(u3Frames->frameData(t)[n] - u3Frames->frameData(t)[closestRefNodeIdx]);
+                else
+                    compactionFrame[n] = -(u3Frames->frameData(t)[closestRefNodeIdx] - u3Frames->frameData(t)[n]);
             }
             else
             {
