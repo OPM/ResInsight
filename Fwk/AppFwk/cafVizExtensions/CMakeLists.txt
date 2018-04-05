@@ -12,6 +12,8 @@ add_library( ${PROJECT_NAME}
     cafBoxManipulatorPartManager.h
     cafBoxManipulatorGeometryGenerator.cpp
     cafBoxManipulatorGeometryGenerator.h
+	cafTitledOverlayFrame.cpp
+	cafTitledOverlayFrame.h
     cafCategoryLegend.cpp
     cafCategoryLegend.h
 	cafOverlayScalarMapperLegend.h

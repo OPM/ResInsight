@@ -41,6 +41,7 @@ namespace cvf
 
 namespace caf
 {
+    class TitledOverlayFrame;
     class CategoryLegend;
     class CategoryMapper;
     class OverlayScalarMapperLegend;
@@ -119,7 +120,7 @@ public:
     void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    cvf::OverlayItem*                           legend();
+    caf::TitledOverlayFrame*                        legend();
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

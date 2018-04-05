@@ -42,6 +42,11 @@ class QCDEStyle;
 class QLabel;
 class QProgressBar;
 
+namespace caf
+{
+    class TitledOverlayFrame;
+}
+
 namespace cvf
 {
     class Color3f;
@@ -91,7 +96,7 @@ public:
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
-    void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
+    void            addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend);
 
     void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();
@@ -150,7 +155,7 @@ private:
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
-    cvf::Collection<cvf::OverlayItem> m_visibleLegends;
+    cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
     cvf::Collection<cvf::OverlayItem> allOverlayItems();
 
 
