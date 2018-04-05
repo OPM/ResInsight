@@ -1149,7 +1149,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     double oilRate   = well_conn_get_oil_rate(ert_connection) ;
     double gasRate   = well_conn_get_gas_rate(ert_connection);
     double waterRate = well_conn_get_water_rate(ert_connection);
-
+    double connectionFactor = well_conn_get_connection_factor(ert_connection);
  
     RigWellResultPoint resultPoint;
 
@@ -1167,6 +1167,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_waterRate = waterRate;
  
         resultPoint.m_gasRate   =   RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(m_eclipseCase->unitsType(), gasRate);
+
+        resultPoint.m_connectionFactor = connectionFactor;
     }
 
     return resultPoint;
