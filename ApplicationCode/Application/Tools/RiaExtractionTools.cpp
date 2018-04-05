@@ -24,6 +24,7 @@
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimWellLogPlotCollection.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -48,22 +49,32 @@ RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase(RimW
     return wlPlotCollection->findOrCreateExtractor(wellPath, geomCase);
 }
 
-/*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor(const QString&        simWellName,
-                                                                             const QString&        caseUserDescription,
-                                                                             const RigWellPath*    wellPathGeom,
-                                                                             const RimEclipseCase* eclipseCase)
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor(const RimSimWellInView* simWell,
+                                                                             const RigWellPath*      wellPathGeom)
 {
     auto wlPlotCollection = wellLogPlotCollection();
     if (!wlPlotCollection) return nullptr;
 
+    if (!(simWell && wellPathGeom))
+    {
+        return nullptr;
+    }
+
+    RimEclipseCase* eclipseCase = nullptr;
+    simWell->firstAncestorOrThisOfType(eclipseCase);
+    if (!(eclipseCase && eclipseCase->eclipseCaseData()))
+    {
+        return nullptr;
+    }
+
+    QString caseUserDescription = eclipseCase->caseUserDescription();
+
     return wlPlotCollection->findOrCreateSimWellExtractor(
-        simWellName, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData());
+        simWell->name, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData());
 }
-*/
 
 //--------------------------------------------------------------------------------------------------
 ///

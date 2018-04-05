@@ -20,11 +20,12 @@
 
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
+class RigWellPath;
 class RimEclipseCase;
 class RimGeoMechCase;
+class RimSimWellInView;
 class RimWellLogPlotCollection;
 class RimWellPath;
-class RigWellPath;
 
 class QString;
 
@@ -36,12 +37,7 @@ namespace RiaExtractionTools
 RigEclipseWellLogExtractor* wellLogExtractorEclipseCase(RimWellPath* wellPath, RimEclipseCase* eclipseCase);
 RigGeoMechWellLogExtractor* wellLogExtractorGeoMechCase(RimWellPath* wellPath, RimGeoMechCase* geomCase);
 
-/*
-RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const QString&        simWellName,
-                                                         const QString&        caseUserDescription,
-                                                         const RigWellPath*    wellPathGeom,
-                                                         const RimEclipseCase* eclipseCase);
-*/
+RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const RimSimWellInView* simWell, const RigWellPath* wellPathGeom);
 
 RimWellLogPlotCollection* wellLogPlotCollection();
 
