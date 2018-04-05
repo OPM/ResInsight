@@ -18,17 +18,20 @@
 
 #include "RivWellConnectionFactorGeometryGenerator.h"
 
+#include "cafEffectGenerator.h"
 #include "cvfArray.h"
 #include "cvfDrawableGeo.h"
+#include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfScalarMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
-    std::vector<CompletionVizData>& centerColorPairs,
+    std::vector<CompletionVizData>& completionVizData,
     float                           radius)
-    : m_completionVizData(centerColorPairs)
+    : m_completionVizData(completionVizData)
     , m_radius(radius)
     , m_trianglesPerConnection(0)
 {
@@ -38,6 +41,56 @@ RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerat
 ///
 //--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting)
+{
+    if (!scalarMapper) return nullptr;
+
+    cvf::ref<cvf::DrawableGeo> drawable = createSurfaceGeometry();
+    if (drawable.notNull())
+    {
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setDrawable(drawable.p());
+
+        // Compute texture coords
+        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
+        {
+            textureCoords->reserve(drawable->vertexArray()->size());
+            size_t verticesPerItem = drawable->vertexArray()->size() / m_completionVizData.size();
+
+            textureCoords->setAll(cvf::Vec2f(0.5f, 1.0f));
+
+            for (const auto& item : m_completionVizData)
+            {
+                cvf::Vec2f textureCoord = cvf::Vec2f(0.5f, 1.0f);
+                if (item.m_connectionFactor != HUGE_VAL)
+                {
+                    textureCoord = scalarMapper->mapToTextureCoord(item.m_connectionFactor);
+                }
+
+                for (size_t i = 0; i < verticesPerItem; i++)
+                {
+                    textureCoords->add(textureCoord);
+                }
+            }
+        }
+
+        drawable->setTextureCoordArray(textureCoords.p());
+
+        caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
+        effGen.disableLighting(disableLighting);
+
+        cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
+        part->setEffect(eff.p());
+
+        return part;
+    }
+
+    return nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

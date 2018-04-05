@@ -43,6 +43,7 @@ namespace caf
 class RivPipeGeometryGenerator;
 class Rim3dView;
 class RimSimWellInView;
+class RivWellConnectionFactorGeometryGenerator;
 
 class RivSimWellPipesPartMgr : public cvf::Object
 {
@@ -70,7 +71,8 @@ private:
     void       buildWellPipeParts(const caf::DisplayCoordTransform* displayXf, 
                                   bool doFlatten, 
                                   double flattenedIntersectionExtentLength,
-                                  int branchIndex);
+                                  int branchIndex,
+                                  size_t frameIndex);
 
     caf::PdmPointer<RimSimWellInView>       m_rimWell;
 
@@ -85,6 +87,8 @@ private:
         cvf::ref<cvf::Part>                 m_centerLinePart;
         cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
 
+        cvf::ref<RivWellConnectionFactorGeometryGenerator> m_connectionFactorGeometryGenerator;
+        cvf::ref<cvf::Part>                 m_connectionFactorsPart;
     };
 
     std::list<RivPipeBranchData>            m_wellBranches;

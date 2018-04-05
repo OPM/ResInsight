@@ -71,12 +71,14 @@
 #include "RivIntersectionBoxSourceInfo.h"
 #include "RivIntersectionSourceInfo.h"
 #include "RivObjectSourceInfo.h"
+#include "RivSimWellConnectionSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellConnectionSourceInfo.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathSourceInfo.h"
+
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFeatureMenuBuilder.h"
@@ -689,6 +691,54 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 }
 
                 RiuMainWindow::instance()->selectAsCurrentItem(wellConnectionSourceInfo->wellPath(), allowActiveViewChange);
+            }
+            else if (dynamic_cast<const RivSimWellConnectionSourceInfo*>(firstHitPart->sourceInfo()))
+            {
+                const RivSimWellConnectionSourceInfo* simWellConnectionSourceInfo = dynamic_cast<const RivSimWellConnectionSourceInfo*>(firstHitPart->sourceInfo());
+
+                bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
+
+                size_t globalCellIndex = simWellConnectionSourceInfo->globalCellIndexFromTriangleIndex(firstPartTriangleIndex);
+                double connectionFactor = simWellConnectionSourceInfo->connectionFactorFromTriangleIndex(firstPartTriangleIndex);
+
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+                if (eclipseView)
+                {
+                    RimEclipseCase* eclipseCase = nullptr;
+                    eclipseView->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+
+                    if (eclipseCase->eclipseCaseData() &&
+                        eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities())
+                    {
+                        auto   connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
+                        size_t timeStep = eclipseView->currentTimeStep();
+
+                        const auto& completionData = connectionFactors->completionsForSimWell(simWellConnectionSourceInfo->simWellInView()->simWellData(), timeStep);
+
+                        for (const auto& compData : completionData)
+                        {
+                            if (compData.completionDataGridCell().globalCellIndex() == globalCellIndex)
+                            {
+                                {
+                                    QString resultInfoText = QString("<b>Simulation Well Connection Factor :</b> %1<br><br>").arg(connectionFactor);
+
+                                    {
+                                        RiuResultTextBuilder textBuilder(eclipseView, globalCellIndex, eclipseView->currentTimeStep());
+
+                                        resultInfoText += textBuilder.geometrySelectionText("<br>");
+                                    }
+
+                                    RiuMainWindow::instance()->setResultInfo(resultInfoText);
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+
+                }
+                
+                RiuMainWindow::instance()->selectAsCurrentItem(simWellConnectionSourceInfo->simWellInView(), allowActiveViewChange);
             }
         }
 

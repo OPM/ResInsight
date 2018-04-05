@@ -28,6 +28,8 @@
 namespace cvf
 {
 class DrawableGeo;
+class Part;
+class ScalarMapper;
 } // namespace cvf
 
 //--------------------------------------------------------------------------------------------------
@@ -55,16 +57,18 @@ struct CompletionVizData
 class RivWellConnectionFactorGeometryGenerator : public cvf::Object
 {
 public:
-    RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& centerColorPairs, float radius);
+    RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& completionVizData, float radius);
     ~RivWellConnectionFactorGeometryGenerator();
 
-    cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
+    cvf::ref<cvf::Part> createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting);
 
     double connectionFactor(cvf::uint triangleIndex) const;
     size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
 
 private:
     size_t mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const;
+    cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
+
     static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
     static void
         createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness);

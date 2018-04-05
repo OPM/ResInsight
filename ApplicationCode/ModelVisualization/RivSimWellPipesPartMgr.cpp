@@ -20,16 +20,29 @@
 
 #include "RivSimWellPipesPartMgr.h"
 
+#include "RiaExtractionTools.h"
+
+#include "RigEclipseWellLogExtractor.h"
+#include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellLogExtractor.h"
+#include "RigWellPath.h"
+
 #include "Rim3dView.h"
+#include "RimEclipseView.h"
+#include "RimLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimVirtualPerforationResults.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivSimWellPipeSourceInfo.h"
 #include "RivSectionFlattner.h"
+#include "RivSimWellConnectionSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
+#include "RivWellConnectionFactorGeometryGenerator.h"
+#include "RivWellConnectionSourceInfo.h"
 
-#include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
@@ -74,7 +87,7 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellPipeParts(displayXf, false, 0.0, -1);
+    buildWellPipeParts(displayXf, false, 0.0, -1, frameIndex);
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
@@ -87,6 +100,11 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
         if (it->m_centerLinePart.notNull())
         {
             model->addPart(it->m_centerLinePart.p());
+        }
+
+        if (it->m_connectionFactorsPart.notNull())
+        {
+            model->addPart(it->m_connectionFactorsPart.p());
         }
     }
 }
@@ -104,7 +122,7 @@ void RivSimWellPipesPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::Mod
 
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
-    buildWellPipeParts(displayXf, true, flattenedIntersectionExtentLength, branchIndex);
+    buildWellPipeParts(displayXf, true, flattenedIntersectionExtentLength, branchIndex, frameIndex);
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
@@ -127,7 +145,8 @@ void RivSimWellPipesPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::Mod
 void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform* displayXf,
                                                 bool doFlatten, 
                                                 double flattenedIntersectionExtentLength,
-                                                int branchIndex)
+                                                int branchIndex,
+                                                size_t frameIndex)
 {
     if (!this->viewWithSettings()) return;
 
@@ -237,9 +256,91 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
             pbd.m_largeSurfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
         }
 
+        pbd.m_connectionFactorGeometryGenerator = nullptr;
+        pbd.m_connectionFactorsPart = nullptr;
+
+        RimEclipseView* eclipseView = nullptr;
+        m_rimWell->firstAncestorOrThisOfType(eclipseView);
+
+        if (eclipseView && eclipseView->isVirtualConnectionFactorGeometryVisible())
+        {
+            RigSimWellData* simWellData = m_rimWell->simWellData();
+
+            if (simWellData && simWellData->hasWellResult(frameIndex))
+            {
+                const RigWellResultFrame& wResFrame = simWellData->wellResultFrame(frameIndex);
+
+                std::vector<CompletionVizData> completionVizDataItems;
+
+                RimVirtualPerforationResults* virtualPerforationResult = eclipseView->virtualPerforationResult();
+                {
+                    auto wellPaths = m_rimWell->wellPipeBranches();
+
+                    const RigWellPath* wellPath = wellPaths[brIdx];
+
+                    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor(m_rimWell, wellPath);
+                    if (extractor)
+                    {
+                        std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
+
+                        for (const auto& intersectionInfo : wellPathCellIntersections)
+                        {
+                            size_t globalCellIndex = intersectionInfo.globCellIndex;
+
+                            for (const auto& wellResultPoint : pbd.m_cellIds)
+                            {
+                                if (wellResultPoint.m_gridCellIndex == globalCellIndex)
+                                {
+                                    double startMD = intersectionInfo.startMD;
+                                    double endMD = intersectionInfo.endMD;
+
+                                    double middleMD = (startMD + endMD) / 2.0;
+
+                                    cvf::Vec3d defaultLocationInDomainCoord = wellPath->interpolatedPointAlongWellPath(middleMD);
+
+                                    cvf::Vec3d p1;
+                                    cvf::Vec3d p2;
+                                    wellPath->twoClosestPoints(defaultLocationInDomainCoord, &p1, &p2);
+
+                                    cvf::Vec3d defaultWellPathDirection = (p2 - p1).getNormalized();
+
+                                    cvf::Vec3d anchor = displayXf->transformToDisplayCoord(defaultLocationInDomainCoord);;
+
+                                    const RigWellResultPoint* wResCell = wResFrame.findResultCell(wellResultPoint.m_gridIndex, wellResultPoint.m_gridCellIndex);
+                                    if (wResCell && wResCell->m_isOpen)
+                                    {
+                                        CompletionVizData data(anchor, defaultWellPathDirection, wResCell->connectionFactor(), globalCellIndex);
+
+                                        completionVizDataItems.push_back(data);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!completionVizDataItems.empty())
+                {
+                    double radius = pipeRadius * virtualPerforationResult->geometryScaleFactor();
+                    radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is set to 1.0
+
+                    pbd.m_connectionFactorGeometryGenerator = new RivWellConnectionFactorGeometryGenerator(completionVizDataItems, radius);
+
+                    cvf::ScalarMapper* scalarMapper = virtualPerforationResult->legendConfig()->scalarMapper();
+                    cvf::ref<cvf::Part> part = pbd.m_connectionFactorGeometryGenerator->createSurfacePart(scalarMapper, eclipseView->isLightingDisabled());
+                    if (part.notNull())
+                    {
+                        cvf::ref<RivSimWellConnectionSourceInfo> sourceInfo = new RivSimWellConnectionSourceInfo(m_rimWell, pbd.m_connectionFactorGeometryGenerator.p());
+                        part->setSourceInfo(sourceInfo.p());
+                    }
+
+                    pbd.m_connectionFactorsPart = part;
+                }
+            }
+        }
+
         if (doFlatten) flattenedStartOffset += { 2*flattenedIntersectionExtentLength, 0.0, 0.0};
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------

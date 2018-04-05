@@ -149,52 +149,21 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
     if (!completionVizDataItems.empty())
     {
-        double radius = mainGrid->characteristicIJCellSize() * m_virtualPerforationResult->geometryScaleFactor();
+        double characteristicCellSize = eclView->ownerCase()->characteristicCellSize();
+
+        double radius = m_rimWell->wellPathRadius(characteristicCellSize) * m_virtualPerforationResult->geometryScaleFactor();
+        radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is set to 1.0
 
         m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(completionVizDataItems, radius);
-        auto drawable       = m_geometryGenerator->createSurfaceGeometry();
-
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setDrawable(drawable.p());
 
         auto scalarMapper = m_virtualPerforationResult->legendConfig()->scalarMapper();
-
-        // Compute texture coords
-        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
+        cvf::ref<cvf::Part> part = m_geometryGenerator->createSurfacePart(scalarMapper, eclView->isLightingDisabled());
+        if (part.notNull())
         {
-            textureCoords->reserve(drawable->vertexArray()->size());
-            size_t verticesPerItem = drawable->vertexArray()->size() / completionVizDataItems.size();
+            cvf::ref<RivWellConnectionSourceInfo> sourceInfo = new RivWellConnectionSourceInfo(m_rimWell, m_geometryGenerator.p());
+            part->setSourceInfo(sourceInfo.p());
 
-            textureCoords->setAll(cvf::Vec2f(0.5f, 1.0f));
-
-            for (const auto& item : completionVizDataItems)
-            {
-                cvf::Vec2f textureCoord = cvf::Vec2f(0.5f, 1.0f);
-                if (item.m_connectionFactor != HUGE_VAL)
-                {
-                    textureCoord = scalarMapper->mapToTextureCoord(item.m_connectionFactor);
-                }
-
-                for (size_t i = 0; i < verticesPerItem; i++)
-                {
-                    textureCoords->add(textureCoord);
-                }
-            }
+            model->addPart(part.p());
         }
-
-        drawable->setTextureCoordArray(textureCoords.p());
-
-        caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
-
-        bool disableLighting = eclView->isLightingDisabled();
-        effGen.disableLighting(disableLighting);
-
-        cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
-        part->setEffect(eff.p());
-
-        cvf::ref<RivWellConnectionSourceInfo> sourceInfo = new RivWellConnectionSourceInfo(m_rimWell, m_geometryGenerator.p());
-        part->setSourceInfo(sourceInfo.p());
-
-        model->addPart(part.p());
     }
 }
