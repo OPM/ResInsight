@@ -30,6 +30,15 @@ void RigCaseRealizationParameters::addParameter(const QString& name, double valu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RigCaseRealizationParameters::parameterValue(const QString& name)
+{
+    if (m_parameters.count(name) == 0) return HUGE_VAL;
+    return m_parameters[name];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::map<QString, double> RigCaseRealizationParameters::parameters() const
 {
     return m_parameters;

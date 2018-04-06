@@ -34,6 +34,8 @@ class RigCaseRealizationParameters : public cvf::Object
 {
 public:
     void                        addParameter(const QString& name, double value);
+    double                      parameterValue(const QString& name);
+
     std::map<QString, double>   parameters() const;
 
 private:

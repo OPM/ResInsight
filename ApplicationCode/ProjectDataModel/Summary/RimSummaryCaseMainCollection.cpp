@@ -280,7 +280,11 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
     for (RimSummaryCase* sumCase : allSummaryCases())
     {
-        if (sumCase) sumCase->createSummaryReaderInterface();
+        if (sumCase)
+        {
+            sumCase->createSummaryReaderInterface();
+            addCaseRealizationParametersIfFound(*sumCase, sumCase->summaryHeaderFilename());
+        }
     }
 }
 

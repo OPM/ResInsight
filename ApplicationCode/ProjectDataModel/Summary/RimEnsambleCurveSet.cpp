@@ -37,9 +37,12 @@
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiPushButtonEditor.h"
+
+#include "cvfScalarMapperContinuousLinear.h"
 
 #include <QTextStream>
 #include <QKeyEvent>
@@ -141,6 +144,9 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
     CAF_PDM_InitField(&m_ensambleParameter, "EnsambleParameter", QString(""), "Ensamble Parameter", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendConfig", "", "", "", "");
+    m_legendConfig = new RimLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,7 +458,41 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_ensambleParameter)
     {
+        RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+        QString parameterName = m_ensambleParameter();
+        if (group && !parameterName.isEmpty())
+        {
+            double minValue = HUGE_VAL;
+            double maxValue = -HUGE_VAL;
 
+            for (RimSummaryCase* rimCase : group->allSummaryCases())
+            {
+                if (!rimCase->caseRealizationParameters().isNull())
+                {
+                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                    if (value != HUGE_VAL)
+                    {
+                        if (value < minValue) minValue = value;
+                        if (value > maxValue) maxValue = value;
+                    }
+                }
+            }
+
+            cvf::ScalarMapperContinuousLinear colorMapper;
+            colorMapper.setRange(minValue, maxValue);
+
+            for (auto& curve : m_curves)
+            {
+                RimSummaryCase* rimCase = curve->summaryCaseY();
+                double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                curve->setColor(cvf::Color3f(colorMapper.mapToColor(value)));
+                curve->updateCurveAppearance();
+            }
+
+            RimSummaryPlot* plot;
+            firstAncestorOrThisOfType(plot);
+            if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
+        }
     }
     else if (changedField == &m_color)
     {
@@ -535,6 +575,15 @@ void RimEnsambleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(m_legendConfig());
+    uiTreeOrdering.skipRemainingChildren(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEnsambleCurveSet::objectToggleField()
 {
     return &m_showCurves;
@@ -575,7 +624,7 @@ QList<caf::PdmOptionItemInfo> RimEnsambleCurveSet::calculateValueOptions(const c
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
 
-        options.push_back(caf::PdmOptionItemInfo("None", ""));
+        //options.push_back(caf::PdmOptionItemInfo("None", ""));
 
         if (group)
         {

@@ -21,6 +21,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimLegendConfig.h"
+
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -84,6 +86,7 @@ private:
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
@@ -113,5 +116,7 @@ private:
     caf::PdmField<caf::AppEnum<ColorMode>>  m_colorMode;
     caf::PdmField<cvf::Color3f>             m_color;
     caf::PdmField<QString>                  m_ensambleParameter;
+
+    caf::PdmChildField<RimLegendConfig*>    m_legendConfig;
 };
 

@@ -1144,7 +1144,10 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     axisFolder->add(&m_rightYAxisProperties);
 
     uiTreeOrdering.add(&m_summaryCurveCollection);
-    uiTreeOrdering.add(&m_ensambleCurveSetCollection);
+    if (!m_isCrossPlot)
+    {
+        uiTreeOrdering.add(&m_ensambleCurveSetCollection);
+    }
     uiTreeOrdering.add(&m_gridTimeHistoryCurves);
     uiTreeOrdering.add(&m_asciiDataCurves);
 
