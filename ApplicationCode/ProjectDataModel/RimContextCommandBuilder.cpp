@@ -241,6 +241,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder.subMenuEnd();
+
+            menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -282,6 +284,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
 
             menuBuilder << "Separator";
+
+            menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
+            menuBuilder << "RicWellPathExportCompletionDataFeature";
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {
@@ -615,7 +620,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicEditPerforationCollectionFeature";
         menuBuilder << "RicExportFishbonesLateralsFeature";
         menuBuilder << "RicExportFishbonesWellSegmentsFeature";
-        menuBuilder << "RicWellPathExportCompletionDataFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
         menuBuilder << "RicExportCarfin";

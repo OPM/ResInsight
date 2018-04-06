@@ -1,47 +1,40 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmChildField.h"
+#include "cafCmdFeature.h"
 
-class RicExportCarfinUi;
-class RicExportCompletionDataSettingsUi;
+class RimSimWellInView;
+class RimWellPath;
 
 //==================================================================================================
-///  
-///  
+///
 //==================================================================================================
-class RimDialogData : public caf::PdmObject
+class RicExportCompletionsForVisibleWellPathsFeature : public caf::CmdFeature
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimDialogData();
-    
-    RicExportCarfinUi* exportCarfin() const;
-    QString            exportCarfinDataAsString() const;
-    void               setExportCarfinDataFromString(const QString& data);
-
-    RicExportCompletionDataSettingsUi* exportCompletionData() const;
+protected:
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    caf::PdmChildField<RicExportCarfinUi*>                  m_exportCarfin;
-    caf::PdmChildField<RicExportCompletionDataSettingsUi*>  m_exportCompletionData;
+    std::vector<RimWellPath*> visibleWellPaths();
 };

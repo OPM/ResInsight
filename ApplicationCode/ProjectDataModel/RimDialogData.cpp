@@ -65,7 +65,7 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData(bool onlyWellPathCollectionSelected) const
+RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 {
     return m_exportCompletionData;
 }

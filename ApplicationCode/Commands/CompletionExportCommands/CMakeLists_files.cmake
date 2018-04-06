@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesWellSegmentsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.h
 )
 
 
@@ -18,6 +19,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesWellSegmentsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

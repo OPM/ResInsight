@@ -57,7 +57,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 void RicfExportWellPathCompletions::execute()
 {
     RimProject* project = RiaApplication::instance()->project();
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(false);
+    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
     exportSettings->timeStep = m_timeStep;
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;

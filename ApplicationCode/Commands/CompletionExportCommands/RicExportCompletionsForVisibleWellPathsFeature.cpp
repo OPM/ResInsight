@@ -16,12 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathExportCompletionDataFeature.h"
-#include "RicWellPathExportCompletionDataFeatureImpl.h"
+#include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RicExportFeatureImpl.h"
+#include "RicExportCompletionDataSettingsUi.h"
+#include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RimDialogData.h"
 #include "RimProject.h"
@@ -37,34 +38,16 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
+CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleWellPathsFeature, "RicExportCompletionsForVisibleWellPathsFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
+bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*>      wellPaths = selectedWellPaths();
-    std::vector<RimSimWellInView*> simWells  = selectedSimWells();
+    std::vector<RimWellPath*>      wellPaths = visibleWellPaths();
 
-    if (wellPaths.empty() && simWells.empty())
-    {
-        return false;
-    }
-
-    if (!wellPaths.empty() && !simWells.empty())
-    {
-        return false;
-    }
-
-    std::set<RimEclipseCase*> eclipseCases;
-    for (auto simWell : simWells)
-    {
-        RimEclipseCase* eclipseCase;
-        simWell->firstAncestorOrThisOfType(eclipseCase);
-        eclipseCases.insert(eclipseCase);
-    }
-    if (eclipseCases.size() > 1)
+    if (wellPaths.empty())
     {
         return false;
     }
@@ -75,12 +58,12 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
+void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*>      wellPaths = selectedWellPaths();
-    std::vector<RimSimWellInView*> simWells  = selectedSimWells();
-
-    CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
+    std::vector<RimWellPath*>      wellPaths = visibleWellPaths();
+    CVF_ASSERT(wellPaths.size() > 0);
+    
+    std::vector<RimSimWellInView*> simWells;
 
     RiaApplication* app     = RiaApplication::instance();
     RimProject*     project = app->project();
@@ -89,15 +72,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString defaultDir    = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
-
-    if (wellPaths.empty())
-    {
-        exportSettings->showForSimWells();
-    }
-    else
-    {
-        exportSettings->showForWellPath();
-    }
+    exportSettings->showForWellPath();
 
     if (!exportSettings->caseToApply())
     {
@@ -130,23 +105,37 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
+void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Completion Data");
+    actionToSetup->setText("Export Completion Data for Visible Well Paths");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPaths()
+std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths()
 {
     std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
-
-    if (wellPaths.empty())
+    
     {
         std::vector<RimWellPathCollection*> wellPathCollections;
         caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+
+        if (wellPathCollections.empty())
+        {
+            std::vector<RimWellPath*> selectedWellPaths;
+            caf::SelectionManager::instance()->objectsByType(&selectedWellPaths);
+
+            if (!selectedWellPaths.empty())
+            {
+                RimWellPathCollection* parent = nullptr;
+                selectedWellPaths[0]->firstAncestorOrThisOfType(parent);
+                if (parent)
+                {
+                    wellPathCollections.push_back(parent);
+                }
+            }
+        }
 
         for (auto wellPathCollection : wellPathCollections)
         {
@@ -162,44 +151,7 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 
     std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
     wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+    
     return wellPaths;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
-{
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
-
-    if (wellPaths.empty())
-        return true;
-    else
-        return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSimWellInView*> RicWellPathExportCompletionDataFeature::selectedSimWells()
-{
-    std::vector<RimSimWellInView*> simWells;
-    caf::SelectionManager::instance()->objectsByType(&simWells);
-
-    std::vector<RimSimWellInViewCollection*> simWellCollections;
-    caf::SelectionManager::instance()->objectsByType(&simWellCollections);
-
-    for (auto simWellCollection : simWellCollections)
-    {
-        for (auto simWell : simWellCollection->wells())
-        {
-            simWells.push_back(simWell);
-        }
-    }
-
-    std::set<RimSimWellInView*> uniqueSimWells(simWells.begin(), simWells.end());
-    simWells.assign(uniqueSimWells.begin(), uniqueSimWells.end());
-
-    return simWells;
-}
