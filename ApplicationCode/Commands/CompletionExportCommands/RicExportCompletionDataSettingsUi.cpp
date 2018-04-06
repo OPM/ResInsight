@@ -63,15 +63,15 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
-    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
+    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "  Time Step", "", "", "");
 
     CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
 
-    CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
-    CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
-    CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Include Fractures", "", "", "");
+    CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
+    CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
+    CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
-    CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
+    CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
     m_onlyWellPathCollectionSelected = false;
     m_displayForSimWell = true;
 }
@@ -187,20 +187,19 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
     if (!m_displayForSimWell)
     {
-        caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
-        fishboneGroup->add(&includeFishbones);
-        fishboneGroup->add(&excludeMainBoreForFishbones);
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Visible Completions");
+
+        group->add(&includeFishbones);
+        group->add(&excludeMainBoreForFishbones);
         if (!includeFishbones) excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
         else excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
 
-        caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
-        perfIntervalGroup->add(&includePerforations);
-        perfIntervalGroup->add(&timeStep);
+        group->add(&includePerforations);
+        group->add(&timeStep);
         if (!includePerforations) timeStep.uiCapability()->setUiReadOnly(true);
         else  timeStep.uiCapability()->setUiReadOnly(false);
         
-        caf::PdmUiGroup* fractureGroup = uiOrdering.addNewGroup("Export of Fracture Completions");
-        fractureGroup->add(&includeFractures);
+        group->add(&includeFractures);
         
         if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
         {
