@@ -22,6 +22,8 @@ namespace caf {
         virtual ~TitledOverlayFrame();
 
         virtual void         setSizeHint(const cvf::Vec2ui& size);
+        void                 setMinimumWidth(unsigned int width);
+        void                 setWidth(unsigned int width);
 
         void                 setTextColor(const cvf::Color3f& color);
         void                 setLineColor(const cvf::Color3f& lineColor);
@@ -33,8 +35,12 @@ namespace caf {
         void                 setBackgroundColor(const cvf::Color4f& backgroundColor);
         void                 setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
 
-        virtual cvf::Vec2ui  sizeHint() override;
+        virtual void         computeLayoutAndExtents() = 0;
 
+        virtual cvf::Vec2ui  sizeHint() override;
+        unsigned int         minimumWidth();
+        unsigned int         width();
+        
     protected:
         cvf::Color3f              textColor() const;
         cvf::Color3f              lineColor() const;
@@ -48,6 +54,9 @@ namespace caf {
 
     private:
         cvf::Vec2ui               m_sizeHint;          // The desired pixel size of the color legend area        
+        unsigned int              m_minimumWidth;
+        unsigned int              m_actualWidth;
+
         cvf::Color3f              m_textColor;
         cvf::Color3f              m_lineColor;
         int                       m_lineWidth;

@@ -31,6 +31,7 @@ public:
     virtual ~CategoryLegend();
 
     size_t       categoryCount() const;
+    void         computeLayoutAndExtents() override;
 
 protected:
     void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
@@ -80,9 +81,10 @@ protected:
                                            OverlayColorLegendLayoutInfo* layout);
 
 protected:
-    std::vector<bool>         m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
-                                  
-    cvf::cref<CategoryMapper> m_categoryMapper;
+    std::vector<bool>            m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
+    OverlayColorLegendLayoutInfo m_Layout;
+    cvf::ref<cvf::TextDrawer>    m_textDrawer;
+    cvf::cref<CategoryMapper>    m_categoryMapper;
 };
 
 }
