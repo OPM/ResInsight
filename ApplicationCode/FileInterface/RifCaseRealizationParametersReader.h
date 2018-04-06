@@ -42,9 +42,11 @@ class QFile;
 class RifCaseRealizationParametersReader
 {
 public:
+    RifCaseRealizationParametersReader();
     RifCaseRealizationParametersReader(const QString& fileName);
     ~RifCaseRealizationParametersReader();
 
+    void                                            setFileName(const QString& fileName);
     void                                            parse();
     const cvf::ref<RigCaseRealizationParameters>    parameters() const;
 

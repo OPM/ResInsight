@@ -47,6 +47,17 @@ RifCaseRealizationParametersReader::RifCaseRealizationParametersReader(const QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RifCaseRealizationParametersReader::RifCaseRealizationParametersReader()
+{
+    m_parameters = new RigCaseRealizationParameters();
+    m_fileName = "";
+    m_file = nullptr;
+    m_textStream = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifCaseRealizationParametersReader::~RifCaseRealizationParametersReader()
 {
     if (m_textStream)
@@ -54,6 +65,14 @@ RifCaseRealizationParametersReader::~RifCaseRealizationParametersReader()
         delete m_textStream;
     }
     closeFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCaseRealizationParametersReader::setFileName(const QString& fileName)
+{
+    m_fileName = fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
