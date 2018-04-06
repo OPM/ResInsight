@@ -623,7 +623,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
 
     for (auto legend : m_visibleLegends)
     {
-        legend->setWidth(requiredLegendWidth);
+        legend->setMatchedWidth(requiredLegendWidth);
     }
 }
 

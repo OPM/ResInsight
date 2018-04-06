@@ -37,20 +37,20 @@ namespace caf {
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    /// Will also update the matched width since this should always be >= minimum width
     //--------------------------------------------------------------------------------------------------
     void TitledOverlayFrame::setMinimumWidth(unsigned int width)
     {
         m_minimumWidth = width;
-        m_actualWidth = std::max(m_minimumWidth, m_actualWidth);
+        m_matchedWidth = std::max(m_minimumWidth, m_matchedWidth);
     }
 
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void TitledOverlayFrame::setWidth(unsigned int width)
+    void TitledOverlayFrame::setMatchedWidth(unsigned int width)
     {
-        m_actualWidth = width;
+        m_matchedWidth = width;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -138,9 +138,9 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    unsigned int TitledOverlayFrame::width()
+    unsigned int TitledOverlayFrame::matchedWidth()
     {
-        return m_actualWidth;
+        return m_matchedWidth;
     }
 
     //--------------------------------------------------------------------------------------------------
