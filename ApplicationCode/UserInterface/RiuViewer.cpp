@@ -536,7 +536,7 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend)
+void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend, const cvf::Color3f& backgroundColor)
 {
     RiaApplication* app = RiaApplication::instance();
     CVF_ASSERT(app);
@@ -551,6 +551,8 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
 
         firstRendering->addOverlayItem(legend);
         legend->enableBackground(preferences->showLegendBackground());
+        legend->setBackgroundColor(cvf::Color4f(backgroundColor, 0.8f));
+        legend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(backgroundColor, 0.3f), 0.9f));
         m_visibleLegends.push_back(legend);
     }
 

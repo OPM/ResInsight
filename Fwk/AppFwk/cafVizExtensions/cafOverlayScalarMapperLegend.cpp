@@ -192,7 +192,7 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     TextDrawer textDrawer(this->font());
     setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
     
-    Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + 3.0f, (float)size.x()), (float)size.y());
+    Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + layout.margins.x(), (float)size.x()), (float)size.y());
 
     // Do the actual rendering
     if (software)
@@ -613,7 +613,7 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     ref<Glyph> glyph = this->font()->getGlyph(L'A');
     layout->charHeight = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
-    layout->margins = Vec2f(4.0f, 4.0f);
+    layout->margins = Vec2f(8.0f, 8.0f);
 
     float legendWidth = 25.0f;
     float legendHeight = static_cast<float>(layout->size.y()) - 2*layout->margins.y() - static_cast<float>(this->titleStrings().size())*layout->lineSpacing - layout->lineSpacing;
