@@ -23,7 +23,7 @@ namespace caf {
 
         virtual void         setSizeHint(const cvf::Vec2ui& size);
         void                 setMinimumWidth(unsigned int width);
-        void                 setWidth(unsigned int width);
+        void                 setMatchedWidth(unsigned int width);
 
         void                 setTextColor(const cvf::Color3f& color);
         void                 setLineColor(const cvf::Color3f& lineColor);
@@ -39,7 +39,7 @@ namespace caf {
 
         virtual cvf::Vec2ui  sizeHint() override;
         unsigned int         minimumWidth();
-        unsigned int         width();
+        unsigned int         matchedWidth();
         
     protected:
         cvf::Color3f              textColor() const;
@@ -54,8 +54,8 @@ namespace caf {
 
     private:
         cvf::Vec2ui               m_sizeHint;          // The desired pixel size of the color legend area        
-        unsigned int              m_minimumWidth;
-        unsigned int              m_actualWidth;
+        unsigned int              m_minimumWidth;      // Minimum width required to fit content
+        unsigned int              m_matchedWidth;      // Width matched to other legends (>= minimumWidth)
 
         cvf::Color3f              m_textColor;
         cvf::Color3f              m_lineColor;

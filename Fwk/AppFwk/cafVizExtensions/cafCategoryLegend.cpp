@@ -131,7 +131,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
 
     this->computeLayoutAndExtents();
 
-    Vec2f backgroundSize(CVF_MIN((float) this->width(), (float)size.x()), (float)size.y());
+    Vec2f backgroundSize(CVF_MIN((float) this->matchedWidth(), (float)size.x()), (float)size.y());
 
     // Do the actual rendering
     if (software)
