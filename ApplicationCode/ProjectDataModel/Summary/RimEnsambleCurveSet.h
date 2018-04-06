@@ -19,16 +19,24 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
+#include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
+#include "cafAppEnum.h"
 
 class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryCurve;
+class RimSummaryAddress;
+class RimSummaryFilter;
 class RimSummaryPlotSourceStepping;
 class QKeyEvent;
 
@@ -40,6 +48,8 @@ class RimEnsambleCurveSet : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum ColorMode {SINGLE_COLOR, BY_ENSAMBLE_PARAM};
+
     RimEnsambleCurveSet();
     virtual ~RimEnsambleCurveSet();
 
@@ -63,7 +73,7 @@ public:
 
     void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
 
-    std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
+    //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
@@ -72,19 +82,36 @@ private:
     virtual void                            defineObjectEditorAttribute(QString uiConfigName,
                                                                         caf::PdmUiEditorAttribute* attribute) override;
 
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
+    static void                             getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
+                                                                              RimSummaryCase* summaryCase,
+                                                                              RimSummaryFilter* summaryFilter);
+
 private:
     caf::PdmField<bool>                         m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;           // Convert to PtrField ?
 
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
+    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
+    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
+    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
 
     caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
+
+    // Y values
+    caf::PdmPtrField<RimSummaryCaseCollection*>  m_yValuesSummaryGroup;
+    caf::PdmChildField<RimSummaryAddress*>  m_yValuesCurveVariable;
+    caf::PdmField<RifEclipseSummaryAddress> m_yValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
+    caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
+
+    caf::PdmField<caf::AppEnum<ColorMode>>  m_colorMode;
+    caf::PdmField<cvf::Color3f>             m_color;
+    caf::PdmField<QString>                  m_ensambleParameter;
 };
 

@@ -25,12 +25,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-class QwtPlot;
-class QwtPlotCurve;
 class RimSummaryCase;
-class RimSummaryCurve;
-class RimSummaryPlotSourceStepping;
-class QKeyEvent;
+class RimEnsambleCurveSet;
 
 //==================================================================================================
 ///  
@@ -43,29 +39,29 @@ public:
     RimEnsambleCurveSetCollection();
     virtual ~RimEnsambleCurveSetCollection();
 
-    bool                                    isCurvesVisible();
+    bool                                    isCurveSetsVisible();
 
     void                                    loadDataAndUpdate(bool updateParentPlot);
-    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
+    //void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
-    RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+    //RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 
-    void                                    addCurve(RimSummaryCurve* curve);
-    void                                    deleteCurve(RimSummaryCurve* curve);
+    void                                    addCurveSet(RimEnsambleCurveSet* curveSet);
+    void                                    deleteCurveSet(RimEnsambleCurveSet* curveSet);
 
-    std::vector<RimSummaryCurve*>           curves() const;
-    std::vector<RimSummaryCurve*>           visibleCurves() const;
+    std::vector<RimEnsambleCurveSet*>       curveSets() const;
+    std::vector<RimEnsambleCurveSet*>       visibleCurveSets() const;
 
-    void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
-    void                                    deleteAllCurves();
-    void                                    updateCaseNameHasChanged();
+    //void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
+    void                                    deleteAllCurveSets();
+    //void                                    updateCaseNameHasChanged();
 
-    void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
+    //void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
 
-    std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
+    //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
-    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
+    //void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();
@@ -78,13 +74,9 @@ private:
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<bool>                         m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+    caf::PdmField<bool>                             m_showCurves;
+    caf::PdmChildArrayField<RimEnsambleCurveSet*>   m_curveSets;
 
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
-
-    caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
+    //caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
 };
 

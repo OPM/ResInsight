@@ -605,6 +605,27 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCaseCollection*> RimProject::summaryGroups() const
+{
+    std::vector<RimSummaryCaseCollection*> groups;
+
+    for (RimOilField* oilField : oilFields)
+    {
+        if (!oilField) continue;
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if (sumCaseMainColl)
+        {
+            std::vector<RimSummaryCaseCollection*> g = sumCaseMainColl->summaryCaseCollections();
+            groups.insert(groups.end(), g.begin(), g.end());
+        }
+    }
+
+    return groups;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews(std::vector<RimGridView*>& views)
 {
     std::vector<RimCase*> cases;

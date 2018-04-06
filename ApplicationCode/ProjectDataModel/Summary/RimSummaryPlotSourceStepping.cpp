@@ -526,7 +526,9 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::visibleAddresse
     std::set<RifEclipseSummaryAddress> addresses;
 
     RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+    this->firstAncestorOrThisOfType(curveCollection);
+
+    if (!curveCollection) return addresses;
 
     auto curves = curveCollection->visibleCurves();
     for (auto c : curves)
@@ -553,7 +555,9 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::visibleSummaryCasesCurve
     std::set<RimSummaryCase*> sumCases;
 
     RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
+    this->firstAncestorOrThisOfType(curveCollection);
+
+    if (!curveCollection) return sumCases;
 
     auto curves = curveCollection->visibleCurves();
     for (auto c : curves)

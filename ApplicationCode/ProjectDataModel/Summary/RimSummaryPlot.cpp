@@ -22,12 +22,14 @@
 #include "RiaSummaryCurveAnalyzer.h"
 
 #include "RimAsciiDataCurve.h"
+#include "RimEnsambleCurveSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
 #include "RimSummaryAxisProperties.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimEnsambleCurveSetCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
@@ -83,6 +85,10 @@ RimSummaryPlot::RimSummaryPlot()
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden(true);
     m_summaryCurveCollection = new RimSummaryCurveCollection;
 
+    CAF_PDM_InitFieldNoDefault(&m_ensambleCurveSetCollection, "EnsambleCurveSetCollection", "", "", "", "");
+    m_ensambleCurveSetCollection.uiCapability()->setUiTreeHidden(true);
+    m_ensambleCurveSetCollection = new RimEnsambleCurveSetCollection();
+
     CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
     m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
@@ -133,6 +139,7 @@ RimSummaryPlot::~RimSummaryPlot()
     m_summaryCurves_OBSOLETE.deleteAllChildObjects();
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
+    delete m_ensambleCurveSetCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -940,6 +947,18 @@ void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+//void RimSummaryPlot::addEnsambleCurve(const RimEnsambleCurveSet* curveSet, RimSummaryCurve* curve)
+//{
+//    if (curveSet && curve)
+//    {
+//        const_cast<RimEnsambleCurveSet*>(curveSet)->addCurve(curve);
+//        curve->setParentQwtPlotAndReplot(m_qwtPlot);
+//    }
+//}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
 {
     if (curve)
@@ -965,10 +984,21 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEnsambleCurveSetCollection* RimSummaryPlot::ensambleCurveSets() const
+{
+    return m_ensambleCurveSetCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setCurveCollection(RimSummaryCurveCollection* curveCollection)
 {
     if (curveCollection)
     {
+        // Delete current curve coll ?
+
+
         m_summaryCurveCollection = curveCollection;
         if (m_qwtPlot)
         {
@@ -1114,6 +1144,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     axisFolder->add(&m_rightYAxisProperties);
 
     uiTreeOrdering.add(&m_summaryCurveCollection);
+    uiTreeOrdering.add(&m_ensambleCurveSetCollection);
     uiTreeOrdering.add(&m_gridTimeHistoryCurves);
     uiTreeOrdering.add(&m_asciiDataCurves);
 
@@ -1134,6 +1165,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         m_summaryCurveCollection->loadDataAndUpdate(false);
     }
  
+    m_ensambleCurveSetCollection->loadDataAndUpdate(false);
+
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {
         curve->loadDataAndUpdate(true);
@@ -1460,6 +1493,8 @@ void RimSummaryPlot::detachAllCurves()
     {
         m_summaryCurveCollection->detachQwtCurves();
     }
+
+    m_ensambleCurveSetCollection->detachQwtCurves();
 
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {

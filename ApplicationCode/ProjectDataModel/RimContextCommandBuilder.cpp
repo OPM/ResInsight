@@ -35,6 +35,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsambleCurveSetCollection.h"
 #include "RimFaultInView.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
@@ -439,6 +440,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
+        }
+        else if (dynamic_cast<RimEnsambleCurveSetCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewSummaryEnsambleCurveSetFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {

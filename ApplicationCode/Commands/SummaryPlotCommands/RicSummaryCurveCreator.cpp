@@ -40,6 +40,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCalculationCollection.h"
+#include "RimEnsambleCurveSetCollection.h"
+#include "RimEnsambleCurveSet.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryCurveDefSelection.h"
@@ -540,6 +542,23 @@ void RicSummaryCurveCreator::updateTargetPlot()
         copyCurveAndAddToPlot(editedCurve, m_targetPlot);
     }
 
+    // DEBUG
+    //{
+    //    m_targetPlot->ensambleCurveSets()->deleteAllCurveSets();
+
+    //    RimEnsambleCurveSet* curveSet = new RimEnsambleCurveSet();
+    //    m_targetPlot->ensambleCurveSets()->addCurveSet(curveSet);
+
+    //    for (const auto& editedCurve : m_previewPlot->summaryCurves())
+    //    {
+    //        if (!editedCurve->isCurveVisible())
+    //        {
+    //            continue;
+    //        }
+    //        copyEnsambleCurveAndAddToPlot(editedCurve, curveSet);
+    //    }
+    //}
+
     m_targetPlot->enableAutoPlotTitle(m_useAutoPlotTitleProxy());
 
     m_targetPlot->loadDataAndUpdate();
@@ -560,6 +579,30 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     }
 
     plot->addCurveNoUpdate(curveCopy);
+
+    // Resolve references after object has been inserted into the project data model
+    curveCopy->resolveReferencesRecursively();
+
+    // The curve creator is not a descendant of the project, and need to be set manually
+    curveCopy->setSummaryCaseY(curve->summaryCaseY());
+    curveCopy->initAfterReadRecursively();
+    curveCopy->loadDataAndUpdate(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::copyEnsambleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsambleCurveSet *curveSet, bool forceVisible)
+{
+    RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(curveCopy);
+
+    if (forceVisible)
+    {
+        curveCopy->setCurveVisiblity(true);
+    }
+
+    curveSet->addCurve(curveCopy);
 
     // Resolve references after object has been inserted into the project data model
     curveCopy->resolveReferencesRecursively();

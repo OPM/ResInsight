@@ -307,7 +307,15 @@ void RiuSummaryCurveDefSelection::setDefaultSelection()
         RiaSummaryCurveDefinition curveDef(allSumCases[0], defaultAddress);
         std::vector<RiaSummaryCurveDefinition> curveDefs;
         curveDefs.push_back(curveDef);
-        
+
+        // DEBUG
+        //{
+        //    RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldVarAddress("FOPTH");
+
+        //    RiaSummaryCurveDefinition curveDef(allSumCases[0], defaultAddress);
+        //    curveDefs.push_back(curveDef);
+        //}
+
         setSelectedCurveDefinitions(curveDefs);
     }
 }
