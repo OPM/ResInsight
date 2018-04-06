@@ -61,12 +61,15 @@ static QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sob
     return str;
 }
 
-template<>
-void caf::AppEnum< RimEnsambleCurveSet::ColorMode >::setUp()
+namespace caf
 {
-    addItem(RimEnsambleCurveSet::SINGLE_COLOR, "SINGLE_COLOR", "Single Color");
-    addItem(RimEnsambleCurveSet::BY_ENSAMBLE_PARAM, "BY_ENSAMBLE_PARAM", "By Ensamble Parameter");
-    setDefault(RimEnsambleCurveSet::SINGLE_COLOR);
+    template<>
+    void AppEnum< RimEnsambleCurveSet::ColorMode >::setUp()
+    {
+        addItem(RimEnsambleCurveSet::SINGLE_COLOR, "SINGLE_COLOR", "Single Color");
+        addItem(RimEnsambleCurveSet::BY_ENSAMBLE_PARAM, "BY_ENSAMBLE_PARAM", "By Ensamble Parameter");
+        setDefault(RimEnsambleCurveSet::SINGLE_COLOR);
+    }
 }
 
 

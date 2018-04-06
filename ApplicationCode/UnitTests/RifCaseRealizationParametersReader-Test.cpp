@@ -45,9 +45,9 @@ TEST(RifCaseRealizationParametersReaderTest, SuccessfulParsing)
         const cvf::ref<RigCaseRealizationParameters> parameters = reader.parameters();
         std::map<QString, double> params = parameters->parameters();
 
-        EXPECT_EQ(1, params.count("LETSWOF:L_1OW"));
-        EXPECT_EQ(1, params.count("LETSGOF:KRG1"));
-        EXPECT_EQ(1, params.count("LOG10_MULTFLT:MULTFLT_F1"));
+        EXPECT_EQ(1U, params.count("LETSWOF:L_1OW"));
+        EXPECT_EQ(1U, params.count("LETSGOF:KRG1"));
+        EXPECT_EQ(1U, params.count("LOG10_MULTFLT:MULTFLT_F1"));
 
         EXPECT_EQ(1.83555,   params["LETSWOF:L_1OW"]);
         EXPECT_EQ(0.97,      params["LETSGOF:KRG1"]);
