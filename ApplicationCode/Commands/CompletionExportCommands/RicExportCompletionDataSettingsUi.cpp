@@ -58,8 +58,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellSelection, "WellSelection", "Well Selection", "", "", "");
-    wellSelection.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
@@ -72,16 +70,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
-    m_onlyWellPathCollectionSelected = false;
     m_displayForSimWell = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::setOnlyWellPathCollectionSelected(bool onlyWellPathCollectionSelected)
-{
-    m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,18 +129,6 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
-    else if (fieldNeedingOptions == &wellSelection)
-    {
-        if (m_onlyWellPathCollectionSelected)
-        {
-            options.push_back(caf::PdmOptionItemInfo("All Wells", ALL_WELLS));
-            options.push_back(caf::PdmOptionItemInfo("Checked Wells", CHECKED_WELLS));
-        }
-        else
-        {
-            options.push_back(caf::PdmOptionItemInfo("Selected Wells", SELECTED_WELLS));
-        }
-    }
     else
     {
         options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
@@ -169,19 +146,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
     generalExportSettings->add(&caseToApply);
     generalExportSettings->add(&compdatExport);
     generalExportSettings->add(&useLateralNTG);
-
-    generalExportSettings->add(&wellSelection);
-    if (!m_onlyWellPathCollectionSelected)
-    {
-        wellSelection.setValue(SELECTED_WELLS);
-    }
-    else
-    {
-        if (wellSelection() != ALL_WELLS && wellSelection() != CHECKED_WELLS)
-        {
-            wellSelection.setValue(CHECKED_WELLS);
-        }
-    }
 
     generalExportSettings->add(&fileSplit);
 

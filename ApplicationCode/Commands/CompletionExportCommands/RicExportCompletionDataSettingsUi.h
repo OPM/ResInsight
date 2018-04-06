@@ -55,7 +55,6 @@ public:
     RicExportCompletionDataSettingsUi();
 
     caf::PdmField<ExportSplitType>          fileSplit;
-    caf::PdmField<WellSelectionType>        wellSelection;
     caf::PdmField<CompdatExportType>        compdatExport;
 
     caf::PdmField<bool>                     useLateralNTG;
@@ -68,8 +67,6 @@ public:
 
     caf::PdmField<int>                      timeStep;
 
-    void                                    setOnlyWellPathCollectionSelected(bool onlyWellPathCollectionSelected);
-
     void                                    showForSimWells();
     void                                    showForWellPath();
 
@@ -80,6 +77,5 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    bool                                    m_onlyWellPathCollectionSelected;
     bool                                    m_displayForSimWell;
 };

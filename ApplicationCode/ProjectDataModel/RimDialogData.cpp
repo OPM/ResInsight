@@ -35,7 +35,6 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "");
     m_exportCompletionData = new RicExportCompletionDataSettingsUi();
-    m_exportCompletionData->setOnlyWellPathCollectionSelected(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +67,6 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData(bool onlyWellPathCollectionSelected) const
 {
-    m_exportCompletionData->setOnlyWellPathCollectionSelected(onlyWellPathCollectionSelected);
     return m_exportCompletionData;
 }
 

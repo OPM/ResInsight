@@ -59,7 +59,6 @@ void RicfExportWellPathCompletions::execute()
     RimProject* project = RiaApplication::instance()->project();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(false);
     exportSettings->timeStep = m_timeStep;
-    exportSettings->wellSelection = m_wellSelection;
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
     exportSettings->includePerforations = m_includePerforations;

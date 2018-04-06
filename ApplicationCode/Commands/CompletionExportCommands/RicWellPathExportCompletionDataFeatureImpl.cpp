@@ -74,19 +74,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     }
 
     std::vector<RimWellPath*> usedWellPaths;
-    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS ||
-        exportSettings.wellSelection == RicExportCompletionDataSettingsUi::SELECTED_WELLS)
+    for (auto wellPath : wellPaths)
     {
-        usedWellPaths = wellPaths;
-    }
-    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS)
-    {
-        for (auto wellPath : wellPaths)
+        if (wellPath->showWellPath)
         {
-            if (wellPath->showWellPath)
-            {
-                usedWellPaths.push_back(wellPath);
-            }
+            usedWellPaths.push_back(wellPath);
         }
     }
 

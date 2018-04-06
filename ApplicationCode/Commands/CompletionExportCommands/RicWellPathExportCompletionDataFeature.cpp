@@ -154,7 +154,10 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
         {
             for (auto wellPath : wellPathCollection->wellPaths())
             {
-                wellPaths.push_back(wellPath);
+                if (wellPath->showWellPath())
+                {
+                    wellPaths.push_back(wellPath);
+                }
             }
         }
     }
