@@ -364,7 +364,8 @@ void RimGeoMechView::resetLegendsInViewer()
     this->cellResult()->legendConfig->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend(),
+                                               this->backgroundColor());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -380,14 +381,16 @@ void RimGeoMechView::updateLegends()
 
         if (cellResult()->hasResult())
         {
-            m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
+            m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend(),
+                                                       this->backgroundColor());
         }
 
         updateTensorLegendTextAndRanges(m_tensorResults->arrowColorLegendConfig(), m_currentTimeStep());
 
         if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS && tensorResults()->showTensors())
         {
-            m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->arrowColorLegendConfig->legend());
+            m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->arrowColorLegendConfig->legend(),
+                                                       this->backgroundColor());
         }
     }
 }

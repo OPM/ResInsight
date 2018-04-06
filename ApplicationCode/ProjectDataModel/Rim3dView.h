@@ -155,6 +155,10 @@ protected:
 
     void                                    createHighlightAndGridBoxDisplayModel();
 
+    // Implementation of RiuViewerToViewInterface
+    virtual cvf::Color3f                    backgroundColor() const override { return m_backgroundColor(); }
+    virtual void                            applyBackgroundColor();
+
     // Abstract methods to implement in subclasses
 
     virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
@@ -206,7 +210,6 @@ private:
 
     // Implementation of RiuViewerToViewInterface
 
-    virtual cvf::Color3f                    backgroundColor() const override { return m_backgroundColor();} 
     virtual void                            setCameraPosition(const cvf::Mat4d& cameraPosition) override               { m_cameraPosition = cameraPosition; }
     virtual void                            setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest) override { m_cameraPointOfInterest = cameraPointOfInterest;}
     virtual QString                         timeStepName(int frameIdx) const override;

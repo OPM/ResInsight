@@ -96,7 +96,7 @@ public:
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
-    void            addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend);
+    void            addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend, const cvf::Color3f& backgroundColor);
 
     void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();

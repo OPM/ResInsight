@@ -118,7 +118,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
                                                                          this->backgroundColor(),
                                                                          this->backgroundFrameColor());
         }
-        border = 3.0f;
+        border = 8.0f;
     }
 
     cvf::TextDrawer textDrawer(this->font());
@@ -126,7 +126,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 
     float lineHeightInPixels = (float)(this->font()->textExtent("SWAT").y() + 2);
 
-    float textPosY = static_cast<float>(size.y() - lineHeightInPixels);
+    float textPosY = static_cast<float>(size.y() - lineHeightInPixels - border);
     for (size_t it = 0; it < this->titleStrings().size(); it++)
     {
         cvf::Vec2f pos(border, textPosY);

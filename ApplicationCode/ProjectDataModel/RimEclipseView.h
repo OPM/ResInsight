@@ -147,6 +147,7 @@ protected:
 
     virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     virtual bool                                    showActiveCellsOnly() override;
+    virtual void                                    applyBackgroundColor() override;
 
 private:
     void                                            createDisplayModel() override;

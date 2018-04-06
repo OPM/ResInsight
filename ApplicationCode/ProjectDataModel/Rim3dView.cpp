@@ -583,12 +583,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
     }
     else if (changedField == &m_backgroundColor)
     {
-        if (m_viewer != nullptr)
-        {
-            m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-        }
-        updateGridBoxData();
-        updateAnnotationItems();
+        this->applyBackgroundColor();
     }
     else if (changedField == &maximumFrameRate)
     {
@@ -728,6 +723,19 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
     }
 
     m_viewer->showGridBox(m_showGridBox());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::applyBackgroundColor()
+{
+    if (m_viewer != nullptr)
+    {
+        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+    }
+    updateGridBoxData();
+    updateAnnotationItems();
 }
 
 //--------------------------------------------------------------------------------------------------
