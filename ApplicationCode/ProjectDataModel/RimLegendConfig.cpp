@@ -123,6 +123,7 @@ RimLegendConfig::RimLegendConfig()
         m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitField(&enableLegend, "EnableLegend", true, "Enable Legend", "", "", "");    
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.","");
     CAF_PDM_InitField(&m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Number format", "", "","");
@@ -463,6 +464,11 @@ void RimLegendConfig::setAutomaticRanges(double globalMin, double globalMax, dou
 void RimLegendConfig::initAfterRead()
 {
     updateFieldVisibility();
+}
+
+caf::PdmFieldHandle* RimLegendConfig::objectToggleField()
+{
+    return &enableLegend;
 }
 
 //--------------------------------------------------------------------------------------------------

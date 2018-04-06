@@ -1055,47 +1055,50 @@ void RimEclipseView::updateLegends()
         updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultColors(), results);
     }
 
-    if (this->cellEdgeResult()->hasResult())
+    if (this->cellEdgeResult()->legendConfig()->enableLegend())
     {
-        if (this->cellEdgeResult()->isUsingSingleVariable())
+        if (this->cellEdgeResult()->hasResult())
         {
-            this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_currentTimeStep);
+            if (this->cellEdgeResult()->isUsingSingleVariable())
+            {
+                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_currentTimeStep);
+            }
+            else
+            {
+                double globalMin, globalMax;
+                double globalPosClosestToZero, globalNegClosestToZero;
+                this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
+                this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
+
+                this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+                this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+
+                if (this->cellEdgeResult()->hasCategoryResult())
+                {
+                    if (cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES)
+                    {
+                        cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
+                    }
+                    else
+                    {
+                        const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                        cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
+                    }
+                }
+            }
+
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend(), this->backgroundColor());
+            this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
         }
         else
         {
-            double globalMin, globalMax;
-            double globalPosClosestToZero, globalNegClosestToZero;
-            this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
-            this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
-
-            this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
-            this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
-
-            if (this->cellEdgeResult()->hasCategoryResult())
-            {
-                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES)
-                {
-                    cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
-                }
-                else
-                {
-                    const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
-                    cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
-                }
-            }
+            this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
+            this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
         }
-
-        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend(), this->backgroundColor());
-        this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
-    }
-    else
-    {
-        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 
     RimLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
-    if (stimPlanLegend)
+    if (stimPlanLegend && stimPlanLegend->enableLegend())
     {
         fractureColors()->updateLegendData();
         
@@ -1105,12 +1108,11 @@ void RimEclipseView::updateLegends()
         }
     }
     
-    if (m_virtualPerforationResult->isActive())
+    if (m_virtualPerforationResult->isActive() && m_virtualPerforationResult->legendConfig()->enableLegend())
     {
         updateVirtualConnectionLegendRanges();
 
         RimLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
-        
         m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend(), this->backgroundColor());
     }
 }
@@ -1124,7 +1126,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 {
     resultColors->updateLegendData(m_currentTimeStep);
 
-    if (resultColors->hasResult())
+    if (resultColors->hasResult() && resultColors->legendConfig()->enableLegend())
     {
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend(), this->backgroundColor());
         resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
@@ -1133,7 +1135,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        if (resultColors->ternaryLegendConfig->legend())
+        if (resultColors->ternaryLegendConfig->enableLegend() && resultColors->ternaryLegendConfig->legend())
         {
             resultColors->ternaryLegendConfig->setTitle(legendLabel);
             m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend(), this->backgroundColor());

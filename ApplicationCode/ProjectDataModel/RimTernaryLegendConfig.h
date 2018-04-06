@@ -73,6 +73,9 @@ public:
     
     const RivTernarySaturationOverlayItem*    legend() const;
     RivTernarySaturationOverlayItem*          legend();
+
+    caf::PdmField<bool>                       enableLegend;
+
     void                                      setTitle(const QString& title);
 
     const RivTernaryScalarMapper*             scalarMapper() const;
@@ -81,6 +84,7 @@ protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual void        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual caf::PdmFieldHandle*                objectToggleField();
 
 private:
     void                updateLegend();
