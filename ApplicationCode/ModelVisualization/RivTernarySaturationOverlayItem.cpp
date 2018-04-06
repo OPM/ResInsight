@@ -43,6 +43,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     : TitledOverlayFrame(font, 120, 150)    
 {
+    this->computeLayoutAndExtents();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +52,14 @@ RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font
 RivTernarySaturationOverlayItem::~RivTernarySaturationOverlayItem()
 {
     // Empty destructor to avoid errors with undefined types when cvf::ref's destructor gets called
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernarySaturationOverlayItem::computeLayoutAndExtents()
+{
+    this->setMinimumWidth(this->sizeHint().x());
 }
 
 //--------------------------------------------------------------------------------------------------

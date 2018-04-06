@@ -85,7 +85,7 @@ public:
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
-
+    void            computeLayoutAndExtents() override;
 protected:
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
@@ -134,7 +134,9 @@ protected:
     int                 m_tickNumberPrecision;
     NumberFormat        m_numberFormat;
 
-    cvf::cref<ScalarMapper> m_scalarMapper;
+    OverlayColorLegendLayoutInfo m_Layout;
+    cvf::ref<TextDrawer>         m_textDrawer;
+    cvf::cref<ScalarMapper>      m_scalarMapper;
 };
 
 }

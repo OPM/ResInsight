@@ -41,6 +41,7 @@ namespace caf {
 CategoryLegend::CategoryLegend(Font* font, const CategoryMapper* categoryMapper)
     : TitledOverlayFrame(font, 200, 200)    
     , m_categoryMapper(categoryMapper)
+    , m_Layout(Vec2i(0, 0), Vec2ui(200u, 200u))
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -128,17 +129,9 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    // Get layout information
-    // Todo: Cache this between renderings. Update only when needed.
-    OverlayColorLegendLayoutInfo layout(position, size);
-    layoutInfo(&layout);
+    this->computeLayoutAndExtents();
 
-    // Set up text drawer
-    float maxLegendRightPos = 0; 
-    TextDrawer textDrawer(this->font());
-    setupTextDrawer(&textDrawer, &layout, &maxLegendRightPos);
-
-    Vec2f backgroundSize(CVF_MIN(maxLegendRightPos + layout.margins.x(), (float)size.x()), (float)size.y());
+    Vec2f backgroundSize(CVF_MIN((float) this->width(), (float)size.x()), (float)size.y());
 
     // Do the actual rendering
     if (software)
@@ -147,8 +140,8 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
                                                                                             backgroundSize, 
                                                                                             this->backgroundColor(), 
                                                                                             this->backgroundFrameColor());
-        renderLegendImmediateMode(oglContext, &layout);
-        textDrawer.renderSoftware(oglContext, camera);
+        renderLegendImmediateMode(oglContext, &m_Layout);
+        m_textDrawer->renderSoftware(oglContext, camera);
     }
     else
     {
@@ -158,8 +151,8 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
                                                                                            backgroundSize, 
                                                                                            this->backgroundColor(), 
                                                                                            this->backgroundFrameColor());
-        renderLegendUsingShaders(oglContext, &layout, matrixState);
-        textDrawer.render(oglContext, camera);
+        renderLegendUsingShaders(oglContext, &m_Layout, matrixState);
+        m_textDrawer->render(oglContext, camera);
     }
 
     CVF_CHECK_OGL(oglContext);
@@ -498,6 +491,22 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->tickX = layout->x1 + 5;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryLegend::computeLayoutAndExtents()
+{
+    // Todo: Cache this between renderings. Update only when needed.
+    layoutInfo(&m_Layout);
+    m_textDrawer = new TextDrawer(this->font());
+
+    // Set up text drawer
+    float maxLegendRightPos = 0;
+    setupTextDrawer(m_textDrawer.p(), &m_Layout, &maxLegendRightPos);
+
+    unsigned int contentWidth = static_cast<unsigned int>(std::ceil(maxLegendRightPos + m_Layout.margins.x()));
+    this->setMinimumWidth(contentWidth);
+}
 
 
 

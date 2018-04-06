@@ -2,6 +2,8 @@
 #include "cafCategoryMapper.h"
 #include "cvfFont.h"
 
+#include <algorithm>
+
 using namespace cvf;
 
 namespace caf {
@@ -12,6 +14,7 @@ namespace caf {
     TitledOverlayFrame::TitledOverlayFrame(Font* font, unsigned int width, unsigned int height)
         : m_font(font)
         , m_sizeHint(width, height)
+        , m_minimumWidth(0u)
         , m_textColor(Color3::BLACK)
         , m_lineColor(Color3::BLACK)
         , m_lineWidth(1)
@@ -31,6 +34,23 @@ namespace caf {
     void TitledOverlayFrame::setSizeHint(const Vec2ui& size)
     {
         m_sizeHint = size;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void TitledOverlayFrame::setMinimumWidth(unsigned int width)
+    {
+        m_minimumWidth = width;
+        m_actualWidth = std::max(m_minimumWidth, m_actualWidth);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void TitledOverlayFrame::setWidth(unsigned int width)
+    {
+        m_actualWidth = width;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -105,6 +125,22 @@ namespace caf {
     cvf::Vec2ui TitledOverlayFrame::sizeHint()
     {
         return m_sizeHint;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    unsigned int TitledOverlayFrame::minimumWidth()
+    {
+        return m_minimumWidth;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    unsigned int TitledOverlayFrame::width()
+    {
+        return m_actualWidth;
     }
 
     //--------------------------------------------------------------------------------------------------
