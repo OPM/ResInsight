@@ -504,6 +504,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPlotProductionRateFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder.subMenuEnd();
+
+            menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
+        }
+        else if (dynamic_cast<RimSimWellInViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
