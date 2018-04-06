@@ -57,7 +57,7 @@ namespace caf {
 RimTernaryLegendConfig::RimTernaryLegendConfig() 
 {
     CAF_PDM_InitObject("Ternary Legend Definition", ":/Legend.png", "", "");
-
+    CAF_PDM_InitField(&enableLegend, "EnableTernaryLegend", true, "Enable Ternary Legend", "", "", "");
     CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
@@ -491,3 +491,7 @@ const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
     return m_scalarMapper.p();
 }
 
+caf::PdmFieldHandle* RimTernaryLegendConfig::objectToggleField()
+{
+    return &enableLegend;
+}

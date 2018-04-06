@@ -120,11 +120,14 @@ public:
     void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    caf::TitledOverlayFrame*                        legend();
+    caf::TitledOverlayFrame*                    legend();
+
+    caf::PdmField<bool>                         enableLegend;
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                initAfterRead();
+    virtual caf::PdmFieldHandle*                objectToggleField();
 
     friend class RimStimPlanLegendConfig;
     virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
