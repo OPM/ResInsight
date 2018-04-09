@@ -183,12 +183,9 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    m_Layout.position = position;
-    m_Layout.size = size;
-        
-    this->computeLayoutAndExtents();
+    this->computeLayoutAndExtents(position, size);
 
-    Vec2f backgroundSize(CVF_MIN((float)this->matchedWidth(), (float)size.x()), (float)size.y());
+    Vec2f backgroundSize(this->matchedWidth(), (float)size.y());
 
     // Do the actual rendering
     if (software)
@@ -665,8 +662,10 @@ void OverlayScalarMapperLegend::setTickFormat(NumberFormat format)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::computeLayoutAndExtents()
+void OverlayScalarMapperLegend::computeLayoutAndExtents(const Vec2i& position, const Vec2ui& size)
 {
+    // Todo: Cache this between renderings. Update only when needed.
+    //m_Layout = OverlayColorLegendLayoutInfo(position, size);
     layoutInfo(&m_Layout);
 
     m_textDrawer = new TextDrawer(this->font());

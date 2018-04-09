@@ -85,7 +85,7 @@ public:
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
-    void            computeLayoutAndExtents() override;
+    void            computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
 protected:
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;

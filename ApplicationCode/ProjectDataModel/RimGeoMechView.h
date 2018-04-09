@@ -110,7 +110,7 @@ private:
 
     virtual void                                        resetLegendsInViewer() override;
 
-    void                                                updateLegends();
+    void                                                updateLegends() override;
 
     void                                                updateTensorLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
 

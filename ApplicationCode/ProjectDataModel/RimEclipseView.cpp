@@ -1087,7 +1087,7 @@ void RimEclipseView::updateLegends()
                 }
             }
 
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend(), this->backgroundColor());
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
             this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
         }
         else
@@ -1104,7 +1104,7 @@ void RimEclipseView::updateLegends()
         
         if (fractureColors()->isChecked() && stimPlanLegend->legend())
         {
-            m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend(), this->backgroundColor());
+            m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
         }
     }
     
@@ -1113,7 +1113,7 @@ void RimEclipseView::updateLegends()
         updateVirtualConnectionLegendRanges();
 
         RimLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
-        m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend(), this->backgroundColor());
+        m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend());
     }
 }
 
@@ -1128,7 +1128,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 
     if (resultColors->hasResult() && resultColors->legendConfig()->enableLegend())
     {
-        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend(), this->backgroundColor());
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
         resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
     }
 
@@ -1138,7 +1138,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
         if (resultColors->ternaryLegendConfig->enableLegend() && resultColors->ternaryLegendConfig->legend())
         {
             resultColors->ternaryLegendConfig->setTitle(legendLabel);
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend(), this->backgroundColor());
+            m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend());
         }
     }
 }
@@ -1598,12 +1598,10 @@ void RimEclipseView::resetLegendsInViewer()
     
     if (cellResultNormalLegendConfig)
     {
-        m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend(),
-                                                   this->backgroundColor());
+        m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
     }
 
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend(),
-                                               this->backgroundColor());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1737,15 +1735,6 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 bool RimEclipseView::showActiveCellsOnly()
 {
     return !m_showInactiveCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::applyBackgroundColor()
-{
-    Rim3dView::applyBackgroundColor();
-    this->updateLegends();
 }
 
 //--------------------------------------------------------------------------------------------------

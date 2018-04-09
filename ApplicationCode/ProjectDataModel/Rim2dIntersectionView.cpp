@@ -603,7 +603,7 @@ void Rim2dIntersectionView::updateLegends()
 
     if ( legend )
     {
-        m_viewer->addColorLegendToBottomLeftCorner(legend, this->backgroundColor());
+        m_viewer->addColorLegendToBottomLeftCorner(legend);
     }
 }
 

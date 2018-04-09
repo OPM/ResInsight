@@ -432,7 +432,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
                 painter->drawLine(centerPos.x() - markerHalfLength, centerPos.y(), centerPos.x() + markerHalfLength, centerPos.y());
             }
         }
-    }
+    }  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,7 +536,7 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend, const cvf::Color3f& backgroundColor)
+void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend)
 {
     RiaApplication* app = RiaApplication::instance();
     CVF_ASSERT(app);
@@ -547,12 +547,16 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
 
     if (legend)
     {
+        cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
+        backgroundColor.a() = 0.8f;
+        cvf::Color3f frameColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b());
         updateLegendTextAndTickMarkColor(legend);
-
+        
         firstRendering->addOverlayItem(legend);
         legend->enableBackground(preferences->showLegendBackground());
-        legend->setBackgroundColor(cvf::Color4f(backgroundColor, 0.8f));
-        legend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(backgroundColor, 0.3f), 0.9f));
+        legend->setBackgroundColor(backgroundColor);
+        legend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(frameColor, 0.3f), 0.9f));
+
         m_visibleLegends.push_back(legend);
     }
 
@@ -616,12 +620,13 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
     }
 
     unsigned int requiredLegendWidth = 0u;
-    for (auto legend : m_visibleLegends)
+    for (auto legend : overlayItems)
     {
+        legend->computeLayoutAndExtents(cvf::Vec2i(0, 0), legend->sizeHint());
         requiredLegendWidth = std::max(requiredLegendWidth, legend->minimumWidth());
     }
 
-    for (auto legend : m_visibleLegends)
+    for (auto legend : overlayItems)
     {
         legend->setMatchedWidth(requiredLegendWidth);
     }

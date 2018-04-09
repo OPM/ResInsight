@@ -43,7 +43,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     : TitledOverlayFrame(font, 120, 150)    
 {
-    this->computeLayoutAndExtents();
+    this->computeLayoutAndExtents(cvf::Vec2i(0, 0), this->sizeHint());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,9 +57,9 @@ RivTernarySaturationOverlayItem::~RivTernarySaturationOverlayItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::computeLayoutAndExtents()
+void RivTernarySaturationOverlayItem::computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size)
 {
-    this->setMinimumWidth(this->sizeHint().x());
+    this->setMinimumWidth(size.x());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,21 +91,21 @@ void RivTernarySaturationOverlayItem::renderSoftware(cvf::OpenGLContext* oglCont
 //--------------------------------------------------------------------------------------------------
 void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglContext, 
                                                     const cvf::Vec2i& position, 
-                                                    const cvf::Vec2ui& sizeHint, 
+                                                    const cvf::Vec2ui& size, 
                                                     bool software)
 {
-    if (sizeHint.x() <= 0 || sizeHint.y() <= 0)
+    if (size.x() <= 0 || size.y() <= 0)
     {
         return;
     }
 
     float border = 0.0f;
 
-    cvf::Vec2ui sizeMatched = sizeHint;
-    sizeMatched.x() = this->matchedWidth(); // Match to other legends
+    cvf::Vec2ui sizeFrameBox = size;
+    sizeFrameBox.x() = this->matchedWidth(); // Match to other legends
 
     cvf::Camera camera;
-    camera.setViewport(position.x(), position.y(), sizeMatched.x(), sizeMatched.y());
+    camera.setViewport(position.x(), position.y(), sizeFrameBox.x(), sizeFrameBox.y());
     camera.setProjectionAsPixelExact2D();
     camera.setViewMatrix(cvf::Mat4d::IDENTITY);
     camera.applyOpenGL();
@@ -116,7 +116,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
         if ( software )
         {
             caf::InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext,
-                                                                          cvf::Vec2f(sizeMatched),
+                                                                          cvf::Vec2f(sizeFrameBox),
                                                                           this->backgroundColor(),
                                                                           this->backgroundFrameColor());
         }
@@ -126,7 +126,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 
             caf::InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext,
                                                                          matrixState,
-                                                                         cvf::Vec2f(sizeMatched),
+                                                                         cvf::Vec2f(sizeFrameBox),
                                                                          this->backgroundColor(),
                                                                          this->backgroundFrameColor());
         }
@@ -138,7 +138,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 
     float lineHeightInPixels = (float)(this->font()->textExtent("SWAT").y() + 2);
 
-    float textPosY = static_cast<float>(sizeMatched.y() - lineHeightInPixels - border);
+    float textPosY = static_cast<float>(size.y() - lineHeightInPixels - border);
     for (size_t it = 0; it < this->titleStrings().size(); it++)
     {
         cvf::Vec2f pos(border, textPosY);
@@ -154,11 +154,11 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 
     {
         cvf::uint sgasTextWidth = this->font()->textExtent("SGAS").x();
-        textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (sizeMatched.x() / 2) - sgasTextWidth / 2 ), textPosY));
+        textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasTextWidth / 2 ), textPosY));
 
         cvf::uint sgasRangeTextWidth = this->font()->textExtent(m_sgasRange).x();
         textPosY -= lineHeightInPixels;
-        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (sizeMatched.x() / 2) - sgasRangeTextWidth / 2 ), textPosY));
+        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY));
     }
 
     textDrawer.addText("SWAT", cvf::Vec2f((float)border, (float)(lineHeightInPixels + border)));
@@ -166,10 +166,10 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 
     {
         cvf::uint soilTextWidth = this->font()->textExtent("SOIL").x();
-        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(sizeMatched.x() - soilTextWidth - border), lineHeightInPixels + border));
+        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - soilTextWidth - border), lineHeightInPixels + border));
 
         cvf::uint soilRangeTextWidth = this->font()->textExtent(m_soilRange).x();
-        float soilRangePos = static_cast<float>(sizeMatched.x()) - soilRangeTextWidth - border;
+        float soilRangePos = static_cast<float>(size.x()) - soilRangeTextWidth - border;
 
         textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, (float)border));
     }

@@ -31,7 +31,7 @@ public:
     virtual ~CategoryLegend();
 
     size_t       categoryCount() const;
-    void         computeLayoutAndExtents() override;
+    void         computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
 
 protected:
     void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
