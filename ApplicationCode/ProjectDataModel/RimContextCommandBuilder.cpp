@@ -241,8 +241,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder.subMenuEnd();
-
-            menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -283,10 +281,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder << "Separator";
-
+            menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
             menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
             menuBuilder << "RicWellPathExportCompletionDataFeature";
+            menuBuilder.subMenuEnd();
+
+            menuBuilder << "Separator";
+
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {
@@ -626,6 +627,32 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicEditPerforationCollectionFeature";
         menuBuilder << "RicExportFishbonesLateralsFeature";
         menuBuilder << "RicExportFishbonesWellSegmentsFeature";
+
+        {
+            QStringList candidates;
+
+            if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsForVisibleWellPathsFeature"))
+            {
+                candidates << "RicExportCompletionsForVisibleWellPathsFeature";
+            }
+            if (!menuBuilder.isCmdFeatureAdded("RicWellPathExportCompletionDataFeature"))
+            {
+                candidates << "RicWellPathExportCompletionDataFeature";
+            }
+
+            if (!candidates.isEmpty())
+            {
+                menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
+
+                for (const auto& text : candidates)
+                {
+                    menuBuilder << text;
+                }
+        
+                menuBuilder.subMenuEnd();
+            }
+        }
+
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
         menuBuilder << "RicExportCarfin";

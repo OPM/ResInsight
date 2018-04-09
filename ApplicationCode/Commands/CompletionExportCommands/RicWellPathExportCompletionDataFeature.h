@@ -37,7 +37,4 @@ protected:
 
 private:
     std::vector<RimWellPath*>      selectedWellPaths();
-    std::vector<RimSimWellInView*> selectedSimWells();
-
-    bool noWellPathsSelectedDirectly();
 };
