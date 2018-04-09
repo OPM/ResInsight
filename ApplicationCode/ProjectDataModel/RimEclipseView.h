@@ -147,7 +147,6 @@ protected:
 
     virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     virtual bool                                    showActiveCellsOnly() override;
-    virtual void                                    applyBackgroundColor() override;
 
 private:
     void                                            createDisplayModel() override;
@@ -160,7 +159,7 @@ private:
 
     virtual void                                    updateStaticCellColors() override;
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
-    void                                            updateLegends();
+    void                                            updateLegends() override;
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer() override;
     void                                            updateVirtualConnectionLegendRanges();

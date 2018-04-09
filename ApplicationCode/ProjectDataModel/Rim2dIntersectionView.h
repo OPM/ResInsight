@@ -69,7 +69,7 @@ public:
     bool                       showDefiningPoints() const;
 
 protected:
-    void                       updateLegends();
+    void                       updateLegends() override;
 
     virtual bool               isGridVisualizationMode() const override;
     virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;

@@ -129,7 +129,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    this->computeLayoutAndExtents();
+    this->computeLayoutAndExtents(position, size);
 
     Vec2f backgroundSize(CVF_MIN((float) this->matchedWidth(), (float)size.x()), (float)size.y());
 
@@ -494,9 +494,10 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::computeLayoutAndExtents()
+void CategoryLegend::computeLayoutAndExtents(const Vec2i& position, const Vec2ui& size)
 {
     // Todo: Cache this between renderings. Update only when needed.
+    m_Layout = OverlayColorLegendLayoutInfo(position, size);
     layoutInfo(&m_Layout);
     m_textDrawer = new TextDrawer(this->font());
 

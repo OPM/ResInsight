@@ -132,6 +132,7 @@ public:
     void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
     void                                    updateGridBoxData();
     void                                    updateAnnotationItems();
+    virtual void                            updateLegends() = 0;
 
     bool                                    isMasterView() const;
 
@@ -157,7 +158,7 @@ protected:
 
     // Implementation of RiuViewerToViewInterface
     virtual cvf::Color3f                    backgroundColor() const override { return m_backgroundColor(); }
-    virtual void                            applyBackgroundColor();
+    void                                    applyBackgroundColor();
 
     // Abstract methods to implement in subclasses
 

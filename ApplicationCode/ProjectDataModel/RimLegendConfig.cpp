@@ -371,7 +371,7 @@ void RimLegendConfig::updateLegend()
        numDecimalDigits -= static_cast<int>(decadesInRange);
    }
    m_scalarMapperLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
-   m_scalarMapperLegend->computeLayoutAndExtents();
+   m_scalarMapperLegend->computeLayoutAndExtents(cvf::Vec2i(0, 0), m_scalarMapperLegend->sizeHint());
 
    RiaApplication* app = RiaApplication::instance();
    RiaPreferences* preferences = app->preferences();

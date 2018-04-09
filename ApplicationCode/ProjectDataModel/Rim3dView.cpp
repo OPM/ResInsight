@@ -736,6 +736,7 @@ void Rim3dView::applyBackgroundColor()
     }
     updateGridBoxData();
     updateAnnotationItems();
+    updateLegends();
 }
 
 //--------------------------------------------------------------------------------------------------
