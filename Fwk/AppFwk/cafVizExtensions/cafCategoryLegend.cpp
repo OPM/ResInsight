@@ -505,7 +505,7 @@ void CategoryLegend::computeLayoutAndExtents(const Vec2i& position, const Vec2ui
     float maxLegendRightPos = 0;
     setupTextDrawer(m_textDrawer.p(), &m_Layout, &maxLegendRightPos);
 
-    unsigned int contentWidth = static_cast<unsigned int>(std::ceil(maxLegendRightPos + m_Layout.margins.x()));
+    unsigned int contentWidth = static_cast<unsigned int>(cvf::Math::ceil(maxLegendRightPos + m_Layout.margins.x()));
     this->setMinimumWidth(contentWidth);
 }
 
