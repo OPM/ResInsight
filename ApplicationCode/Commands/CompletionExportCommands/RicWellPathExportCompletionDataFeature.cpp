@@ -24,11 +24,15 @@
 #include "RicExportFeatureImpl.h"
 
 #include "RimDialogData.h"
+#include "RimFishbonesMultipleSubs.h"
+#include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -80,6 +84,50 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     }
 
     if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
+
+    std::vector<RimSimWellFracture*>       simWellFractures;
+    std::vector<RimWellPathFracture*>      wellPathFractures;
+    std::vector<RimFishbonesMultipleSubs*> wellPathFishbones;
+    std::vector<RimPerforationInterval*>   wellPathPerforations;
+
+    for (auto s : simWells)
+    {
+        s->descendantsIncludingThisOfType(simWellFractures);
+    }
+
+    for (auto w : wellPaths)
+    {
+        w->descendantsIncludingThisOfType(wellPathFractures);
+        w->descendantsIncludingThisOfType(wellPathFishbones);
+        w->descendantsIncludingThisOfType(wellPathPerforations);
+    }
+
+    if ((!simWellFractures.empty()) || (!wellPathFractures.empty()))
+    {
+        exportSettings->enableFractures(true);
+    }
+    else
+    {
+        exportSettings->enableFractures(false);
+    }
+
+    if (!wellPathFishbones.empty())
+    {
+        exportSettings->enableFishbone(true);
+    }
+    else
+    {
+        exportSettings->enableFishbone(false);
+    }
+
+    if (!wellPathPerforations.empty())
+    {
+        exportSettings->enablePerforations(true);
+    }
+    else
+    {
+        exportSettings->enablePerforations(false);
+    }
 
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);

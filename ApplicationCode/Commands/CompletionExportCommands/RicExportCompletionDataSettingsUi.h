@@ -70,6 +70,10 @@ public:
     void                                    showForSimWells();
     void                                    showForWellPath();
 
+    void                                    enableFractures(bool enable);
+    void                                    enablePerforations(bool enable);
+    void                                    enableFishbone(bool enable);
+
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
@@ -77,5 +81,9 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    bool                                    m_displayForSimWell;
+    bool m_displayForSimWell;
+
+    bool m_fracturesEnabled;
+    bool m_perforationsEnabled;
+    bool m_fishbonesEnabled;
 };

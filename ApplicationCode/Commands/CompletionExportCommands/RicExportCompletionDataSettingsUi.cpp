@@ -71,6 +71,10 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
     m_displayForSimWell = true;
+    
+    m_fracturesEnabled = true;
+    m_perforationsEnabled = true;
+    m_fishbonesEnabled = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +91,30 @@ void RicExportCompletionDataSettingsUi::showForSimWells()
 void RicExportCompletionDataSettingsUi::showForWellPath()
 {
     m_displayForSimWell = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::enableFractures(bool enable)
+{
+    m_fracturesEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::enablePerforations(bool enable)
+{
+    m_perforationsEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::enableFishbone(bool enable)
+{
+    m_fishbonesEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,37 +169,58 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* generalExportSettings = uiOrdering.addNewGroup("General Export Settings");
-    generalExportSettings->add(&folder);
-    generalExportSettings->add(&caseToApply);
-    generalExportSettings->add(&compdatExport);
-    generalExportSettings->add(&useLateralNTG);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("File Settings");
+    
+        group->add(&folder);
+        group->add(&fileSplit);
+    }
 
-    generalExportSettings->add(&fileSplit);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Settings");
 
-    if (!m_displayForSimWell)
+        group->add(&caseToApply);
+        group->add(&compdatExport);
+        group->add(&useLateralNTG);
+    }
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Visible Completions");
-
-        group->add(&includeFishbones);
-        group->add(&excludeMainBoreForFishbones);
-        if (!includeFishbones) excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
-        else excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
-
-        group->add(&includePerforations);
-        group->add(&timeStep);
-        if (!includePerforations) timeStep.uiCapability()->setUiReadOnly(true);
-        else  timeStep.uiCapability()->setUiReadOnly(false);
-        
-        group->add(&includeFractures);
-        
-        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        if (!m_displayForSimWell)
         {
-            includeFractures.uiCapability()->setUiReadOnly(true);
+            if (m_fishbonesEnabled)
+            {
+                group->add(&includeFishbones);
+                group->add(&excludeMainBoreForFishbones);
+                if (!includeFishbones)
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
+                else
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
+            }
+
+            if (m_perforationsEnabled)
+            {
+                group->add(&includePerforations);
+                group->add(&timeStep);
+                if (!includePerforations)
+                    timeStep.uiCapability()->setUiReadOnly(true);
+                else
+                    timeStep.uiCapability()->setUiReadOnly(false);
+            }
         }
-        else if (compdatExport == TRANSMISSIBILITIES)
+
+        if (m_fracturesEnabled)
         {
-            includeFractures.uiCapability()->setUiReadOnly(false);
+            group->add(&includeFractures);
+
+            if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+            {
+                includeFractures.uiCapability()->setUiReadOnly(true);
+            }
+            else if (compdatExport == TRANSMISSIBILITIES)
+            {
+                includeFractures.uiCapability()->setUiReadOnly(false);
+            }
         }
     }
 
