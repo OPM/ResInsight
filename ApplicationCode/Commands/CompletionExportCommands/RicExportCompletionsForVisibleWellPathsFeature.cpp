@@ -18,22 +18,11 @@
 
 #include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
-#include "RiaApplication.h"
+#include "RicWellPathExportCompletionDataFeature.h"
 
-#include "RicExportFeatureImpl.h"
-#include "RicExportCompletionDataSettingsUi.h"
-#include "RicWellPathExportCompletionDataFeatureImpl.h"
-
-#include "RimDialogData.h"
-#include "RimProject.h"
-#include "RimSimWellInView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "Riu3DMainWindowTools.h"
-
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -45,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleWellPathsFeature, "RicExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*>      wellPaths = visibleWellPaths();
+    std::vector<RimWellPath*> wellPaths = visibleWellPaths();
 
     if (wellPaths.empty())
     {
@@ -60,46 +49,13 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*>      wellPaths = visibleWellPaths();
+    std::vector<RimWellPath*> wellPaths = visibleWellPaths();
     CVF_ASSERT(wellPaths.size() > 0);
-    
+
     std::vector<RimSimWellInView*> simWells;
+    QString                        dialogTitle = "Export Completion Data for Visible Well Paths";
 
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
-
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir    = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
-
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
-    exportSettings->showForWellPath();
-
-    if (!exportSettings->caseToApply())
-    {
-        std::vector<RimCase*> cases;
-        app->project()->allCases(cases);
-        for (auto c : cases)
-        {
-            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
-            if (eclipseCase != nullptr)
-            {
-                exportSettings->caseToApply = eclipseCase;
-                break;
-            }
-        }
-    }
-
-    if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
-
-    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, "Export Completion Data", "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
-
-    if (propertyDialog.exec() == QDialog::Accepted)
-    {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
-
-        RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
-    }
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +72,7 @@ void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook(QAction* ac
 std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths()
 {
     std::vector<RimWellPath*> wellPaths;
-    
+
     {
         std::vector<RimWellPathCollection*> wellPathCollections;
         caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
@@ -151,7 +107,6 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
 
     std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
     wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
-    
+
     return wellPaths;
 }
-

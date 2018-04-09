@@ -30,11 +30,16 @@ class RicWellPathExportCompletionDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void prepareExportSettingsAndExportCompletions(const QString& dialogTitle,
+                                                          const std::vector<RimWellPath*>&      wellPaths,
+                                                          const std::vector<RimSimWellInView*>& simWells);
+
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    std::vector<RimWellPath*>      selectedWellPaths();
+    std::vector<RimWellPath*> selectedWellPaths();
 };

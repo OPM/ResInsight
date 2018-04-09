@@ -42,26 +42,11 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
+void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(
+    const QString&                        dialogTitle,
+    const std::vector<RimWellPath*>&      wellPaths,
+    const std::vector<RimSimWellInView*>& simWells)
 {
-    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-
-    if (wellPaths.empty())
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
-{
-    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    CVF_ASSERT(!wellPaths.empty());
-
     RiaApplication* app     = RiaApplication::instance();
     RimProject*     project = app->project();
 
@@ -96,18 +81,44 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 
     if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(
-        Riu3DMainWindowTools::mainWindowWidget(), exportSettings, "Export Completion Data", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
 
-        std::vector<RimSimWellInView*> simWells;
-
         RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
+{
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+
+    if (wellPaths.empty())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
+{
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+    CVF_ASSERT(!wellPaths.empty());
+
+    std::vector<RimSimWellInView*> simWells;
+    QString                        dialogTitle = "Export Completion Data for Selected Well Paths";
+
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
 }
 
 //--------------------------------------------------------------------------------------------------
