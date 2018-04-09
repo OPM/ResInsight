@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaFilePathTools.h"
 
 #include "RicSummaryCaseRestartDialog.h"
 
@@ -117,28 +118,36 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
 std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const QStringList& initialFiles,
                                                                                               RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode)
 {
-    std::set<RifSummaryCaseFileInfo> filesToImport;
+    std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
-    for (const QString& file : initialFiles)
+    for (const QString& initialFile : initialFiles)
     {
+        QString file = RiaFilePathTools::toInternalSeparator(initialFile);
+
         if (summaryRestartMode == RiaPreferences::IMPORT)
         {
-            filesToImport.insert(RifSummaryCaseFileInfo(file, true));
+            filesToImport.push_back(RifSummaryCaseFileInfo(file, true));
         }
         else if (summaryRestartMode == RiaPreferences::NOT_IMPORT)
         {
-            filesToImport.insert(RifSummaryCaseFileInfo(file, false));
+            filesToImport.push_back(RifSummaryCaseFileInfo(file, false));
         }
         else if (summaryRestartMode == RiaPreferences::SEPARATE_CASES)
         {
-            filesToImport.insert(RifSummaryCaseFileInfo(file, false));
+            filesToImport.push_back(RifSummaryCaseFileInfo(file, false));
 
             RifReaderEclipseSummary reader;
             std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file);
-            for (const auto& fi : restartFileInfos)
-                filesToImport.insert(RifSummaryCaseFileInfo(fi.fileName, false));
+            for (const auto& rfi : restartFileInfos)
+            {
+                RifSummaryCaseFileInfo fi(rfi.fileName, false);
+                if (!vectorContains(filesToImport, fi))
+                {
+                    filesToImport.push_back(fi);
+                }
+            }
         }
     }
-    return std::vector<RifSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
+    return filesToImport;
 }
