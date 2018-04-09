@@ -133,7 +133,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
                                                           resultValues.end());
 
     std::vector<cvf::Vec3d> pairsOfWellPathPoints;
-    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), &pairsOfWellPathPoints, interpolatedWellPathPoints);
+    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), interpolatedWellPathPoints, &pairsOfWellPathPoints);
 
     std::vector<cvf::Vec3d> pointNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, pairsOfWellPathPoints, RigWellPathGeometryTools::LINE_SEGMENTS);
     if (interpolatedWellPathPoints.size() != pointNormals.size()) return;

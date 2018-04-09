@@ -89,7 +89,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::createGrid(const c
     std::vector<cvf::Vec3d> pointNormals;
 
     std::vector<cvf::Vec3d> closestPoints;
-    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), &closestPoints, gridPoints);
+    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), gridPoints, &closestPoints);
 
     pointNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, closestPoints, RigWellPathGeometryTools::LINE_SEGMENTS);
     if (pointNormals.size() != gridPoints.size()) return nullptr;

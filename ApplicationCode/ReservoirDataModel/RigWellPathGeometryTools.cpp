@@ -94,7 +94,9 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath* wellPathGeometry, std::vector<cvf::Vec3d>* closestWellPathPoints, std::vector<cvf::Vec3d>& points)
+void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath* wellPathGeometry, 
+                                                                                  const std::vector<cvf::Vec3d>& points,
+                                                                                  std::vector<cvf::Vec3d>* closestWellPathPoints)
 {
     CVF_ASSERT(closestWellPathPoints != nullptr);
 

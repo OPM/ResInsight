@@ -44,6 +44,6 @@ public:
                                                                VertexOrganization             organization);
 
     static void calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath*       wellPathGeometry,
-                                                                   std::vector<cvf::Vec3d>* closestWellPathPoints,
-                                                                   std::vector<cvf::Vec3d>& points);
+                                                                   const std::vector<cvf::Vec3d>& points,
+                                                                   std::vector<cvf::Vec3d>* closestWellPathPoints);
 };
