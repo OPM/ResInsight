@@ -131,8 +131,7 @@ public:
     void                                    createDisplayModelAndRedraw();
     void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
     void                                    updateGridBoxData();
-    void                                    updateAnnotationItems();
-    virtual void                            updateLegends() = 0;
+    void                                    updateAnnotationItems();   
 
     bool                                    isMasterView() const;
 
