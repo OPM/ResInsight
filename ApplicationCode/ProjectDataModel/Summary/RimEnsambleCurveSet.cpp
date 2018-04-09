@@ -48,19 +48,6 @@
 #include <QKeyEvent>
 
 
-// See also corresponding fake implementations in RimSummaryCurveFilter
-static QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
-static QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
 namespace caf
 {
     template<>

@@ -20,6 +20,8 @@
 
 #include "RiaStdStringTools.h"
 
+#include <QTextStream>
+
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -515,3 +517,22 @@ bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAdd
     }
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+

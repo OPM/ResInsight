@@ -347,6 +347,9 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ReservoirDataModel/RigTransmissibilityCondenser.cpp
         ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ReservoirDataModel/RigCellGeometryTools.cpp
+        
+        # exclude test files due to cotire redefinition error report
+        UnitTests/RifCaseRealizationParametersReader-Test.cpp
     )
 
     foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})

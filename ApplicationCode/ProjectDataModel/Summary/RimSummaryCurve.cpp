@@ -54,22 +54,6 @@
 #include <QMessageBox>
 
 
-// See also corresponding fake implementations in RimSummaryCurveFilter
-QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
-QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
-
-
-
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
 
 //--------------------------------------------------------------------------------------------------
