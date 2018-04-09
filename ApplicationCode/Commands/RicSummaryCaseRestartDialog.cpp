@@ -126,6 +126,7 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile,
                                                                           bool showApplyToAllWidget,
+                                                                          ReadOptions defaultReadOption,
                                                                           RicSummaryCaseRestartDialogResult *lastResult,
                                                                           QWidget *parent)
 {
@@ -148,7 +149,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     // If no restart files are found, do not show dialog
     if (fileInfos.empty())
     {
-        return RicSummaryCaseRestartDialogResult(true, READ_SINGLE, QStringList({ summaryHeaderFile }), false);
+        return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, QStringList({ summaryHeaderFile }), false);
     }
 
     RicSummaryCaseRestartDialogResult dialogResult;
@@ -160,7 +161,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     else
     {
         dialog.setWindowTitle("Summary Case Restart Files");
-        dialog.m_readAllRadioButton->setChecked(true);
+        switch (defaultReadOption)
+        {
+        case ReadOptions::IMPORT_ALL:       dialog.m_readAllRadioButton->setChecked(true); break;
+        case ReadOptions::NOT_IMPORT:       dialog.m_notReadRadionButton->setChecked(true); break;
+        case ReadOptions::SEPARATE_CASES:   dialog.m_separateCasesRadionButton->setChecked(true); break;
+        }
         dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
@@ -173,7 +179,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
     if (!dialogResult.ok)
     {
-        return RicSummaryCaseRestartDialogResult(false, READ_SINGLE, QStringList(), false);
+        return RicSummaryCaseRestartDialogResult(false, NOT_IMPORT, QStringList(), false);
     }
 
     dialogResult.files.push_back(RiaFilePathTools::toInternalSeparator(summaryHeaderFile));
@@ -193,9 +199,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 RicSummaryCaseRestartDialog::ReadOptions RicSummaryCaseRestartDialog::selectedOption() const
 {
     return
-        m_readAllRadioButton->isChecked() ?         READ_ALL :
+        m_readAllRadioButton->isChecked() ?         IMPORT_ALL :
         m_separateCasesRadionButton->isChecked() ?  SEPARATE_CASES :
-                                                    READ_SINGLE;
+                                                    NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------

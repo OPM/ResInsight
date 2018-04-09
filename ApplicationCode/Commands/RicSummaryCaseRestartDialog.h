@@ -46,13 +46,14 @@ class RicSummaryCaseRestartDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum ReadOptions { READ_SINGLE, READ_ALL, SEPARATE_CASES };
+    enum ReadOptions { NOT_IMPORT, IMPORT_ALL, SEPARATE_CASES };
 
     RicSummaryCaseRestartDialog(QWidget* parent);
     ~RicSummaryCaseRestartDialog();
 
     static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile,
                                                            bool showApplyToAllWidget,
+                                                           ReadOptions defaultReadOption,
                                                            RicSummaryCaseRestartDialogResult *lastResult = nullptr,
                                                            QWidget *parent = nullptr);
 
@@ -89,7 +90,7 @@ class RicSummaryCaseRestartDialogResult
 {
 public:
     RicSummaryCaseRestartDialogResult() :
-        ok(false), option(RicSummaryCaseRestartDialog::READ_ALL), applyToAll(false) {}
+        ok(false), option(RicSummaryCaseRestartDialog::IMPORT_ALL), applyToAll(false) {}
 
     RicSummaryCaseRestartDialogResult(bool _ok,
                                       RicSummaryCaseRestartDialog::ReadOptions _option,

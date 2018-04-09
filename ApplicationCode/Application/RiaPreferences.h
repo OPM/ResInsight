@@ -37,7 +37,7 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SummaryRestartFilesImportMode { ASK_USER, IMPORT, NOT_IMPORT, SEPARATE_CASES };
+    enum SummaryRestartFilesImportMode { IMPORT, NOT_IMPORT, SEPARATE_CASES };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
 
     RiaPreferences(void);
@@ -80,7 +80,8 @@ public: // Pdm Fields
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
 
-    caf::PdmField<SummaryRestartFilesImportModeType>      summaryRestartFilesImportMode;
+    caf::PdmField<bool>                                 summaryRestartFilesShowImportDialog;
+    caf::PdmField<SummaryRestartFilesImportModeType>    summaryRestartFilesImportMode;
 
 protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

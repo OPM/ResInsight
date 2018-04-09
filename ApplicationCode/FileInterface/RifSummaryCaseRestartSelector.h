@@ -43,7 +43,8 @@ public:
 
 private:
     std::vector<RifSummaryCaseFileInfo> getFilesToImportByAskingUser(const QStringList& initialFiles,
-                                                                     bool enableApplyToAllField);
+                                                                     bool enableApplyToAllField,
+                                                                     RiaPreferences::SummaryRestartFilesImportModeType defaultSummaryRestartMode);
     std::vector<RifSummaryCaseFileInfo> getFilesToImportUsingPrefs(const QStringList& initialFiles,
                                                                    RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode);
 

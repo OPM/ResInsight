@@ -47,6 +47,17 @@ bool vectorContains(const std::vector<T>& vector, T item)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// INternal function
+//--------------------------------------------------------------------------------------------------
+RicSummaryCaseRestartDialog::ReadOptions mapReadOption(RiaPreferences::SummaryRestartFilesImportMode mode)
+{
+    return
+        mode == RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ? RicSummaryCaseRestartDialog::ReadOptions::NOT_IMPORT :
+        mode == RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES ? RicSummaryCaseRestartDialog::ReadOptions::SEPARATE_CASES :
+        RicSummaryCaseRestartDialog::ReadOptions::IMPORT_ALL;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
@@ -71,10 +82,10 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
     RiaPreferences* prefs = app->preferences();
 
     std::vector<RifSummaryCaseFileInfo> fileInfos;
-    if (prefs->summaryRestartFilesImportMode == RiaPreferences::ASK_USER)
+    if (prefs->summaryRestartFilesShowImportDialog)
     {
         bool enableApplyToAllField = selectedFiles.size() > 1;
-        fileInfos = getFilesToImportByAskingUser(selectedFiles, enableApplyToAllField);
+        fileInfos = getFilesToImportByAskingUser(selectedFiles, enableApplyToAllField, prefs->summaryRestartFilesImportMode);
     }
     else
     {
@@ -88,19 +99,20 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const QStringList& initialFiles,
-                                                                                                bool enableApplyToAllField)
+                                                                                                bool enableApplyToAllField,
+                                                                                                RiaPreferences::SummaryRestartFilesImportModeType defaultSummaryRestartMode)
 {
     std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
     for (const QString& file : initialFiles)
     {
-        RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(file, enableApplyToAllField, &lastResult);
+        RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(file, enableApplyToAllField, mapReadOption(defaultSummaryRestartMode), &lastResult);
         if (result.ok)
         {
             for (const QString& file : result.files)
             {
-                RifSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::READ_ALL);
+                RifSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::IMPORT_ALL);
                 if (!vectorContains(filesToImport, fi))
                 {
                     filesToImport.push_back(fi);
