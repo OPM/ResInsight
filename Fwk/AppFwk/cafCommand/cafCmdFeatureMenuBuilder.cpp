@@ -164,7 +164,21 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
         {
             if (menus.size() > 1)
             {
+                QMenu* completeSubMenu = menus.back();
                 menus.pop_back();
+
+                if (!menus.empty())
+                {
+                    // Remove the sub menu action if no (sub) actions are present in the sub menu
+                    if (completeSubMenu->actions().isEmpty())
+                    {
+                        QMenu* menuWithEmptySubMenu = menus.back();
+
+                        QAction* subMenuAction = completeSubMenu->menuAction();
+
+                        menuWithEmptySubMenu->removeAction(subMenuAction);
+                    }
+                }
             }
         }
         else
