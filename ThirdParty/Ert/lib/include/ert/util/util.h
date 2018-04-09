@@ -134,8 +134,6 @@ typedef enum {left_pad   = 0,
   bool         util_sscanf_date_utc(const char * , time_t *);
   bool         util_sscanf_isodate(const char * , time_t *);
   bool         util_sscanf_percent(const char * string, double * value);
-  char       * util_alloc_stdin_line(void);
-  char       * util_realloc_stdin_line(char * );
   bool         util_is_executable(const char * );
   bool         util_entry_exists( const char * entry );
   bool         util_file_exists(const char *);
@@ -164,6 +162,7 @@ typedef enum {left_pad   = 0,
   bool         util_copy_file(const char * , const char * );
   char       * util_alloc_cwd(void);
   bool         util_is_cwd( const char * path );
+  char       * util_alloc_normal_path( const char * input_path );
   char       * util_alloc_realpath(const char * );
   char       * util_alloc_realpath__(const char * input_path);
   bool         util_string_match(const char * string , const char * pattern);
@@ -175,7 +174,6 @@ typedef enum {left_pad   = 0,
 
   void         util_usleep( unsigned long micro_seconds );
   void         util_yield(void);
-  char       * util_blocking_alloc_stdin_line(unsigned long );
 
   int          util_roundf( float x );
   int          util_round( double x );
@@ -213,7 +211,7 @@ typedef enum {left_pad   = 0,
   int          util_count_file_lines(FILE * );
   FILE       * util_mkdir_fopen( const char * filename , const char * mode );
   int          util_fmove( FILE * stream , long offset , long shift);
-  FILE       * util_fopen(const char *  , const char *);
+  FILE       * util_fopen(const char *  , const char *); 
   FILE       * util_fopen__(const char * filename , const char * mode);
   void         util_fclose( FILE * stream );
   bool         util_fopen_test(const char *, const char *);
@@ -238,14 +236,7 @@ typedef enum {left_pad   = 0,
   bool         util_sscanf_int(const char * , int * );
   const char * util_parse_int(const char * , int * , bool *);
   const char * util_skip_sep(const char * , const char * , bool *);
-  int          util_scanf_int_with_limits(const char * , int  , int  , int );
-  char       * util_scanf_int_with_limits_return_char(const char * , int  , int  , int );
-  void         util_printf_prompt(const char * , int , char , const char *);
-  int          util_scanf_int(const char * , int);
-  char       * util_scanf_int_return_char(const char * , int);
-  double       util_scanf_double(const char * prompt , int prompt_len);
-  char       * util_scanf_alloc_string(const char * );
-  bool         util_sscanf_double(const char * , double * );
+ bool         util_sscanf_double(const char * , double * );
   //char   * util_alloc_full_path(const char *, const char *);
   char       * util_alloc_filename(const char * , const char *  , const char * );
   char       * util_realloc_filename(char *  , const char *  , const char *  , const char * );
@@ -340,9 +331,6 @@ typedef enum {left_pad   = 0,
   double   util_double_min(double  , double );
   void     util_fskip_lines(FILE * , int);
   bool     util_same_file(const char *  , const char * );
-  void     util_read_path(const char * , int , bool , char *  );
-  char *   util_fscanf_alloc_filename(const char * , int , int);
-  void     util_read_string(const char *  , int  , char * );
   void     util_fread (void *, size_t , size_t , FILE * , const char * );
   void     util_fwrite(const void *, size_t , size_t , FILE * , const char * );
   time_t   util_fread_time_t(FILE * stream);
@@ -382,16 +370,20 @@ typedef enum {left_pad   = 0,
   int      util_fnmatch( const char * pattern , const char * string );
   void     util_time_utc( time_t * t , struct tm * ts );
 
-  char      ** util_alloc_PATH_list(void);
-  char       * util_alloc_PATH_executable(const char * executable );
-  char       * util_isscanf_alloc_envvar( const char * string , int env_index );
-  void         util_setenv( const char * variable , const char * value);
-  const char * util_interp_setenv( const char * variable , const char * value);
-  void         util_unsetenv( const char * variable);
-  char       * util_alloc_envvar( const char * value );
   bool         util_is_link(const char * );  // Will always return false on windows
   int          util_chdir(const char * path);
   bool         util_chdir_file( const char * filename );
+
+#ifdef ERT_HAVE_UNISTD
+#include <unistd.h>
+  bool         util_access(const char * entry, mode_t mode);
+#else
+  bool         util_access(const char * entry, int mode);
+#define F_OK 0
+#define R_OK 4
+#define W_OK 2
+#define X_OK 1
+#endif
 
 #define UTIL_FWRITE_SCALAR(s,stream) { if (fwrite(&s , sizeof s , 1 , stream) != 1) util_abort("%s: write failed: %s\n",__func__ , strerror(errno)); }
 
@@ -495,9 +487,6 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 
 void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
 void    util_abort_signal(int );
-void    util_abort_append_version_info(const char * );
-void    util_abort_free_version_info(void);
-void    util_abort_set_executable( const char * argv0 );
 
 
 
@@ -521,9 +510,6 @@ void    util_abort_set_executable( const char * argv0 );
 #ifdef ERT_HAVE_SPAWN
   pid_t      util_spawn(const char *executable, int argc, const char **argv, const char *stdout_file, const char *stderr_file);
   int        util_spawn_blocking(const char *executable, int argc, const char **argv, const char *stdout_file, const char *stderr_file);
-#ifdef ERT_HAVE_PING
-  bool       util_ping( const char * hostname);
-#endif
 #endif
 
 

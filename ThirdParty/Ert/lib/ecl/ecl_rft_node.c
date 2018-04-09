@@ -75,7 +75,7 @@ struct ecl_rft_node_struct {
   The implementation of cell types based on _either_ RFT data or PLT
   data is based on a misunderstanding and is currently WRONG. One
   section in an RFT file can contain RFT data, PLT data and SEGMENT
-  data. The @data_type string should therefor not be interpreted as a
+  data. The @data_type string should therefore not be interpreted as a
   type string, but rather as a "bit mask":
 
 

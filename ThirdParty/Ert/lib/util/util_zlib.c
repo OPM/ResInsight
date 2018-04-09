@@ -93,7 +93,7 @@ Layout on disk when using util_fwrite_compressed:
 Observe that the functions util_fwrite_compressed() and
 util_fread_compressed must be used as a pair, the files can **N O T**
 be interchanged with normal calls to gzip/gunzip. To avoid confusion
-it is therefor strongly advised NOT to give the files a .gz extension.
+it is therefore strongly advised NOT to give the files a .gz extension.
 
 */
 

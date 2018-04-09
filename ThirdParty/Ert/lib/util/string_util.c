@@ -17,6 +17,8 @@
 */
 
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <ert/util/util.h>
 #include <ert/util/parser.h>

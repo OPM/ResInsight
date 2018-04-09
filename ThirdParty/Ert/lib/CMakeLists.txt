@@ -1,20 +1,6 @@
 project(libecl-ecl C CXX)
 
-if (HAVE_PTHREAD)
-    # The block_fs filesystem is so heavily dependant on pthreads that it is
-    # not built if de not have pthreads.
-     list(APPEND opt_srcs util/thread_pool.c)
-endif ()
 
-if (LAPACK_FOUND)
-    list(APPEND opt_srcs util/matrix_lapack.c
-                         util/matrix_blas.c
-                         util/matrix_stat.c
-                         util/regression.c
-                         util/lars.c
-                         util/stepwise.c
-)
-endif ()
 
 if (HAVE_BACKTRACE)
     list(APPEND opt_srcs util/util_abort_gnu.c)
@@ -71,13 +57,9 @@ if (ERT_BUILD_CXX)
                          ecl/FortIO.cpp
                          ecl/Smspec.cpp
                          ecl/EclFilename.cpp
-                         nexus/nexus_plot.cpp
 )
 endif ()
 
-if (BUILD_NEXUS)
-    list(APPEND opt_srcs nexus/nexus_plot.cpp)
-endif ()
 
 configure_file(build_config.h.in   include/ert/util/build_config.h)
 configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
@@ -93,26 +75,18 @@ add_library(ecl util/rng.c
                 util/node_data.c
                 util/node_ctype.c
                 util/util.c
-                util/util_env.c
                 util/util_symlink.c
                 util/util_lfs.c
                 util/util_unlink.c
-                util/msg.c
                 util/arg_pack.c
-                util/path_fmt.c
-                util/menu.c
-                util/subst_func.c
                 util/vector.c
                 util/parser.c
                 util/stringlist.c
-                util/matrix.c
                 util/buffer.c
-                util/log.c
                 util/timer.c
                 util/time_interval.c
                 util/string_util.c
                 util/type_vector_functions.c
-                util/ui_return.c
                 util/ecl_version.c
                 util/struct_vector.c
                 util/perm_vector.c
@@ -182,9 +156,9 @@ target_link_libraries(ecl PUBLIC ${m}
                                  ${dl}
                                  ${pthread}
                                  ${blas}
-                                 ${lapack}
                                  ${zlib}
                                  ${shlwapi}
+                                 ${ws2_32}
 )
 
 target_include_directories(ecl
@@ -207,9 +181,6 @@ target_compile_definitions(ecl PRIVATE
 
 target_compile_options(ecl PUBLIC ${pthreadarg})
 
-if (PING_PATH)
-    target_compile_definitions(ecl PRIVATE -DPING_CMD=${PING_PATH})
-endif()
 
 if (ERT_USE_OPENMP)
     target_compile_options(ecl PUBLIC ${OpenMP_C_FLAGS})
@@ -220,7 +191,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -245,7 +216,6 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -261,10 +231,7 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_chdir
                 ert_util_filename
                 ert_util_hash_test
-                ert_util_logh
-                ert_util_matrix
                 ert_util_parent_path
-                ert_util_PATH_test
                 ert_util_realpath
                 ert_util_relpath_test
                 ert_util_rng
@@ -277,9 +244,9 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_strstr_int_format
                 ert_util_time_interval
                 ert_util_type_vector_functions
-                ert_util_ui_return
                 ert_util_vector_test
                 ert_util_datetime
+                ert_util_normal_path
         )
 
     add_executable(${name} util/tests/${name}.c)
@@ -301,15 +268,6 @@ add_test(NAME ert_util_work_area
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/util/tests
 )
 
-find_library( VALGRIND NAMES valgr )
-if (VALGRIND)
-    set(valgrind_cmd valgrind --error-exitcode=1 --tool=memcheck)
-endif ()
-
-add_executable(test_thread_pool util/tests/test_thread_pool.c)
-target_link_libraries(test_thread_pool ecl)
-add_test(NAME test_thread_pool COMMAND ${valgrind_cmd} test_thread_pool)
-
 add_executable(ert_util_cwd_test util/tests/ert_util_cwd_test.c)
 target_link_libraries(ert_util_cwd_test ecl)
 add_test(NAME ert_util_cwd_test COMMAND ert_util_cwd_test ${CMAKE_CURRENT_BINARY_DIR})
@@ -329,15 +287,6 @@ target_link_libraries(ert_util_path_stack_test ecl)
 add_test(NAME ert_util_path_stack_test COMMAND ert_util_path_stack_test
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (LAPACK_FOUND)
-   add_executable(ert_util_matrix_lapack util/tests/ert_util_matrix_lapack.c)
-   target_link_libraries(ert_util_matrix_lapack ecl)
-   add_test(NAME ert_util_matrix_lapack COMMAND ert_util_matrix_lapack)
-
-   add_executable(ert_util_matrix_stat util/tests/ert_util_matrix_stat.c)
-   target_link_libraries(ert_util_matrix_stat ecl)
-   add_test(NAME ert_util_matrix_stat COMMAND ert_util_matrix_stat)
-endif()
 
 if (HAVE_BACKTRACE)
    add_executable(ert_util_abort_gnu_tests util/tests/ert_util_abort_gnu_tests.c)
@@ -372,6 +321,7 @@ endif()
 foreach (name   ecl_alloc_cpgrid
                 ecl_alloc_grid_dxv_dyv_dzv
                 ecl_fault_block_layer
+                ecl_util_path_access
                 ecl_grid_add_nnc
                 ecl_grid_copy
                 ecl_grid_create
@@ -389,11 +339,13 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_nnc_info_test
                 ecl_nnc_vector
                 ecl_rft_cell
+                ecl_sum_alloc_resampled_test
                 ecl_file_view
                 test_ecl_file_index
                 test_transactions
                 ecl_rst_file
                 ecl_sum_writer
+                ecl_util_filenames
                 ecl_util_make_date_no_shift
                 ecl_util_month_range
                 ecl_valid_basename
@@ -467,14 +419,6 @@ if (ERT_BUILD_CXX)
     endforeach ()
 endif ()
 
-if (BUILD_NEXUS)
-    foreach (name nexus_plot_load nexus2ecl)
-        add_executable(${name} nexus/tests/${name}.cpp)
-        target_link_libraries(${name} ecl)
-        add_test(NAME ${name} COMMAND ${name} ${CMAKE_SOURCE_DIR})
-    endforeach ()
-endif()
-
 
 if (NOT STATOIL_TESTDATA_ROOT)
     return ()
@@ -483,12 +427,6 @@ endif()
 #
 # ecl
 #
-
-if (PING_PATH)
-    add_executable(ert_util_ping util/tests/ert_util_ping.c)
-    target_link_libraries(ert_util_ping ecl)
-    add_test(NAME ert_util_ping COMMAND ert_util_ping)
-endif ()
 
 
 add_executable(ecl_coarse_test ecl/tests/ecl_coarse_test.c)

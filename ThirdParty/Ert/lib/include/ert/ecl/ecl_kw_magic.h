@@ -303,7 +303,9 @@ values (2e20) are denoted with '*'.
 #define INTEHEAD_TIMESTEP_INDEX 67
 #define INTEHEAD_REPORT_STEP    68
 #define INTEHEAD_IPROG_INDEX    94
-#define INTEHEAD_REPORT_INDEX   219 (report_steps-1)
+
+// The value seems to be: report_step - 1; might be previous?
+#define INTEHEAD_REPORT_INDEX   219
 
 
 #define INTEHEAD_METRIC_VALUE              1
@@ -339,6 +341,7 @@ values (2e20) are denoted with '*'.
 #define LOGIHEAD_REV_ENDPOINT_SCALING_INDEX        18
 #define LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX        19
 #define LOGIHEAD_MISC_DISPLACEMENT_INDEX           35
+#define LOGIHEAD_CONSTANT_OILCOMPR_INDEX          (39-1) /* Constant oil compressibility (PVCDO)? */
 #define LOGIHEAD_SCALE_WATER_PC_AT_MAX_SAT_INDEX   55
 #define LOGIHEAD_SCALE_GAS_PC_AT_MAX_SAT_INDEX     56
 
@@ -450,12 +453,16 @@ values (2e20) are denoted with '*'.
    keyword in the SMSPEC files. Observe that these magic indices
    differ from the magic indices used to look up grid dimensions from
    the DIMENS keyword in GRID files.  */
-#define DIMENS_SMSPEC_SIZE_INDEX      0
-#define DIMENS_SMSPEC_NX_INDEX 1
-#define DIMENS_SMSPEC_NY_INDEX 2
-#define DIMENS_SMSPEC_NZ_INDEX 3
+#define DIMENS_SMSPEC_SIZE_INDEX           0
+#define DIMENS_SMSPEC_NX_INDEX             1
+#define DIMENS_SMSPEC_NY_INDEX             2
+#define DIMENS_SMSPEC_NZ_INDEX             3
+#define DIMENS_SMSPEC_RESTART_STEP_INDEX   5
+#define DIMENS_SIZE                        6
 
-#define DIMENS_SIZE            6   // Do not know what the two last items are?
+#define INTEHEAD_SMSPEC_SIZE        2
+#define INTEHEAD_SMSPEC_UNIT_INDEX  0
+#define INTEHEAD_SMSPEC_IPROG_INDEX 1
 
 
 /* Summary data files: */

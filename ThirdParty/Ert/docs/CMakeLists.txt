@@ -17,7 +17,7 @@ if (SPHINX_FOUND)
   configure_file(index.rst.in ${PROJECT_BINARY_DIR}/doc-src/index.rst)
   configure_file(conf.py.in ${PROJECT_BINARY_DIR}/doc-src/conf.py)
 
-  if (BUILD_PYTHON)
+  if (ENABLE_PYTHON)
      add_custom_target(api-doc ALL
        COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}/code" "${PROJECT_BINARY_DIR}/doc-src/code"
        COMMAND sphinx-apidoc -e -o doc-src/API/python/ecl ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}

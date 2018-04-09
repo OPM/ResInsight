@@ -415,7 +415,7 @@ void ecl_rft_file_update(const char * rft_file_name, ecl_rft_node_type ** nodes,
       /**
          The sorting here works directly on the internal node storage
          rft_file->data; that might in principle ruin the indexing of
-         the ecl_file object - it is therefor absolutely essential
+         the ecl_file object - it is therefore absolutely essential
          that this ecl_rft_file object does not live beyond this
          function, and also that the ecl_rft_file api functions are
          avoided for the rest of this function.

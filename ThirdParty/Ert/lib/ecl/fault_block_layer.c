@@ -34,7 +34,7 @@
    The fault_block object is implemented as a separate object type in
    the fault_block.c file; however the fault blocks should be closely
    linked to the layer object in the fault_block_layer structure - it
-   is therefor not possible/legal to create a fault block instance by
+   is therefore not possible/legal to create a fault block instance by
    itself. To support that encapsulation the fault_block.c file is included
    here, and the functions:
 

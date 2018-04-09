@@ -77,6 +77,8 @@ int main(int argc , char ** argv) {
     test_assert_true( well_conn_equal( conn , conn2 ));
     test_assert_false( well_conn_equal( conn , conn3 ));
     test_assert_double_equal( CF , well_conn_get_connection_factor( conn ));
+    well_conn_free( conn3 );
+    well_conn_free( conn2 );
     well_conn_free( conn );
   }
 
@@ -107,6 +109,7 @@ int main(int argc , char ** argv) {
     well_conn_dir_enum dir = well_conn_dirX;
     well_conn_type * conn = well_conn_alloc_fracture(i,j,k,CF,dir,open);
     test_assert_not_NULL( conn );
+    well_conn_free( conn );
   }
 
   {

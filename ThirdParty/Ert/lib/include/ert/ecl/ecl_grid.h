@@ -254,6 +254,7 @@ extern "C" {
   void ecl_grid_reset_actnum( ecl_grid_type * grid , const int * actnum );
   void ecl_grid_compressed_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw);
   void ecl_grid_global_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw);
+  void ecl_grid_export_cell_corners1(const ecl_grid_type * grid, int global_index, double *x, double *y, double *z);
 
   UTIL_IS_INSTANCE_HEADER( ecl_grid );
   UTIL_SAFE_CAST_HEADER( ecl_grid );

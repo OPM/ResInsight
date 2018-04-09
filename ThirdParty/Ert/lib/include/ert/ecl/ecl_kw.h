@@ -174,6 +174,7 @@ extern "C" {
 
   ecl_kw_type * ecl_kw_alloc_scatter_copy( const ecl_kw_type * src_kw , int target_size , const int * mapping, void * def_value);
 
+  void ecl_kw_inplace_add_squared(ecl_kw_type * target_kw, const ecl_kw_type * add_kw);
   void ecl_kw_inplace_add( ecl_kw_type * target_kw , const ecl_kw_type * add_kw);
   void ecl_kw_inplace_sub( ecl_kw_type * target_kw , const ecl_kw_type * sub_kw);
   void ecl_kw_inplace_div( ecl_kw_type * target_kw , const ecl_kw_type * div_kw);

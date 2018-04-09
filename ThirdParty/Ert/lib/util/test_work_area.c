@@ -32,7 +32,6 @@
 #include <ert/util/util.h>
 #include <ert/util/test_work_area.h>
 #include <ert/util/type_macros.h>
-#include <ert/util/rng.h>
 
 #include <ert/util/ert_api_config.h>
 #ifdef ERT_HAVE_OPENDIR
@@ -173,18 +172,20 @@ UTIL_IS_INSTANCE_FUNCTION( test_work_area , TEST_WORK_AREA_TYPE_ID)
 
 static test_work_area_type * test_work_area_alloc_with_prefix(const char * prefix , const char * test_name, bool change_dir) {
   if (test_name) {
-    rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
+    unsigned int random_int;
+    util_fread_dev_urandom( sizeof random_int, (char *) &random_int);
+    random_int = random_int % 100000000;
+
 #ifdef ERT_HAVE_GETUID
     uid_t uid = getuid();
     struct passwd * pw = getpwuid( uid );
     char * user_name = util_alloc_string_copy( pw->pw_name );
 #else
-    char * user_name =  util_alloc_sprintf("ert-test-%08d" , rng_get_int(rng , 100000000));
+    char * user_name =  util_alloc_sprintf("ert-test-%08u" , random_int);
 #endif
-    char * test_path = util_alloc_sprintf( TEST_PATH_FMT , user_name , test_name , rng_get_int( rng , 100000000 ));
+    char * test_path = util_alloc_sprintf( TEST_PATH_FMT , user_name , test_name , random_int);
     test_work_area_type * work_area = test_work_area_alloc__( prefix , test_path, change_dir);
     free( test_path );
-    rng_free( rng );
     free( user_name );
     return work_area;
   } else

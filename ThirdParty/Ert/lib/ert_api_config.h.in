@@ -1,4 +1,3 @@
-#cmakedefine ERT_HAVE_LAPACK
 #cmakedefine ERT_HAVE_ZLIB
 #cmakedefine ERT_HAVE_ISFINITE
 #cmakedefine ERT_HAVE_GETOPT

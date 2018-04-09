@@ -197,7 +197,7 @@ char * smspec_alloc_completion_num_key( const char * join_string , const char * 
   To support ECLIPSE behaviour where new wells/groups can be created
   during the simulation it must be possible to create a smspec node
   with an initially unknown well/group name; all gen_key formats which
-  use the wgname value must therefor accept a NULL value for wgname.
+  use the wgname value must therefore accept a NULL value for wgname.
 */
 
 static char * smspec_alloc_wgname_key( const char * join_string , const char * keyword , const char * wgname) {

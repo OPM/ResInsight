@@ -107,7 +107,7 @@ inline const char* EclKW_ref< const char* >::at( size_t i ) const {
 /*
   The current implementation of "string" storage in the underlying C
   ecl_kw structure does not lend itself to easily implement
-  operator[]. We have therefor explicitly deleted it here.
+  operator[]. We have therefore explicitly deleted it here.
 */
 
 template<>

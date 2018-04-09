@@ -42,7 +42,7 @@
       b) There is not type information; presented with a bunch of
          formatted numbers it is in general impossible to determine
          whether the underlying datatype should be integer, float or
-         double. Therefor all the file-reading routines here expect an
+         double. Therefore all the file-reading routines here expect an
          ecl_data_type as input.
 
    2. The files can have comment sections; even in the data block.
@@ -159,7 +159,7 @@ char * ecl_kw_grdecl_alloc_next_header( FILE * stream ) {
   This function will search through a GRDECL file to look for the
   'kw'; input variables and return vales are similar to
   ecl_kw_fseek_kw(). Observe that the GRDECL files are extremely
-  weakly structured, it is therefor veeeery easy to fool this function
+  weakly structured, it is therefore veeeery easy to fool this function
   with a malformed GRDECL file.
 
   In particular the comparison is case sensitive; that is probably not

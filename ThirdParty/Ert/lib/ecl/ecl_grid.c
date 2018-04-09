@@ -411,7 +411,7 @@
   properties and the fracture properties in a cell is implemented as a
   nnc where the fracture cell has global index in the range [nx*ny*nz,
   2*nz*ny*nz). In ert we we have not implemented this double covering
-  in the case of dual porosity models, and therefor NNC involving
+  in the case of dual porosity models so NNC involving
   fracture cells are not considered.
 */
 
@@ -1011,7 +1011,7 @@ static double ecl_cell_max_y( const ecl_cell_type * cell ) {
    have all four corner at the same arbitrary depth; these cells are
    inactive and do not affect flow simulations - however the arbitrary
    location of the cells warps visualisation of normal inactive cells
-   completely. We therefor try to invalidate such cells here. The
+   completely. We therefore try to invalidate such cells here. The
    algorithm used is the same as used for RMS; however RMS will mark
    the cells as inactive - whereas we mark already inactive cells as
    invalid.
@@ -1326,7 +1326,7 @@ static double ecl_cell_get_signed_volume( ecl_cell_type * cell) {
      * Note added: these volume calculations are used to calculate pore
      * volumes in OPM, it turns out that opm is very sensitive to these
      * volumes. Extracting the divison by 6.0 was actually enough to
-     * induce a regression test failure in flow, this has therefor been
+     * induce a regression test failure in flow, this has therefore been
      * reverted.
      */
 
@@ -2793,7 +2793,7 @@ static void ecl_grid_init_nnc_cells( ecl_grid_type * grid1, ecl_grid_type * grid
     The physical connection between the matrix and the fractures in
     cell nr c is modelled as an nnc: cell[c] -> cell[c + nx*ny*nz]. In
     the ert ecl library we only have cells in the range [0,nx*ny*nz),
-    and fracture is a property of a cell, we therefor do not include
+    and fracture is a property of a cell. We therefore do not include
     nnc connections involving fracture cells (i.e. cell_index >=
     nx*ny*nz).
   */
@@ -4747,6 +4747,17 @@ void ecl_grid_get_cell_corner_xyz1(const ecl_grid_type * grid , int global_index
     *xpos = point.x;
     *ypos = point.y;
     *zpos = point.z;
+  }
+}
+
+
+void ecl_grid_export_cell_corners1(const ecl_grid_type * grid, int global_index, double *x, double *y, double *z) {
+  const ecl_cell_type * cell = ecl_grid_get_cell(grid, global_index);
+  for (int i=0; i<8; i++) {
+    const point_type point = cell->corner_list[i];
+    x[i] = point.x;
+    y[i] = point.y;
+    z[i] = point.z;
   }
 }
 

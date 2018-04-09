@@ -40,7 +40,7 @@ static UTIL_SAFE_CAST_FUNCTION( set , SET_TYPE_ID )
 set_type * set_alloc(int size, const char ** keyList) {
   set_type * set = (set_type*) malloc(sizeof * set);
   UTIL_TYPE_ID_INIT( set , SET_TYPE_ID );
-  set->key_hash  = hash_alloc_unlocked();
+  set->key_hash  = hash_alloc();
   {
     int ikey;
     for (ikey = 0; ikey < size; ikey++)

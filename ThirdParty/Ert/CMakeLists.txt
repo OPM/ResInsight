@@ -45,15 +45,14 @@ endif()
 option( BUILD_TESTS         "Should the tests be built"                               OFF)
 option( BUILD_APPLICATIONS  "Should we build small utility applications"              OFF)
 option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary"           OFF)
-option( BUILD_NEXUS         "Build support for the Nexus simulator"                   ON)
 option( BUILD_PYTHON        "Run py_compile on the python wrappers"                   OFF)
+option( ENABLE_PYTHON       "Build and install the Python wrappers"                   OFF)
 option( BUILD_SHARED_LIBS   "Build shared libraries"                                  ON )
 option( ERT_USE_OPENMP      "Use OpenMP"                                              OFF )
 option( RST_DOC             "Build RST documentation"                                 OFF)
 option( ERT_BUILD_CXX       "Build some CXX wrappers"                                 ON)
 option( USE_RPATH           "Don't strip RPATH from libraries and binaries"           OFF)
 option( INSTALL_ERT_LEGACY  "Add ert legacy wrappers"                                 OFF)
-
 
 set(STATOIL_TESTDATA_ROOT "" CACHE PATH  "Root to Statoil internal testdata")
 if (EXISTS ${STATOIL_TESTDATA_ROOT})
@@ -70,6 +69,11 @@ if (EXISTS ${STATOIL_TESTDATA_ROOT})
   set(_geopath ${_statoil_test_data}/Geometry)
 endif()
 
+
+if (BUILD_PYTHON)
+  set(ENABLE_PYTHON ON)
+  message(WARNING "The option 'BUILD_PYTHON' is deprecated - use ENABLE_PYTHON.")
+endif()
 
 # output libs to some lib/ path for testing
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -176,18 +180,6 @@ if(M_LIBRARY)
     set(m m)
 endif ()
 
-find_package(BLAS)
-if (BLAS_FOUND)
-    set(blas "${BLAS_LIBRARIES}")
-endif ()
-
-set(ERT_HAVE_LAPACK OFF)
-find_package(LAPACK)
-if (LAPACK_FOUND)
-    set(ERT_HAVE_LAPACK ON)
-    list(APPEND lapack ${LAPACK_LIBRARIES} ${LAPACK_LINKER_FLAGS})
-endif()
-
 find_package(ZLIB)
 if (ZLIB_FOUND)
     set(ERT_HAVE_ZLIB ON)
@@ -199,6 +191,11 @@ if (SHLWAPI_LIBRARY)
     set(shlwapi ${SHLWAPI_LIBRARY})
 endif ()
 
+find_library(WS2_32_LIBRARY NAMES Ws2_32)
+if (WS2_32_LIBRARY)
+    set(ws2_32 ${WS2_32_LIBRARY})
+endif ()
+
 #-----------------------------------------------------------------
 
 # feature tests
@@ -207,6 +204,8 @@ include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 
+check_function_exists( access HAVE_POSIX_ACCESS)
+check_function_exists( _access HAVE_WINDOWS__ACCESS)
 check_function_exists( chdir HAVE_POSIX_CHDIR )
 check_function_exists( _chdir HAVE_WINDOWS_CHDIR )
 check_function_exists( chmod HAVE_CHMOD )
@@ -235,7 +234,6 @@ check_function_exists( readlinkat ERT_HAVE_READLINKAT )
 check_function_exists( realpath HAVE_REALPATH )
 check_function_exists( regexec ERT_HAVE_REGEXP )
 check_function_exists( round HAVE_ROUND )
-check_function_exists( setenv HAVE_POSIX_SETENV )
 check_function_exists( symlink ERT_HAVE_SYMLINK )
 check_function_exists( timegm HAVE_TIMEGM )
 check_function_exists( usleep HAVE__USLEEP )
@@ -287,10 +285,6 @@ if (ERT_WINDOWS)
     endif()
 endif()
 
-find_program(PING_PATH NAMES ping)
-if (PING_PATH)
-    set(ERT_HAVE_PING ON)
-endif()
 
 find_package(Git)
 if(GIT_FOUND)
@@ -330,7 +324,7 @@ endif()
 
 if (ERT_WINDOWS)
     message(WARNING "Python is not supported on Windows")
-    set( BUILD_PYTHON OFF )
+    set( ENABLE_PYTHON OFF )
 endif ()
 
 if (ERT_LINUX)
@@ -339,15 +333,15 @@ endif()
 
 add_subdirectory( lib )
 add_subdirectory( applications )
+add_subdirectory( bin )
 
-
-if (BUILD_PYTHON)
+if (ENABLE_PYTHON)
    if (ERT_WINDOWS)
       message(WARNING "Python is not supported on Windows")
-      set( BUILD_PYTHON OFF )
+      set( ENABLE_PYTHON OFF )
    else()
       # If finding the Python interpreter and required packages
-      # fails in the python/CMakeLists.txt file the BUILD_PYTHON
+      # fails in the python/CMakeLists.txt file the ENABLE_PYTHON
       # will be set to OFF.
       add_subdirectory( python )
 
@@ -357,15 +351,12 @@ if (BUILD_PYTHON)
    endif()
 endif()
 
-if (BUILD_PYTHON)
+if (ENABLE_PYTHON)
    if (NOT ${BUILD_SHARED_LIBS})
       message(FATAL_ERROR "The Python wrappers require shared libraries")
    endif()
 endif()
 
-if (INSTALL_ERT)
-   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
-endif()
-
+install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 export(TARGETS ecl FILE eclConfig.cmake)
 export(PACKAGE ecl)

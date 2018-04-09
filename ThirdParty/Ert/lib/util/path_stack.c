@@ -1,23 +1,24 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'path_stack.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-  
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'path_stack.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
 #include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -47,22 +48,22 @@ struct path_stack_struct {
 
 /**
    This will create a new path_stack instance; it will push anything
-   on the current stack of paths. 
+   on the current stack of paths.
 */
 
 path_stack_type * path_stack_alloc() {
   path_stack_type * path_stack = (path_stack_type*)util_malloc( sizeof * path_stack );
-  path_stack->stack = stringlist_alloc_new(); 
-  path_stack->storage = stringlist_alloc_new(); 
-  return path_stack; 
+  path_stack->stack = stringlist_alloc_new();
+  path_stack->storage = stringlist_alloc_new();
+  return path_stack;
 }
 
-/* 
+/*
    This will destroy the storage taken by the current path_stack
    instance. This function will NOT pop any elements off the stack; so
    if you have not manully clerad the stack with the right number of
    path_stack_pop() calls, you will (probably) destroy the path stack
-   instance with an incorrect value of cwd.  
+   instance with an incorrect value of cwd.
 */
 
 void path_stack_free( path_stack_type * path_stack ) {
@@ -85,7 +86,7 @@ bool path_stack_push( path_stack_type * path_stack , const char * path ) {
   if (path != NULL)
     if (util_chdir( path ) != 0)
       return false;
-  
+
   path_stack_push_cwd( path_stack );
   return true;
 }

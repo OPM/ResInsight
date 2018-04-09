@@ -1,24 +1,22 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'ecl_win64.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'ecl_win64.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
-
-#include <ert/util/rng.h>
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_file.h>
@@ -32,11 +30,10 @@ int main( int argc , char ** argv) {
   int num_kw  = 1000;       // Total file size should roughly exceed 2GB
   int kw_size = 600000;
   ecl_kw_type * kw = ecl_kw_alloc("KW" , kw_size , ECL_INT );
-  rng_type * rng = rng_alloc( MZRAN , INIT_DEFAULT );
   int i;
   offset_type file_size;
-  for (i=0; i < kw_size; i++) 
-    ecl_kw_iset_int( kw , i , rng_get_int( rng , 912732 ));
+  for (i=0; i < kw_size; i++)
+    ecl_kw_iset_int( kw , i , i);
 
   {
     fortio_type * fortio = fortio_open_writer( "LARGE_FILE.UNRST" , false , ECL_ENDIAN_FLIP);
@@ -73,7 +70,7 @@ int main( int argc , char ** argv) {
     fortio_fclose( fortio );
     printf("Seek OK \n");
   }
-  
+
 
   printf("Doing ecl_file_open(..)\n");
   {
@@ -87,6 +84,6 @@ int main( int argc , char ** argv) {
   }
 
   remove( "LARGE_FILE.UNRST" );
-  
+
   exit(0);
 }

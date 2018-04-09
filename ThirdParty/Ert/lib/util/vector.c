@@ -542,7 +542,7 @@ static int vector_cmp(const void * s1 , const void * s2) {
        int (* user_cmp) (const void *, const void *)
 
    i.e. the same as for qsort. The vector implementation considers
-   (fully) untyped data, it is therefor the users responsability to
+   (fully) untyped data, it is therefore the users responsability to
    ensure that the comparison makes sense. For example:
 
 

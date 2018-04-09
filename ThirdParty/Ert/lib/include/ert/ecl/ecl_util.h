@@ -96,7 +96,6 @@ typedef enum {
 #define ECL_PHASE_ENUM_DEFS {.value = 1 , .name = "ECL_OIL_PHASE"}, {.value = 2 , .name = "ECL_GAS_PHASE"} , {.value = 4 , .name = "ECL_WATER_PHASE"}
 #define ECL_PHASE_ENUM_SIZE 3
 
-
 typedef enum {
   ECL_METRIC_UNITS = 1,
   ECL_FIELD_UNITS  = 2,
@@ -118,8 +117,8 @@ bool            ecl_util_unified_file(const char *filename);
 const char    * ecl_util_file_type_name( ecl_file_enum file_type );
 char          * ecl_util_alloc_base_guess(const char *);
 int             ecl_util_filename_report_nr(const char *);
-ecl_file_enum   ecl_util_get_file_type(const char * , bool * , int * );
 ecl_file_enum   ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int * _report_nr);
+ecl_file_enum   ecl_util_get_file_type(const char * filename, bool * fmt_file, int * report_nr);
 char          * ecl_util_alloc_filename(const char * /* path */, const char * /* base */, ecl_file_enum , bool /* fmt_file */ , int /*report_nr*/);
 char          * ecl_util_alloc_exfilename(const char * /* path */, const char * /* base */, ecl_file_enum , bool /* fmt_file */ , int /*report_nr*/);
 void            ecl_util_memcpy_typed_data(void *, const void * , ecl_data_type , ecl_data_type , int );
@@ -145,7 +144,7 @@ int             ecl_util_select_filelist( const char * path , const char * base 
 void            ecl_util_append_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date , bool force_append_end);
 void            ecl_util_init_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date);
 void            ecl_util_set_date_values(time_t t , int * mday , int * month , int * year);
-
+bool            ecl_util_path_access(const char * ecl_case);
 #ifdef __cplusplus
 }
 #endif

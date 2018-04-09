@@ -10,6 +10,7 @@ if (BUILD_APPLICATIONS)
     target_link_libraries(grdecl_grid   ecl)
     target_link_libraries(summary       ecl)
 
+
     list(APPEND apps make_grid grdecl_grid summary)
 
     foreach (app ecl_pack

@@ -55,22 +55,6 @@
 #define ECL_INIT_UFMT_PATTERN             "INIT"
 #define ECL_RFT_UFMT_PATTERN              "RFT"
 
-#ifdef ERT_WINDOWS
-/*
-  The filename matching function on windows onyl recognizes the '*'
-  and '?' wildcard characters.
-*/
-  #define ECL_RESTART_FMT_PATTERN           "F????"
-  #define ECL_SUMMARY_FMT_PATTERN           "A????"
-  #define ECL_RESTART_UFMT_PATTERN          "X????"
-  #define ECL_SUMMARY_UFMT_PATTERN          "S????"
-#else
-  #define ECL_RESTART_FMT_PATTERN           "F[0-9][0-9][0-9][0-9]"
-  #define ECL_SUMMARY_FMT_PATTERN           "A[0-9][0-9][0-9][0-9]"
-  #define ECL_RESTART_UFMT_PATTERN          "X[0-9][0-9][0-9][0-9]"
-  #define ECL_SUMMARY_UFMT_PATTERN          "S[0-9][0-9][0-9][0-9]"
-#endif
-
 
 
 
@@ -122,36 +106,14 @@ char * ecl_util_alloc_base_guess(const char * path) {
 
 
 
+
+
 int ecl_util_filename_report_nr(const char *filename) {
-  char *ext = strrchr(filename , '.');
-
-  if (ext == NULL)
-    return -1;
-
-  if (ext[1] == 'X' || ext[1] == 'F' || ext[1] == 'S' || ext[1] == 'A')
-    return atoi(&ext[2]);
-
-  return -1;
+  int report_nr = -1;
+  ecl_util_get_file_type(filename, NULL, &report_nr);
+  return report_nr;
 }
 
-
-/*
-bool ecl_util_numeric_extension(const char * extension) {
-
-  const char digit_ascii_min = 48;
-  const char digit_ascii_max = 57;
-  bool valid = true;
-  int pos = 1;
-  while (valid && pos <= 5) {
-    char c = extension[pos];
-    valid = (valid & (c >= digit_ascii_min && c <= digit_ascii_max));
-    if (!valid)
-      break;
-  }
-
-  return valid;
-}
-*/
 
 
 /*
@@ -252,23 +214,16 @@ ecl_file_enum ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int
   to the fundamental type, it is also determined whether the file is
   formatted or not, and in the case of summary/restart files, which
   report number this corresponds to.
-
-
 */
 
 
-ecl_file_enum ecl_util_get_file_type(const char * filename, bool *_fmt_file, int * _report_nr) {
-
+ecl_file_enum ecl_util_get_file_type(const char * filename, bool *fmt_file, int * report_nr) {
   char *ext = strrchr(filename , '.');
-  if (ext != NULL) {
-    ext++;
-    return ecl_util_inspect_extension( ext , _fmt_file , _report_nr);
-  } else
+  if (ext == NULL)
     return ECL_OTHER_FILE;
 
+  return ecl_util_inspect_extension( &ext[1] , fmt_file , report_nr);
 }
-
-
 
 static const char * ecl_util_get_file_pattern( ecl_file_enum file_type , bool fmt_file ) {
   if (fmt_file) {
@@ -276,14 +231,8 @@ static const char * ecl_util_get_file_pattern( ecl_file_enum file_type , bool fm
     case( ECL_OTHER_FILE ):
       return ECL_OTHER_FILE_FMT_PATTERN;  /* '*' */
       break;
-    case( ECL_RESTART_FILE ):
-      return ECL_RESTART_FMT_PATTERN;
-      break;
     case( ECL_UNIFIED_RESTART_FILE ):
       return ECL_UNIFIED_RESTART_FMT_PATTERN;
-      break;
-    case( ECL_SUMMARY_FILE ):
-      return ECL_SUMMARY_FMT_PATTERN;
       break;
     case( ECL_UNIFIED_SUMMARY_FILE ):
       return ECL_UNIFIED_SUMMARY_FMT_PATTERN;
@@ -312,14 +261,8 @@ static const char * ecl_util_get_file_pattern( ecl_file_enum file_type , bool fm
     case( ECL_OTHER_FILE ):
       return ECL_OTHER_FILE_UFMT_PATTERN;  /* '*' */
       break;
-    case( ECL_RESTART_FILE ):
-      return ECL_RESTART_UFMT_PATTERN;
-      break;
     case( ECL_UNIFIED_RESTART_FILE ):
       return ECL_UNIFIED_RESTART_UFMT_PATTERN;
-      break;
-    case( ECL_SUMMARY_FILE ):
-      return ECL_SUMMARY_UFMT_PATTERN;
       break;
     case( ECL_UNIFIED_SUMMARY_FILE ):
       return ECL_UNIFIED_SUMMARY_UFMT_PATTERN;
@@ -392,6 +335,28 @@ const char * ecl_util_file_type_name( ecl_file_enum file_type ) {
   return NULL;
 }
 
+static bool valid_base(const char * input_base, bool * upper_case) {
+  bool upper = false;
+  bool lower = false;
+  const char * base = strrchr(input_base, UTIL_PATH_SEP_CHAR);
+  if (base == NULL)
+    base = input_base;
+
+  for (int i=0; i < strlen(base); i++) {
+    char c = base[i];
+
+    if (isupper(c))
+      upper = true;
+
+    if (islower(c))
+      lower = true;
+
+  }
+
+  if (upper_case)
+    *upper_case = upper;
+  return !(lower && upper);
+}
 
 
 
@@ -408,6 +373,11 @@ const char * ecl_util_file_type_name( ecl_file_enum file_type ) {
 */
 
 static char * ecl_util_alloc_filename_static(const char * path, const char * base , ecl_file_enum file_type , bool fmt_file, int report_nr, bool must_exist) {
+  bool upper_case;
+  if (!valid_base(base, &upper_case))
+    return NULL;
+
+
   char * filename;
   char * ext;
   switch (file_type) {
@@ -482,6 +452,11 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
     util_abort("%s: Invalid input file_type to ecl_util_alloc_filename - aborting \n",__func__);
     /* Dummy to shut up compiler */
     ext        = NULL;
+  }
+
+  if (!upper_case) {
+    for (int i=0; i < strlen(ext); i++)
+      ext[i] = tolower(ext[i]);
   }
 
   filename = util_alloc_filename(path , base , ext);
@@ -570,24 +545,134 @@ int ecl_util_fname_report_cmp(const void *f1, const void *f2) {
    starts.
 */
 
+static bool numeric_extension_predicate(const char * filename, const char * base, const char leading_char) {
+  if (strncmp(filename, base, strlen(base)) != 0)
+    return false;
+
+  const char * ext_start = strrchr(filename, '.');
+  if (!ext_start)
+    return false;
+
+  if (strlen(ext_start) != 6)
+    return false;
+
+  if (ext_start[1] != leading_char)
+    return false;
+
+  for (int i=0; i < 4; i++)
+    if (!isdigit(ext_start[i+2]))
+      return false;
+
+  return true;
+}
+
+
+static bool summary_UPPERCASE_ASCII(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'A');
+}
+
+static bool summary_UPPERCASE_BINARY(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'S');
+}
+
+static bool summary_lowercase_ASCII(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'a');
+}
+
+static bool summary_lowercase_BINARY(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 's');
+}
+
+static bool restart_UPPERCASE_ASCII(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'F');
+}
+
+static bool restart_UPPERCASE_BINARY(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'X');
+}
+
+static bool restart_lowercase_ASCII(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'f');
+}
+
+static bool restart_lowercase_BINARY(const char * filename, const void * base) {
+  return numeric_extension_predicate(filename, base, 'x');
+}
+
+static int ecl_util_select_predicate_filelist(const char * path, const char * base, ecl_file_enum file_type, bool fmt_file, bool upper_case, stringlist_type * filelist) {
+  file_pred_ftype * predicate = NULL;
+  char * full_path = NULL;
+  char * pure_base = NULL;
+  {
+    char * tmp = util_alloc_filename(path, base, NULL);
+    util_alloc_file_components(tmp, &full_path, &pure_base, NULL);
+    free(tmp);
+  }
+
+  if (file_type == ECL_SUMMARY_FILE) {
+    if (fmt_file) {
+      if (upper_case)
+        predicate = summary_UPPERCASE_ASCII;
+      else
+        predicate = summary_lowercase_ASCII;
+    } else {
+      if (upper_case)
+        predicate = summary_UPPERCASE_BINARY;
+      else
+        predicate = summary_lowercase_BINARY;
+    }
+  } else if (file_type == ECL_RESTART_FILE) {
+    if (fmt_file) {
+      if (upper_case)
+        predicate = restart_UPPERCASE_ASCII;
+      else
+        predicate = restart_lowercase_ASCII;
+    } else {
+      if (upper_case)
+        predicate = restart_UPPERCASE_BINARY;
+      else
+        predicate = restart_lowercase_BINARY;
+    }
+  } else
+    util_abort("%s: internal error - method called with wrong file type: %d\n", __func__, file_type);
+
+  stringlist_select_files(filelist, full_path, predicate, pure_base);
+  stringlist_sort( filelist , ecl_util_fname_report_cmp );
+  free(pure_base);
+  free(full_path);
+  return stringlist_get_size(filelist);
+}
 
 
 int ecl_util_select_filelist( const char * path , const char * base , ecl_file_enum file_type , bool fmt_file , stringlist_type * filelist) {
-  char       * file_pattern;
-  char       * base_pattern;
-  const char * extension = ecl_util_get_file_pattern( file_type , fmt_file );
-  if (base == NULL)
-    base_pattern = util_alloc_string_copy( "*" );
-  else
-    base_pattern = util_alloc_string_copy( base );
+  bool valid_case = true;
+  bool upper_case = true;
+  stringlist_clear(filelist);
 
-  file_pattern = util_alloc_filename( NULL , base_pattern , extension );
-  stringlist_select_matching_files( filelist , path , file_pattern );
-  if ((file_type == ECL_SUMMARY_FILE) || (file_type == ECL_RESTART_FILE))
-    stringlist_sort( filelist , ecl_util_fname_report_cmp );
+  if (base)
+    valid_case = valid_base(base, &upper_case);
 
-  free( base_pattern );
-  free( file_pattern );
+  if (valid_case) {
+    if (file_type == ECL_SUMMARY_FILE || file_type == ECL_RESTART_FILE)
+      return ecl_util_select_predicate_filelist(path, base, file_type, fmt_file, upper_case, filelist);
+
+    char * ext_pattern = util_alloc_string_copy(ecl_util_get_file_pattern( file_type , fmt_file ));
+    char * file_pattern;
+
+    if (!upper_case) {
+      for (int i=0; i < strlen(ext_pattern); i++)
+        ext_pattern[i] = tolower(ext_pattern[i]);
+    }
+
+    if (base)
+      file_pattern = util_alloc_filename(NULL , base, ext_pattern);
+    else
+      file_pattern = util_alloc_filename(NULL, "*", ext_pattern);
+
+    stringlist_select_matching_files( filelist , path , file_pattern );
+    free( file_pattern );
+    free( ext_pattern );
+  }
   return stringlist_get_size( filelist );
 }
 
@@ -1274,29 +1359,7 @@ ert_ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
 
 
 bool ecl_util_valid_basename( const char * basename ) {
-
-  char * eclbasename = util_split_alloc_filename(basename);
-
-  int upper_count = 0;
-  int lower_count = 0;
-  int index;
-
-  for (index = 0; index < strlen( eclbasename ); index++) {
-    int c = eclbasename[index];
-    if (isalpha(c)) {
-      if (isupper(c))
-        upper_count++;
-      else
-        lower_count++;
-    }
-  }
-
-  free(eclbasename);
-
-  if ((lower_count * upper_count) != 0)
-    return false;
-  else
-    return true;
+  return valid_base(basename, NULL);
 }
 
 
@@ -1437,3 +1500,59 @@ void ecl_util_set_date_values(time_t t , int * mday , int * month , int * year) 
 }
 
 
+#ifdef ERT_HAVE_UNISTD
+#include <unistd.h>
+#endif
+
+/*
+  This is a small function which tries to give a sensible answer to the
+  question: Do I have read access to this eclipse simulation? The ecl_case
+  argument can either be a directory or the full path to a file, the filename
+  need not exists. The approach is as follows:
+
+  1. If @ecl_case corresponds to an existing filesystem entry - just return
+     access(ecl_case, R_OK).
+
+  2. If @ecl_case corresponds to a non-existing entry:
+
+       a) If there is a directory part - return access(dir, R_OK).
+       b) No directory part - return access(cwd, R_OK);
+
+      For the case 2b) the situation is that we test for read access to CWD,
+      that could in principle be denied - but that is a highly contrived
+      situation and we just return true.
+
+  ecl_util_access_path("PATH")                     ->   access("PATH", R_OK);
+  ecl_util_access_path("PATH/FILE_EXISTS")         ->   access("PATH/FILE_EXISTS", R_OK);
+  ecl_util_access_path("PATH/FILE_DOES_NOT_EXIST") ->   access("PATH", R_OK);
+  ecl_util_access_path("PATH_DOES_NOT_EXIST")      ->   true
+*/
+
+bool ecl_util_path_access(const char * ecl_case) {
+  if (util_access(ecl_case, R_OK))
+    return true;
+
+  if (util_access(ecl_case, F_OK))
+    return false;
+
+  /* Check if the input argument corresponds to an existing directory and one
+     additional element, in that case we do an access check on the directory part. */
+
+  {
+    bool path_access;
+    char * dir_name;
+    const char * path_sep = strrchr(ecl_case, UTIL_PATH_SEP_CHAR);
+
+    if (!path_sep)
+      /* We are trying to access CWD - we return true without actually checking
+         access. */
+      return true;
+
+
+    dir_name = util_alloc_substring_copy(ecl_case, 0, path_sep - ecl_case);
+    path_access = util_access(dir_name, R_OK);
+    free(dir_name);
+    return path_access;
+  }
+  return false;
+}

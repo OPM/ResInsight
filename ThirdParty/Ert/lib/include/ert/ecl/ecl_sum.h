@@ -94,6 +94,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   ecl_sum_type   * ecl_sum_fread_alloc(const char * , const stringlist_type * data_files, const char * key_join_string, bool include_restart);
   ecl_sum_type   * ecl_sum_fread_alloc_case(const char *  , const char * key_join_string);
   ecl_sum_type   * ecl_sum_fread_alloc_case__(const char *  , const char * key_join_string , bool include_restart);
+  ecl_sum_type   * ecl_sum_alloc_resample(const ecl_sum_type * ecl_sum, const char * ecl_case, const time_t_vector_type * times);
   bool             ecl_sum_case_exists( const char * input_file );
 
   /* Accessor functions : */
@@ -170,6 +171,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   const char * ecl_sum_get_base(const ecl_sum_type * ecl_sum );
   const char * ecl_sum_get_path(const ecl_sum_type * ecl_sum );
   const char * ecl_sum_get_abs_path(const ecl_sum_type * ecl_sum );
+  const ecl_sum_type * ecl_sum_get_restart_case(const ecl_sum_type * ecl_sum);
   const char * ecl_sum_get_case(const ecl_sum_type * );
   bool         ecl_sum_same_case( const ecl_sum_type * ecl_sum , const char * input_file );
 
@@ -200,7 +202,18 @@ typedef struct ecl_sum_struct       ecl_sum_type;
 
   int                   ecl_sum_iget_report_end( const ecl_sum_type * ecl_sum , int report_step );
   int                   ecl_sum_iget_report_start( const ecl_sum_type * ecl_sum , int report_step );
-
+  ecl_sum_type        * ecl_sum_alloc_restart_writer2( const char * ecl_case,
+                                                       const char * restart_case,
+                                                       int restart_step,
+                                                       bool fmt_output,
+                                                       bool unified,
+                                                       const char * key_join_string,
+                                                       time_t sim_start,
+                                                       bool time_in_days,
+                                                       int nx,
+                                                       int ny,
+                                                       int nz);
+ 
   ecl_sum_type * ecl_sum_alloc_restart_writer(const char * ecl_case ,
                                               const char * restart_case ,
                                               bool fmt_output ,
@@ -221,6 +234,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   void                  ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case);
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );
   void                  ecl_sum_fwrite_smspec( const ecl_sum_type * ecl_sum );
+  smspec_node_type    * ecl_sum_add_smspec_node(ecl_sum_type * ecl_sum, const smspec_node_type * node);
   smspec_node_type    * ecl_sum_add_var(ecl_sum_type * ecl_sum ,
                                         const char * keyword ,
                                         const char * wgname ,

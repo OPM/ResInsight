@@ -119,7 +119,7 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
         variables will be by swapping two elements in one operation;
         this is provided by the util_endian_convert32_64() function. In the case
         of binary ECLIPSE files this case is quite common, and
-        therefor worth supporting as a special case. 
+        therefore worth supporting as a special case.
       */
       uint64_t *tmp64 = (uint64_t *) data;
 

@@ -21,6 +21,11 @@
 #include <stdlib.h>
 
 #include <ert/util/ert_api_config.h>
+#ifdef ERT_HAVE_OPENDIR
+#include <sys/types.h>
+#include <dirent.h>
+#endif
+
 #ifdef ERT_HAVE_GLOB
 #include <glob.h>
 #else
@@ -30,8 +35,6 @@
 #include <ert/util/util.h>
 #include <ert/util/stringlist.h>
 #include <ert/util/vector.h>
-#include <ert/util/buffer.h>
-
 
 #define STRINGLIST_TYPE_ID 671855
 
@@ -621,13 +624,6 @@ stringlist_type * stringlist_alloc_from_split( const char * input_string , const
 
 /*****************************************************************/
 
-void stringlist_buffer_fwrite( const stringlist_type * s , buffer_type * buffer ) {
-  int i;
-  int size = stringlist_get_size( s );
-  buffer_fwrite_int( buffer , size );
-  for (i=0; i < size; i++)
-    buffer_fwrite_string(buffer , stringlist_iget(s , i) );
-}
 
 
 void stringlist_fwrite(const stringlist_type * s, FILE * stream) {
@@ -652,13 +648,6 @@ void  stringlist_fread(stringlist_type * s, FILE * stream) {
 }
 
 
-void stringlist_buffer_fread( stringlist_type * s , buffer_type * buffer ) {
-  int size = buffer_fread_int( buffer );
-  int i;
-  stringlist_clear(s);
-  for (i=0; i < size; i++)
-    stringlist_append_owned_ref( s , buffer_fread_alloc_string( buffer ));
-}
 
 
 
@@ -772,6 +761,68 @@ int stringlist_select_matching_files(stringlist_type * names , const char * path
 #endif
 }
 
+
+int stringlist_select_files(stringlist_type * names, const char * path, file_pred_ftype * predicate, const void * pred_arg) {
+  stringlist_clear(names);
+  char * path_arg = path ? util_alloc_string_copy(path) : util_alloc_cwd();
+
+#ifdef ERT_HAVE_OPENDIR
+  DIR * dir = opendir(path_arg);
+  if (!dir) {
+    free(path_arg);
+    return 0;
+  }
+
+  while (true) {
+    struct dirent * entry = readdir(dir);
+    if (!entry)
+      break;
+
+    if (util_string_equal(entry->d_name, "."))
+      continue;
+
+    if (util_string_equal(entry->d_name, ".."))
+      continue;
+
+    if (predicate && !predicate(entry->d_name, pred_arg))
+      continue;
+
+    stringlist_append_owned_ref(names, util_alloc_filename(path, entry->d_name, NULL));
+  }
+
+  closedir(dir);
+
+#else
+
+  WIN32_FIND_DATA file_data;
+  HANDLE          file_handle;
+  char * pattern  = util_alloc_filename( path_arg , "*", NULL );
+
+  file_handle = FindFirstFile( pattern , &file_data );
+  if (file_handle != INVALID_HANDLE_VALUE) {
+    do {
+      if (util_string_equal(file_data.cFileName, "."))
+        continue;
+
+      if (util_string_equal(file_data.cFileName, ".."))
+        continue;
+
+      if (predicate && !predicate(file_data.cFileName, pred_arg))
+        continue;
+
+      stringlist_append_owned_ref(names, util_alloc_filename(path, file_data.cFileName, NULL));
+    } while (FindNextFile( file_handle , &file_data) != 0);
+    FindClose( file_handle );
+  }
+  free( pattern );
+
+#endif
+
+  free(path_arg);
+  return stringlist_get_size(names);
+}
+
+
 int stringlist_append_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern) {
       int ielm;
     int match_count = 0;
@@ -790,12 +841,17 @@ int stringlist_append_matching_elements(stringlist_type * target , const stringl
   return stringlist_append_matching_elements( target , src , pattern );
 }
 
+
+static int void_strcmp(const void* s1, const void *s2) {
+  return strcmp(s1,s2);
+}
+
 bool stringlist_unique(const stringlist_type * stringlist )
 {
   bool unique = true;
   stringlist_type * cpy = stringlist_alloc_shallow_copy(stringlist);
 
-  stringlist_sort(cpy, strcmp);
+  stringlist_sort(cpy, void_strcmp);
   for (int i = 0; i < stringlist_get_size(cpy) - 1; i++) {
     const char* s1 = stringlist_iget(cpy, i);
     const char* s2 = stringlist_iget(cpy, i+1);

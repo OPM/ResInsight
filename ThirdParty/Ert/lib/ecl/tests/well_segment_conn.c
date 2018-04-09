@@ -55,6 +55,10 @@ int main(int argc , char ** argv) {
     test_assert_true( well_conn_collection_is_instance( well_segment_get_connections( ws , ECL_GRID_GLOBAL_GRID)));
     test_assert_true( well_conn_collection_is_instance( well_segment_get_global_connections( ws)));
     test_assert_NULL( well_segment_get_connections( ws , "doesNotExist"));
+
+    well_conn_free( conn1 );
+    well_conn_free( conn2 );
+    well_segment_free( ws );
   }
   free( rseg_data );
   exit(0);

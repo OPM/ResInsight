@@ -20,7 +20,7 @@
 
     If the lock is aquired the function will return true, otherwise it
     will return false. The lock is only active as long as the lockfile
-    is open, we therefor have to keep track of the relevant file
+    is open, we therefore have to keep track of the relevant file
     descriptor; it is passed back to the calling scope through a
     reference. Observe that if the locking fails we close the file
     immediately, and return -1 in the file descriptor argument.

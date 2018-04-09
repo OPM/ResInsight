@@ -183,7 +183,7 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
         variables will be by swapping two elements in one operation;
         this is provided by the util_endian_convert32_64() function. In the case
         of binary ECLIPSE files this case is quite common, and
-        therefor worth supporting as a special case.
+        therefore worth supporting as a special case.
       */
       uint64_t *tmp64 = (uint64_t *) data;
 
@@ -680,56 +680,6 @@ char * util_fscanf_realloc_line(FILE *stream , bool *at_eof , char *line) {
 
 
 
-/**
-   Reads characters from stdin until EOL/EOF is detected. A '\0' is
-   appended to the resulting string before it is returned. If the
-   function reads an immediate EOF/EOL, i.e. the user enters an empty
-   input string, NULL (and not "") is returned.
-
-   Observe that is this function does *not* cooperate very nicely with
-   fscanf() based input, because fscanf will leave a EOL character in
-   the input buffer, which will lead to immediate return from this
-   function. Hence if this function is called after a fscanf() based
-   function it is essential to preceede this function with one call to
-   getchar() to clear the EOL character.
-*/
-
-char * util_alloc_stdin_line(void) {
-  int input_size = 256;
-  char * input   = (char*)util_calloc(input_size , sizeof * input );
-  int index = 0;
-  bool end = false;
-  int c;
-  do {
-    c = getchar();
-    if ((!EOL_CHAR(c)) && (c != EOF)) {
-      input[index] = c;
-      index++;
-      if (index == (input_size - 1)) { /* Reserve space for terminating \0 */
-        input_size *= 2;
-        input = (char*)util_realloc(input , input_size );
-      }
-    } else end = true;
-  } while (!end);
-  if (index == 0) {
-    free(input);
-    input = NULL;
-  } else {
-    input[index] = '\0';
-    input = (char*)util_realloc(input , strlen(input) + 1 );
-  }
-
-  return input;
-}
-
-
-
-char * util_realloc_stdin_line(char * p) {
-  util_safe_free(p);
-  return util_alloc_stdin_line();
-}
-
-
 
 /**
    WIndows does not have the usleep() function, on the other hand
@@ -762,23 +712,6 @@ void util_yield() {
 #else
   util_usleep(1000);
 #endif
-}
-
-/**
-   This function will allocate and read a line from stdin. If there is
-   no input waiting on stdin (this typically only applies if stdin is
-   redirected from a file/PIPE), the function will sleep for 'usec'
-   microseconds and try again.
-*/
-
-char * util_blocking_alloc_stdin_line(unsigned long usec) {
-  char * line;
-  do {
-    line = util_alloc_stdin_line();
-    if (line == NULL)
-      util_usleep(usec);
-  } while (line == NULL);
-  return line;
 }
 
 static char * util_getcwd(char * buffer , int size) {
@@ -875,78 +808,67 @@ char * util_alloc_realpath__(const char * input_path) {
   char * real_path = (char*)util_malloc( strlen(abs_path) + 2 );
   real_path[0] = '\0';
 
+
   {
-    bool  * mask;
     char ** path_list;
+    char ** path_stack;
     int     path_len;
 
     util_path_split( abs_path , &path_len , &path_list );
-    mask = (bool*)util_malloc( path_len * sizeof * mask );
-    {
-      int i;
-      for (i=0; i < path_len; i++)
-        mask[i] = true;
-    }
+    path_stack = util_malloc( path_len * sizeof * path_stack );
+    for (int i=0; i < path_len; i++)
+      path_stack[i] = NULL;
 
     {
-      int path_index = 1;  // Path can not start with ..
-      int prev_index = 0;
-      while (true) {
-        if (path_index == path_len)
-          break;
+      int stack_size = 0;
 
-        if (strcmp(path_list[path_index] , BACKREF ) == 0) {
-          mask[path_index] = false;
-          mask[prev_index] = false;
-          prev_index--;
-          path_index++;
-        } else if (strcmp( path_list[path_index] , CURRENT) == 0) {
-          mask[path_index] = false;
-          path_index++;
-        } else {
-          path_index++;
-          prev_index++;
-          while (!mask[prev_index])
-            prev_index++;
+      for (int path_index=0; path_index < path_len; path_index++) {
+        const char * path_elm = path_list[path_index];
+
+         if (strcmp( path_elm , CURRENT) == 0)
+          continue;
+
+        /* Backref - pop from stack. */
+        if (strcmp(path_elm , BACKREF ) == 0) {
+          if (stack_size > 0) {
+            memmove(path_stack, &path_stack[1] , (stack_size - 1) * sizeof * path_stack);
+            stack_size--;
+          }
+          continue;
         }
+
+        /* Normal path element - push onto stack. */
+        memmove(&path_stack[1], path_stack, stack_size * sizeof * path_stack);
+        path_stack[0] = path_elm;
+        stack_size++;
       }
 
       /* Build up the new string. */
-      {
-        int i;
-        bool first = true;
-
-        for (i=0; i < path_len; i++) {
-          if (mask[i]) {
-            const char * path_elm = path_list[i];
-            if (first) {
-
+      if (stack_size > 0) {
+        for (int pos = stack_size - 1; pos >= 0; pos--) {
+          const char * path_elm = path_stack[pos];
+          if (pos == (stack_size- 1)) {
 #ifdef ERT_WINDOWS
-              // Windows:
-              //   1) If the path starts with X: - just do nothing
-              //   2) Else add \\ - for a UNC path.
-              if (path_elm[1] != ':') {
-                strcat(real_path, UTIL_PATH_SEP_STRING);
-                strcat(real_path, UTIL_PATH_SEP_STRING);
-              }
-#else
-              // Posix: just start with a leading '/'
+            // Windows:
+            //   1) If the path starts with X: - just do nothing
+            //   2) Else add \\ - for a UNC path.
+            if (path_elm[1] != ':') {
               strcat(real_path, UTIL_PATH_SEP_STRING);
-#endif
-              strcat( real_path , path_elm);
-            } else {
-
               strcat(real_path, UTIL_PATH_SEP_STRING);
-              strcat( real_path , path_elm);
-
             }
-
-            first = false;
+#else
+            // Posix: just start with a leading '/'
+            strcat(real_path, UTIL_PATH_SEP_STRING);
+#endif
+            strcat( real_path , path_elm);
+          } else {
+            strcat(real_path, UTIL_PATH_SEP_STRING);
+            strcat(real_path , path_elm);
           }
         }
       }
     }
-    free(mask);
+    free( path_stack );
     util_free_stringlist( path_list , path_len );
   }
 
@@ -1085,10 +1007,7 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
     util_free_stringlist( path_list , path_length );
     free( root_path );
 
-    if (strlen(rel_path) == 0) {
-      free(rel_path);
-      rel_path = NULL;
-    } return rel_path;
+    return rel_path;
   } else {
     /*
        One or both the input arguments do not correspond to an
@@ -1099,73 +1018,22 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
   }
 }
 
-
-
-
-/**
-   This function will allocate a string copy of the env_index'th
-   occurence of an embedded environment variable from the input
-   string.
-
-   An environment variable is defined as follows:
-
-     1. It starts with '$'.
-     2. It ends with a characeter NOT in the set [a-Z,0-9,_].
-
-   The function will return environment variable number 'env_index'. If
-   no such environment variable can be found in the string the
-   function will return NULL.
-
-   Observe that the returned string will start with '$'. This is to
-   simplify subsequent calls to util_string_replace_XXX() functions,
-   however &ret_value[1] must be used in the subsequent getenv() call:
-
-   {
-      char * env_var = util_isscanf_alloc_envvar( s , 0 );
-      if (env_var != NULL) {
-         const char * env_value = getenv( &env_var[1] );   // Skip the leading '$'.
-         if (env_value != NULL)
-            util_string_replace_inplace( s , env_value );
-         else
-            fprintf(stderr,"** Warning: environment variable: \'%s\' is not defined \n", env_var);
-         free( env_var );
-      }
-   }
-
-
+/*
+  This function will return a new string where all "../" and "./"
+  occurences have been normalized away. The function is based on pure
+  string scanning, and will not consider the filesystem at
+  all.
 */
 
-char * util_isscanf_alloc_envvar( const char * string , int env_index ) {
-  int env_count = 0;
-  const char * offset = string;
-  const char * env_ptr;
-  do {
-    env_ptr = strchr( offset , '$' );
-    offset = &env_ptr[1];
-    env_count++;
-  } while ((env_count <= env_index) && (env_ptr != NULL));
+char * util_alloc_normal_path( const char * input_path ) {
+  if (util_is_abs_path(input_path))
+    return util_alloc_realpath__( input_path );
 
-  if (env_ptr != NULL) {
-    /*
-       We found an environment variable we are interested in. Find the
-       end of this variable and return a copy.
-    */
-    int length = 1;
-    bool cont  = true;
-    do {
-
-      if ( !( isalnum(env_ptr[length]) || env_ptr[length] == '_' ))
-        cont = false;
-      else
-        length++;
-      if (length == strlen( env_ptr ))
-        cont = false;
-    } while (cont);
-
-    return util_alloc_substring_copy( env_ptr , 0 , length );
-  } else
-    return NULL; /* Could not find any env variable occurences. */
+  char * realpath = util_alloc_realpath__(input_path);
+  return util_alloc_rel_path( NULL , realpath );
 }
+
+
 
 
 
@@ -1994,8 +1862,10 @@ bool util_sscanf_bool(const char * buffer , bool * _value) {
 
 bool util_fscanf_bool(FILE * stream , bool * value) {
   char buffer[256];
-  fscanf(stream , "%s" , buffer);
-  return util_sscanf_bool( buffer , value );
+  if (fscanf(stream , "%s" , buffer) == 1)
+    return util_sscanf_bool( buffer , value );
+
+  return false;
 }
 
 
@@ -2026,146 +1896,11 @@ bool util_fscanf_int(FILE * stream , int * value) {
 }
 
 
-/**
-   Prompt .........====>
-   <-------1------><-2->
-
-   The section marked with 1 above is the prompt length, i.e. the
-   input prompt is padded wth one blank, and then padded with
-   'fill_char' (in the case above that is '.') characters up to a
-   total length of prompt_len. Then the the termination string ("===>"
-   above) is added. Observe the following:
-
-   * A space is _always_ added after the prompt, before the fill char
-     comes, even if the prompt is too long in the first place.
-
-   * No space is added at the end of the termination string. If
-     you want a space, that should be included in the termination
-     string.
-
-*/
-
-
-void util_printf_prompt(const char * prompt , int prompt_len, char fill_char , const char * termination) {
-  int current_len = strlen(prompt) + 1;
-  printf("%s ",prompt);  /* Observe that one ' ' is forced in here. */
-
-  while (current_len < prompt_len) {
-    fputc(fill_char , stdout);
-    current_len++;
-  }
-  printf("%s" , termination);
-
-}
-
-
-/**
-   This functions presents the user with a prompt, and reads an
-   integer - the integer value is returned. The functions returns
-   NULL on empty input.
-*/
-
-int util_scanf_int(const char * prompt , int prompt_len) {
-  char input[256];
-  int  int_value;
-  bool OK;
-  do {
-    util_printf_prompt(prompt , prompt_len, '=', "=> ");
-    scanf("%s" , input);
-    OK = util_sscanf_int(input , &int_value);
-  } while (!OK);
-  getchar(); /* eating a \r left in the stdin input buffer. */
-  return int_value;
-}
-
-/**
-   This functions presents the user with a prompt, and reads an
-   integer - the integer value is returned. The functions will loop
-   indefinitely until a valid integer is entered.
-*/
-
-char * util_scanf_int_return_char(const char * prompt , int prompt_len) {
-  char input[256];
-  int  int_value;
-  bool OK = false;
-  while(!OK){
-    util_printf_prompt(prompt , prompt_len, '=', "=> ");
-    fgets(input, prompt_len, stdin);
-    {
-                char *newline = strchr(input,'\n');
-                if(newline)
-                        *newline = 0;
-        }
-
-    if(strlen(input) !=0){
-      OK = util_sscanf_int(input , &int_value);
-    }
-    else {
-      OK = true;
-    }
-  }
-  return util_alloc_string_copy(input);
-}
-
-
-double util_scanf_double(const char * prompt , int prompt_len) {
-  char input[256];
-  double  double_value;
-  bool OK;
-  do {
-    util_printf_prompt(prompt , prompt_len, '=', "=> ");
-    scanf("%s" , input);
-    OK = util_sscanf_double(input , &double_value);
-  } while (!OK);
-  getchar(); /* eating a \r left in the stdin input buffer. */
-  return double_value;
-}
 
 
 
 
 
-
-
-/**
-    The limits are inclusive.
-*/
-int util_scanf_int_with_limits(const char * prompt , int prompt_len , int min_value , int max_value) {
-  int value;
-  char * new_prompt = util_alloc_sprintf("%s [%d:%d]" , prompt , min_value , max_value);
-  do {
-    value = util_scanf_int(new_prompt , prompt_len);
-  } while (value < min_value || value > max_value);
-  free(new_prompt);
-  return value;
-}
-
-/**
-    The limits are inclusive, yet the function returns the input char and stops on empty string.
-*/
-char * util_scanf_int_with_limits_return_char(const char * prompt , int prompt_len , int min_value , int max_value) {
-  int value = min_value - 1;
-  char * value_char = NULL;
-  char * new_prompt = util_alloc_sprintf("%s [%d:%d]" , prompt , min_value , max_value);
-  while( value < min_value || value > max_value ){
-    value_char = util_scanf_int_return_char(new_prompt , prompt_len);
-    if (strlen(value_char) == 0)
-      value = min_value;
-    else
-      util_sscanf_int(value_char , &value);
-  }
-  free(new_prompt);
-  return value_char;
-}
-
-
-
-char * util_scanf_alloc_string(const char * prompt) {
-  char input[256];
-  printf("%s" , prompt);
-  scanf("%256s" , input);
-  return util_alloc_string_copy(input);
-}
 
 
 
@@ -2505,9 +2240,27 @@ int util_fmove( FILE * stream , long offset , long shift) {
 }
 
 
+/*
+  Windows *might* have both the symbols _access() and access(), but we prefer
+  the _access() symbol as that seems to be preferred by Windows. We therefor do
+  the #HAVE_WINDOWS__ACCESS check first.
+*/
 
+#ifdef HAVE_WINDOWS__ACCESS
 
+bool util_access(const char * entry, int mode) {
+  return (_access(entry, mode) == 0);
+}
 
+#else
+
+#ifdef HAVE_POSIX_ACCESS
+bool util_access(const char * entry, mode_t mode) {
+  return (access(entry, mode) == 0);
+}
+#endif
+
+#endif
 
 
 /**
@@ -2527,20 +2280,8 @@ bool util_file_exists(const char *filename) {
 */
 
 bool util_entry_exists( const char * entry ) {
-  stat_type stat_buffer;
-  int stat_return = util_stat(entry, &stat_buffer);
-  if (stat_return == 0)
-    return true;
-  else {
-    if (errno == ENOENT)
-      return false;
-    else {
-      util_abort("%s: error checking for entry:%s  %d/%s \n",__func__ , entry , errno , strerror(errno));
-      return false;
-    }
-  }
+  return util_access(entry, F_OK);
 }
-
 /*****************************************************************/
 
 
@@ -2896,11 +2637,7 @@ bool util_ftruncate(FILE * stream , long size) {
 */
 
 bool util_same_file(const char * file1 , const char * file2) {
-
-#ifdef _WINDOWS
-    if (file1 == NULL || file2 == NULL) return false;
-    return stricmp(file1, file2) == 0;
-#else
+#ifdef ERT_HAVE_UNISTD
   stat_type buffer1 , buffer2;
   int stat1,stat2;
 
@@ -2914,6 +2651,17 @@ bool util_same_file(const char * file1 , const char * file2) {
       return false;
   } else
     return false;  // Files which do not exist are no equal!
+#else
+  if (util_file_exists(file1) && util_file_exists(file2)) {
+    char * abs_path1 = util_alloc_abs_path(file1);
+    char * abs_path2 = util_alloc_abs_path(file2);
+    bool same_file = util_string_equal(abs_path1, abs_path2);
+    free(abs_path1);
+    free(abs_path2);
+      return same_file;
+  }
+  else
+    return false;    
 #endif
 }
 
@@ -4718,67 +4466,6 @@ void util_free(void * ptr) {
 
 
 
-static void util_display_prompt(const char * prompt , int prompt_len2) {
-  int i;
-  printf("%s" , prompt);
-  for (i=0; i < util_int_max(strlen(prompt) , prompt_len2) - strlen(prompt); i++)
-    fputc(' ' , stdout);
-  printf(": ");
-}
-
-
-
-void util_read_string(const char * prompt , int prompt_len , char * s) {
-  util_display_prompt(prompt , prompt_len);
-  fscanf(stdin , "%s" , s);
-}
-
-
-void util_read_path(const char * prompt , int prompt_len , bool must_exist , char * path) {
-  bool ok = false;
-  while (!ok) {
-    util_read_string(prompt , prompt_len , path);
-    if (must_exist)
-      ok = util_is_directory(path);
-    else
-      ok = true;
-    if (!ok)
-      fprintf(stderr,"Path: %s does not exist - try again.\n",path);
-  }
-}
-
-/*
-  exist_status == 0: Just read a string; do not check if it exist or not.
-  exist_status == 1: Must be existing file.
-  exist_status == 2: Must NOT exist as entry.
-*/
-
-char * util_fscanf_alloc_filename(const char * prompt , int prompt_len , int exist_status) {
-  char * filename = NULL;
-  while (filename == NULL) {
-    util_printf_prompt(prompt , prompt_len , '=' , "=> ");
-    filename = util_alloc_stdin_line();
-    if (filename != NULL) {
-      if (exist_status != 0) {
-        if (exist_status == 1) {
-          if (!util_file_exists(filename)) {
-            fprintf(stderr,"Sorry: %s does not exist. \n",filename);
-            free( filename );
-            filename = NULL;
-          }
-        } else if (exist_status == 2) {
-          if (util_entry_exists( filename )) {
-            fprintf(stderr,"Sorry: entry %s already exists. \n",filename);
-            free( filename );
-            filename = NULL;
-          }
-        }
-      }
-    }
-  }
-  return filename;
-}
-
 
 /*****************************************************************/
 
@@ -5088,39 +4775,6 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 }
 
 
-static char * __abort_program_message = NULL;                  /* Can use util_abort_append_version_info() to fill this with
-                                                               version info+++ wich will be printed when util_abort() is called. */
-static char * __current_executable    = NULL;
-
-
-void util_abort_append_version_info(const char * msg) {
-  __abort_program_message = util_strcat_realloc( __abort_program_message , msg );
-}
-
-
-void util_abort_free_version_info() {
-  util_safe_free( __abort_program_message );
-  util_safe_free( __current_executable );
-
-  __current_executable    = NULL;
-  __abort_program_message = NULL;
-}
-
-
-void util_abort_set_executable( const char * argv0 ) {
-  if (util_is_abs_path(argv0))
-    __current_executable = util_realloc_string_copy( __current_executable , argv0 );
-  else {
-    char * executable;
-    if (util_is_executable( argv0 ))
-      executable = util_alloc_realpath(argv0);
-    else
-      executable = util_alloc_PATH_executable( argv0 );
-
-    util_abort_set_executable( executable );
-    free( executable );
-  }
-}
 
 
 
@@ -5352,24 +5006,23 @@ char * util_alloc_filename(const char * path , const char * basename , const cha
   char * file;
   int    length = strlen(basename) + 1;
 
-  if (path != NULL)
+  if (path && strlen(path))
     length += strlen(path) + 1;
 
-  if (extension != NULL)
+  if (extension && strlen(extension))
     length += strlen(extension) + 1;
 
-  file = (char*)util_calloc(length , sizeof * file );
-
-  if (path == NULL) {
-    if (extension == NULL)
-      memcpy(file , basename , strlen(basename) + 1);
-    else
-      sprintf(file , "%s.%s" , basename , extension);
-  } else {
-    if (extension == NULL)
-      sprintf(file , "%s%c%s" , path , UTIL_PATH_SEP_CHAR , basename);
-    else
-      sprintf(file , "%s%c%s.%s" , path , UTIL_PATH_SEP_CHAR , basename , extension);
+  file = (char*) util_calloc(length , sizeof * file );
+  file[0] = '\0';
+  
+  if (path && strlen(path)) {
+    strcat(file, path);
+    strcat(file, UTIL_PATH_SEP_STRING );
+  }
+  strcat(file, basename);
+  if (extension && strlen(extension)) {
+    strcat(file, ".");
+    strcat(file, extension);
   }
 
   return file;

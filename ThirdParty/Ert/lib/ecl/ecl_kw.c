@@ -26,6 +26,7 @@
 #include <ert/util/buffer.h>
 #include <ert/util/int_vector.h>
 
+#include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_endian_flip.h>
@@ -107,7 +108,7 @@ UTIL_IS_INSTANCE_FUNCTION(ecl_kw , ECL_KW_TYPE_ID )
 
     3. The logical type involves converting back and forth between 'T'
        and 'F' and internal logical representation. The format strings
-       are therefor for reading/writing a character.
+       are therefore for reading/writing a character.
 
 */
 
@@ -1289,7 +1290,7 @@ bool ecl_kw_fskip_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
 /**
    This function will skip the header part of an ecl_kw instance. The
    function will read the file content at the current position, it is
-   therefor essential that the file pointer is positioned at the
+   therefore essential that the file pointer is positioned at the
    beginning of a keyword when this function is called; otherwise it
    will be complete crash and burn.
 */
@@ -1917,6 +1918,38 @@ ecl_kw_type * ecl_kw_alloc_scatter_copy( const ecl_kw_type * src_kw , int target
   return new_kw;
 }
 
+ecl_kw_type * ecl_kw_alloc_global_copy(const ecl_kw_type * src, const ecl_kw_type * actnum)  {
+  if (ecl_kw_get_type(actnum) != ECL_INT_TYPE)
+    return NULL;
+
+  const int global_size = ecl_kw_get_size(actnum);
+  ecl_kw_type * global_copy = ecl_kw_alloc( ecl_kw_get_header(src), global_size, src->data_type); 
+  const int * mapping = ecl_kw_get_int_ptr(actnum);
+  const int src_size = ecl_kw_get_size(src);
+  int src_index = 0;
+  for (int global_index=0; global_index < global_size; global_index++) {
+    if (mapping[global_index]) {
+      /* We ran through and beyond the size of the src keyword. */
+      if (src_index >= src_size) {
+        ecl_kw_free(global_copy);
+        global_copy = NULL;
+        break;
+      }
+      const void * value_ptr = ecl_kw_iget_ptr(src, src_index);
+      ecl_kw_iset_static(global_copy, global_index, value_ptr);
+      src_index++;
+    }
+  }
+
+  /* Not all the src data was distributed. */
+  if (src_index < src_size) {
+    ecl_kw_free(global_copy);
+    global_copy = NULL;
+  }
+
+  return global_copy;
+}
+
 
 
 void ecl_kw_fread_double_param(const char * filename , bool fmt_file , double * double_data) {
@@ -2194,6 +2227,41 @@ void ecl_kw_inplace_add( ecl_kw_type * target_kw , const ecl_kw_type * add_kw) {
   }
 }
 
+#define ECL_KW_TYPED_INPLACE_ADD_SQUARED( ctype ) \
+static void ecl_kw_inplace_add_squared_ ## ctype( ecl_kw_type * target_kw , const ecl_kw_type * add_kw) { \
+ if (!ecl_kw_assert_binary_ ## ctype( target_kw , add_kw ))                                \
+    util_abort("%s: type/size  mismatch\n",__func__);                                      \
+ {                                                                                         \
+    ctype * target_data = ecl_kw_get_data_ref( target_kw );                                \
+    const ctype * add_data = ecl_kw_get_data_ref( add_kw );                                \
+    int i;                                                                                 \
+    for (i=0; i < target_kw->size; i++)                                                    \
+      target_data[i] += add_data[i] * add_data[i];                                         \
+ }                                                                                         \
+}
+ECL_KW_TYPED_INPLACE_ADD_SQUARED( int )
+ECL_KW_TYPED_INPLACE_ADD_SQUARED( double )
+ECL_KW_TYPED_INPLACE_ADD_SQUARED( float )
+
+#undef ECL_KW_TYPED_INPLACE_ADD
+
+void ecl_kw_inplace_add_squared( ecl_kw_type * target_kw , const ecl_kw_type * add_kw) {
+  ecl_type_enum type = ecl_kw_get_type(target_kw);
+  switch (type) {
+  case(ECL_FLOAT_TYPE):
+    ecl_kw_inplace_add_squared_float( target_kw , add_kw );
+    break;
+  case(ECL_DOUBLE_TYPE):
+    ecl_kw_inplace_add_squared_double( target_kw , add_kw );
+    break;
+  case(ECL_INT_TYPE):
+    ecl_kw_inplace_add_squared_int( target_kw , add_kw );
+    break;
+  default:
+    util_abort("%s: inplace add not implemented for type:%s \n",__func__ , ecl_type_alloc_name( ecl_kw_get_data_type(target_kw) ));
+  }
+}
+
 
 
 
@@ -2310,6 +2378,45 @@ void ecl_kw_inplace_abs( ecl_kw_type * kw ) {
 
 
 /*****************************************************************/
+static int sqrti(int x) {
+  return round( sqrt(x) );
+}
+
+#define ECL_KW_TYPED_INPLACE_SQRT( ctype, sqrt_func )    \
+void ecl_kw_inplace_sqrt_ ## ctype( ecl_kw_type * kw ) { \
+  ctype * data = ecl_kw_get_data_ref( kw );              \
+  int i;                                                 \
+  for (i=0; i < kw->size; i++)                           \
+    data[i] = sqrt_func(data[i]);                        \
+}
+
+ECL_KW_TYPED_INPLACE_SQRT( double , sqrt )
+ECL_KW_TYPED_INPLACE_SQRT( float , sqrtf )
+ECL_KW_TYPED_INPLACE_SQRT( int, sqrti)
+#undef ECL_KW_TYPED_INPLACE_SQRT
+
+
+
+void ecl_kw_inplace_sqrt( ecl_kw_type * kw ) {
+  ecl_type_enum type = ecl_kw_get_type(kw);
+  switch (type) {
+  case(ECL_FLOAT_TYPE):
+    ecl_kw_inplace_sqrt_float( kw );
+    break;
+  case(ECL_DOUBLE_TYPE):
+    ecl_kw_inplace_sqrt_double( kw );
+    break;
+  case(ECL_INT_TYPE):
+    ecl_kw_inplace_sqrt_int( kw );
+    break;
+  default:
+    util_abort("%s: inplace sqrt not implemented for type:%s \n",__func__ , ecl_type_alloc_name( ecl_kw_get_data_type(kw) ));
+  }
+}
+
+
+/*****************************************************************/
+
 
 #define ECL_KW_TYPED_INPLACE_MUL( ctype ) \
 void ecl_kw_inplace_mul_ ## ctype( ecl_kw_type * target_kw , const ecl_kw_type * mul_kw) { \
@@ -2467,6 +2574,23 @@ void ecl_kw_inplace_div_indexed( ecl_kw_type * target_kw , const int_vector_type
   }
 }
 
+
+bool ecl_kw_inplace_safe_div(ecl_kw_type * target_kw, const ecl_kw_type * divisor) {
+  if (ecl_kw_get_type(target_kw) != ECL_FLOAT_TYPE)
+    return false;
+
+  if (ecl_kw_get_type(divisor) != ECL_INT_TYPE)
+    return false;
+
+ float * target_data = ecl_kw_get_data_ref( target_kw );
+ const int* div_data = ecl_kw_get_data_ref( divisor );
+ for (int i=0; i < target_kw->size; i++) {
+   if (div_data[i] != 0)
+     target_data[i] /= div_data[i];
+ }
+
+ return true;
+}
 
 
 

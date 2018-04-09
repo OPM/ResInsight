@@ -25,7 +25,6 @@
 #include <ert/util/ert_api_config.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/int_vector.h>
-#include <ert/util/buffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +33,9 @@ extern "C" {
 
 typedef struct stringlist_struct stringlist_type;
 typedef int  ( string_cmp_ftype)  (const void * , const void *);
+typedef bool ( file_pred_ftype) (const char *, const void *);
+
+  int stringlist_select_files(stringlist_type * names, const char * path, file_pred_ftype * predicate, const void * pred_arg);
 
   const      char * stringlist_get_last( const stringlist_type * stringlist );
   char            * stringlist_pop( stringlist_type * stringlist);
@@ -103,8 +105,6 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   char           ** stringlist_alloc_char_ref(const stringlist_type * stringlist);
   void              stringlist_fread(stringlist_type * , FILE * );
   void              stringlist_fwrite(const stringlist_type * , FILE * );
-  void              stringlist_buffer_fread( stringlist_type * s , buffer_type * buffer );
-  void              stringlist_buffer_fwrite( const stringlist_type * s , buffer_type * buffer );
   void              stringlist_sort(stringlist_type * , string_cmp_ftype * string_cmp);
   void              stringlist_reverse( stringlist_type * s );
   void              stringlist_python_sort( stringlist_type * s , int cmp_flag);
