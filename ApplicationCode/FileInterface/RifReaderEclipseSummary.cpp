@@ -22,6 +22,8 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifEclipseSummaryTools.h"
 
+#include "RiaLogging.h"
+
 #include <string>
 #include <assert.h>
 
@@ -144,7 +146,17 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const Q
     currFile.fileName = headerFileName;
     while(!currFile.fileName.isEmpty())
     {
+        QString prevFile = currFile.fileName;
+
         currFile = getRestartFile(currFile.fileName);
+
+        // Fix to stop potential infinite loop
+        if (currFile.fileName == prevFile)
+        {
+            RiaLogging::error("RifReaderEclipseSummary: Restart file reference loop detected");
+            break;
+        }
+
         if (!currFile.fileName.isEmpty())
             restartFiles.push_back(currFile);
     }
