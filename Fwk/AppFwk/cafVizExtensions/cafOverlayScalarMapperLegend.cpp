@@ -185,7 +185,7 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
 
     this->computeLayoutAndExtents(position, size);
 
-    Vec2f backgroundSize(this->matchedWidth(), (float)size.y());
+    Vec2f backgroundSize((float)this->matchedWidth(), (float)size.y());
 
     // Do the actual rendering
     if (software)
