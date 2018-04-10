@@ -29,6 +29,8 @@
 
 #include <vector>
 
+#include <QString>
+
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
@@ -68,6 +70,8 @@ public:
     cvf::ref<cvf::DrawableGeo>  createPointsFromExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
 
     const std::vector<std::vector<cvf::Vec3d> >&     flattenedOrOffsettedPolyLines() { return m_flattenedOrOffsettedPolyLines; }
+    const std::vector<std::pair<QString, cvf::Vec3d> > & faultMeshLabelAndAnchorPositions() { return m_faultMeshLabelAndAnchorPositions; }
+    
 
     // Mapping between cells and geometry
     const std::vector<size_t>&                       triangleToCellIndex() const;
@@ -106,5 +110,6 @@ private:
     std::vector<std::vector<cvf::Vec3d> >       m_flattenedOrOffsettedPolyLines;
     std::vector<std::vector<cvf::Mat4d> >       m_segementTransformPrLinePoint;
 
+    std::vector<std::pair<QString, cvf::Vec3d> > m_faultMeshLabelAndAnchorPositions;
 };
 

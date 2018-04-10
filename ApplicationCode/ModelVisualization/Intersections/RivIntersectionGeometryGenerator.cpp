@@ -144,6 +144,60 @@ void RivIntersectionGeometryGenerator::calculateFlattenedOrOffsetedPolyline()
     }
 }
 
+
+class MeshLinesAccumulator
+{
+public:
+    MeshLinesAccumulator(const RivIntersectionHexGridInterface* hexGrid)
+    : m_hexGrid(hexGrid) 
+    {}
+
+    std::vector<cvf::Vec3f> cellBorderLineVxes;
+    std::vector<cvf::Vec3f> faultCellBorderLineVxes;
+    std::map<const RigFault*, cvf::Vec3d> faultToHighestFaultMeshVxMap;
+
+    void accumulateMeshLines(const std::vector<int>& cellFaceForEachClippedTriangleEdge,
+                             uint triVxIdx,
+                             size_t globalCellIdx,
+                             const cvf::Vec3d& p0,
+                             const cvf::Vec3d& p1)
+    {
+        #define isFace( faceEnum ) (0 <= faceEnum && faceEnum <= 5 )
+        using FaceType = cvf::StructGridInterface::FaceType;
+
+        if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx]) )
+        {
+            const RigFault * fault = m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, 
+                (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx]);
+            if ( fault )
+            {
+                cvf::Vec3d highestVx =  p0.z() > p1.z() ? p0 : p1;
+
+                auto itIsInsertedPair = faultToHighestFaultMeshVxMap.insert({fault, highestVx});
+                if (!itIsInsertedPair.second)
+                {
+                    if (itIsInsertedPair.first->second.z() < highestVx.z())
+                    {
+                        itIsInsertedPair.first->second = highestVx;
+                    }
+                }
+
+                faultCellBorderLineVxes.emplace_back(p0);
+                faultCellBorderLineVxes.emplace_back(p1);
+            }
+            else
+            {
+                cellBorderLineVxes.emplace_back(p0);
+                cellBorderLineVxes.emplace_back(p1);
+            }
+        }
+    }
+
+private:
+    cvf::cref<RivIntersectionHexGridInterface>  m_hexGrid;
+};
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -153,8 +207,9 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
     m_extrusionDirection.normalize();
     std::vector<cvf::Vec3f> triangleVertices;
-    std::vector<cvf::Vec3f> cellBorderLineVxes;
-    std::vector<cvf::Vec3f> faultCellBorderLineVxes;
+    
+    MeshLinesAccumulator meshAcc(m_hexGrid.p());
+
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
     
@@ -303,6 +358,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                     uint triVxIdx = tIdx*3;
 
                     // Accumulate triangle vertices
+
                     cvf::Vec3d p0(clippedTriangleVxes[triVxIdx+0].vx);
                     cvf::Vec3d p1(clippedTriangleVxes[triVxIdx+1].vx);
                     cvf::Vec3d p2(clippedTriangleVxes[triVxIdx+2].vx);
@@ -317,49 +373,12 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
 
                     // Accumulate mesh lines
-                    #define isFace( faceEnum ) (0 <= faceEnum && faceEnum <= 5 )
-                    using FaceType = cvf::StructGridInterface::FaceType;
 
-                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx]) )
-                    {
-                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx]) )
-                        {
-                            faultCellBorderLineVxes.emplace_back(p0);
-                            faultCellBorderLineVxes.emplace_back(p1);
-                        }
-                        else
-                        {
-                            cellBorderLineVxes.emplace_back(p0);
-                            cellBorderLineVxes.emplace_back(p1);
-                        }
-                    }
-                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
-                    {
-                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx+1]) )
-                        {
-                            faultCellBorderLineVxes.emplace_back(p1);
-                            faultCellBorderLineVxes.emplace_back(p2);
-                        }
-                        else
-                        {
-                            cellBorderLineVxes.emplace_back(p1);
-                            cellBorderLineVxes.emplace_back(p2);
-                        }
-                    }
-                    if ( isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
-                    {
-                        if ( m_hexGrid->findFaultFromCellIndexAndCellFace(globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx+2]) )
-                        {
-                            faultCellBorderLineVxes.emplace_back(p2);
-                            faultCellBorderLineVxes.emplace_back(p0);
-                        }
-                        else
-                        {
-                            cellBorderLineVxes.emplace_back(p2);
-                            cellBorderLineVxes.emplace_back(p0);
-                        }
-                    }
-
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, p0, p1);
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, p1, p2);
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, p2, p0);
+                    
+                    
                     // Mapping to cell index
 
                     m_triangleToCellIdxMap.push_back(globalCellIdx);
@@ -389,9 +408,15 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             lIdx = idxToNextP;
         }
     }
+
     m_triangleVxes->assign(triangleVertices);
-    m_cellBorderLineVxes->assign(cellBorderLineVxes);
-    m_faultCellBorderLineVxes->assign(faultCellBorderLineVxes);
+    m_cellBorderLineVxes->assign(meshAcc.cellBorderLineVxes);
+    m_faultCellBorderLineVxes->assign(meshAcc.faultCellBorderLineVxes);
+
+    for (const auto& it : meshAcc.faultToHighestFaultMeshVxMap)
+    {
+        m_faultMeshLabelAndAnchorPositions.push_back( { it.first->name(), it.second } );
+    }
 }
 
 

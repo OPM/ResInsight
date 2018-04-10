@@ -28,7 +28,10 @@
 
 #include "cafPdmPointer.h"
 
+#include <QString>
+
 #include <list>
+#include <vector>
 
 namespace cvf
 {
@@ -110,6 +113,7 @@ public:
                                                  const cvf::ScalarMapper* mapper);
 private:
     void generatePartGeometry();
+    void createFaultLabelParts(const std::vector<std::pair<QString, cvf::Vec3d> >& labelAndAnchors);
     void createPolyLineParts(bool useBufferObjects);
     void createExtrusionDirParts(bool useBufferObjects);
 
@@ -122,7 +126,10 @@ private:
     cvf::ref<cvf::Part>         m_crossSectionFaces;
     cvf::ref<cvf::Part>         m_crossSectionGridLines;
     cvf::ref<cvf::Part>         m_crossSectionFaultGridLines;
-    
+    cvf::ref<cvf::Part>         m_faultMeshLabels;
+    cvf::ref<cvf::Part>         m_faultMeshLabelLines;
+
+
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
 
     cvf::ref<cvf::Part>         m_highlightLineAlongPolyline;

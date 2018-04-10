@@ -59,9 +59,11 @@
 #include "cafTensor3.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfDrawableText.h"
 #include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfqtUtils.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
@@ -582,9 +584,87 @@ void RivIntersectionPartMgr::generatePartGeometry()
 
     createExtrusionDirParts(useBufferObjects);
 
+    if (m_isFlattened) createFaultLabelParts(m_crossSectionGenerator->faultMeshLabelAndAnchorPositions());
+
     applySingleColorEffect();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<QString, cvf::Vec3d> >& labelAndAnchors)
+{
+    cvf::Font* font = RiaApplication::instance()->customFont();
+
+    std::vector<cvf::Vec3f> lineVertices;
+
+    cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+    {
+        drawableText->setFont(font);
+        drawableText->setCheckPosVisible(false);
+        drawableText->setDrawBorder(false);
+        drawableText->setDrawBackground(false);
+        drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
+        cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+        drawableText->setTextColor(defWellLabelColor);
+    }
+
+    cvf::BoundingBox bb = m_crossSectionFaces->boundingBox();
+    double labelZOffset = bb.extent().z() / 10;
+    
+    for (const auto& labelAndAnchorPair : labelAndAnchors)
+    {
+        cvf::String cvfString = cvfqt::Utils::toString(labelAndAnchorPair.first);
+        cvf::Vec3f textCoord(labelAndAnchorPair.second);
+
+        textCoord.z() += labelZOffset;
+        drawableText->addText(cvfString, textCoord);
+
+        lineVertices.push_back(cvf::Vec3f(labelAndAnchorPair.second));
+        lineVertices.push_back(textCoord);
+    }
+
+    // Labels part
+    {
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("Fault mesh label : text ");
+        part->setDrawable(drawableText.p());
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::Text);
+        part->updateBoundingBox();
+
+        m_faultMeshLabels = part;
+    }
+
+    // Lines to labels part
+    {
+        cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+        vertices->assign(lineVertices);
+        cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+        geo->setVertexArray(vertices.p());
+
+        cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
+        primSet->setStartIndex(0);
+        primSet->setIndexCount(vertices->size());
+        geo->addPrimitiveSet(primSet.p());
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("Anchor lines for fault mesh labels");
+        part->setDrawable(geo.p());
+
+        part->updateBoundingBox();
+
+        caf::MeshEffectGenerator gen(RiaApplication::instance()->preferences()->defaultFaultGridLineColors());
+        cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
+
+        part->setEffect(eff.p());
+        m_faultMeshLabelLines = part;
+    }
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -834,6 +914,19 @@ void RivIntersectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
         m_crossSectionFaultGridLines->setTransform(scaleTransform);
         model->addPart(m_crossSectionFaultGridLines.p());
     }
+
+    if (m_faultMeshLabelLines.notNull())
+    {
+        m_faultMeshLabelLines->setTransform(scaleTransform);
+        model->addPart(m_faultMeshLabelLines.p());
+    }
+
+    if (m_faultMeshLabels.notNull())
+    {
+        m_faultMeshLabels->setTransform(scaleTransform);
+        model->addPart(m_faultMeshLabels.p());
+    }
+
 }
 
 
