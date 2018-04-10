@@ -19,6 +19,7 @@
 #include "RiuRecentFileActionProvider.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -122,7 +123,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
     QAction* action = qobject_cast<QAction *>(sender());
     if (action)
     {
-        QString fileName = action->data().toString();
+        QString fileName = RiaFilePathTools::toInternalSeparator(action->data().toString());
 
         RiaApplication* app = RiaApplication::instance();
         if (RiaApplication::hasValidProjectFileExtension(fileName))

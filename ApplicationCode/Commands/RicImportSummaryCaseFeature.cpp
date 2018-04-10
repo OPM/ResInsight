@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaFilePathTools.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
@@ -55,9 +56,17 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     RiaPreferences* prefs = app->preferences();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Import Summary Case", defaultDir, "Eclipse Summary File (*.SMSPEC);;All Files (*.*)");
+    QStringList fileNames_ = QFileDialog::getOpenFileNames(nullptr, "Import Summary Case", defaultDir, "Eclipse Summary File (*.SMSPEC);;All Files (*.*)");
 
-    if (fileNames.isEmpty()) return;
+    if (fileNames_.isEmpty()) return;
+
+    QStringList fileNames;
+
+    // Convert to internal path separator
+    for (QString s : fileNames_)
+    {
+        fileNames.push_back(RiaFilePathTools::toInternalSeparator(s));
+    }
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
