@@ -760,18 +760,22 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteSubItemsFeature";
     }
 
+    // Special delete commands for specific features
+    // Placed here to fit context menu location of general delete feature
     if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellPathDeleteFeature")->canFeatureBeExecuted())
     {
-        // Special delete command for Well paths
-        // Placed here to fit context menu location of general delete feature
         menuBuilder << "Separator";
         menuBuilder << "RicWellPathDeleteFeature";
     }
 
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("Ric3dWellLogCurveDeleteFeature")->canFeatureBeExecuted())
+    {
+        menuBuilder << "Separator";
+        menuBuilder << "Ric3dWellLogCurveDeleteFeature";
+    }
+
     if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellLogFileCloseFeature")->canFeatureBeExecuted())
     {
-        // Special delete command for Well paths
-        // Placed here to fit context menu location of general delete feature
         menuBuilder << "Separator";
         menuBuilder << "RicWellLogFileCloseFeature";
     }

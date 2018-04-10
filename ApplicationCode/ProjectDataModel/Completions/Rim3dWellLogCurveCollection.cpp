@@ -19,6 +19,7 @@
 #include "Rim3dWellLogCurveCollection.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "RimWellPath.h"
 #include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection");
@@ -82,6 +83,14 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurveCollection::remove3dWellLogCurve(Rim3dWellLogCurve* curve)
+{
+    m_3dWellLogCurves.removeChildObject(curve);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::isShowingGrid() const
 {
     return m_showGrid;
@@ -115,6 +124,25 @@ std::vector<Rim3dWellLogCurve*> Rim3dWellLogCurveCollection::vectorOf3dWellLogCu
     }
 
     return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurveCollection::redrawAffectedViewsAndEditors()
+{
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
+    RimWellPath* path = nullptr;
+    this->firstAncestorOrThisOfType(path);
+    if (path)
+    {
+        path->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
