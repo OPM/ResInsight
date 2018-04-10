@@ -86,3 +86,11 @@ bool RiaFilePathTools::equalPaths(const QString& path1, const QString& path2)
     appendSeparatorIfNo(p2);
     return p1 == p2;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Own canonicalPath method since the QDir::canonicalPath seems to not work
+//--------------------------------------------------------------------------------------------------
+QString RiaFilePathTools::canonicalPath(const QString& path)
+{
+    return QDir(path).absolutePath();
+}

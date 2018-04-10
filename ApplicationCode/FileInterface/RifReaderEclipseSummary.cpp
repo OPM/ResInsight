@@ -38,7 +38,6 @@
 #include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_kw.h"
 
-
 std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
 {
     std::vector<time_t> timeSteps;
@@ -440,12 +439,12 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& header
 
     const ecl_smspec_type* smspec = ecl_sum ? ecl_sum_get_smspec(ecl_sum) : nullptr;
     const char* rstCase = smspec ? ecl_smspec_get_restart_case(smspec) : nullptr;
-    QString restartCase = rstCase? RiaStringEncodingTools::fromNativeEncoded(rstCase) : "";
+    QString restartCase = rstCase? RiaFilePathTools::canonicalPath(RiaStringEncodingTools::fromNativeEncoded(rstCase)) : "";
     closeEclSum(ecl_sum);
 
     if (!restartCase.isEmpty())
     {
-        QString path = QFileInfo(headerFileName).dir().path();
+        QString path = QFileInfo(restartCase).dir().path();
         QString restartBase = QDir(restartCase).dirName();
         
         char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
