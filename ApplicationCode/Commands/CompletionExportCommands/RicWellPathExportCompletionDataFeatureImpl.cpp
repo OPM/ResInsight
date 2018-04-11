@@ -772,16 +772,14 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompdatTable(RifEclipse
         {
             formatter.add(data.transmissibility());
 
-            // Based on feedback from Shunping
-            // Include diameter when COMPDATL is exported
+            // Based on feedback from Shunping for COMPDATL, hhgs required COMPDAT
+            // Always include diameter
             // See https://github.com/OPM/ResInsight/issues/2517
-            if (!gridName.isEmpty())
-            {
-                if (RigCompletionData::isDefaultValue(data.diameter()))
-                    formatter.add("1*");
-                else
-                    formatter.add(data.diameter());
-            }
+            // See https://github.com/OPM/ResInsight/issues/2709
+            if (RigCompletionData::isDefaultValue(data.diameter()))
+                formatter.add("1*");
+            else
+                formatter.add(data.diameter());
         }
 
         formatter.rowCompleted();
