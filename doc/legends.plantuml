@@ -1,0 +1,21 @@
+@startuml
+
+package Legends {
+
+    OverlayItem <|-- OverlayScalarMapperLegend
+
+    ScalarMapper <|-- ScalarMapperRangeBased
+    ScalarMapperRangeBased <|-- ScalarMapperContinuousLinear
+    ScalarMapperRangeBased <|-- ScalarMapperDiscreteLinear
+    
+    RimStimPlanColors --> RimLegendConfig
+    Rim2dIntersectionView --> RimLegendConfig
+    RimEclipseCellColors --> RimLegendConfig
+    
+    RimLegendConfig --> ScalarMapper
+    RimLegendConfig --> OverlayScalarMapperLegend
+    
+    OverlayScalarMapperLegend --> ScalarMapper
+}
+
+@enduml

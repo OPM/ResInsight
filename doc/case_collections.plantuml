@@ -1,0 +1,57 @@
+@startuml
+
+package "Summary case ensamble" {
+
+    skinparam class {
+        BackgroundColor<<New>>  LightGray
+    }
+
+    package Cases {
+        RimSummaryCaseMainCollection --> "*" RimSummaryCaseCollection
+        RimSummaryCaseMainCollection --> "*" RimSummaryCase
+        RimSummaryCaseCollection --> "*" RimSummaryCase
+        
+        RimSummaryCase -> RigCaseRealizationParameters
+        
+        'RimSummaryCaseMainCollection ..> RifEnsambleParametersReader
+        RimSummaryCaseMainCollection ..> RifCaseRealizationParametersReader : create
+        RifCaseRealizationParametersReader ..> RimSummaryCase : set parameters
+
+        class RifSummaryReaderInterface {
+            allResultAddresses()
+        }
+        class RimEnsambleSummaryCase << New >>
+        class RifReaderEnsambleSummary << New >>
+        RimSummaryCase <|-- RimGridSummaryCase
+        RimSummaryCase <|-- RimEnsambleSummaryCase
+        RimSummaryCase --> RifSummaryReaderInterface
+        RifSummaryReaderInterface <|-- RifReaderEclipseSummary
+        RifSummaryReaderInterface <|-- RifReaderEnsambleSummary
+        RimEnsambleSummaryCase ..> RifReaderEnsambleSummary
+        RimEnsambleSummaryCase --> RimSummaryCaseCollection
+        RimGridSummaryCase ..> RifReaderEclipseSummary
+    }
+    
+    package Curves {
+        RimMainPlotCollection --> RimSummaryPlotCollection
+        RimSummaryPlotCollection --> "*" RimSummaryPlot
+        
+        RimSummaryPlot --> RimSummaryCurveCollection
+        RimSummaryPlot -> RimEnsambleCurveSetCollection
+        RimSummaryCurveCollection --> "*" RimSummaryCurve
+        RimSummaryCurveCollection -> "3" RimSummaryPlotSourceStepping
+        RimEnsambleCurveSetCollection --> RimEnsambleCurveSet
+        RimEnsambleCurveSet --> "*" RimSummaryCurve
+    }
+
+    RimProject -> RimMainPlotCollection
+    RimProject --> "*" RimOilField
+    RimOilField --> RimSummaryCaseMainCollection
+
+    RimSummaryCurve -> RimSummaryCase
+    RimSummaryCurve --> RifEclipseSummaryAddress
+
+    RifSummaryReaderInterface --> "*" RifEclipseSummaryAddress
+}
+
+@enduml
