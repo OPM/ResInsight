@@ -24,7 +24,7 @@
 
 #include "cafPdmPointer.h"
 
-#include <vector>
+#include <map>
 
 namespace caf
 {
@@ -42,14 +42,21 @@ class RimWellPath;
 class Riv3dWellLogGridGeometryGenerator : public cvf::Object
 {
 public:
+    enum DrawableId
+    {
+        NormalLines = 0,
+        GridBorder = 1,
+        GridBackground = 2
+    };
     Riv3dWellLogGridGeometryGenerator(RimWellPath* wellPath);
 
-    cvf::ref<cvf::DrawableGeo> createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
-                                          const cvf::BoundingBox&            wellPathClipBoundingBox,
+    std::map<DrawableId, cvf::ref<cvf::DrawableGeo> >
+    createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+               const cvf::BoundingBox&            wellPathClipBoundingBox,
                                           double                             planeAngle,
-                                          double                             planeOffsetFromWellPathCenter,
-                                          double                             planeWidth,
-                                          double                             gridIntervalSize) const;
+               double                             planeOffsetFromWellPathCenter,
+               double                             planeWidth,
+               double                             gridIntervalSize) const;
 private:
     const RigWellPath* wellPathGeometry() const;
 

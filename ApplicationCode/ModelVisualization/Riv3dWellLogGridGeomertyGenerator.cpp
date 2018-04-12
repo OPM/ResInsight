@@ -25,9 +25,13 @@
 #include "RigWellPathGeometryTools.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cvfObject.h"
+#include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 
 #include "cvfBoundingBox.h"
+
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,23 +44,35 @@ Riv3dWellLogGridGeometryGenerator::Riv3dWellLogGridGeometryGenerator(RimWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                          const cvf::BoundingBox& wellPathClipBoundingBox,
+std::map< Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::DrawableGeo> >
+Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
+                                              const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                           double                  planeAngle,
-                                                                          double                  planeOffsetFromWellPathCenter,
-                                                                          double                  planeWidth,
-                                                                          double                  gridIntervalSize) const
+                                              double                  planeOffsetFromWellPathCenter,
+                                              double                  planeWidth,
+                                              double                  gridIntervalSize) const
 {
     CVF_ASSERT(gridIntervalSize > 0);
 
-    if (!wellPathGeometry()) return nullptr;
-    if (!wellPathClipBoundingBox.isValid()) return nullptr;
+    if (!wellPathGeometry() || wellPathGeometry()->m_measuredDepths.empty())
+    {
+        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+    }
+
+    if (!wellPathClipBoundingBox.isValid())
+    {
+        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+    }
+
 
     RimWellPathCollection* wellPathCollection = nullptr;
     m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
 
     std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
-    if (wellPathPoints.empty()) return nullptr;
+    if (wellPathPoints.empty())
+    {
+        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+    }
 
     size_t originalWellPathSize = wellPathPoints.size();
 
@@ -68,11 +84,15 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::createGrid(const c
         wellPathPoints = RigWellPath::clipPolylineStartAboveZ(
             wellPathPoints, maxZClipHeight, &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
     }
-    if (wellPathPoints.empty()) return nullptr;
+
+    if (wellPathPoints.empty())
+    {
+        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+    }
+
+    std::map< DrawableId, cvf::ref<cvf::DrawableGeo> > drawables;
 
     std::vector<cvf::Vec3d> gridPoints;
-
-    if (wellPathGeometry()->m_measuredDepths.empty()) return nullptr;
 
     size_t newStartIndex = originalWellPathSize - wellPathPoints.size();
     double firstMd = wellPathGeometry()->m_measuredDepths.at(newStartIndex);
@@ -92,27 +112,9 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::createGrid(const c
     RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), gridPoints, &closestPoints);
 
     pointNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, closestPoints, RigWellPathGeometryTools::LINE_SEGMENTS);
-    if (pointNormals.size() != gridPoints.size()) return nullptr;
-
-    std::vector<cvf::Vec3f> vertices;
-    vertices.reserve(gridPoints.size() * 2);
-
-    std::vector<cvf::uint> indices;
-    indices.reserve(gridPoints.size() * 2);
-
-    cvf::uint indexCounter = 0;
-
-    // Normal lines
-    for (size_t i = 0; i < pointNormals.size(); i++)
+    if (pointNormals.size() != gridPoints.size())
     {
-        vertices.push_back(cvf::Vec3f(
-            displayCoordTransform->transformToDisplayCoord(gridPoints[i] + pointNormals[i] * planeOffsetFromWellPathCenter)));
-
-        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-            gridPoints[i] + pointNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
-
-        indices.push_back(indexCounter++);
-        indices.push_back(indexCounter++);
+        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
     }
 
     // calculateLineSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
@@ -120,44 +122,79 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::createGrid(const c
         RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, wellPathGeometry()->m_wellPathPoints, RigWellPathGeometryTools::POLYLINE);
     wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
-    // Line along and close to well
-    for (size_t i = 0; i < wellPathPoints.size(); i++)
     {
-        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter)));
+        std::vector<cvf::Vec3f> vertices;
+        vertices.reserve(gridPoints.size());
 
-        indices.push_back(indexCounter);
-        indices.push_back(++indexCounter);
+        std::vector<cvf::uint> indices;
+        indices.reserve(gridPoints.size());
+        cvf::uint indexCounter = 0;
+        // Line along and close to well
+        for (size_t i = 0; i < wellPathPoints.size(); i++)
+        {
+            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
+                wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter)));
+
+            indices.push_back(indexCounter);
+            indices.push_back(++indexCounter);
+        }
+        // Line along and far away from well in reverse order to create a closed surface.
+        for (int64_t i = (int64_t) wellPathPoints.size()-1; i >= 0; i--)
+        {
+            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
+                wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+
+            indices.push_back(indexCounter);
+            indices.push_back(++indexCounter);
+        }
+        indices.pop_back();
+        indices.push_back(0u); // Close surface
+        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINE_LOOP);
+        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+
+        cvf::ref<cvf::DrawableGeo> gridBorderDrawable = new cvf::DrawableGeo();
+
+        indexedUInt->setIndices(indexArray.p());
+        gridBorderDrawable->addPrimitiveSet(indexedUInt.p());
+
+        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
+        gridBorderDrawable->setVertexArray(vertexArray.p());
+        drawables[GridBorder] = gridBorderDrawable;
     }
-    // Indices are added as line segments for the current point and the next point. The last point does not have a next point,
-    // therefore we remove the last line segment
-    indices.pop_back();
-    indices.pop_back();
-
-    // Line along and far away from well
-    for (size_t i = 0; i < wellPathPoints.size(); i++)
     {
-        vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+        std::vector<cvf::Vec3f> vertices;
+        vertices.reserve(gridPoints.size());
 
-        indices.push_back(indexCounter);
-        indices.push_back(++indexCounter);
+        std::vector<cvf::uint> indices;
+        indices.reserve(gridPoints.size());
+        cvf::uint indexCounter = 0;
+        // Normal lines. Start from one to avoid drawing at surface edge.
+        for (size_t i = 1; i < pointNormals.size(); i++)
+        {
+            vertices.push_back(cvf::Vec3f(
+               displayCoordTransform->transformToDisplayCoord(gridPoints[i] + pointNormals[i] * planeOffsetFromWellPathCenter)));
+
+            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
+               gridPoints[i] + pointNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+
+            indices.push_back(indexCounter++);
+            indices.push_back(indexCounter++);
+        }
+
+        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
+        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+
+        cvf::ref<cvf::DrawableGeo> normalLinesDrawable = new cvf::DrawableGeo();
+
+        indexedUInt->setIndices(indexArray.p());
+        normalLinesDrawable->addPrimitiveSet(indexedUInt.p());
+
+        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
+        normalLinesDrawable->setVertexArray(vertexArray.p());
+
+        drawables[NormalLines] = normalLinesDrawable;
     }
-    indices.pop_back();
-    indices.pop_back();
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-
-    indexedUInt->setIndices(indexArray.p());
-    drawable->addPrimitiveSet(indexedUInt.p());
-
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
-    drawable->setVertexArray(vertexArray.p());
-
-    return drawable;
+    return drawables;
 }
 
 //--------------------------------------------------------------------------------------------------
