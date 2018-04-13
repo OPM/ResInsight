@@ -423,39 +423,13 @@ void RimLegendConfig::setAutomaticRanges(double globalMin, double globalMax, dou
     double candidateLocalAutoMin = roundToNumSignificantDigits(localMin, m_precision);
     double candidateLocalAutoMax = roundToNumSignificantDigits(localMax, m_precision);
 
-    bool needsUpdate = false;
-    const double epsilon = std::numeric_limits<double>::epsilon();
-    
-    if (cvf::Math::abs(candidateGlobalAutoMax - m_globalAutoMax) > epsilon)
-    {
-        needsUpdate = true;
-    }
+    m_globalAutoMin = candidateGlobalAutoMin;
+    m_globalAutoMax = candidateGlobalAutoMax;
 
-    if (cvf::Math::abs(candidateGlobalAutoMin - m_globalAutoMin) > epsilon)
-    {
-        needsUpdate = true;
-    }
+    m_localAutoMin = candidateLocalAutoMin;
+    m_localAutoMax = candidateLocalAutoMax;
 
-    if (cvf::Math::abs(candidateLocalAutoMax - m_localAutoMax) > epsilon)
-    {
-        needsUpdate = true;
-    }
-
-    if (cvf::Math::abs(candidateLocalAutoMin - m_localAutoMin) > epsilon)
-    {
-        needsUpdate = true;
-    }
-
-    if (needsUpdate)
-    {
-        m_globalAutoMin = candidateGlobalAutoMin;
-        m_globalAutoMax = candidateGlobalAutoMax;
-
-        m_localAutoMin = candidateLocalAutoMin;
-        m_localAutoMax = candidateLocalAutoMax;
-
-        updateLegend();
-    }
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
