@@ -53,12 +53,14 @@ public:
 
     static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile,
                                                            bool showApplyToAllWidget,
+                                                           bool buildGridCaseFileList,
                                                            ReadOptions defaultReadOption,
                                                            RicSummaryCaseRestartDialogResult *lastResult = nullptr,
                                                            QWidget *parent = nullptr);
 
     ReadOptions                                 selectedOption() const;
     bool                                        applyToAllSelected() const;
+    bool                                        includeGridHistoryFiles() const;
 
 private:
     void                                        appendFileInfoToGridLayout(QGridLayout& gridLayout, const RifRestartFileInfo& fileInfo);
@@ -78,6 +80,8 @@ private:
     QRadioButton*                       m_notReadRadionButton;
     QRadioButton*                       m_separateCasesRadionButton;
 
+    QCheckBox*                          m_includeGridHistoryFiles;
+
     QCheckBox*                          m_applyToAllCheckBox;
     QDialogButtonBox*                   m_buttons;
 };
@@ -94,13 +98,23 @@ public:
 
     RicSummaryCaseRestartDialogResult(bool _ok,
                                       RicSummaryCaseRestartDialog::ReadOptions _option,
-                                      QStringList _files,
-                                      bool _applyToAll) :
-        ok(_ok), option(_option), files(_files), applyToAll(_applyToAll) {
+                                      QStringList _summaryFiles,
+                                      bool _applyToAll,
+                                      bool _includeGridHistoryFiles,
+                                      QStringList _restartGridFilesToImport = {}) :
+        ok(_ok),
+        option(_option),
+        summaryFiles(_summaryFiles),
+        applyToAll(_applyToAll),
+        includeGridHistoryFiles(_includeGridHistoryFiles),
+        restartGridFilesToImport(_restartGridFilesToImport) {
     }
 
     bool                                        ok;
     RicSummaryCaseRestartDialog::ReadOptions    option;
-    QStringList                                 files;
+    QStringList                                 summaryFiles;
     bool                                        applyToAll;
+
+    bool                                        includeGridHistoryFiles;
+    QStringList                                 restartGridFilesToImport;
 };

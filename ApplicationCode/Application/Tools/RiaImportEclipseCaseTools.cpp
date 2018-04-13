@@ -23,6 +23,9 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RifEclipseSummaryTools.h"
+#include "RifSummaryCaseRestartSelector.h"
+
 #include "RigGridManager.h"
 
 #include "RimCaseCollection.h"
@@ -49,6 +52,80 @@
 
 #include <QFileInfo>
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& fileNames, bool noDialog)
+{
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* project = app->project();
+
+    QStringList openedCaseFiles;
+
+    // Get list of files to import
+    RifSummaryCaseRestartSelector selector;
+    if(noDialog) selector.showDialog(false);
+    selector.buildGridCaseFileList(true);
+    std::vector<RifSummaryCaseFileInfo> summaryFileInfos = selector.getFilesToImportFromGridFiles(fileNames);
+
+    // Import eclipse case files
+    for (const QString& gridCaseFile : selector.gridCaseFiles())
+    {
+        if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(gridCaseFile))
+        {
+            openedCaseFiles.push_back(gridCaseFile);
+        }
+    }
+
+    // Import summary cases
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+    std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createAndAddSummaryCasesFromFileInfos(summaryFileInfos);
+
+    for (RimSummaryCase* newSumCase : newSumCases)
+    {
+        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
+        if (!gridCaseFile.isEmpty())
+        {
+            RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
+            if (existingFileSummaryCase)
+            {
+                // Replace all occurrences of file sum with ecl sum
+
+                std::vector<caf::PdmObjectHandle*> referringObjects;
+                existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+
+                // UI settings of a curve filter is updated based
+                // on the new case association for the curves in the curve filter
+                // UI is updated by loadDataAndUpdate()
+
+                for (caf::PdmObjectHandle* objHandle : referringObjects)
+                {
+                    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
+                    if (summaryCurve)
+                    {
+                        RimSummaryCurveCollection* parentCollection = nullptr;
+                        summaryCurve->firstAncestorOrThisOfType(parentCollection);
+                        if (parentCollection)
+                        {
+                            parentCollection->loadDataAndUpdate(true);
+                            parentCollection->updateConnectedEditors();
+                            break;
+                        }
+                    }
+                }
+
+                sumCaseColl->removeCase(existingFileSummaryCase);
+
+                delete existingFileSummaryCase;
+
+            }
+
+            sumCaseColl->updateAllRequiredEditors();
+        }
+    }
+    return openedCaseFiles;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -93,7 +170,11 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
     RimProject* project = app->project();
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if (analysisModels == nullptr) return false;
+    if (analysisModels == nullptr)
+    {
+        delete rimResultReservoir;
+        return false;
+    }
 
     RiuMainWindow::instance()->show();
 
@@ -111,66 +192,6 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
 
     riv->loadDataAndUpdate();
-
-    // Add a corresponding summary case if it exists
-    {
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
-        if (sumCaseColl)
-        {
-            {
-                RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
-                if (sumCaseColl->summaryCaseCount() == 0 && mainPlotWindow)
-                {
-                    mainPlotWindow->hide();
-                }
-            }
-
-            if (!sumCaseColl->findSummaryCaseFromEclipseResultCase(rimResultReservoir))
-            {
-                std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createAndAddSummaryCasesFromEclipseResultCase(rimResultReservoir);
-                RimSummaryCase*              newSumCase = !newSumCases.empty() ? newSumCases.front() : nullptr;
-
-                if (newSumCase)
-                {
-                    RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
-                    if (existingFileSummaryCase)
-                    {
-                        // Replace all occurrences of file sum with ecl sum
-
-                        std::vector<caf::PdmObjectHandle*> referringObjects;
-                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
-
-                        // UI settings of a curve filter is updated based
-                        // on the new case association for the curves in the curve filter
-                        // UI is updated by loadDataAndUpdate()
-
-                        for (caf::PdmObjectHandle* objHandle : referringObjects)
-                        {
-                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
-                            if (summaryCurve)
-                            {
-                                RimSummaryCurveCollection* parentCollection = nullptr;
-                                summaryCurve->firstAncestorOrThisOfType(parentCollection);
-                                if (parentCollection)
-                                {
-                                    parentCollection->loadDataAndUpdate(true);
-                                    parentCollection->updateConnectedEditors();
-                                    break;
-                                }
-                            }
-                        }
-
-                        sumCaseColl->removeCase(existingFileSummaryCase);
-
-                        delete existingFileSummaryCase;
-
-                    }
-
-                    sumCaseColl->updateAllRequiredEditors();
-                }
-            }
-        }
-    }
 
     if (!riv->cellResult()->hasResult())
     {

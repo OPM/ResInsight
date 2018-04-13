@@ -26,6 +26,7 @@
 
 #include "ert/ecl/ecl_util.h"
 
+#include <QDir>
 #include <QString>
 #include <QStringList>
 
@@ -131,6 +132,38 @@ QStringList RifEclipseSummaryTools::findSummaryDataFiles(const QString& caseFile
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(const QString& summaryHeaderFile)
+{
+    char* myPath = nullptr;
+    char* myBase = nullptr;
+    bool formattedFile = true;
+
+    util_alloc_file_components(RiaStringEncodingTools::toNativeEncoded(QDir::toNativeSeparators(summaryHeaderFile)).data(), &myPath, &myBase, nullptr);
+
+    char* caseFile = ecl_util_alloc_exfilename(myPath, myBase, ECL_EGRID_FILE, true, -1);
+    if (!caseFile)
+    {
+        caseFile= ecl_util_alloc_exfilename(myPath, myBase, ECL_EGRID_FILE, false, -1);
+        if (caseFile)
+        {
+            formattedFile = false;
+        }
+    }
+
+    QString gridCaseFile;
+
+    if (caseFile) gridCaseFile = caseFile;
+
+    util_safe_free(caseFile);
+    util_safe_free(myBase);
+    util_safe_free(myPath);
+
+    return gridCaseFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifEclipseSummaryTools::dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary)
 {
     std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
@@ -173,7 +206,7 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const QString& inputFile,
     char* myBase = nullptr;
     bool formattedFile = true;
 
-    util_alloc_file_components(RiaStringEncodingTools::toNativeEncoded(inputFile).data(), &myPath, &myBase, nullptr);
+    util_alloc_file_components(RiaStringEncodingTools::toNativeEncoded(QDir::toNativeSeparators(inputFile)).data(), &myPath, &myBase, nullptr);
 
     char* myHeaderFile = ecl_util_alloc_exfilename(myPath, myBase, ECL_SUMMARY_HEADER_FILE, true, -1);
     if (!myHeaderFile)

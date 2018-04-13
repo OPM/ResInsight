@@ -103,6 +103,7 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog", "", "", "");
     CAF_PDM_InitFieldNoDefault(&summaryRestartFilesImportMode, "summaryRestartFilesImportMode", "Default Import Mode", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&importRestartGridCaseFiles, "importRestartGridCaseFiles", "Import Restart Grid Cases", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;

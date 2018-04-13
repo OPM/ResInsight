@@ -54,18 +54,11 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
     if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
     app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
 
-    int i;
-    for (i = 0; i < fileNames.size(); i++)
-    {
-        QString fileName = fileNames[i];
+    QStringList newCaseFiles = RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames);
 
-        if (!fileName.isEmpty())
-        {
-            if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(fileName))
-            {
-                app->addToRecentFiles(fileName);
-            }
-        }
+    for (const auto newCaseFile : newCaseFiles)
+    {
+        RiaApplication::instance()->addToRecentFiles(newCaseFile);
     }
 }
 

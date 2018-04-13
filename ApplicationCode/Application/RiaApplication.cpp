@@ -1860,7 +1860,7 @@ bool RiaApplication::openFile(const QString& fileName)
     }
     else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
     {
-        loadingSucceded = RiaImportEclipseCaseTools::openEclipseCaseFromFile(fileName);
+        loadingSucceded = !RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ fileName })).isEmpty();
     }
     else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
     {

@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
+#include "RiaFilePathTools.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -858,6 +859,21 @@ std::vector<RimEclipseCase*> RimProject::eclipseCases() const
         allCases.insert(allCases.end(), cases.begin(), cases.end());
     }
     return allCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimProject::eclipseCaseFromGridFileName(const QString& gridFileName) const
+{
+    for (RimEclipseCase* eclCase : eclipseCases())
+    {
+        if (RiaFilePathTools::toInternalSeparator(eclCase->gridFileName()) == RiaFilePathTools::toInternalSeparator(gridFileName))
+        {
+            return eclCase;
+        }
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

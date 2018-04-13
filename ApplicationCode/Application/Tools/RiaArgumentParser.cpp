@@ -272,21 +272,21 @@ bool RiaArgumentParser::parseArguments()
             if (caf::Utils::fileExists(caseName) &&
                 (fileExtension == "EGRID" || fileExtension == "GRID"))
             {
-                RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseName);
+                RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseName }), true);
             }
             else
             {
                 QString caseFileNameWithExt = caseName + ".EGRID";
                 if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
-                    RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
+                    RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseFileNameWithExt }), true);
                 }
                 else
                 {
                     caseFileNameWithExt = caseName + ".GRID";
                     if (caf::Utils::fileExists(caseFileNameWithExt))
                     {
-                        RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
+                        RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseFileNameWithExt }), true);
                     }
                 }
             }

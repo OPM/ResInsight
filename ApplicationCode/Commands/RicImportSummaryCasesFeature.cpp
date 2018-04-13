@@ -23,6 +23,8 @@
 
 #include "RicFileHierarchyDialog.h"
 
+#include "RifSummaryCaseRestartSelector.h"
+
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -104,7 +106,10 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    std::vector<RimSummaryCase*> sumCases = sumCaseColl->createAndAddSummaryCasesFromFiles(fileNames);
+    RifSummaryCaseRestartSelector       fileSelector;
+    std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.getFilesToImportFromSummaryFiles(fileNames);
+
+    std::vector<RimSummaryCase*> sumCases = sumCaseColl->createAndAddSummaryCasesFromFileInfos(importFileInfos);
     sumCaseColl->updateAllRequiredEditors();
 
     RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();

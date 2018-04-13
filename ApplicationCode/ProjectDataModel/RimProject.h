@@ -132,6 +132,8 @@ public:
     RimDialogData*              dialogData() const;
 
     std::vector<RimEclipseCase*>    eclipseCases() const;
+    RimEclipseCase*                 eclipseCaseFromGridFileName(const QString& gridFileName) const;
+
     std::vector<QString>            simulationWellNames() const;
 
     RimWellPath*                    wellPathFromSimWellName(const QString& simWellName, int branchIndex = -1);

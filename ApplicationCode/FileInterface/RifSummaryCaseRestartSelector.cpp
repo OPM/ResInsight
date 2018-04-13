@@ -24,6 +24,8 @@
 
 #include "RicSummaryCaseRestartDialog.h"
 
+#include "RifEclipseSummaryTools.h"
+
 #include <string>
 #include <assert.h>
 
@@ -62,7 +64,13 @@ RicSummaryCaseRestartDialog::ReadOptions mapReadOption(RiaPreferences::SummaryRe
 //--------------------------------------------------------------------------------------------------
 RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
 {
-	
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    m_showDialog = prefs->summaryRestartFilesShowImportDialog();
+    m_defaultRestartImportMode = mapReadOption(prefs->summaryRestartFilesImportMode());
+    m_importRestartGridCaseFiles = prefs->importRestartGridCaseFiles();
+
+    m_buildGridCaseFileList = false;
+    m_gridCaseFiles.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,41 +84,53 @@ RifSummaryCaseRestartSelector::~RifSummaryCaseRestartSelector()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImport(const QStringList& selectedFiles)
+std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles)
 {
-    RiaApplication* app = RiaApplication::instance();
-    RiaPreferences* prefs = app->preferences();
+    return getFilesToImport(initialSummaryFiles);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportFromGridFiles(const QStringList& initialGridFiles)
+{
+    QStringList summaryFiles = getSummaryFilesFromGridFiles(initialGridFiles);
+    return getFilesToImport(summaryFiles);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImport(const QStringList& initialSummaryFiles)
+{
     std::vector<RifSummaryCaseFileInfo> fileInfos;
-    if (prefs->summaryRestartFilesShowImportDialog)
+    if (m_showDialog)
     {
-        bool enableApplyToAllField = selectedFiles.size() > 1;
-        fileInfos = getFilesToImportByAskingUser(selectedFiles, enableApplyToAllField, prefs->summaryRestartFilesImportMode);
+        bool enableApplyToAllField = initialSummaryFiles.size() > 1;
+        fileInfos = getFilesToImportByAskingUser(initialSummaryFiles, enableApplyToAllField);
     }
     else
     {
-        fileInfos = getFilesToImportUsingPrefs(selectedFiles, prefs->summaryRestartFilesImportMode);
+        fileInfos = getFilesToImportUsingPrefs(initialSummaryFiles);
     }
-
     return fileInfos;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const QStringList& initialFiles,
-                                                                                                bool enableApplyToAllField,
-                                                                                                RiaPreferences::SummaryRestartFilesImportModeType defaultSummaryRestartMode)
+std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const QStringList& initialSummaryFiles,
+                                                                                                bool enableApplyToAllField)
 {
     std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
-    for (const QString& file : initialFiles)
+    for (const QString& summaryFile : initialSummaryFiles)
     {
-        RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(file, enableApplyToAllField, mapReadOption(defaultSummaryRestartMode), &lastResult);
+        RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(summaryFile, enableApplyToAllField, m_buildGridCaseFileList, m_defaultRestartImportMode, &lastResult);
         if (result.ok)
         {
-            for (const QString& file : result.files)
+            for (const QString& file : result.summaryFiles)
             {
                 RifSummaryCaseFileInfo fi(file, result.option == RicSummaryCaseRestartDialog::IMPORT_ALL);
                 if (!vectorContains(filesToImport, fi))
@@ -119,6 +139,17 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
                 }
             }
             lastResult = result;
+
+            for (const QString& gridCaseFile : result.restartGridFilesToImport)
+            {
+                m_gridCaseFiles.push_back(gridCaseFile);
+            }
+        }
+        else
+        {
+            // Cancel pressed, cancel everything
+            m_gridCaseFiles.clear();
+            return std::vector<RifSummaryCaseFileInfo>();
         }
     }
     return std::vector<RifSummaryCaseFileInfo>(filesToImport.begin(), filesToImport.end());
@@ -127,27 +158,40 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const QStringList& initialFiles,
-                                                                                              RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode)
+std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const QStringList& initialSummaryFiles)
 {
     std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
-    for (const QString& initialFile : initialFiles)
-    {
-        QString file = RiaFilePathTools::toInternalSeparator(initialFile);
+    m_gridCaseFiles.clear();
 
-        if (summaryRestartMode == RiaPreferences::IMPORT)
+    for (const QString& summaryFile : initialSummaryFiles)
+    {
+        QString file = RiaFilePathTools::toInternalSeparator(summaryFile);
+
+        if (m_defaultRestartImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL)
         {
             filesToImport.push_back(RifSummaryCaseFileInfo(file, true));
+            if (m_buildGridCaseFileList)
+            {
+                m_gridCaseFiles.push_back(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(file));
+            }
         }
-        else if (summaryRestartMode == RiaPreferences::NOT_IMPORT)
+        else if (m_defaultRestartImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT)
         {
             filesToImport.push_back(RifSummaryCaseFileInfo(file, false));
+            if (m_buildGridCaseFileList)
+            {
+                m_gridCaseFiles.push_back(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(file));
+            }
         }
-        else if (summaryRestartMode == RiaPreferences::SEPARATE_CASES)
+        else if (m_defaultRestartImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
         {
             filesToImport.push_back(RifSummaryCaseFileInfo(file, false));
+            if (m_buildGridCaseFileList)
+            {
+                m_gridCaseFiles.push_back(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(file));
+            }
 
             RifReaderEclipseSummary reader;
             std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file);
@@ -157,9 +201,40 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
                 if (!vectorContains(filesToImport, fi))
                 {
                     filesToImport.push_back(fi);
+
+                    if (m_buildGridCaseFileList)
+                    {
+                        m_gridCaseFiles.push_back(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(fi.fileName));
+                    }
                 }
             }
         }
     }
     return filesToImport;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RifSummaryCaseRestartSelector::getSummaryFilesFromGridFiles(const QStringList& gridFiles)
+{
+    QStringList summaryFiles;
+
+    // Find summary header file names from eclipse case file names
+    for (const auto& gridFile : gridFiles)
+    {
+        if (!gridFile.isEmpty())
+        {
+            QString summaryHeaderFile;
+            bool    formatted;
+
+            RifEclipseSummaryTools::findSummaryHeaderFile(gridFile, &summaryHeaderFile, &formatted);
+
+            if (!summaryHeaderFile.isEmpty())
+            {
+                summaryFiles.push_back(summaryHeaderFile);
+            }
+        }
+    }
+    return summaryFiles;
 }

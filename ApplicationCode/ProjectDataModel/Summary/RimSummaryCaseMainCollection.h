@@ -25,6 +25,7 @@
 class RimSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
+class RifSummaryCaseFileInfo;
 
 //==================================================================================================
 /// 
@@ -44,12 +45,11 @@ public:
     std::vector<RimSummaryCaseCollection*>  summaryCaseCollections() const;
 
     void                createSummaryCasesFromRelevantEclipseResultCases();
-    std::vector<RimSummaryCase*> createAndAddSummaryCasesFromEclipseResultCase(RimEclipseResultCase* eclResCase);
-    std::vector<RimSummaryCase*> createAndAddSummaryCasesFromFiles(const QStringList& inputFileNames);
-    
+    std::vector<RimSummaryCase*> createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileInfo>& summaryHeaderFileInfos);
+
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
-
+ 
     void                addCase(RimSummaryCase* summaryCase);
     void                removeCase(RimSummaryCase* summaryCase);
 

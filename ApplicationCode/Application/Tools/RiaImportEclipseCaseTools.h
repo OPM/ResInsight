@@ -27,7 +27,7 @@ class QStringList;
 class RiaImportEclipseCaseTools
 {
 public:
-    static bool openEclipseCaseFromFile(const QString& fileName);
+    static QStringList openEclipseCasesFromFile(const QStringList& fileNames, bool noDialog = false);
     static bool openEclipseCaseShowTimeStepFilter(const QString& fileName);
     
     static bool openMockModel(const QString& name);
@@ -35,6 +35,7 @@ public:
     static bool addEclipseCases(const QStringList& fileNames);
 
 private:
+    static bool openEclipseCaseFromFile(const QString& fileName);
     static bool openEclipseCaseShowTimeStepFilterImpl(const QString& fileName, bool showTimeStepFilter);
 };
 

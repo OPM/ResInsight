@@ -22,6 +22,8 @@
 
 #include "RiaLogging.h"
 
+#include <QStringList>
+
 CAF_PDM_SOURCE_INIT(RicfLoadCase, "loadCase");
 
 //--------------------------------------------------------------------------------------------------
@@ -37,8 +39,8 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 void RicfLoadCase::execute()
 {
-    bool ok = RiaImportEclipseCaseTools::openEclipseCaseFromFile(m_path);
-    if (!ok)
+    QStringList newCaseFiles = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({m_path()}), true);
+    if (newCaseFiles.isEmpty())
     {
         RiaLogging::error(QString("loadCase: Unable to load case from %1").arg(m_path()));
     }

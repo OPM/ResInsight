@@ -19,13 +19,15 @@
 #pragma once
 
 #include "RiaPreferences.h"
+#include "RicSummaryCaseRestartDialog.h"
+
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <vector>
 #include <map>
 
-class QStringList;
 class RifSummaryCaseFileInfo;
 
 
@@ -39,16 +41,28 @@ public:
     RifSummaryCaseRestartSelector();
     ~RifSummaryCaseRestartSelector();
 
-    std::vector<RifSummaryCaseFileInfo> getFilesToImport(const QStringList& selectedFiles);
+    std::vector<RifSummaryCaseFileInfo> getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
+    std::vector<RifSummaryCaseFileInfo> getFilesToImportFromGridFiles(const QStringList& initialGridFiles);
+
+    void        showDialog(bool show)               { m_showDialog = show; }
+    void        buildGridCaseFileList(bool build)   { m_buildGridCaseFileList = build; }
+    QStringList gridCaseFiles() const               { return m_gridCaseFiles; }
+
+    static QStringList                  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
 
 private:
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportByAskingUser(const QStringList& initialFiles,
-                                                                     bool enableApplyToAllField,
-                                                                     RiaPreferences::SummaryRestartFilesImportModeType defaultSummaryRestartMode);
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportUsingPrefs(const QStringList& initialFiles,
-                                                                   RiaPreferences::SummaryRestartFilesImportModeType summaryRestartMode);
+    std::vector<RifSummaryCaseFileInfo> getFilesToImport(const QStringList& initialSummaryFiles);
 
+    std::vector<RifSummaryCaseFileInfo> getFilesToImportByAskingUser(const QStringList& initialSummaryFiles,
+                                                                     bool enableApplyToAllField);
+    std::vector<RifSummaryCaseFileInfo> getFilesToImportUsingPrefs(const QStringList& initialSummaryFiles);
 
+    bool                                                m_showDialog;
+    RicSummaryCaseRestartDialog::ReadOptions            m_defaultRestartImportMode;
+    bool                                                m_importRestartGridCaseFiles;
+
+    bool                                                m_buildGridCaseFileList;
+    QStringList                                         m_gridCaseFiles;
 };
 
 //==================================================================================================
