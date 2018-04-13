@@ -158,13 +158,13 @@ double Riv3dWellLogPlanePartMgr::planeAngle(const Rim3dWellLogCurve::DrawPlane& 
     switch (drawPlane)
     {
         case Rim3dWellLogCurve::HORIZONTAL_LEFT:
-            return cvf::PI_D;
-        case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
-            return 0.0;
-        case Rim3dWellLogCurve::VERTICAL_ABOVE:
             return cvf::PI_D / 2.0;
-        case Rim3dWellLogCurve::VERTICAL_BELOW:
+        case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
             return -cvf::PI_D / 2.0;
+        case Rim3dWellLogCurve::VERTICAL_ABOVE:
+            return 0.0;
+        case Rim3dWellLogCurve::VERTICAL_BELOW:
+            return cvf::PI_D;
         default:
             return 0;
     }

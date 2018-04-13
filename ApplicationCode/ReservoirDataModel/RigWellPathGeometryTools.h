@@ -46,4 +46,9 @@ public:
     static void calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath*       wellPathGeometry,
                                                                    const std::vector<cvf::Vec3d>& points,
                                                                    std::vector<cvf::Vec3d>* closestWellPathPoints);
+private:
+    static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d& planeNormal,
+                                                               const std::vector<cvf::Vec3d>& normals,
+                                                               const std::vector<cvf::Vec3d>& vertices);
+    static cvf::Vec3d estimateDominantDirectionInXYPlane(const RigWellPath*             wellPathGeometry);
 };

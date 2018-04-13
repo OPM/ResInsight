@@ -20,14 +20,17 @@
 
 #include "RigWellPath.h"
 
-#include "cvfMatrix3.h"
 #include "cvfMath.h"
+#include "cvfMatrix3.h"
+
+#include <algorithm>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(const RigWellPath*             wellPathGeometry,
-                                                                              double                         angle,
+                                                                              double                         planeAngle,
                                                                               const std::vector<cvf::Vec3d>& vertices,
                                                                               VertexOrganization             organization)
 {
@@ -36,10 +39,13 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
     if (!wellPathGeometry) return pointNormals;
     if (vertices.empty()) return pointNormals;
 
-    const cvf::Vec3d globalDirection =
-        (wellPathGeometry->m_wellPathPoints.back() - wellPathGeometry->m_wellPathPoints.front()).getNormalized();
+    cvf::Vec3d up(0, 0, 1);
 
-    const cvf::Vec3d up(0, 0, 1);
+    // Project onto normal plane
+    cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(wellPathGeometry);
+
+    const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
+    CVF_ASSERT(projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon());
 
     size_t intervalSize;
     if (organization == LINE_SEGMENTS)
@@ -53,48 +59,36 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
         intervalSize = 1;
     }
 
-    cvf::Vec3d normal;
-
+    cvf::Vec3d lastNormal;
     for (size_t i = 0; i < vertices.size() - 1; i += intervalSize)
     {
         cvf::Vec3d p1 = vertices[i];
         cvf::Vec3d p2 = vertices[i + 1];
 
-        cvf::Vec3d vecAlongPath = (p2 - p1).getNormalized();
-
-        double dotProduct = up * vecAlongPath;
-
-        cvf::Vec3d Ex;
-
-        if (cvf::Math::abs(dotProduct) > 0.7071)
+        cvf::Vec3d tangent = (p2 - p1).getNormalized();
+        cvf::Vec3d normal(0, 0, 0);
+        if (cvf::Math::abs(tangent * projectionPlaneNormal) < 0.7071)
         {
-            Ex = globalDirection;
+            cvf::Vec3d projectedTangent = (tangent - (tangent * projectionPlaneNormal) * projectionPlaneNormal).getNormalized();
+            normal                      = (projectedTangent ^ projectionPlaneNormal).getNormalized();
+            normal                      = normal.getTransformedVector(cvf::Mat3d::fromRotation(tangent, planeAngle));
         }
-        else
-        {
-            Ex = vecAlongPath;
-        }
-
-        cvf::Vec3d Ey = (up ^ Ex).getNormalized();
-
-        cvf::Mat3d rotation;
-        normal = Ey.getTransformedVector(rotation.fromRotation(Ex, angle));
-
         pointNormals.push_back(normal);
+        lastNormal = normal;
     }
 
     if (organization == POLYLINE)
     {
-        pointNormals.push_back(normal);
+        pointNormals.push_back(lastNormal);
     }
 
-    return pointNormals;
+    return interpolateUndefinedNormals(up, pointNormals, vertices);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath* wellPathGeometry, 
+void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath*             wellPathGeometry,
                                                                                   const std::vector<cvf::Vec3d>& points,
                                                                                   std::vector<cvf::Vec3d>* closestWellPathPoints)
 {
@@ -110,4 +104,79 @@ void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPat
         closestWellPathPoints->push_back(p1);
         closestWellPathPoints->push_back(p2);
     }
+}
+
+std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(const cvf::Vec3d&              planeNormal,
+                                                                              const std::vector<cvf::Vec3d>& normals,
+                                                                              const std::vector<cvf::Vec3d>& vertices)
+{
+    std::vector<cvf::Vec3d> interpolated(normals);
+    cvf::Vec3d              lastNormal(0, 0, 0);
+    double distanceFromLast = 0.0;
+
+    for (size_t i = 0; i < normals.size(); ++i)
+    {
+        cvf::Vec3d currentNormal       = normals[i];
+        bool       currentInterpolated = false;
+        if (i > 0)
+        {
+            distanceFromLast += (vertices[i] - vertices[i - 1]).length();
+        }
+
+        if (currentNormal.length() == 0.0) // Undefined. Need to estimate from neighbors.
+        {
+            currentInterpolated = true;
+            currentNormal = planeNormal; // By default use the plane normal
+
+            cvf::Vec3d nextNormal(0, 0, 0);
+            double     distanceToNext = 0.0;
+            for (size_t j = i + 1; j < normals.size() && nextNormal.length() == 0.0; ++j)
+            {
+                nextNormal = normals[j];
+                distanceToNext += (vertices[j] - vertices[j - 1]).length();
+            }
+
+            if (lastNormal.length() > 0.0 && nextNormal.length() > 0.0)
+            {
+                // Both last and next are acceptable, interpolate!
+                currentNormal = (distanceToNext * lastNormal + distanceFromLast * nextNormal).getNormalized();
+            }
+            else if (lastNormal.length() > 0.0)
+            {
+                currentNormal = lastNormal;
+            }
+            else if (nextNormal.length() > 0.0)
+            {
+                currentNormal = nextNormal;
+            }
+        }
+        if (i > 0 && currentNormal * lastNormal < -std::numeric_limits<double>::epsilon())
+        {
+            currentNormal *= -1.0;
+        }
+        if (!currentInterpolated)
+        {
+            lastNormal       = currentNormal;
+            distanceFromLast = 0.0; // Reset distance
+        }
+        interpolated[i] = currentNormal;
+    }
+    return interpolated;
+}
+
+cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const RigWellPath* wellPathGeometry)
+{
+    cvf::Vec3d                     directionSum(0, 0, 0);
+    const std::vector<cvf::Vec3d>& points = wellPathGeometry->m_wellPathPoints;
+    for (size_t i = 1; i < points.size(); ++i)
+    {
+        cvf::Vec3d vec = points[i] - points[i - 1];
+        vec.z()        = 0.0;
+        if (directionSum.length() > 0.0 && (directionSum * vec) < std::numeric_limits<double>::epsilon())
+        {
+            vec *= -1;
+        }
+        directionSum += vec;
+    }
+    return directionSum.getNormalized();
 }
