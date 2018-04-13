@@ -60,8 +60,10 @@ public:
 
     void updateCurveIn3dView();
 
-    DrawPlane drawPlane() const;
-    bool isShowingCurve() const;
+    DrawPlane     drawPlane() const;
+    DrawStyle     drawStyle() const;
+    ColoringStyle coloringStyle() const;
+    bool          isShowingCurve() const;
 
     virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
 
