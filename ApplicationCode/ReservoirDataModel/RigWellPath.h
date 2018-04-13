@@ -37,16 +37,19 @@ namespace cvf
 class RigWellPath : public cvf::Object
 {
 public:
-    RigWellPath();
-
     std::vector<cvf::Vec3d>     m_wellPathPoints;
     std::vector<double>         m_measuredDepths;
 
+    RigWellPath();
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
-    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth, 
+    cvf::Vec3d                  interpolatedVectorAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
+                                                                double measuredDepth,
+                                                                double * horizontalLengthAlongWellToStartClipPoint = nullptr) const;
+    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth,
                                                                double * horizontalLengthAlongWellToStartClipPoint = nullptr) const;
+
     double                      wellPathAzimuthAngle(const cvf::Vec3d& position) const;
     void                        twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const;
 
@@ -63,6 +66,8 @@ public:
                                                            double maxZ,
                                                            double * horizontalLengthAlongWellToClipPoint,
                                                            size_t * indexToFirstVisibleSegment);
+    const std::vector<cvf::Vec3d>&  wellPathPoints() const;
+    const std::vector<double>&      measureDepths() const;
 
 private:
     bool    m_hasDatumElevation;

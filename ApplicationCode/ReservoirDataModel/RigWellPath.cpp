@@ -59,9 +59,12 @@ double RigWellPath::datumElevation() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth, double * horizontalLengthAlongWellToStartClipPoint) const
+cvf::Vec3d RigWellPath::interpolatedVectorAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
+                                                        double measuredDepth,
+                                                        double * horizontalLengthAlongWellToStartClipPoint /*= nullptr*/) const
 {
-    cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
+    CVF_ASSERT(vectors.size() == m_wellPathPoints.size());
+    cvf::Vec3d interpolatedVector = cvf::Vec3d::ZERO;
 
     if (horizontalLengthAlongWellToStartClipPoint) *horizontalLengthAlongWellToStartClipPoint = 0.0;
     
@@ -82,17 +85,15 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth, dou
         if ( vxIdx == 0 )
         {
             //For measuredDepth same or lower than first point, use this first point
-            wellPathPoint = m_wellPathPoints.at(0);
+            interpolatedVector = vectors.at(0);
         }
         else
         {
             //Do interpolation
             double segmentFraction = (measuredDepth - m_measuredDepths.at(vxIdx-1)) /
                                      (m_measuredDepths.at(vxIdx) - m_measuredDepths.at(vxIdx - 1));
-            cvf::Vec3d segment = m_wellPathPoints[vxIdx] - m_wellPathPoints[vxIdx-1];
-
-            segment *= segmentFraction;
-            wellPathPoint = m_wellPathPoints[vxIdx - 1] + segment;
+            cvf::Vec3d segment = m_wellPathPoints[vxIdx] - m_wellPathPoints[vxIdx - 1];
+            interpolatedVector = (1.0 - segmentFraction) * vectors[vxIdx - 1] + segmentFraction * vectors[vxIdx];
 
             if ( horizontalLengthAlongWellToStartClipPoint )
             {
@@ -104,11 +105,16 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth, dou
     else
     {
         // Use endpoint if measuredDepth same or higher than last point
-        wellPathPoint = m_wellPathPoints.at(vxIdx-1);
+        interpolatedVector = vectors.at(vxIdx-1);
     }
 
 
-    return wellPathPoint;
+    return interpolatedVector;
+}
+
+cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth, double * horizontalLengthAlongWellToStartClipPoint /*= nullptr*/) const
+{
+    return interpolatedVectorAlongWellPath(m_wellPathPoints, measuredDepth, horizontalLengthAlongWellToStartClipPoint);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -366,5 +372,15 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ(const std::vector<c
     }
 
     return clippedPolyLine;
+}
+
+const std::vector<cvf::Vec3d>& RigWellPath::wellPathPoints() const
+{
+    return m_wellPathPoints;
+}
+
+const std::vector<double>& RigWellPath::measureDepths() const
+{
+    return m_measuredDepths;
 }
 
