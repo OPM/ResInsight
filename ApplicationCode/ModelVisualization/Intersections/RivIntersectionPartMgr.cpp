@@ -594,6 +594,11 @@ void RivIntersectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<QString, cvf::Vec3d> >& labelAndAnchors)
 {
+    m_faultMeshLabels = nullptr;
+    m_faultMeshLabelLines = nullptr;
+
+    if (!labelAndAnchors.size()) return;
+
     cvf::Font* font = RiaApplication::instance()->customFont();
 
     std::vector<cvf::Vec3f> lineVertices;
