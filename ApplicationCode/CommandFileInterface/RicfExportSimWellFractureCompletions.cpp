@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicfExportSimWellCompletions.h"
+#include "RicfExportSimWellFractureCompletions.h"
 
 #include "RicfCommandFileExecutor.h"
 
@@ -37,28 +37,28 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
-CAF_PDM_SOURCE_INIT(RicfExportSimWellCompletions, "exportSimWellCompletions");
+CAF_PDM_SOURCE_INIT(RicfExportSimWellFractureCompletions, "exportSimWellFractureCompletions");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicfExportSimWellCompletions::RicfExportSimWellCompletions()
+RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    RICF_InitField(&m_caseId,                      "case",                        -1,                                                     "Case ID",  "", "", "");
-    RICF_InitField(&m_timeStep,                    "timeStep",                    -1,                                                     "Time Step Index",  "", "", "");
-    RICF_InitField(&m_wellPathNames,               "wellPathNames",               std::vector<QString>(),                                 "Well Path Names",  "", "", "");
-    RICF_InitField(&m_wellSelection,               "wellSelection",               RicExportCompletionDataSettingsUi::WellSelectionType(), "Well Selection",  "", "", "");
-    RICF_InitField(&m_fileSplit,                   "fileSplit",                   RicExportCompletionDataSettingsUi::ExportSplitType(),   "File Split",  "", "", "");
-    RICF_InitField(&m_compdatExport,               "compdatExport",               RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export",  "", "", "");
+    RICF_InitField(&m_caseId,          "case",                  -1,                                                     "Case ID",  "", "", "");
+    RICF_InitField(&m_timeStep,        "timeStep",              -1,                                                     "Time Step Index",  "", "", "");
+    RICF_InitField(&m_simWellNames,    "simulationWellNames",   std::vector<QString>(),                                 "Simulation Well Names",  "", "", "");
+    RICF_InitField(&m_fileSplit,       "fileSplit",             RicExportCompletionDataSettingsUi::ExportSplitType(),   "File Split",  "", "", "");
+    RICF_InitField(&m_compdatExport,   "compdatExport",         RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportSimWellCompletions::execute()
+void RicfExportSimWellFractureCompletions::execute()
 {
     RimProject* project = RiaApplication::instance()->project();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
+    
     exportSettings->timeStep = m_timeStep;
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
@@ -102,7 +102,7 @@ void RicfExportSimWellCompletions::execute()
     }
 
     std::vector<RimSimWellInView*> simWells;
-    if (m_wellPathNames().empty())
+    if (m_simWellNames().empty())
     {
         std::copy(view->wellCollection()->wells.begin(),
                   view->wellCollection()->wells.end(),
@@ -110,7 +110,7 @@ void RicfExportSimWellCompletions::execute()
     }
     else
     {
-        for (const QString& wellPathName : m_wellPathNames())
+        for (const QString& wellPathName : m_simWellNames())
         {
             RimSimWellInView* simWell = view->wellCollection()->findWell(wellPathName);
             if (simWell)

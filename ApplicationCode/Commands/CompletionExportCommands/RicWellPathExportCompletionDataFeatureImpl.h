@@ -163,12 +163,12 @@ private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                                const RicExportCompletionDataSettingsUi& settings);
 
-    static void                                  printCompletionsToFiles(const QString& exportFolder, 
+    static void                                  sortAndExportCompletionsToFile(const QString& exportFolder, 
                                                                          const QString& fileName, 
                                                                          std::vector<RigCompletionData>& completions, 
                                                                          RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
-    static void                                  printCompletionsToFile(const QString& folderName, 
+    static void                                  exportCompdatAndWpimultTables(const QString& folderName, 
                                                                         const QString& fileName, 
                                                                         const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
                                                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType);
@@ -181,11 +181,11 @@ private:
       getCompletionsForWell(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& cellToCompletionMap, 
                             const QString& wellName);
 
-    static void                                  generateCompdatTable(RifEclipseDataTableFormatter& formatter, 
+    static void                                  exportCompdatTableUsingFormatter(RifEclipseDataTableFormatter& formatter, 
                                                                       const QString& gridName, 
                                                                       const std::vector<RigCompletionData>& completionData);
 
-    static void                                 generateWpimultTable(RifEclipseDataTableFormatter& formatter,
+    static void                                 exportWpimultTableUsingFormatter(RifEclipseDataTableFormatter& formatter,
                                                                      const QString& gridName,
                                                                      const std::vector<RigCompletionData>& completionData);
 

@@ -30,21 +30,21 @@
 //
 //
 //==================================================================================================
-class RicfExportSimWellCompletions : public RicfCommandObject
+class RicfExportSimWellFractureCompletions : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfExportSimWellCompletions();
+    RicfExportSimWellFractureCompletions();
 
     virtual void execute() override;
 
 private:
-
     caf::PdmField<int>                                                  m_caseId;
     caf::PdmField<int>                                                  m_timeStep;
-    caf::PdmField< std::vector<QString> >                               m_wellPathNames;
-    caf::PdmField<RicExportCompletionDataSettingsUi::WellSelectionType> m_wellSelection;
+    
+    caf::PdmField< std::vector<QString> >                               m_simWellNames;
+    
     caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
     caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType> m_compdatExport;
 };

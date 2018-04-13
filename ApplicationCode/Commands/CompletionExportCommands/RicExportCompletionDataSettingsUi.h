@@ -38,21 +38,23 @@ public:
     };
     typedef caf::AppEnum<ExportSplit> ExportSplitType;
 
-    enum WellSelection {
-        ALL_WELLS,
-        CHECKED_WELLS,
-        SELECTED_WELLS,
-    };
-    typedef caf::AppEnum<WellSelection> WellSelectionType;
-
     enum CompdatExport {
         TRANSMISSIBILITIES,
         WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
     };
     typedef caf::AppEnum<CompdatExport> CompdatExportType;
 
+    enum CombinationMode
+    {
+        INDIVIDUALLY,
+        COMBINED,        
+    };
+    typedef caf::AppEnum<CombinationMode> CombinationModeType;
+
 
     RicExportCompletionDataSettingsUi();
+
+    caf::PdmField<int>                      timeStep;
 
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<CompdatExportType>        compdatExport;
@@ -60,19 +62,19 @@ public:
     caf::PdmField<bool>                     useLateralNTG;
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
-
-    caf::PdmField<bool>                     includeFractures;
-
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
-
-    caf::PdmField<int>                      timeStep;
-
+    caf::PdmField<bool>                     includeFractures;
+    
     void                                    showForSimWells();
     void                                    showForWellPath();
 
-    void                                    enableFractures(bool enable);
-    void                                    enablePerforations(bool enable);
-    void                                    enableFishbone(bool enable);
+    void                                    setCombinationMode(CombinationMode combinationMode);
+
+    void                                    showFractureInUi(bool enable);
+    void                                    showPerforationsInUi(bool enable);
+    void                                    showFishbonesInUi(bool enable);
+
+    bool                                    reportCompletionsTypesIndividually() const;
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -81,9 +83,10 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    bool m_displayForSimWell;
+    caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
 
-    bool m_fracturesEnabled;
-    bool m_perforationsEnabled;
-    bool m_fishbonesEnabled;
+    bool                m_displayForSimWell;
+    bool                m_fracturesEnabled;
+    bool                m_perforationsEnabled;
+    bool                m_fishbonesEnabled;
 };

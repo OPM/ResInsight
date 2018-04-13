@@ -30,20 +30,19 @@ namespace caf
     }
 
     template<>
-    void RicExportCompletionDataSettingsUi::WellSelectionType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::ALL_WELLS,     "ALL_WELLS",     "All Wells");
-        addItem(RicExportCompletionDataSettingsUi::CHECKED_WELLS, "CHECKED_WELLS", "Checked Wells");
-        addItem(RicExportCompletionDataSettingsUi::SELECTED_WELLS, "SELECTED_WELLS", "Selected Wells");
-        setDefault(RicExportCompletionDataSettingsUi::ALL_WELLS);
-    }
-
-    template<>
     void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
         addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
+    }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
+    {
+        addItem(RicExportCompletionDataSettingsUi::INDIVIDUALLY,    "INDIVIDUALLY", "Individually");
+        addItem(RicExportCompletionDataSettingsUi::COMBINED,        "COMBINED",     "Combined");
+        setDefault(RicExportCompletionDataSettingsUi::INDIVIDUALLY);
     }
 }
 
@@ -70,6 +69,9 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types", "", "", "");
+
     m_displayForSimWell = true;
     
     m_fracturesEnabled = true;
@@ -96,7 +98,15 @@ void RicExportCompletionDataSettingsUi::showForWellPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::enableFractures(bool enable)
+void RicExportCompletionDataSettingsUi::setCombinationMode(CombinationMode combinationMode)
+{
+    m_reportCompletionTypesSeparately = combinationMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::showFractureInUi(bool enable)
 {
     m_fracturesEnabled = enable;
 }
@@ -104,7 +114,7 @@ void RicExportCompletionDataSettingsUi::enableFractures(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::enablePerforations(bool enable)
+void RicExportCompletionDataSettingsUi::showPerforationsInUi(bool enable)
 {
     m_perforationsEnabled = enable;
 }
@@ -112,9 +122,17 @@ void RicExportCompletionDataSettingsUi::enablePerforations(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::enableFishbone(bool enable)
+void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
 {
     m_fishbonesEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
+{
+    return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +192,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
     
         group->add(&folder);
         group->add(&fileSplit);
+        group->add(&m_reportCompletionTypesSeparately);
     }
 
     {
@@ -188,16 +207,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Visible Completions");
         if (!m_displayForSimWell)
         {
-            if (m_fishbonesEnabled)
-            {
-                group->add(&includeFishbones);
-                group->add(&excludeMainBoreForFishbones);
-                if (!includeFishbones)
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
-                else
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
-            }
-
             if (m_perforationsEnabled)
             {
                 group->add(&includePerforations);
@@ -220,6 +229,19 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             else if (compdatExport == TRANSMISSIBILITIES)
             {
                 includeFractures.uiCapability()->setUiReadOnly(false);
+            }
+        }
+
+        if (!m_displayForSimWell)
+        {
+            if (m_fishbonesEnabled)
+            {
+                group->add(&includeFishbones);
+                group->add(&excludeMainBoreForFishbones);
+                if (!includeFishbones)
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
+                else
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
             }
         }
     }

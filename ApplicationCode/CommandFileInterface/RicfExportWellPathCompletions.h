@@ -44,10 +44,14 @@ private:
     caf::PdmField<int>                                                  m_caseId;
     caf::PdmField<int>                                                  m_timeStep;
     caf::PdmField< std::vector<QString> >                               m_wellPathNames;
-    caf::PdmField<RicExportCompletionDataSettingsUi::WellSelectionType> m_wellSelection;
+    
     caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
     caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType> m_compdatExport;
+    caf::PdmField<RicExportCompletionDataSettingsUi::CombinationModeType> m_combinationMode;
+    
+    caf::PdmField<bool>                                                 m_useLateralNTG;
     caf::PdmField<bool>                                                 m_includePerforations;
     caf::PdmField<bool>                                                 m_includeFishbones;
+    caf::PdmField<bool>                                                 m_includeFractures;
     caf::PdmField<bool>                                                 m_excludeMainBoreForFishbones;
 };

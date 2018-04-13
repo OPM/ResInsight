@@ -104,29 +104,29 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ((!simWellFractures.empty()) || (!wellPathFractures.empty()))
     {
-        exportSettings->enableFractures(true);
+        exportSettings->showFractureInUi(true);
     }
     else
     {
-        exportSettings->enableFractures(false);
+        exportSettings->showFractureInUi(false);
     }
 
     if (!wellPathFishbones.empty())
     {
-        exportSettings->enableFishbone(true);
+        exportSettings->showFishbonesInUi(true);
     }
     else
     {
-        exportSettings->enableFishbone(false);
+        exportSettings->showFishbonesInUi(false);
     }
 
     if (!wellPathPerforations.empty())
     {
-        exportSettings->enablePerforations(true);
+        exportSettings->showPerforationsInUi(true);
     }
     else
     {
-        exportSettings->enablePerforations(false);
+        exportSettings->showPerforationsInUi(false);
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
