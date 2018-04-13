@@ -30,37 +30,27 @@
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(const RigWellPath*             wellPathGeometry,
-                                                                              double                         planeAngle,
-                                                                              const std::vector<cvf::Vec3d>& vertices,
-                                                                              VertexOrganization             organization)
+                                                                              double                         planeAngle)
 {
     std::vector<cvf::Vec3d> pointNormals;
 
     if (!wellPathGeometry) return pointNormals;
+
+    const std::vector<cvf::Vec3d>& vertices = wellPathGeometry->wellPathPoints();
+
     if (vertices.empty()) return pointNormals;
+
+    pointNormals.reserve(vertices.size());
 
     cvf::Vec3d up(0, 0, 1);
 
-    // Project onto normal plane
     cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(wellPathGeometry);
 
     const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
     CVF_ASSERT(projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon());
 
-    size_t intervalSize;
-    if (organization == LINE_SEGMENTS)
-    {
-        pointNormals.reserve(vertices.size() / 2);
-        intervalSize = 2;
-    }
-    else // organization == POLYLINE
-    {
-        pointNormals.reserve(vertices.size());
-        intervalSize = 1;
-    }
-
     cvf::Vec3d lastNormal;
-    for (size_t i = 0; i < vertices.size() - 1; i += intervalSize)
+    for (size_t i = 0; i < vertices.size() - 1; ++i)
     {
         cvf::Vec3d p1 = vertices[i];
         cvf::Vec3d p2 = vertices[i + 1];
@@ -77,33 +67,9 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
         lastNormal = normal;
     }
 
-    if (organization == POLYLINE)
-    {
-        pointNormals.push_back(lastNormal);
-    }
+    pointNormals.push_back(lastNormal);
 
     return interpolateUndefinedNormals(up, pointNormals, vertices);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath*             wellPathGeometry,
-                                                                                  const std::vector<cvf::Vec3d>& points,
-                                                                                  std::vector<cvf::Vec3d>* closestWellPathPoints)
-{
-    CVF_ASSERT(closestWellPathPoints != nullptr);
-
-    for (const cvf::Vec3d point : points)
-    {
-        cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
-        cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
-        wellPathGeometry->twoClosestPoints(point, &p1, &p2);
-        if (p1.isUndefined() || p2.isUndefined()) continue;
-
-        closestWellPathPoints->push_back(p1);
-        closestWellPathPoints->push_back(p2);
-    }
 }
 
 std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(const cvf::Vec3d&              planeNormal,

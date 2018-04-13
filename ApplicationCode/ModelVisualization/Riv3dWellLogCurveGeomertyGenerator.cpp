@@ -113,15 +113,19 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
         maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
     }
 
-    std::vector<cvf::Vec3d> interpolatedWellPathPoints;
+    std::vector<cvf::Vec3d> wellPathNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle);
 
+    std::vector<cvf::Vec3d> interpolatedWellPathPoints;
+    std::vector<cvf::Vec3d> interpolatedNormals;
     // Iterate from bottom of well path and up to be able to stop at given Z max clipping height
     for (auto md = resultMds.rbegin(); md != resultMds.rend(); md++)
     {
         cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(*md);
+        cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathNormals, *md);
         if (point.z() > maxZClipHeight) break;
 
         interpolatedWellPathPoints.push_back(point);
+        interpolatedNormals.push_back(normal.getNormalized());
     }
     if (interpolatedWellPathPoints.empty()) return;
 
@@ -131,12 +135,6 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
     // The result values for the part of the well which is not clipped off, matching interpolatedWellPathPoints size
     std::vector<double> resultValuesForInterpolatedPoints(resultValues.end() - interpolatedWellPathPoints.size(),
                                                           resultValues.end());
-
-    std::vector<cvf::Vec3d> pairsOfWellPathPoints;
-    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), interpolatedWellPathPoints, &pairsOfWellPathPoints);
-
-    std::vector<cvf::Vec3d> pointNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, pairsOfWellPathPoints, RigWellPathGeometryTools::LINE_SEGMENTS);
-    if (interpolatedWellPathPoints.size() != pointNormals.size()) return;
 
     double maxResult = -HUGE_VAL;
     double minResult = HUGE_VAL;
@@ -153,7 +151,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
 
     double plotRangeToResultRangeFactor = planeWidth / (maxResult - minResult);
 
-    for (size_t i = 0; i < pointNormals.size(); i++)
+    for (size_t i = 0; i < interpolatedNormals.size(); i++)
     {
         double scaledResult = 0;
 
@@ -164,7 +162,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
         }
 
         (*vertices)[i] = cvf::Vec3f(
-            displayCoordTransform->transformToDisplayCoord(interpolatedWellPathPoints[i] + scaledResult * pointNormals[i]));
+            displayCoordTransform->transformToDisplayCoord(interpolatedWellPathPoints[i] + scaledResult * interpolatedNormals[i]));
     }
 
     std::vector<std::pair<size_t, size_t>> valuesIntervals =

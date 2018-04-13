@@ -39,13 +39,7 @@ public:
 
 public:
     static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const RigWellPath*             wellPathGeometry,
-                                                               double                         angle,
-                                                               const std::vector<cvf::Vec3d>& vertices,
-                                                               VertexOrganization             organization);
-
-    static void calculatePairsOfClosestSamplingPointsAlongWellPath(const RigWellPath*       wellPathGeometry,
-                                                                   const std::vector<cvf::Vec3d>& points,
-                                                                   std::vector<cvf::Vec3d>* closestWellPathPoints);
+                                                               double                         angle);
 private:
     static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d& planeNormal,
                                                                const std::vector<cvf::Vec3d>& normals,

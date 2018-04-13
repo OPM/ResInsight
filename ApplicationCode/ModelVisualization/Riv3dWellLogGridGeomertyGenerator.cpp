@@ -92,42 +92,17 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
 
     std::map< DrawableId, cvf::ref<cvf::DrawableGeo> > drawables;
 
-    std::vector<cvf::Vec3d> gridPoints;
-
-    size_t newStartIndex = originalWellPathSize - wellPathPoints.size();
-    double firstMd = wellPathGeometry()->m_measuredDepths.at(newStartIndex);
-    double lastMd = wellPathGeometry()->m_measuredDepths.back();
-
-    double md = lastMd;
-    while (md >= firstMd)
-    {
-        cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
-        gridPoints.push_back(point);
-        md -= gridIntervalSize;
-    }
-
-    std::vector<cvf::Vec3d> pointNormals;
-
-    std::vector<cvf::Vec3d> closestPoints;
-    RigWellPathGeometryTools::calculatePairsOfClosestSamplingPointsAlongWellPath(wellPathGeometry(), gridPoints, &closestPoints);
-
-    pointNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, closestPoints, RigWellPathGeometryTools::LINE_SEGMENTS);
-    if (pointNormals.size() != gridPoints.size())
-    {
-        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
-    }
-
     // calculateLineSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
     std::vector<cvf::Vec3d> wellPathSegmentNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle, wellPathGeometry()->m_wellPathPoints, RigWellPathGeometryTools::POLYLINE);
+        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle);
     wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
     {
         std::vector<cvf::Vec3f> vertices;
-        vertices.reserve(gridPoints.size());
+        vertices.reserve(wellPathPoints.size());
 
         std::vector<cvf::uint> indices;
-        indices.reserve(gridPoints.size());
+        indices.reserve(wellPathPoints.size());
         cvf::uint indexCounter = 0;
         // Line along and close to well
         for (size_t i = 0; i < wellPathPoints.size(); i++)
@@ -162,20 +137,37 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         drawables[GridBorder] = gridBorderDrawable;
     }
     {
+        std::vector<cvf::Vec3d> interpolatedGridPoints;
+        std::vector<cvf::Vec3d> interpolatedGridNormals;
+
+        size_t newStartIndex = originalWellPathSize - wellPathPoints.size();
+        double firstMd = wellPathGeometry()->m_measuredDepths.at(newStartIndex);
+        double lastMd = wellPathGeometry()->m_measuredDepths.back();
+
+        double md = lastMd;
+        while (md >= firstMd)
+        {
+            cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
+            cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathSegmentNormals, md);
+            interpolatedGridPoints.push_back(point);
+            interpolatedGridNormals.push_back(normal.getNormalized());
+            md -= gridIntervalSize;
+        }
+
         std::vector<cvf::Vec3f> vertices;
-        vertices.reserve(gridPoints.size());
+        vertices.reserve(interpolatedGridPoints.size());
 
         std::vector<cvf::uint> indices;
-        indices.reserve(gridPoints.size());
+        indices.reserve(interpolatedGridPoints.size());
         cvf::uint indexCounter = 0;
         // Normal lines. Start from one to avoid drawing at surface edge.
-        for (size_t i = 1; i < pointNormals.size(); i++)
+        for (size_t i = 1; i < interpolatedGridNormals.size(); i++)
         {
             vertices.push_back(cvf::Vec3f(
-               displayCoordTransform->transformToDisplayCoord(gridPoints[i] + pointNormals[i] * planeOffsetFromWellPathCenter)));
+               displayCoordTransform->transformToDisplayCoord(interpolatedGridPoints[i] + interpolatedGridNormals[i] * planeOffsetFromWellPathCenter)));
 
             vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-               gridPoints[i] + pointNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+               interpolatedGridPoints[i] + interpolatedGridNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
 
             indices.push_back(indexCounter++);
             indices.push_back(indexCounter++);
