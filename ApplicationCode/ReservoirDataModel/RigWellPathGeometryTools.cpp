@@ -138,7 +138,7 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const Ri
     {
         cvf::Vec3d vec = points[i] - points[i - 1];
         vec.z()        = 0.0;
-        if (directionSum.length() > 0.0 && (directionSum * vec) < std::numeric_limits<double>::epsilon())
+        if (directionSum.length() > 0.0 && (directionSum * vec) < 0.0)
         {
             vec *= -1;
         }

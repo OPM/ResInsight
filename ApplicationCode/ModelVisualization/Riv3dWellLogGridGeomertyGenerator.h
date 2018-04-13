@@ -53,7 +53,7 @@ public:
     std::map<DrawableId, cvf::ref<cvf::DrawableGeo> >
     createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
                const cvf::BoundingBox&            wellPathClipBoundingBox,
-                                          double                             planeAngle,
+               double                             planeAngle,
                double                             planeOffsetFromWellPathCenter,
                double                             planeWidth,
                double                             gridIntervalSize) const;

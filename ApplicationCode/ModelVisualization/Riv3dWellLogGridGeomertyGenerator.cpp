@@ -47,7 +47,7 @@ Riv3dWellLogGridGeometryGenerator::Riv3dWellLogGridGeometryGenerator(RimWellPath
 std::map< Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::DrawableGeo> >
 Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
                                               const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                          double                  planeAngle,
+                                              double                  planeAngle,
                                               double                  planeOffsetFromWellPathCenter,
                                               double                  planeWidth,
                                               double                  gridIntervalSize) const
