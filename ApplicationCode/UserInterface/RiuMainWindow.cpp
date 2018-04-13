@@ -452,6 +452,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction(m_showRegressionTestDialog);
     testMenu->addAction(m_executePaintEventPerformanceTest);
     testMenu->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
+    testMenu->addAction(cmdFeatureMgr->action("RicRunCommandFileFeature"));
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
@@ -544,6 +545,7 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicLaunchRegressionTestsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicRunCommandFileFeature"));
     }
 
     // Create animation toolbar
