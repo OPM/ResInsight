@@ -67,11 +67,12 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_currentFileGridLayout = new QGridLayout();
-    m_readAllRadioButton = new QRadioButton(this);
-    m_notReadRadionButton = new QRadioButton(this);
-    m_separateCasesRadionButton = new QRadioButton(this);
-    m_includeGridHistoryFiles = new QCheckBox(this);
+    m_currentSummaryFileLayout = new QGridLayout();
+    m_summaryReadAllBtn = new QRadioButton(this);
+    m_summarySeparateCasesBtn = new QRadioButton(this);
+    m_summaryNotReadBtn = new QRadioButton(this);
+    m_gridSeparateCasesBtn = new QRadioButton(this);
+    m_gridNotReadBtn = new QRadioButton(this);
     m_applyToAllCheckBox = new QCheckBox(this);
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -81,38 +82,65 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     connect(m_buttons, SIGNAL(rejected()), this, SLOT(slotDialogCancelClicked()));
 
     // Set widget properties
-    m_readAllRadioButton->setText("Import All Restart Files");
-    m_notReadRadionButton->setText("Do Not Import Restart Files");
-    m_separateCasesRadionButton->setText("Import Restart Files as Separate Cases");
-    m_includeGridHistoryFiles->setText("Import Historic Grid Case Files");
+    m_summaryReadAllBtn->setText("Unified");
+    m_summarySeparateCasesBtn->setText("Separate Cases");
+    m_summaryNotReadBtn->setText("Skip");
+    m_gridSeparateCasesBtn->setText("Separate Cases");
+    m_gridNotReadBtn->setText("Skip");
     m_applyToAllCheckBox->setText("Apply to All Files");
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
     QGroupBox* currentFileGroup = new QGroupBox("Current Summary File");
-    m_currentFileGridLayout = new QGridLayout();
-    currentFileGroup->setLayout(m_currentFileGridLayout);
+    m_currentSummaryFileLayout = new QGridLayout();
+    currentFileGroup->setLayout(m_currentSummaryFileLayout);
 
-    QGroupBox* filesGroup = new QGroupBox("Found Restart Files");
-    m_filesGridLayout = new QGridLayout();
-    filesGroup->setLayout(m_filesGridLayout);
+    // Summary files
+    QGroupBox* summaryFilesGroup = new QGroupBox("Found Origin Summary Files");
+    {
+        QVBoxLayout* filesGroupLayout = new QVBoxLayout();
+        summaryFilesGroup->setLayout(filesGroupLayout);
 
-    QGroupBox* optionsGroup = new QGroupBox("Read Options");
-    QVBoxLayout* optionsLayout = new QVBoxLayout();
-    optionsLayout->addWidget(m_readAllRadioButton);
-    optionsLayout->addWidget(m_notReadRadionButton);
-    optionsLayout->addWidget(m_separateCasesRadionButton);
-    optionsLayout->addWidget(m_includeGridHistoryFiles);
-    optionsGroup->setLayout(optionsLayout);
+        m_summaryFilesLayout = new QGridLayout();
+        filesGroupLayout->addLayout(m_summaryFilesLayout);
+        m_summaryFilesLayout->setContentsMargins(0, 0, 0, 20);
 
+        QGroupBox* optionsGroup = new QGroupBox("Import Options");
+        QVBoxLayout* optionsLayout = new QVBoxLayout();
+        optionsGroup->setLayout(optionsLayout);
+        optionsLayout->addWidget(m_summaryReadAllBtn);
+        optionsLayout->addWidget(m_summarySeparateCasesBtn);
+        optionsLayout->addWidget(m_summaryNotReadBtn);
+        filesGroupLayout->addWidget(optionsGroup);
+    }
+
+    // Grid files
+    m_gridFilesGroup = new QGroupBox("Found Origin Grid Files");
+    {
+        QVBoxLayout* filesGroupLayout = new QVBoxLayout();
+        m_gridFilesGroup->setLayout(filesGroupLayout);
+
+        m_gridFilesLayout = new QGridLayout();
+        filesGroupLayout->addLayout(m_gridFilesLayout);
+        m_gridFilesLayout->setContentsMargins(0, 0, 0, 20);
+
+        QGroupBox* optionsGroup = new QGroupBox("Import Options");
+        QVBoxLayout* optionsLayout = new QVBoxLayout();
+        optionsGroup->setLayout(optionsLayout);
+        optionsLayout->addWidget(m_gridSeparateCasesBtn);
+        optionsLayout->addWidget(m_gridNotReadBtn);
+        filesGroupLayout->addWidget(optionsGroup);
+    }
+
+    // Apply to all checkbox and buttons
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
     buttonsLayout->addWidget(m_applyToAllCheckBox);
     buttonsLayout->addWidget(m_buttons);
 
     dialogLayout->addWidget(currentFileGroup);
-    dialogLayout->addWidget(filesGroup);
-    dialogLayout->addWidget(optionsGroup);
+    dialogLayout->addWidget(summaryFilesGroup);
+    dialogLayout->addWidget(m_gridFilesGroup);
     dialogLayout->addLayout(buttonsLayout);
 
     setLayout(dialogLayout);
@@ -131,7 +159,8 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile,
                                                                           bool showApplyToAllWidget,
                                                                           bool buildGridCaseFileList,
-                                                                          ReadOptions defaultReadOption,
+                                                                          ImportOptions defaultSummaryImportOption,
+                                                                          ImportOptions defaultGridImportOption,
                                                                           RicSummaryCaseRestartDialogResult *lastResult,
                                                                           QWidget *parent)
 {
@@ -144,13 +173,13 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     }
 
     RifReaderEclipseSummary reader;
-    std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(summaryHeaderFile);
+    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(summaryHeaderFile);
 
     // If no restart files are found, do not show dialog
-    if (restartFileInfos.empty())
+    if (originFileInfos.empty())
     {
         QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(summaryHeaderFile);
-        return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, QStringList({ summaryHeaderFile }), false, false, QStringList({ gridCaseFile }));
+        return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, NOT_IMPORT, QStringList({ summaryHeaderFile }), QStringList({ gridCaseFile }), false);
     }
 
     RicSummaryCaseRestartDialogResult dialogResult;
@@ -158,60 +187,84 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     {
         dialogResult = *lastResult;
         dialogResult.summaryFiles.clear();
-        dialogResult.restartGridFilesToImport.clear();
+        dialogResult.gridFiles.clear();
     }
     else
     {
-        dialog.setWindowTitle("Summary Case Restart Files");
+        dialog.setWindowTitle("Restart Files");
 
-        dialog.appendFileInfoToGridLayout(*dialog.m_currentFileGridLayout, currentFileInfo);
-        for (const auto& restartFileInfo : restartFileInfos)
+        dialog.appendFileInfoToGridLayout(*dialog.m_currentSummaryFileLayout, currentFileInfo);
+        for (const auto& ofi : originFileInfos)
         {
-            dialog.appendFileInfoToGridLayout(*dialog.m_filesGridLayout, restartFileInfo);
+            dialog.appendFileInfoToGridLayout(*dialog.m_summaryFilesLayout, ofi);
         }
 
-        switch (defaultReadOption)
+        switch (defaultSummaryImportOption)
         {
-        case ReadOptions::IMPORT_ALL:       dialog.m_readAllRadioButton->setChecked(true); break;
-        case ReadOptions::NOT_IMPORT:       dialog.m_notReadRadionButton->setChecked(true); break;
-        case ReadOptions::SEPARATE_CASES:   dialog.m_separateCasesRadionButton->setChecked(true); break;
+        case ImportOptions::IMPORT_ALL:       dialog.m_summaryReadAllBtn->setChecked(true); break;
+        case ImportOptions::SEPARATE_CASES:   dialog.m_summarySeparateCasesBtn->setChecked(true); break;
+        case ImportOptions::NOT_IMPORT:       dialog.m_summaryNotReadBtn->setChecked(true); break;
         }
-        dialog.m_includeGridHistoryFiles->setVisible(buildGridCaseFileList);
-        dialog.m_includeGridHistoryFiles->setChecked(lastResult->includeGridHistoryFiles);
+
+        dialog.m_gridFilesGroup->setVisible(buildGridCaseFileList);
+        if (buildGridCaseFileList)
+        {
+            bool gridFilesAdded = false;
+            for (const auto& ofi : originFileInfos)
+            {
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(ofi.fileName);
+                if (QFileInfo(gridFile).exists())
+                {
+                    dialog.appendFileInfoToGridLayout(*dialog.m_gridFilesLayout, RifRestartFileInfo(gridFile, ofi.startDate, ofi.endDate));
+                    gridFilesAdded = true;
+                }
+            }
+            if (!gridFilesAdded) dialog.m_gridFilesGroup->setVisible(false);
+
+            switch (defaultGridImportOption)
+            {
+            case ImportOptions::SEPARATE_CASES:   dialog.m_gridSeparateCasesBtn->setChecked(true); break;
+            case ImportOptions::NOT_IMPORT:       dialog.m_gridNotReadBtn->setChecked(true); break;
+            }
+        }
         dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
 
         dialogResult = RicSummaryCaseRestartDialogResult(dialog.result() == QDialog::Accepted,
-                                                         dialog.selectedOption(),
+                                                         dialog.selectedSummaryImportOption(),
+                                                         dialog.selectedGridImportOption(),
                                                          {},
-                                                         dialog.applyToAllSelected(),
-                                                         dialog.includeGridHistoryFiles());
+                                                         {},
+                                                         dialog.applyToAllSelected());
     }
 
     if (!dialogResult.ok)
     {
-        return RicSummaryCaseRestartDialogResult(false, NOT_IMPORT, QStringList(), false, false);
+        return RicSummaryCaseRestartDialogResult(false, NOT_IMPORT, NOT_IMPORT, QStringList(), QStringList(), false);
     }
 
     dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(summaryHeaderFile));
-    if (dialogResult.option == SEPARATE_CASES)
+    if (dialogResult.summaryImportOption == SEPARATE_CASES)
     {
-        for (const auto& restartFileInfo : restartFileInfos)
+        for (const auto& ofi : originFileInfos)
         {
-            dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(restartFileInfo.fileName));
+            dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(ofi.fileName));
         }
     }
 
-    if (dialogResult.includeGridHistoryFiles)
+    if (buildGridCaseFileList)
     {
         QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(summaryHeaderFile);
-        dialogResult.restartGridFilesToImport.push_back(gridCaseFile);
+        dialogResult.gridFiles.push_back(gridCaseFile);
 
-        for (const auto& restartFileInfo : restartFileInfos)
+        if (dialogResult.gridImportOption == SEPARATE_CASES)
         {
-            QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(restartFileInfo.fileName);
-            if (buildGridCaseFileList && !gridCaseFile.isEmpty()) dialogResult.restartGridFilesToImport.push_back(gridCaseFile);
+            for (const auto& ofi : originFileInfos)
+            {
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(ofi.fileName);
+                if (buildGridCaseFileList && !gridCaseFile.isEmpty()) dialogResult.gridFiles.push_back(gridFile);
+            }
         }
     }
     return dialogResult;
@@ -220,12 +273,21 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialog::ReadOptions RicSummaryCaseRestartDialog::selectedOption() const
+RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedSummaryImportOption() const
 {
     return
-        m_readAllRadioButton->isChecked() ?         IMPORT_ALL :
-        m_separateCasesRadionButton->isChecked() ?  SEPARATE_CASES :
+        m_summaryReadAllBtn->isChecked() ?          IMPORT_ALL :
+        m_summarySeparateCasesBtn->isChecked() ?    SEPARATE_CASES :
                                                     NOT_IMPORT;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedGridImportOption() const
+{
+    return
+        m_gridSeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,14 +296,6 @@ RicSummaryCaseRestartDialog::ReadOptions RicSummaryCaseRestartDialog::selectedOp
 bool RicSummaryCaseRestartDialog::applyToAllSelected() const
 {
     return m_applyToAllCheckBox->isChecked();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicSummaryCaseRestartDialog::includeGridHistoryFiles() const
-{
-    return m_includeGridHistoryFiles->isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------

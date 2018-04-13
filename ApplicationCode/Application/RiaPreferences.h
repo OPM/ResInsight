@@ -81,8 +81,8 @@ public: // Pdm Fields
     caf::PdmField<bool>     loadAndShowSoil;
 
     caf::PdmField<bool>                                 summaryRestartFilesShowImportDialog;
-    caf::PdmField<SummaryRestartFilesImportModeType>    summaryRestartFilesImportMode;
-    caf::PdmField<bool>                                 importRestartGridCaseFiles;
+    caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
 protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

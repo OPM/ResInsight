@@ -38,6 +38,8 @@ class RifRestartFileInfo
 {
 public:
     RifRestartFileInfo() : startDate(0), endDate(0) {}
+    RifRestartFileInfo(const QString& _fileName, time_t _startDate, time_t _endDate) : 
+        fileName(_fileName), startDate(_startDate), endDate(_endDate) {}
     bool valid() { return !fileName.isEmpty(); }
 
     QString  fileName;

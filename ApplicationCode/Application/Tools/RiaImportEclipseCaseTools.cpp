@@ -83,7 +83,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
     for (RimSummaryCase* newSumCase : newSumCases)
     {
         QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
-        if (!gridCaseFile.isEmpty())
+        RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName(gridCaseFile);
+        if (gridCase)
         {
             RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
             if (existingFileSummaryCase)

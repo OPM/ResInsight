@@ -45,8 +45,8 @@ public:
     std::vector<RifSummaryCaseFileInfo> getFilesToImportFromGridFiles(const QStringList& initialGridFiles);
 
     void        showDialog(bool show)               { m_showDialog = show; }
-    void        buildGridCaseFileList(bool build)   { m_buildGridCaseFileList = build; }
-    QStringList gridCaseFiles() const               { return m_gridCaseFiles; }
+    void        buildGridCaseFileList(bool build)   { m_buildGridFileList = build; }
+    QStringList gridCaseFiles() const               { return m_gridFiles; }
 
     static QStringList                  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
 
@@ -58,11 +58,11 @@ private:
     std::vector<RifSummaryCaseFileInfo> getFilesToImportUsingPrefs(const QStringList& initialSummaryFiles);
 
     bool                                                m_showDialog;
-    RicSummaryCaseRestartDialog::ReadOptions            m_defaultRestartImportMode;
-    bool                                                m_importRestartGridCaseFiles;
+    RicSummaryCaseRestartDialog::ImportOptions          m_defaultSummaryImportMode;
+    RicSummaryCaseRestartDialog::ImportOptions          m_defaultGridImportMode;
 
-    bool                                                m_buildGridCaseFileList;
-    QStringList                                         m_gridCaseFiles;
+    bool                                                m_buildGridFileList;
+    QStringList                                         m_gridFiles;
 };
 
 //==================================================================================================

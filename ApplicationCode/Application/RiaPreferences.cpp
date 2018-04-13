@@ -32,9 +32,9 @@ namespace caf
     template<>
     void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
     {
-        addItem(RiaPreferences::IMPORT, "IMPORT", "Always import");
-        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Never import");
-        addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Import as separate summary cases");
+        addItem(RiaPreferences::IMPORT, "IMPORT", "Unified");
+        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
+        addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases");
         setDefault(RiaPreferences::IMPORT);
     }
 }
@@ -102,8 +102,8 @@ RiaPreferences::RiaPreferences(void)
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&summaryRestartFilesImportMode, "summaryRestartFilesImportMode", "Default Import Mode", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&importRestartGridCaseFiles, "importRestartGridCaseFiles", "Import Restart Grid Cases", "", "", "");
+    CAF_PDM_InitField(&summaryImportMode, "summaryImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Summary Import Option", "", "", "");
+    CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
@@ -193,9 +193,12 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     
         m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
 
-        caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Summary Restart Files");
+        caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Restart Files");
         restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
-        restartBehaviourGroup->add(&summaryRestartFilesImportMode);
+        caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
+        summaryImportOptionGroup->add(&summaryImportMode);
+        caf::PdmUiGroup* gridImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Grid Files");
+        gridImportOptionGroup->add(&gridImportMode);
     }
     else if (uiConfigName == m_tabNames[2])
     {
@@ -239,6 +242,15 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
         {
             options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
         }
+    }
+    else if (fieldNeedingOptions == &gridImportMode)
+    {
+        // Manual option handling in order to one only a subset of the enum values
+        SummaryRestartFilesImportModeType skip(RiaPreferences::NOT_IMPORT);
+        SummaryRestartFilesImportModeType separate(RiaPreferences::SEPARATE_CASES);
+
+        options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
+        options.push_back(caf::PdmOptionItemInfo(separate.uiText(), RiaPreferences::SEPARATE_CASES));
     }
 
     return options;
