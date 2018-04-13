@@ -56,12 +56,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& fileNames, bool noDialog)
+bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& fileNames, QStringList* openedFiles, bool noDialog)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* project = app->project();
-
-    QStringList openedCaseFiles;
 
     // Get list of files to import
     RifSummaryCaseRestartSelector selector;
@@ -74,7 +72,7 @@ QStringList RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringLis
     {
         if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(gridCaseFile))
         {
-            openedCaseFiles.push_back(gridCaseFile);
+            if(openedFiles) openedFiles->push_back(gridCaseFile);
         }
     }
 
@@ -124,7 +122,7 @@ QStringList RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringLis
             sumCaseColl->updateAllRequiredEditors();
         }
     }
-    return openedCaseFiles;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
