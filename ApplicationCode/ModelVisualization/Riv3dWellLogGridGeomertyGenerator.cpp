@@ -168,7 +168,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
     }
     {
         std::vector<cvf::Vec3d> interpolatedGridPoints;
-        std::vector<cvf::Vec3d> interpolatedGridNormals;
+        std::vector<cvf::Vec3d> interpolatedGridCurveNormals;
 
         size_t newStartIndex = originalWellPathSize - wellPathPoints.size();
         double firstMd = wellPathGeometry()->m_measuredDepths.at(newStartIndex);
@@ -178,9 +178,9 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         while (md >= firstMd)
         {
             cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
-            cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathSegmentNormals, md);
+            cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathSegmentNormals, md);
             interpolatedGridPoints.push_back(point);
-            interpolatedGridNormals.push_back(normal.getNormalized());
+            interpolatedGridCurveNormals.push_back(curveNormal.getNormalized());
             md -= gridIntervalSize;
         }
 
@@ -191,13 +191,13 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         indices.reserve(interpolatedGridPoints.size());
         cvf::uint indexCounter = 0;
         // Normal lines. Start from one to avoid drawing at surface edge.
-        for (size_t i = 1; i < interpolatedGridNormals.size(); i++)
+        for (size_t i = 1; i < interpolatedGridCurveNormals.size(); i++)
         {
             vertices.push_back(cvf::Vec3f(
-               displayCoordTransform->transformToDisplayCoord(interpolatedGridPoints[i] + interpolatedGridNormals[i] * planeOffsetFromWellPathCenter)));
+               displayCoordTransform->transformToDisplayCoord(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter)));
 
             vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-               interpolatedGridPoints[i] + interpolatedGridNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+               interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
 
             indices.push_back(indexCounter++);
             indices.push_back(indexCounter++);
@@ -214,7 +214,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
         normalLinesDrawable->setVertexArray(vertexArray.p());
 
-        m_normalLines = normalLinesDrawable;
+        m_curveNormalLines = normalLinesDrawable;
     }
     return true;
 }
@@ -229,9 +229,9 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border()
     return m_border;
 }
 
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::normalLines()
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::curveNormalLines()
 {
-    return m_normalLines;
+    return m_curveNormalLines;
 }
 
 //--------------------------------------------------------------------------------------------------

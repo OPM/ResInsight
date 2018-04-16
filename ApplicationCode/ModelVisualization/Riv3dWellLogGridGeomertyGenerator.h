@@ -53,7 +53,7 @@ public:
 
     cvf::ref<cvf::DrawableGeo> background();
     cvf::ref<cvf::DrawableGeo> border();
-    cvf::ref<cvf::DrawableGeo> normalLines();
+    cvf::ref<cvf::DrawableGeo> curveNormalLines();
 private:
     const RigWellPath* wellPathGeometry() const;
 
@@ -61,5 +61,5 @@ private:
     caf::PdmPointer<RimWellPath> m_wellPath;
     cvf::ref<cvf::DrawableGeo>   m_background;
     cvf::ref<cvf::DrawableGeo>   m_border;
-    cvf::ref<cvf::DrawableGeo>   m_normalLines;
+    cvf::ref<cvf::DrawableGeo>   m_curveNormalLines;
 };
