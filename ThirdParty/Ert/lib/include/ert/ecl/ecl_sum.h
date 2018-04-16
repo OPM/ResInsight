@@ -30,7 +30,6 @@ extern "C" {
 #include <ert/util/stringlist.h>
 #include <ert/util/time_t_vector.h>
 #include <ert/util/double_vector.h>
-#include <ert/util/time_interval.h>
 
 #include <ert/ecl/ecl_smspec.h>
 #include <ert/ecl/ecl_sum_tstep.h>
@@ -166,7 +165,6 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   time_t       ecl_sum_get_data_start( const ecl_sum_type * ecl_sum );
   time_t       ecl_sum_get_end_time( const ecl_sum_type * ecl_sum);
   time_t       ecl_sum_get_start_time(const ecl_sum_type * );
-  const time_interval_type * ecl_sum_get_sim_time( const ecl_sum_type * ecl_sum);
 
   const char * ecl_sum_get_base(const ecl_sum_type * ecl_sum );
   const char * ecl_sum_get_path(const ecl_sum_type * ecl_sum );

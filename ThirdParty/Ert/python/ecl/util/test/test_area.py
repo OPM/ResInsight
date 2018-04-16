@@ -1,17 +1,17 @@
-#  Copyright (C) 2013  Statoil ASA, Norway. 
-#   
-#  The file 'test_work_area.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+#  Copyright (C) 2013  Statoil ASA, Norway.
+#
+#  The file 'test_work_area.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 import os.path
 
@@ -33,7 +33,7 @@ class TestArea(BaseCClass):
     _get_original_cwd          = EclPrototype("char* test_work_area_get_original_cwd( test_area )")
     _set_store                 = EclPrototype("void test_work_area_set_store( test_area , bool)")
     _sync                      = EclPrototype("void test_work_area_sync( test_area )")
-    
+
     def __init__(self, test_name, prefix = None , store_area=False , c_ptr = None):
 
         if c_ptr is None:
@@ -48,7 +48,7 @@ class TestArea(BaseCClass):
         super(TestArea, self).__init__(c_ptr)
         self.set_store( store_area )
 
-        
+
     def get_original_cwd(self):
         return self._get_original_cwd()
 
@@ -60,7 +60,7 @@ class TestArea(BaseCClass):
             return path
         else:
             return os.path.abspath( os.path.join( self.get_original_cwd( ) , path ) )
-    
+
 
     # All the methods install_file() , copy_directory(),
     # copy_parent_directory(), copy_parent_content(),
@@ -86,7 +86,7 @@ class TestArea(BaseCClass):
         else:
             raise IOError("No such file or directory: %s" % path)
 
-        
+
     def copy_parent_content( self , path):
         if os.path.exists( self.orgPath(path) ):
             self._copy_parent_content(path)
@@ -99,22 +99,22 @@ class TestArea(BaseCClass):
         else:
             raise IOError("No such directory: %s" % directory )
 
-         
+
     def copy_file( self, filename):
         if os.path.isfile( self.orgPath(filename) ):
             self._copy_file(filename)
         else:
             raise IOError("No such file:%s" % filename)
 
-        
+
     def free(self):
         self._free()
 
-        
+
     def set_store(self, store):
         self._set_store(store)
 
-        
+
     def getFullPath(self , path):
         if not os.path.exists( path ):
             raise IOError("Path not found:%s" % path)
@@ -127,8 +127,8 @@ class TestArea(BaseCClass):
 
     def sync(self):
         return self._sync( )
-    
-    
+
+
 
 class TestAreaContext(object):
     def __init__(self, test_name, prefix = None , store_area=False):

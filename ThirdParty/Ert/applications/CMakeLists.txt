@@ -33,7 +33,7 @@ if (BUILD_APPLICATIONS)
 
 
     if (ERT_LINUX)
-        foreach (app convert esummary grdecl_test kw_list)
+        foreach (app convert grdecl_test kw_list)
             add_executable(${app} ecl/${app}.c)
             target_link_libraries(${app} ecl)
             # The stupid .x extension creates problems on windows

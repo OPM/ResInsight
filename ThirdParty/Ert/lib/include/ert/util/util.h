@@ -43,6 +43,9 @@
 #define UTIL_PATH_SEP_CHAR             '/'   /* A simple character used when we want an actual char instance (i.e. not a pointer). */
 #endif
 
+#define UTIL_WINDOWS_PATH_SEP_CHAR '\\'
+#define UTIL_POSIX_PATH_SEP_CHAR   '/'
+
 #define UTIL_NEWLINE_STRING "          \n"
 #define UTIL_DEFAULT_MKDIR_MODE 0777         /* Directories are by default created with mode a+rwx - and then comes the umask ... */
 

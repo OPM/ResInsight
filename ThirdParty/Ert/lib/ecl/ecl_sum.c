@@ -31,7 +31,6 @@
 #include <ert/util/bool_vector.h>
 #include <ert/util/time_t_vector.h>
 #include <ert/util/stringlist.h>
-#include <ert/util/time_interval.h>
 
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_sum.h>
@@ -972,9 +971,6 @@ time_t ecl_sum_iget_sim_time( const ecl_sum_type * ecl_sum , int index ) {
   return ecl_sum_data_iget_sim_time( ecl_sum->data , index );
 }
 
-const time_interval_type * ecl_sum_get_sim_time( const ecl_sum_type * ecl_sum) {
-  return ecl_sum_data_get_sim_time( ecl_sum->data );
-}
 
 time_t ecl_sum_get_data_start( const ecl_sum_type * ecl_sum ) {
   return ecl_sum_data_get_data_start( ecl_sum->data );
