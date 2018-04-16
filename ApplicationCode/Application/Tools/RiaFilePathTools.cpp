@@ -94,3 +94,28 @@ QString RiaFilePathTools::canonicalPath(const QString& path)
 {
     return QDir(path).absolutePath();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaFilePathTools::commonRootPath(const QStringList& paths)
+{
+    QString root = paths.front();
+    for (const auto& item : paths)
+    {
+        if (root.length() > item.length()) root.truncate(item.length());
+
+        int iDir = 0;
+        for (int i = 0; i < root.length(); ++i)
+        {
+            if (i > 0 && (root[i-1] == '/' || root[i-1] == '\\')) iDir = i;
+
+            if (root[i] != item[i])
+            {
+                root.truncate(std::min(i, iDir));
+                break;
+            }
+        }
+    }
+    return root;
+}

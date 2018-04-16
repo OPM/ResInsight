@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RifReaderEclipseSummary.h"
 #include "RiaStringEncodingTools.h"
+#include "RiaFilePathTools.h"
 
 #include "cafAppEnum.h"
 
@@ -158,7 +159,7 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(const QStr
     util_safe_free(myBase);
     util_safe_free(myPath);
 
-    return gridCaseFile;
+    return RiaFilePathTools::toInternalSeparator(gridCaseFile);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,9 +219,9 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const QString& inputFile,
         }
     }
 
-    if (myHeaderFile && headerFile) *headerFile = myHeaderFile;
-    if (myPath && path)             *path = myPath;
-    if (myBase && base)             *base = myBase;
+    if (myHeaderFile && headerFile) *headerFile = RiaFilePathTools::toInternalSeparator(myHeaderFile);
+    if (myPath && path)             *path = RiaFilePathTools::toInternalSeparator(myPath);
+    if (myBase && base)             *base = RiaFilePathTools::toInternalSeparator(myBase);
     if (isFormatted)                *isFormatted = formattedFile;
 
     util_safe_free(myHeaderFile);

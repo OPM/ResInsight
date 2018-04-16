@@ -65,7 +65,8 @@ public:
     bool                                        applyToAllSelected() const;
 
 private:
-    void                                        appendFileInfoToGridLayout(QGridLayout& gridLayout, const RifRestartFileInfo& fileInfo);
+    void                                        populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos);
+    void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo);
     std::vector<RifRestartFileInfo>             getRestartFiles(const QString& summaryHeaderFile);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
 
@@ -74,7 +75,8 @@ private slots:
     void slotDialogCancelClicked();
 
 private:
-    QGridLayout*                        m_currentSummaryFileLayout;
+    QGroupBox*                          m_currentFilesGroup;
+    QGridLayout*                        m_currentFilesLayout;
 
     QGridLayout*                        m_summaryFilesLayout;
 

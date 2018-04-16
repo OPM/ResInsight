@@ -37,4 +37,5 @@ public:
     static QString  relativePath(const QString& rootDir, const QString& dir);
     static bool     equalPaths(const QString& path1, const QString& path2);
     static QString  canonicalPath(const QString& path);
+    static QString  commonRootPath(const QStringList& paths);
 };

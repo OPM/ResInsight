@@ -52,6 +52,8 @@
 #include <QMenu>
 #include <QDateTime>
 
+#include <cvfAssert.h>
+
 #include <vector>
 #include <time.h>
 #include <thread>
@@ -61,13 +63,44 @@
 
 
 //--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifRestartFileInfo>> removeRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
+{
+    // Find common root path among all paths
+    QStringList allPaths;
+    for (const auto& fileInfoList : fileInfoLists)
+    {
+        for (const auto fi : fileInfoList) allPaths.push_back(fi.fileName);
+    }
+    QString commonRoot = RiaFilePathTools::commonRootPath(allPaths);
+    int commonRootSize = commonRoot.size();
+
+    // Build output lists
+    std::vector<std::vector<RifRestartFileInfo>> output;
+    for (const auto& fileInfoList : fileInfoLists)
+    {
+        std::vector<RifRestartFileInfo> currList;
+
+        for (auto& fi : fileInfoList)
+        {
+            RifRestartFileInfo newFi = fi;
+            newFi.fileName.remove(0, commonRootSize);
+            currList.push_back(newFi);
+        }
+        output.push_back(currList);
+    }
+    return output;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_currentSummaryFileLayout = new QGridLayout();
+    m_currentFilesLayout = new QGridLayout();
     m_summaryReadAllBtn = new QRadioButton(this);
     m_summarySeparateCasesBtn = new QRadioButton(this);
     m_summaryNotReadBtn = new QRadioButton(this);
@@ -87,14 +120,15 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_summaryNotReadBtn->setText("Skip");
     m_gridSeparateCasesBtn->setText("Separate Cases");
     m_gridNotReadBtn->setText("Skip");
-    m_applyToAllCheckBox->setText("Apply to All Files");
+    m_applyToAllCheckBox->setText("Apply Settings to Remaining Files");
+    m_applyToAllCheckBox->setLayoutDirection(Qt::RightToLeft);
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
-    QGroupBox* currentFileGroup = new QGroupBox("Current Summary File");
-    m_currentSummaryFileLayout = new QGridLayout();
-    currentFileGroup->setLayout(m_currentSummaryFileLayout);
+    m_currentFilesGroup = new QGroupBox("Current Summary File");
+    m_currentFilesLayout = new QGridLayout();
+    m_currentFilesGroup->setLayout(m_currentFilesLayout);
 
     // Summary files
     QGroupBox* summaryFilesGroup = new QGroupBox("Found Origin Summary Files");
@@ -135,10 +169,11 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
 
     // Apply to all checkbox and buttons
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
+    buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(m_applyToAllCheckBox);
     buttonsLayout->addWidget(m_buttons);
 
-    dialogLayout->addWidget(currentFileGroup);
+    dialogLayout->addWidget(m_currentFilesGroup);
     dialogLayout->addWidget(summaryFilesGroup);
     dialogLayout->addWidget(m_gridFilesGroup);
     dialogLayout->addLayout(buttonsLayout);
@@ -191,14 +226,34 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     }
     else
     {
-        dialog.setWindowTitle("Restart Files");
+        std::vector<RifRestartFileInfo> currentFileInfos;
+        std::vector<RifRestartFileInfo> originSummaryFileInfos;
+        std::vector<RifRestartFileInfo> originGridFileInfos;
 
-        dialog.appendFileInfoToGridLayout(*dialog.m_currentSummaryFileLayout, currentFileInfo);
-        for (const auto& ofi : originFileInfos)
+        // Build lists of files
+        if (buildGridCaseFileList)
         {
-            dialog.appendFileInfoToGridLayout(*dialog.m_summaryFilesLayout, ofi);
+            dialog.m_currentFilesGroup->setTitle("Current Grid and Summary Files");
+            QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(currentFileInfo.fileName);
+            currentFileInfos.push_back(RifRestartFileInfo(gridFile, currentFileInfo.startDate, currentFileInfo.endDate));
+
+            for (const auto& ofi : originFileInfos)
+            {
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(ofi.fileName);
+                if (QFileInfo(gridFile).exists())
+                {
+                    originGridFileInfos.push_back(RifRestartFileInfo(gridFile, ofi.startDate, ofi.endDate));
+                }
+            }
         }
 
+        currentFileInfos.push_back(currentFileInfo);
+        for (const auto& ofi : originFileInfos)
+        {
+            originSummaryFileInfos.push_back(ofi);
+        }
+
+        // Set default import options
         switch (defaultSummaryImportOption)
         {
         case ImportOptions::IMPORT_ALL:       dialog.m_summaryReadAllBtn->setChecked(true); break;
@@ -206,27 +261,29 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         case ImportOptions::NOT_IMPORT:       dialog.m_summaryNotReadBtn->setChecked(true); break;
         }
 
-        dialog.m_gridFilesGroup->setVisible(buildGridCaseFileList);
         if (buildGridCaseFileList)
         {
-            bool gridFilesAdded = false;
-            for (const auto& ofi : originFileInfos)
-            {
-                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(ofi.fileName);
-                if (QFileInfo(gridFile).exists())
-                {
-                    dialog.appendFileInfoToGridLayout(*dialog.m_gridFilesLayout, RifRestartFileInfo(gridFile, ofi.startDate, ofi.endDate));
-                    gridFilesAdded = true;
-                }
-            }
-            if (!gridFilesAdded) dialog.m_gridFilesGroup->setVisible(false);
-
             switch (defaultGridImportOption)
             {
             case ImportOptions::SEPARATE_CASES:   dialog.m_gridSeparateCasesBtn->setChecked(true); break;
             case ImportOptions::NOT_IMPORT:       dialog.m_gridNotReadBtn->setChecked(true); break;
             }
         }
+
+        // Remove common root path
+        std::vector<std::vector<RifRestartFileInfo>> fileInfosNoRoot = removeRootPath(
+            {
+                currentFileInfos, originSummaryFileInfos, originGridFileInfos
+            }
+        );
+
+        // Populate file list widgets
+        dialog.populateFileList(dialog.m_currentFilesLayout, fileInfosNoRoot[0]);
+        dialog.populateFileList(dialog.m_summaryFilesLayout, fileInfosNoRoot[1]);
+        dialog.populateFileList(dialog.m_gridFilesLayout, fileInfosNoRoot[2]);
+
+        // Set properties and show dialog
+        dialog.setWindowTitle("Restart Files");
         dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
@@ -301,22 +358,41 @@ bool RicSummaryCaseRestartDialog::applyToAllSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout& gridLayout, const RifRestartFileInfo& fileInfo)
+void RicSummaryCaseRestartDialog::populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos)
 {
+    if (fileInfos.empty())
+    {
+        QWidget* parent = gridLayout->parentWidget();
+        if (parent) parent->setVisible(false);
+    }
+
+    for (const auto& fileInfo : fileInfos)
+    {
+        appendFileInfoToGridLayout(gridLayout, fileInfo);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo)
+{
+    CVF_ASSERT(gridLayout);
+
     QDateTime startDate = QDateTime::fromTime_t(fileInfo.startDate);
     QString startDateString = startDate.toString(RimTools::dateFormatString());
     QDateTime endDate = QDateTime::fromTime_t(fileInfo.endDate);
     QString endDateString = endDate.toString(RimTools::dateFormatString());
-    int rowCount = gridLayout.rowCount();
+    int rowCount = gridLayout->rowCount();
 
     QLabel* fileNameLabel = new QLabel();
     QLabel* dateLabel = new QLabel();
-    fileNameLabel->setText(QFileInfo(fileInfo.fileName).fileName());
+    fileNameLabel->setText(fileInfo.fileName);
     dateLabel->setText(startDateString + " - " + endDateString);
 
     fileNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    gridLayout.addWidget(fileNameLabel, rowCount, 0);
-    gridLayout.addWidget(dateLabel, rowCount, 1);
+    gridLayout->addWidget(fileNameLabel, rowCount, 0);
+    gridLayout->addWidget(dateLabel, rowCount, 1);
 
     // Full path in tooltip
     fileNameLabel->setToolTip(fileInfo.fileName);
