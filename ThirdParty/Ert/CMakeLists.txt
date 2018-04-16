@@ -357,6 +357,9 @@ if (ENABLE_PYTHON)
    endif()
 endif()
 
-install(EXPORT ecl-config DESTINATION share/cmake/ecl)
+if (INSTALL_ERT)
+   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
+endif()
+
 export(TARGETS ecl FILE eclConfig.cmake)
 export(PACKAGE ecl)
