@@ -131,6 +131,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
 
     // Reverse list, since it was filled in the opposite order
     std::reverse(interpolatedWellPathPoints.begin(), interpolatedWellPathPoints.end());
+    std::reverse(interpolatedNormals.begin(), interpolatedNormals.end());
 
     // The result values for the part of the well which is not clipped off, matching interpolatedWellPathPoints size
     std::vector<double> resultValuesForInterpolatedPoints(resultValues.end() - interpolatedWellPathPoints.size(),

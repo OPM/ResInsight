@@ -223,31 +223,47 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
     Rim3dWellLogCurveCollection::PlanePosition planePosition = curveCollection->planePosition();
 
-    caf::SurfaceEffectGenerator surfaceEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 0.5), caf::PO_1);
-    caf::MeshEffectGenerator gridBorderEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
-    caf::MeshEffectGenerator normalsEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
-    normalsEffectGen.setLineStipple(true);
+    caf::SurfaceEffectGenerator backgroundEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 1.0), caf::PO_2);
+    caf::MeshEffectGenerator    gridBorderEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
+    caf::MeshEffectGenerator    normalsEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
+    backgroundEffectGen.enableLighting(false);
 
-    std::map < Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::DrawableGeo> > gridDrawables =
-        m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
-                                                     wellPathClipBoundingBox,
-                                                     planeAngle(drawPlane),
-                                                     wellPathCenterToPlotStartOffset(planePosition),
-                                                     planeWidth(),
-                                                     gridIntervalSize);
+    bool gridCreated = m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
+        wellPathClipBoundingBox,
+        planeAngle(drawPlane),
+        wellPathCenterToPlotStartOffset(planePosition),
+        planeWidth(),
+        gridIntervalSize);
+    if (!gridCreated) return;
 
-    std::map < Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::Effect> > effects;
-    effects[Riv3dWellLogGridGeometryGenerator::GridBackground] = surfaceEffectGen.generateCachedEffect();
-    effects[Riv3dWellLogGridGeometryGenerator::GridBorder] = gridBorderEffectGen.generateCachedEffect();
-    effects[Riv3dWellLogGridGeometryGenerator::NormalLines] = normalsEffectGen.generateCachedEffect();
+    cvf::ref<cvf::Effect> backgroundEffect = backgroundEffectGen.generateCachedEffect();
+    cvf::ref<cvf::Effect> borderEffect = gridBorderEffectGen.generateCachedEffect();
     cvf::ref<cvf::Effect> normalsEffect = normalsEffectGen.generateCachedEffect();
 
-    for(std::pair< Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::DrawableGeo> > item : gridDrawables)
+    cvf::ref<cvf::DrawableGeo> background = m_3dWellLogGridGeometryGenerator->background();
+    if (background.notNull())
     {
-        Riv3dWellLogGridGeometryGenerator::DrawableId drawableId = item.first;
-        cvf::ref<cvf::DrawableGeo> drawable = item.second;
-        CVF_ASSERT(drawable.notNull());
-        cvf::ref<cvf::Part> part = createPart(drawable.p(), effects[drawableId].p());
+        cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());
+        if (part.notNull())
+        {
+            model->addPart(part.p());
+        }
+    }
+
+    cvf::ref<cvf::DrawableGeo> border = m_3dWellLogGridGeometryGenerator->border();
+    if (border.notNull())
+    {
+        cvf::ref<cvf::Part> part = createPart(border.p(), borderEffect.p());
+        if (part.notNull())
+        {
+            model->addPart(part.p());
+        }
+    }
+
+    cvf::ref<cvf::DrawableGeo> normals = m_3dWellLogGridGeometryGenerator->normalLines();
+    if (normals.notNull())
+    {
+        cvf::ref<cvf::Part> part = createPart(normals.p(), normalsEffect.p());
         if (part.notNull())
         {
             model->addPart(part.p());

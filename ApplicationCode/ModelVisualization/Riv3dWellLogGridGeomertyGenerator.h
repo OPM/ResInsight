@@ -42,24 +42,24 @@ class RimWellPath;
 class Riv3dWellLogGridGeometryGenerator : public cvf::Object
 {
 public:
-    enum DrawableId
-    {
-        NormalLines = 0,
-        GridBorder = 1,
-        GridBackground = 2
-    };
     Riv3dWellLogGridGeometryGenerator(RimWellPath* wellPath);
 
-    std::map<DrawableId, cvf::ref<cvf::DrawableGeo> >
-    createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
-               const cvf::BoundingBox&            wellPathClipBoundingBox,
-               double                             planeAngle,
-               double                             planeOffsetFromWellPathCenter,
-               double                             planeWidth,
-               double                             gridIntervalSize) const;
+    bool createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+                    const cvf::BoundingBox&            wellPathClipBoundingBox,
+                    double                             planeAngle,
+                    double                             planeOffsetFromWellPathCenter,
+                    double                             planeWidth,
+                    double                             gridIntervalSize);
+
+    cvf::ref<cvf::DrawableGeo> background();
+    cvf::ref<cvf::DrawableGeo> border();
+    cvf::ref<cvf::DrawableGeo> normalLines();
 private:
     const RigWellPath* wellPathGeometry() const;
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
+    cvf::ref<cvf::DrawableGeo>   m_background;
+    cvf::ref<cvf::DrawableGeo>   m_border;
+    cvf::ref<cvf::DrawableGeo>   m_normalLines;
 };

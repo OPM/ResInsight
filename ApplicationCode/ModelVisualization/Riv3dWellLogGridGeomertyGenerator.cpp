@@ -44,24 +44,24 @@ Riv3dWellLogGridGeometryGenerator::Riv3dWellLogGridGeometryGenerator(RimWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map< Riv3dWellLogGridGeometryGenerator::DrawableId, cvf::ref<cvf::DrawableGeo> >
+bool
 Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
                                               const cvf::BoundingBox& wellPathClipBoundingBox,
                                               double                  planeAngle,
                                               double                  planeOffsetFromWellPathCenter,
                                               double                  planeWidth,
-                                              double                  gridIntervalSize) const
+                                              double                  gridIntervalSize)
 {
     CVF_ASSERT(gridIntervalSize > 0);
 
     if (!wellPathGeometry() || wellPathGeometry()->m_measuredDepths.empty())
     {
-        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+        return false;
     }
 
     if (!wellPathClipBoundingBox.isValid())
     {
-        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+        return false;
     }
 
 
@@ -71,7 +71,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
     std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
     if (wellPathPoints.empty())
     {
-        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+        return false;
     }
 
     size_t originalWellPathSize = wellPathPoints.size();
@@ -85,12 +85,11 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
             wellPathPoints, maxZClipHeight, &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
     }
 
-    if (wellPathPoints.empty())
+    if (wellPathPoints.size() < (size_t) 2)
     {
-        return std::map< DrawableId, cvf::ref<cvf::DrawableGeo> >();
+        // Need at least two well path points to create a valid path.
+        return false;
     }
-
-    std::map< DrawableId, cvf::ref<cvf::DrawableGeo> > drawables;
 
     // calculateLineSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
     std::vector<cvf::Vec3d> wellPathSegmentNormals =
@@ -99,42 +98,73 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
 
     {
         std::vector<cvf::Vec3f> vertices;
-        vertices.reserve(wellPathPoints.size());
+        vertices.reserve(wellPathPoints.size() * 2);
 
-        std::vector<cvf::uint> indices;
-        indices.reserve(wellPathPoints.size());
-        cvf::uint indexCounter = 0;
-        // Line along and close to well
+        std::vector<cvf::uint> backgroundIndices;
+        backgroundIndices.reserve(wellPathPoints.size() * 2);
+
+        // Vertices are used for both surface and border
         for (size_t i = 0; i < wellPathPoints.size(); i++)
         {
             vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
                 wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter)));
-
-            indices.push_back(indexCounter);
-            indices.push_back(++indexCounter);
-        }
-        // Line along and far away from well in reverse order to create a closed surface.
-        for (int64_t i = (int64_t) wellPathPoints.size()-1; i >= 0; i--)
-        {
             vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
                 wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
-
-            indices.push_back(indexCounter);
-            indices.push_back(++indexCounter);
+            backgroundIndices.push_back((cvf::uint) (2 * i));
+            backgroundIndices.push_back((cvf::uint) (2 * i + 1));
         }
-        indices.pop_back();
-        indices.push_back(0u); // Close surface
-        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINE_LOOP);
-        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
-
-        cvf::ref<cvf::DrawableGeo> gridBorderDrawable = new cvf::DrawableGeo();
-
-        indexedUInt->setIndices(indexArray.p());
-        gridBorderDrawable->addPrimitiveSet(indexedUInt.p());
-
+        
         cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
-        gridBorderDrawable->setVertexArray(vertexArray.p());
-        drawables[GridBorder] = gridBorderDrawable;
+
+        {
+            // Background specific
+            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_TRIANGLE_STRIP);
+            cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(backgroundIndices);
+            indexedUInt->setIndices(indexArray.p());
+
+            m_background = new cvf::DrawableGeo();
+            m_background->addPrimitiveSet(indexedUInt.p());
+            m_background->setVertexArray(vertexArray.p());          
+        }
+       
+        {
+            std::vector<cvf::uint> borderIndices;
+            borderIndices.reserve(vertices.size());
+
+            int secondLastEvenVertex = (int) vertices.size() - 4;
+
+            // Border close to the well. All even indices.
+            for (size_t i = 0; i <= secondLastEvenVertex; i += 2)
+            {
+                borderIndices.push_back((cvf::uint) i);
+                borderIndices.push_back((cvf::uint) i+2);
+            }
+
+            // Connect to border away from well
+            borderIndices.push_back((cvf::uint) (vertices.size() - 2));
+            borderIndices.push_back((cvf::uint) (vertices.size() - 1));
+
+            int secondOddVertex = 3;
+            int lastOddVertex = (int) vertices.size() - 1;
+
+            // Border away from from well are odd indices in reverse order to create a closed surface.
+            for (int i = lastOddVertex; i >= secondOddVertex; i -= 2)
+            {
+                borderIndices.push_back((cvf::uint) i);
+                borderIndices.push_back((cvf::uint) i - 2);
+            }
+            // Close border
+            borderIndices.push_back(1u);
+            borderIndices.push_back(0u);
+
+            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
+            cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(borderIndices);
+            indexedUInt->setIndices(indexArray.p());
+
+            m_border = new cvf::DrawableGeo();
+            m_border->addPrimitiveSet(indexedUInt.p());
+            m_border->setVertexArray(vertexArray.p());
+        }
     }
     {
         std::vector<cvf::Vec3d> interpolatedGridPoints;
@@ -184,9 +214,24 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
         normalLinesDrawable->setVertexArray(vertexArray.p());
 
-        drawables[NormalLines] = normalLinesDrawable;
+        m_normalLines = normalLinesDrawable;
     }
-    return drawables;
+    return true;
+}
+
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::background()
+{
+    return m_background;
+}
+
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border()
+{
+    return m_border;
+}
+
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::normalLines()
+{
+    return m_normalLines;
 }
 
 //--------------------------------------------------------------------------------------------------
