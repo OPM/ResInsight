@@ -704,9 +704,8 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_intersection);
-
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.skipRemainingFields(true);
 
     if (m_intersection->hasDefiningPoints())
     {
