@@ -649,43 +649,50 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     
                     if (eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities())
                     {
-                        auto connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
-                        size_t timeStep = eclipseView->currentTimeStep();
+                        std::vector<RigCompletionData> completionsForOneCell;
 
-                        const auto& completionData = connectionFactors->multipleCompletionsPerEclipseCell(wellConnectionSourceInfo->wellPath(), timeStep);
-
-                        for (const auto& compData : completionData)
                         {
-                            if (compData.first.globalCellIndex() == globalCellIndex)
+                            auto connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
+                            size_t timeStep = eclipseView->currentTimeStep();
+
+                            const auto& multipleCompletions = connectionFactors->multipleCompletionsPerEclipseCell(wellConnectionSourceInfo->wellPath(), timeStep);
+
+                            RigCompletionDataGridCell completionGridCell(globalCellIndex, eclipseCase->eclipseCaseData()->mainGrid());
+                            auto completionDataIt = multipleCompletions.find(completionGridCell);
+                            if (completionDataIt != multipleCompletions.end())
                             {
-                                auto completionDataItems = compData.second;
-
-                                if (!completionDataItems.empty())
-                                {
-                                    QString resultInfoText;
-                                    resultInfoText += QString("<b>Well Connection Factor :</b> %1<br><br>").arg(connectionFactor);
-
-                                    {
-                                        RiuResultTextBuilder textBuilder(eclipseView, globalCellIndex, eclipseView->currentTimeStep());
-
-                                        resultInfoText += textBuilder.geometrySelectionText("<br>");
-                                    }
-
-                                    resultInfoText += "<br><br>Details : <br>";
-
-                                    for (const auto& completionData : completionDataItems)
-                                    {
-                                        for (const auto& metaData : completionData.metadata())
-                                        {
-                                            resultInfoText += QString("<b>Name</b> %1 <b>Description</b> %2 <br>").arg(metaData.name).arg(metaData.comment);
-                                        }
-                                    }
-
-                                    RiuMainWindow::instance()->setResultInfo(resultInfoText);
-                                }
-
-                                break;
+                                completionsForOneCell = completionDataIt->second;
                             }
+                        }
+
+                        if (!completionsForOneCell.empty())
+                        {
+                            double aggregatedConnectionFactor = 0.0;
+                            for (const auto& completionData : completionsForOneCell)
+                            {
+                                aggregatedConnectionFactor += completionData.transmissibility();
+                            }
+
+                            QString resultInfoText;
+                            resultInfoText += QString("<b>Well Connection Factor :</b> %1<br><br>").arg(aggregatedConnectionFactor);
+
+                            {
+                                RiuResultTextBuilder textBuilder(eclipseView, globalCellIndex, eclipseView->currentTimeStep());
+
+                                resultInfoText += textBuilder.geometrySelectionText("<br>");
+                            }
+
+                            resultInfoText += "<br><br>Details : <br>";
+
+                            for (const auto& completionData : completionsForOneCell)
+                            {
+                                for (const auto& metaData : completionData.metadata())
+                                {
+                                    resultInfoText += QString("<b>Name</b> %1 <b>Description</b> %2 <br>").arg(metaData.name).arg(metaData.comment);
+                                }
+                            }
+
+                            RiuMainWindow::instance()->setResultInfo(resultInfoText);
                         }
                     }
                 }
