@@ -110,7 +110,7 @@ QString RiaFilePathTools::commonRootPath(const QStringList& paths)
         {
             if (i > 0 && (root[i-1] == '/' || root[i-1] == '\\')) iDir = i;
 
-            if (root[i] != item[i])
+            if (root[i] != item[i] || i == root.length() - 1)
             {
                 root.truncate(std::min(i, iDir));
                 break;
