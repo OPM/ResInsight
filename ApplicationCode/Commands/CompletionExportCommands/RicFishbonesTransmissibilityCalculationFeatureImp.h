@@ -56,6 +56,4 @@ private:
     static void findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
                                       const RimWellPath* wellPath, 
                                       const RicExportCompletionDataSettingsUi& settings);
-
-    static std::set<size_t> findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords);
 };

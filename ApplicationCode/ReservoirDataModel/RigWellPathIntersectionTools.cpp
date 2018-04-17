@@ -30,8 +30,6 @@
 
 #include "RimEclipseCase.h"
 
-//#include "cvfGeometryTools.h"
-//#include "cvfMatrix3.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,6 +52,30 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
                                                                                     caseData->ownerCase()->caseUserDescription().toStdString());
 
     return extractor->cellIntersectionInfosAlongWellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndicesForWellPath(const RigEclipseCaseData* caseData, const RigWellPath* wellPath)
+{
+    std::set<size_t> globalCellIndices;
+
+    if (caseData)
+    {
+        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData,
+                                                                                        wellPath,
+                                                                                        caseData->ownerCase()->caseUserDescription().toStdString());
+
+        std::vector<WellPathCellIntersectionInfo> intersections = extractor->cellIntersectionInfosAlongWellPath();
+        for (const auto& intersection : intersections)
+        {
+            globalCellIndices.insert(intersection.globCellIndex);
+        }
+    }
+
+    return globalCellIndices;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,49 +104,10 @@ std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
             dummyWellPath->m_measuredDepths = helper.measuredDepths();
         }
 
-        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData, 
-                                                                                        dummyWellPath.p(), 
-                                                                                        caseData->ownerCase()->caseUserDescription().toStdString());
-
-        std::vector<WellPathCellIntersectionInfo> intersections = extractor->cellIntersectionInfosAlongWellPath();
-        for (const auto& intersection : intersections)
-        {
-            globalCellIndices.insert(intersection.globCellIndex);
-        }
+        globalCellIndices = findIntersectedGlobalCellIndicesForWellPath(caseData, dummyWellPath.p());
     }
 
     return globalCellIndices;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::findRawHexCellIntersections(const RigMainGrid* grid, 
-                                                                                           const std::vector<cvf::Vec3d>& coords)
-{
-    std::vector<HexIntersectionInfo> intersections;
-    for (size_t i = 0; i < coords.size() - 1; ++i)
-    {
-        cvf::BoundingBox bb;
-        bb.add(coords[i]);
-        bb.add(coords[i + 1]);
-
-        std::vector<size_t> closeCells = findCloseCells(grid, bb);
-
-        std::array<cvf::Vec3d, 8> hexCorners;
-
-        for (size_t closeCell : closeCells)
-        {
-            const RigCell& cell = grid->globalCellArray()[closeCell];
-            if (cell.isInvalid()) continue;
-
-            grid->cellCornerVertices(closeCell, hexCorners.data());
-
-            RigHexIntersectionTools::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners.data(), closeCell, &intersections);
-        }
-    }
-
-    return intersections;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,30 +155,3 @@ std::vector<size_t> RigWellPathIntersectionTools::findCloseCells(const RigMainGr
     return closeCells;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid, const cvf::Vec3d& coords, bool* foundCell)
-{
-    cvf::BoundingBox bb;
-    bb.add(coords);
-    std::vector<size_t> closeCells = findCloseCells(grid, bb);
-    std::array<cvf::Vec3d, 8> hexCorners;
-
-    for (size_t closeCell : closeCells)
-    {
-        const RigCell& cell = grid->globalCellArray()[closeCell];
-        if (cell.isInvalid()) continue;
-
-        grid->cellCornerVertices(closeCell, hexCorners.data());
-
-        if (RigHexIntersectionTools::isPointInCell(coords, hexCorners.data()))
-        {
-            *foundCell = true;
-            return closeCell;
-        }
-    }
-
-    *foundCell = false;
-    return 0;
-}

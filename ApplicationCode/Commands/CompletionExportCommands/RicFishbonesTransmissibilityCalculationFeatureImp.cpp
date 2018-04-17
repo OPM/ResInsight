@@ -210,11 +210,11 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 
     if (!wellPath) return;
     if (!wellPath->wellPathGeometry()) return;
-    
-    std::set<size_t> wellPathCells = RicFishbonesTransmissibilityCalculationFeatureImp::findIntersectedCells(settings.caseToApply()->eclipseCaseData(), 
-                                                                                                   wellPath->wellPathGeometry()->m_wellPathPoints);
-    bool isMainBore = false;
 
+    std::set<size_t> wellPathCells = RigWellPathIntersectionTools::findIntersectedGlobalCellIndicesForWellPath(
+        settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry());
+
+    bool isMainBore = false;
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
@@ -282,23 +282,3 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::set<size_t> RicFishbonesTransmissibilityCalculationFeatureImp::findIntersectedCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
-{
-    std::set<size_t> cells;
-
-    if (!caseData)
-    {
-        return cells;
-    }
-
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(caseData->mainGrid(), coords);
-    for (auto intersection : intersections)
-    {
-        cells.insert(intersection.m_hexIndex);
-    }
-
-    return cells;
-}
