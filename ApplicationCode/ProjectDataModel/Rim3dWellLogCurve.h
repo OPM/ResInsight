@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cafPdmFieldCvfColor.h"
+
 //==================================================================================================
 ///
 ///
@@ -63,10 +65,12 @@ public:
     DrawPlane     drawPlane() const;
     DrawStyle     drawStyle() const;
     ColoringStyle coloringStyle() const;
+    cvf::Color3f  color() const;
     bool          isShowingCurve() const;
 
-    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
+    virtual void  curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
 
+    void          setColor(const cvf::Color3f& color);
 protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -78,6 +82,8 @@ protected:
     caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
     caf::PdmField<caf::AppEnum<DrawStyle>>          m_drawStyle;
     caf::PdmField<caf::AppEnum<ColoringStyle>>      m_coloringStyle;
+    caf::PdmField<cvf::Color3f>                     m_color;
+
 
 private:
     caf::PdmField<bool>                             m_showCurve;

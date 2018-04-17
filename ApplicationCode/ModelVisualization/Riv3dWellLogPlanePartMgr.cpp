@@ -114,7 +114,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
             continue;
         }
 
-        caf::MeshEffectGenerator meshEffectGen(curveColor(colorIndex));
+        caf::MeshEffectGenerator meshEffectGen(rim3dWellLogCurve->color());
         meshEffectGen.setLineWidth(2.0f);
         cvf::ref<cvf::Effect>    effect = meshEffectGen.generateCachedEffect();
 
@@ -191,14 +191,6 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
     double cellSize = m_gridView->ownerCase()->characteristicCellSize();
 
     return cellSize * 1.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f Riv3dWellLogPlanePartMgr::curveColor(size_t index)
-{
-    return RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index);
 }
 
 //--------------------------------------------------------------------------------------------------

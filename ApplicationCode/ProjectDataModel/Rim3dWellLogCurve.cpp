@@ -72,7 +72,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     CAF_PDM_InitFieldNoDefault(&m_drawPlane, "DrawPlane", "Draw Plane", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_drawStyle, "DrawStyle", "Draw Style", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coloringStyle, "ColoringStyle", "Coloring Style", "", "", "");
-
+    CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("3D Well Log Curve"), "3d Well Log Curve", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
 }
@@ -121,9 +121,25 @@ Rim3dWellLogCurve::ColoringStyle Rim3dWellLogCurve::coloringStyle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f Rim3dWellLogCurve::color() const
+{
+    return m_color;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurve::isShowingCurve() const
 {
     return m_showCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::setColor(const cvf::Color3f& color)
+{
+    m_color = color;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +184,6 @@ void Rim3dWellLogCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
     curveAppearanceGroup->add(&m_drawPlane);
     curveAppearanceGroup->add(&m_drawStyle);
     curveAppearanceGroup->add(&m_coloringStyle);
-
+    curveAppearanceGroup->add(&m_color);
 }
 

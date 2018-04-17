@@ -74,8 +74,6 @@ private:
     double wellPathCenterToPlotStartOffset(Rim3dWellLogCurveCollection::PlanePosition planePosition) const;
     double planeWidth() const;
 
-    cvf::Color3f curveColor(size_t index);
-
 private:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
     cvf::ref<Riv3dWellLogGridGeometryGenerator>  m_3dWellLogGridGeometryGenerator;
