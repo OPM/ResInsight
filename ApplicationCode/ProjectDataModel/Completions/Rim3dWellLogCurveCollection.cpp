@@ -23,6 +23,8 @@
 #include "RimWellPath.h"
 #include "RimProject.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+
 CAF_PDM_SOURCE_INIT(Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection");
 
 namespace caf
@@ -47,7 +49,8 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
     m_showPlot.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_planePosition, "PlanePosition", "Plane Position", "", "", "");
-
+    CAF_PDM_InitField(&m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Plane Width Scaling Factor", "", "", "");    
+    m_planeWidthScaling.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "");
     CAF_PDM_InitField(&m_showBackground, "Show3dWellLogBackground", false, "Show Background", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "", "", "", "");
@@ -100,7 +103,7 @@ bool Rim3dWellLogCurveCollection::isShowingPlot() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::isShowingGrid() const
 {
@@ -122,6 +125,14 @@ bool Rim3dWellLogCurveCollection::isShowingBackground() const
 Rim3dWellLogCurveCollection::PlanePosition Rim3dWellLogCurveCollection::planePosition() const
 {
     return m_planePosition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float Rim3dWellLogCurveCollection::planeWidthScaling() const
+{
+    return m_planeWidthScaling;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,11 +192,23 @@ caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Draw Plane Settings");
-
     settingsGroup->add(&m_planePosition);
-    
+    settingsGroup->add(&m_planeWidthScaling);
+
     caf::PdmUiGroup* appearanceSettingsGroup = uiOrdering.addNewGroup("Draw Plane Appearance");
     appearanceSettingsGroup->add(&m_showGrid);
     appearanceSettingsGroup->add(&m_showBackground);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurveCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+    if (widthAttribute)
+    {
+        widthAttribute->m_minimum = 0.25;
+        widthAttribute->m_maximum = 2.5;
+    }
 }

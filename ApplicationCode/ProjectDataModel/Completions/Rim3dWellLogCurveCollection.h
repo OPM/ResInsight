@@ -53,6 +53,7 @@ public:
     bool isShowingBackground() const;
 
     PlanePosition planePosition() const;
+    float         planeWidthScaling() const;
 
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
     void                            redrawAffectedViewsAndEditors();
@@ -61,11 +62,11 @@ private:
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle* objectToggleField() override;
     virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
+    virtual void                 defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 private:
     caf::PdmField<bool>                         m_showPlot;
-
     caf::PdmField<caf::AppEnum<PlanePosition>>  m_planePosition;
+    caf::PdmField<float>                        m_planeWidthScaling;
 
     caf::PdmField<bool>                         m_showGrid;
     caf::PdmField<bool>                         m_showBackground;
