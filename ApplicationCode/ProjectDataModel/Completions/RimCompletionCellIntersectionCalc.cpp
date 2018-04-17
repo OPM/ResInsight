@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,85 +19,90 @@
 #include "RimCompletionCellIntersectionCalc.h"
 
 #include "RiaDefines.h"
+
+#include "RigCellGeometryTools.h"
+#include "RigEclipseCaseData.h"
+#include "RigFractureCell.h"
+#include "RigFractureGrid.h"
+#include "RigHexIntersectionTools.h"
+#include "RigMainGrid.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFracture.h"
+#include "RimFractureTemplate.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
-
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
-#include "RigCellGeometryTools.h"
-
-#include "RimFracture.h"
 #include "RimWellPathFracture.h"
-#include "RimFractureTemplate.h"
 #include "RimWellPathFractureCollection.h"
-#include "RimSimWellFractureCollection.h"
-#include "RimSimWellFracture.h"
-#include "RigFractureGrid.h"
-#include "RigFractureCell.h"
-
 
 #include <QDateTime>
-#include "RigHexIntersectionTools.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimProject* project, 
-                                                                      const RimEclipseCase* eclipseCase, 
-                                                                      const RigMainGrid* grid, 
-                                                                      std::vector<double>& completionTypeCellResults, 
-                                                                      const QDateTime& fromDate)
+void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimProject*     project,
+                                                                      const RimEclipseCase* eclipseCase,
+                                                                      std::vector<double>&  completionTypeCellResults,
+                                                                      const QDateTime&      fromDate)
 {
+    CVF_ASSERT(eclipseCase && eclipseCase->eclipseCaseData());
+
+    const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
     for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
     {
         if (wellPath->showWellPath())
         {
-            calculateWellPathIntersections(wellPath, grid, completionTypeCellResults, fromDate);
+            calculateWellPathIntersections(wellPath, eclipseCaseData, completionTypeCellResults, fromDate);
         }
     }
 
-    for (RimEclipseView* view : eclipseCase->reservoirViews())
+    const RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
+    if (mainGrid)
     {
-        for (RimSimWellInView* simWell : view->wellCollection()->wells())
+        for (RimEclipseView* view : eclipseCase->reservoirViews())
         {
-            for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
+            for (RimSimWellInView* simWell : view->wellCollection()->wells())
             {
-                calculateFractureIntersections(grid, fracture, completionTypeCellResults);
+                for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
+                {
+                    calculateFractureIntersections(mainGrid, fracture, completionTypeCellResults);
+                }
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const RimWellPath* wellPath, 
-                                                                       const RigMainGrid* grid, 
-                                                                       std::vector<double>& values, 
-                                                                       const QDateTime& fromDate)
+void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const RimWellPath*        wellPath,
+                                                                       const RigEclipseCaseData* eclipseCaseData,
+                                                                       std::vector<double>&      values,
+                                                                       const QDateTime&          fromDate)
 {
-    std::vector<HexIntersectionInfo> intersections;
     if (wellPath->wellPathGeometry())
     {
-        intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid,
-                                                                                  wellPath->wellPathGeometry()->m_wellPathPoints);
-    }
-
-    for (auto& intersection : intersections)
-    {
-        values[intersection.m_hexIndex] = RiaDefines::WELL_PATH;
+        auto intersectedCells = RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
+            eclipseCaseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+        for (auto& intersection : intersectedCells)
+        {
+            values[intersection] = RiaDefines::WELL_PATH;
+        }
     }
 
     if (wellPath->fishbonesCollection()->isChecked())
@@ -106,13 +111,15 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
         {
             if (fishbones->isActive())
             {
-                calculateFishbonesIntersections(fishbones, grid, values);
+                calculateFishbonesIntersections(fishbones, eclipseCaseData, values);
             }
         }
     }
 
     if (wellPath->fractureCollection()->isChecked())
     {
+        const RigMainGrid* grid = eclipseCaseData->mainGrid();
+
         for (const RimWellPathFracture* fracture : wellPath->fractureCollection()->fractures())
         {
             if (fracture->isChecked())
@@ -128,55 +135,59 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
         {
             if (perforationInterval->isChecked() && perforationInterval->isActiveOnDate(fromDate))
             {
-                calculatePerforationIntersections(wellPath, perforationInterval, grid, values);
+                calculatePerforationIntersections(wellPath, perforationInterval, eclipseCaseData, values);
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const RimFishbonesMultipleSubs* fishbonesSubs, const RigMainGrid* grid, std::vector<double>& values)
+void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const RimFishbonesMultipleSubs* fishbonesSubs,
+                                                                        const RigEclipseCaseData*       eclipseCaseData,
+                                                                        std::vector<double>&            values)
 {
     for (auto& sub : fishbonesSubs->installedLateralIndices())
     {
         for (size_t lateralIndex : sub.lateralIndices)
         {
-            std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid, 
-                                                                                                                       fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
-            for (auto& intersection : intersections)
+            auto intersectedCells = RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
+                eclipseCaseData, fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
+            for (auto& intersection : intersectedCells)
             {
-                values[intersection.m_hexIndex] = RiaDefines::FISHBONES;
+                values[intersection] = RiaDefines::FISHBONES;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const RimWellPath* wellPath, 
-                                                                          const RimPerforationInterval* perforationInterval, 
-                                                                          const RigMainGrid* grid, 
-                                                                          std::vector<double>& values)
+void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const RimWellPath*            wellPath,
+                                                                          const RimPerforationInterval* perforationInterval,
+                                                                          const RigEclipseCaseData*     eclipseCaseData,
+                                                                          std::vector<double>&          values)
 {
     using namespace std;
-    pair<vector<cvf::Vec3d>, vector<double> > clippedWellPathData =  wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), 
-                                                                                                                      perforationInterval->endMD());
+    pair<vector<cvf::Vec3d>, vector<double>> clippedWellPathData =
+        wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), perforationInterval->endMD());
 
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::findRawHexCellIntersections(grid,
-                                                                                                               clippedWellPathData.first);
+    auto intersections = RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
+        eclipseCaseData, clippedWellPathData.first, clippedWellPathData.second);
     for (auto& intersection : intersections)
     {
-        values[intersection.m_hexIndex] = RiaDefines::PERFORATION_INTERVAL;
+        values[intersection] = RiaDefines::PERFORATION_INTERVAL;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid* mainGrid, const RimFracture* fracture, std::vector<double>& values)
+void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid*   mainGrid,
+                                                                       const RimFracture*   fracture,
+                                                                       std::vector<double>& values)
 {
     if (!fracture->fractureTemplate()) return;
     if (!fracture->fractureTemplate()->fractureGrid()) return;
@@ -198,7 +209,7 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
         {
             cvf::BoundingBox boundingBox;
 
-            for (cvf::Vec3d nodeCoord : fractureCellTransformed)
+            for (const cvf::Vec3d& nodeCoord : fractureCellTransformed)
             {
                 boundingBox.add(nodeCoord);
             }
@@ -213,8 +224,10 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
             std::array<cvf::Vec3d, 8> hexCorners;
             mainGrid->cellCornerVertices(cellIndex, hexCorners.data());
 
-            std::vector< std::vector<cvf::Vec3d> > planeCellPolygons;
-            bool isPlaneIntersected = RigHexIntersectionTools::planeHexIntersectionPolygons(hexCorners, fracture->transformMatrix(), planeCellPolygons);
+            std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
+
+            bool isPlaneIntersected =
+                RigHexIntersectionTools::planeHexIntersectionPolygons(hexCorners, fracture->transformMatrix(), planeCellPolygons);
             if (!isPlaneIntersected || planeCellPolygons.empty()) continue;
 
             {
@@ -230,7 +243,8 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
 
             for (const std::vector<cvf::Vec3d>& planeCellPolygon : planeCellPolygons)
             {
-                std::vector< std::vector<cvf::Vec3d> > clippedPolygons = RigCellGeometryTools::intersectPolygons(planeCellPolygon, fractureCell.getPolygon());
+                std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
+                    RigCellGeometryTools::intersectPolygons(planeCellPolygon, fractureCell.getPolygon());
                 for (const auto& clippedPolygon : clippedPolygons)
                 {
                     if (!clippedPolygon.empty())
@@ -241,6 +255,5 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
                 }
             }
         }
-
     }
 }

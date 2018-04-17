@@ -40,6 +40,10 @@ public:
                                                                                         const std::vector<cvf::Vec3d>& pathCoords,
                                                                                         const std::vector<double>& pathMds);
 
+    static std::set<size_t> findIntersectedGlobalCellIndices(const RigEclipseCaseData*      caseData,
+                                                             const std::vector<cvf::Vec3d>& coords,
+                                                             const std::vector<double>&     measuredDepths = {});
+
     static std::vector<HexIntersectionInfo>          findRawHexCellIntersections(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
 
     static cvf::Vec3d                                calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners, 

@@ -20,16 +20,18 @@
 
 #include "RiaLogging.h"
 
-#include "RigWellPath.h"
-#include "RigMainGrid.h"
-#include "RigEclipseCaseData.h"
-#include "RigWellLogExtractionTools.h"
 #include "RigCellGeometryTools.h"
-
-#include "cvfGeometryTools.h"
-#include "cvfMatrix3.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellLogExtractionTools.h"
+#include "RigWellPath.h"
+
 #include "RimEclipseCase.h"
+
+//#include "cvfGeometryTools.h"
+//#include "cvfMatrix3.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -52,6 +54,46 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
                                                                                     caseData->ownerCase()->caseUserDescription().toStdString());
 
     return extractor->cellIntersectionInfosAlongWellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(const RigEclipseCaseData*      caseData,
+                                                                                const std::vector<cvf::Vec3d>& coords,
+                                                                                const std::vector<double>&     measuredDepths)
+{
+    std::set<size_t> globalCellIndices;
+
+    if (caseData)
+    {
+        cvf::ref<RigWellPath> dummyWellPath = new RigWellPath;
+
+        if (measuredDepths.size() == coords.size())
+        {
+            dummyWellPath->m_wellPathPoints = coords;
+            dummyWellPath->m_measuredDepths = measuredDepths;
+        }
+        else
+        {
+            RigSimulationWellCoordsAndMD helper(coords);
+
+            dummyWellPath->m_wellPathPoints = helper.wellPathPoints();
+            dummyWellPath->m_measuredDepths = helper.measuredDepths();
+        }
+
+        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData, 
+                                                                                        dummyWellPath.p(), 
+                                                                                        caseData->ownerCase()->caseUserDescription().toStdString());
+
+        std::vector<WellPathCellIntersectionInfo> intersections = extractor->cellIntersectionInfosAlongWellPath();
+        for (const auto& intersection : intersections)
+        {
+            globalCellIndices.insert(intersection.globCellIndex);
+        }
+    }
+
+    return globalCellIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
