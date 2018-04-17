@@ -32,13 +32,11 @@ namespace caf
     template<>
     void AppEnum< Rim3dWellLogCurve::DrawPlane >::setUp()
     {
-        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Horizontal - Left");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Horizontal - Right");
         addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Vertical - Above");
         addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Vertical - Below");
-        addItem(Rim3dWellLogCurve::CAMERA_ALIGNED_SIDE1, "CAMERA_ALIGNED_SIDE_1", "Camera Aligned - Side 1");
-        addItem(Rim3dWellLogCurve::CAMERA_ALIGNED_SIDE2, "CAMERA_ALIGNED_SIDE_2", "Camera Aligned - Side 2");
-        setDefault(Rim3dWellLogCurve::HORIZONTAL_LEFT);
+        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Horizontal - Left");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Horizontal - Right");
+        setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
     } 
 }
 

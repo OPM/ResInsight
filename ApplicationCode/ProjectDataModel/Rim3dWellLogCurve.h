@@ -35,12 +35,10 @@ class Rim3dWellLogCurve : public caf::PdmObject
 public:
     enum DrawPlane
     {
-        HORIZONTAL_LEFT,
-        HORIZONTAL_RIGHT,
         VERTICAL_ABOVE,
         VERTICAL_BELOW,
-        CAMERA_ALIGNED_SIDE1,
-        CAMERA_ALIGNED_SIDE2
+        HORIZONTAL_LEFT,
+        HORIZONTAL_RIGHT
     };
 
 public:
