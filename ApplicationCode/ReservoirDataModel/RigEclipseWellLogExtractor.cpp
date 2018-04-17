@@ -56,7 +56,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
     bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
-    if (!m_wellPath->m_wellPathPoints.size()) return ;
+    if (m_wellPath->m_wellPathPoints.empty()) return;
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
@@ -69,35 +69,25 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         bb.add(p1);
         bb.add(p2);
 
-        std::vector<size_t> closeCells = findCloseCells(bb);
+        std::vector<size_t> closeCellIndices = findCloseCellIndices(bb);
 
         cvf::Vec3d hexCorners[8];
-        for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
+        for (const auto& globalCellIndex : closeCellIndices)
         {
-            const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[closeCells[cIdx]];
+            const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[globalCellIndex];
 
             if (cell.isInvalid()) continue;
 
-            const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+            m_caseData->mainGrid()->cellCornerVertices(globalCellIndex, hexCorners);
 
-            hexCorners[0] = nodeCoords[cornerIndices[0]];
-            hexCorners[1] = nodeCoords[cornerIndices[1]];
-            hexCorners[2] = nodeCoords[cornerIndices[2]];
-            hexCorners[3] = nodeCoords[cornerIndices[3]];
-            hexCorners[4] = nodeCoords[cornerIndices[4]];
-            hexCorners[5] = nodeCoords[cornerIndices[5]];
-            hexCorners[6] = nodeCoords[cornerIndices[6]];
-            hexCorners[7] = nodeCoords[cornerIndices[7]];
-
-            //int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
-            RigHexIntersectionTools::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            RigHexIntersectionTools::lineHexCellIntersection(p1, p2, hexCorners, globalCellIndex, &intersections);
         }
 
         if (!isCellFaceNormalsOut)
         {
-            for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
+            for (auto& intersection : intersections)
             {
-                intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
+                intersection.m_isIntersectionEntering = !intersection.m_isIntersectionEntering;
             }
         }
 
@@ -128,7 +118,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             cvf::BoundingBox bb;
             bb.add(firstPoint);
 
-            std::vector<size_t> closeCellIndices = findCloseCells(bb);
+            std::vector<size_t> closeCellIndices = findCloseCellIndices(bb);
 
             cvf::Vec3d hexCorners[8];
             for (const auto& globalCellIndex : closeCellIndices)
@@ -196,7 +186,7 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::BoundingBox& bb)
+std::vector<size_t> RigEclipseWellLogExtractor::findCloseCellIndices(const cvf::BoundingBox& bb)
 {
     std::vector<size_t> closeCells;
     m_caseData->mainGrid()->findIntersectingCells(bb, &closeCells);
