@@ -255,7 +255,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(faultBit);
+            part->setEnableMask(intersectionCellFaceBit);
             part->setPriority(RivPartPriority::PartType::Intersection);
 
             m_intersectionBoxFaces = part;
@@ -277,7 +277,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             part->setDrawable(geoMesh.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(meshFaultBit);
+            part->setEnableMask(intersectionCellMeshBit);
             part->setPriority(RivPartPriority::PartType::MeshLines);
 
             m_intersectionBoxGridLines = part;
