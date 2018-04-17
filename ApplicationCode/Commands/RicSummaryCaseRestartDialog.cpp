@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaLogging.h"
 
 #include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
@@ -107,7 +108,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_gridSeparateCasesBtn = new QRadioButton(this);
     m_gridNotReadBtn = new QRadioButton(this);
     m_applyToAllCheckBox = new QCheckBox(this);
-
+    m_warnings = new QListWidget(this);
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     // Connect to signals
@@ -176,6 +177,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     dialogLayout->addWidget(m_currentFilesGroup);
     dialogLayout->addWidget(summaryFilesGroup);
     dialogLayout->addWidget(m_gridFilesGroup);
+    dialogLayout->addWidget(m_warnings);
     dialogLayout->addLayout(buttonsLayout);
 
     setLayout(dialogLayout);
@@ -208,10 +210,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     }
 
     RifReaderEclipseSummary reader;
-    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(summaryHeaderFile);
+    bool hasWarnings = false;
+    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(summaryHeaderFile, &hasWarnings);
 
-    // If no restart files are found, do not show dialog
-    if (originFileInfos.empty())
+    // If no restart files are found and no warnings, do not show dialog
+    if (originFileInfos.empty() &&!hasWarnings)
     {
         QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(summaryHeaderFile);
         return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, NOT_IMPORT, QStringList({ summaryHeaderFile }), QStringList({ gridCaseFile }), false);
@@ -223,6 +226,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialogResult = *lastResult;
         dialogResult.summaryFiles.clear();
         dialogResult.gridFiles.clear();
+
+        if (hasWarnings)
+        {
+            for (const QString& warning : reader.warnings()) RiaLogging::error(warning);
+        }
     }
     else
     {
@@ -281,6 +289,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialog.populateFileList(dialog.m_currentFilesLayout, fileInfosNoRoot[0]);
         dialog.populateFileList(dialog.m_summaryFilesLayout, fileInfosNoRoot[1]);
         dialog.populateFileList(dialog.m_gridFilesLayout, fileInfosNoRoot[2]);
+
+        // Display warnings if any
+        dialog.displayWarningsIfAny(reader.warnings());
 
         // Set properties and show dialog
         dialog.setWindowTitle("Restart Files");
@@ -401,19 +412,23 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RicSummaryCaseRestartDialog::getRestartFiles(const QString& summaryHeaderFile)
+RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo(const QString& summaryHeaderFile)
 {
     RifReaderEclipseSummary reader;
-    return reader.getRestartFiles(summaryHeaderFile);
+    return reader.getFileInfo(summaryHeaderFile);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo(const QString& summaryHeaderFile)
+void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnings)
 {
-    RifReaderEclipseSummary reader;
-    return reader.getFileInfo(summaryHeaderFile);
+    m_warnings->setVisible(!warnings.isEmpty());
+    for (const auto& warning : warnings)
+    {
+        QListWidgetItem* item = new QListWidgetItem(warning, m_warnings);
+        item->setForeground(Qt::red);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

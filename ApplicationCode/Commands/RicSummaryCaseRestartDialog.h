@@ -67,8 +67,8 @@ public:
 private:
     void                                        populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos);
     void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo);
-    std::vector<RifRestartFileInfo>             getRestartFiles(const QString& summaryHeaderFile);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
+    void                                        displayWarningsIfAny(const QStringList& warnings);
 
 private slots:
     void slotDialogOkClicked();
@@ -92,6 +92,8 @@ private:
 
     QCheckBox*                          m_applyToAllCheckBox;
     QDialogButtonBox*                   m_buttons;
+
+    QListWidget*                        m_warnings;
 };
 
 

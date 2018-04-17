@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaFilePathTools.h"
+#include "RiaLogging.h"
 
 #include "RicSummaryCaseRestartDialog.h"
 
@@ -187,7 +188,8 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
             filesToImport.push_back(RifSummaryCaseFileInfo(file, false));
 
             RifReaderEclipseSummary reader;
-            std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file);
+            bool hasWarnings = false;
+            std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file, &hasWarnings);
             for (const auto& rfi : restartFileInfos)
             {
                 RifSummaryCaseFileInfo fi(rfi.fileName, false);
@@ -205,7 +207,8 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
             if (m_defaultGridImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
             {
                 RifReaderEclipseSummary reader;
-                std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file);
+                bool hasWarnings = false;
+                std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(file, &hasWarnings);
                 for (const auto& rfi : restartFileInfos)
                 {
                     RifSummaryCaseFileInfo fi(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(rfi.fileName), false);
@@ -213,6 +216,11 @@ std::vector<RifSummaryCaseFileInfo> RifSummaryCaseRestartSelector::getFilesToImp
                     {
                         m_gridFiles.push_back(fi.fileName);
                     }
+                }
+
+                if (hasWarnings)
+                {
+                    for (const QString& warning : reader.warnings()) RiaLogging::error(warning);
                 }
             }
         }

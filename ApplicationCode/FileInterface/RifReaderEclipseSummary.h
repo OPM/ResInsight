@@ -22,12 +22,11 @@
 #include "RifSummaryReaderInterface.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <vector>
 #include <map>
-
-class QStringList;
 
 
 //==================================================================================================
@@ -59,13 +58,15 @@ public:
 
     bool                                open(const QString& headerFileName, bool includeRestartFiles);
 
-    std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName);
+    std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName, bool* hasWarnings);
     RifRestartFileInfo                  getFileInfo(const QString& headerFileName);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
     virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
     virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
+
+    QStringList                         warnings() const { return m_warnings; }
 
 private:
     int                                 timeStepCount() const;
@@ -83,5 +84,7 @@ private:
     std::vector<time_t>         m_timeSteps;
 
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
+
+    QStringList                 m_warnings;
 };
 

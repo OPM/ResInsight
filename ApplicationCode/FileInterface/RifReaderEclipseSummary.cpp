@@ -22,8 +22,6 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifEclipseSummaryTools.h"
 
-#include "RiaLogging.h"
-
 #include <string>
 #include <assert.h>
 
@@ -137,10 +135,14 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, bool includeRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const QString& headerFileName)
+std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const QString& headerFileName, bool* hasWarnings)
 {
+    CVF_ASSERT(hasWarnings);
+
     std::vector<RifRestartFileInfo> restartFiles;
-    
+    m_warnings.clear();
+    *hasWarnings = false;
+
     RifRestartFileInfo currFile;
     currFile.fileName = headerFileName;
     while(!currFile.fileName.isEmpty())
@@ -152,8 +154,39 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const Q
         // Fix to stop potential infinite loop
         if (currFile.fileName == prevFile)
         {
-            RiaLogging::error("RifReaderEclipseSummary: Restart file reference loop detected");
+            m_warnings.push_back("RifReaderEclipseSummary: Restart file reference loop detected");
+            *hasWarnings = true;
             break;
+        }
+
+        // Due to a weakness in libecl regarding restart summary header file selection,
+        // do some extra checking
+        {
+            QString formattedHeaderExtension = ".FSMSPEC";
+            QString nonformattedHeaderExtension = ".SMSPEC";
+            QString formattedDataFileExtension = ".FUNSMRY";
+
+            if (currFile.fileName.endsWith(nonformattedHeaderExtension, Qt::CaseInsensitive))
+            {
+                QString formattedHeaderFile = currFile.fileName;
+                formattedHeaderFile.replace(nonformattedHeaderExtension, formattedHeaderExtension, Qt::CaseInsensitive);
+                QString formattedDateFile = currFile.fileName;
+                formattedDateFile.replace(nonformattedHeaderExtension, formattedDataFileExtension, Qt::CaseInsensitive);
+
+                QFileInfo nonformattedHeaderFileInfo = QFileInfo(currFile.fileName);
+                QFileInfo formattedHeaderFileInfo = QFileInfo(formattedHeaderFile);
+                QFileInfo formattedDateFileInfo = QFileInfo(formattedDateFile);
+                if (formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
+                    formattedHeaderFileInfo.exists() && !formattedDateFileInfo.exists())
+                {
+                    m_warnings.push_back(QString("RifReaderEclipseSummary: Formatted summary header file without an\n") +
+                                         QString("associated data file detected.\n") +
+                                         QString("This may cause a failure reading summary origin data.\n") +
+                                         QString("To avoid this problem, please delete or rename the.FSMSPEC file."));
+                    *hasWarnings = true;
+                    break;
+                }
+            }
         }
 
         if (!currFile.fileName.isEmpty())
