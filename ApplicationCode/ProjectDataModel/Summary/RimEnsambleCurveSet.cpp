@@ -444,6 +444,14 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 curve->updateCurveVisibility(true);
                 curve->loadDataAndUpdate(true);
             }
+
+            RimSummaryPlot* plot;
+            firstAncestorOrThisOfType(plot);
+            if (plot && plot->qwtPlot())
+            {
+                plot->qwtPlot()->replot();
+                plot->updateAxes();
+            }
         }
     }
     else if (changedField == &m_ensambleParameter)

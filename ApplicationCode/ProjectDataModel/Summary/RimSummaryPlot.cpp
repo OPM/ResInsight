@@ -671,6 +671,20 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
                 }
             }
         }
+
+        if (m_ensambleCurveSetCollection && m_ensambleCurveSetCollection->isCurveSetsVisible())
+        {
+            for (RimEnsambleCurveSet* curveSet : m_ensambleCurveSetCollection->curveSets())
+            {
+                for (RimSummaryCurve* curve : curveSet->curves())
+                {
+                    if (curve->isCurveVisible() && curve->axisY() == plotAxis)
+                    {
+                        curves.push_back(curve);
+                    }
+                }
+            }
+        }
     }
 
     return curves;
