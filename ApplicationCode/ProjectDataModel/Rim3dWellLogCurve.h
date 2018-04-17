@@ -43,19 +43,6 @@ public:
         CAMERA_ALIGNED_SIDE2
     };
 
-    enum DrawStyle
-    {
-        LINE,
-        FILLED
-    };
-
-    enum ColoringStyle
-    {
-        SINGLE_COLOR,
-        CURVE_VALUE,
-        OTHER_RESULT
-    };
-
 public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
@@ -63,8 +50,6 @@ public:
     void updateCurveIn3dView();
 
     DrawPlane     drawPlane() const;
-    DrawStyle     drawStyle() const;
-    ColoringStyle coloringStyle() const;
     cvf::Color3f  color() const;
     bool          isShowingCurve() const;
 
@@ -80,8 +65,6 @@ protected:
 protected:
     caf::PdmField<QString>                          m_name;
     caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
-    caf::PdmField<caf::AppEnum<DrawStyle>>          m_drawStyle;
-    caf::PdmField<caf::AppEnum<ColoringStyle>>      m_coloringStyle;
     caf::PdmField<cvf::Color3f>                     m_color;
 
 

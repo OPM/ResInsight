@@ -39,24 +39,7 @@ namespace caf
         addItem(Rim3dWellLogCurve::CAMERA_ALIGNED_SIDE1, "CAMERA_ALIGNED_SIDE_1", "Camera Aligned - Side 1");
         addItem(Rim3dWellLogCurve::CAMERA_ALIGNED_SIDE2, "CAMERA_ALIGNED_SIDE_2", "Camera Aligned - Side 2");
         setDefault(Rim3dWellLogCurve::HORIZONTAL_LEFT);
-    }
-
-    template<>
-    void AppEnum< Rim3dWellLogCurve::DrawStyle >::setUp()
-    {
-        addItem(Rim3dWellLogCurve::LINE, "LINE", "Line");
-        addItem(Rim3dWellLogCurve::FILLED, "FILLED", "Filled");
-        setDefault(Rim3dWellLogCurve::LINE);
-    }
-
-    template<>
-    void AppEnum< Rim3dWellLogCurve::ColoringStyle >::setUp()
-    {
-        addItem(Rim3dWellLogCurve::SINGLE_COLOR, "SINGLE_COLOR", "Single Color");
-        addItem(Rim3dWellLogCurve::CURVE_VALUE, "CURVE_VALUE", "Curve Value");
-        addItem(Rim3dWellLogCurve::OTHER_RESULT, "OTHER_RESULT", "Other Result");
-        setDefault(Rim3dWellLogCurve::SINGLE_COLOR);
-    }
+    } 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +53,6 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     m_showCurve.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_drawPlane, "DrawPlane", "Draw Plane", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_drawStyle, "DrawStyle", "Draw Style", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_coloringStyle, "ColoringStyle", "Coloring Style", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("3D Well Log Curve"), "3d Well Log Curve", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -100,22 +81,6 @@ void Rim3dWellLogCurve::updateCurveIn3dView()
 Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 {
     return m_drawPlane();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurve::DrawStyle Rim3dWellLogCurve::drawStyle() const
-{
-    return m_drawStyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurve::ColoringStyle Rim3dWellLogCurve::coloringStyle() const
-{
-    return m_coloringStyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,8 +147,6 @@ void Rim3dWellLogCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* curveAppearanceGroup = uiOrdering.addNewGroup("Curve Appearance");
     curveAppearanceGroup->add(&m_drawPlane);
-    curveAppearanceGroup->add(&m_drawStyle);
-    curveAppearanceGroup->add(&m_coloringStyle);
     curveAppearanceGroup->add(&m_color);
 }
 
