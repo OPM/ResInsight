@@ -57,7 +57,8 @@ namespace caf {
 RimTernaryLegendConfig::RimTernaryLegendConfig() 
 {
     CAF_PDM_InitObject("Ternary Legend Definition", ":/Legend.png", "", "");
-    CAF_PDM_InitField(&enableLegend, "EnableTernaryLegend", true, "Enable Ternary Legend", "", "", "");
+    CAF_PDM_InitField(&m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "");
+    m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
@@ -340,6 +341,11 @@ RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend()
     return m_legend.p();
 }
 
+bool RimTernaryLegendConfig::showLegend() const
+{
+    return m_showLegend;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -493,5 +499,5 @@ const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
 
 caf::PdmFieldHandle* RimTernaryLegendConfig::objectToggleField()
 {
-    return &enableLegend;
+    return &m_showLegend;
 }

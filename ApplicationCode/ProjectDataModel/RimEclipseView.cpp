@@ -1055,7 +1055,7 @@ void RimEclipseView::updateLegends()
         updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultColors(), results);
     }
 
-    if (this->cellEdgeResult()->legendConfig()->enableLegend())
+    if (this->cellEdgeResult()->legendConfig()->showLegend())
     {
         if (this->cellEdgeResult()->hasResult())
         {
@@ -1098,7 +1098,7 @@ void RimEclipseView::updateLegends()
     }
 
     RimLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
-    if (stimPlanLegend && stimPlanLegend->enableLegend())
+    if (stimPlanLegend && stimPlanLegend->showLegend())
     {
         fractureColors()->updateLegendData();
         
@@ -1108,7 +1108,7 @@ void RimEclipseView::updateLegends()
         }
     }
     
-    if (m_virtualPerforationResult->isActive() && m_virtualPerforationResult->legendConfig()->enableLegend())
+    if (m_virtualPerforationResult->isActive() && m_virtualPerforationResult->legendConfig()->showLegend())
     {
         updateVirtualConnectionLegendRanges();
 
@@ -1126,7 +1126,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 {
     resultColors->updateLegendData(m_currentTimeStep);
 
-    if (resultColors->hasResult() && resultColors->legendConfig()->enableLegend())
+    if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
         resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
@@ -1135,7 +1135,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        if (resultColors->ternaryLegendConfig->enableLegend() && resultColors->ternaryLegendConfig->legend())
+        if (resultColors->ternaryLegendConfig->showLegend() && resultColors->ternaryLegendConfig->legend())
         {
             resultColors->ternaryLegendConfig->setTitle(legendLabel);
             m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend());

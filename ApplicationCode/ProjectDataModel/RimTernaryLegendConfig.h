@@ -74,7 +74,7 @@ public:
     const RivTernarySaturationOverlayItem*    legend() const;
     RivTernarySaturationOverlayItem*          legend();
 
-    caf::PdmField<bool>                       enableLegend;
+    bool                                      showLegend() const;
 
     void                                      setTitle(const QString& title);
 
@@ -106,6 +106,8 @@ private:
     caf::PdmField<bool>             applyGlobalMinMax;
     caf::PdmField<bool>             applyFullRangeMinMax;
     caf::PdmField<QString>          ternaryRangeSummary;
+
+    caf::PdmField<bool>             m_showLegend;
 
     std::vector<double>             m_globalAutoMax;
     std::vector<double>             m_globalAutoMin;

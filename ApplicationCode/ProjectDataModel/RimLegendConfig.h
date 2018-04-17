@@ -121,8 +121,7 @@ public:
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     caf::TitledOverlayFrame*                    legend();
-
-    caf::PdmField<bool>                         enableLegend;
+    bool                                        showLegend() const;
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -172,6 +171,7 @@ private:
     cvf::Color3ubArray                          m_categoryColors;
 
     // Fields
+    caf::PdmField<bool>                         m_showLegend;
     caf::PdmField<int>                          m_numLevels;
     caf::PdmField<int>                          m_precision;
     caf::PdmField<caf::AppEnum<NumberFormatType> > m_tickNumberFormat;
