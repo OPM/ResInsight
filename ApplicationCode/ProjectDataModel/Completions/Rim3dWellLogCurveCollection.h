@@ -48,13 +48,15 @@ public:
     void add3dWellLogCurve(Rim3dWellLogCurve* curve);
     void remove3dWellLogCurve(Rim3dWellLogCurve* curve);
 
-    bool isShowingGrid() const;
     bool isShowingPlot() const;
+    bool isShowingGrid() const;
+    bool isShowingBackground() const;
 
     PlanePosition planePosition() const;
 
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
     void                            redrawAffectedViewsAndEditors();
+
 private:
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle* objectToggleField() override;
@@ -63,8 +65,11 @@ private:
 private:
     caf::PdmField<bool>                         m_showPlot;
 
-    caf::PdmField<bool>                         m_showGrid;
     caf::PdmField<caf::AppEnum<PlanePosition>>  m_planePosition;
+
+    caf::PdmField<bool>                         m_showGrid;
+    caf::PdmField<bool>                         m_showBackground;
+
 
     caf::PdmChildArrayField<Rim3dWellLogCurve*> m_3dWellLogCurves;
 };

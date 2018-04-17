@@ -164,8 +164,10 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_drawPlane);
-    uiOrdering.add(&m_drawStyle);
-    uiOrdering.add(&m_coloringStyle);
+    caf::PdmUiGroup* curveAppearanceGroup = uiOrdering.addNewGroup("Curve Appearance");
+    curveAppearanceGroup->add(&m_drawPlane);
+    curveAppearanceGroup->add(&m_drawStyle);
+    curveAppearanceGroup->add(&m_coloringStyle);
+
 }
 

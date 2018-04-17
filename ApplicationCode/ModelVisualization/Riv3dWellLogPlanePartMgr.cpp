@@ -69,19 +69,9 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
 
     append3dWellLogCurvesToModel(model, displayCoordTransform, wellPathClipBoundingBox);
 
-    if (m_wellPath->rim3dWellLogCurveCollection()->isShowingGrid())
+    for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
-        std::set<Rim3dWellLogCurve::DrawPlane> drawPlanes;
-
-        for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
-        {
-            drawPlanes.insert(rim3dWellLogCurve->drawPlane());
-        }
-
-        for (const Rim3dWellLogCurve::DrawPlane& drawPlane : drawPlanes)
-        {
-            appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, drawPlane, planeWidth());
-        }
+        appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve, planeWidth());        
     }
 }
 
@@ -217,11 +207,13 @@ cvf::Color3f Riv3dWellLogPlanePartMgr::curveColor(size_t index)
 void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*                model,
                                                  const caf::DisplayCoordTransform*   displayCoordTransform,
                                                  const cvf::BoundingBox&             wellPathClipBoundingBox,
-                                                 const Rim3dWellLogCurve::DrawPlane& drawPlane,
+                                                 const Rim3dWellLogCurve*            rim3dWellLogCurve,
                                                  double                              gridIntervalSize)
 {
     const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
     Rim3dWellLogCurveCollection::PlanePosition planePosition = curveCollection->planePosition();
+    bool                                       showGrid = curveCollection->isShowingGrid();
+    bool                                       showBackground = curveCollection->isShowingBackground();
 
     caf::SurfaceEffectGenerator backgroundEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 1.0), caf::PO_2);
     caf::MeshEffectGenerator    gridBorderEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
@@ -230,7 +222,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
 
     bool gridCreated = m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
         wellPathClipBoundingBox,
-        planeAngle(drawPlane),
+        planeAngle(rim3dWellLogCurve->drawPlane()),
         wellPathCenterToPlotStartOffset(planePosition),
         planeWidth(),
         gridIntervalSize);
@@ -241,7 +233,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     cvf::ref<cvf::Effect> curveNormalsEffect = curveNormalsEffectGen.generateCachedEffect();
 
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogGridGeometryGenerator->background();
-    if (background.notNull())
+    if (showBackground && background.notNull())
     {
         cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());
         if (part.notNull())
@@ -250,23 +242,25 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
         }
     }
 
-    cvf::ref<cvf::DrawableGeo> border = m_3dWellLogGridGeometryGenerator->border();
-    if (border.notNull())
-    {
-        cvf::ref<cvf::Part> part = createPart(border.p(), borderEffect.p());
-        if (part.notNull())
+    if (showGrid) {
+        cvf::ref<cvf::DrawableGeo> border = m_3dWellLogGridGeometryGenerator->border();
+        if (border.notNull())
         {
-            model->addPart(part.p());
+            cvf::ref<cvf::Part> part = createPart(border.p(), borderEffect.p());
+            if (part.notNull())
+            {
+                model->addPart(part.p());
+            }
         }
-    }
 
-    cvf::ref<cvf::DrawableGeo> normals = m_3dWellLogGridGeometryGenerator->curveNormalLines();
-    if (normals.notNull())
-    {
-        cvf::ref<cvf::Part> part = createPart(normals.p(), curveNormalsEffect.p());
-        if (part.notNull())
+        cvf::ref<cvf::DrawableGeo> normals = m_3dWellLogGridGeometryGenerator->curveNormalLines();
+        if (normals.notNull())
         {
-            model->addPart(part.p());
+            cvf::ref<cvf::Part> part = createPart(normals.p(), curveNormalsEffect.p());
+            if (part.notNull())
+            {
+                model->addPart(part.p());
+            }
         }
     }
 }

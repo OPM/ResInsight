@@ -18,6 +18,7 @@
 
 #include "Rim3dWellLogCurveCollection.h"
 
+#include "RiaColorTables.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimWellPath.h"
 #include "RimProject.h"
@@ -45,10 +46,10 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
     CAF_PDM_InitField(&m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves", "", "", "");
     m_showPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_planePosition, "PlanePosition", "Plane Position", "", "", "");
 
+    CAF_PDM_InitField(&m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "");
+    CAF_PDM_InitField(&m_showBackground, "Show3dWellLogBackground", false, "Show Background", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "", "", "", "");
     m_3dWellLogCurves.uiCapability()->setUiTreeHidden(true);
 }
@@ -91,6 +92,14 @@ void Rim3dWellLogCurveCollection::remove3dWellLogCurve(Rim3dWellLogCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Rim3dWellLogCurveCollection::isShowingPlot() const
+{
+    return m_showPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::isShowingGrid() const
 {
     return m_showGrid;
@@ -99,13 +108,14 @@ bool Rim3dWellLogCurveCollection::isShowingGrid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurveCollection::isShowingPlot() const
+bool Rim3dWellLogCurveCollection::isShowingBackground() const
 {
-    return m_showPlot;
+    return m_showBackground;
 }
 
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::PlanePosition Rim3dWellLogCurveCollection::planePosition() const
 {
@@ -168,8 +178,12 @@ caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Track Settings");
+    caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Draw Plane Settings");
 
-    settingsGroup->add(&m_showGrid);
     settingsGroup->add(&m_planePosition);
+    
+    caf::PdmUiGroup* appearanceSettingsGroup = uiOrdering.addNewGroup("Draw Plane Appearance");
+    appearanceSettingsGroup->add(&m_showGrid);
+    appearanceSettingsGroup->add(&m_showBackground);
+
 }

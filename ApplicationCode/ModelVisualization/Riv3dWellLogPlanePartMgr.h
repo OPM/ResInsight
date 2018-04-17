@@ -64,7 +64,7 @@ private:
     void appendGridToModel(cvf::ModelBasicList*                 model,
                            const caf::DisplayCoordTransform*    displayCoordTransform,
                            const cvf::BoundingBox&              wellPathClipBoundingBox,
-                           const Rim3dWellLogCurve::DrawPlane&  drawPlane,
+                           const Rim3dWellLogCurve*             rim3dWellLogCurve,
                            double                               gridIntervalSize);
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);

@@ -71,7 +71,6 @@ protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
-
     void                                    appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
 protected:
