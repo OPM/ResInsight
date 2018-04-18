@@ -965,6 +965,8 @@ void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
 //{
 //    if (curveSet && curve)
 //    {
+//        curve->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor((int)m_ensambleCurveSetCollection->curveSets().size()));
+//
 //        const_cast<RimEnsambleCurveSet*>(curveSet)->addCurve(curve);
 //        curve->setParentQwtPlotAndReplot(m_qwtPlot);
 //    }
@@ -1186,17 +1188,18 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {
-        curve->loadDataAndUpdate(true);
+        curve->loadDataAndUpdate(false);
     }
 
     for (RimAsciiDataCurve* curve : m_asciiDataCurves)
     {
-        curve->loadDataAndUpdate(true);
+        curve->loadDataAndUpdate(false);
     }
 
     if (m_qwtPlot) m_qwtPlot->updateLegend();
     this->updateAxes();
     updateZoomInQwt();
+    if(m_qwtPlot) m_qwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1353,6 +1356,11 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
         if ( m_summaryCurveCollection )
         {
             m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
+        }
+
+        if (m_ensambleCurveSetCollection)
+        {
+            m_ensambleCurveSetCollection->setParentQwtPlotAndReplot(m_qwtPlot);
         }
    }
 

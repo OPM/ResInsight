@@ -160,6 +160,14 @@ bool RimEnsambleCurveSet::isCurvesVisible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::setColor(cvf::Color3f color)
+{
+    m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 {
     for (RimSummaryCurve* curve : m_curves)
@@ -184,14 +192,12 @@ void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::setParentQwtPlotAndReplot(QwtPlot* plot)
+void RimEnsambleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
 {
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->setParentQwtPlotNoReplot(plot);
     }
-
-    if (plot) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +234,11 @@ void RimEnsambleCurveSet::addCurve(RimSummaryCurve* curve)
 {
     if (curve)
     {
+        RimSummaryPlot* plot;
+        firstAncestorOrThisOfType(plot);
+        if (plot) curve->setParentQwtPlotNoReplot(plot->qwtPlot());
+
+        curve->setColor(m_color);
         m_curves.push_back(curve);
     }
 }
@@ -422,6 +433,9 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_yValuesSummaryGroup || changedField == &m_yValuesSelectedVariableDisplayField)
     {
+        // Update backing field
+        m_yValuesCurveVariable->setAddress(m_yValuesSelectedVariableDisplayField);
+
         deleteAllCurves();
 
         RimSummaryPlot* plot;
@@ -439,7 +453,6 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 curve->setSummaryAddressY(addr);
 
                 addCurve(curve);
-                curve->setParentQwtPlotNoReplot(plot->qwtPlot());
 
                 curve->updateCurveVisibility(true);
                 curve->loadDataAndUpdate(true);
@@ -454,56 +467,20 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             }
         }
     }
-    else if (changedField == &m_ensambleParameter)
+    else if (changedField == &m_ensambleParameter ||
+             changedField == &m_color ||
+             changedField == &m_colorMode)
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
-        QString parameterName = m_ensambleParameter();
-        if (group && !parameterName.isEmpty())
-        {
-            double minValue = HUGE_VAL;
-            double maxValue = -HUGE_VAL;
-
-            for (RimSummaryCase* rimCase : group->allSummaryCases())
-            {
-                if (!rimCase->caseRealizationParameters().isNull())
-                {
-                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                    if (value != HUGE_VAL)
-                    {
-                        if (value < minValue) minValue = value;
-                        if (value > maxValue) maxValue = value;
-                    }
-                }
-            }
-
-            cvf::ScalarMapperContinuousLinear colorMapper;
-            colorMapper.setRange(minValue, maxValue);
-
-            for (auto& curve : m_curves)
-            {
-                RimSummaryCase* rimCase = curve->summaryCaseY();
-                double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                curve->setColor(cvf::Color3f(colorMapper.mapToColor(value)));
-                curve->updateCurveAppearance();
-            }
-
-            RimSummaryPlot* plot;
-            firstAncestorOrThisOfType(plot);
-            if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
-        }
+        updateCurveColors();
     }
-    else if (changedField == &m_color)
-    {
-        for (auto& curve : m_curves)
-        {
-            curve->setColor(m_color);
-            curve->updateCurveAppearance();
-        }
+}
 
-        RimSummaryPlot* plot;
-        firstAncestorOrThisOfType(plot);
-        if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
-    }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::initAfterRead()
+{
+    m_yValuesSelectedVariableDisplayField = m_yValuesCurveVariable->address();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -695,4 +672,57 @@ void RimEnsambleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEcl
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::updateCurveColors()
+{
+    if(m_colorMode == BY_ENSAMBLE_PARAM)
+    {
+        RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+        QString parameterName = m_ensambleParameter();
+        if (group && !parameterName.isEmpty())
+        {
+            double minValue = HUGE_VAL;
+            double maxValue = -HUGE_VAL;
+
+            for (RimSummaryCase* rimCase : group->allSummaryCases())
+            {
+                if (!rimCase->caseRealizationParameters().isNull())
+                {
+                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                    if (value != HUGE_VAL)
+                    {
+                        if (value < minValue) minValue = value;
+                        if (value > maxValue) maxValue = value;
+                    }
+                }
+            }
+
+            cvf::ScalarMapperContinuousLinear colorMapper;
+            colorMapper.setRange(minValue, maxValue);
+
+            for (auto& curve : m_curves)
+            {
+                RimSummaryCase* rimCase = curve->summaryCaseY();
+                double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                curve->setColor(cvf::Color3f(colorMapper.mapToColor(value)));
+                curve->updateCurveAppearance();
+            }
+        }
+    }
+    else if (m_colorMode == SINGLE_COLOR)
+    {
+        for (auto& curve : m_curves)
+        {
+            curve->setColor(m_color);
+            curve->updateCurveAppearance();
+        }
+    }
+
+    RimSummaryPlot* plot;
+    firstAncestorOrThisOfType(plot);
+    if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
 }

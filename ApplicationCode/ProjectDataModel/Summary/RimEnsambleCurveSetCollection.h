@@ -27,6 +27,7 @@
 
 class RimSummaryCase;
 class RimEnsambleCurveSet;
+class QwtPlot;
 
 //==================================================================================================
 ///  
@@ -42,7 +43,7 @@ public:
     bool                                    isCurveSetsVisible();
 
     void                                    loadDataAndUpdate(bool updateParentPlot);
-    //void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
+    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
     //RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;

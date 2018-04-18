@@ -56,9 +56,10 @@ public:
     virtual ~RimEnsambleCurveSet();
 
     bool                                    isCurvesVisible();
+    void                                    setColor(cvf::Color3f color);
 
     void                                    loadDataAndUpdate(bool updateParentPlot);
-    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
+    void                                    setParentQwtPlotNoReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
@@ -90,10 +91,13 @@ private:
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            initAfterRead() override;
 
     static void                             getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
                                                                               RimSummaryCase* summaryCase,
                                                                               RimSummaryFilter* summaryFilter);
+
+    void                                    updateCurveColors();
 
 private:
     caf::PdmField<bool>                         m_showCurves;

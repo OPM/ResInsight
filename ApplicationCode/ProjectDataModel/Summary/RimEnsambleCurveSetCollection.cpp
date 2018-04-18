@@ -19,6 +19,7 @@
 #include "RimEnsambleCurveSetCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -29,6 +30,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -123,6 +125,19 @@ void RimEnsambleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSetCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
+{
+    for (RimEnsambleCurveSet* curveSet : m_curveSets)
+    {
+        curveSet->setParentQwtPlotNoReplot(plot);
+    }
+
+    if (plot) plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsambleCurveSetCollection::detachQwtCurves()
 {
     for(const auto& curveSet : m_curveSets)
@@ -136,9 +151,15 @@ void RimEnsambleCurveSetCollection::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsambleCurveSetCollection::addCurveSet(RimEnsambleCurveSet* curveSet)
 {
+    static int nextAutoColorIndex = 1;
+    static int numberOfColors = (int)RiaColorTables::summaryCurveDefaultPaletteColors().size();
+
     if (curveSet)
     {
+        curveSet->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor(nextAutoColorIndex));
         m_curveSets.push_back(curveSet);
+
+        nextAutoColorIndex = (++nextAutoColorIndex) % numberOfColors;
     }
 }
 

@@ -38,6 +38,7 @@ class RimGridTimeHistoryCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
+class RimEnsambleCurveSet;
 class RimEnsambleCurveSetCollection;
 class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
