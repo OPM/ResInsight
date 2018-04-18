@@ -144,7 +144,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
             int secondLastEvenVertex = (int) vertices.size() - 4;
 
             // Border close to the well. All even indices.
-            for (size_t i = 0; i <= secondLastEvenVertex; i += 2)
+            for (int i = 0; i <= secondLastEvenVertex; i += 2)
             {
                 borderIndices.push_back((cvf::uint) i);
                 borderIndices.push_back((cvf::uint) i+2);
