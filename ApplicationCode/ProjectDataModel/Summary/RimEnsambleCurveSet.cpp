@@ -466,6 +466,7 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 plot->updateAxes();
             }
         }
+        updateCurveColors();
     }
     else if (changedField == &m_ensambleParameter ||
              changedField == &m_color ||

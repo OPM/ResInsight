@@ -23,9 +23,10 @@
 #include "cafCmdFeature.h"
 
 #include <QString>
+#include <vector>
 
 class RicSummaryCaseRestartDialogResult;
-
+class RimSummaryCase;
 
 //==================================================================================================
 /// 
@@ -35,9 +36,11 @@ class RicImportSummaryCasesFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicImportSummaryCasesFeature() : m_pathFilter("*"), m_fileNameFilter("*") { }
+    RicImportSummaryCasesFeature() { }
 
-    static bool createAndAddSummaryCasesFromFiles(const QStringList& fileName);
+    static bool createAndAddSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases = nullptr);
+
+    static std::vector<RimSummaryCase*> importSummaryCases(const QString& dialogTitle);
 
 protected:
     // Overrides
@@ -46,8 +49,8 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    QString m_pathFilter;
-    QString m_fileNameFilter;
+    static QString m_pathFilter;
+    static QString m_fileNameFilter;
 };
 
 

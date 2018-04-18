@@ -58,6 +58,8 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
@@ -451,8 +453,24 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewSummaryEnsambleCurveSetFeature";
         }
+        else if (dynamic_cast<RimSummaryCaseMainCollection*>(uiItem))
+        {
+            menuBuilder << "RicImportSummaryCaseFeature";
+            menuBuilder << "RicImportSummaryCasesFeature";
+            menuBuilder << "RicImportEnsambleFeature";
+        }
+        else if (dynamic_cast<RimSummaryCaseCollection*>(uiItem))
+        {
+            menuBuilder << "RicImportSummaryCaseFeature";
+            menuBuilder << "RicImportSummaryCasesFeature";
+            menuBuilder << "RicImportEnsambleFeature";
+        }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
+            menuBuilder << "RicImportSummaryCaseFeature";
+            menuBuilder << "RicImportSummaryCasesFeature";
+            menuBuilder << "RicImportEnsambleFeature";
+
             if (!dynamic_cast<RimObservedData*>(uiItem))
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";

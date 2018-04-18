@@ -36,6 +36,24 @@ CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCase
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName)
+{
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+    if (!cases.empty())
+    {
+        cases[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+
+        summaryCaseMainCollection->addCaseCollection(cases, groupName);
+        summaryCaseMainCollection->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> selection;
@@ -65,14 +83,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&selection);
     if (selection.size() == 0) return;
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
-
-    summaryCaseMainCollection->addCaseCollection(selection);
-    summaryCaseMainCollection->updateConnectedEditors();
-    
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
+    groupSummaryCases(selection, "");
 }
 
 //--------------------------------------------------------------------------------------------------

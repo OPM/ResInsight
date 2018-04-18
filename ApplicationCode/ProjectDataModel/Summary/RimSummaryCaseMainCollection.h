@@ -53,7 +53,7 @@ public:
     void                addCase(RimSummaryCase* summaryCase);
     void                removeCase(RimSummaryCase* summaryCase);
 
-    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases);
+    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases, const QString& coolectionName);
     void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
 
     void                loadAllSummaryCaseData();

@@ -36,6 +36,7 @@ public:
     void                addCase(RimSummaryCase* summaryCase);
 
     std::vector<RimSummaryCase*>    allSummaryCases();
+    void                            setName(const QString& name) { m_name = name; }
     QString                         name() const { return m_name; }
 
 private:

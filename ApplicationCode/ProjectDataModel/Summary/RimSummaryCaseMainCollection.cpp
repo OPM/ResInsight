@@ -193,9 +193,10 @@ void RimSummaryCaseMainCollection::removeCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::addCaseCollection(std::vector<RimSummaryCase*> summaryCases)
+void RimSummaryCaseMainCollection::addCaseCollection(std::vector<RimSummaryCase*> summaryCases, const QString& collectionName)
 {
     RimSummaryCaseCollection* summaryCaseCollection = new RimSummaryCaseCollection();
+    if(!collectionName.isEmpty()) summaryCaseCollection->setName(collectionName);
 
     for (RimSummaryCase* summaryCase : summaryCases)
     {
