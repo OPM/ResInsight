@@ -174,6 +174,8 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogExtractionCurve::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    options = Rim3dWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
     if (fieldNeedingOptions == &m_case)
     {
         RimTools::caseOptionItems(&options);
@@ -225,8 +227,7 @@ void Rim3dWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::Pd
         curveDataGroup->add(&m_timeStep);
     }
 
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    Rim3dWellLogCurve::appearanceUiOrdering(*appearanceGroup);
+    Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

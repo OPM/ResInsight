@@ -18,6 +18,7 @@
 
 #include "Rim3dWellLogCurve.h"
 
+#include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"
 
 //==================================================================================================
@@ -32,10 +33,10 @@ namespace caf
     template<>
     void AppEnum< Rim3dWellLogCurve::DrawPlane >::setUp()
     {
-        addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Vertical - Above");
-        addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Vertical - Below");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Horizontal - Left");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Horizontal - Right");
+        addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Beside Well Path - Above");
+        addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Beside Well Path - Below");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Beside Well Path - Left");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Beside Well Path - Right");
         setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
     } 
 }
@@ -50,7 +51,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_drawPlane, "DrawPlane", "Draw Plane", "", "", "");
+    CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("3D Well Log Curve"), "3d Well Log Curve", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -141,10 +142,38 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
+void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveAppearanceGroup = uiOrdering.addNewGroup("Curve Appearance");
-    curveAppearanceGroup->add(&m_drawPlane);
-    curveAppearanceGroup->add(&m_color);
+    caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Configuration");
+    configurationGroup->add(&m_drawPlane);
+    configurationGroup->add(&m_color);
 }
 
+QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if (fieldNeedingOptions == &m_drawPlane)
+    {
+        Rim3dWellLogCurveCollection* collection;
+        this->firstAncestorOrThisOfTypeAsserted(collection);
+        if (collection->planePositionVertical() == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
+        {
+            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::VERTICAL_ABOVE), Rim3dWellLogCurve::VERTICAL_ABOVE));
+            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::VERTICAL_BELOW), Rim3dWellLogCurve::VERTICAL_BELOW));
+        }
+        else
+        {
+            options.push_back(caf::PdmOptionItemInfo(QString("Vertical - Centered"), Rim3dWellLogCurve::VERTICAL_ABOVE));
+        }
+        if (collection->planePositionHorizontal() == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
+        {
+            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::HORIZONTAL_LEFT), Rim3dWellLogCurve::HORIZONTAL_LEFT));
+            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::HORIZONTAL_RIGHT), Rim3dWellLogCurve::HORIZONTAL_RIGHT));
+        }
+        else
+        {
+            options.push_back(caf::PdmOptionItemInfo(QString("Horizontal - Centered"), Rim3dWellLogCurve::HORIZONTAL_LEFT));
+        }
+    }
+    return options;
+}

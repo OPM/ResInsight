@@ -40,7 +40,7 @@ public:
         HORIZONTAL_LEFT,
         HORIZONTAL_RIGHT
     };
-
+    typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
 public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
@@ -58,7 +58,8 @@ protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
-    void                                    appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 protected:
     caf::PdmField<QString>                          m_name;

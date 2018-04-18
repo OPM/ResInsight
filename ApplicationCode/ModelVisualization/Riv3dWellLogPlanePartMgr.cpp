@@ -87,7 +87,6 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     if (m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty()) return;
 
     const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-    Rim3dWellLogCurveCollection::PlanePosition planePosition   = curveCollection->planePosition();
 
     size_t colorIndex = 0;
 
@@ -105,8 +104,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
                                                                wellPathClipBoundingBox,
                                                                resultValues,
                                                                resultMds,
-                                                               planeAngle(rim3dWellLogCurve->drawPlane()),
-                                                               wellPathCenterToPlotStartOffset(planePosition),
+                                                               planeAngle(curveCollection, rim3dWellLogCurve),
+                                                               wellPathCenterToPlotStartOffset(curveCollection, rim3dWellLogCurve),
                                                                planeWidth());
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
@@ -129,6 +128,9 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable, cvf::Effect* effect)
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
@@ -145,40 +147,56 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Riv3dWellLogPlanePartMgr::planeAngle(const Rim3dWellLogCurve::DrawPlane& drawPlane)
+double Riv3dWellLogPlanePartMgr::planeAngle(const Rim3dWellLogCurveCollection* collection,
+                                            const Rim3dWellLogCurve* curve)
 {
-    switch (drawPlane)
+    switch (curve->drawPlane())
     {
-        case Rim3dWellLogCurve::HORIZONTAL_LEFT:
-            return cvf::PI_D / 2.0;
-        case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
-            return -cvf::PI_D / 2.0;
-        case Rim3dWellLogCurve::VERTICAL_ABOVE:
-            return 0.0;
-        case Rim3dWellLogCurve::VERTICAL_BELOW:
-            return cvf::PI_D;
-        default:
-            return 0;
+    case Rim3dWellLogCurve::HORIZONTAL_LEFT:
+        return cvf::PI_D / 2.0;
+    case Rim3dWellLogCurve::HORIZONTAL_RIGHT:
+        if (collection->planePositionHorizontal() == Rim3dWellLogCurveCollection::ON_WELLPATH)
+        {
+            return cvf::PI_D / 2.0; // Always left when on well path
+        }
+        return -cvf::PI_D / 2.0;
+    case Rim3dWellLogCurve::VERTICAL_ABOVE:
+        return 0.0;
+    case Rim3dWellLogCurve::VERTICAL_BELOW:
+        if (collection->planePositionVertical() == Rim3dWellLogCurveCollection::ON_WELLPATH)
+        {
+            return 0.0; // Always above when on well path.
+        }
+        return cvf::PI_D;
+    default:
+        return 0;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Riv3dWellLogPlanePartMgr::wellPathCenterToPlotStartOffset(Rim3dWellLogCurveCollection::PlanePosition planePosition) const
+double Riv3dWellLogPlanePartMgr::wellPathCenterToPlotStartOffset(const Rim3dWellLogCurveCollection* collection, const Rim3dWellLogCurve* curve) const
 {
-    if (!m_gridView) return 0;
-
-    double cellSize = m_gridView->ownerCase()->characteristicCellSize();
-
-    if (planePosition == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
+    bool centered = false;
+    if (curve->drawPlane() == Rim3dWellLogCurve::HORIZONTAL_LEFT ||
+        curve->drawPlane() == Rim3dWellLogCurve::HORIZONTAL_RIGHT)
     {
-        double wellPathOffset = std::min(m_wellPath->wellPathRadius(cellSize), 0.1 * planeWidth());
-        return m_wellPath->wellPathRadius(cellSize) + wellPathOffset;
+        centered = collection->planePositionHorizontal() == Rim3dWellLogCurveCollection::ON_WELLPATH;
     }
     else
     {
+        centered = collection->planePositionVertical() == Rim3dWellLogCurveCollection::ON_WELLPATH;
+    }
+    if (centered)
+    {
         return -0.5*planeWidth();
+    }
+    else
+    {
+        double cellSize = m_gridView->ownerCase()->characteristicCellSize();
+        double wellPathOffset = std::min(m_wellPath->wellPathRadius(cellSize), 0.1 * planeWidth());
+        return m_wellPath->wellPathRadius(cellSize) + wellPathOffset;
     }
 }
 
@@ -204,7 +222,6 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
                                                  double                              gridIntervalSize)
 {
     const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-    Rim3dWellLogCurveCollection::PlanePosition planePosition = curveCollection->planePosition();
     bool                                       showGrid = curveCollection->isShowingGrid();
     bool                                       showBackground = curveCollection->isShowingBackground();
 
@@ -215,8 +232,8 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
 
     bool gridCreated = m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
         wellPathClipBoundingBox,
-        planeAngle(rim3dWellLogCurve->drawPlane()),
-        wellPathCenterToPlotStartOffset(planePosition),
+        planeAngle(curveCollection, rim3dWellLogCurve),
+        wellPathCenterToPlotStartOffset(curveCollection, rim3dWellLogCurve),
         planeWidth(),
         gridIntervalSize);
     if (!gridCreated) return;

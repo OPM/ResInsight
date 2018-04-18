@@ -69,9 +69,8 @@ private:
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
-    static double planeAngle(const Rim3dWellLogCurve::DrawPlane& drawPlane);
-
-    double wellPathCenterToPlotStartOffset(Rim3dWellLogCurveCollection::PlanePosition planePosition) const;
+    static double planeAngle(const Rim3dWellLogCurveCollection* collection, const Rim3dWellLogCurve* curve);
+    double wellPathCenterToPlotStartOffset(const Rim3dWellLogCurveCollection* collection, const Rim3dWellLogCurve* curve) const;
     double planeWidth() const;
 
 private:

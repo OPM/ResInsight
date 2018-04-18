@@ -154,8 +154,7 @@ void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveDataGroup->add(&m_wellLogFile);
     curveDataGroup->add(&m_wellLogChannnelName);
 
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    Rim3dWellLogCurve::appearanceUiOrdering(*appearanceGroup);
+    Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }
