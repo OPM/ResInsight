@@ -33,10 +33,10 @@ namespace caf
     template<>
     void AppEnum< Rim3dWellLogCurve::DrawPlane >::setUp()
     {
-        addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Beside Well Path - Above");
-        addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Beside Well Path - Below");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Beside Well Path - Left");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Beside Well Path - Right");
+        addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Above");
+        addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Below");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Left");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Right");
         setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
     } 
 }
@@ -163,7 +163,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf
         }
         else
         {
-            options.push_back(caf::PdmOptionItemInfo(QString("Vertical - Centered"), Rim3dWellLogCurve::VERTICAL_ABOVE));
+            options.push_back(caf::PdmOptionItemInfo(QString("Vertical"), Rim3dWellLogCurve::VERTICAL_ABOVE));
         }
         if (collection->planePositionHorizontal() == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
         {
@@ -172,7 +172,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf
         }
         else
         {
-            options.push_back(caf::PdmOptionItemInfo(QString("Horizontal - Centered"), Rim3dWellLogCurve::HORIZONTAL_LEFT));
+            options.push_back(caf::PdmOptionItemInfo(QString("Horizontal"), Rim3dWellLogCurve::HORIZONTAL_LEFT));
         }
     }
     return options;
