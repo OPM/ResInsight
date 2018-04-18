@@ -4,12 +4,12 @@ class RimViewWindow {
   RimMdiWindowController mdiWindowGeometry()
 }
 
-note top of RimViewWindow : Updated 2017-02-24
+note top of RimViewWindow : Updated 2018-04-18 (NOTE : sub classes of RimViewWindow is not complete, consider Doxygen for this info
 
 class RimView {
 }
 
-RimViewWindow <|-- RimView
+RimViewWindow <|-- Rim3dView
 
 package plots {
 RimViewWindow <|-- RimSummaryPlot
@@ -20,8 +20,12 @@ RimViewWindow <|-- RimWellLogPlot
 
 RimViewWindow *-- RimMdiWindowController
 
-RimView <|-- RimEclipseView
-RimView <|-- RimGeoMechView
+Rim3dView <|-- Rim2dIntersectionView
+
+Rim3dView <|-- RimGridView
+
+RimGridView <|-- RimEclipseView
+RimGridView <|-- RimGeoMechView
 
 
 
