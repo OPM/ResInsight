@@ -442,7 +442,7 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   configure_file(Doxyfile.in 
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
-  add_custom_target (Docs ALL 
+  add_custom_target (Docs 
   					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
   					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
