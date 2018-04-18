@@ -38,11 +38,11 @@ public:
     };
 
 public:
-    static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const RigWellPath*             wellPathGeometry,
+    static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const std::vector<cvf::Vec3d>& vertices,
                                                                double                         angle);
 private:
     static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d& planeNormal,
                                                                const std::vector<cvf::Vec3d>& normals,
                                                                const std::vector<cvf::Vec3d>& vertices);
-    static cvf::Vec3d estimateDominantDirectionInXYPlane(const RigWellPath*             wellPathGeometry);
+    static cvf::Vec3d estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices);
 };

@@ -74,15 +74,26 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         return false;
     }
 
+    for (cvf::Vec3d& wellPathPoint : wellPathPoints)
+    {
+        wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
+    }
+
+    std::vector<cvf::Vec3d> wellPathSegmentNormals =
+        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, planeAngle);
+
+
     size_t originalWellPathSize = wellPathPoints.size();
 
     if (wellPathCollection->wellPathClip)
     {
+        double clipZDistance = wellPathCollection->wellPathClipZDistance;
         double horizontalLengthAlongWellToClipPoint;
-        double maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+        cvf::Vec3d clipLocation = wellPathClipBoundingBox.max() + clipZDistance * cvf::Vec3d(0, 0, 1);
+        clipLocation = displayCoordTransform->transformToDisplayCoord(clipLocation);
         size_t indexToFirstVisibleSegment;
         wellPathPoints = RigWellPath::clipPolylineStartAboveZ(
-            wellPathPoints, maxZClipHeight, &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
+            wellPathPoints, clipLocation.z(), &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
     }
 
     if (wellPathPoints.size() < (size_t) 2)
@@ -91,9 +102,8 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         return false;
     }
 
-    // calculateLineSegmentNormals returns normals for the whole well path. Erase the part which is clipped off
-    std::vector<cvf::Vec3d> wellPathSegmentNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle);
+    // Note that normals are calculated on the full non-clipped well path to increase the likelihood of creating good normals
+    // for the end points of the curve. So we need to clip the remainder here.
     wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
     {
@@ -106,10 +116,10 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         // Vertices are used for both surface and border
         for (size_t i = 0; i < wellPathPoints.size(); i++)
         {
-            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-                wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter)));
-            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-                wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+            vertices.push_back(cvf::Vec3f(
+                wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter));
+            vertices.push_back(cvf::Vec3f(
+                wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
             backgroundIndices.push_back((cvf::uint) (2 * i));
             backgroundIndices.push_back((cvf::uint) (2 * i + 1));
         }
@@ -177,7 +187,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         double md = lastMd;
         while (md >= firstMd)
         {
-            cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
+            cvf::Vec3d point = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathPoints, md);
             cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathSegmentNormals, md);
             interpolatedGridPoints.push_back(point);
             interpolatedGridCurveNormals.push_back(curveNormal.getNormalized());
@@ -193,11 +203,9 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         // Normal lines. Start from one to avoid drawing at surface edge.
         for (size_t i = 1; i < interpolatedGridCurveNormals.size(); i++)
         {
-            vertices.push_back(cvf::Vec3f(
-               displayCoordTransform->transformToDisplayCoord(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter)));
+            vertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter));
 
-            vertices.push_back(cvf::Vec3f(displayCoordTransform->transformToDisplayCoord(
-               interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * (planeOffsetFromWellPathCenter + planeWidth))));
+            vertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
 
             indices.push_back(indexCounter++);
             indices.push_back(indexCounter++);

@@ -29,14 +29,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(const RigWellPath*             wellPathGeometry,
+std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(const std::vector<cvf::Vec3d>& vertices,
                                                                               double                         planeAngle)
 {
     std::vector<cvf::Vec3d> pointNormals;
-
-    if (!wellPathGeometry) return pointNormals;
-
-    const std::vector<cvf::Vec3d>& vertices = wellPathGeometry->wellPathPoints();
 
     if (vertices.empty()) return pointNormals;
 
@@ -44,7 +40,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
 
     cvf::Vec3d up(0, 0, 1);
 
-    cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(wellPathGeometry);
+    cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
 
     const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
     CVF_ASSERT(projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon());
@@ -130,13 +126,12 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
     return interpolated;
 }
 
-cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const RigWellPath* wellPathGeometry)
+cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices)
 {
-    cvf::Vec3d                     directionSum(0, 0, 0);
-    const std::vector<cvf::Vec3d>& points = wellPathGeometry->m_wellPathPoints;
-    for (size_t i = 1; i < points.size(); ++i)
+    cvf::Vec3d directionSum(0, 0, 0);
+    for (size_t i = 1; i < vertices.size(); ++i)
     {
-        cvf::Vec3d vec = points[i] - points[i - 1];
+        cvf::Vec3d vec = vertices[i] - vertices[i - 1];
         vec.z()        = 0.0;
         if (directionSum.length() > 0.0 && (directionSum * vec) < 0.0)
         {

@@ -107,22 +107,30 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
     RimWellPathCollection* wellPathCollection = nullptr;
     m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
 
-    double maxZClipHeight = wellPathGeometry()->m_wellPathPoints.front().z();
+    cvf::Vec3d clipLocation = wellPathGeometry()->m_wellPathPoints.front();
     if (wellPathCollection->wellPathClip)
     {
-        maxZClipHeight = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+        double clipZDistance = wellPathCollection->wellPathClipZDistance;
+        clipLocation = wellPathClipBoundingBox.max() + clipZDistance * cvf::Vec3d(0, 0, 1);
+    }
+    clipLocation = displayCoordTransform->transformToDisplayCoord(clipLocation);
+
+    std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
+    for (cvf::Vec3d& wellPathPoint : wellPathPoints)
+    {
+        wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
     }
 
-    std::vector<cvf::Vec3d> wellPathCurveNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathGeometry(), planeAngle);
+    std::vector<cvf::Vec3d> wellPathCurveNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, planeAngle);
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;
     // Iterate from bottom of well path and up to be able to stop at given Z max clipping height
     for (auto md = resultMds.rbegin(); md != resultMds.rend(); md++)
     {
-        cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(*md);
+        cvf::Vec3d point = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathPoints, *md);
         cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathCurveNormals, *md);
-        if (point.z() > maxZClipHeight) break;
+        if (point.z() > clipLocation.z()) break;
 
         interpolatedWellPathPoints.push_back(point);
         interpolatedCurveNormals.push_back(normal.getNormalized());
@@ -162,8 +170,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
                 planeOffsetFromWellPathCenter + (resultValuesForInterpolatedPoints[i] - minResult) * plotRangeToResultRangeFactor;
         }
 
-        (*vertices)[i] = cvf::Vec3f(
-            displayCoordTransform->transformToDisplayCoord(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]));
+        (*vertices)[i] = cvf::Vec3f(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);
     }
 
     std::vector<std::pair<size_t, size_t>> valuesIntervals =
