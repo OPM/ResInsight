@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RiuSummaryCurveDefSelectionDialog.h"
+
 #include "RifReaderEclipseSummary.h"
 
 #include "RimProject.h"
@@ -105,7 +107,7 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
 
     CAF_PDM_InitFieldNoDefault(&m_yValuesSelectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
     m_yValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
-    //m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
+    m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "");
     m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
@@ -126,6 +128,7 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
     CAF_PDM_InitFieldNoDefault(&m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_yPushButtonSelectSummaryAddress);
     m_yPushButtonSelectSummaryAddress = false;
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiReadOnly(true);
 
     m_yValuesCurveVariable = new RimSummaryAddress;
 
@@ -134,6 +137,8 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
     CAF_PDM_InitField(&m_ensambleParameter, "EnsambleParameter", QString(""), "Ensamble Parameter", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendConfig", "", "", "", "");
     m_legendConfig = new RimRegularLegendConfig();
@@ -177,6 +182,10 @@ void RimEnsambleCurveSet::setColor(cvf::Color3f color)
 //--------------------------------------------------------------------------------------------------
 void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 {
+    m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
+
+    m_yValuesSummaryFilter->updateFromAddress(m_yValuesCurveVariable->address());
+
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->loadDataAndUpdate(false);
@@ -451,46 +460,26 @@ RimRegularLegendConfig* RimEnsambleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    CVF_ASSERT(plot);
+
     if (changedField == &m_showCurves)
     {
         loadDataAndUpdate(true);
     }
-    else if (changedField == &m_yValuesSummaryGroup || changedField == &m_yValuesSelectedVariableDisplayField)
+    else if (changedField == &m_yValuesUiFilterResultSelection)
     {
-        // Update backing field
-        m_yValuesCurveVariable->setAddress(m_yValuesSelectedVariableDisplayField);
+        m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
-        deleteAllCurves();
+        createNewCurves();
 
-        RimSummaryPlot* plot;
-        firstAncestorOrThisOfType(plot);
-        if (plot) plot->loadDataAndUpdate();
-
-        RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
-        RifEclipseSummaryAddress addr = m_yValuesSelectedVariableDisplayField();
-        if (group && plot && addr.category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
-        {
-            for (auto& sumCase : group->allSummaryCases())
-            {
-                RimSummaryCurve* curve = new RimSummaryCurve();
-                curve->setSummaryCaseY(sumCase);
-                curve->setSummaryAddressY(addr);
-
-                addCurve(curve);
-
-                curve->updateCurveVisibility(true);
-                curve->loadDataAndUpdate(true);
-            }
-
-            RimSummaryPlot* plot;
-            firstAncestorOrThisOfType(plot);
-            if (plot && plot->qwtPlot())
-            {
-                plot->qwtPlot()->replot();
-                plot->updateAxes();
-            }
-        }
-        updateCurveColors();
+        //RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        //mainPlotWindow->updateSummaryPlotToolBar();
+    }
+    else if (changedField == &m_yValuesSummaryGroup)
+    {
+        createNewCurves();
     }
     else if (changedField == &m_ensambleParameter ||
              changedField == &m_color ||
@@ -498,14 +487,49 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         updateCurveColors();
     }
-}
+    else if (changedField == &m_plotAxis)
+    {
+        for (RimSummaryCurve* curve : curves())
+        {
+            curve->setLeftOrRightAxisY(m_plotAxis());
+        }
+        updateQwtPlotAxis();
+        plot->updateAxes();
+    }
+    else if (changedField == &m_yPushButtonSelectSummaryAddress)
+    {
+        //RiuSummaryCurveDefSelectionDialog dlg(nullptr);
+        //RimSummaryCase* candidateCase = m_yValuesSummaryCase();
+        //RifEclipseSummaryAddress candicateAddress = m_yValuesCurveVariable->address();
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::initAfterRead()
-{
-    m_yValuesSelectedVariableDisplayField = m_yValuesCurveVariable->address();
+        //if (candidateCase == nullptr)
+        //{
+        //    candidateCase = m_xValuesSummaryCase();
+        //}
+
+        //if (!candicateAddress.isValid())
+        //{
+        //    candicateAddress = m_xValuesCurveVariable->address();
+        //}
+
+        //dlg.setCaseAndAddress(candidateCase, candicateAddress);
+
+        //if (dlg.exec() == QDialog::Accepted)
+        //{
+        //    auto curveSelection = dlg.curveSelection();
+        //    if (curveSelection.size() > 0)
+        //    {
+        //        m_yValuesSummaryCase = curveSelection[0].summaryCase();
+        //        m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+
+        //        crossPlotTestForMatchingTimeSteps = true;
+        //        loadAndUpdate = true;
+        //    }
+        //}
+
+        //m_yPushButtonSelectSummaryAddress = false;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,6 +542,7 @@ void RimEnsambleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
         curveDataGroup->add(&m_yValuesSummaryGroup);
         curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
+        curveDataGroup->add(&m_plotAxis);
         curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
 
         QString curveVarSelectionGroupName = "Vector Selection Filter Y";
@@ -592,12 +617,18 @@ caf::PdmFieldHandle* RimEnsambleCurveSet::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimEnsambleCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
-    if (myAttr && m_currentSummaryCurve.notNull())
+    //caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
+    //if (myAttr && m_currentSummaryCurve.notNull())
+    //{
+    //    myAttr->currentObject = m_currentSummaryCurve.p();
+    //}
+
+    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+    if (attrib)
     {
-        myAttr->currentObject = m_currentSummaryCurve.p();
+        attrib->m_buttonText = "Vector Selection Dialog";
     }
 }
 
@@ -644,25 +675,30 @@ QList<caf::PdmOptionItemInfo> RimEnsambleCurveSet::calculateValueOptions(const c
             }
         }
     }
+    else if (fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
+    {
+        appendOptionItemsForSummaryAddresses(&options, m_yValuesSummaryGroup(), m_yValuesSummaryFilter());
+    }
     else if (fieldNeedingOptions == &m_yValuesSelectedVariableDisplayField)
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
-        std::map<QString, RifEclipseSummaryAddress> allOpts;
 
-        if (group)
-        {
-            for (auto& sumCase : group->allSummaryCases())
-            {
-                std::map<QString, RifEclipseSummaryAddress> opts;
-                RimSummaryFilter filter;
-                getOptionsForSummaryAddresses(&opts, sumCase, &filter);
+        //RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
+        //std::map<QString, RifEclipseSummaryAddress> allOpts;
 
-                for (auto& opt : opts) allOpts.insert(opt);
-            }
-        }
+        //if (group)
+        //{
+        //    for (auto& sumCase : group->allSummaryCases())
+        //    {
+        //        std::map<QString, RifEclipseSummaryAddress> opts;
+        //        RimSummaryFilter filter;
+        //        getOptionsForSummaryAddresses(&opts, sumCase, &filter);
 
-        for (const auto& opt : allOpts) options.push_back(caf::PdmOptionItemInfo(opt.first, QVariant::fromValue(opt.second)));
-        options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
+        //        for (auto& opt : opts) allOpts.insert(opt);
+        //    }
+        //}
+
+        //for (const auto& opt : allOpts) options.push_back(caf::PdmOptionItemInfo(opt.first, QVariant::fromValue(opt.second)));
+        //options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
     }
 
     //else if (fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
@@ -696,6 +732,37 @@ void RimEnsambleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEcl
                 options->insert(std::make_pair(s, address));
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                           RimSummaryCaseCollection* summaryCaseGroup,
+                                                           RimSummaryFilter* summaryFilter)
+{
+    // BEJ
+    RimSummaryCase* summaryCase = summaryCaseGroup->allSummaryCases().front();
+
+    if (summaryCase)
+    {
+        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+        if (reader)
+        {
+            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+
+            for (auto& address : allAddresses)
+            {
+                if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
+
+                std::string name = address.uiText();
+                QString s = QString::fromStdString(name);
+                options->push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
+            }
+        }
+
+        options->push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
     }
 }
 
@@ -750,4 +817,55 @@ void RimEnsambleCurveSet::updateCurveColors()
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType(plot);
     if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::updateQwtPlotAxis()
+{
+    for (RimSummaryCurve* curve : curves())
+    {
+        curve->updateQwtPlotAxis();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsambleCurveSet::createNewCurves()
+{
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    CVF_ASSERT(plot);
+
+    deleteAllCurves();
+
+    plot->loadDataAndUpdate();
+
+    RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+    RimSummaryAddress* addr = m_yValuesCurveVariable();
+    if (group && plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
+    {
+        for (auto& sumCase : group->allSummaryCases())
+        {
+            RimSummaryCurve* curve = new RimSummaryCurve();
+            curve->setSummaryCaseY(sumCase);
+            curve->setSummaryAddressY(addr->address());
+
+            addCurve(curve);
+
+            curve->updateCurveVisibility(true);
+            curve->loadDataAndUpdate(true);
+        }
+
+        RimSummaryPlot* plot;
+        firstAncestorOrThisOfType(plot);
+        if (plot->qwtPlot())
+        {
+            plot->qwtPlot()->replot();
+            plot->updateAxes();
+        }
+    }
+    updateCurveColors();
 }

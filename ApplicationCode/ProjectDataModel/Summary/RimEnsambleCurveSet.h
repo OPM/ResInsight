@@ -21,6 +21,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RiaDefines.h"
+
 #include "RimRegularLegendConfig.h"
 
 #include "cafPdmFieldCvfColor.h"    
@@ -83,8 +85,7 @@ public:
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();
-    virtual void                            defineObjectEditorAttribute(QString uiConfigName,
-                                                                        caf::PdmUiEditorAttribute* attribute) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -92,13 +93,18 @@ private:
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            initAfterRead() override;
 
     static void                             getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
                                                                               RimSummaryCase* summaryCase,
                                                                               RimSummaryFilter* summaryFilter);
 
+    static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                                                 RimSummaryCaseCollection* summaryCaseGroup,
+                                                                                 RimSummaryFilter* summaryFilter);
+
     void                                    updateCurveColors();
+    void                                    updateQwtPlotAxis();
+    void                                    createNewCurves();
 
 private:
     caf::PdmField<bool>                         m_showCurves;
@@ -113,7 +119,7 @@ private:
     // Y values
     caf::PdmPtrField<RimSummaryCaseCollection*>  m_yValuesSummaryGroup;
     caf::PdmChildField<RimSummaryAddress*>  m_yValuesCurveVariable;
-    caf::PdmField<RifEclipseSummaryAddress> m_yValuesSelectedVariableDisplayField;
+    caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
     caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
     caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
@@ -121,6 +127,8 @@ private:
     caf::PdmField<caf::AppEnum<ColorMode>>  m_colorMode;
     caf::PdmField<cvf::Color3f>             m_color;
     caf::PdmField<QString>                  m_ensambleParameter;
+
+    caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 
     caf::PdmChildField<RimRegularLegendConfig*>    m_legendConfig;
 };
