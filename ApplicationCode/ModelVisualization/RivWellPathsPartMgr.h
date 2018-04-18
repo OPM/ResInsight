@@ -77,6 +77,6 @@ private:
 
 private:
     caf::PdmPointer<Rim3dView>                  m_rimView;
-    cvf::Collection<RivWellPathPartMgr>         m_wellPatshsPartMgrs;
+    cvf::Collection<RivWellPathPartMgr>         m_wellPathsPartMgrs;
     std::map<RimWellPath*, RivWellPathPartMgr*> m_mapFromViewToIndex;
 };

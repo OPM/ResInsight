@@ -52,7 +52,7 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* 
 
     createPartManagersIfRequired();
 
-    for (auto& partMgr : m_wellPatshsPartMgrs)
+    for (auto& partMgr : m_wellPathsPartMgrs)
     {
         partMgr->appendStaticGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
     }
@@ -67,7 +67,7 @@ void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* 
 
     createPartManagersIfRequired();
 
-    for (auto& partMgr : m_wellPatshsPartMgrs)
+    for (auto& partMgr : m_wellPathsPartMgrs)
     {
         partMgr->appendStaticFracturePartsToModel(model);
     }
@@ -86,7 +86,7 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 
     createPartManagersIfRequired();
 
-    for (auto& partMgr : m_wellPatshsPartMgrs)
+    for (auto& partMgr : m_wellPathsPartMgrs)
     {
         partMgr->appendDynamicGeometryPartsToModel(
             model, timeStepIndex, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
@@ -98,7 +98,7 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 void RivWellPathsPartMgr::clearGeometryCache()
 {
-    m_wellPatshsPartMgrs.clear();
+    m_wellPathsPartMgrs.clear();
     m_mapFromViewToIndex.clear();
 }
 
@@ -115,14 +115,14 @@ void RivWellPathsPartMgr::createPartManagersIfRequired()
     RimProject* proj      = RiaApplication::instance()->project();
     auto        wellPaths = proj->allWellPaths();
 
-    if (m_wellPatshsPartMgrs.size() != wellPaths.size())
+    if (m_wellPathsPartMgrs.size() != wellPaths.size())
     {
         clearGeometryCache();
 
         for (auto wellPath : wellPaths)
         {
             RivWellPathPartMgr* wppm = new RivWellPathPartMgr(wellPath, m_rimView);
-            m_wellPatshsPartMgrs.push_back(wppm);
+            m_wellPathsPartMgrs.push_back(wppm);
             m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
