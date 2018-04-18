@@ -33,7 +33,7 @@
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -360,7 +360,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
 
         cvf::Color4f fractureColor = cvf::Color4f(activeView.fractureColors()->defaultColor());
         
-        RimLegendConfig* legendConfig = nullptr; 
+        RimRegularLegendConfig* legendConfig = nullptr; 
         if (activeView.fractureColors() && activeView.fractureColors()->isChecked()) 
         { 
             legendConfig = activeView.fractureColors()->activeLegend(); 
@@ -421,7 +421,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
     std::vector<cvf::Vec3f> nodeDisplayCoords = transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
 
-    RimLegendConfig* legendConfig = nullptr;
+    RimRegularLegendConfig* legendConfig = nullptr;
     if (activeView.fractureColors() && activeView.fractureColors()->isChecked())
     {
         legendConfig = activeView.fractureColors()->activeLegend();
@@ -545,7 +545,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
     {
         std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
 
-        RimLegendConfig* legendConfig = nullptr;
+        RimRegularLegendConfig* legendConfig = nullptr;
         if (activeView.fractureColors() && 
             activeView.fractureColors()->isChecked() &&
             activeView.fractureColors()->activeLegend())

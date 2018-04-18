@@ -21,7 +21,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
@@ -121,6 +121,6 @@ private:
     caf::PdmField<cvf::Color3f>             m_color;
     caf::PdmField<QString>                  m_ensambleParameter;
 
-    caf::PdmChildField<RimLegendConfig*>    m_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>    m_legendConfig;
 };
 

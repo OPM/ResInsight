@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -41,7 +41,7 @@ public:
 
     bool             isActive() const;
     double           geometryScaleFactor() const;
-    RimLegendConfig* legendConfig() const;
+    RimRegularLegendConfig* legendConfig() const;
 
     void             loadData();
 
@@ -56,5 +56,5 @@ private:
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<double>                   m_geometryScaleFactor;
 
-    caf::PdmChildField<RimLegendConfig*>    m_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>    m_legendConfig;
 };

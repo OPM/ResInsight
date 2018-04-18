@@ -53,12 +53,12 @@ class Rim3dView;
 ///  
 ///  
 //==================================================================================================
-class RimLegendConfig:  public caf::PdmObject
+class RimRegularLegendConfig:  public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimLegendConfig();
-    virtual ~RimLegendConfig();
+    RimRegularLegendConfig();
+    virtual ~RimRegularLegendConfig();
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
@@ -117,7 +117,7 @@ public:
 
     void                                        setTitle(const QString& title);
 
-    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
+    void                                        setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     caf::TitledOverlayFrame*                    legend();

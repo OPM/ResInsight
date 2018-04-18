@@ -47,7 +47,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimIntersectionCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"

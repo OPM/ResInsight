@@ -25,7 +25,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
@@ -68,7 +68,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     m_legendConfig.uiCapability()->setUiHidden(true);
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden(true);
     m_legendConfig.xmlCapability()->disableIO();
-    m_legendConfig = new RimLegendConfig();
+    m_legendConfig = new RimRegularLegendConfig();
 
     CAF_PDM_InitFieldNoDefault(&m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
     m_ternaryLegendConfig.uiCapability()->setUiTreeHidden(true);

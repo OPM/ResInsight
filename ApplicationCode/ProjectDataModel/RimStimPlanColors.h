@@ -33,7 +33,7 @@ namespace caf {
 }
 
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 class RimFractureTemplateCollection;
 
 //==================================================================================================
@@ -54,7 +54,7 @@ public:
     RimStimPlanColors();
     virtual ~RimStimPlanColors();
 
-    RimLegendConfig*    activeLegend() const;
+    RimRegularLegendConfig*    activeLegend() const;
     QString             uiResultName() const;
     void                setDefaultResultName();
     QString             unit() const;
@@ -85,7 +85,7 @@ private:
 private:
     caf::PdmField<cvf::Color3f>                 m_defaultColor;
     caf::PdmField<QString>                      m_resultNameAndUnit;
-    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigurations;
+    caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigurations;
     caf::PdmField<bool>                         m_showStimPlanMesh;
     caf::PdmField<caf::AppEnum<StimPlanResultColorType>> m_stimPlanCellVizMode;
 

@@ -29,7 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
@@ -143,7 +143,7 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             // Not found ?
             if (!found)
             {
-                    RimLegendConfig* newLegend = new RimLegendConfig;
+                    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
                     newLegend->resultVariableName = resultVarNameOfNewLegend;
                     m_legendConfigData.push_back(newLegend);
 
@@ -168,7 +168,7 @@ void RimEclipseCellColors::initAfterRead()
     if (obsoleteField_legendConfig)
     {
         // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
-        RimLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
+        RimRegularLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
 
         // set to NULL before pushing into container
         obsoleteField_legendConfig = nullptr;
@@ -208,19 +208,19 @@ void RimEclipseCellColors::updateLegendCategorySettings()
 
     if (this->hasCategoryResult())
     {
-        legendConfig()->setMappingMode(RimLegendConfig::CATEGORY_INTEGER);
-        legendConfig()->setColorRangeMode(RimLegendConfig::CATEGORY);
+        legendConfig()->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
+        legendConfig()->setColorRangeMode(RimRegularLegendConfig::CATEGORY);
     }
     else
     {
-        if (legendConfig()->mappingMode() == RimLegendConfig::CATEGORY_INTEGER)
+        if (legendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER)
         {
-            legendConfig()->setMappingMode(RimLegendConfig::LINEAR_CONTINUOUS);
+            legendConfig()->setMappingMode(RimRegularLegendConfig::LINEAR_CONTINUOUS);
         }
 
-        if (legendConfig()->colorRangeMode() == RimLegendConfig::CATEGORY)
+        if (legendConfig()->colorRangeMode() == RimRegularLegendConfig::CATEGORY)
         {
-            legendConfig()->setColorRangeMode(RimLegendConfig::NORMAL);
+            legendConfig()->setColorRangeMode(RimRegularLegendConfig::NORMAL);
         }
     }
 }
@@ -274,7 +274,7 @@ public :
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendData(size_t currentTimeStep, 
-                                            RimLegendConfig* legendConfig, 
+                                            RimRegularLegendConfig* legendConfig, 
                                             RimTernaryLegendConfig* ternaryLegendConfig)
 {
     if (!legendConfig) legendConfig = this->legendConfig();
@@ -514,7 +514,7 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimEclipseCellColors::legendConfig()
+RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 {
     return m_legendConfigPtrField;
 }

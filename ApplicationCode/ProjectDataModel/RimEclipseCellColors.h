@@ -27,7 +27,7 @@
 #include "cafPdmPtrField.h"
 
 class RimTernaryLegendConfig;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -44,9 +44,9 @@ public:
     RimEclipseView*                             reservoirView();
 
     void                                        updateLegendData(size_t timestep, 
-                                                                 RimLegendConfig* legendConfig = nullptr,
+                                                                 RimRegularLegendConfig* legendConfig = nullptr,
                                                                  RimTernaryLegendConfig* ternaryLegendConfig = nullptr);
-    RimLegendConfig*                            legendConfig();
+    RimRegularLegendConfig*                            legendConfig();
     caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     virtual void                                setResultVariable(const QString& resultName);
@@ -67,12 +67,12 @@ protected:
 private:
     void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigData;
-    caf::PdmPtrField<RimLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigData;
+    caf::PdmPtrField<RimRegularLegendConfig*>          m_legendConfigPtrField;
 
     caf::PdmPointer<RimEclipseView>             m_reservoirView;
 
     // Obsolete   
-    caf::PdmChildField<RimLegendConfig*>        obsoleteField_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>        obsoleteField_legendConfig;
 };
 

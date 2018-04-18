@@ -19,7 +19,7 @@
 
 #include "RimGeoMechCellColors.h"
 
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT(RimGeoMechCellColors, "GeoMechResultSlot");
 RimGeoMechCellColors::RimGeoMechCellColors(void)
 {
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
-    this->legendConfig = new RimLegendConfig();
+    this->legendConfig = new RimRegularLegendConfig();
     legendConfig.uiCapability()->setUiHidden(true);
 }
 
@@ -87,19 +87,19 @@ void RimGeoMechCellColors::updateLegendCategorySettings()
 {
     if(this->hasCategoryResult())
     {
-        legendConfig->setMappingMode(RimLegendConfig::CATEGORY_INTEGER);
-        legendConfig->setColorRangeMode(RimLegendConfig::CATEGORY);
+        legendConfig->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
+        legendConfig->setColorRangeMode(RimRegularLegendConfig::CATEGORY);
     }
     else
     {
-        if(legendConfig->mappingMode() == RimLegendConfig::CATEGORY_INTEGER)
+        if(legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER)
         {
-            legendConfig->setMappingMode(RimLegendConfig::LINEAR_CONTINUOUS);
+            legendConfig->setMappingMode(RimRegularLegendConfig::LINEAR_CONTINUOUS);
         }
 
-        if(legendConfig->colorRangeMode() == RimLegendConfig::CATEGORY)
+        if(legendConfig->colorRangeMode() == RimRegularLegendConfig::CATEGORY)
         {
-            legendConfig->setColorRangeMode(RimLegendConfig::NORMAL);
+            legendConfig->setColorRangeMode(RimRegularLegendConfig::NORMAL);
         }
     }
 }

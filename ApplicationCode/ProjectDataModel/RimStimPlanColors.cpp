@@ -23,7 +23,7 @@
 
 #include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -105,8 +105,8 @@ void RimStimPlanColors::loadDataAndUpdate()
 
     // Delete legends referencing results not present on file
     {
-        std::vector<RimLegendConfig*> toBeDeleted;
-        for (RimLegendConfig* legend : m_legendConfigurations)
+        std::vector<RimRegularLegendConfig*> toBeDeleted;
+        for (RimRegularLegendConfig* legend : m_legendConfigurations)
         {
             QString legendVariableName = legend->resultVariableName();
 
@@ -139,7 +139,7 @@ void RimStimPlanColors::loadDataAndUpdate()
         QString resultNameUnitString = toString(resultNameAndUnit);
         bool foundResult = false;
 
-        for (RimLegendConfig* legend : m_legendConfigurations)
+        for (RimRegularLegendConfig* legend : m_legendConfigurations)
         {
             if (legend->resultVariableName() == resultNameUnitString)
             {
@@ -149,10 +149,10 @@ void RimStimPlanColors::loadDataAndUpdate()
 
         if (!foundResult)
         {
-            RimLegendConfig* legendConfig = new RimLegendConfig();
+            RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
             legendConfig->resultVariableName = resultNameUnitString;
-            legendConfig->setMappingMode(RimLegendConfig::LINEAR_DISCRETE);
-            legendConfig->setColorRangeMode(RimLegendConfig::STIMPLAN);
+            legendConfig->setMappingMode(RimRegularLegendConfig::LINEAR_DISCRETE);
+            legendConfig->setColorRangeMode(RimRegularLegendConfig::STIMPLAN);
 
 
             m_legendConfigurations.push_back(legendConfig);
@@ -226,9 +226,9 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimStimPlanColors::activeLegend() const
+RimRegularLegendConfig* RimStimPlanColors::activeLegend() const
 {
-    for (RimLegendConfig* legendConfig : m_legendConfigurations)
+    for (RimRegularLegendConfig* legendConfig : m_legendConfigurations)
     {
         if (m_resultNameAndUnit == legendConfig->resultVariableName())
         {
@@ -276,7 +276,7 @@ cvf::Color3f RimStimPlanColors::defaultColor() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateLegendData()
 {
-    RimLegendConfig* legendConfig = activeLegend();
+    RimRegularLegendConfig* legendConfig = activeLegend();
     if (legendConfig)
     {
         double minValue = HUGE_VAL;

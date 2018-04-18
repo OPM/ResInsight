@@ -35,7 +35,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RivIntersectionPartMgr.h"
@@ -793,7 +793,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 QString resultValueText;
                 if (resultColors->hasCategoryResult())
                 {
-                    RimLegendConfig* legendConfig = resultColors->legendConfig();
+                    RimRegularLegendConfig* legendConfig = resultColors->legendConfig();
 
                     resultValueText += legendConfig->categoryNameFromCategoryValue(scalarValue);
                 }

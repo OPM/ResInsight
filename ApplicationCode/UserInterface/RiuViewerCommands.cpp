@@ -51,7 +51,7 @@
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"

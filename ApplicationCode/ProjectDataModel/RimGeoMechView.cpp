@@ -36,7 +36,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTensorResults.h"
 #include "RimViewLinker.h"
 
@@ -398,7 +398,7 @@ void RimGeoMechView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateTensorLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex)
+void RimGeoMechView::updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex)
 {
     if (!m_geomechCase || !m_geomechCase->geoMechData()) return;
 
@@ -432,7 +432,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges(RimLegendConfig* legendConf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex)
+void RimGeoMechView::updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex)
 {
     if (!m_geomechCase || !m_geomechCase->geoMechData()
         || !this->isTimeStepDependentDataVisible() 

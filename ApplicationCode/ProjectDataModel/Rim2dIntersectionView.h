@@ -22,7 +22,7 @@
 #include "cafPdmPtrField.h"
 
 class RimIntersection;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
@@ -93,7 +93,7 @@ protected:
     int                        timeStepCount();
 
 
-    caf::PdmChildField<RimLegendConfig*>        m_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>        m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
 
     caf::PdmPtrField<RimIntersection*> m_intersection;

@@ -8,7 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.h
@@ -115,7 +115,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.cpp

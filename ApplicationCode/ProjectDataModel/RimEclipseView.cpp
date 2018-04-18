@@ -50,7 +50,7 @@
 #include "RimGridCollection.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -151,7 +151,7 @@ RimEclipseView::RimEclipseView()
     this->cellResult()->setReservoirView(this);
 
     this->cellEdgeResult()->setReservoirView(this);
-    this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
+    this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimRegularLegendConfig::PINK_WHITE);
 
     this->faultResultSettings()->setReservoirView(this);
 
@@ -1097,7 +1097,7 @@ void RimEclipseView::updateLegends()
         }
     }
 
-    RimLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
+    RimRegularLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
     if (stimPlanLegend && stimPlanLegend->showLegend())
     {
         fractureColors()->updateLegendData();
@@ -1112,7 +1112,7 @@ void RimEclipseView::updateLegends()
     {
         updateVirtualConnectionLegendRanges();
 
-        RimLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
+        RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
         m_viewer->addColorLegendToBottomLeftCorner(virtLegend->legend());
     }
 }
@@ -1588,7 +1588,7 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::resetLegendsInViewer()
 {
-    RimLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
+    RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
     if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
 
     this->cellResult()->ternaryLegendConfig->recreateLegend();
@@ -1623,7 +1623,7 @@ void RimEclipseView::updateVirtualConnectionLegendRanges()
 
         if (minValue != HUGE_VAL)
         {
-            RimLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
+            RimRegularLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
 
             legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
             legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);

@@ -136,7 +136,7 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
     CAF_PDM_InitField(&m_ensambleParameter, "EnsambleParameter", QString(""), "Ensamble Parameter", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendConfig", "", "", "", "");
-    m_legendConfig = new RimLegendConfig();
+    m_legendConfig = new RimRegularLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------

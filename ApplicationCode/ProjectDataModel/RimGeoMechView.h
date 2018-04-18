@@ -42,7 +42,7 @@ class RimTensorResults;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 class RivTensorResultPartMgr;
 
 namespace cvf {
@@ -87,7 +87,7 @@ public:
 
     virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
 
-    void                                                updateLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
+    void                                                updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
     const cvf::ref<RivGeoMechVizLogic>                  vizLogic() const;
     const RimTensorResults*                             tensorResults() const;
@@ -112,7 +112,7 @@ private:
 
     void                                                updateLegends() override;
 
-    void                                                updateTensorLegendTextAndRanges(RimLegendConfig* legendConfig, int timeStepIndex);
+    void                                                updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                        initAfterRead() override;

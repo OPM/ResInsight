@@ -20,7 +20,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 CAF_PDM_SOURCE_INIT(RimVirtualPerforationResults, "RimVirtualPerforationResults");
 
@@ -41,7 +41,7 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     m_legendConfig.uiCapability()->setUiHidden(true);
 
-    m_legendConfig = new RimLegendConfig();
+    m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setTitle(connectionFactorUiName);
 
     // clang-format on
@@ -71,7 +71,7 @@ double RimVirtualPerforationResults::geometryScaleFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimVirtualPerforationResults::legendConfig() const
+RimRegularLegendConfig* RimVirtualPerforationResults::legendConfig() const
 {
     return m_legendConfig();
 }

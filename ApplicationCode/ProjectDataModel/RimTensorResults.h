@@ -23,14 +23,14 @@
 #include "cafPdmObject.h"
 
 #include "RigFemResultPosEnum.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 #include <QList>
 
 #include <vector>
 
 class RigFemResultAddress;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -76,7 +76,7 @@ public:
     QString                    resultFieldName() const;
     static QString             uiFieldName(const QString& fieldName);
 
-    caf::PdmChildField<RimLegendConfig*> arrowColorLegendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*> arrowColorLegendConfig;
 
 private:
     std::vector<std::string>                getResultMetaDataForUIFieldSetting();
@@ -107,5 +107,5 @@ private:
 
     caf::PdmField<caf::AppEnum<ScaleMethod>>         m_scaleMethod;
     caf::PdmField<float>                             m_sizeScale;
-    caf::PdmField<RimLegendConfig::RangeModeEnum>    m_rangeMode;
+    caf::PdmField<RimRegularLegendConfig::RangeModeEnum>    m_rangeMode;
 };

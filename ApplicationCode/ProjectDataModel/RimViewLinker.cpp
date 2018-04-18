@@ -34,7 +34,7 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"
 #include "Rim3dView.h"

@@ -29,7 +29,7 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimVirtualPerforationResults.h"

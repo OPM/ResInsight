@@ -33,7 +33,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RivFemPickSourceInfo.h"
 #include "RivPartPriority.h"
