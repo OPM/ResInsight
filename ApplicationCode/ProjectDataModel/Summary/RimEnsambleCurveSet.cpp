@@ -145,6 +145,13 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
 RimEnsambleCurveSet::~RimEnsambleCurveSet()
 {
     m_curves.deleteAllChildObjects();
+
+    RimSummaryPlot* parentPlot;
+    firstAncestorOrThisOfTypeAsserted(parentPlot);
+    if (parentPlot->qwtPlot())
+    {
+        parentPlot->qwtPlot()->removeEnsambleCurveSetLegend(this);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,6 +192,15 @@ void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
             parentPlot->qwtPlot()->updateLegend();
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
+
+            if (m_showCurves() && m_colorMode() == BY_ENSAMBLE_PARAM)
+            {
+                parentPlot->qwtPlot()->addOrUpdateEnsambleCurveSetLegend(this);
+            }
+            else
+            {
+                parentPlot->qwtPlot()->removeEnsambleCurveSetLegend(this);
+            }
         }
     }
 }
@@ -420,6 +436,14 @@ void RimEnsambleCurveSet::handleKeyPressEvent(QKeyEvent* keyEvent)
     //        keyEvent->accept();
     //    }
     //}
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimEnsambleCurveSet::legendConfig()
+{
+    return m_legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

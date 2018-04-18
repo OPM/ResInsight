@@ -52,6 +52,12 @@
 
 #include <float.h>
 
+#include "RiuWidgetDragger.h"
+#include "RiuCvfOverlayItemWidget.h"
+#include "RimEnsambleCurveSet.h"
+#include "RimRegularLegendConfig.h"
+#include "cafTitledOverlayFrame.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -156,6 +162,48 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
         m_zoomerRight->zoom(zoomWindow);
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::addOrUpdateEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor)
+{
+   RiuCvfOverlayItemWidget* overlayWidget = nullptr;
+
+   auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
+   if (it ==  m_ensembleLegendWidgets.end() || it->second == nullptr)
+   {
+       overlayWidget = new RiuCvfOverlayItemWidget(this);
+       new RiuWidgetDragger(overlayWidget);
+
+       m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
+       overlayWidget->move(30, 30);
+   }
+   else
+   {
+        overlayWidget = it->second;
+   }
+
+   if ( overlayWidget )
+   {
+       overlayWidget->updateFromOverlyItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
+       overlayWidget->show();
+   }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::removeEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor)
+{
+    auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
+    if ( it !=  m_ensembleLegendWidgets.end() )
+    {
+        if ( it->second != nullptr ) it->second->deleteLater();
+ 
+        m_ensembleLegendWidgets.erase(it);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

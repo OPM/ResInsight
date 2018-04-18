@@ -79,6 +79,7 @@ public:
     //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
+    RimRegularLegendConfig*                 legendConfig(); 
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();

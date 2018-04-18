@@ -32,8 +32,12 @@ class QwtPlotZoomer;
 class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
+class QwtScaleWidget;
+
+class RiuCvfOverlayItemWidget;
 
 class RimSummaryPlot;
+class RimEnsambleCurveSet;
 
 //==================================================================================================
 //
@@ -61,6 +65,9 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
+    void                            addOrUpdateEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor);
+    void                            removeEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor);
+
     static void                     setCommonPlotBehaviour(QwtPlot* plot);
     static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
 
@@ -85,5 +92,8 @@ private:
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;
     QPointer<QwtPlotZoomer>         m_zoomerRight;
+
+    std::map< caf::PdmPointer<RimEnsambleCurveSet>, QPointer<RiuCvfOverlayItemWidget> > m_ensembleLegendWidgets;
+
 };
 
