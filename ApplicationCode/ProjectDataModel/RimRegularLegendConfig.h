@@ -120,7 +120,6 @@ public:
     void                                        setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    caf::TitledOverlayFrame*                    legend();
     bool                                        showLegend() const;
 
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;

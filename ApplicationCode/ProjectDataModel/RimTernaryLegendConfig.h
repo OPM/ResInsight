@@ -71,9 +71,6 @@ public:
 
     void                recreateLegend();
     
-    const RivTernarySaturationOverlayItem*    legend() const;
-    RivTernarySaturationOverlayItem*          legend();
-
     bool                                      showLegend() const;
 
     void                                      setTitle(const QString& title);

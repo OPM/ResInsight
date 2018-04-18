@@ -658,18 +658,6 @@ void RimRegularLegendConfig::setTitle(const QString& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::TitledOverlayFrame* RimRegularLegendConfig::legend()
-{
-    if (m_currentScalarMapper == m_categoryMapper)
-    {
-        return m_categoryLegend.p();
-    }
-    else
-    {
-        return m_scalarMapperLegend.p();
-    }
-}
-
 bool RimRegularLegendConfig::showLegend() const
 {
     return m_showLegend;

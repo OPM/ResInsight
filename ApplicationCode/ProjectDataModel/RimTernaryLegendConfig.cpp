@@ -328,19 +328,6 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend() const
-{
-    return m_legend.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend()
-{
-    return m_legend.p();
-}
-
 bool RimTernaryLegendConfig::showLegend() const
 {
     return m_showLegend;

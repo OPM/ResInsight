@@ -602,12 +602,12 @@ void Rim2dIntersectionView::updateLegends()
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {
             m_ternaryLegendConfig()->setTitle("Cell Result:\n");
-            legend = m_ternaryLegendConfig()->legend();
+            legend = m_ternaryLegendConfig()->titledOverlayFrame();
         }
         else
         {
             m_legendConfig()->setTitle("Cell Result:\n" + eclView->cellResult()->resultVariableUiShortName());
-            legend = m_legendConfig()->legend();
+            legend = m_legendConfig()->titledOverlayFrame();
         }
     }
 
@@ -616,7 +616,7 @@ void Rim2dIntersectionView::updateLegends()
         m_legendConfig()->setUiValuesFromLegendConfig(geoView->cellResult()->legendConfig());
 
         geoView->updateLegendTextAndRanges(m_legendConfig(), m_currentTimeStep());
-        legend = m_legendConfig()->legend();
+        legend = m_legendConfig()->titledOverlayFrame();
     }
 
     if ( legend )
