@@ -19,12 +19,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RimLegendConfig.h" 
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
-
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 
 #include <tuple>
 
@@ -53,7 +53,7 @@ class Rim3dView;
 ///  
 ///  
 //==================================================================================================
-class RimRegularLegendConfig:  public caf::PdmObject
+class RimRegularLegendConfig : public RimLegendConfig
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -122,6 +122,9 @@ public:
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     caf::TitledOverlayFrame*                    legend();
     bool                                        showLegend() const;
+
+    const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
+    caf::TitledOverlayFrame*                    titledOverlayFrame() override;
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

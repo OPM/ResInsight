@@ -38,8 +38,9 @@
 #include <QPointer>
 
 class RimCase;
-class RiuViewer;
+class RimLegendConfig;
 class RimWellPathCollection;
+class RiuViewer;
 class RivWellPathsPartMgr; 
 
 namespace cvf
@@ -138,6 +139,7 @@ public:
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const override;
 
     virtual RimCase*                        ownerCase() const = 0;
+    virtual std::vector<RimLegendConfig*>   legendConfigs() const = 0;
 
 protected:
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);

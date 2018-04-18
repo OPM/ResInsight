@@ -341,6 +341,24 @@ bool Rim2dIntersectionView::showDefiningPoints() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
+{
+    std::vector<RimLegendConfig*> legendsIn3dView;
+
+    Rim3dView* associated3dView = nullptr;
+    this->firstAncestorOrThisOfType(associated3dView);
+
+    if (associated3dView)
+    {
+        legendsIn3dView = associated3dView->legendConfigs();
+    }
+
+    return legendsIn3dView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                            bool* useOptionsOnly)
 {

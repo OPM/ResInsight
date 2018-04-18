@@ -93,6 +93,8 @@ public:
     const RimTensorResults*                             tensorResults() const;
     RimTensorResults*                                   tensorResults();
 
+    std::vector<RimLegendConfig*>                       legendConfigs() const override;
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                                        onLoadDataAndUpdate() override;

@@ -520,6 +520,19 @@ RimTensorResults* RimGeoMechView::tensorResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
+{
+    std::vector<RimLegendConfig*> absLegendConfigs;
+
+    absLegendConfigs.push_back(cellResult()->legendConfig());
+
+    return absLegendConfigs;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechView::geoMechCase()
 {
     return m_geomechCase;

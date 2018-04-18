@@ -497,6 +497,25 @@ const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
     return m_scalarMapper.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame() const
+{
+    return m_legend.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame()
+{
+    return m_legend.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimTernaryLegendConfig::objectToggleField()
 {
     return &m_showLegend;

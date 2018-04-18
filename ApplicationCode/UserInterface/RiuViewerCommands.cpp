@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
@@ -36,13 +37,14 @@
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RiaDefines.h"
+#include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFracture.h"
@@ -51,15 +53,12 @@
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
-#include "RimRegularLegendConfig.h"
+#include "RimLegendConfig.h"
+#include "RimPerforationInterval.h"
 #include "RimSimWellInView.h"
-#include "RimTernaryLegendConfig.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
-#include "RimPerforationInterval.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RimEllipseFractureTemplate.h"
-#include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
@@ -96,6 +95,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+
 #include <array>
 
 
@@ -1058,47 +1058,16 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 
     if (pickedOverlayItem)
     {
-        caf::PdmObject* objToSelect = nullptr;
+        std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
 
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-        if (eclipseView)
+        for (const auto& legendConfig : legendConfigs)
         {
-            if (eclipseView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
+            if (legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem)
             {
-                objToSelect = eclipseView->cellResult()->legendConfig();
-            }
-            else if (eclipseView->cellResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
-            {
-                objToSelect = eclipseView->cellResult()->ternaryLegendConfig();
-            }
-            else if (eclipseView->faultResultSettings()->customFaultResult()->legendConfig()->legend() == pickedOverlayItem)
-            {
-                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->legendConfig();
-            }
-            else if (eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
-            {
-                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig();
-            }
-            else if (eclipseView->cellEdgeResult()->legendConfig()->legend() == pickedOverlayItem)
-            {
-                objToSelect = eclipseView->cellEdgeResult()->legendConfig();
-            }
-        }
+                RiuMainWindow::instance()->selectAsCurrentItem(legendConfig);
 
-        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-        if (geomView)
-        {
-            if (geomView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
-            {
-                objToSelect = geomView->cellResult()->legendConfig();
+                return true;
             }
-        }
-
-        if (objToSelect)
-        {
-            RiuMainWindow::instance()->selectAsCurrentItem(objToSelect);
-
-            return true;
         }
     }
 

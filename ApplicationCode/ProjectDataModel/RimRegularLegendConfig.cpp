@@ -678,6 +678,36 @@ bool RimRegularLegendConfig::showLegend() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
+{
+    if (m_currentScalarMapper == m_categoryMapper)
+    {
+        return m_categoryLegend.p();
+    }
+    else
+    {
+        return m_scalarMapperLegend.p();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() const
+{
+    if (m_currentScalarMapper == m_categoryMapper)
+    {
+        return m_categoryLegend.p();
+    }
+    else
+    {
+        return m_scalarMapperLegend.p();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig)
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();

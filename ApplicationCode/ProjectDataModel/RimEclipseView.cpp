@@ -1732,6 +1732,24 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
+{
+    std::vector<RimLegendConfig*> absLegends;
+
+    absLegends.push_back(cellResult()->legendConfig());
+    absLegends.push_back(cellResult()->ternaryLegendConfig());
+    absLegends.push_back(faultResultSettings()->customFaultResult()->legendConfig());
+    absLegends.push_back(faultResultSettings()->customFaultResult()->ternaryLegendConfig());
+    absLegends.push_back(cellEdgeResult()->legendConfig());
+    absLegends.push_back(fractureColors()->activeLegend());
+    absLegends.push_back(virtualPerforationResult()->legendConfig());
+
+    return absLegends;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseView::showActiveCellsOnly()
 {
     return !m_showInactiveCells;

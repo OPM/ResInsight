@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "RimLegendConfig.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
 
 class RimEclipseView;
 class RivTernarySaturationOverlayItem;
@@ -41,7 +41,7 @@ namespace cvf
 ///  
 ///  
 //==================================================================================================
-class RimTernaryLegendConfig : public caf::PdmObject
+class RimTernaryLegendConfig : public RimLegendConfig
 {
     CAF_PDM_HEADER_INIT;
 
@@ -79,6 +79,9 @@ public:
     void                                      setTitle(const QString& title);
 
     const RivTernaryScalarMapper*             scalarMapper() const;
+    
+    const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
+    caf::TitledOverlayFrame*                    titledOverlayFrame() override;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

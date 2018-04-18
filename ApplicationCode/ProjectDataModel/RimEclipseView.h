@@ -138,6 +138,8 @@ public:
     virtual bool                                    isUsingFormationNames() const override;
 
     virtual void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    
+    std::vector<RimLegendConfig*>                   legendConfigs() const override;
 
 protected:
     virtual void                                    initAfterRead() override;

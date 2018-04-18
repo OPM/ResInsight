@@ -68,6 +68,8 @@ public:
 
     bool                       showDefiningPoints() const;
 
+    std::vector<RimLegendConfig*> legendConfigs() const override;
+
 protected:
     void                       updateLegends() override;
 
