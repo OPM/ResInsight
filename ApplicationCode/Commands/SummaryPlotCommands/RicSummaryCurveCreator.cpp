@@ -40,8 +40,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCalculationCollection.h"
-#include "RimEnsambleCurveSetCollection.h"
-#include "RimEnsambleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleCurveSet.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryCurveDefSelection.h"
@@ -544,10 +544,10 @@ void RicSummaryCurveCreator::updateTargetPlot()
 
     // DEBUG
     //{
-    //    m_targetPlot->ensambleCurveSets()->deleteAllCurveSets();
+    //    m_targetPlot->ensembleCurveSets()->deleteAllCurveSets();
 
-    //    RimEnsambleCurveSet* curveSet = new RimEnsambleCurveSet();
-    //    m_targetPlot->ensambleCurveSets()->addCurveSet(curveSet);
+    //    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+    //    m_targetPlot->ensembleCurveSets()->addCurveSet(curveSet);
 
     //    for (const auto& editedCurve : m_previewPlot->summaryCurves())
     //    {
@@ -555,7 +555,7 @@ void RicSummaryCurveCreator::updateTargetPlot()
     //        {
     //            continue;
     //        }
-    //        copyEnsambleCurveAndAddToPlot(editedCurve, curveSet);
+    //        copyEnsembleCurveAndAddToPlot(editedCurve, curveSet);
     //    }
     //}
 
@@ -592,7 +592,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::copyEnsambleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsambleCurveSet *curveSet, bool forceVisible)
+void RicSummaryCurveCreator::copyEnsembleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsembleCurveSet *curveSet, bool forceVisible)
 {
     RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(curveCopy);

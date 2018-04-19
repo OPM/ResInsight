@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportEnsambleFeature.h"
+#include "RicImportEnsembleFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -45,12 +45,12 @@
 #include <QInputDialog>
 
 
-CAF_CMD_SOURCE_INIT(RicImportEnsambleFeature, "RicImportEnsambleFeature");
+CAF_CMD_SOURCE_INIT(RicImportEnsembleFeature, "RicImportEnsembleFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsambleFeature::isCommandEnabled()
+bool RicImportEnsembleFeature::isCommandEnabled()
 {
     return true;
 }
@@ -58,20 +58,20 @@ bool RicImportEnsambleFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsambleFeature::onActionTriggered(bool isChecked)
+void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication*                 app = RiaApplication::instance();
 
-    std::vector<RimSummaryCase*> cases = RicImportSummaryCasesFeature::importSummaryCases("Import Ensamble");
+    std::vector<RimSummaryCase*> cases = RicImportSummaryCasesFeature::importSummaryCases("Import Ensemble");
     
     if (cases.empty()) return;
-    validateEnsambleCases(cases);
+    validateEnsembleCases(cases);
 
-    QString ensambleName = askForEnsambleName();
-    if (ensambleName.isEmpty()) return;
+    QString ensembleName = askForEnsembleName();
+    if (ensembleName.isEmpty()) return;
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensambleName);
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName);
 
     std::vector<RimCase*> allCases;
     app->project()->allCases(allCases);
@@ -85,18 +85,18 @@ void RicImportEnsambleFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsambleFeature::setupActionLook(QAction* actionToSetup)
+void RicImportEnsembleFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/SummaryCase48x48.png"));
-    actionToSetup->setText("Import Ensamble");
+    actionToSetup->setText("Import Ensemble");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsambleFeature::validateEnsambleCases(std::vector<RimSummaryCase*> cases)
+bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*> cases)
 {
-    // Validate ensamble parameters
+    // Validate ensemble parameters
     try
     {
         std::hash<std::string> paramsHasher;
@@ -106,7 +106,7 @@ bool RicImportEnsambleFeature::validateEnsambleCases(std::vector<RimSummaryCase*
         {
             if (rimCase->caseRealizationParameters().isNull() || rimCase->caseRealizationParameters()->parameters().empty())
             {
-                throw QString("The case %1 has no ensamble parameters").arg(rimCase->summaryHeaderFilename());
+                throw QString("The case %1 has no ensemble parameters").arg(rimCase->summaryHeaderFilename());
             }
             else
             {
@@ -123,7 +123,7 @@ bool RicImportEnsambleFeature::validateEnsambleCases(std::vector<RimSummaryCase*
                 }
                 else if (paramsHash != currHash)
                 {
-                    throw QString("Ensamble parameters differ between cases");
+                    throw QString("Ensemble parameters differ between cases");
                 }
             }
         }
@@ -142,7 +142,7 @@ bool RicImportEnsambleFeature::validateEnsambleCases(std::vector<RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicImportEnsambleFeature::askForEnsambleName()
+QString RicImportEnsembleFeature::askForEnsembleName()
 {
     RimProject* project = RiaApplication::instance()->project();
     int groupCount = (int)project->summaryGroups().size() + 1;

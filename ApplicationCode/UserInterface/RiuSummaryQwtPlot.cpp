@@ -54,7 +54,7 @@
 
 #include "RiuWidgetDragger.h"
 #include "RiuCvfOverlayItemWidget.h"
-#include "RimEnsambleCurveSet.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimRegularLegendConfig.h"
 #include "cafTitledOverlayFrame.h"
 
@@ -167,7 +167,7 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::addOrUpdateEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor)
+void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor)
 {
    RiuCvfOverlayItemWidget* overlayWidget = nullptr;
 
@@ -195,7 +195,7 @@ void RiuSummaryQwtPlot::addOrUpdateEnsambleCurveSetLegend(RimEnsambleCurveSet * 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::removeEnsambleCurveSetLegend(RimEnsambleCurveSet * curveSetToShowLegendFor)
+void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor)
 {
     auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
     if ( it !=  m_ensembleLegendWidgets.end() )

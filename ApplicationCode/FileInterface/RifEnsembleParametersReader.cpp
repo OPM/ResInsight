@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifEnsambleParametersReader.h"
+#include "RifEnsembleParametersReader.h"
 #include "RifCaseRealizationParametersReader.h"
 #include "RifFileParseTools.h"
 
@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEnsambleParametersReader::RifEnsambleParametersReader(const QString& modelDirectory)
+RifEnsembleParametersReader::RifEnsembleParametersReader(const QString& modelDirectory)
 {
     m_modelDirectory = modelDirectory;
 }
@@ -39,16 +39,16 @@ RifEnsambleParametersReader::RifEnsambleParametersReader(const QString& modelDir
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEnsambleParametersReader::~RifEnsambleParametersReader()
+RifEnsembleParametersReader::~RifEnsembleParametersReader()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//RifEnsambleParameters RifEnsambleParametersReader::import()
+//RifEnsembleParameters RifEnsembleParametersReader::import()
 //{
-//    RifEnsambleParameters parameters;
+//    RifEnsembleParameters parameters;
 //
 //
 //    return ;

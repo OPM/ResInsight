@@ -47,15 +47,15 @@ class QKeyEvent;
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimEnsambleCurveSet : public caf::PdmObject
+class RimEnsembleCurveSet : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ColorMode {SINGLE_COLOR, BY_ENSAMBLE_PARAM};
+    enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
 
-    RimEnsambleCurveSet();
-    virtual ~RimEnsambleCurveSet();
+    RimEnsembleCurveSet();
+    virtual ~RimEnsembleCurveSet();
 
     bool                                    isCurvesVisible();
     void                                    setColor(cvf::Color3f color);
@@ -113,7 +113,7 @@ private:
 
     caf::PdmField<caf::AppEnum<ColorMode>>          m_colorMode;
     caf::PdmField<cvf::Color3f>                     m_color;
-    caf::PdmField<QString>                          m_ensambleParameter;
+    caf::PdmField<QString>                          m_ensembleParameter;
 
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 

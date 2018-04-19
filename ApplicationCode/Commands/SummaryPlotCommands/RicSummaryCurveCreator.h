@@ -41,7 +41,7 @@ class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
-class RimEnsambleCurveSet;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///  
@@ -86,7 +86,7 @@ private:
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
-    static void                             copyEnsambleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsambleCurveSet* curveSet, bool forceVisible = false);
+    static void                             copyEnsembleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
     void                                    setDefaultCurveSelection();
 
     void                                    resetAllFields();

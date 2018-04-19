@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryEnsambleCurveSetFeature.h"
+#include "RicNewSummaryEnsembleCurveSetFeature.h"
 
 #include "RiaApplication.h"
 
@@ -28,8 +28,8 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimEnsambleCurveSet.h"
-#include "RimEnsambleCurveSetCollection.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 
 #include "RiuMainPlotWindow.h"
 
@@ -42,12 +42,12 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryEnsambleCurveSetFeature, "RicNewSummaryEnsambleCurveSetFeature");
+CAF_CMD_SOURCE_INIT(RicNewSummaryEnsembleCurveSetFeature, "RicNewSummaryEnsembleCurveSetFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryEnsambleCurveSetFeature::isCommandEnabled()
+bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
 {
     return (selectedSummaryPlot());
 }
@@ -55,7 +55,7 @@ bool RicNewSummaryEnsambleCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryEnsambleCurveSetFeature::onActionTriggered(bool isChecked)
+void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -63,9 +63,9 @@ void RicNewSummaryEnsambleCurveSetFeature::onActionTriggered(bool isChecked)
     RimSummaryPlot* plot = selectedSummaryPlot();
     if (plot)
     {
-        RimEnsambleCurveSet* curveSet = new RimEnsambleCurveSet();
+        RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
-        plot->ensambleCurveSets()->addCurveSet(curveSet);
+        plot->ensembleCurveSets()->addCurveSet(curveSet);
         plot->updateConnectedEditors();
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(curveSet);
@@ -78,16 +78,16 @@ void RicNewSummaryEnsambleCurveSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryEnsambleCurveSetFeature::setupActionLook(QAction* actionToSetup)
+void RicNewSummaryEnsembleCurveSetFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Summary Ensamble Curve Set");
+    actionToSetup->setText("New Summary Ensemble Curve Set");
     actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicNewSummaryEnsambleCurveSetFeature::selectedSummaryPlot() const
+RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::selectedSummaryPlot() const
 {
     RimSummaryPlot* sumPlot = nullptr;
 

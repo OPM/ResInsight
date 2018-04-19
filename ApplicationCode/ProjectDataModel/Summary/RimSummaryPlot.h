@@ -38,8 +38,8 @@ class RimGridTimeHistoryCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
-class RimEnsambleCurveSet;
-class RimEnsambleCurveSetCollection;
+class RimEnsembleCurveSet;
+class RimEnsembleCurveSetCollection;
 class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
 class RimSummaryAxisProperties;
@@ -71,13 +71,13 @@ public:
     void                                            addCurveAndUpdate(RimSummaryCurve* curve);
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
 
-    //void                                            addEnsambleCurve(const RimEnsambleCurveSet* curveSet, RimSummaryCurve* curve);
+    //void                                            addEnsembleCurve(const RimEnsembleCurveSet* curveSet, RimSummaryCurve* curve);
 
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
-    RimEnsambleCurveSetCollection*                  ensambleCurveSets() const;
+    RimEnsembleCurveSetCollection*                  ensembleCurveSets() const;
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
@@ -171,7 +171,7 @@ private:
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
     caf::PdmChildField<RimSummaryCurveCollection*>        m_summaryCurveCollection;
-    caf::PdmChildField<RimEnsambleCurveSetCollection*>  m_ensambleCurveSetCollection;
+    caf::PdmChildField<RimEnsembleCurveSetCollection*>  m_ensembleCurveSetCollection;
 
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 

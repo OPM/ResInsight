@@ -94,7 +94,7 @@ void RifCaseRealizationParametersReader::parse()
 
             if (cols.size() != 2)
             {
-                throw FileParseException(QString("RifEnsambleParametersReader: Invalid file format in line %1").arg(lineNo));
+                throw FileParseException(QString("RifEnsembleParametersReader: Invalid file format in line %1").arg(lineNo));
             }
 
             QString& name = cols[0];
@@ -102,14 +102,14 @@ void RifCaseRealizationParametersReader::parse()
 
             if (!RiaStdStringTools::isNumber(strValue.toStdString(), QLocale::c().decimalPoint().toAscii()))
             {
-                throw FileParseException(QString("RifEnsambleParametersReader: Invalid number format in line %1").arg(lineNo));
+                throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
             }
 
             bool parseOk = true;
             double value = QLocale::c().toDouble(strValue, &parseOk);
             if (!parseOk)
             {
-                throw FileParseException(QString("RifEnsambleParametersReader: Invalid number format in line %1").arg(lineNo));
+                throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
             }
 
             m_parameters->addParameter(name, value);

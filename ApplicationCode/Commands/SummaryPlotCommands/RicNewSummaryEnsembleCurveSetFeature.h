@@ -27,7 +27,7 @@ class RimSummaryPlot;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSummaryEnsambleCurveSetFeature : public caf::CmdFeature
+class RicNewSummaryEnsembleCurveSetFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

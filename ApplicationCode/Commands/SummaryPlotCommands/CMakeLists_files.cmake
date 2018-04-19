@@ -32,7 +32,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsambleCurveSetFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -68,7 +68,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsambleCurveSetFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

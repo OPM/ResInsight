@@ -39,7 +39,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimEnsambleCurveSetCollection.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimFaultInView.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
@@ -462,27 +462,27 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
         }
-        else if (dynamic_cast<RimEnsambleCurveSetCollection*>(uiItem))
+        else if (dynamic_cast<RimEnsembleCurveSetCollection*>(uiItem))
         {
-            menuBuilder << "RicNewSummaryEnsambleCurveSetFeature";
+            menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
         }
         else if (dynamic_cast<RimSummaryCaseMainCollection*>(uiItem))
         {
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportEnsambleFeature";
+            menuBuilder << "RicImportEnsembleFeature";
         }
         else if (dynamic_cast<RimSummaryCaseCollection*>(uiItem))
         {
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportEnsambleFeature";
+            menuBuilder << "RicImportEnsembleFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportEnsambleFeature";
+            menuBuilder << "RicImportEnsembleFeature";
 
             if (!dynamic_cast<RimObservedData*>(uiItem))
             {

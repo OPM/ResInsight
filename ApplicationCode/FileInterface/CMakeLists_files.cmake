@@ -39,7 +39,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
-${CMAKE_CURRENT_LIST_DIR}/RifEnsambleParametersReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifEnsembleParametersReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
 
@@ -85,7 +85,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifEnsambleParametersReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEnsembleParametersReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.cpp
 

@@ -26,19 +26,19 @@
 #include "cafPdmPtrArrayField.h"
 
 class RimSummaryCase;
-class RimEnsambleCurveSet;
+class RimEnsembleCurveSet;
 class QwtPlot;
 
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimEnsambleCurveSetCollection : public caf::PdmObject
+class RimEnsembleCurveSetCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEnsambleCurveSetCollection();
-    virtual ~RimEnsambleCurveSetCollection();
+    RimEnsembleCurveSetCollection();
+    virtual ~RimEnsembleCurveSetCollection();
 
     bool                                    isCurveSetsVisible();
 
@@ -48,11 +48,11 @@ public:
 
     //RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 
-    void                                    addCurveSet(RimEnsambleCurveSet* curveSet);
-    void                                    deleteCurveSet(RimEnsambleCurveSet* curveSet);
+    void                                    addCurveSet(RimEnsembleCurveSet* curveSet);
+    void                                    deleteCurveSet(RimEnsembleCurveSet* curveSet);
 
-    std::vector<RimEnsambleCurveSet*>       curveSets() const;
-    std::vector<RimEnsambleCurveSet*>       visibleCurveSets() const;
+    std::vector<RimEnsembleCurveSet*>       curveSets() const;
+    std::vector<RimEnsembleCurveSet*>       visibleCurveSets() const;
 
     //void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurveSets();
@@ -76,7 +76,7 @@ private:
 
 private:
     caf::PdmField<bool>                             m_showCurves;
-    caf::PdmChildArrayField<RimEnsambleCurveSet*>   m_curveSets;
+    caf::PdmChildArrayField<RimEnsembleCurveSet*>   m_curveSets;
 
     //caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
 };

@@ -22,14 +22,14 @@
 #include "RiaSummaryCurveAnalyzer.h"
 
 #include "RimAsciiDataCurve.h"
-#include "RimEnsambleCurveSet.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
 #include "RimSummaryAxisProperties.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimEnsambleCurveSetCollection.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
@@ -85,9 +85,9 @@ RimSummaryPlot::RimSummaryPlot()
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden(true);
     m_summaryCurveCollection = new RimSummaryCurveCollection;
 
-    CAF_PDM_InitFieldNoDefault(&m_ensambleCurveSetCollection, "EnsambleCurveSetCollection", "", "", "", "");
-    m_ensambleCurveSetCollection.uiCapability()->setUiTreeHidden(true);
-    m_ensambleCurveSetCollection = new RimEnsambleCurveSetCollection();
+    CAF_PDM_InitFieldNoDefault(&m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "");
+    m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden(true);
+    m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
     m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden(true);
@@ -139,7 +139,7 @@ RimSummaryPlot::~RimSummaryPlot()
     m_summaryCurves_OBSOLETE.deleteAllChildObjects();
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
-    delete m_ensambleCurveSetCollection;
+    delete m_ensembleCurveSetCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -672,9 +672,9 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
             }
         }
 
-        if (m_ensambleCurveSetCollection && m_ensambleCurveSetCollection->isCurveSetsVisible())
+        if (m_ensembleCurveSetCollection && m_ensembleCurveSetCollection->isCurveSetsVisible())
         {
-            for (RimEnsambleCurveSet* curveSet : m_ensambleCurveSetCollection->curveSets())
+            for (RimEnsembleCurveSet* curveSet : m_ensembleCurveSetCollection->curveSets())
             {
                 for (RimSummaryCurve* curve : curveSet->curves())
                 {
@@ -961,13 +961,13 @@ void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-//void RimSummaryPlot::addEnsambleCurve(const RimEnsambleCurveSet* curveSet, RimSummaryCurve* curve)
+//void RimSummaryPlot::addEnsembleCurve(const RimEnsembleCurveSet* curveSet, RimSummaryCurve* curve)
 //{
 //    if (curveSet && curve)
 //    {
-//        curve->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor((int)m_ensambleCurveSetCollection->curveSets().size()));
+//        curve->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor((int)m_ensembleCurveSetCollection->curveSets().size()));
 //
-//        const_cast<RimEnsambleCurveSet*>(curveSet)->addCurve(curve);
+//        const_cast<RimEnsembleCurveSet*>(curveSet)->addCurve(curve);
 //        curve->setParentQwtPlotAndReplot(m_qwtPlot);
 //    }
 //}
@@ -1000,9 +1000,9 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsambleCurveSetCollection* RimSummaryPlot::ensambleCurveSets() const
+RimEnsembleCurveSetCollection* RimSummaryPlot::ensembleCurveSets() const
 {
-    return m_ensambleCurveSetCollection;
+    return m_ensembleCurveSetCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1162,7 +1162,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(&m_summaryCurveCollection);
     if (!m_isCrossPlot)
     {
-        uiTreeOrdering.add(&m_ensambleCurveSetCollection);
+        uiTreeOrdering.add(&m_ensembleCurveSetCollection);
     }
     uiTreeOrdering.add(&m_gridTimeHistoryCurves);
     uiTreeOrdering.add(&m_asciiDataCurves);
@@ -1184,7 +1184,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         m_summaryCurveCollection->loadDataAndUpdate(false);
     }
  
-    m_ensambleCurveSetCollection->loadDataAndUpdate(false);
+    m_ensembleCurveSetCollection->loadDataAndUpdate(false);
 
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {
@@ -1358,9 +1358,9 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
             m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
         }
 
-        if (m_ensambleCurveSetCollection)
+        if (m_ensembleCurveSetCollection)
         {
-            m_ensambleCurveSetCollection->setParentQwtPlotAndReplot(m_qwtPlot);
+            m_ensembleCurveSetCollection->setParentQwtPlotAndReplot(m_qwtPlot);
         }
    }
 
@@ -1519,7 +1519,7 @@ void RimSummaryPlot::detachAllCurves()
         m_summaryCurveCollection->detachQwtCurves();
     }
 
-    m_ensambleCurveSetCollection->detachQwtCurves();
+    m_ensembleCurveSetCollection->detachQwtCurves();
 
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {

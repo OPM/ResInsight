@@ -19,7 +19,7 @@
 #include "RimPlotCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
-#include "RimEnsambleCurveSet.h"
+#include "RimEnsembleCurveSet.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
@@ -190,9 +190,9 @@ void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
         this->firstAncestorOrThisOfType(summaryCurveCollection);
         if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
 
-        RimEnsambleCurveSet* ensambleCurveSet = nullptr;
-        firstAncestorOrThisOfType(ensambleCurveSet);
-        if (ensambleCurveSet) isVisibleInPossibleParent = ensambleCurveSet->isCurvesVisible();
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
     }
 
     if (m_showCurve() && m_parentQwtPlot && isVisibleInPossibleParent)

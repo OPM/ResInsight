@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,28 +18,31 @@
 
 #pragma once
 
-#include "RifSummaryCaseRestartSelector.h"
+#include "RiaPreferences.h"
+
+#include "cafCmdFeature.h"
 
 #include <QString>
 
 
-class QStringList;
-class QTextStream;
-class QFile;
+class RimSummaryCase;
 
 
 //==================================================================================================
-//
-//  UNDER CONSTRUCTION
+/// 
 //==================================================================================================
-class RifEnsambleParametersReader
+class RicImportEnsembleFeature : public caf::CmdFeature
 {
-public:
-    RifEnsambleParametersReader(const QString& modelDirectory);
-    ~RifEnsambleParametersReader();
+    CAF_CMD_HEADER_INIT;
 
-    //RifEnsambleParameters import();
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
-private:
-    QString m_modelDirectory;
+    bool validateEnsembleCases(std::vector<RimSummaryCase*> cases);
+    QString askForEnsembleName();
 };
+
+

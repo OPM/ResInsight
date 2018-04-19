@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimEnsambleCurveSet.h"
+#include "RimEnsembleCurveSet.h"
 
 #include "RiaApplication.h"
 
@@ -29,7 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryAddress.h"
-#include "RimEnsambleCurveSetCollection.h"
+#include "RimEnsembleCurveSetCollection.h"
 
 #include "RiuSummaryQwtPlot.h"
 
@@ -44,25 +44,25 @@
 namespace caf
 {
     template<>
-    void AppEnum< RimEnsambleCurveSet::ColorMode >::setUp()
+    void AppEnum< RimEnsembleCurveSet::ColorMode >::setUp()
     {
-        addItem(RimEnsambleCurveSet::SINGLE_COLOR, "SINGLE_COLOR", "Single Color");
-        addItem(RimEnsambleCurveSet::BY_ENSAMBLE_PARAM, "BY_ENSAMBLE_PARAM", "By Ensamble Parameter");
-        setDefault(RimEnsambleCurveSet::SINGLE_COLOR);
+        addItem(RimEnsembleCurveSet::SINGLE_COLOR, "SINGLE_COLOR", "Single Color");
+        addItem(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter");
+        setDefault(RimEnsembleCurveSet::SINGLE_COLOR);
     }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimEnsambleCurveSet, "RimEnsambleCurveSet");
+CAF_PDM_SOURCE_INIT(RimEnsembleCurveSet, "RimEnsembleCurveSet");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsambleCurveSet::RimEnsambleCurveSet()
+RimEnsembleCurveSet::RimEnsembleCurveSet()
 {
-    CAF_PDM_InitObject("Ensamble Curve Set", ":/SummaryCurveFilter16x16.png", "", "");
+    CAF_PDM_InitObject("Ensemble Curve Set", ":/SummaryCurveFilter16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_curves, "EnsambleCurveSet", "Ensamble Curve Set", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_curves, "EnsembleCurveSet", "Ensemble Curve Set", "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
     m_curves.uiCapability()->setUiTreeChildrenHidden(false);
 
@@ -105,7 +105,7 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
 
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    CAF_PDM_InitField(&m_ensambleParameter, "EnsambleParameter", QString(""), "Ensamble Parameter", "", "", "");
+    CAF_PDM_InitField(&m_ensembleParameter, "EnsembleParameter", QString(""), "Ensemble Parameter", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
@@ -116,7 +116,7 @@ RimEnsambleCurveSet::RimEnsambleCurveSet()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsambleCurveSet::~RimEnsambleCurveSet()
+RimEnsembleCurveSet::~RimEnsembleCurveSet()
 {
     m_curves.deleteAllChildObjects();
 
@@ -124,16 +124,16 @@ RimEnsambleCurveSet::~RimEnsambleCurveSet()
     firstAncestorOrThisOfType(parentPlot);
     if (parentPlot && parentPlot->qwtPlot())
     {
-        parentPlot->qwtPlot()->removeEnsambleCurveSetLegend(this);
+        parentPlot->qwtPlot()->removeEnsembleCurveSetLegend(this);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEnsambleCurveSet::isCurvesVisible()
+bool RimEnsembleCurveSet::isCurvesVisible()
 {
-    RimEnsambleCurveSetCollection* coll = nullptr;
+    RimEnsembleCurveSetCollection* coll = nullptr;
     firstAncestorOrThisOfType(coll);
     return m_showCurves() && (coll ? coll->isCurveSetsVisible() : true);
 }
@@ -141,7 +141,7 @@ bool RimEnsambleCurveSet::isCurvesVisible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::setColor(cvf::Color3f color)
+void RimEnsembleCurveSet::setColor(cvf::Color3f color)
 {
     m_color = color;
 }
@@ -149,7 +149,7 @@ void RimEnsambleCurveSet::setColor(cvf::Color3f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
+void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 {
     m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
 
@@ -171,13 +171,13 @@ void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
 
-            if (m_showCurves() && m_colorMode() == BY_ENSAMBLE_PARAM)
+            if (m_showCurves() && m_colorMode() == BY_ENSEMBLE_PARAM)
             {
-                parentPlot->qwtPlot()->addOrUpdateEnsambleCurveSetLegend(this);
+                parentPlot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
             }
             else
             {
-                parentPlot->qwtPlot()->removeEnsambleCurveSetLegend(this);
+                parentPlot->qwtPlot()->removeEnsembleCurveSetLegend(this);
             }
         }
     }
@@ -186,7 +186,7 @@ void RimEnsambleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
+void RimEnsembleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
 {
     for (RimSummaryCurve* curve : m_curves)
     {
@@ -197,7 +197,7 @@ void RimEnsambleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::detachQwtCurves()
+void RimEnsembleCurveSet::detachQwtCurves()
 {
     for (RimSummaryCurve* curve : m_curves)
     {
@@ -208,7 +208,7 @@ void RimEnsambleCurveSet::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::addCurve(RimSummaryCurve* curve)
+void RimEnsembleCurveSet::addCurve(RimSummaryCurve* curve)
 {
     if (curve)
     {
@@ -224,7 +224,7 @@ void RimEnsambleCurveSet::addCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::deleteCurve(RimSummaryCurve* curve)
+void RimEnsembleCurveSet::deleteCurve(RimSummaryCurve* curve)
 {
     if (curve)
     {
@@ -236,7 +236,7 @@ void RimEnsambleCurveSet::deleteCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimEnsambleCurveSet::curves() const
+std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
     return m_curves.childObjects();
 }
@@ -244,7 +244,7 @@ std::vector<RimSummaryCurve*> RimEnsambleCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimEnsambleCurveSet::visibleCurves() const
+std::vector<RimSummaryCurve*> RimEnsembleCurveSet::visibleCurves() const
 {
     std::vector<RimSummaryCurve*> visible;
 
@@ -262,7 +262,7 @@ std::vector<RimSummaryCurve*> RimEnsambleCurveSet::visibleCurves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::deleteAllCurves()
+void RimEnsembleCurveSet::deleteAllCurves()
 {
     m_curves.deleteAllChildObjects();
 }
@@ -270,7 +270,7 @@ void RimEnsambleCurveSet::deleteAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimEnsambleCurveSet::legendConfig()
+RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 {
     return m_legendConfig;
 }
@@ -278,7 +278,7 @@ RimRegularLegendConfig* RimEnsambleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
@@ -298,7 +298,7 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         updateAllCurves();
     }
-    else if (changedField == &m_ensambleParameter ||
+    else if (changedField == &m_ensembleParameter ||
              changedField == &m_color ||
              changedField == &m_colorMode)
     {
@@ -321,7 +321,7 @@ void RimEnsambleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     {
         QString curveDataGroupName = "Summary Vector";
@@ -346,9 +346,9 @@ void RimEnsambleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     {
         colorsGroup->add(&m_color);
     }
-    else if (m_colorMode == BY_ENSAMBLE_PARAM)
+    else if (m_colorMode == BY_ENSEMBLE_PARAM)
     {
-        colorsGroup->add(&m_ensambleParameter);
+        colorsGroup->add(&m_ensembleParameter);
     }
     uiOrdering.skipRemainingFields(true);
 }
@@ -356,7 +356,7 @@ void RimEnsambleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_legendConfig());
     uiTreeOrdering.skipRemainingChildren(true);
@@ -365,7 +365,7 @@ void RimEnsambleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEnsambleCurveSet::objectToggleField()
+caf::PdmFieldHandle* RimEnsembleCurveSet::objectToggleField()
 {
     return &m_showCurves;
 }
@@ -373,7 +373,7 @@ caf::PdmFieldHandle* RimEnsambleCurveSet::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimEnsembleCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
     if (attrib)
@@ -385,7 +385,7 @@ void RimEnsambleCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEnsambleCurveSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -401,7 +401,7 @@ QList<caf::PdmOptionItemInfo> RimEnsambleCurveSet::calculateValueOptions(const c
 
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
-    else if (fieldNeedingOptions == &m_ensambleParameter)
+    else if (fieldNeedingOptions == &m_ensembleParameter)
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
 
@@ -434,7 +434,7 @@ QList<caf::PdmOptionItemInfo> RimEnsambleCurveSet::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
+void RimEnsembleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
                                                             RimSummaryCase* summaryCase,
                                                             RimSummaryFilter* summaryFilter)
 {
@@ -460,7 +460,7 @@ void RimEnsambleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEcl
 //--------------------------------------------------------------------------------------------------
 /// Optimization candidate
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                            RimSummaryCaseCollection* summaryCaseGroup,
                                                            RimSummaryFilter* summaryFilter)
 {
@@ -490,12 +490,12 @@ void RimEnsambleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::updateCurveColors()
+void RimEnsembleCurveSet::updateCurveColors()
 {
-    if(m_colorMode == BY_ENSAMBLE_PARAM)
+    if(m_colorMode == BY_ENSEMBLE_PARAM)
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
-        QString parameterName = m_ensambleParameter();
+        QString parameterName = m_ensembleParameter();
         if (group && !parameterName.isEmpty())
         {
             double minValue = std::numeric_limits<double>::infinity();
@@ -543,7 +543,7 @@ void RimEnsambleCurveSet::updateCurveColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::updateQwtPlotAxis()
+void RimEnsembleCurveSet::updateQwtPlotAxis()
 {
     for (RimSummaryCurve* curve : curves())
     {
@@ -554,7 +554,7 @@ void RimEnsambleCurveSet::updateQwtPlotAxis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsambleCurveSet::updateAllCurves()
+void RimEnsembleCurveSet::updateAllCurves()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
