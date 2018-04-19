@@ -308,7 +308,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
                                     cvf::Vec3d anchor = displayXf->transformToDisplayCoord(defaultLocationInDomainCoord);;
 
                                     const RigWellResultPoint* wResCell = wResFrame.findResultCell(wellResultPoint.m_gridIndex, wellResultPoint.m_gridCellIndex);
-                                    if (wResCell->isValid())
+                                    if (wResCell && wResCell->isValid())
                                     {
                                         CompletionVizData data(anchor, defaultWellPathDirection, wResCell->connectionFactor(), globalCellIndex);
 
