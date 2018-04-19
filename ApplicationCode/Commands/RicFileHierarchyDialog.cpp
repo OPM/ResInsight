@@ -419,7 +419,9 @@ QStringList RicFileHierarchyDialog::createNameFilterList(const QString &fileName
 //--------------------------------------------------------------------------------------------------
 bool RicFileHierarchyDialog::pathFilterMatch(const QString& pathFilter, const QString& relPath)
 {
-    QRegExp regexp(pathFilter, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QString pattern = pathFilter;
+    if (relPath.endsWith(SEPARATOR) && !pathFilter.endsWith(SEPARATOR)) pattern += SEPARATOR;
+    QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     return regexp.exactMatch(relPath);
 }
 
