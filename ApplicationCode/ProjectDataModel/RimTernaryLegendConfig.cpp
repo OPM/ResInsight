@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
@@ -35,7 +36,6 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
-#include "RiaPreferences.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
@@ -78,7 +78,6 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     ternaryRangeSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-
     CAF_PDM_InitField(&userDefinedMaxValueSoil, "UserDefinedMaxSoil", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&userDefinedMinValueSoil, "UserDefinedMinSoil", 0.0, "Min", "", "Max value of the legend", "");
 
@@ -104,7 +103,6 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig::~RimTernaryLegendConfig()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------

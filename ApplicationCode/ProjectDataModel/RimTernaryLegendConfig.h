@@ -35,8 +35,6 @@ namespace cvf
     class OverlayItem;
 }
 
-
-
 //==================================================================================================
 ///  
 ///  
@@ -65,32 +63,35 @@ public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();
 
-    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
-    void                setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
-    void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
+    void setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
+    void setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
 
-    void                recreateLegend();
-    
-    bool                                      showLegend() const;
-
-    void                                      setTitle(const QString& title);
-
-    const RivTernaryScalarMapper*             scalarMapper() const;
-    
-    const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
-    caf::TitledOverlayFrame*                    titledOverlayFrame() override;
-
-protected:
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    virtual void        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual caf::PdmFieldHandle*                objectToggleField();
+    void                           recreateLegend();
+    bool                           showLegend() const;
+    void                           setTitle(const QString& title);
+    const RivTernaryScalarMapper*  scalarMapper() const;
+    const caf::TitledOverlayFrame* titledOverlayFrame() const override;
+    caf::TitledOverlayFrame*       titledOverlayFrame() override;
 
 private:
-    void                updateLegend();
-    void                updateLabelText();
-    double              roundToNumSignificantDigits(double value, double precision);
-    
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+
+    void   updateLegend();
+    void   updateLabelText();
+    double roundToNumSignificantDigits(double value, double precision);
+
+    void ternaryRanges(double& soilLower,
+                       double& soilUpper,
+                       double& sgasLower,
+                       double& sgasUpper,
+                       double& swatLower,
+                       double& swatUpper) const;
+
 private:
     caf::PdmField<int>              precision;
     caf::PdmField<RangeModeEnum>    rangeMode;

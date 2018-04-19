@@ -125,17 +125,15 @@ public:
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
 
-protected:
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                initAfterRead();
-    virtual caf::PdmFieldHandle*                objectToggleField();
+private:
+    void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                        initAfterRead() override;
+    caf::PdmFieldHandle*                        objectToggleField() override;
 
     friend class RimStimPlanLegendConfig;
-    virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void                                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo>               calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-
-private:
     void                                        updateLegend();
     void                                        updateFieldVisibility();
     double                                      roundToNumSignificantDigits(double value, double precision);
