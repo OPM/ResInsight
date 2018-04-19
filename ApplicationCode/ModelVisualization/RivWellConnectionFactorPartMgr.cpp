@@ -98,10 +98,15 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
         const RigCell& rigCell = mainGrid->cell(gridIndex);
 
-        std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> locationAndDirection;
+        cvf::Vec3d locationInDomainCoord = rigCell.center();
+        cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
+        bool       foundLocation         = false;
 
-        for (const auto& intersectionInfo : wellPathCellIntersections)
+        size_t i = 0;
+        while (!foundLocation && (i < wellPathCellIntersections.size()))
         {
+            const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
+
             if (intersectionInfo.globCellIndex == cell.first.globalCellIndex())
             {
                 double startMD = intersectionInfo.startMD;
@@ -109,21 +114,21 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
                 double middleMD = (startMD + endMD) / 2.0;
 
-                cvf::Vec3d defaultLocationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+                locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
 
                 cvf::Vec3d p1;
                 cvf::Vec3d p2;
-                m_rimWellPath->wellPathGeometry()->twoClosestPoints(defaultLocationInDomainCoord, &p1, &p2);
+                m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
 
-                cvf::Vec3d defaultWellPathDirection = (p2 - p1).getNormalized();
+                direction = (p2 - p1).getNormalized();
 
-                locationAndDirection.push_back(std::make_pair(defaultLocationInDomainCoord, defaultWellPathDirection));
+                foundLocation = true;
             }
-            else if (!locationAndDirection.empty())
-            {
-                continue;
-            }
+
+            i++;
         }
+
+        cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
 
         for (size_t i = 0; i < cell.second.size(); i++)
         {
@@ -131,19 +136,8 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
             double transmissibility = completionData.transmissibility();
 
-            cvf::Vec3d locationInDomainCoord = rigCell.center();
-            cvf::Vec3d wellPathDirection     = cvf::Vec3d::X_AXIS;
-
-            if (i < locationAndDirection.size())
-            {
-                locationInDomainCoord = locationAndDirection[i].first;
-                wellPathDirection     = locationAndDirection[i].second;
-            }
-
-            cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
-
             completionVizDataItems.push_back(
-                CompletionVizData(displayCoord, wellPathDirection, transmissibility, cell.first.globalCellIndex()));
+                CompletionVizData(displayCoord, direction, transmissibility, cell.first.globalCellIndex()));
         }
     }
 
@@ -157,10 +151,12 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(completionVizDataItems, radius);
 
         auto scalarMapper = m_virtualPerforationResult->legendConfig()->scalarMapper();
+
         cvf::ref<cvf::Part> part = m_geometryGenerator->createSurfacePart(scalarMapper, eclView->isLightingDisabled());
         if (part.notNull())
         {
-            cvf::ref<RivWellConnectionSourceInfo> sourceInfo = new RivWellConnectionSourceInfo(m_rimWellPath, m_geometryGenerator.p());
+            cvf::ref<RivWellConnectionSourceInfo> sourceInfo =
+                new RivWellConnectionSourceInfo(m_rimWellPath, m_geometryGenerator.p());
             part->setSourceInfo(sourceInfo.p());
 
             model->addPart(part.p());
