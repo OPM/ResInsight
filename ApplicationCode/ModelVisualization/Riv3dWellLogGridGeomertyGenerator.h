@@ -20,6 +20,7 @@
 
 #include "cvfBase.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDrawableVectors.h"
 #include "cvfObject.h"
 
 #include "cafPdmPointer.h"
@@ -53,13 +54,13 @@ public:
 
     cvf::ref<cvf::DrawableGeo> background();
     cvf::ref<cvf::DrawableGeo> border();
-    cvf::ref<cvf::DrawableGeo> curveNormalLines();
+    cvf::ref<cvf::DrawableVectors> curveNormalVectors();
 private:
     const RigWellPath* wellPathGeometry() const;
 
 private:
-    caf::PdmPointer<RimWellPath> m_wellPath;
-    cvf::ref<cvf::DrawableGeo>   m_background;
-    cvf::ref<cvf::DrawableGeo>   m_border;
-    cvf::ref<cvf::DrawableGeo>   m_curveNormalLines;
+    caf::PdmPointer<RimWellPath>     m_wellPath;
+    cvf::ref<cvf::DrawableGeo>       m_background;
+    cvf::ref<cvf::DrawableGeo>       m_border;
+    cvf::ref<cvf::DrawableVectors>   m_curveNormalVectors;
 };

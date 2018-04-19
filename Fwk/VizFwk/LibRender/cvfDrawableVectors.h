@@ -63,6 +63,7 @@ public:
     void                setGlyph(UShortArray* triangles, Vec3fArray* vertices);
     void                setSingleColor(Color3f color);
 
+    void                setUniformNames(String vectorMatrixUniformName, String colorUniformName);
     void                setVectors(Vec3fArray* vertexArray, Vec3fArray* vectorArray);
     void                setColors(Color3fArray* vectorColorArray);
     size_t              vectorCount() const;

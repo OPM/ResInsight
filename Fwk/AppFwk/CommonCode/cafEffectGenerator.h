@@ -276,4 +276,21 @@ protected:
 };
 
 
+//==================================================================================================
+//
+// VectorEffectGenerator
+//
+//==================================================================================================
+class VectorEffectGenerator : public EffectGenerator
+{
+public:
+    VectorEffectGenerator();
+
+protected:
+    virtual bool             isEqual(const EffectGenerator* other) const;
+    virtual EffectGenerator* copy() const;
+
+    virtual void updateForShaderBasedRendering(cvf::Effect* effect) const;
+    virtual void updateForFixedFunctionRendering(cvf::Effect* effect) const;
+};
 }

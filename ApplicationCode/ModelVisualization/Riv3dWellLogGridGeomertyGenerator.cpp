@@ -25,12 +25,14 @@
 #include "RigWellPathGeometryTools.h"
 
 #include "cafDisplayCoordTransform.h"
+
 #include "cvfObject.h"
-#include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
-
 #include "cvfBoundingBox.h"
+#include "cvfGeometryBuilderTriangles.h"
+#include "cvfArrowGenerator.h"
 
+#include <algorithm>
 #include <map>
 
 //--------------------------------------------------------------------------------------------------
@@ -195,34 +197,38 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         }
 
         std::vector<cvf::Vec3f> vertices;
+        std::vector<cvf::Vec3f> arrowVectors;
         vertices.reserve(interpolatedGridPoints.size());
+        arrowVectors.reserve(interpolatedGridPoints.size());
 
-        std::vector<cvf::uint> indices;
-        indices.reserve(interpolatedGridPoints.size());
-        cvf::uint indexCounter = 0;
-        // Normal lines. Start from one to avoid drawing at surface edge.
+        double shaftRelativeRadius = 0.0125f;
+        double arrowHeadRelativeRadius = shaftRelativeRadius * 3;
+        double arrowHeadRelativeLength = arrowHeadRelativeRadius * 3;
+        double totalArrowScaling = 1.0 / (1.0 - arrowHeadRelativeLength);
+        // Normal lines. Start from one to avoid drawing at surface edge.        
         for (size_t i = 1; i < interpolatedGridCurveNormals.size(); i++)
         {
             vertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter));
 
-            vertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
-
-            indices.push_back(indexCounter++);
-            indices.push_back(indexCounter++);
+            arrowVectors.push_back(cvf::Vec3f(interpolatedGridCurveNormals[i] * planeWidth * totalArrowScaling));
         }
 
-        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
-
-        cvf::ref<cvf::DrawableGeo> normalLinesDrawable = new cvf::DrawableGeo();
-
-        indexedUInt->setIndices(indexArray.p());
-        normalLinesDrawable->addPrimitiveSet(indexedUInt.p());
+        m_curveNormalVectors = new cvf::DrawableVectors();
 
         cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
-        normalLinesDrawable->setVertexArray(vertexArray.p());
+        cvf::ref<cvf::Vec3fArray> vectorArray = new cvf::Vec3fArray(arrowVectors);
 
-        m_curveNormalLines = normalLinesDrawable;
+        // Create the arrow glyph for the vector drawer
+        cvf::GeometryBuilderTriangles arrowBuilder;
+        cvf::ArrowGenerator gen;
+        gen.setShaftRelativeRadius(shaftRelativeRadius);
+        gen.setHeadRelativeRadius(arrowHeadRelativeRadius);
+        gen.setHeadRelativeLength(arrowHeadRelativeLength);
+        gen.setNumSlices(4);
+        gen.generate(&arrowBuilder);
+
+        m_curveNormalVectors->setGlyph(arrowBuilder.trianglesUShort().p(), arrowBuilder.vertices().p());
+        m_curveNormalVectors->setVectors(vertexArray.p(), vectorArray.p());
     }
     return true;
 }
@@ -237,9 +243,9 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border()
     return m_border;
 }
 
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::curveNormalLines()
+cvf::ref<cvf::DrawableVectors> Riv3dWellLogGridGeometryGenerator::curveNormalVectors()
 {
-    return m_curveNormalLines;
+    return m_curveNormalVectors;
 }
 
 //--------------------------------------------------------------------------------------------------

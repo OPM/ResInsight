@@ -18,8 +18,9 @@
 
 #include "Riv3dWellLogPlanePartMgr.h"
 
-#include "RiaColorTables.h"
+#include "RiaApplication.h"
 
+#include "RiuViewer.h"
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimCase.h"
@@ -36,7 +37,9 @@
 #include "cvfColor3.h"
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
+#include "cvfOpenGLResourceManager.h"
 #include "cvfPart.h"
+#include "cvfShaderProgram.h"
 
 #include <utility>
 
@@ -225,9 +228,10 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     bool                                       showGrid = curveCollection->isShowingGrid();
     bool                                       showBackground = curveCollection->isShowingBackground();
 
+    cvf::Color3f gridColor(0.4f, 0.4f, 0.4f);
     caf::SurfaceEffectGenerator backgroundEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 1.0), caf::PO_2);
-    caf::MeshEffectGenerator    gridBorderEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
-    caf::MeshEffectGenerator    curveNormalsEffectGen(cvf::Color3f(0.4f, 0.4f, 0.4f));
+    caf::MeshEffectGenerator    gridBorderEffectGen(gridColor);
+    caf::VectorEffectGenerator  curveNormalsEffectGen;
     backgroundEffectGen.enableLighting(false);
 
     bool gridCreated = m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
@@ -241,7 +245,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     cvf::ref<cvf::Effect> backgroundEffect = backgroundEffectGen.generateCachedEffect();
     cvf::ref<cvf::Effect> borderEffect = gridBorderEffectGen.generateCachedEffect();
     cvf::ref<cvf::Effect> curveNormalsEffect = curveNormalsEffectGen.generateCachedEffect();
-
+    
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogGridGeometryGenerator->background();
     if (showBackground && background.notNull())
     {
@@ -263,9 +267,15 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
             }
         }
 
-        cvf::ref<cvf::DrawableGeo> normals = m_3dWellLogGridGeometryGenerator->curveNormalLines();
+        cvf::ref<cvf::DrawableVectors> normals = m_3dWellLogGridGeometryGenerator->curveNormalVectors();
         if (normals.notNull())
         {
+            normals->setSingleColor(gridColor);
+            if (RiaApplication::instance()->useShaders())
+            {
+                normals->setUniformNames("u_transformationMatrix", "u_color");
+            }
+
             cvf::ref<cvf::Part> part = createPart(normals.p(), curveNormalsEffect.p());
             if (part.notNull())
             {

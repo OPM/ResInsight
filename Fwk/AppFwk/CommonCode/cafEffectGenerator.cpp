@@ -991,4 +991,58 @@ void TextEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) c
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+VectorEffectGenerator::VectorEffectGenerator()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool VectorEffectGenerator::isEqual(const EffectGenerator* other) const
+{
+    const VectorEffectGenerator* otherSurfaceEffect = dynamic_cast<const VectorEffectGenerator*>(other);
+    if (otherSurfaceEffect)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EffectGenerator* VectorEffectGenerator::copy() const
+{
+    VectorEffectGenerator* effGen = new VectorEffectGenerator;
+
+    return effGen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VectorEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) const
+{
+    cvf::ShaderProgramGenerator gen("VectorDrawerShaderProgram", cvf::ShaderSourceProvider::instance());
+    gen.addVertexCode(cvf::ShaderSourceRepository::vs_VectorDrawer);
+    gen.addFragmentCode(cvf::ShaderSourceRepository::fs_VectorDrawer);
+
+    cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
+    shaderProg->disableUniformTrackingForUniform("u_transformationMatrix");
+    shaderProg->disableUniformTrackingForUniform("u_color");
+
+    cvf::ref<cvf::Effect> eff = effect;
+    eff->setShaderProgram(shaderProg.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VectorEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) const {}
+
 } // End namespace caf
