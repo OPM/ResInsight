@@ -62,15 +62,6 @@ public:
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
-    enum RangeModeType
-    {
-        AUTOMATIC_ALLTIMESTEPS,
-        AUTOMATIC_CURRENT_TIMESTEP,
-        USER_DEFINED
-    };
-    
-    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
-
     enum ColorRangesType
     {
         NORMAL,

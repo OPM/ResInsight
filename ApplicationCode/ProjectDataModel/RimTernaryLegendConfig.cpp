@@ -40,16 +40,6 @@
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 
-namespace caf {
-    template<>
-    void AppEnum<RimTernaryLegendConfig::RangeModeType>::setUp()
-    {
-        addItem(RimTernaryLegendConfig::AUTOMATIC_ALLTIMESTEPS,    "AUTOMATIC_ALLTIMESTEPS",       "Global range");
-        addItem(RimTernaryLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,"AUTOMATIC_CURRENT_TIMESTEP",   "Local range");
-        addItem(RimTernaryLegendConfig::USER_DEFINED,              "USER_DEFINED_MAX_MIN",         "User defined range");
-        setDefault(RimTernaryLegendConfig::AUTOMATIC_ALLTIMESTEPS);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

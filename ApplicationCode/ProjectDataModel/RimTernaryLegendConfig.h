@@ -51,14 +51,6 @@ public:
         TERNARY_SWAT_IDX
     };
 
-    enum RangeModeType
-    {
-        AUTOMATIC_ALLTIMESTEPS,
-        AUTOMATIC_CURRENT_TIMESTEP,
-        USER_DEFINED
-    };
-    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
-
 public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();

@@ -54,16 +54,6 @@
 
 CAF_PDM_SOURCE_INIT(RimRegularLegendConfig, "Legend");
 
-namespace caf {
-    template<>
-    void AppEnum<RimRegularLegendConfig::RangeModeType>::setUp()
-    {
-        addItem(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS,    "AUTOMATIC_ALLTIMESTEPS",       "Min and Max for All Timesteps");
-        addItem(RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,"AUTOMATIC_CURRENT_TIMESTEP",   "Min and Max for Current Timestep");
-        addItem(RimRegularLegendConfig::USER_DEFINED,              "USER_DEFINED_MAX_MIN",         "User Defined Range");
-        setDefault(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS);
-    }
-}
 
 namespace caf {
     template<>

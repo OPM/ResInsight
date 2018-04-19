@@ -21,6 +21,17 @@
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimLegendConfig, "LegendConfig");
 
+namespace caf {
+    template<>
+    void AppEnum<RimLegendConfig::RangeModeType>::setUp()
+    {
+        addItem(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS,     "AUTOMATIC_ALLTIMESTEPS",      "Min and Max for All Timesteps");
+        addItem(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP, "AUTOMATIC_CURRENT_TIMESTEP",  "Min and Max for Current Timestep");
+        addItem(RimLegendConfig::USER_DEFINED,               "USER_DEFINED_MAX_MIN",        "User Defined Range");
+        setDefault(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS);
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

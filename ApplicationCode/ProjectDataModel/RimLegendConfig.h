@@ -38,6 +38,15 @@ public:
     RimLegendConfig();
     virtual ~RimLegendConfig();
 
+    enum RangeModeType
+    {
+        AUTOMATIC_ALLTIMESTEPS,
+        AUTOMATIC_CURRENT_TIMESTEP,
+        USER_DEFINED
+    };
+
+    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
+
     virtual const caf::TitledOverlayFrame* titledOverlayFrame() const = 0;
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;
 };
