@@ -408,7 +408,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
                     {
                         for (const auto& r : wellResultBranch.m_branchResultPoints)
                         {
-                            if (r.isValid() && r.m_isOpen)
+                            if (r.isValid())
                             {
                                 RigCompletionData compData(wellRes->m_wellName, RigCompletionDataGridCell(r.m_gridCellIndex, rigEclipseCase->mainGrid()), 0);
                                 compData.setTransmissibility(r.connectionFactor());
