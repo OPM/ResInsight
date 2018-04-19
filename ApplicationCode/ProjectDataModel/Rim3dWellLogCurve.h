@@ -54,19 +54,29 @@ public:
     virtual void  curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
 
     void          setColor(const cvf::Color3f& color);
+
+    double        minCurveValue() const;
+    double        maxCurveValue() const;
+    void          resetMinMaxValuesAndUpdateUI();
 protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
     void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);    
+private:
+    void                                    resetMinMaxValues();
 protected:
     caf::PdmField<QString>                          m_name;
     caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
     caf::PdmField<cvf::Color3f>                     m_color;
-
+    caf::PdmField<double>                           m_minCurveValue;
+    caf::PdmField<double>                           m_maxCurveValue;
+    double                                          m_minCurveDataValue;
+    double                                          m_maxCurveDataValue;
 
 private:
     caf::PdmField<bool>                             m_showCurve;
+
 };

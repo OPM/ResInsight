@@ -99,6 +99,19 @@ void Rim3dWellLogFileCurve::curveValuesAndMds(std::vector<double>* values, std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
+{
+    if (changedField == &m_wellLogFile || changedField == &m_wellLogChannnelName)
+    {
+        this->resetMinMaxValuesAndUpdateUI();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                            bool*                      useOptionsOnly)
 {

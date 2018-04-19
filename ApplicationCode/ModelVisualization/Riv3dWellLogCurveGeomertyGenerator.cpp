@@ -48,6 +48,8 @@ cvf::ref<cvf::DrawableGeo>
                                                         const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                         const std::vector<double>&        resultValues,
                                                         const std::vector<double>&        resultMds,
+                                                        double                            minResultValue,
+                                                        double                            maxResultValue,
                                                         double                            planeAngle,
                                                         double                            planeOffsetFromWellPathCenter,
                                                         double                            planeWidth) const
@@ -57,6 +59,8 @@ cvf::ref<cvf::DrawableGeo>
 
     createCurveVerticesAndIndices(resultValues,
                                   resultMds,
+                                  minResultValue,
+                                  maxResultValue,
                                   planeAngle,
                                   planeOffsetFromWellPathCenter,
                                   planeWidth,
@@ -89,6 +93,8 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
                                                                        const std::vector<double>&        resultMds,
+                                                                       double                            minResultValue,
+                                                                       double                            maxResultValue,
                                                                        double                            planeAngle,
                                                                        double                            planeOffsetFromWellPathCenter,
                                                                        double                            planeWidth,
@@ -103,6 +109,11 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
 
     if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == resultMds.size());
+
+    if (maxResultValue - minResultValue < 1.0e-6)
+    {
+        return;
+    }
 
     RimWellPathCollection* wellPathCollection = nullptr;
     m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
@@ -145,20 +156,27 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
     std::vector<double> resultValuesForInterpolatedPoints(resultValues.end() - interpolatedWellPathPoints.size(),
                                                           resultValues.end());
 
-    double maxResult = -HUGE_VAL;
-    double minResult = HUGE_VAL;
+    double maxClampedResult = -HUGE_VAL;
+    double minClampedResult = HUGE_VAL;
 
-    for (double result : resultValuesForInterpolatedPoints)
+    for (double& result : resultValuesForInterpolatedPoints)
     {
         if (!RigCurveDataTools::isValidValue(result, false)) continue;
 
-        maxResult = std::max(result, maxResult);
-        minResult = std::min(result, minResult);
+        result = cvf::Math::clamp(result, minResultValue, maxResultValue);
+
+        maxClampedResult = std::max(result, maxClampedResult);
+        minClampedResult = std::min(result, minClampedResult);
+    }
+
+    if (minClampedResult >= maxClampedResult)
+    {
+        return;
     }
 
     vertices->resize(interpolatedWellPathPoints.size());
 
-    double plotRangeToResultRangeFactor = planeWidth / (maxResult - minResult);
+    double plotRangeToResultRangeFactor = planeWidth / (maxClampedResult - minClampedResult);
 
     for (size_t i = 0; i < interpolatedCurveNormals.size(); i++)
     {
@@ -167,7 +185,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
         if (RigCurveDataTools::isValidValue(resultValuesForInterpolatedPoints[i], false))
         {
             scaledResult =
-                planeOffsetFromWellPathCenter + (resultValuesForInterpolatedPoints[i] - minResult) * plotRangeToResultRangeFactor;
+                planeOffsetFromWellPathCenter + (resultValuesForInterpolatedPoints[i] - minClampedResult) * plotRangeToResultRangeFactor;
         }
 
         (*vertices)[i] = cvf::Vec3f(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);

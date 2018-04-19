@@ -18,8 +18,15 @@
 
 #include "Rim3dWellLogCurve.h"
 
+#include "RigCurveDataTools.h"
+
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"
+
+#include "cafPdmUiDoubleSliderEditor.h"
+
+#include <algorithm>
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //==================================================================================================
 ///  
@@ -45,11 +52,17 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurve::Rim3dWellLogCurve()
+    : m_minCurveDataValue(-HUGE_VAL)
+    , m_maxCurveDataValue(HUGE_VAL)
 {
     CAF_PDM_InitObject("3d Well Log Curve", ":/WellLogCurve16x16.png", "", "");
 
     CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_minCurveValue, "MinCurveValue", -HUGE_VAL, "Minimum Curve Value", "", "Clip curve values below this.", "");
+    CAF_PDM_InitField(&m_maxCurveValue, "MaxCurveValue", HUGE_VAL, "Maximum Curve Value", "", "Clip curve values above this.", "");
+    m_minCurveValue.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    m_maxCurveValue.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
@@ -109,6 +122,22 @@ void Rim3dWellLogCurve::setColor(const cvf::Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double Rim3dWellLogCurve::minCurveValue() const
+{
+    return m_minCurveValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double Rim3dWellLogCurve::maxCurveValue() const
+{
+    return m_maxCurveValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 {
     return &m_showCurve;
@@ -147,6 +176,8 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
     caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Configuration");
     configurationGroup->add(&m_drawPlane);
     configurationGroup->add(&m_color);
+    configurationGroup->add(&m_minCurveValue);
+    configurationGroup->add(&m_maxCurveValue);
 }
 
 QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
@@ -176,4 +207,67 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiDoubleSliderEditorAttribute* sliderAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+    if (sliderAttribute)
+    {
+        if (m_minCurveDataValue == -HUGE_VAL &&
+            m_maxCurveDataValue == HUGE_VAL)
+        {
+            this->resetMinMaxValues();
+        }
+        if (field == &m_minCurveValue)
+        {
+            sliderAttribute->m_minimum = m_minCurveDataValue;
+            sliderAttribute->m_maximum = m_maxCurveDataValue;
+        }
+        else if (field == &m_maxCurveValue)
+        {
+            sliderAttribute->m_minimum = m_minCurveDataValue;
+            sliderAttribute->m_maximum = m_maxCurveDataValue;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
+{
+    this->resetMinMaxValues();
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::resetMinMaxValues()
+{
+    std::vector<double> values;
+    std::vector<double> measuredDepths;
+    this->curveValuesAndMds(&values, &measuredDepths);
+    double foundMinValue = HUGE_VAL;
+    double foundMaxValue = -HUGE_VAL;
+    for (double value : values)
+    {
+        if (RigCurveDataTools::isValidValue(value, false))
+        {
+            foundMinValue = std::min(foundMinValue, value);
+            foundMaxValue = std::max(foundMaxValue, value);
+        }
+    }
+
+    // Update data boundaries
+    m_minCurveDataValue = foundMinValue;
+    m_maxCurveDataValue = foundMaxValue;
+
+    // Update selected GUI boundaries
+    m_minCurveValue = m_minCurveDataValue;
+    m_maxCurveValue = m_maxCurveDataValue;
 }

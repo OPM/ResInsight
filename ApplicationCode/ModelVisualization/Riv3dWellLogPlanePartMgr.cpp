@@ -107,6 +107,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
                                                                wellPathClipBoundingBox,
                                                                resultValues,
                                                                resultMds,
+                                                               rim3dWellLogCurve->minCurveValue(),
+                                                               rim3dWellLogCurve->maxCurveValue(),
                                                                planeAngle(curveCollection, rim3dWellLogCurve),
                                                                wellPathCenterToPlotStartOffset(curveCollection, rim3dWellLogCurve),
                                                                planeWidth());

@@ -51,10 +51,14 @@ public:
                                                const std::vector<double>&        resultMds,
                                                double                            planeAngle,
                                                double                            planeOffsetFromWellPathCenter,
-                                               double                            planeWidth) const;
+                                               double                            planeWidth,
+                                               double                            minResultValue,
+                                               double                            maxResultValue) const;
 private:
     void createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
                                        const std::vector<double>&        resultMds,
+                                       double                            minResultValue,
+                                       double                            maxResultValue,
                                        double                            planeAngle,
                                        double                            planeOffsetFromWellPathCenter,
                                        double                            planeWidth,
