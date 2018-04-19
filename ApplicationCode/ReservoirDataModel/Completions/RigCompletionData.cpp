@@ -122,7 +122,7 @@ void RigCompletionData::setSecondOrderingValue(double orderingValue)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigCompletionData::setDiameter(double diameter)
 {
@@ -130,7 +130,7 @@ void RigCompletionData::setDiameter(double diameter)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigCompletionData::setTransmissibility(double transmissibility)
 {
@@ -173,26 +173,33 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double  
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setCombinedValuesExplicitTrans(double transmissibility, CompletionType completionType)
+void RigCompletionData::setCombinedValuesExplicitTrans(double         transmissibility,
+                                                       double         skinFactor,
+                                                       double         diameter,
+                                                       CellDirection  celldirection,
+                                                       CompletionType completionType)
 {
-    m_completionType   = completionType;
     m_transmissibility = transmissibility;
+    m_skinFactor       = skinFactor;
+    m_diameter         = diameter;
+    m_direction        = celldirection;
+    m_completionType   = completionType;
 }
 
 //==================================================================================================
 ///
 //==================================================================================================
 void RigCompletionData::setCombinedValuesImplicitTransWPImult(double         wpimult,
-                                                              CellDirection  celldirection,
                                                               double         skinFactor,
-                                                              double         wellDiameter,
+                                                              double         diameter,
+                                                              CellDirection  celldirection,
                                                               CompletionType completionType)
 {
     m_wpimult        = wpimult;
     m_direction      = celldirection;
     m_completionType = completionType;
     m_skinFactor     = skinFactor;
-    m_diameter       = wellDiameter;
+    m_diameter       = diameter;
 }
 
 //--------------------------------------------------------------------------------------------------

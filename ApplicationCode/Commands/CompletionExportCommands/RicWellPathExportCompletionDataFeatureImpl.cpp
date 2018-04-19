@@ -407,7 +407,6 @@ RigCompletionData
 
     RigCompletionData resultCompletion(wellName, cellIndexIJK, firstCompletion.firstOrderingValue());
     resultCompletion.setSecondOrderingValue(firstCompletion.secondOrderingValue());
-    resultCompletion.setDiameter(firstCompletion.diameter());
 
     bool anyNonDarcyFlowPresent = false;
     for (const auto& c : completions)
@@ -438,7 +437,10 @@ RigCompletionData
 
     for (const RigCompletionData& completion : completions)
     {
-        if (completion.isMainBore())
+        // Use data from the completion with largest diameter
+        // This is more robust than checking for main bore flag
+        // See also https://github.com/OPM/ResInsight/issues/2765
+        if (completion.diameter() > wellBoreDiameter)
         {
             skinfactor       = completion.skinFactor();
             wellBoreDiameter = completion.diameter();
@@ -487,7 +489,7 @@ RigCompletionData
 
     if (settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES)
     {
-        resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
+        resultCompletion.setCombinedValuesExplicitTrans(totalTrans, skinfactor, wellBoreDiameter, cellDirection, completionType);
     }
     else if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
@@ -498,7 +500,7 @@ RigCompletionData
 
         double wpimult = totalTrans / transmissibilityEclipseCalculation;
         resultCompletion.setCombinedValuesImplicitTransWPImult(
-            wpimult, cellDirection, skinfactor, wellBoreDiameter, completionType);
+            wpimult, skinfactor, wellBoreDiameter, cellDirection, completionType);
     }
 
     return resultCompletion;

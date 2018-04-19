@@ -92,12 +92,16 @@ public:
                                                                 double diameter,
                                                                 CellDirection direction);
 
-    void        setCombinedValuesExplicitTrans(double transmissibility, CompletionType completionType);
-    
+    void        setCombinedValuesExplicitTrans(double         transmissibility,
+                                               double         skinFactor,
+                                               double         diameter,
+                                               CellDirection  celldirection,
+                                               CompletionType completionType);
+
     void        setCombinedValuesImplicitTransWPImult(double wpimult, 
-                                                      CellDirection celldirection, 
                                                       double skinFactor,
-                                                      double wellDiameter, 
+                                                      double diameter, 
+                                                      CellDirection celldirection, 
                                                       CompletionType completionType);
 
     bool        isNonDarcyFlow() const;
