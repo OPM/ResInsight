@@ -26,12 +26,12 @@
 class RigFemFaceComparator
 {
 public:
-    RigFemFaceComparator() : m_minMainFaceNodeIdx(INT_MAX),  m_faceIdxToMinMainFaceNodeIdx(0) {}
+    RigFemFaceComparator() : m_minMainFaceNodeIdx(std::numeric_limits<int>::max()),  m_faceIdxToMinMainFaceNodeIdx(0) {}
 
     void setMainFace(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
     {
         m_canonizedMainFaceIdxes.resize(faceNodeCount);
-        m_minMainFaceNodeIdx = INT_MAX;
+        m_minMainFaceNodeIdx = std::numeric_limits<int>::max();
         m_faceIdxToMinMainFaceNodeIdx = 0;
 
         for(int fnIdx = 0; fnIdx < faceNodeCount; ++fnIdx)
@@ -51,7 +51,7 @@ public:
         if (faceNodeCount != static_cast<int>(m_canonizedMainFaceIdxes.size())) return false;
 
         // Find min node index in face
-        int minNodeIdx = INT_MAX;
+        int minNodeIdx = std::numeric_limits<int>::max();
         int faceIdxToMinNodeIdx = 0;
 
         for (int fnIdx = 0; fnIdx < faceNodeCount; ++fnIdx)
