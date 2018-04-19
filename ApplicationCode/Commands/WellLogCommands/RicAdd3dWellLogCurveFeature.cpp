@@ -42,7 +42,7 @@ bool RicAdd3dWellLogCurveFeature::isCommandEnabled()
     RiaApplication::instance()->project()->allCases(cases);
     if (cases.empty()) return false;
 
-    return (RicWellLogTools::selectedWellPath() != nullptr);
+    return RicWellLogTools::findWellPathFromSelection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,8 @@ bool RicAdd3dWellLogCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAdd3dWellLogCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* selectedWellPath = RicWellLogTools::selectedWellPath();
+    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathFromSelection();
+    if (!selectedWellPath) return;
 
     Rim3dWellLogExtractionCurve* rim3dWellLogExtractionCurve = new Rim3dWellLogExtractionCurve();
     

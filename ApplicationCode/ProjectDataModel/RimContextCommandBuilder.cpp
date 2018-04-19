@@ -22,6 +22,10 @@
 #include "RiaApplication.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "Rim3dWellLogCurveCollection.h"
+#include "Rim3dWellLogExtractionCurve.h"
+#include "Rim3dWellLogFileCurve.h"
+#include "Rim3dWellLogRftCurve.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
@@ -290,6 +294,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder << "Separator";
 
+        }
+        else if (dynamic_cast<Rim3dWellLogCurveCollection*>(uiItem) ||
+                 dynamic_cast<Rim3dWellLogExtractionCurve*>(uiItem) ||
+                 dynamic_cast<Rim3dWellLogFileCurve*>(uiItem) ||
+                 dynamic_cast<Rim3dWellLogRftCurve*>(uiItem))
+        {
+            menuBuilder << "RicAdd3dWellLogCurveFeature";
+            menuBuilder << "RicAdd3dWellLogFileCurveFeature";
+            menuBuilder << "RicAdd3dWellLogRftCurveFeature";
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {

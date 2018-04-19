@@ -41,9 +41,12 @@ bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
     RiaApplication::instance()->project()->allCases(cases);
     if (cases.empty()) return false;
 
-    RimWellPath* wellPath = RicWellLogTools::selectedWellPath();
-
-    return RicWellLogTools::wellHasRftData(wellPath->name());
+    RimWellPath* wellPath = RicWellLogTools::findWellPathFromSelection();
+    if (wellPath)
+    {
+        return RicWellLogTools::wellHasRftData(wellPath->name());
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +54,7 @@ bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAdd3dWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* selectedWellPath = RicWellLogTools::selectedWellPath();
+    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathFromSelection();
     if (!selectedWellPath) return;
 
     Rim3dWellLogRftCurve* rim3dWellLogRftCurve = new Rim3dWellLogRftCurve();

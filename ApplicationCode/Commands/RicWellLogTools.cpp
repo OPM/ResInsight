@@ -87,6 +87,26 @@ RimWellPath* RicWellLogTools::selectedWellPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPath* RicWellLogTools::findWellPathFromSelection()
+{
+    std::vector<caf::PdmObject*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+    if (selection.size() > 0)
+    {
+        caf::PdmObject* firstSelection = selection[0];
+        RimWellPath* wellPath;
+        firstSelection->firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            return wellPath;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicWellLogTools::wellHasRftData(const QString& wellName)
 {
     RimEclipseResultCase* resultCase;
@@ -167,6 +187,19 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
         }
     }
 
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
+{
+    RimWellPath* wellPath = findWellPathFromSelection();
+    if (wellPath->wellLogFiles().size() > 0)
+    {
+        return wellPath;
+    }
     return nullptr;
 }
 
