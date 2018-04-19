@@ -20,6 +20,7 @@
 
 #include "RivSimWellPipesPartMgr.h"
 
+#include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
 
 #include "RigEclipseWellLogExtractor.h"
@@ -355,7 +356,11 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
     if (!simWellData->hasWellResult(frameIndex)) return; // Or reset colors or something
 
-    const double closed = -0.1, producing = 1.5, water = 2.5, hcInjection = 3.5; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
+    const double defaultState       = -0.1; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
+    const double producerState      = 1.5;
+    const double waterInjectorState = 2.5;
+    const double hcInjectorState    = 3.5;
+    const double closedState        = 4.5;
 
     std::list<RivPipeBranchData>::iterator brIt;
     const RigWellResultFrame& wResFrame = simWellData->wellResultFrame(frameIndex);
@@ -366,14 +371,15 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
     {
         cvf::Color3ubArray legendColors;
-        legendColors.resize(4);
+        legendColors.resize(5);
         legendColors[0] = cvf::Color3ub(m_rimWell->wellPipeColor());
         legendColors[1] = cvf::Color3::GREEN;
         legendColors[2] = cvf::Color3::BLUE;
         legendColors[3] = cvf::Color3::RED;
+        legendColors[4] = cvf::Color3ub(RiaColorTables::undefinedCellColor());
         scalarMapper->setColors(legendColors);
-        scalarMapper->setRange(0.0, 4.0);
-        scalarMapper->setLevelCount(4, true);
+        scalarMapper->setRange(0.0, 5.0);
+        scalarMapper->setLevelCount(5, true);
     }
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
@@ -392,7 +398,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     {
         // Initialize well states to "closed" state
         wellCellStates.clear();
-        wellCellStates.resize(brIt->m_cellIds.size(), closed);
+        wellCellStates.resize(brIt->m_cellIds.size(), defaultState);
 
         RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
@@ -419,28 +425,32 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
                 }
                 else
                 {
-                    double cellState = closed;
+                    double cellState = defaultState;
 
                     if (wResCell->m_isOpen)
                     {
                         switch (wResFrame.m_productionType)
                         {
                         case RigWellResultFrame::PRODUCER:
-                            cellState = producing;
+                            cellState = producerState;
                             break;
                         case RigWellResultFrame::OIL_INJECTOR:
-                            cellState = hcInjection;
+                            cellState = hcInjectorState;
                             break;
                         case RigWellResultFrame::GAS_INJECTOR:
-                            cellState = hcInjection;
+                            cellState = hcInjectorState;
                             break;
                         case RigWellResultFrame::WATER_INJECTOR:
-                            cellState = water;
+                            cellState = waterInjectorState;
                             break;
                         case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
-                            cellState = closed;
+                            cellState = defaultState;
                             break;
                         }
+                    }
+                    else
+                    {
+                        cellState = closedState;
                     }
 
                     wellCellStates[wcIdx] = cellState;
