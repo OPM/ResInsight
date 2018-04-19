@@ -64,23 +64,14 @@ public:
     void                                    setParentQwtPlotNoReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
-    RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
-
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);
 
     std::vector<RimSummaryCurve*>           curves() const;
     std::vector<RimSummaryCurve*>           visibleCurves() const;
 
-    void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurves();
-    void                                    updateCaseNameHasChanged();
 
-    void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
-
-    //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
-
-    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
     RimRegularLegendConfig*                 legendConfig(); 
 
 private:
@@ -104,32 +95,28 @@ private:
 
     void                                    updateCurveColors();
     void                                    updateQwtPlotAxis();
-    void                                    createNewCurves();
+    void                                    updateAllCurves();
 
 private:
-    caf::PdmField<bool>                         m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;           // Convert to PtrField ?
+    caf::PdmField<bool>                             m_showCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
 
-    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
-    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_xSourceStepping;
-    //caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
-
-    caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
+    caf::PdmPointer<RimSummaryCurve>                m_currentSummaryCurve;
 
     // Y values
-    caf::PdmPtrField<RimSummaryCaseCollection*>  m_yValuesSummaryGroup;
-    caf::PdmChildField<RimSummaryAddress*>  m_yValuesCurveVariable;
-    caf::PdmField<QString>                  m_yValuesSelectedVariableDisplayField;
-    caf::PdmChildField<RimSummaryFilter*>   m_yValuesSummaryFilter;
-    caf::PdmField<RifEclipseSummaryAddress> m_yValuesUiFilterResultSelection;
-    caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
+    caf::PdmPtrField<RimSummaryCaseCollection*>     m_yValuesSummaryGroup;
+    caf::PdmChildField<RimSummaryAddress*>          m_yValuesCurveVariable;
+    caf::PdmField<QString>                          m_yValuesSelectedVariableDisplayField;
+    caf::PdmChildField<RimSummaryFilter*>           m_yValuesSummaryFilter;
+    caf::PdmField<RifEclipseSummaryAddress>         m_yValuesUiFilterResultSelection;
+    caf::PdmField<bool>                             m_yPushButtonSelectSummaryAddress;
 
-    caf::PdmField<caf::AppEnum<ColorMode>>  m_colorMode;
-    caf::PdmField<cvf::Color3f>             m_color;
-    caf::PdmField<QString>                  m_ensambleParameter;
+    caf::PdmField<caf::AppEnum<ColorMode>>          m_colorMode;
+    caf::PdmField<cvf::Color3f>                     m_color;
+    caf::PdmField<QString>                          m_ensambleParameter;
 
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 
-    caf::PdmChildField<RimRegularLegendConfig*>    m_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
 };
 
