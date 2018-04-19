@@ -22,7 +22,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-
 #include <vector>
 
 class RimRegularLegendConfig;
@@ -39,21 +38,21 @@ public:
     RimVirtualPerforationResults();
     virtual ~RimVirtualPerforationResults();
 
-    bool             isActive() const;
+    bool             showConnectionFactors() const;
+    bool             showConnectionFactorsOnClosedConnections() const;
     double           geometryScaleFactor() const;
     RimRegularLegendConfig* legendConfig() const;
-
     void             loadData();
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            initAfterRead() override;
 
 private:
     caf::PdmField<bool>                     m_isActive;
+    caf::PdmField<bool>                     m_showClosedConnections;
     caf::PdmField<double>                   m_geometryScaleFactor;
 
     caf::PdmChildField<RimRegularLegendConfig*>    m_legendConfig;

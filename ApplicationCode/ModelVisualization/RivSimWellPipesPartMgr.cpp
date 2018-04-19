@@ -287,34 +287,36 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
                         for (const auto& intersectionInfo : wellPathCellIntersections)
                         {
                             size_t globalCellIndex = intersectionInfo.globCellIndex;
+                            const RigWellResultPoint* wResCell = wResFrame.findResultCell(0, globalCellIndex);
 
-                            for (const auto& wellResultPoint : pbd.m_cellIds)
+                            if (!wResCell || !wResCell->isValid())
                             {
-                                if (wellResultPoint.m_gridCellIndex == globalCellIndex)
-                                {
-                                    double startMD = intersectionInfo.startMD;
-                                    double endMD = intersectionInfo.endMD;
+                                continue;
+                            }
 
-                                    double middleMD = (startMD + endMD) / 2.0;
+                            if (!virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->m_isOpen)
+                            {
+                                continue;
+                            }
 
-                                    cvf::Vec3d defaultLocationInDomainCoord = wellPath->interpolatedPointAlongWellPath(middleMD);
+                            double startMD = intersectionInfo.startMD;
+                            double endMD   = intersectionInfo.endMD;
 
-                                    cvf::Vec3d p1;
-                                    cvf::Vec3d p2;
-                                    wellPath->twoClosestPoints(defaultLocationInDomainCoord, &p1, &p2);
+                            double middleMD = (startMD + endMD) / 2.0;
 
-                                    cvf::Vec3d defaultWellPathDirection = (p2 - p1).getNormalized();
+                            cvf::Vec3d domainCoord = wellPath->interpolatedPointAlongWellPath(middleMD);
 
-                                    cvf::Vec3d anchor = displayXf->transformToDisplayCoord(defaultLocationInDomainCoord);;
+                            cvf::Vec3d p1;
+                            cvf::Vec3d p2;
+                            wellPath->twoClosestPoints(domainCoord, &p1, &p2);
 
-                                    const RigWellResultPoint* wResCell = wResFrame.findResultCell(wellResultPoint.m_gridIndex, wellResultPoint.m_gridCellIndex);
-                                    if (wResCell && wResCell->isValid())
-                                    {
-                                        CompletionVizData data(anchor, defaultWellPathDirection, wResCell->connectionFactor(), globalCellIndex);
+                            cvf::Vec3d direction = (p2 - p1).getNormalized();
 
-                                        completionVizDataItems.push_back(data);
-                                    }
-                                }
+                            cvf::Vec3d anchor = displayXf->transformToDisplayCoord(domainCoord);
+                            {
+                                CompletionVizData data(anchor, direction, wResCell->connectionFactor(), globalCellIndex);
+
+                                completionVizDataItems.push_back(data);
                             }
                         }
                     }

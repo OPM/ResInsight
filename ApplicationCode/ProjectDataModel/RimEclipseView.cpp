@@ -1108,7 +1108,7 @@ void RimEclipseView::updateLegends()
         }
     }
     
-    if (m_virtualPerforationResult->isActive() && m_virtualPerforationResult->legendConfig()->showLegend())
+    if (m_virtualPerforationResult->showConnectionFactors() && m_virtualPerforationResult->legendConfig()->showLegend())
     {
         updateVirtualConnectionLegendRanges();
 
@@ -1433,7 +1433,7 @@ bool RimEclipseView::isVirtualConnectionFactorGeometryVisible() const
 {
     if (!m_showWindow()) return false;
 
-    if (!m_virtualPerforationResult->isActive()) return false;
+    if (!m_virtualPerforationResult->showConnectionFactors()) return false;
 
     // TODO: Consider check if no well paths are visible
 

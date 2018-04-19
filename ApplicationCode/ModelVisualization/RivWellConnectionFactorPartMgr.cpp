@@ -94,6 +94,17 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     std::vector<CompletionVizData> completionVizDataItems;
     for (const auto& cell : conn)
     {
+        if (!m_virtualPerforationResult->showConnectionFactorsOnClosedConnections())
+        {
+            for (const auto& completion : cell.second)
+            {
+                if (completion.connectionState() == SHUT)
+                {
+                    continue;
+                }
+            }
+        }
+
         size_t gridIndex = cell.first.globalCellIndex();
 
         const RigCell& rigCell = mainGrid->cell(gridIndex);

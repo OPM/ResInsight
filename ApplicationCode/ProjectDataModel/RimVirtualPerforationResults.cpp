@@ -36,7 +36,8 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
     CAF_PDM_InitObject(connectionFactorUiName, ":/CellResult.png", "", "");
 
     CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    false,   "", "", "", "");
-    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      1.0,    "Geometry Scale Factor", "", "", "");
+    CAF_PDM_InitField(&m_showClosedConnections, "ShowClosedConnections",    true,   "Show On Closed Connections", "", "", "");
+    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      2.0,    "Geometry Scale Factor", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     m_legendConfig.uiCapability()->setUiHidden(true);
@@ -55,9 +56,17 @@ RimVirtualPerforationResults::~RimVirtualPerforationResults() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimVirtualPerforationResults::isActive() const
+bool RimVirtualPerforationResults::showConnectionFactors() const
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimVirtualPerforationResults::showConnectionFactorsOnClosedConnections() const
+{
+    return m_showClosedConnections();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,21 +129,10 @@ caf::PdmFieldHandle* RimVirtualPerforationResults::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimVirtualPerforationResults::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                                  bool*                      useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_geometryScaleFactor);
+    uiOrdering.add(&m_showClosedConnections);
 
     uiOrdering.skipRemainingFields(true);
 }
