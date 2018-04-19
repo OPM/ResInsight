@@ -362,10 +362,8 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     const double hcInjectorState    = 3.5;
     const double closedState        = 4.5;
 
-    std::list<RivPipeBranchData>::iterator brIt;
     const RigWellResultFrame& wResFrame = simWellData->wellResultFrame(frameIndex);
 
-    std::vector<double> wellCellStates;
 
     // Setup a scalar mapper
     cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
@@ -394,11 +392,10 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
     cvf::ref<cvf::Effect> scalarMapperMeshEffect = meshEffGen.generateUnCachedEffect();
 
-    for (brIt = m_wellBranches.begin(); brIt != m_wellBranches.end(); ++brIt)
+    for (auto& wellBranch : m_wellBranches)
     {
-        // Initialize well states to "closed" state
-        wellCellStates.clear();
-        wellCellStates.resize(brIt->m_cellIds.size(), defaultState);
+        std::vector<double> wellCellStates;
+        wellCellStates.resize(wellBranch.m_cellIds.size(), defaultState);
 
         RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
@@ -408,7 +405,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
         if (wellColl && wellColl->showConnectionStatusColors())
         {
-            const std::vector <RigWellResultPoint>& cellIds =  brIt->m_cellIds;
+            const std::vector <RigWellResultPoint>& cellIds = wellBranch.m_cellIds;
             for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
             {
                 // we need a faster lookup, I guess
@@ -419,11 +416,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
                     wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
                 }
 
-                if (wResCell == nullptr) 
-                {
-                    // We cant find any state. This well cell is closed.
-                }
-                else
+                if (wResCell) 
                 {
                     double cellState = defaultState;
 
@@ -460,37 +453,37 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
         // Find or create texture coords array for pipe surface
 
-        if (brIt->m_surfaceDrawable.notNull())
+        if (wellBranch.m_surfaceDrawable.notNull())
         {
-            cvf::ref<cvf::Vec2fArray> surfTexCoords = const_cast<cvf::Vec2fArray*>(brIt->m_surfaceDrawable->textureCoordArray());
+            cvf::ref<cvf::Vec2fArray> surfTexCoords = const_cast<cvf::Vec2fArray*>(wellBranch.m_surfaceDrawable->textureCoordArray());
             if (surfTexCoords.isNull())
             {
                 surfTexCoords = new cvf::Vec2fArray;
             }
 
-            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords(surfTexCoords.p(), wellCellStates, scalarMapper.p());
+            wellBranch.m_pipeGeomGenerator->pipeSurfaceTextureCoords(surfTexCoords.p(), wellCellStates, scalarMapper.p());
             
-            brIt->m_surfaceDrawable->setTextureCoordArray(surfTexCoords.p());
-            brIt->m_largeSurfaceDrawable->setTextureCoordArray(surfTexCoords.p());
+            wellBranch.m_surfaceDrawable->setTextureCoordArray(surfTexCoords.p());
+            wellBranch.m_largeSurfaceDrawable->setTextureCoordArray(surfTexCoords.p());
 
             if (wResFrame.m_isOpen)
             {
                 // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the same position
     
-                brIt->m_surfacePart->setDrawable(brIt->m_largeSurfaceDrawable.p());
+                wellBranch.m_surfacePart->setDrawable(wellBranch.m_largeSurfaceDrawable.p());
             }
             else
             {
-                brIt->m_surfacePart->setDrawable(brIt->m_surfaceDrawable.p());
+                wellBranch.m_surfacePart->setDrawable(wellBranch.m_surfaceDrawable.p());
             }
             
-            brIt->m_surfacePart->setEffect(scalarMapperSurfaceEffect.p());
+            wellBranch.m_surfacePart->setEffect(scalarMapperSurfaceEffect.p());
         }
 
         // Find or create texture coords array for pipe center line
-        if (brIt->m_centerLineDrawable.notNull())
+        if (wellBranch.m_centerLineDrawable.notNull())
         {
-            cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(brIt->m_centerLineDrawable->textureCoordArray());
+            cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(wellBranch.m_centerLineDrawable->textureCoordArray());
 
             if (lineTexCoords.isNull())
             {
@@ -498,15 +491,15 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             }
 
             // Calculate new texture coordinates
-            brIt->m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, scalarMapper.p());
+            wellBranch.m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, scalarMapper.p());
 
             // Set the new texture coordinates
 
-            brIt->m_centerLineDrawable->setTextureCoordArray( lineTexCoords.p());
+            wellBranch.m_centerLineDrawable->setTextureCoordArray( lineTexCoords.p());
 
             // Set effects
 
-            brIt->m_centerLinePart->setEffect(scalarMapperMeshEffect.p());
+            wellBranch.m_centerLinePart->setEffect(scalarMapperMeshEffect.p());
         }
     }
 }
