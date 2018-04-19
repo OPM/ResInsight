@@ -121,8 +121,8 @@ RimEnsambleCurveSet::~RimEnsambleCurveSet()
     m_curves.deleteAllChildObjects();
 
     RimSummaryPlot* parentPlot;
-    firstAncestorOrThisOfTypeAsserted(parentPlot);
-    if (parentPlot->qwtPlot())
+    firstAncestorOrThisOfType(parentPlot);
+    if (parentPlot && parentPlot->qwtPlot())
     {
         parentPlot->qwtPlot()->removeEnsambleCurveSetLegend(this);
     }
