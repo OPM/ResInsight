@@ -39,6 +39,8 @@ public:
     RicImportSummaryCasesFeature() { }
 
     static bool createAndAddSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases = nullptr);
+    static bool createSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases);
+    static void addSummaryCases(const std::vector<RimSummaryCase*> cases);
 
     static std::vector<RimSummaryCase*> importSummaryCases(const QString& dialogTitle);
 

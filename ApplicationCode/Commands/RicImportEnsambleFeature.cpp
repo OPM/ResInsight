@@ -70,6 +70,7 @@ void RicImportEnsambleFeature::onActionTriggered(bool isChecked)
     QString ensambleName = askForEnsambleName();
     if (ensambleName.isEmpty()) return;
 
+    RicImportSummaryCasesFeature::addSummaryCases(cases);
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensambleName);
 
     std::vector<RimCase*> allCases;

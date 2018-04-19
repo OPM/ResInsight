@@ -66,6 +66,8 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     RiaApplication*                 app = RiaApplication::instance();
     std::vector<RimSummaryCase*>    cases = importSummaryCases("Import Summary Cases");
     
+    addSummaryCases(cases);
+
     for (const auto& rimCase : cases) RiaApplication::instance()->addToRecentFiles(rimCase->summaryHeaderFilename());
 
     std::vector<RimCase*> allCases;
@@ -91,6 +93,21 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList& fileNames, std::vector<RimSummaryCase*>* newCases)
 {
+    std::vector<RimSummaryCase*> temp;
+    std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
+    if (createSummaryCasesFromFiles(fileNames, cases))
+    {
+        addSummaryCases(*cases);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList& fileNames, std::vector<RimSummaryCase*>* newCases)
+{
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
@@ -101,19 +118,30 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
     RifSummaryCaseRestartSelector       fileSelector;
     std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.getFilesToImportFromSummaryFiles(fileNames);
 
-    std::vector<RimSummaryCase*> sumCases = sumCaseColl->createAndAddSummaryCasesFromFileInfos(importFileInfos);
-    sumCaseColl->updateAllRequiredEditors();
-
-    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !sumCases.empty())
-    {
-        mainPlotWindow->selectAsCurrentItem(sumCases.back());
-
-        mainPlotWindow->updateSummaryPlotToolBar();
-    }
+    std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos);
 
     if (newCases) newCases->insert(newCases->end(), sumCases.begin(), sumCases.end());
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryCase*> cases)
+{
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* proj = app->project();
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    sumCaseColl->addCases(cases);
+    sumCaseColl->updateAllRequiredEditors();
+
+    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow && !cases.empty())
+    {
+        mainPlotWindow->selectAsCurrentItem(cases.back());
+
+        mainPlotWindow->updateSummaryPlotToolBar();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +167,6 @@ std::vector<RimSummaryCase*> RicImportSummaryCasesFeature::importSummaryCases(co
     if (fileNames.isEmpty()) return std::vector<RimSummaryCase*>();
 
     std::vector<RimSummaryCase*> newCases;
-    createAndAddSummaryCasesFromFiles(fileNames, &newCases);
+    createSummaryCasesFromFiles(fileNames, &newCases);
     return newCases;
 }

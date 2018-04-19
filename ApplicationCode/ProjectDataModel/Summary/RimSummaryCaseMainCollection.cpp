@@ -173,6 +173,17 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addCases(const std::vector<RimSummaryCase*> cases)
+{
+    for (RimSummaryCase* sumCase : cases)
+    {
+        addCase(sumCase);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::addCase(RimSummaryCase* summaryCase)
 {
     m_cases.push_back(summaryCase);
@@ -299,6 +310,16 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileInfo>& summaryHeaderFileInfos)
 {
+    std::vector<RimSummaryCase*> newCases = createSummaryCasesFromFileInfos(summaryHeaderFileInfos);
+    addCases(newCases);
+    return newCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileInfo>& summaryHeaderFileInfos)
+{
     RimProject* project = RiaApplication::instance()->project();
 
     std::vector<RimSummaryCase*>    sumCases;
@@ -316,7 +337,6 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
         {
             RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
 
-            this->m_cases.push_back(newSumCase);
             newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles);
             newSumCase->setAssociatedEclipseCase(eclCase);
             newSumCase->createSummaryReaderInterface();
@@ -328,7 +348,6 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
         {
             RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
-            this->m_cases.push_back(newSumCase);
             newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles);
             newSumCase->setSummaryHeaderFileName(fileInfo.fileName);
             newSumCase->createSummaryReaderInterface();
