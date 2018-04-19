@@ -74,7 +74,7 @@ private:
                                   int branchIndex,
                                   size_t frameIndex);
 
-    caf::PdmPointer<RimSimWellInView>       m_rimWell;
+    caf::PdmPointer<RimSimWellInView>       m_simWellInView;
 
     struct RivPipeBranchData
     {

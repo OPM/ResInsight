@@ -46,7 +46,7 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 
 private:
-    caf::PdmPointer<RimWellPath>                  m_rimWell;
+    caf::PdmPointer<RimWellPath>                  m_rimWellPath;
     caf::PdmPointer<RimVirtualPerforationResults> m_virtualPerforationResult;
 
     cvf::ref<RivWellConnectionFactorGeometryGenerator> m_geometryGenerator;
