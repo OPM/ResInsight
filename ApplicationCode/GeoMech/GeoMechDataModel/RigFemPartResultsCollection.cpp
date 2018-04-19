@@ -1477,7 +1477,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
 
             if (refElement.elementIdx != cvf::UNDEFINED_SIZE_T)
             {
-                float shortestDist = HUGE_VALF;
+                float shortestDist = std::numeric_limits<float>::infinity();
                 size_t closestRefNodeIdx = cvf::UNDEFINED_SIZE_T;
 
                 for (size_t nodeIdx : refElement.elementFaceNodeIdxs)
@@ -2618,7 +2618,7 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
 
     refElement->elementIdx = cvf::UNDEFINED_SIZE_T;
-    refElement->intersectionPointToCurrentNodeDistance = HUGE_VALF;
+    refElement->intersectionPointToCurrentNodeDistance = std::numeric_limits<float>::infinity();
     size_t i, j, k;
     for (const size_t elemIdx : refElementCandidates)
     {
