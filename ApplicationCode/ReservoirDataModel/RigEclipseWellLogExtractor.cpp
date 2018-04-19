@@ -53,7 +53,6 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 {
     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > uniqueIntersections;
 
-    const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
     bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
     if (m_wellPath->m_wellPathPoints.empty()) return;

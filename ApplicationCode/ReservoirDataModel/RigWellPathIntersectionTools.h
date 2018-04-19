@@ -55,7 +55,4 @@ public:
                                             size_t             cellIndex,
                                             const cvf::Vec3d&  startPoint,
                                             const cvf::Vec3d&  endPoint);
-
-private:
-    static std::vector<size_t> findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb);
 };

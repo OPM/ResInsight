@@ -144,14 +144,3 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell(const RigMainGrid
 
     return calculateLengthInCell(hexCorners, startPoint, endPoint);
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigWellPathIntersectionTools::findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb)
-{
-    std::vector<size_t> closeCells;
-    grid->findIntersectingCells(bb, &closeCells);
-    return closeCells;
-}
-

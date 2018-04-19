@@ -639,7 +639,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>(m_viewer->ownerViewWindow()) == nullptr;
 
                 size_t globalCellIndex = wellConnectionSourceInfo->globalCellIndexFromTriangleIndex(firstPartTriangleIndex);
-                double connectionFactor = wellConnectionSourceInfo->connectionFactorFromTriangleIndex(firstPartTriangleIndex);
 
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
                 if (eclipseView)

@@ -611,49 +611,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::getCompletionsForWellAndCompletionType(
-    const std::vector<RigCompletionData>& completions,
-    const QString&                        wellName,
-    RigCompletionData::CompletionType     completionType)
-{
-    std::vector<RigCompletionData> filteredCompletions;
-    for (const auto& completion : completions)
-    {
-        if (completion.wellName() == wellName && completion.completionType() == completionType)
-        {
-            filteredCompletions.push_back(completion);
-        }
-    }
-    return filteredCompletions;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>
-    RicWellPathExportCompletionDataFeatureImpl::getCompletionsForWell(
-        const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& cellToCompletionMap,
-        const QString&                                                             wellName)
-{
-    std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> wellCompletions;
-
-    for (const auto& it : cellToCompletionMap)
-    {
-        for (auto& completion : it.second)
-        {
-            if (completion.wellName() == wellName)
-            {
-                wellCompletions[it.first].push_back(completion);
-            }
-        }
-    }
-
-    return wellCompletions;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatter(
     RifEclipseDataTableFormatter&         formatter,
     const QString&                        gridName,

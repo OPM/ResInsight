@@ -173,14 +173,6 @@ private:
                                                                         const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
                                                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
-    static std::vector<RigCompletionData>        getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions,
-                                                                                        const QString& wellName, 
-                                                                                        RigCompletionData::CompletionType completionType);
-
-    static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData> > 
-      getCompletionsForWell(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& cellToCompletionMap, 
-                            const QString& wellName);
-
     static void                                  exportCompdatTableUsingFormatter(RifEclipseDataTableFormatter& formatter, 
                                                                       const QString& gridName, 
                                                                       const std::vector<RigCompletionData>& completionData);
