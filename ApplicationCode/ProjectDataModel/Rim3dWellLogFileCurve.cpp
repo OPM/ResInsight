@@ -107,6 +107,7 @@ void Rim3dWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         this->resetMinMaxValuesAndUpdateUI();
     }
+    Rim3dWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
 //--------------------------------------------------------------------------------------------------
