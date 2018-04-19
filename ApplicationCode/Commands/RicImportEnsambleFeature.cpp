@@ -144,13 +144,13 @@ bool RicImportEnsambleFeature::validateEnsambleCases(std::vector<RimSummaryCase*
 QString RicImportEnsambleFeature::askForEnsambleName()
 {
     RimProject* project = RiaApplication::instance()->project();
-    int groupCount = (int)project->summaryGroups().size();
+    int groupCount = (int)project->summaryGroups().size() + 1;
 
     QInputDialog dialog;
     dialog.setInputMode(QInputDialog::TextInput);
-    dialog.setWindowTitle("Ensamble Name");
-    dialog.setLabelText("Ensamble Name");
-    dialog.setTextValue(QString("Ensamble %1").arg(groupCount));
+    dialog.setWindowTitle("Ensemble Name");
+    dialog.setLabelText("Ensemble Name");
+    dialog.setTextValue(QString("Ensemble %1").arg(groupCount));
     dialog.resize(300, 50);
     dialog.exec();
     return dialog.result() == QDialog::Accepted ? dialog.textValue() : QString("");

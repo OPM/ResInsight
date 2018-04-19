@@ -464,6 +464,8 @@ void RimEnsambleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
                                                            RimSummaryCaseCollection* summaryCaseGroup,
                                                            RimSummaryFilter* summaryFilter)
 {
+    if (!summaryCaseGroup) return;
+
     std::set<RifEclipseSummaryAddress> allAddresses;
     
     for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
