@@ -498,15 +498,15 @@ void RimEnsambleCurveSet::updateCurveColors()
         QString parameterName = m_ensambleParameter();
         if (group && !parameterName.isEmpty())
         {
-            double minValue = HUGE_VAL;
-            double maxValue = -HUGE_VAL;
+            double minValue = std::numeric_limits<double>::infinity();
+            double maxValue = -std::numeric_limits<double>::infinity();
 
             for (RimSummaryCase* rimCase : group->allSummaryCases())
             {
                 if (!rimCase->caseRealizationParameters().isNull())
                 {
                     double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                    if (value != HUGE_VAL)
+                    if (value != std::numeric_limits<double>::infinity())
                     {
                         if (value < minValue) minValue = value;
                         if (value > maxValue) maxValue = value;
