@@ -45,9 +45,9 @@ protected:
             charHeight = 0.0f;
             lineSpacing = 0.0f;
             margins = cvf::Vec2f::ZERO;
-            tickX = 0.0f;
-            x0 = 0.0f;
-            x1 = 0.0f;
+            tickEndX = 0.0f;
+            tickStartX = 0.0f;
+            tickMidX = 0.0f;
 
             position = pos;
             size = setSize;
@@ -56,10 +56,9 @@ protected:
         float charHeight;
         float lineSpacing;
         cvf::Vec2f margins;
-        float tickX;
-        float x0, x1;
+        float tickStartX, tickMidX, tickEndX;
 
-        cvf::Rectf legendRect;
+        cvf::Rectf colorBarRect;
 
         cvf::Vec2i position;
         cvf::Vec2ui size;
@@ -72,7 +71,7 @@ protected:
                                const cvf::Vec2ui& size, 
                                bool software);
     void         setupTextDrawer(cvf::TextDrawer* textDrawer, 
-                                 OverlayColorLegendLayoutInfo* layout, 
+                                 const OverlayColorLegendLayoutInfo* layout, 
                                  float* maxLegendRightPos);
     void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, 
                                           OverlayColorLegendLayoutInfo* layout,

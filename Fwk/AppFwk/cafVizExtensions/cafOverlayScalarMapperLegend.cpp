@@ -151,10 +151,10 @@ bool OverlayScalarMapperLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& 
     layoutInfo(&layoutInViewPortCoords);
 
     Vec2i legendBarOrigin = oglRect.min();
-    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().x());
-    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().y());
+    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().x());
+    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().y());
 
-    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
+    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.colorBarRect.width()), static_cast<uint>(layoutInViewPortCoords.colorBarRect.height()));
 
     if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
         (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
@@ -220,7 +220,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
 
     m_visibleTickLabels.clear();
 
-    const float textX = layout->tickX + 5;
+    const float textX = layout->tickEndX + 5;
 
     const float overlapTolerance = 1.2f * layout->charHeight;
     float lastVisibleTextY = 0.0;
@@ -229,7 +229,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
     size_t it;
     for (it = 0; it < numTicks; it++)
     {
-        float textY = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(it));
+        float textY = static_cast<float>(layout->colorBarRect.min().y() + layout->tickYPixelPos->get(it));
         
         // Always draw first and last tick label. For all others, skip drawing if text ends up
         // on top of the previous label. 
@@ -242,7 +242,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
             }
             // Make sure it does not overlap the last tick as well
 
-            float lastTickY = static_cast<float>(layout->legendRect.max().y() );
+            float lastTickY = static_cast<float>(layout->colorBarRect.max().y() );
 
             if (cvf::Math::abs(textY - lastTickY) < overlapTolerance)
             {
@@ -327,8 +327,8 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
     float* v4 = &vertexArray[12];
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v0[0] = v3[0] = layout->tickStartX;
+    v1[0] = v4[0] = layout->tickMidX;
 
     // Connects
     static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
@@ -348,15 +348,15 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->tickPixelPos->get(m_tickValues.size()-1) - layout->tickPixelPos->get(0) + 0.01);
+    int legendHeightPixelCount = static_cast<int>(layout->tickYPixelPos->get(m_tickValues.size()-1) - layout->tickYPixelPos->get(0) + 0.01);
     if (m_scalarMapper.notNull())
     {
         int iPx;
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
+            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -382,10 +382,10 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
     bool isRenderingFrame = true;
     if (isRenderingFrame)
     {
-        v0[0] = v2[0] = layout->legendRect.min().x()-0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x()-0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y()-0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
+        v0[0] = v2[0] = layout->colorBarRect.min().x()-0.5f;
+        v1[0] = v3[0] = layout->colorBarRect.max().x()-0.5f;
+        v0[1] = v1[1] = layout->colorBarRect.min().y()-0.5f;
+        v2[1] = v3[1] = layout->colorBarRect.max().y()-0.5f;
         static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0};
 
         UniformFloat uniformColor("u_color", Color4f(this->lineColor()));
@@ -404,11 +404,11 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
     if (isRenderingTicks)
     {
         // Constant coordinates
-        v0[0] = layout->x0;
-        v1[0] = layout->x1 - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v2[0] = layout->x1;
-        v3[0] = layout->tickX - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v4[0] = layout->tickX;
+        v0[0] = layout->tickStartX;
+        v1[0] = layout->tickMidX - 0.5f*(layout->tickEndX - layout->tickMidX) - 0.5f;
+        v2[0] = layout->tickMidX;
+        v3[0] = layout->tickEndX - 0.5f*(layout->tickEndX - layout->tickMidX) - 0.5f;
+        v4[0] = layout->tickEndX;
 
         static const ushort tickLinesWithLabel[] = { 0, 4 };
         static const ushort tickLinesWoLabel[] = { 2, 3 };
@@ -416,7 +416,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
         size_t ic;
         for (ic = 0; ic < m_tickValues.size(); ic++)
         {
-                float y0 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic) - 0.5f);
+                float y0 = static_cast<float>(layout->colorBarRect.min().y() + layout->tickYPixelPos->get(ic) - 0.5f);
 
                 // Dynamic coordinates for  tickmarks-lines
                 v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
@@ -495,20 +495,20 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
     float* v4 = &vertexArray[12];   
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v0[0] = v3[0] = layout->tickStartX;
+    v1[0] = v4[0] = layout->tickMidX;
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->tickPixelPos->get(m_tickValues.size() - 1) - layout->tickPixelPos->get(0) + 0.01);
+    int legendHeightPixelCount = static_cast<int>(layout->tickYPixelPos->get(m_tickValues.size() - 1) - layout->tickYPixelPos->get(0) + 0.01);
     if (m_scalarMapper.notNull())
     {
         int iPx;
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
+            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -531,10 +531,10 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
     bool isRenderingFrame = true;
     if (isRenderingFrame)
     {
-        v0[0] = v2[0] = layout->legendRect.min().x()-0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x()-0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y()-0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
+        v0[0] = v2[0] = layout->colorBarRect.min().x()-0.5f;
+        v1[0] = v3[0] = layout->colorBarRect.max().x()-0.5f;
+        v0[1] = v1[1] = layout->colorBarRect.min().y()-0.5f;
+        v2[1] = v3[1] = layout->colorBarRect.max().y()-0.5f;
 
         glColor3fv(this->textColor().ptr());
         glBegin(GL_LINES);
@@ -556,16 +556,16 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
     if (isRenderingTicks)
     {
         // Constant coordinates
-        v0[0] = layout->x0;
-        v1[0] = layout->x1 - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v2[0] = layout->x1;
-        v3[0] = layout->tickX - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v4[0] = layout->tickX;
+        v0[0] = layout->tickStartX;
+        v1[0] = layout->tickMidX - 0.5f*(layout->tickEndX - layout->tickMidX) - 0.5f;
+        v2[0] = layout->tickMidX;
+        v3[0] = layout->tickEndX - 0.5f*(layout->tickEndX - layout->tickMidX) - 0.5f;
+        v4[0] = layout->tickEndX;
 
         size_t ic;
         for (ic = 0; ic < m_tickValues.size(); ic++)
         {
-            float y0 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic) - 0.5f);
+            float y0 = static_cast<float>(layout->colorBarRect.min().y() + layout->tickYPixelPos->get(ic) - 0.5f);
 
             // Dynamic coordinates for  tickmarks-lines
             v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
@@ -608,22 +608,28 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->lineSpacing = layout->charHeight*1.5f;
     layout->margins = Vec2f(8.0f, 8.0f);
 
-    float legendWidth = 25.0f;
-    float legendHeight = static_cast<float>(layout->size.y()) - 2*layout->margins.y() - static_cast<float>(this->titleStrings().size())*layout->lineSpacing - layout->lineSpacing;
-    layout->legendRect = Rectf(layout->margins.x(), layout->margins.y() + layout->charHeight/2.0f, legendWidth, legendHeight);
+    float colorBarWidth = 25.0f;
+    float colorBarHeight = static_cast<float>(layout->size.y()) 
+                         - 2*layout->margins.y() 
+                         - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
+                         - layout->lineSpacing;
+    layout->colorBarRect = Rectf(layout->margins.x(), 
+                                 layout->margins.y() + layout->charHeight/2.0f, 
+                                 colorBarWidth, 
+                                 colorBarHeight);
 
-    if (layout->legendRect.width() < 1 || layout->legendRect.height() < 1)
+    if (layout->colorBarRect.width() < 1 || layout->colorBarRect.height() < 1)
     {
         return;
     }
 
-    layout->x0 = layout->margins.x();
-    layout->x1 = layout->margins.x() + layout->legendRect.width();
-    layout->tickX = layout->x1 + 5;
+    layout->tickStartX = layout->margins.x();
+    layout->tickMidX = layout->margins.x() + layout->colorBarRect.width();
+    layout->tickEndX = layout->tickMidX + 5;
 
     // Build array containing the pixel positions of all the ticks
     size_t numTicks = m_tickValues.size();
-    layout->tickPixelPos = new DoubleArray(numTicks);
+    layout->tickYPixelPos = new DoubleArray(numTicks);
 
     size_t i;
     for (i = 0; i < numTicks; i++)
@@ -634,11 +640,11 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
         t = Math::clamp(t, 0.0, 1.1);
         if (i != numTicks -1)
         {
-            layout->tickPixelPos->set(i, t*layout->legendRect.height());
+            layout->tickYPixelPos->set(i, t*layout->colorBarRect.height());
         }
         else
         {
-            layout->tickPixelPos->set(i, layout->legendRect.height());  // Make sure we get a value at the top even if the scalarmapper range is zero
+            layout->tickYPixelPos->set(i, layout->colorBarRect.height());  // Make sure we get a value at the top even if the scalarmapper range is zero
         }
     }
 }

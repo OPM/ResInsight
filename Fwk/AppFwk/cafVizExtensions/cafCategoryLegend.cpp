@@ -95,10 +95,10 @@ bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, c
     layoutInfo(&layoutInViewPortCoords);
 
     Vec2i legendBarOrigin = oglRect.min();
-    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().x());
-    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().y());
+    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().x());
+    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().y());
 
-    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
+    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.colorBarRect.width()), static_cast<uint>(layoutInViewPortCoords.colorBarRect.height()));
 
     if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
         (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
@@ -162,7 +162,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
 /// 
 //--------------------------------------------------------------------------------------------------
 void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, 
-                                     OverlayColorLegendLayoutInfo* layout, 
+                                     const OverlayColorLegendLayoutInfo* layout, 
                                      float* maxLegendRightPos)
 {
     if (m_categoryMapper.isNull())
@@ -179,7 +179,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
 
     m_visibleCategoryLabels.clear();
 
-    const float textX = layout->tickX + 5;
+    const float textX = layout->tickEndX + 5;
 
     const float overlapTolerance = 1.2f * layout->charHeight;
     float lastVisibleTextY = 0.0;
@@ -187,11 +187,11 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
     CVF_ASSERT(m_categoryMapper.notNull());
     size_t numLabels = m_categoryMapper->categoryCount();
 
-    float categoryHeight = static_cast<float>(layout->legendRect.height() / numLabels);
+    float categoryHeight = static_cast<float>(layout->colorBarRect.height() / numLabels);
 
     for (size_t it = 0; it < numLabels; it++)
     {
-        float textY = static_cast<float>(layout->legendRect.min().y() + it * categoryHeight + categoryHeight / 2);
+        float textY = static_cast<float>(layout->colorBarRect.min().y() + it * categoryHeight + categoryHeight / 2);
 
         // Always draw first and last tick label. For all others, skip drawing if text ends up
         // on top of the previous label. 
@@ -204,7 +204,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
             }
             // Make sure it does not overlap the last tick as well
 
-            float lastTickY = static_cast<float>(layout->legendRect.max().y());
+            float lastTickY = static_cast<float>(layout->colorBarRect.max().y());
 
             if (cvf::Math::abs(textY - lastTickY) < overlapTolerance)
             {
@@ -276,8 +276,8 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
     float* v4 = &vertexArray[12];
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v0[0] = v3[0] = layout->tickStartX;
+    v1[0] = v4[0] = layout->tickMidX;
 
     // Connects
     static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
@@ -297,15 +297,15 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->legendRect.height());
+    int legendHeightPixelCount = static_cast<int>(layout->colorBarRect.height());
     if (m_categoryMapper.notNull())
     {
         int iPx;
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_categoryMapper->mapToColor(m_categoryMapper->domainValue((iPx + 0.5) / legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
+            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -331,10 +331,10 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
     bool isRenderingFrame = true;
     if (isRenderingFrame)
     {
-        v0[0] = v2[0] = layout->legendRect.min().x() - 0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x() - 0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y() - 0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y() - 0.5f;
+        v0[0] = v2[0] = layout->colorBarRect.min().x() - 0.5f;
+        v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
+        v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
+        v2[1] = v3[1] = layout->colorBarRect.max().y() - 0.5f;
         static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0 };
 
         UniformFloat uniformColor("u_color", Color4f(this->lineColor()));
@@ -400,20 +400,20 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
     float* v4 = &vertexArray[12];
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v0[0] = v3[0] = layout->tickStartX;
+    v1[0] = v4[0] = layout->tickMidX;
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->legendRect.height());
+    int legendHeightPixelCount = static_cast<int>(layout->colorBarRect.height());
     if (m_categoryMapper.notNull())
     {
         int iPx;
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_categoryMapper->mapToColor(m_categoryMapper->domainValue((iPx + 0.5) / legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
+            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -436,10 +436,10 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
     bool isRenderingFrame = true;
     if (isRenderingFrame)
     {
-        v0[0] = v2[0] = layout->legendRect.min().x() - 0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x() - 0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y() - 0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y() - 0.5f;
+        v0[0] = v2[0] = layout->colorBarRect.min().x() - 0.5f;
+        v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
+        v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
+        v2[1] = v3[1] = layout->colorBarRect.max().y() - 0.5f;
 
         glColor3fv(this->textColor().ptr());
         glBegin(GL_LINES);
@@ -472,23 +472,29 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
 {
     CVF_TIGHT_ASSERT(layout);
 
-    ref<Glyph> glyph = this->font()->getGlyph(L'A');
-    layout->charHeight = static_cast<float>(glyph->height());
+    ref<Glyph> glyph    = this->font()->getGlyph(L'A');
+    layout->charHeight  = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
-    layout->margins = Vec2f(8.0f, 8.0f);
+    layout->margins     = Vec2f(8.0f, 8.0f);
 
-    float legendWidth = 25.0f;
-    float legendHeight = static_cast<float>(layout->size.y()) - 2 * layout->margins.y() - static_cast<float>(this->titleStrings().size())*layout->lineSpacing - layout->lineSpacing;
-    layout->legendRect = Rectf(layout->margins.x(), layout->margins.y() + layout->charHeight / 2.0f, legendWidth, legendHeight);
+    float colorBarWidth = 25.0f;
+    float colorBarHeight =   static_cast<float>(layout->size.y()) 
+                           - 2 * layout->margins.y() 
+                           - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
+                           - layout->lineSpacing;
+    layout->colorBarRect = Rectf(layout->margins.x(), 
+                                 layout->margins.y() + layout->charHeight / 2.0f, 
+                                 colorBarWidth, 
+                                 colorBarHeight);
 
-    if (layout->legendRect.width() < 1 || layout->legendRect.height() < 1)
+    if (layout->colorBarRect.width() < 1 || layout->colorBarRect.height() < 1)
     {
         return;
     }
 
-    layout->x0 = layout->margins.x();
-    layout->x1 = layout->margins.x() + layout->legendRect.width();
-    layout->tickX = layout->x1 + 5;
+    layout->tickStartX = layout->margins.x();
+    layout->tickMidX = layout->margins.x() + layout->colorBarRect.width();
+    layout->tickEndX = layout->tickMidX + 5;
 }
 
 //--------------------------------------------------------------------------------------------------

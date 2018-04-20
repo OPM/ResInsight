@@ -102,12 +102,11 @@ protected:
         float charHeight;
         float lineSpacing;
         Vec2f margins;
-        float tickX;
-        float x0, x1;
+        float tickStartX, tickMidX, tickEndX;
 
-        Rectf legendRect;
+        Rectf colorBarRect;
 
-        cvf::ref<DoubleArray> tickPixelPos;
+        cvf::ref<DoubleArray> tickYPixelPos;
 
         Vec2i position;
         Vec2ui size;
