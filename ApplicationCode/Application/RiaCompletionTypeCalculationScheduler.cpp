@@ -17,12 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaCompletionTypeCalculationScheduler.h"
+
 #include "RiaApplication.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
@@ -53,14 +56,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
         m_eclipseCasesToRecalculate.push_back(eclipseCase);
     }
 
-    if (!m_recalculateCompletionTypeTimer)
-    {
-        m_recalculateCompletionTypeTimer = new QTimer(this);
-        m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
-    }
-
-    m_recalculateCompletionTypeTimer->start(1500);
+    startTimer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,14 +66,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 {
     m_eclipseCasesToRecalculate.push_back(eclipseCase);
 
-    if (!m_recalculateCompletionTypeTimer)
-    {
-        m_recalculateCompletionTypeTimer = new QTimer(this);
-        m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
-    }
-
-    m_recalculateCompletionTypeTimer->start(1500);
+    startTimer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,4 +108,19 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 RiaCompletionTypeCalculationScheduler::~RiaCompletionTypeCalculationScheduler()
 {
     delete m_recalculateCompletionTypeTimer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaCompletionTypeCalculationScheduler::startTimer()
+{
+    if (!m_recalculateCompletionTypeTimer)
+    {
+        m_recalculateCompletionTypeTimer = new QTimer(this);
+        m_recalculateCompletionTypeTimer->setSingleShot(true);
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
+    }
+
+    m_recalculateCompletionTypeTimer->start(1500);
 }

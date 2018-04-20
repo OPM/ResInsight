@@ -394,7 +394,6 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
             }
         }
 
-        ;
         for (const auto& wellRes : rigEclipseCase->wellResults())
         {
             std::vector<std::vector<RigCompletionData>> completionsPerTimeStep;
