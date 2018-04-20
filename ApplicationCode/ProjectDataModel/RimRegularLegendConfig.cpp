@@ -777,10 +777,15 @@ void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     bool hasStimPlanParent = false;
+    bool hasEnsembleCurveSetParent = false;
 
     RimStimPlanColors* stimPlanColors = nullptr;
     this->firstAncestorOrThisOfType(stimPlanColors);
     if (stimPlanColors) hasStimPlanParent = true;
+
+    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(ensembleCurveSet);
+    if (ensembleCurveSet) hasEnsembleCurveSetParent = true;
 
     bool isCategoryResult = false;
     {
@@ -849,9 +854,13 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
     {
         if (!m_isAllTimeStepsRangeDisabled)
         {
-            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+            QString uiText;
+            if(!hasEnsembleCurveSetParent) uiText = RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS);
+            else                           uiText = "Auto Range";
+            
+            options.push_back(caf::PdmOptionItemInfo(uiText, RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         }
-        if (!hasStimPlanParent)
+        if (!hasStimPlanParent && !hasEnsembleCurveSetParent)
         {
             options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
         }
