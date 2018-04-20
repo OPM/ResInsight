@@ -18,9 +18,12 @@
 
 #include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RicWellPathExportCompletionDataFeature.h"
 
 #include "RimWellPath.h"
+#include "RimProject.h"
 #include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
@@ -93,15 +96,32 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
             }
         }
 
-        for (auto wellPathCollection : wellPathCollections)
+        if (!wellPathCollections.empty())
         {
-            for (auto wellPath : wellPathCollection->wellPaths())
+            for (auto wellPathCollection : wellPathCollections)
             {
-                if (wellPath->showWellPath())
+                for (const auto& wellPath : wellPathCollection->wellPaths())
                 {
-                    wellPaths.push_back(wellPath);
+                    if (wellPath->showWellPath())
+                    {
+                        wellPaths.push_back(wellPath);
+                    }
                 }
             }
+        }
+        else
+        {
+            // No well path or well path collection selected 
+
+            auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+            for (const auto& w : allWellPaths)
+            {
+                if (w->showWellPath())
+                {
+                    wellPaths.push_back(w);
+                }
+            }
+
         }
     }
 

@@ -398,6 +398,7 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction(cmdFeatureMgr->action("RicExportMultipleSnapshotsFeature"));
     exportMenu->addSeparator();
     exportMenu->addAction(cmdFeatureMgr->action("RicSaveEclipseInputActiveVisibleCellsFeature"));
+    exportMenu->addAction(cmdFeatureMgr->action("RicExportCompletionsForVisibleWellPathsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
@@ -753,6 +754,10 @@ void RiuMainWindow::slotRefreshFileActions()
     CVF_ASSERT(cmdFeatureMgr);
 
     cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
+
+    QStringList commandIdList;
+    commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
+    cmdFeatureMgr->refreshStates(commandIdList);
 }
 
 
