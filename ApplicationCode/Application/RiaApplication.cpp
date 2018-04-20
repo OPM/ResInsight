@@ -22,6 +22,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
+#include "RiaFilePathTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -909,7 +910,8 @@ bool RiaApplication::askUserToSaveModifiedProject()
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
-    m_project->fileName = fileName;
+    // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
+    m_project->fileName = RiaFilePathTools::toInternalSeparator(fileName);
 
     storeTreeViewState();
 
