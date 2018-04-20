@@ -37,7 +37,8 @@ namespace caf {
 
         virtual void         computeLayoutAndExtents(const cvf::Vec2ui& size) = 0;
 
-        virtual cvf::Vec2ui  sizeHint() override;
+        virtual cvf::Vec2ui  preferredSize() = 0;
+         
         unsigned int         minimumWidth();
         unsigned int         matchedWidth();
         
@@ -53,6 +54,7 @@ namespace caf {
         cvf::Font*                font();
 
     private:
+        cvf::Vec2ui               sizeHint() override final; // Will return the size to use for rendering, and is really not a hint.
         cvf::Vec2ui               m_sizeHint;          // The desired pixel size of the color legend area        
         unsigned int              m_minimumWidth;      // Minimum width required to fit content
         unsigned int              m_matchedWidth;      // Width matched to other legends (>= minimumWidth)

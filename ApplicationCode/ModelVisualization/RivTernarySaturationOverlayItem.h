@@ -46,6 +46,7 @@ public:
     void setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange);
 
     void            setAxisLabelsColor(const cvf::Color3f& color);
+    cvf::Vec2ui     preferredSize() override;
 
 private:
     void            render(cvf::OpenGLContext* oglContext, 
@@ -59,7 +60,11 @@ private:
                                   const cvf::Vec2i& position, 
                                   const cvf::Vec2ui& size, 
                                   bool software);
-    void            renderAxisImmediateMode(float upperY, float lowerBoundY, float border,  cvf::OpenGLContext* oglContext);
+    void            renderAxisImmediateMode(float upperY, 
+                                            float lowerBoundY, 
+                                            float border, 
+                                            unsigned int totalWidth, 
+                                            cvf::OpenGLContext* oglContext);
 
 private:
     cvf::String         m_soilRange;

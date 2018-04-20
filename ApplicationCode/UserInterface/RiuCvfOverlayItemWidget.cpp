@@ -61,11 +61,10 @@ RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
 //--------------------------------------------------------------------------------------------------
 void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
 {
-    //m_scalarMapperLegend->setTitle("Hei og hopp");
-    //m_scalarMapperLegend->computeLayoutAndExtents({0,0}, {100, 400});
-    //unsigned int width = m_scalarMapperLegend->minimumWidth() + 100;
-    unsigned int width = item->sizeHint().x();
-    unsigned int height =  item->sizeHint().y();
+    // Use the render size of the overlayItem (sizeHint should be renamed)
+
+    unsigned int width  = item->sizeHint().x();
+    unsigned int height = item->sizeHint().y();
 
     QGLFormat glFormat;
     glFormat.setDirectRendering(RiaApplication::instance()->useShaders());

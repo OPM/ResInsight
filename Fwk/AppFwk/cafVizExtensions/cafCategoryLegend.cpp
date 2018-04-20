@@ -179,7 +179,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
 
     m_visibleCategoryLabels.clear();
 
-    const float textX = layout->tickEndX + 5;
+    const float textX = layout->tickEndX + layout->tickTextLeadSpace;
 
     const float overlapTolerance = 1.2f * layout->charHeight;
     float lastVisibleTextY = 0.0;
@@ -476,6 +476,7 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->charHeight  = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
     layout->margins     = Vec2f(8.0f, 8.0f);
+    layout->tickTextLeadSpace = 5.0f;
 
     float colorBarWidth = 25.0f;
     float colorBarHeight =   static_cast<float>(layout->overallLegendSize.y()) 
@@ -515,6 +516,37 @@ void CategoryLegend::computeLayoutAndExtents(const Vec2ui& size)
     this->setMinimumWidth(contentWidth);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2ui CategoryLegend::preferredSize()
+{
+    OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
+    layoutInfo(&layout);
+
+    unsigned int prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_categoryMapper->categoryCount() )* layout.lineSpacing ;
+
+    unsigned int maxTickTextWidth = 0;
+    for (size_t cIdx = 0; cIdx <  m_categoryMapper->categoryCount(); ++cIdx )
+    {
+        cvf::String cathegoryText = m_categoryMapper->textForCategoryIndex(cIdx);
+        unsigned int textWidth =  this->font()->textExtent(cathegoryText).x();
+        maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
+    }
+
+    unsigned int prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
+
+    for (const cvf::String& titleLine : titleStrings())
+    {
+        unsigned int titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
+        prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
+    }
+
+    prefferredXSize = std::min(prefferredXSize, 400u);
+
+    return { prefferredXSize, prefferredYSize };
+
+}
 
 
 } // namespace cvf

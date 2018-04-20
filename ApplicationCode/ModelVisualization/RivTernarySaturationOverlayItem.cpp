@@ -177,7 +177,7 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
     textDrawer.renderSoftware(oglContext, camera);
 
     textPosY -= 3;
-    renderAxisImmediateMode(textPosY, 2*lineHeightInPixels + border, border,  oglContext);
+    renderAxisImmediateMode(textPosY, 2*lineHeightInPixels + border, border, sizeFrameBox.x(), oglContext);
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -187,7 +187,11 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
 //--------------------------------------------------------------------------------------------------
 /// Draw the axis using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY, float lowerBoundY, float border, cvf::OpenGLContext* oglContext)
+void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY, 
+                                                              float lowerBoundY, 
+                                                              float border, 
+                                                              unsigned int totalWidth, 
+                                                              cvf::OpenGLContext* oglContext)
 {
 #ifdef CVF_OPENGL_ES
     CVF_UNUSED(layout);
@@ -207,8 +211,8 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY,
     //float upperBoundY = static_cast<float>(this->sizeHint().y() - 20);
 
     cvf::Vec3f a(float(border), lowerBoundY, 0);
-    cvf::Vec3f b(static_cast<float>(this->sizeHint().x() - border), lowerBoundY, 0);
-    cvf::Vec3f c(static_cast<float>(this->sizeHint().x() / 2), upperBoundY, 0);
+    cvf::Vec3f b(static_cast<float>(totalWidth - border), lowerBoundY, 0);
+    cvf::Vec3f c(static_cast<float>(totalWidth / 2), upperBoundY, 0);
 
 
     // Draw filled rectangle elements
@@ -255,4 +259,12 @@ void RivTernarySaturationOverlayItem::setRangeText(const cvf::String& soilRange,
     m_soilRange = soilRange;
     m_sgasRange = sgasRange;
     m_swatRange = swatRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2ui RivTernarySaturationOverlayItem::preferredSize()
+{
+    return {120, 150}; // Could do more elaborate text width checks.
 }

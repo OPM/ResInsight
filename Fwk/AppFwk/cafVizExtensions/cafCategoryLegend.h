@@ -33,6 +33,8 @@ public:
     size_t       categoryCount() const;
     void         computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 
+    cvf::Vec2ui  preferredSize() override;
+
 protected:
     void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
     void        renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
@@ -56,6 +58,7 @@ protected:
         float lineSpacing;
         cvf::Vec2f margins;
         float tickStartX, tickMidX, tickEndX;
+        float tickTextLeadSpace;
 
         cvf::Rectf colorBarRect;
 

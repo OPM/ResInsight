@@ -65,6 +65,7 @@
 #include "cvfScalarMapper.h"
 #include <array>
 #include "cvfRenderStateBlending.h"
+#include <algorithm>
 
 namespace caf {
 
@@ -235,7 +236,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
 
     m_visibleTickLabels.clear();
 
-    const float textX = layout->tickEndX + 5;
+    const float textX = layout->tickEndX + layout->tickTextLeadSpace;
 
     const float overlapTolerance = 1.2f * layout->charHeight;
     float lastVisibleTextY = 0.0;
@@ -622,6 +623,7 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->charHeight = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
     layout->margins = Vec2f(8.0f, 8.0f);
+    layout->tickTextLeadSpace = 5.0f;
 
     float colorBarWidth = 25.0f;
     float colorBarHeight = static_cast<float>(layout->overallLegendSize.y()) 
@@ -697,6 +699,50 @@ void OverlayScalarMapperLegend::computeLayoutAndExtents( const Vec2ui& size)
 
     unsigned int contentWidth = static_cast<unsigned int>(cvf::Math::ceil(maxLegendRightPos + m_Layout.margins.x()));
     this->setMinimumWidth(contentWidth);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
+{
+    OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
+    layoutInfo(&layout);
+
+    unsigned int prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_tickValues.size() )* layout.lineSpacing ;
+    
+    unsigned int maxTickTextWidth = 0;
+    for (double tickValue : m_tickValues )
+    {
+        String valueString;
+        switch ( m_numberFormat )
+        {
+            case FIXED:
+            valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
+            break;
+            case SCIENTIFIC:
+            valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
+            break;
+            default:
+            valueString = String::number(tickValue);
+            break;
+        }
+        unsigned int textWidth =  this->font()->textExtent(valueString).x();
+        maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
+    }
+
+    unsigned int prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
+
+    for (const cvf::String& titleLine : titleStrings())
+    {
+        unsigned int titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
+        prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
+    }
+
+    prefferredXSize = std::min(prefferredXSize, 400u);
+
+    return { prefferredXSize, prefferredYSize };
+
 }
 
 } // namespace cvf

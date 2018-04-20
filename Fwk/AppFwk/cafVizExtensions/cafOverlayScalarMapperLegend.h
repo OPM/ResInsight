@@ -86,6 +86,9 @@ public:
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
     void            computeLayoutAndExtents(const cvf::Vec2ui& size) override;
+
+    virtual cvf::Vec2ui preferredSize() override;
+    
 protected:
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
@@ -102,6 +105,7 @@ protected:
         float lineSpacing;
         Vec2f margins;
         float tickStartX, tickMidX, tickEndX;
+        float tickTextLeadSpace;
 
         Rectf colorBarRect;
 
