@@ -23,6 +23,7 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -38,7 +39,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiPushButtonEditor.h"
 
-#include "cvfScalarMapperContinuousLinear.h"
+#include "cvfScalarMapper.h"
 
 
 namespace caf
@@ -181,6 +182,8 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
             }
         }
     }
+
+    updateCurveColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,6 +281,14 @@ RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onLegendDefinitionChanged()
+{
+    updateCurveColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
@@ -296,6 +307,8 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_yValuesSummaryGroup)
     {
+        // Empty address cache
+        m_allAddressesCache.clear();
         updateAllCurves();
     }
     else if (changedField == &m_ensembleParameter ||
@@ -312,9 +325,6 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         }
         updateQwtPlotAxis();
         plot->updateAxes();
-    }
-    else if (changedField == &m_yPushButtonSelectSummaryAddress)
-    {
     }
 }
 
@@ -358,7 +368,10 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.add(m_legendConfig());
+    if (m_colorMode == BY_ENSEMBLE_PARAM)
+    {
+        uiTreeOrdering.add(m_legendConfig());
+    }
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -466,16 +479,17 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
 {
     if (!summaryCaseGroup) return;
 
-    std::set<RifEclipseSummaryAddress> allAddresses;
-    
-    for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
+    if (m_allAddressesCache.empty())
     {
-        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        const std::vector<RifEclipseSummaryAddress> addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
-        allAddresses.insert(addrs.begin(), addrs.end());
+        for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
+        {
+            RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+            const std::vector<RifEclipseSummaryAddress> addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
+            m_allAddressesCache.insert(addrs.begin(), addrs.end());
+        }
     }
 
-    for (auto& address : allAddresses)
+    for (auto& address : m_allAddressesCache)
     {
         if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
 
@@ -514,14 +528,13 @@ void RimEnsembleCurveSet::updateCurveColors()
                 }
             }
 
-            cvf::ScalarMapperContinuousLinear colorMapper;
-            colorMapper.setRange(minValue, maxValue);
+            m_legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
 
             for (auto& curve : m_curves)
             {
                 RimSummaryCase* rimCase = curve->summaryCaseY();
                 double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                curve->setColor(cvf::Color3f(colorMapper.mapToColor(value)));
+                curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
                 curve->updateCurveAppearance();
             }
         }
@@ -537,7 +550,18 @@ void RimEnsembleCurveSet::updateCurveColors()
 
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType(plot);
-    if (plot && plot->qwtPlot()) plot->qwtPlot()->replot();
+    if (plot && plot->qwtPlot())
+    {
+        if (m_colorMode == BY_ENSEMBLE_PARAM)
+        {
+            plot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
+        }
+        else
+        {
+            plot->qwtPlot()->removeEnsembleCurveSetLegend(this);
+        }
+        plot->qwtPlot()->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

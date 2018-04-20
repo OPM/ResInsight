@@ -957,21 +957,6 @@ void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-//void RimSummaryPlot::addEnsembleCurve(const RimEnsembleCurveSet* curveSet, RimSummaryCurve* curve)
-//{
-//    if (curveSet && curve)
-//    {
-//        curve->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor((int)m_ensembleCurveSetCollection->curveSets().size()));
-//
-//        const_cast<RimEnsembleCurveSet*>(curveSet)->addCurve(curve);
-//        curve->setParentQwtPlotAndReplot(m_qwtPlot);
-//    }
-//}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

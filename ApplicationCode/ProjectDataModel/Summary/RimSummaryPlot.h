@@ -71,8 +71,6 @@ public:
     void                                            addCurveAndUpdate(RimSummaryCurve* curve);
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
 
-    //void                                            addEnsembleCurve(const RimEnsembleCurveSet* curveSet, RimSummaryCurve* curve);
-
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);

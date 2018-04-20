@@ -34,6 +34,8 @@
 #include "cafPdmPtrField.h"
 #include "cafAppEnum.h"
 
+#include "RifEclipseSummaryAddressQMetaType.h"
+
 class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
@@ -72,7 +74,8 @@ public:
 
     void                                    deleteAllCurves();
 
-    RimRegularLegendConfig*                 legendConfig(); 
+    RimRegularLegendConfig*                 legendConfig();
+    void                                    onLegendDefinitionChanged();
 
 private:
     caf::PdmFieldHandle*                    objectToggleField();
@@ -89,7 +92,7 @@ private:
                                                                               RimSummaryCase* summaryCase,
                                                                               RimSummaryFilter* summaryFilter);
 
-    static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+    void                                    appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCaseCollection* summaryCaseGroup,
                                                                                  RimSummaryFilter* summaryFilter);
 
@@ -118,5 +121,7 @@ private:
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 
     caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
+
+    std::set<RifEclipseSummaryAddress>              m_allAddressesCache;
 };
 

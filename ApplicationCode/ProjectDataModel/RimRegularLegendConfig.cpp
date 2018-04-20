@@ -26,6 +26,7 @@
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimIntersectionCollection.h"
@@ -204,6 +205,14 @@ void RimRegularLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     if (stimPlanColors)
     {
         stimPlanColors->updateStimPlanTemplates();
+    }
+
+    // Update ensemble curve set if relevant
+    RimEnsembleCurveSet* ensembleCurveSet;
+    firstAncestorOrThisOfType(ensembleCurveSet);
+    if (ensembleCurveSet)
+    {
+        ensembleCurveSet->onLegendDefinitionChanged();
     }
 }
 
