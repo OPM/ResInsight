@@ -172,15 +172,6 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
             parentPlot->qwtPlot()->updateLegend();
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
-
-            if (m_showCurves() && m_colorMode() == BY_ENSEMBLE_PARAM)
-            {
-                parentPlot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
-            }
-            else
-            {
-                parentPlot->qwtPlot()->removeEnsembleCurveSetLegend(this);
-            }
         }
     }
 
@@ -507,6 +498,8 @@ void RimEnsembleCurveSet::updateCurveColors()
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
         QString parameterName = m_ensembleParameter();
+        m_legendConfig->setTitle(parameterName);
+
         if (group && !parameterName.isEmpty())
         {
             double minValue = std::numeric_limits<double>::infinity();
@@ -549,7 +542,7 @@ void RimEnsembleCurveSet::updateCurveColors()
     firstAncestorOrThisOfType(plot);
     if (plot && plot->qwtPlot())
     {
-        if (m_colorMode == BY_ENSEMBLE_PARAM && m_legendConfig->showLegend())
+        if (isCurvesVisible() && m_colorMode == BY_ENSEMBLE_PARAM && m_legendConfig->showLegend())
         {
             plot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
         }
