@@ -23,6 +23,9 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 class Rim3dWellLogCurve;
 
 //==================================================================================================
@@ -58,6 +61,10 @@ public:
 
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
     void                            redrawAffectedViewsAndEditors();
+    Rim3dWellLogCurve*              checkForCurveIntersection(const cvf::Vec3d& globalIntersection,
+                                                              cvf::Vec3d*       closestPoint,
+                                                              double*           measuredDepthAtPoint,
+                                                              double*           valueAtPoint);
 
 private:
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

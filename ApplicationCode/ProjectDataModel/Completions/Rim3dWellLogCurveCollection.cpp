@@ -24,6 +24,7 @@
 #include "RimProject.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection");
 
@@ -174,6 +175,36 @@ void Rim3dWellLogCurveCollection::redrawAffectedViewsAndEditors()
     {
         path->updateConnectedEditors();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection(const cvf::Vec3d& globalIntersection,
+                                                                          cvf::Vec3d*       closestPoint,
+                                                                          double*           measuredDepthAtPoint,
+                                                                          double*           valueAtPoint)
+{
+    double smallestDistance = std::numeric_limits<double>::max();
+    Rim3dWellLogCurve* closestCurve = nullptr;
+    for (auto& wellLogCurve : m_3dWellLogCurves)
+    {
+        cvf::Vec3d closestPointOnCurve;
+        double measuredDepthAtPointOnCurve;
+        double valueAtPointOnCurve;
+        if (wellLogCurve->findClosestPointOnCurve(globalIntersection, &closestPointOnCurve, &measuredDepthAtPointOnCurve, &valueAtPointOnCurve))
+        {
+            double distance = globalIntersection.pointDistance(closestPointOnCurve);
+            if (distance < smallestDistance)
+            {
+                closestCurve = wellLogCurve.p();
+                *closestPoint = closestPointOnCurve;
+                *measuredDepthAtPoint = measuredDepthAtPointOnCurve;
+                *valueAtPoint = valueAtPointOnCurve;
+            }
+        }
+    }
+    return closestCurve;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,32 +43,33 @@ class RimWellPath;
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
+    typedef std::pair<cvf::Vec3d, double> PointValuePair;
     Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath);
 
-    cvf::ref<cvf::DrawableGeo> createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
-                                               const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                               const std::vector<double>&        resultValues,
-                                               const std::vector<double>&        resultMds,
-                                               double                            planeAngle,
-                                               double                            planeOffsetFromWellPathCenter,
-                                               double                            planeWidth,
-                                               double                            minResultValue,
-                                               double                            maxResultValue) const;
-private:
-    void createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
-                                       const std::vector<double>&        resultMds,
-                                       double                            minResultValue,
-                                       double                            maxResultValue,
-                                       double                            planeAngle,
-                                       double                            planeOffsetFromWellPathCenter,
-                                       double                            planeWidth,
-                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                       const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                       std::vector<cvf::Vec3f>*          vertices,
-                                       std::vector<cvf::uint>*           indices) const;
+    void createCurveDrawables(const caf::DisplayCoordTransform* displayCoordTransform,
+                              const cvf::BoundingBox&           wellPathClipBoundingBox,
+                              const std::vector<double>&        resultValues,
+                              const std::vector<double>&        resultMds,
+                              double                            planeAngle,
+                              double                            planeOffsetFromWellPathCenter,
+                              double                            planeWidth,
+                              double                            minResultValue,
+                              double                            maxResultValue);
 
     const RigWellPath* wellPathGeometry() const;
 
+    cvf::ref<cvf::DrawableGeo> curveDrawable();
+
+    bool findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
+                                 cvf::Vec3d*       closestPoint,
+                                 double*           measuredDepthAtPoint,
+                                 double*           valueAtClosestPoint) const;
+
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
+    cvf::ref<cvf::DrawableGeo>   m_curveDrawable;
+    std::vector<cvf::Vec3f>      m_curveVertices;
+    std::vector<double>          m_curveMeasuredDepths;
+    std::vector<double>          m_curveValues;
+    double                       m_planeWidth;
 };

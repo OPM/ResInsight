@@ -29,6 +29,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfMath.h"
 
 #include <cmath>
 
@@ -37,72 +38,25 @@
 //--------------------------------------------------------------------------------------------------
 Riv3dWellLogCurveGeometryGenerator::Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath)
     : m_wellPath(wellPath)
+    , m_planeWidth(0.0)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    Riv3dWellLogCurveGeometryGenerator::createCurveLine(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                        const std::vector<double>&        resultValues,
-                                                        const std::vector<double>&        resultMds,
-                                                        double                            minResultValue,
-                                                        double                            maxResultValue,
-                                                        double                            planeAngle,
-                                                        double                            planeOffsetFromWellPathCenter,
-                                                        double                            planeWidth) const
+void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                              const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                              const std::vector<double>&        resultValues,
+                                                              const std::vector<double>&        resultMds,
+                                                              double                            minResultValue,
+                                                              double                            maxResultValue,
+                                                              double                            planeAngle,
+                                                              double                            planeOffsetFromWellPathCenter,
+                                                              double                            planeWidth)
 {
-    std::vector<cvf::Vec3f> vertices;
-    std::vector<cvf::uint>  indices;
+    m_planeWidth = planeWidth;
 
-    createCurveVerticesAndIndices(resultValues,
-                                  resultMds,
-                                  minResultValue,
-                                  maxResultValue,
-                                  planeAngle,
-                                  planeOffsetFromWellPathCenter,
-                                  planeWidth,
-                                  displayCoordTransform,
-                                  wellPathClipBoundingBox,
-                                  &vertices,
-                                  &indices);
-
-    if (vertices.empty() || indices.empty())
-    {
-        return nullptr;
-    }
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-
-    indexedUInt->setIndices(indexArray.p());
-    drawable->addPrimitiveSet(indexedUInt.p());
-
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
-    drawable->setVertexArray(vertexArray.p());
-
-    return drawable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std::vector<double>&        resultValues,
-                                                                       const std::vector<double>&        resultMds,
-                                                                       double                            minResultValue,
-                                                                       double                            maxResultValue,
-                                                                       double                            planeAngle,
-                                                                       double                            planeOffsetFromWellPathCenter,
-                                                                       double                            planeWidth,
-                                                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                       const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                                       std::vector<cvf::Vec3f>*          vertices,
-                                                                       std::vector<cvf::uint>*           indices) const
-{
     if (!wellPathGeometry()) return;
     if (wellPathGeometry()->m_wellPathPoints.empty()) return;
     if (!wellPathClipBoundingBox.isValid()) return;
@@ -153,13 +107,15 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
     std::reverse(interpolatedCurveNormals.begin(), interpolatedCurveNormals.end());
 
     // The result values for the part of the well which is not clipped off, matching interpolatedWellPathPoints size
-    std::vector<double> resultValuesForInterpolatedPoints(resultValues.end() - interpolatedWellPathPoints.size(),
-                                                          resultValues.end());
+    m_curveValues = std::vector<double>(resultValues.end() - interpolatedWellPathPoints.size(),
+                                        resultValues.end());
+    m_curveMeasuredDepths = std::vector<double>(resultMds.end() - interpolatedWellPathPoints.size(),
+                                                resultMds.end());
 
     double maxClampedResult = -HUGE_VAL;
     double minClampedResult = HUGE_VAL;
 
-    for (double& result : resultValuesForInterpolatedPoints)
+    for (double& result : m_curveValues)
     {
         if (!RigCurveDataTools::isValidValue(result, false)) continue;
 
@@ -174,34 +130,54 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
         return;
     }
 
-    vertices->resize(interpolatedWellPathPoints.size());
+    m_curveVertices = std::vector<cvf::Vec3f>();
+    m_curveVertices.reserve(interpolatedWellPathPoints.size());
 
     double plotRangeToResultRangeFactor = planeWidth / (maxClampedResult - minClampedResult);
 
-    for (size_t i = 0; i < interpolatedCurveNormals.size(); i++)
+    for (size_t i = 0; i < interpolatedWellPathPoints.size(); i++)
     {
         double scaledResult = 0;
 
-        if (RigCurveDataTools::isValidValue(resultValuesForInterpolatedPoints[i], false))
+        if (RigCurveDataTools::isValidValue(m_curveValues[i], false))
         {
             scaledResult =
-                planeOffsetFromWellPathCenter + (resultValuesForInterpolatedPoints[i] - minClampedResult) * plotRangeToResultRangeFactor;
+                planeOffsetFromWellPathCenter + (m_curveValues[i] - minClampedResult) * plotRangeToResultRangeFactor;
         }
-
-        (*vertices)[i] = cvf::Vec3f(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);
+        cvf::Vec3d curvePoint(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);
+        m_curveVertices.push_back(cvf::Vec3f(curvePoint));
     }
 
-    std::vector<std::pair<size_t, size_t>> valuesIntervals =
-        RigCurveDataTools::calculateIntervalsOfValidValues(resultValuesForInterpolatedPoints, false);
-
-    for (const std::pair<size_t, size_t>& interval : valuesIntervals)
+    std::vector<cvf::uint> indices;
+    indices.reserve(interpolatedWellPathPoints.size());
+    for (size_t i = 0; i < m_curveValues.size() - 1; ++i)
     {
-        for (size_t i = interval.first; i < interval.second; i++)
+        if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
+            RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
         {
-            indices->push_back(cvf::uint(i));
-            indices->push_back(cvf::uint(i + 1));
+            indices.push_back(cvf::uint(i));
+            indices.push_back(cvf::uint(i + 1));
         }
     }
+    
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
+    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+
+    m_curveDrawable = new cvf::DrawableGeo();
+
+    indexedUInt->setIndices(indexArray.p());
+    m_curveDrawable->addPrimitiveSet(indexedUInt.p());
+
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_curveVertices);
+    m_curveDrawable->setVertexArray(vertexArray.p());    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogCurveGeometryGenerator::curveDrawable()
+{
+    return m_curveDrawable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,4 +186,50 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveVerticesAndIndices(const std
 const RigWellPath* Riv3dWellLogCurveGeometryGenerator::wellPathGeometry() const
 {
     return m_wellPath->wellPathGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
+                                                                 cvf::Vec3d*       closestPoint,
+                                                                 double*           measuredDepthAtPoint,
+                                                                 double*           valueAtClosestPoint) const
+{
+    cvf::Vec3f globalIntersectionFloat(globalIntersection);
+    float closestDistance = m_planeWidth * 0.1;
+    *closestPoint = cvf::Vec3d::UNDEFINED;
+    *measuredDepthAtPoint = cvf::UNDEFINED_DOUBLE;
+    *valueAtClosestPoint = cvf::UNDEFINED_DOUBLE;
+    if (m_curveVertices.size() < 2u) false;
+    CVF_ASSERT(m_curveVertices.size() == m_curveValues.size());
+    for (size_t i = 1; i < m_curveVertices.size(); ++i)
+    {
+        bool validCurveSegment = RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                                 RigCurveDataTools::isValidValue(m_curveValues[i - 1], false);
+        if (validCurveSegment)
+        {
+            cvf::Vec3f a = m_curveVertices[i - 1];
+            cvf::Vec3f b = m_curveVertices[i];
+            cvf::Vec3f ap = globalIntersectionFloat - a;
+            cvf::Vec3f ab = b - a;
+            // Projected point is clamped to one of the end points of the segment.
+            float distanceToProjectedPointAlongAB = ap * ab / (ab * ab);
+            float clampedDistance = cvf::Math::clamp(distanceToProjectedPointAlongAB, 0.0f, 1.0f);
+            cvf::Vec3f projectionOfGlobalIntersection = a + clampedDistance * ab;
+            float distance = (projectionOfGlobalIntersection - globalIntersectionFloat).length();
+            if (distance < closestDistance)
+            {
+                *closestPoint = cvf::Vec3d(projectionOfGlobalIntersection);
+                closestDistance = distance;
+                *measuredDepthAtPoint = m_curveMeasuredDepths[i - 1] * (1.0f - clampedDistance) + m_curveMeasuredDepths[i] * clampedDistance;
+                *valueAtClosestPoint = m_curveValues[i - 1] * (1.0f - clampedDistance) + m_curveValues[i] * clampedDistance;
+            }
+        }
+    }
+
+    if (closestPoint->isUndefined())
+        return false;
+    
+    return true;
 }

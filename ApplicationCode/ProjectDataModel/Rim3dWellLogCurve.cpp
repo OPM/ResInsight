@@ -19,11 +19,14 @@
 #include "Rim3dWellLogCurve.h"
 
 #include "RigCurveDataTools.h"
+#include "Riv3dWellLogCurveGeomertyGenerator.h"
 
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+
+#include "cvfVector3.h"
 
 #include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
@@ -242,6 +245,28 @@ void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
 {
     this->resetMinMaxValues();
     this->updateConnectedEditors();
+}
+
+void Rim3dWellLogCurve::setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator)
+{
+    m_geometryGenerator = generator;
+}
+
+bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
+                                                cvf::Vec3d*       closestPoint,
+                                                double*           measuredDepthAtPoint,
+                                                double*           valueAtPoint) const
+{
+    if (m_geometryGenerator.notNull())
+    {
+        return m_geometryGenerator->findClosestPointOnCurve(globalIntersection, closestPoint, measuredDepthAtPoint, valueAtPoint);
+    }
+    return false;
+}
+
+cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerator()
+{
+    return m_geometryGenerator;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicViewerEventInterface.h"
+#include "WellLogCommands/Ric3dWellLogCurveViewerEventHandler.h"
 #include "WellPathCommands/RicIntersectionViewerEventHandler.h"
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
@@ -119,6 +120,10 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
 {
     {
         m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicIntersectionViewerEventHandler::instance()));
+    }
+
+    {
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(Ric3dWellLogCurveViewerEventHandler::instance()));
     }
 
     {

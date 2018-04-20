@@ -29,6 +29,7 @@
 
 #include "Riv3dWellLogCurveGeomertyGenerator.h"
 #include "Riv3dWellLogGridGeomertyGenerator.h"
+#include "RivObjectSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -51,7 +52,6 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr(RimWellPath* wellPath, RimGri
     , m_gridView(gridView)
 {
     CVF_ASSERT(m_wellPath.notNull());
-    m_3dWellLogCurveGeometryGenerator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p());
     m_3dWellLogGridGeometryGenerator = new Riv3dWellLogGridGeometryGenerator(m_wellPath.p());
 }
 
@@ -89,29 +89,34 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurvesToModel(cvf::ModelBasicList*
     if (!m_wellPath->rim3dWellLogCurveCollection()) return;
     if (m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty()) return;
 
-    const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-
-    size_t colorIndex = 0;
+    Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
 
     for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
-        colorIndex++;
+        cvf::ref<Riv3dWellLogCurveGeometryGenerator> generator = rim3dWellLogCurve->geometryGenerator();
+        if (generator.isNull())
+        {
+            generator = new Riv3dWellLogCurveGeometryGenerator(m_wellPath.p());
+            rim3dWellLogCurve->setGeometryGenerator(generator.p());
+        }
+        
         if (!rim3dWellLogCurve->isShowingCurve()) continue;
 
         std::vector<double> resultValues;
         std::vector<double> resultMds;
         rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
 
-        cvf::ref<cvf::Drawable> curveDrawable =
-            m_3dWellLogCurveGeometryGenerator->createCurveLine(displayCoordTransform,
-                                                               wellPathClipBoundingBox,
-                                                               resultValues,
-                                                               resultMds,
-                                                               rim3dWellLogCurve->minCurveValue(),
-                                                               rim3dWellLogCurve->maxCurveValue(),
-                                                               planeAngle(curveCollection, rim3dWellLogCurve),
-                                                               wellPathCenterToPlotStartOffset(curveCollection, rim3dWellLogCurve),
-                                                               planeWidth());
+        generator->createCurveDrawables(displayCoordTransform,
+                                        wellPathClipBoundingBox,
+                                        resultValues,
+                                        resultMds,
+                                        rim3dWellLogCurve->minCurveValue(),
+                                        rim3dWellLogCurve->maxCurveValue(),
+                                        planeAngle(curveCollection, rim3dWellLogCurve),
+                                        wellPathCenterToPlotStartOffset(curveCollection, rim3dWellLogCurve),
+                                        planeWidth());
+
+        cvf::ref<cvf::DrawableGeo> curveDrawable = generator->curveDrawable();
 
         if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
         {
@@ -226,9 +231,9 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
                                                  const Rim3dWellLogCurve*            rim3dWellLogCurve,
                                                  double                              gridIntervalSize)
 {
-    const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-    bool                                       showGrid = curveCollection->isShowingGrid();
-    bool                                       showBackground = curveCollection->isShowingBackground();
+    Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
+    bool                         showGrid = curveCollection->isShowingGrid();
+    bool                         showBackground = curveCollection->isShowingBackground();
 
     cvf::Color3f gridColor(0.4f, 0.4f, 0.4f);
     caf::SurfaceEffectGenerator backgroundEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 1.0), caf::PO_2);
@@ -249,12 +254,14 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     cvf::ref<cvf::Effect> curveNormalsEffect = curveNormalsEffectGen.generateCachedEffect();
     
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogGridGeometryGenerator->background();
+    cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
     if (showBackground && background.notNull())
     {
         cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());
         if (part.notNull())
         {
             model->addPart(part.p());
+            part->setSourceInfo(sourceInfo.p());
         }
     }
 
@@ -282,6 +289,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
             if (part.notNull())
             {
                 model->addPart(part.p());
+                part->setSourceInfo(sourceInfo.p());
             }
         }
     }

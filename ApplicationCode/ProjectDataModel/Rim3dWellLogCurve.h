@@ -24,6 +24,11 @@
 
 #include "cafPdmFieldCvfColor.h"
 
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+class Riv3dWellLogCurveGeometryGenerator;
+
 //==================================================================================================
 ///
 ///
@@ -47,17 +52,26 @@ public:
 
     void updateCurveIn3dView();
 
-    DrawPlane     drawPlane() const;
-    cvf::Color3f  color() const;
-    bool          isShowingCurve() const;
+    DrawPlane      drawPlane() const;
+    cvf::Color3f   color() const;
+    bool           isShowingCurve() const;
 
-    virtual void  curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
+    virtual void   curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
 
-    void          setColor(const cvf::Color3f& color);
+    void           setColor(const cvf::Color3f& color);
 
-    double        minCurveValue() const;
-    double        maxCurveValue() const;
-    void          resetMinMaxValuesAndUpdateUI();
+    double         minCurveValue() const;
+    double         maxCurveValue() const;
+    void           resetMinMaxValuesAndUpdateUI();
+    bool           findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
+                                           cvf::Vec3d*       closestPoint,
+                                           double*           measuredDepthAtPoint,
+                                           double*           valueAtPoint) const;
+
+    void setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator);
+    cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
+
+    
 protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -75,7 +89,7 @@ protected:
     caf::PdmField<double>                           m_maxCurveValue;
     double                                          m_minCurveDataValue;
     double                                          m_maxCurveDataValue;
-
+    cvf::ref<Riv3dWellLogCurveGeometryGenerator>    m_geometryGenerator;
 private:
     caf::PdmField<bool>                             m_showCurve;
 

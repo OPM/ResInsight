@@ -20,13 +20,13 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 
 #include "cafPdmPointer.h"
 
-#include <vector>
 
 namespace cvf
 {
@@ -45,7 +45,6 @@ class DisplayCoordTransform;
 
 class RimGridView;
 class RimWellPath;
-class Riv3dWellLogCurveGeometryGenerator;
 class Riv3dWellLogGridGeometryGenerator;
 
 class Riv3dWellLogPlanePartMgr : public cvf::Object
@@ -74,9 +73,8 @@ private:
     double planeWidth() const;
 
 private:
-    cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_3dWellLogCurveGeometryGenerator;
-    cvf::ref<Riv3dWellLogGridGeometryGenerator>  m_3dWellLogGridGeometryGenerator;
-
-    caf::PdmPointer<RimWellPath> m_wellPath;
-    caf::PdmPointer<RimGridView> m_gridView;
+    cvf::ref<Riv3dWellLogGridGeometryGenerator> m_3dWellLogGridGeometryGenerator;
+    
+    caf::PdmPointer<RimWellPath>                m_wellPath;
+    caf::PdmPointer<RimGridView>                m_gridView;
 };
