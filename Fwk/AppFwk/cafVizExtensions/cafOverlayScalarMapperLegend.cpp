@@ -66,6 +66,7 @@
 #include <array>
 #include "cvfRenderStateBlending.h"
 #include <algorithm>
+#include <cmath>
 
 namespace caf {
 

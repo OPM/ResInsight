@@ -50,7 +50,6 @@
 #include <QMenu>
 #include <QWheelEvent>
 
-#include <float.h>
 
 #include "RiuWidgetDragger.h"
 #include "RiuCvfOverlayItemWidget.h"
@@ -58,6 +57,8 @@
 #include "RimRegularLegendConfig.h"
 #include "cafTitledOverlayFrame.h"
 #include "RimEnsembleCurveSetCollection.h"
+
+#include <float.h>
 
 //--------------------------------------------------------------------------------------------------
 /// 
