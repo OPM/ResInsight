@@ -99,6 +99,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_yPushButtonSelectSummaryAddress);
     m_yPushButtonSelectSummaryAddress = false;
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiReadOnly(true);
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiHidden(true);
 
     m_yValuesCurveVariable = new RimSummaryAddress;
 
