@@ -171,9 +171,9 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
 {
-    const int startMarginX = 65;
-    const int startMarginY = 35;
     const int spacing = 5;
+    int startMarginX = this->canvas()->pos().x() + spacing;
+    int startMarginY = this->canvas()->pos().y() + spacing;
 
     int xpos = startMarginX;
     int ypos = startMarginY;
@@ -276,15 +276,6 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
     {
         menu.exec(event->globalPos());
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::resizeEvent(QResizeEvent *e)
-{
-    QwtPlot::resizeEvent(e);
-    updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,6 +396,15 @@ void RiuSummaryQwtPlot::enableDateBasedBottomXAxis(QwtPlot* plot)
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
     plot->setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
     plot->setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateLayout()
+{
+    QwtPlot::updateLayout();
+    updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------

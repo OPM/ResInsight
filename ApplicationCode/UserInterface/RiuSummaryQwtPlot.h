@@ -78,7 +78,7 @@ protected:
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
-    virtual void                    resizeEvent(QResizeEvent *e) override;
+    virtual void                    updateLayout() override;
 
 private:
     void                            setDefaults();
