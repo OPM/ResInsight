@@ -23,7 +23,7 @@
 class RigMainGrid;
 class RimEclipseCase;
 class RimFishbonesMultipleSubs;
-class RimFracture;
+class RimWellPathFracture;
 class RimPerforationInterval;
 class RimProject;
 class RimWellPath;
@@ -59,6 +59,6 @@ private:
                                                   std::vector<double>&          values);
 
     static void calculateFractureIntersections(const RigMainGrid*   mainGrid, 
-                                               const RimFracture*   fracture, 
+                                               const RimWellPathFracture*   fracture, 
                                                std::vector<double>& values);
 };

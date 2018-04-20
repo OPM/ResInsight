@@ -74,29 +74,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
         }
     }
 
-    const RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
-    if (mainGrid)
-    {
-        for (RimEclipseView* view : eclipseCase->reservoirViews())
-        {
-            if (view->viewer() && view->wellCollection()->isActive())
-            {
-                for (RimSimWellInView* simWell : view->wellCollection()->wells())
-                {
-                    if (simWell->showWell())
-                    {
-                        for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
-                        {
-                            if (fracture->isChecked())
-                            {
-                                calculateFractureIntersections(mainGrid, fracture, completionTypeCellResults);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // NOTE : Never compute completion type result for simulation well fractures, as these are defined per view
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +176,7 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
 ///
 //--------------------------------------------------------------------------------------------------
 void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid*   mainGrid,
-                                                                       const RimFracture*   fracture,
+                                                                       const RimWellPathFracture*   fracture,
                                                                        std::vector<double>& values)
 {
     if (!fracture->fractureTemplate()) return;
