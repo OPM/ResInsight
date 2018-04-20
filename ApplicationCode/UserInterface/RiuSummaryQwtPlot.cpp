@@ -178,7 +178,7 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * 
        new RiuWidgetDragger(overlayWidget);
 
        m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
-       overlayWidget->move(30, 30);
+       overlayWidget->move(65, 30);
    }
    else
    {
@@ -187,6 +187,9 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * 
 
    if ( overlayWidget )
    {
+       caf::TitledOverlayFrame* overlyItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
+       overlyItem->setRenderSize(overlyItem->preferredSize());
+
        overlayWidget->updateFromOverlyItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
        overlayWidget->show();
    }

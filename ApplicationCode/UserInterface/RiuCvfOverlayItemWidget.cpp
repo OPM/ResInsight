@@ -33,7 +33,11 @@
 RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget(QWidget* parent/*=0*/)
 : QWidget(parent)
 {
-    this->setLayout(new QHBoxLayout(this));
+    auto hblayout = new QHBoxLayout(this);
+    hblayout->setMargin(0);
+    hblayout->setSpacing(0);
+
+    this->setLayout(hblayout);
     m_overlayItemLabel = new QLabel(this);
     this->layout()->addWidget(m_overlayItemLabel);
 }
