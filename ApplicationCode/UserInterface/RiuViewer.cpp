@@ -622,7 +622,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
     unsigned int requiredLegendWidth = 0u;
     for (auto legend : overlayItems)
     {
-        legend->computeLayoutAndExtents(cvf::Vec2i(0, 0), legend->sizeHint());
+        legend->computeLayoutAndExtents(legend->sizeHint());
         requiredLegendWidth = std::max(requiredLegendWidth, legend->minimumWidth());
     }
 

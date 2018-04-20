@@ -31,7 +31,7 @@ public:
     virtual ~CategoryLegend();
 
     size_t       categoryCount() const;
-    void         computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    void         computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 
 protected:
     void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
@@ -40,7 +40,7 @@ protected:
 
     struct OverlayColorLegendLayoutInfo
     {
-        OverlayColorLegendLayoutInfo(const cvf::Vec2i& pos, const cvf::Vec2ui& setSize)
+        OverlayColorLegendLayoutInfo(const cvf::Vec2ui& setSize)
         {
             charHeight = 0.0f;
             lineSpacing = 0.0f;
@@ -49,7 +49,6 @@ protected:
             tickStartX = 0.0f;
             tickMidX = 0.0f;
 
-            position = pos;
             size = setSize;
         }
 
@@ -60,7 +59,6 @@ protected:
 
         cvf::Rectf colorBarRect;
 
-        cvf::Vec2i position;
         cvf::Vec2ui size;
     };
 

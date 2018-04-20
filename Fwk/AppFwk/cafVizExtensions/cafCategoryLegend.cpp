@@ -41,7 +41,7 @@ namespace caf {
 CategoryLegend::CategoryLegend(Font* font, const CategoryMapper* categoryMapper)
     : TitledOverlayFrame(font, 200, 200)    
     , m_categoryMapper(categoryMapper)
-    , m_Layout(Vec2i(0, 0), Vec2ui(200u, 200u))
+    , m_Layout(Vec2ui(200u, 200u))
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -91,7 +91,7 @@ bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, c
 {
     Recti oglRect(position, size.x(), size.y());
 
-    OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(oglRect.width(), oglRect.height()));
+    OverlayColorLegendLayoutInfo layoutInViewPortCoords( Vec2ui(oglRect.width(), oglRect.height()));
     layoutInfo(&layoutInViewPortCoords);
 
     Vec2i legendBarOrigin = oglRect.min();
@@ -129,7 +129,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    this->computeLayoutAndExtents(position, size);
+    this->computeLayoutAndExtents(size);
 
     Vec2f backgroundSize(CVF_MIN((float)this->minimumWidth(), (float)size.x()), (float)size.y());
 
@@ -500,10 +500,10 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::computeLayoutAndExtents(const Vec2i& position, const Vec2ui& size)
+void CategoryLegend::computeLayoutAndExtents(const Vec2ui& size)
 {
     // Todo: Cache this between renderings. Update only when needed.
-    m_Layout = OverlayColorLegendLayoutInfo(position, size);
+    m_Layout = OverlayColorLegendLayoutInfo(size);
     layoutInfo(&m_Layout);
     m_textDrawer = new TextDrawer(this->font());
 

@@ -35,7 +35,7 @@ namespace caf {
         void                 setBackgroundColor(const cvf::Color4f& backgroundColor);
         void                 setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
 
-        virtual void         computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size) = 0;
+        virtual void         computeLayoutAndExtents(const cvf::Vec2ui& size) = 0;
 
         virtual cvf::Vec2ui  sizeHint() override;
         unsigned int         minimumWidth();

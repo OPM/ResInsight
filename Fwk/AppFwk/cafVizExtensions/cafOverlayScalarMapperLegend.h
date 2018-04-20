@@ -85,7 +85,7 @@ public:
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
-    void            computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    void            computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 protected:
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
     void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
@@ -93,9 +93,8 @@ protected:
 
     struct OverlayColorLegendLayoutInfo
     {
-        OverlayColorLegendLayoutInfo(const Vec2i& pos, const Vec2ui& setSize)
+        OverlayColorLegendLayoutInfo(const Vec2ui& setSize)
         {
-            position = pos;
             size = setSize;
         }
 
@@ -108,7 +107,6 @@ protected:
 
         cvf::ref<DoubleArray> tickYPixelPos;
 
-        Vec2i position;
         Vec2ui size;
     };
 

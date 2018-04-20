@@ -43,7 +43,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     : TitledOverlayFrame(font, 120, 150)    
 {
-    this->computeLayoutAndExtents(cvf::Vec2i(0, 0), this->sizeHint());
+    this->computeLayoutAndExtents( this->sizeHint());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ RivTernarySaturationOverlayItem::~RivTernarySaturationOverlayItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::computeLayoutAndExtents(const cvf::Vec2i& position, const cvf::Vec2ui& size)
+void RivTernarySaturationOverlayItem::computeLayoutAndExtents(const cvf::Vec2ui& size)
 {
     this->setMinimumWidth(size.x());
 }
