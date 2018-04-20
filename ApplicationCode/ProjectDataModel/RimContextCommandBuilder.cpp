@@ -40,6 +40,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimFaultInView.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
@@ -425,6 +426,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryPlotFeature";
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
@@ -463,6 +465,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
         }
         else if (dynamic_cast<RimEnsembleCurveSetCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+        }
+        else if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
         }

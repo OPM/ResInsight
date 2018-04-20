@@ -87,6 +87,7 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "");
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden(true);
+    m_ensembleCurveSetCollection.uiCapability()->setUiHidden(true);
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
@@ -1145,7 +1146,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     axisFolder->add(&m_rightYAxisProperties);
 
     uiTreeOrdering.add(&m_summaryCurveCollection);
-    if (!m_isCrossPlot)
+    if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
     {
         uiTreeOrdering.add(&m_ensembleCurveSetCollection);
     }

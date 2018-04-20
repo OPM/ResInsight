@@ -28,12 +28,14 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -270,6 +272,15 @@ void RicDeleteItemExec::redo()
         {
             RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
+        }
+
+        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
+        parentObj->firstAncestorOrThisOfType(ensembleCurveSetColl);
+        if (ensembleCurveSetColl)
+        {
+            RimSummaryPlot* plot = nullptr;
+            ensembleCurveSetColl->firstAncestorOrThisOfType(plot);
+            if (plot) plot->updateConnectedEditors();
         }
     }
 }
