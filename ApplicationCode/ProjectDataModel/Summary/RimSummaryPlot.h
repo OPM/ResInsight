@@ -81,7 +81,7 @@ public:
 
     void                                            addAsciiDataCruve(RimAsciiDataCurve* curve);
 
-    caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
+    caf::PdmObject*                                 findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
     void                                            detachAllCurves();

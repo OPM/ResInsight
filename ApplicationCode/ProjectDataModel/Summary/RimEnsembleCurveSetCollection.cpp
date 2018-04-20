@@ -75,6 +75,8 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
     //m_unionSourceStepping.uiCapability()->setUiHidden(true);
     //m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
     //m_unionSourceStepping.xmlCapability()->disableIO();
+
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +146,25 @@ void RimEnsembleCurveSetCollection::detachQwtCurves()
     {
         curveSet->detachQwtCurves();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+{
+    for (RimEnsembleCurveSet* curveSet : m_curveSets)
+    {
+        for (RimSummaryCurve* rimCurve : curveSet->curves())
+        {
+            if (rimCurve->qwtPlotCurve() == qwtCurve)
+            {
+                return curveSet;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,16 +271,16 @@ void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 //    if (parentPlot->qwtPlot()) parentPlot->qwtPlot()->updateLegend();
 //}
 //
-////--------------------------------------------------------------------------------------------------
-///// 
-////--------------------------------------------------------------------------------------------------
-//void RimEnsembleCurveSetCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
-//{
-//    m_currentSummaryCurve = curve;
-//
-//    updateConnectedEditors();
-//}
-//
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet)
+{
+    m_currentEnsembleCurveSet = curveSet;
+
+    updateConnectedEditors();
+}
+
 ////--------------------------------------------------------------------------------------------------
 ///// 
 ////--------------------------------------------------------------------------------------------------

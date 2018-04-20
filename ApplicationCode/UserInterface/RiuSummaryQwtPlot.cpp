@@ -409,15 +409,15 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 
     if(closestCurve && distMin < 20)
     {
-        caf::PdmObject* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
+        caf::PdmObject* selectedPlotObject = m_plotDefinition->findRimPlotObjectFromQwtCurve(closestCurve);
         
         RimProject* proj = nullptr;
-        selectedCurve->firstAncestorOrThisOfType(proj);
+        selectedPlotObject->firstAncestorOrThisOfType(proj);
 
-        if(proj && selectedCurve)
+        if(proj && selectedPlotObject)
         {
             RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::selectAsCurrentItem(selectedCurve);
+            RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
         }
     }
 }

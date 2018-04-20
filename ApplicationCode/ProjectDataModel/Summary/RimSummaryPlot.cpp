@@ -1520,7 +1520,7 @@ void RimSummaryPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+caf::PdmObject* RimSummaryPlot::findRimPlotObjectFromQwtCurve(const QwtPlotCurve* qwtCurve) const
 {
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {
@@ -1550,6 +1550,17 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
         }
     }
 
+    if (m_ensembleCurveSetCollection)
+    {
+        RimEnsembleCurveSet* foundCurveSet = m_ensembleCurveSetCollection->findRimCurveSetFromQwtCurve(qwtCurve);
+
+        if (foundCurveSet)
+        {
+            m_ensembleCurveSetCollection->setCurrentSummaryCurveSet(foundCurveSet);
+
+            return foundCurveSet;
+        }
+    }
     return nullptr;
 }
 

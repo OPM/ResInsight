@@ -28,6 +28,7 @@
 class RimSummaryCase;
 class RimEnsembleCurveSet;
 class QwtPlot;
+class QwtPlotCurve;
 
 //==================================================================================================
 ///  
@@ -46,7 +47,7 @@ public:
     void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
-    //RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+    RimEnsembleCurveSet*                    findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 
     void                                    addCurveSet(RimEnsembleCurveSet* curveSet);
     void                                    deleteCurveSet(RimEnsembleCurveSet* curveSet);
@@ -58,7 +59,7 @@ public:
     void                                    deleteAllCurveSets();
     //void                                    updateCaseNameHasChanged();
 
-    //void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
+    void                                    setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet);
 
     //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
 
@@ -78,6 +79,6 @@ private:
     caf::PdmField<bool>                             m_showCurves;
     caf::PdmChildArrayField<RimEnsembleCurveSet*>   m_curveSets;
 
-    //caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
+    caf::PdmPointer<RimEnsembleCurveSet>            m_currentEnsembleCurveSet;
 };
 
