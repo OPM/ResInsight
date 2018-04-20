@@ -95,7 +95,7 @@ protected:
     {
         OverlayColorLegendLayoutInfo(const Vec2ui& setSize)
         {
-            size = setSize;
+            overallLegendSize = setSize;
         }
 
         float charHeight;
@@ -107,7 +107,7 @@ protected:
 
         cvf::ref<DoubleArray> tickYPixelPos;
 
-        Vec2ui size;
+        Vec2ui overallLegendSize;
     };
 
     void         layoutInfo(OverlayColorLegendLayoutInfo* layout);

@@ -225,7 +225,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
         m_visibleCategoryLabels.push_back(true);
     }
 
-    float titleY = static_cast<float>(layout->size.y()) - layout->margins.y() - layout->charHeight / 2.0f;
+    float titleY = static_cast<float>(layout->overallLegendSize.y()) - layout->margins.y() - layout->charHeight / 2.0f;
     for (size_t it = 0; it < this->titleStrings().size(); it++)
     {
         Vec2f pos(layout->margins.x(), titleY);
@@ -478,7 +478,7 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->margins     = Vec2f(8.0f, 8.0f);
 
     float colorBarWidth = 25.0f;
-    float colorBarHeight =   static_cast<float>(layout->size.y()) 
+    float colorBarHeight =   static_cast<float>(layout->overallLegendSize.y()) 
                            - 2 * layout->margins.y() 
                            - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
                            - layout->lineSpacing;

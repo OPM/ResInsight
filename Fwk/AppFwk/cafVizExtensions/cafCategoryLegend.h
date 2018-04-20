@@ -49,7 +49,7 @@ protected:
             tickStartX = 0.0f;
             tickMidX = 0.0f;
 
-            size = setSize;
+            overallLegendSize = setSize;
         }
 
         float charHeight;
@@ -59,7 +59,7 @@ protected:
 
         cvf::Rectf colorBarRect;
 
-        cvf::Vec2ui size;
+        cvf::Vec2ui overallLegendSize;
     };
 
     void         layoutInfo(OverlayColorLegendLayoutInfo* layout);

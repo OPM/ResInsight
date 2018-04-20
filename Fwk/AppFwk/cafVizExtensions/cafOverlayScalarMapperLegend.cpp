@@ -154,7 +154,9 @@ bool OverlayScalarMapperLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& 
     legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().x());
     legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().y());
 
-    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.colorBarRect.width()), static_cast<uint>(layoutInViewPortCoords.colorBarRect.height()));
+    Recti legendBarRect = Recti(legendBarOrigin, 
+                                static_cast<uint>(layoutInViewPortCoords.colorBarRect.width()), 
+                                static_cast<uint>(layoutInViewPortCoords.colorBarRect.height()));
 
     if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
         (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
@@ -190,14 +192,27 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     // Do the actual rendering
     if (software)
     {
-       if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, backgroundSize, this->backgroundColor(), this->backgroundFrameColor());
+        if ( this->backgroundEnabled() )
+        {
+            InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, 
+                                                                     backgroundSize, 
+                                                                     this->backgroundColor(), 
+                                                                     this->backgroundFrameColor());
+        }
         renderLegendImmediateMode(oglContext, &m_Layout);
         m_textDrawer->renderSoftware(oglContext, camera);
     }
     else
     {
         const MatrixState matrixState(camera);
-        if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, matrixState, backgroundSize, this->backgroundColor(), this->backgroundFrameColor());
+        if ( this->backgroundEnabled() )
+        {
+            InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, 
+                                                                    matrixState, 
+                                                                    backgroundSize, 
+                                                                    this->backgroundColor(), 
+                                                                    this->backgroundFrameColor());
+        }
         renderLegendUsingShaders(oglContext, &m_Layout, matrixState);
         m_textDrawer->render(oglContext, camera);
     }
@@ -276,7 +291,7 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
         m_visibleTickLabels.push_back(true);
     }
 
-    float titleY = static_cast<float>(layout->size.y()) - layout->margins.y() - layout->charHeight/2.0f;
+    float titleY = static_cast<float>(layout->overallLegendSize.y()) - layout->margins.y() - layout->charHeight/2.0f;
     for (it = 0; it < this->titleStrings().size(); it++)
     {
         Vec2f pos(layout->margins.x(), titleY);
@@ -609,7 +624,7 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->margins = Vec2f(8.0f, 8.0f);
 
     float colorBarWidth = 25.0f;
-    float colorBarHeight = static_cast<float>(layout->size.y()) 
+    float colorBarHeight = static_cast<float>(layout->overallLegendSize.y()) 
                          - 2*layout->margins.y() 
                          - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
                          - layout->lineSpacing;
