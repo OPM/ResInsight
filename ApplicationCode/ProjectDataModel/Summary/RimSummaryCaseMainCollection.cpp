@@ -30,6 +30,7 @@
 #include "RimSummaryCaseCollection.h"
 
 #include <QDir>
+#include "cafProgressInfo.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseMainCollection,"SummaryCaseCollection");
@@ -295,13 +296,19 @@ std::vector<RimSummaryCaseCollection*> RimSummaryCaseMainCollection::summaryCase
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
-    for (RimSummaryCase* sumCase : allSummaryCases())
+    std::vector<RimSummaryCase*> sumCases = allSummaryCases();
+
+    caf::ProgressInfo progInfo(sumCases.size(), "Loading Summary Cases");
+
+    for (size_t cIdx = 0; cIdx < sumCases.size(); ++cIdx)
     {
+        RimSummaryCase* sumCase = sumCases[cIdx];
         if (sumCase)
         {
             sumCase->createSummaryReaderInterface();
             addCaseRealizationParametersIfFound(*sumCase, sumCase->summaryHeaderFilename());
         }
+        progInfo.incrementProgress();
     }
 }
 
