@@ -78,10 +78,12 @@ protected:
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    virtual void                    resizeEvent(QResizeEvent *e) override;
 
 private:
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
+    void                            updateEnsembleLegendLayout();
 
 private slots:
     void                            onZoomedSlot( );

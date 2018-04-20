@@ -57,6 +57,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimRegularLegendConfig.h"
 #include "cafTitledOverlayFrame.h"
+#include "RimEnsembleCurveSetCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -167,6 +168,40 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
+{
+    const int startMarginX = 65;
+    const int startMarginY = 35;
+    const int spacing = 5;
+
+    int xpos = startMarginX;
+    int ypos = startMarginY;
+    int maxColumnWidth = 0; 
+
+    for (RimEnsembleCurveSet * curveSet : ownerPlotDefinition()->ensembleCurveSets()->curveSets())
+    {
+        auto pairIt = m_ensembleLegendWidgets.find(curveSet);
+        if (pairIt !=  m_ensembleLegendWidgets.end())
+        {
+            if (ypos + pairIt->second->height() + spacing > this->canvas()->height())
+            {
+                xpos += spacing + maxColumnWidth;
+                ypos = startMarginY;
+                maxColumnWidth  = 0; 
+            }
+
+            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+            overlayWidget->move(xpos, ypos);
+
+            ypos += pairIt->second->height() + spacing;
+            maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
+        }
+    }    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor)
 {
    RiuCvfOverlayItemWidget* overlayWidget = nullptr;
@@ -175,10 +210,11 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * 
    if (it ==  m_ensembleLegendWidgets.end() || it->second == nullptr)
    {
        overlayWidget = new RiuCvfOverlayItemWidget(this);
+
        new RiuWidgetDragger(overlayWidget);
 
        m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
-       overlayWidget->move(65, 30);
+
    }
    else
    {
@@ -193,6 +229,8 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * 
        overlayWidget->updateFromOverlyItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
        overlayWidget->show();
    }
+
+   this->updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +245,8 @@ void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curve
  
         m_ensembleLegendWidgets.erase(it);
     }
+
+    this->updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,6 +275,15 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
     {
         menu.exec(event->globalPos());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::resizeEvent(QResizeEvent *e)
+{
+    QwtPlot::resizeEvent(e);
+    updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
