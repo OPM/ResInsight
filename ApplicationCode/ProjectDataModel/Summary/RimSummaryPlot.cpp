@@ -1110,6 +1110,8 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 QImage RimSummaryPlot::snapshotWindowContent()
 {
+#if 0
+// This does not work with the color legend widgets. Is there a reason for doing this, and not to grab the widget ?
     QImage image;
 
     if (m_qwtPlot)
@@ -1122,6 +1124,16 @@ QImage RimSummaryPlot::snapshotWindowContent()
 
         QwtPlotRenderer plotRenderer;
         plotRenderer.render(m_qwtPlot, &painter, rect);
+    }
+
+    return image;
+    #endif
+    QImage image;
+
+    if (m_qwtPlot)
+    {
+        QPixmap pix = QPixmap::grabWidget(m_qwtPlot);
+        image = pix.toImage();
     }
 
     return image;
