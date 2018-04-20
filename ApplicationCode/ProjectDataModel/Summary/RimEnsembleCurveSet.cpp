@@ -313,9 +313,17 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         updateAllCurves();
     }
     else if (changedField == &m_ensembleParameter ||
-             changedField == &m_color ||
-             changedField == &m_colorMode)
+             changedField == &m_color)
     {
+        updateCurveColors();
+    }
+    else if (changedField == &m_colorMode)
+    {
+        if (m_ensembleParameter().isEmpty())
+        {
+            auto params = ensembleParameters();
+            m_ensembleParameter = !params.empty() ? params.front() : "";
+        }
         updateCurveColors();
     }
     else if (changedField == &m_plotAxis)
@@ -351,6 +359,7 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     }
 
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup("Colors");
+    m_colorMode.uiCapability()->setUiReadOnly(!m_yValuesSummaryGroup());
     colorsGroup->add(&m_colorMode);
 
     if (m_colorMode == SINGLE_COLOR)
@@ -359,6 +368,7 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     }
     else if (m_colorMode == BY_ENSEMBLE_PARAM)
     {
+        m_ensembleParameter.uiCapability()->setUiReadOnly(!m_yValuesSummaryGroup());
         colorsGroup->add(&m_ensembleParameter);
     }
     uiOrdering.skipRemainingFields(true);
@@ -417,24 +427,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
     }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
 
-        if (group)
+        for (auto param : ensembleParameters())
         {
-            std::set<QString> paramSet;
-            for (RimSummaryCase* rimCase : group->allSummaryCases())
-            {
-                if (!rimCase->caseRealizationParameters().isNull())
-                {
-                    auto ps = rimCase->caseRealizationParameters()->parameters();
-                    for (auto p : ps) paramSet.insert(p.first);
-                }
-            }
-
-            for (auto param : paramSet)
-            {
-                options.push_back(caf::PdmOptionItemInfo(param, param));
-            }
+            options.push_back(caf::PdmOptionItemInfo(param, param));
         }
     }
     else if (fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
@@ -614,4 +610,26 @@ void RimEnsembleCurveSet::updateAllCurves()
         }
     }
     updateCurveColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEnsembleCurveSet::ensembleParameters() const
+{
+    RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
+
+    std::set<QString> paramSet;
+    if (group)
+    {
+        for (RimSummaryCase* rimCase : group->allSummaryCases())
+        {
+            if (!rimCase->caseRealizationParameters().isNull())
+            {
+                auto ps = rimCase->caseRealizationParameters()->parameters();
+                for (auto p : ps) paramSet.insert(p.first);
+            }
+        }
+    }
+    return std::vector<QString>(paramSet.begin(), paramSet.end());
 }

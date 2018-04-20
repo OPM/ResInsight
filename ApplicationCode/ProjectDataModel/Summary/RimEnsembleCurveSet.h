@@ -99,6 +99,7 @@ private:
     void                                    updateCurveColors();
     void                                    updateQwtPlotAxis();
     void                                    updateAllCurves();
+    std::vector<QString>                    ensembleParameters() const;
 
 private:
     caf::PdmField<bool>                             m_showCurves;
