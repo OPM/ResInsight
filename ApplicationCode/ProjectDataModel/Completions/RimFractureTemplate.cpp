@@ -237,6 +237,7 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    bool createDisplayModelAndRedraw = false;
     if (changedField == &m_azimuthAngle || changedField == &m_orientationType)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
@@ -268,7 +269,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 }
             }
 
-            proj->createDisplayModelAndRedrawAllViews();
+            createDisplayModelAndRedraw = true;
         }
     }
 
@@ -302,11 +303,16 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_perforationLength)
     {
+        createDisplayModelAndRedraw = true;
+    }
+
+    if (createDisplayModelAndRedraw)
+    {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
         {
-            proj->createDisplayModelAndRedrawAllViews();
+            proj->reloadCompletionTypeResultsInAllViews();
         }
     }
 }

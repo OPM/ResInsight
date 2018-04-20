@@ -230,7 +230,13 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
-            rimView->createDisplayModelAndRedraw();
+            RimEclipseCase* eclipseCase = nullptr;
+            rimView->firstAncestorOrThisOfType(eclipseCase);
+            if (eclipseCase)
+            {
+                eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
+                eclipseCase->deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
+            }
         }
         else
         {

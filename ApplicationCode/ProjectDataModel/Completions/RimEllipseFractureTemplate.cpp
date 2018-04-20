@@ -321,8 +321,7 @@ void RimEllipseFractureTemplate::reload()
     this->firstAncestorOrThisOfType(proj);
     if (proj)
     {
-        //Regenerate geometry
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->reloadCompletionTypeResultsInAllViews();
         assignConductivityToCellsInsideEllipse();
     }
 }
