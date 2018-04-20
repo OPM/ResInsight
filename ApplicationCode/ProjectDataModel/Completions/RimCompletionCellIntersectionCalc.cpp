@@ -63,11 +63,14 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
 
     const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
+    if (project->activeOilField()->wellPathCollection->isActive)
     {
-        if (wellPath->showWellPath())
+        for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
         {
-            calculateWellPathIntersections(wellPath, eclipseCaseData, completionTypeCellResults, fromDate);
+            if (wellPath->showWellPath())
+            {
+                calculateWellPathIntersections(wellPath, eclipseCaseData, completionTypeCellResults, fromDate);
+            }
         }
     }
 
@@ -76,11 +79,20 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
     {
         for (RimEclipseView* view : eclipseCase->reservoirViews())
         {
-            for (RimSimWellInView* simWell : view->wellCollection()->wells())
+            if (view->viewer() && view->wellCollection()->isActive())
             {
-                for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
+                for (RimSimWellInView* simWell : view->wellCollection()->wells())
                 {
-                    calculateFractureIntersections(mainGrid, fracture, completionTypeCellResults);
+                    if (simWell->showWell())
+                    {
+                        for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
+                        {
+                            if (fracture->isChecked())
+                            {
+                                calculateFractureIntersections(mainGrid, fracture, completionTypeCellResults);
+                            }
+                        }
+                    }
                 }
             }
         }
