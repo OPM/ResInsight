@@ -549,7 +549,7 @@ void RimEnsembleCurveSet::updateCurveColors()
     firstAncestorOrThisOfType(plot);
     if (plot && plot->qwtPlot())
     {
-        if (m_colorMode == BY_ENSEMBLE_PARAM)
+        if (m_colorMode == BY_ENSEMBLE_PARAM && m_legendConfig->showLegend())
         {
             plot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
         }
