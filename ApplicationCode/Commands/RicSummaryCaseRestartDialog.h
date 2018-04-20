@@ -52,9 +52,8 @@ public:
     RicSummaryCaseRestartDialog(QWidget* parent);
     ~RicSummaryCaseRestartDialog();
 
-    static RicSummaryCaseRestartDialogResult    openDialog(const QString& summaryHeaderFile,
+    static RicSummaryCaseRestartDialogResult    openDialog(const std::pair<QString /*sum*/, QString /*grid*/>& initialFiles,
                                                            bool showApplyToAllWidget,
-                                                           bool buildGridCaseFileList,
                                                            ImportOptions defaultSummaryImportOption,
                                                            ImportOptions defaultGridImportOption,
                                                            RicSummaryCaseRestartDialogResult *lastResult = nullptr,

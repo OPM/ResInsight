@@ -41,27 +41,28 @@ public:
     RifSummaryCaseRestartSelector();
     ~RifSummaryCaseRestartSelector();
 
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportFromGridFiles(const QStringList& initialGridFiles);
+    bool        getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
+    bool        getFilesToImportFromGridFiles(const QStringList& initialGridFiles);
 
-    void        showDialog(bool show)               { m_showDialog = show; }
-    void        buildGridCaseFileList(bool build)   { m_buildGridFileList = build; }
-    QStringList gridCaseFiles() const               { return m_gridFiles; }
+    void                                showDialog(bool show)               { m_showDialog = show; }
+    std::vector<RifSummaryCaseFileInfo> summaryFileInfos() const            { return m_summaryFileInfos; }
+    QStringList                         gridCaseFiles() const               { return m_gridFiles; }
 
-    static QStringList                  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
+    static QStringList  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
+    static QString      getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
-    std::vector<RifSummaryCaseFileInfo> getFilesToImport(const QStringList& initialSummaryFiles);
+    bool                getFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
 
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportByAskingUser(const QStringList& initialSummaryFiles,
-                                                                     bool enableApplyToAllField);
-    std::vector<RifSummaryCaseFileInfo> getFilesToImportUsingPrefs(const QStringList& initialSummaryFiles);
+    bool                getFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
+                                                     bool enableApplyToAllField);
+    bool                getFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
 
     bool                                                m_showDialog;
     RicSummaryCaseRestartDialog::ImportOptions          m_defaultSummaryImportMode;
     RicSummaryCaseRestartDialog::ImportOptions          m_defaultGridImportMode;
 
-    bool                                                m_buildGridFileList;
+    std::vector<RifSummaryCaseFileInfo>                 m_summaryFileInfos;
     QStringList                                         m_gridFiles;
 };
 

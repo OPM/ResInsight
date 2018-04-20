@@ -193,17 +193,30 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& summaryHeaderFile,
+RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const std::pair<QString /*sum*/, QString /*grid*/>& initialFiles,
                                                                           bool showApplyToAllWidget,
-                                                                          bool buildGridCaseFileList,
                                                                           ImportOptions defaultSummaryImportOption,
                                                                           ImportOptions defaultGridImportOption,
                                                                           RicSummaryCaseRestartDialogResult *lastResult,
                                                                           QWidget *parent)
 {
     RicSummaryCaseRestartDialog  dialog(parent);
+    QString initialSummaryFile = initialFiles.first;
+    QString initialGridFile = initialFiles.second;
+    bool handleGridFile = !initialGridFile.isEmpty();
 
-    RifRestartFileInfo currentFileInfo = dialog.getFileInfo(summaryHeaderFile);
+    // If only grid file is present, return
+    if (initialSummaryFile.isEmpty() && !initialGridFile.isEmpty())
+    {
+        return RicSummaryCaseRestartDialogResult(true,
+                                                 defaultSummaryImportOption,
+                                                 defaultGridImportOption,
+                                                 {},
+                                                 QStringList({ initialGridFile }),
+                                                 lastResult && lastResult->applyToAll);
+    }
+
+    RifRestartFileInfo currentFileInfo = dialog.getFileInfo(initialSummaryFile);
     if (!currentFileInfo.valid())
     {
         return RicSummaryCaseRestartDialogResult();
@@ -211,13 +224,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
     RifReaderEclipseSummary reader;
     bool hasWarnings = false;
-    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(summaryHeaderFile, &hasWarnings);
+    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
 
     // If no restart files are found and no warnings, do not show dialog
     if (originFileInfos.empty() &&!hasWarnings)
     {
-        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(summaryHeaderFile);
-        return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, NOT_IMPORT, QStringList({ summaryHeaderFile }), QStringList({ gridCaseFile }), false);
+        return RicSummaryCaseRestartDialogResult(true, NOT_IMPORT, NOT_IMPORT, QStringList({ initialSummaryFile }), QStringList({ initialGridFile }), false);
     }
 
     RicSummaryCaseRestartDialogResult dialogResult;
@@ -238,12 +250,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         std::vector<RifRestartFileInfo> originSummaryFileInfos;
         std::vector<RifRestartFileInfo> originGridFileInfos;
 
-        // Build lists of files
-        if (buildGridCaseFileList)
+        // Grid file
+        if (handleGridFile)
         {
             dialog.m_currentFilesGroup->setTitle("Current Grid and Summary Files");
-            QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(currentFileInfo.fileName);
-            currentFileInfos.push_back(RifRestartFileInfo(gridFile, currentFileInfo.startDate, currentFileInfo.endDate));
+            currentFileInfos.push_back(RifRestartFileInfo(initialGridFile, currentFileInfo.startDate, currentFileInfo.endDate));
 
             for (const auto& ofi : originFileInfos)
             {
@@ -269,7 +280,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         case ImportOptions::NOT_IMPORT:       dialog.m_summaryNotReadBtn->setChecked(true); break;
         }
 
-        if (buildGridCaseFileList)
+        if (handleGridFile)
         {
             switch (defaultGridImportOption)
             {
@@ -312,7 +323,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         return RicSummaryCaseRestartDialogResult(false, NOT_IMPORT, NOT_IMPORT, QStringList(), QStringList(), false);
     }
 
-    dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(summaryHeaderFile));
+    dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(initialSummaryFile));
     if (dialogResult.summaryImportOption == SEPARATE_CASES)
     {
         for (const auto& ofi : originFileInfos)
@@ -321,17 +332,16 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         }
     }
 
-    if (buildGridCaseFileList)
+    if (handleGridFile)
     {
-        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(summaryHeaderFile);
-        dialogResult.gridFiles.push_back(gridCaseFile);
+        dialogResult.gridFiles.push_back(initialGridFile);
 
         if (dialogResult.gridImportOption == SEPARATE_CASES)
         {
             for (const auto& ofi : originFileInfos)
             {
                 QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(ofi.fileName);
-                if (buildGridCaseFileList && !gridCaseFile.isEmpty()) dialogResult.gridFiles.push_back(gridFile);
+                if (handleGridFile) dialogResult.gridFiles.push_back(gridFile);
             }
         }
     }
