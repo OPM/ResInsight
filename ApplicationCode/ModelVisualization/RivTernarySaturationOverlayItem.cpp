@@ -43,7 +43,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     : TitledOverlayFrame(font, 120, 150)    
 {
-    this->computeLayoutAndExtents( this->sizeHint());
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,14 +52,6 @@ RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font
 RivTernarySaturationOverlayItem::~RivTernarySaturationOverlayItem()
 {
     // Empty destructor to avoid errors with undefined types when cvf::ref's destructor gets called
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::computeLayoutAndExtents(const cvf::Vec2ui& size)
-{
-    this->setMinimumWidth(size.x());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +94,6 @@ void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglConte
     float border = 0.0f;
 
     cvf::Vec2ui sizeFrameBox = size;
-    sizeFrameBox.x() = this->matchedWidth(); // Match to other legends
 
     cvf::Camera camera;
     camera.setViewport(position.x(), position.y(), sizeFrameBox.x(), sizeFrameBox.y());

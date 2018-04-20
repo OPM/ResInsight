@@ -41,7 +41,6 @@ class RivTernarySaturationOverlayItem : public caf::TitledOverlayFrame
 public:
     explicit RivTernarySaturationOverlayItem(cvf::Font* font);
     ~RivTernarySaturationOverlayItem();
-    virtual void    computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 
     void setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange);
 

@@ -21,9 +21,8 @@ namespace caf {
         TitledOverlayFrame(cvf::Font* font, unsigned int width = 100, unsigned int height = 200);
         virtual ~TitledOverlayFrame();
 
-        virtual void         setSizeHint(const cvf::Vec2ui& size);
-        void                 setMinimumWidth(unsigned int width);
-        void                 setMatchedWidth(unsigned int width);
+        void                 setRenderSize(const cvf::Vec2ui& size);
+        cvf::Vec2ui          renderSize() const;
 
         void                 setTextColor(const cvf::Color3f& color);
         void                 setLineColor(const cvf::Color3f& lineColor);
@@ -35,12 +34,7 @@ namespace caf {
         void                 setBackgroundColor(const cvf::Color4f& backgroundColor);
         void                 setBackgroundFrameColor(const cvf::Color4f& backgroundFrameColor);
 
-        virtual void         computeLayoutAndExtents(const cvf::Vec2ui& size) = 0;
-
         virtual cvf::Vec2ui  preferredSize() = 0;
-         
-        unsigned int         minimumWidth();
-        unsigned int         matchedWidth();
         
     protected:
         cvf::Color3f              textColor() const;
@@ -55,9 +49,7 @@ namespace caf {
 
     private:
         cvf::Vec2ui               sizeHint() override final; // Will return the size to use for rendering, and is really not a hint.
-        cvf::Vec2ui               m_sizeHint;          // The desired pixel size of the color legend area        
-        unsigned int              m_minimumWidth;      // Minimum width required to fit content
-        unsigned int              m_matchedWidth;      // Width matched to other legends (>= minimumWidth)
+        cvf::Vec2ui               m_renderSize;          // The rendered size of the color legend area in pixels
 
         cvf::Color3f              m_textColor;
         cvf::Color3f              m_lineColor;

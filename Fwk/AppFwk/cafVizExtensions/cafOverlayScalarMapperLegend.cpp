@@ -186,9 +186,15 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    this->computeLayoutAndExtents( size);
+    m_Layout = OverlayColorLegendLayoutInfo(size);
+    layoutInfo(&m_Layout);
+    m_textDrawer = new TextDrawer(this->font());
 
-    Vec2f backgroundSize((float)this->matchedWidth(), (float)size.y());
+    // Set up text drawer
+    float maxLegendRightPos = 0;
+    setupTextDrawer(m_textDrawer.p(), &m_Layout );
+
+    Vec2f backgroundSize(size);
 
     // Do the actual rendering
     if (software)
@@ -225,11 +231,9 @@ void OverlayScalarMapperLegend::renderGeneric(OpenGLContext* oglContext, const V
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const OverlayColorLegendLayoutInfo* layout, float* maxLegendRightPos)
+void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const OverlayColorLegendLayoutInfo* layout)
 {
     CVF_ASSERT(layout);
-    
-    float legendRight = 0.0f;
     
     textDrawer->setVerticalAlignment(TextDrawer::CENTER);
     textDrawer->setTextColor(this->textColor());
@@ -285,9 +289,6 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
         Vec2f pos(textX, textY);
         textDrawer->addText(valueString, pos);
 
-        float neededRightPos = pos.x() + this->font()->textExtent(valueString).x();
-        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
-
         lastVisibleTextY = textY;
         m_visibleTickLabels.push_back(true);
     }
@@ -298,14 +299,9 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, const Ov
         Vec2f pos(layout->margins.x(), titleY);
         textDrawer->addText(this->titleStrings()[it], pos);
 
-        float neededRightPos = pos.x() + this->font()->textExtent(this->titleStrings()[it]).x();
-        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
-
-
         titleY -= layout->lineSpacing;
     }
 
-    *maxLegendRightPos = legendRight;
 }
 
 
@@ -685,31 +681,12 @@ void OverlayScalarMapperLegend::setTickFormat(NumberFormat format)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::computeLayoutAndExtents( const Vec2ui& size)
-{
-    // Todo: Cache this between renderings. Update only when needed.
-    //m_Layout = OverlayColorLegendLayoutInfo( size );
-    layoutInfo(&m_Layout);
-
-    m_textDrawer = new TextDrawer(this->font());
-
-    // Set up text drawer
-    float maxLegendRightPos = 0;
-    setupTextDrawer(m_textDrawer.p(), &m_Layout, &maxLegendRightPos);
-
-    unsigned int contentWidth = static_cast<unsigned int>(cvf::Math::ceil(maxLegendRightPos + m_Layout.margins.x()));
-    this->setMinimumWidth(contentWidth);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
 {
     OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
     layoutInfo(&layout);
 
-    unsigned int prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_tickValues.size() )* layout.lineSpacing ;
+    float prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_tickValues.size() )* layout.lineSpacing ;
     
     unsigned int maxTickTextWidth = 0;
     for (double tickValue : m_tickValues )
@@ -731,17 +708,17 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
         maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
     }
 
-    unsigned int prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
+    float prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
 
     for (const cvf::String& titleLine : titleStrings())
     {
-        unsigned int titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
+        float titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
         prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
     }
 
-    prefferredXSize = std::min(prefferredXSize, 400u);
+    prefferredXSize = std::min(prefferredXSize, 400.0f);
 
-    return { prefferredXSize, prefferredYSize };
+    return { (unsigned int)(std::ceil(prefferredXSize)), (unsigned int)(std::ceil(prefferredYSize)) };
 
 }
 

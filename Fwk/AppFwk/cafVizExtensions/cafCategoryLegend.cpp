@@ -29,6 +29,7 @@
 #include "cvfScalarMapper.h"
 #include "cafInternalLegendRenderTools.h"
 
+#include <cmath>
 
 using namespace cvf;
 
@@ -129,9 +130,15 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
 
-    this->computeLayoutAndExtents(size);
+    m_Layout = OverlayColorLegendLayoutInfo(size);
+    layoutInfo(&m_Layout);
+    m_textDrawer = new TextDrawer(this->font());
 
-    Vec2f backgroundSize(CVF_MIN((float)this->minimumWidth(), (float)size.x()), (float)size.y());
+    // Set up text drawer
+    float maxLegendRightPos = 0;
+    setupTextDrawer(m_textDrawer.p(), &m_Layout);
+
+    Vec2f backgroundSize(size);
 
     // Do the actual rendering
     if (software)
@@ -162,8 +169,7 @@ void CategoryLegend::renderGeneric(OpenGLContext* oglContext,
 /// 
 //--------------------------------------------------------------------------------------------------
 void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, 
-                                     const OverlayColorLegendLayoutInfo* layout, 
-                                     float* maxLegendRightPos)
+                                     const OverlayColorLegendLayoutInfo* layout)
 {
     if (m_categoryMapper.isNull())
     {
@@ -171,8 +177,6 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
     }
 
     CVF_ASSERT(layout);
-
-    float legendRight = 0.0f;
 
     textDrawer->setVerticalAlignment(TextDrawer::CENTER);
     textDrawer->setTextColor(this->textColor());
@@ -218,9 +222,6 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
         Vec2f pos(textX, textY);
         textDrawer->addText(displayText, pos);
 
-        float neededRightPos = pos.x() + this->font()->textExtent(displayText).x();
-        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
-
         lastVisibleTextY = textY;
         m_visibleCategoryLabels.push_back(true);
     }
@@ -231,13 +232,9 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer,
         Vec2f pos(layout->margins.x(), titleY);
         textDrawer->addText(this->titleStrings()[it], pos);
 
-        float neededRightPos = pos.x() + this->font()->textExtent(this->titleStrings()[it]).x();
-        legendRight = legendRight >= neededRightPos ? legendRight :neededRightPos;
-
         titleY -= layout->lineSpacing;
     }
 
-    *maxLegendRightPos = legendRight;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,30 +498,12 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::computeLayoutAndExtents(const Vec2ui& size)
-{
-    // Todo: Cache this between renderings. Update only when needed.
-    m_Layout = OverlayColorLegendLayoutInfo(size);
-    layoutInfo(&m_Layout);
-    m_textDrawer = new TextDrawer(this->font());
-
-    // Set up text drawer
-    float maxLegendRightPos = 0;
-    setupTextDrawer(m_textDrawer.p(), &m_Layout, &maxLegendRightPos);
-
-    unsigned int contentWidth = static_cast<unsigned int>(cvf::Math::ceil(maxLegendRightPos + m_Layout.margins.x()));
-    this->setMinimumWidth(contentWidth);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::Vec2ui CategoryLegend::preferredSize()
 {
     OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
     layoutInfo(&layout);
 
-    unsigned int prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_categoryMapper->categoryCount() )* layout.lineSpacing ;
+    float prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_categoryMapper->categoryCount() )* layout.lineSpacing ;
 
     unsigned int maxTickTextWidth = 0;
     for (size_t cIdx = 0; cIdx <  m_categoryMapper->categoryCount(); ++cIdx )
@@ -534,17 +513,17 @@ cvf::Vec2ui CategoryLegend::preferredSize()
         maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
     }
 
-    unsigned int prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
+    float prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
 
     for (const cvf::String& titleLine : titleStrings())
     {
-        unsigned int titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
+        float titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
         prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
     }
 
-    prefferredXSize = std::min(prefferredXSize, 400u);
+    prefferredXSize = std::min(prefferredXSize, 400.0f);
 
-    return { prefferredXSize, prefferredYSize };
+    return { (unsigned int)(std::ceil(prefferredXSize)), (unsigned int)(std::ceil(prefferredYSize)) };
 
 }
 

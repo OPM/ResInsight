@@ -602,11 +602,11 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
 
             if (catLegend->categoryCount() > categoryThreshold)
             {
-                catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2 * border - axisCrossHeight - 2 * edgeAxisBorderHeight));
+                catLegend->setRenderSize(cvf::Vec2ui(categoryWidth, height - 3 * border - axisCrossHeight - 2 * edgeAxisBorderHeight));
             }
             else
             {
-                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
+                catLegend->setRenderSize(cvf::Vec2ui(categoryWidth, 200));
             }
             xPos += categoryWidth + border;
         }
@@ -615,20 +615,21 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
         {
             item->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
 
-            yPos += item->sizeHint().y() + border + edgeAxisBorderHeight;
+            yPos += item->renderSize().y() + border + edgeAxisBorderHeight;
         }
     }
 
     unsigned int requiredLegendWidth = 0u;
     for (auto legend : overlayItems)
     {
-        legend->computeLayoutAndExtents(legend->sizeHint());
-        requiredLegendWidth = std::max(requiredLegendWidth, legend->minimumWidth());
+        requiredLegendWidth = std::max(requiredLegendWidth, legend->preferredSize().x());
     }
 
     for (auto legend : overlayItems)
     {
-        legend->setMatchedWidth(requiredLegendWidth);
+        cvf::Vec2ui widthAdjustedSize = legend->renderSize();
+        widthAdjustedSize.x() = requiredLegendWidth;
+        legend->setRenderSize(widthAdjustedSize);
     }
 }
 
@@ -890,7 +891,7 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
     for (auto overlayItem : m_visibleLegends)
     {
         if (overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
-            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->sizeHint()))
+            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->renderSize()))
         {
             return overlayItem.p();
         }

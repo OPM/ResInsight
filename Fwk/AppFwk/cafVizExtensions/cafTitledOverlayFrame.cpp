@@ -13,8 +13,7 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     TitledOverlayFrame::TitledOverlayFrame(Font* font, unsigned int width, unsigned int height)
         : m_font(font)
-        , m_sizeHint(width, height)
-        , m_minimumWidth(0u)
+        , m_renderSize(width, height)
         , m_textColor(Color3::BLACK)
         , m_lineColor(Color3::BLACK)
         , m_lineWidth(1)
@@ -31,26 +30,17 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void TitledOverlayFrame::setSizeHint(const Vec2ui& size)
+    void TitledOverlayFrame::setRenderSize(const Vec2ui& size)
     {
-        m_sizeHint = size;
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// Will also update the matched width since this should always be >= minimum width
-    //--------------------------------------------------------------------------------------------------
-    void TitledOverlayFrame::setMinimumWidth(unsigned int width)
-    {
-        m_minimumWidth = width;
-        m_matchedWidth = std::max(m_minimumWidth, m_matchedWidth);
+        m_renderSize = size;
     }
 
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void TitledOverlayFrame::setMatchedWidth(unsigned int width)
+    cvf::Vec2ui TitledOverlayFrame::renderSize() const
     {
-        m_matchedWidth = width;
+        return m_renderSize;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -124,23 +114,7 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     cvf::Vec2ui TitledOverlayFrame::sizeHint()
     {
-        return m_sizeHint;
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    unsigned int TitledOverlayFrame::minimumWidth()
-    {
-        return m_minimumWidth;
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    unsigned int TitledOverlayFrame::matchedWidth()
-    {
-        return m_matchedWidth;
+        return m_renderSize;
     }
 
     //--------------------------------------------------------------------------------------------------

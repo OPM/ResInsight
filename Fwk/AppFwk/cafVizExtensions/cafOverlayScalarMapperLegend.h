@@ -85,7 +85,6 @@ public:
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
-    void            computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 
     virtual cvf::Vec2ui preferredSize() override;
     
@@ -126,8 +125,7 @@ protected:
     void         renderLegendImmediateMode(OpenGLContext* oglContext,
                                            OverlayColorLegendLayoutInfo* layout);
     void         setupTextDrawer(TextDrawer* textDrawer,
-                                 const OverlayColorLegendLayoutInfo* layout,
-                                 float* maxLegendRightPos);
+                                 const OverlayColorLegendLayoutInfo* layout);
 
 protected:
     DoubleArray         m_tickValues;           // Ticks between each level + top and bottom of legend (n+1 entries)

@@ -31,7 +31,6 @@ public:
     virtual ~CategoryLegend();
 
     size_t       categoryCount() const;
-    void         computeLayoutAndExtents(const cvf::Vec2ui& size) override;
 
     cvf::Vec2ui  preferredSize() override;
 
@@ -72,8 +71,7 @@ protected:
                                const cvf::Vec2ui& size, 
                                bool software);
     void         setupTextDrawer(cvf::TextDrawer* textDrawer, 
-                                 const OverlayColorLegendLayoutInfo* layout, 
-                                 float* maxLegendRightPos);
+                                 const OverlayColorLegendLayoutInfo* layout);
     void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, 
                                           OverlayColorLegendLayoutInfo* layout,
                                           const cvf::MatrixState& matrixState);
