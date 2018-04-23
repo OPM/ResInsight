@@ -247,7 +247,11 @@ QStringList RifSummaryCaseRestartSelector::getSummaryFilesFromGridFiles(const QS
     // Find summary header file names from eclipse case file names
     for (const auto& gridFile : gridFiles)
     {
-        summaryFiles.push_back(getSummaryFileFromGridFile(gridFile));
+        QString sumFile = getSummaryFileFromGridFile(gridFile);
+        if (!sumFile.isEmpty())
+        {
+            summaryFiles.push_back(sumFile);
+        }
     }
     return summaryFiles;
 }
