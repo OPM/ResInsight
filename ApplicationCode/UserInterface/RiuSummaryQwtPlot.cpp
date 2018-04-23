@@ -179,6 +179,8 @@ void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
     int ypos = startMarginY;
     int maxColumnWidth = 0; 
 
+    if (!ownerPlotDefinition() || !ownerPlotDefinition()->ensembleCurveSets()) return;
+
     for (RimEnsembleCurveSet * curveSet : ownerPlotDefinition()->ensembleCurveSets()->curveSets())
     {
         auto pairIt = m_ensembleLegendWidgets.find(curveSet);
