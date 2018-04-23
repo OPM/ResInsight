@@ -111,7 +111,7 @@ bool RivWellPathPartMgr::isWellPathWithinBoundingBox(const cvf::BoundingBox& wel
         relevantWellpathBBox.add(casemax + addSize);
         relevantWellpathBBox.add(casemin - addSize);
 
-        if (!RigWellPath::isPolylineTouchingBBox(wellpathCenterLine, relevantWellpathBBox))
+        if (!RigWellPath::isAnyPointInsideBoundingBox(wellpathCenterLine, relevantWellpathBBox))
         {
             return false;
         }

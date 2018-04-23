@@ -282,17 +282,15 @@ std::vector<cvf::Vec3d> RigWellPath::wellPathPointsIncludingInterpolatedIntersec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellPath::isPolylineTouchingBBox(const std::vector<cvf::Vec3d> &polyLine,
-                                         const cvf::BoundingBox& caseBB)
+bool RigWellPath::isAnyPointInsideBoundingBox(const std::vector<cvf::Vec3d>& points, const cvf::BoundingBox& boundingBox)
 {
-    for ( const cvf::Vec3d& point : polyLine )
+    for (const cvf::Vec3d& point : points)
     {
-        if ( caseBB.contains(point) ) return true;
+        if (boundingBox.contains(point)) return true;
     }
 
     return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

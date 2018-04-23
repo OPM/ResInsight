@@ -60,8 +60,8 @@ public:
 
     std::vector<cvf::Vec3d>     wellPathPointsIncludingInterpolatedIntersectionPoint(double intersectionMeasuredDepth) const;
 
-    static bool                 isPolylineTouchingBBox(const std::vector<cvf::Vec3d> &polyLine, 
-                                                       const cvf::BoundingBox& caseBB);
+    static bool                 isAnyPointInsideBoundingBox(const std::vector<cvf::Vec3d>& points, const cvf::BoundingBox& boundingBox);
+    
     static std::vector<cvf::Vec3d> clipPolylineStartAboveZ(const std::vector<cvf::Vec3d> &polyLine,
                                                            double maxZ,
                                                            double * horizontalLengthAlongWellToClipPoint,
