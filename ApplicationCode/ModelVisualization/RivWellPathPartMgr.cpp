@@ -305,14 +305,6 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
     double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
 
-    // Generate the well path geometry as a line and pipe structure
-
-    m_pipeGeomGenerator = new RivPipeGeometryGenerator;
-
-    m_pipeGeomGenerator->setRadius(wellPathRadius);
-    m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
-
-
     std::vector<cvf::Vec3d> clippedWellPathCenterLine;
 
     // Skip visualization if outside the domain of this case
@@ -336,6 +328,13 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
             return;
         }
     }
+
+    // Generate the well path geometry as a line and pipe structure
+
+    m_pipeGeomGenerator = new RivPipeGeometryGenerator;
+
+    m_pipeGeomGenerator->setRadius(wellPathRadius);
+    m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
 
     double horizontalLengthAlongWellToClipPoint = 0.0;
     size_t idxToFirstVisibleSegment = 0;
