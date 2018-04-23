@@ -247,8 +247,8 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
     CVF_CALLSITE_OPENGL(oglContext);
 
     CVF_TIGHT_ASSERT(layout);
-    CVF_TIGHT_ASSERT(layout->size.x() > 0);
-    CVF_TIGHT_ASSERT(layout->size.y() > 0);
+    CVF_TIGHT_ASSERT(layout->overallLegendSize.x() > 0);
+    CVF_TIGHT_ASSERT(layout->overallLegendSize.y() > 0);
 
     RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
@@ -370,8 +370,8 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
     CVF_FAIL_MSG("Not supported on OpenGL ES");
 #else
     CVF_TIGHT_ASSERT(layout);
-    CVF_TIGHT_ASSERT(layout->size.x() > 0);
-    CVF_TIGHT_ASSERT(layout->size.y() > 0);
+    CVF_TIGHT_ASSERT(layout->overallLegendSize.x() > 0);
+    CVF_TIGHT_ASSERT(layout->overallLegendSize.y() > 0);
 
     RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
