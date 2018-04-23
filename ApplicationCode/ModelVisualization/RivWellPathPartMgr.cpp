@@ -88,7 +88,43 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model)
+bool RivWellPathPartMgr::isWellPathWithinBoundingBox(const cvf::BoundingBox& wellPathClipBoundingBox) const
+{
+    if (!m_rimWellPath->wellPathGeometry()) return false;
+
+    const std::vector<cvf::Vec3d>& wellpathCenterLine = m_rimWellPath->wellPathGeometry()->m_wellPathPoints;
+    if (wellpathCenterLine.size() < 2) return false;
+
+    // Skip visualization if outside the domain of this case
+    {
+        cvf::Vec3d casemax = wellPathClipBoundingBox.max();
+        cvf::Vec3d casemin = wellPathClipBoundingBox.min();
+        cvf::Vec3d caseext = wellPathClipBoundingBox.extent();
+
+        // Add up to the sealevel
+        cvf::BoundingBox relevantWellpathBBox = wellPathClipBoundingBox;
+        relevantWellpathBBox.add(cvf::Vec3d(casemax.x(), casemax.y(), 0.0));
+
+        // Add some sideways leeway
+
+        cvf::Vec3d addSize = 3.0*cvf::Vec3d(caseext.x(), caseext.y(), 0.0);
+        relevantWellpathBBox.add(casemax + addSize);
+        relevantWellpathBBox.add(casemin - addSize);
+
+        if (!RigWellPath::isPolylineTouchingBBox(wellpathCenterLine, relevantWellpathBBox))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList*    model,
+                                                          const cvf::BoundingBox& wellPathClipBoundingBox)
 {
     if (m_rimView.isNull()) return;
 
@@ -96,6 +132,8 @@ void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* m
     if (!eclView) return;
 
     if (!m_rimWellPath || !m_rimWellPath->showWellPath() || !m_rimWellPath->fractureCollection()->isChecked()) return;
+
+    if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
 
     for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
     {
@@ -307,28 +345,6 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
     std::vector<cvf::Vec3d> clippedWellPathCenterLine;
 
-    // Skip visualization if outside the domain of this case
-    {
-        cvf::Vec3d casemax = wellPathClipBoundingBox.max();
-        cvf::Vec3d casemin = wellPathClipBoundingBox.min();
-        cvf::Vec3d caseext = wellPathClipBoundingBox.extent();
-
-        // Add up to the sealevel
-        cvf::BoundingBox relevantWellpathBBox = wellPathClipBoundingBox;
-        relevantWellpathBBox.add(cvf::Vec3d(casemax.x(), casemax.y(), 0.0));
-
-        // Add some sideways leeway
-
-        cvf::Vec3d addSize = 3.0*cvf::Vec3d(caseext.x(), caseext.y(), 0.0);
-        relevantWellpathBBox.add(casemax + addSize);
-        relevantWellpathBBox.add(casemin - addSize);
-
-        if ( !RigWellPath::isPolylineTouchingBBox(wellpathCenterLine, relevantWellpathBBox) )
-        {
-            return;
-        }
-    }
-
     // Generate the well path geometry as a line and pipe structure
 
     m_pipeGeomGenerator = new RivPipeGeometryGenerator;
@@ -464,6 +480,8 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false )
         return;
 
+    if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
+
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, false);
 
@@ -494,6 +512,8 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel(cvf::ModelBas
                                                                    double characteristicCellSize, 
                                                                    const cvf::BoundingBox& wellPathClipBoundingBox)
 {
+    if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
+
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, true);
 
@@ -536,6 +556,8 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
         return;
     }
 
+    if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
+
     appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, false);
     appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
 
@@ -561,6 +583,8 @@ void RivWellPathPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBa
     if (!wellPathCollection) return;
 
     if (m_rimWellPath.isNull()) return;
+
+    if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
 
     appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, true);
 }

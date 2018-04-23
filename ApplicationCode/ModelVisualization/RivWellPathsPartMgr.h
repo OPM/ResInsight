@@ -65,8 +65,8 @@ public:
                                            const caf::DisplayCoordTransform* displayCoordTransform,
                                            double                            characteristicCellSize,
                                            const cvf::BoundingBox&           wellPathClipBoundingBox);
-    
-    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
+
+    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox);
 
 private:
     void                   clearGeometryCache();

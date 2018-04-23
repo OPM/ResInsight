@@ -81,7 +81,7 @@ public:
                                                     double                            characteristicCellSize,
                                                     const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model);
+    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox);
 
 private:
     void appendFishboneSubsPartsToModel(cvf::ModelBasicList*              model,
@@ -112,6 +112,8 @@ private:
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection();
     inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
+
+    bool isWellPathWithinBoundingBox(const cvf::BoundingBox& wellPathClipBoundingBox) const;
 
 private:
     caf::PdmPointer<RimWellPath>        m_rimWellPath;
