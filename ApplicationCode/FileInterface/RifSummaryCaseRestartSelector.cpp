@@ -173,7 +173,6 @@ bool RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const std::vect
 //--------------------------------------------------------------------------------------------------
 bool RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles)
 {
-    std::vector<RifSummaryCaseFileInfo> filesToImport;
     RicSummaryCaseRestartDialogResult lastResult;
 
     m_gridFiles.clear();
@@ -186,15 +185,15 @@ bool RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const std::vector
 
         if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL)
         {
-            filesToImport.push_back(RifSummaryCaseFileInfo(initialSummaryFile, true));
+            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, true));
         }
         else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT)
         {
-            filesToImport.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
         }
         else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
         {
-            filesToImport.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
 
             RifReaderEclipseSummary reader;
             bool hasWarnings = false;
@@ -202,9 +201,9 @@ bool RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const std::vector
             for (const auto& rfi : restartFileInfos)
             {
                 RifSummaryCaseFileInfo fi(rfi.fileName, false);
-                if (!vectorContains(filesToImport, fi))
+                if (!vectorContains(m_summaryFileInfos, fi))
                 {
-                    filesToImport.push_back(fi);
+                    m_summaryFileInfos.push_back(fi);
                 }
             }
         }
