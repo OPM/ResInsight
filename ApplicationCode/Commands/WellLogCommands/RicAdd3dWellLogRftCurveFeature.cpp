@@ -60,6 +60,7 @@ void RicAdd3dWellLogRftCurveFeature::onActionTriggered(bool isChecked)
     Rim3dWellLogRftCurve* rim3dWellLogRftCurve = new Rim3dWellLogRftCurve();
     selectedWellPath->add3dWellLogCurve(rim3dWellLogRftCurve);
 
+    RiaApplication::instance()->project()->createDisplayModelAndRedrawAllViews();
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem(rim3dWellLogRftCurve);
