@@ -215,12 +215,15 @@ QString RiuFemResultTextBuilder::formationDetails()
 
             size_t k =  cvf::UNDEFINED_SIZE_T;
             {
-                RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
-                if(geomData)
+                if ( m_reservoirView->geoMechCase() )
                 {
-                    size_t i = 0;
-                    size_t j = 0;
-                    geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
+                    if ( geomData )
+                    {
+                        size_t i = 0;
+                        size_t j = 0;
+                        geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    }
                 }
             }
 

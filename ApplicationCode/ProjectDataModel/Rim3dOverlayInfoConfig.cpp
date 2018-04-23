@@ -914,7 +914,9 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
 QString Rim3dOverlayInfoConfig::timeStepText(RimGeoMechView* geoMechView)
 {
     int currTimeStepIndex = geoMechView->currentTimeStep();
-    QStringList timeSteps = geoMechView->geoMechCase()->timeStepStrings();
+
+    QStringList timeSteps;
+    if (geoMechView->geoMechCase()) timeSteps = geoMechView->geoMechCase()->timeStepStrings();
 
     QString dateTimeString;
     if (currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size())

@@ -184,8 +184,13 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
     }
 
     RivGeoMechPartMgr* partMgrToUpdate = m_partMgrCache->partMgr(pMgrKey);
-    RigGeoMechCaseData* caseData = m_geomechView->geoMechCase()->geoMechData();
-    int partCount = caseData->femParts()->partCount();
+    int partCount = 0;
+    RigGeoMechCaseData* caseData = nullptr;
+    if ( m_geomechView->geoMechCase() )
+    {
+        caseData = m_geomechView->geoMechCase()->geoMechData();
+        partCount = caseData->femParts()->partCount();
+    }
 
     if (partMgrToUpdate->initializedFemPartCount() != partCount)
     {
@@ -254,6 +259,8 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex)
 {
+    if (!m_geomechView->geoMechCase()) return;
+
     size_t gridCount = m_geomechView->geoMechCase()->geoMechData()->femParts()->partCount();
     
     if (gridCount == 0) return;

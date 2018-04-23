@@ -139,7 +139,10 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         if (m_compactionRefLayerUiField == (int)RigFemResultAddress::NO_COMPACTION)
         {
-            m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->reservoirIJKBoundingBox().first.z();
+            if (m_geomCase &&  m_geomCase->geoMechData() )
+            {
+                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->reservoirIJKBoundingBox().first.z();
+            }
         }
     }
 
@@ -199,10 +202,13 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         }
         else if (&m_compactionRefLayerUiField == fieldNeedingOptions)
         {
-            size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->gridPointCountK() - 1;
-            for (size_t layerIdx = 0; layerIdx < kCount; ++layerIdx)
+            if (m_geomCase->geoMechData())
             {
-                options.push_back(caf::PdmOptionItemInfo(QString::number(layerIdx + 1), (int)layerIdx));
+                size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->gridPointCountK() - 1;
+                for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
+                {
+                    options.push_back(caf::PdmOptionItemInfo(QString::number(layerIdx + 1), (int)layerIdx));
+                }
             }
         }
     }
@@ -288,7 +294,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 m_compactionRefLayer    = m_compactionRefLayerUiField();
             }
 
-            if (m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
+            if (m_geomCase->geoMechData() && m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {
                 if (view) view->hasUserRequestedAnimation = true;
             }
@@ -416,7 +422,7 @@ void RimGeoMechResultDefinition::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::loadResult()
 {
-    if (m_geomCase)
+    if (m_geomCase && m_geomCase->geoMechData())
     {
         m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
     }

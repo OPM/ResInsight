@@ -147,6 +147,8 @@ void RimCellRangeFilter::setDefaultValues()
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
+    if (!grid) return;
+
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
     RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
@@ -208,6 +210,8 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
     }
 
     const cvf::StructGridInterface* grid = selectedGrid();
+    
+    if (!grid) return;
 
     if (field == &startIndexI || field == &cellCountI)
     {
