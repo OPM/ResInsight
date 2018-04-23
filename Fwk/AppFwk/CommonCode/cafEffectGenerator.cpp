@@ -43,6 +43,7 @@
 #include "cvfMatrixState.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
+#include "cvfRenderStateColorMask.h"
 #include "cvfRenderStateCullFace.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateLine.h"
@@ -264,6 +265,8 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
     m_color = color;
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableColorMask = true;
+    m_enableDepthTest = true;
     m_enableDepthWrite = true;
     m_enableLighting = true;
 }
@@ -278,10 +281,11 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, Polygo
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableColorMask = true;
+    m_enableDepthTest = true;
     m_enableDepthWrite = true;
     m_enableLighting = true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -373,10 +377,17 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
         effect->setRenderState(faceCulling.p());
     }
 
-    if (!m_enableDepthWrite)
+    if (!m_enableColorMask)
+    {
+        cvf::ref<cvf::RenderStateColorMask> color = new cvf::RenderStateColorMask(m_enableColorMask);
+        effect->setRenderState(color.p());
+    }
+
+    if (!m_enableDepthTest || !m_enableDepthWrite)
     {
         cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
-        depth->enableDepthWrite(false);
+        depth->enableDepthTest(m_enableDepthTest);
+        depth->enableDepthWrite(m_enableDepthWrite);
         effect->setRenderState(depth.p());
     }
 }
@@ -390,11 +401,13 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
 
     if (otherSurfaceEffect)
     {
-        if (m_color == otherSurfaceEffect->m_color 
+        if (m_color == otherSurfaceEffect->m_color
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
+            && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces
+            && m_enableColorMask == otherSurfaceEffect->m_enableColorMask
+            && m_enableDepthTest == otherSurfaceEffect->m_enableDepthTest
             && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
-            && m_enableLighting == otherSurfaceEffect->m_enableLighting
-            && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
+            && m_enableLighting == otherSurfaceEffect->m_enableLighting)
         {
             return true;
         }
@@ -410,6 +423,8 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 {
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
+    effGen->m_enableColorMask = m_enableColorMask;
+    effGen->m_enableDepthTest = m_enableDepthTest;
     effGen->m_enableDepthWrite = m_enableDepthWrite;
     effGen->m_enableLighting = m_enableLighting;
     return effGen;

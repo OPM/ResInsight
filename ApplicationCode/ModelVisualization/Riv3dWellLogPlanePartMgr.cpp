@@ -240,6 +240,14 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     caf::MeshEffectGenerator    gridBorderEffectGen(gridColor);
     caf::VectorEffectGenerator  curveNormalsEffectGen;
     backgroundEffectGen.enableLighting(false);
+    
+    if (!showBackground)
+    {
+        // Make the background invisible but still present for picking.
+        backgroundEffectGen.enableColorMask(false);
+        backgroundEffectGen.enableDepthTest(false);
+        backgroundEffectGen.enableDepthWrite(false);
+    }
 
     bool gridCreated = m_3dWellLogGridGeometryGenerator->createGrid(displayCoordTransform,
         wellPathClipBoundingBox,
@@ -255,7 +263,7 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
     
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogGridGeometryGenerator->background();
     cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
-    if (showBackground && background.notNull())
+    if (background.notNull())
     {
         cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());
         if (part.notNull())
@@ -265,7 +273,8 @@ void Riv3dWellLogPlanePartMgr::appendGridToModel(cvf::ModelBasicList*           
         }
     }
 
-    if (showGrid) {
+    if (showGrid)
+    {
         cvf::ref<cvf::DrawableGeo> border = m_3dWellLogGridGeometryGenerator->border();
         if (border.notNull())
         {

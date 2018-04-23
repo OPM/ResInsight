@@ -134,6 +134,9 @@ public:
     SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
 
     void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+
+    void                            enableColorMask(bool enableColors)          { m_enableColorMask = enableColors; }
+    void                            enableDepthTest(bool enableTest)            { m_enableDepthTest = enableTest; }
     void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
     void                            enableLighting(bool enableLighting)         { m_enableLighting = enableLighting; }
 
@@ -151,6 +154,8 @@ private:
     cvf::Color4f    m_color;
     PolygonOffset   m_polygonOffset;
     FaceCulling     m_cullBackfaces;
+    bool            m_enableColorMask;
+    bool            m_enableDepthTest;
     bool            m_enableDepthWrite;
     bool            m_enableLighting;
 };
