@@ -102,19 +102,25 @@ private:
 class RicSummaryCaseRestartDialogResult
 {
 public:
-    RicSummaryCaseRestartDialogResult() :
-        ok(false),
+    enum Status
+    {
+        OK = 0,
+        CANCELLED = 1,
+        ERROR = 2
+    };
+    RicSummaryCaseRestartDialogResult(Status _status = ERROR) :
+        status(_status),
         summaryImportOption(RicSummaryCaseRestartDialog::IMPORT_ALL),
         gridImportOption(RicSummaryCaseRestartDialog::NOT_IMPORT),
         applyToAll(false) {}
 
-    RicSummaryCaseRestartDialogResult(bool _ok,
+    RicSummaryCaseRestartDialogResult(Status _status,
                                       RicSummaryCaseRestartDialog::ImportOptions _summaryImportOption,
                                       RicSummaryCaseRestartDialog::ImportOptions _gridImportOption,
                                       QStringList _summaryFiles,
                                       QStringList _gridFiles,
                                       bool _applyToAll) :
-        ok(_ok),
+        status(_status),
         summaryImportOption(_summaryImportOption),
         gridImportOption(_gridImportOption),
         summaryFiles(_summaryFiles),
@@ -123,7 +129,7 @@ public:
     {
     }
 
-    bool                                                ok;
+    Status                                              status;
     RicSummaryCaseRestartDialog::ImportOptions          summaryImportOption;
     RicSummaryCaseRestartDialog::ImportOptions          gridImportOption;
     QStringList                                         summaryFiles;

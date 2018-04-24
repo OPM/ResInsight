@@ -73,15 +73,18 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     if (fileNames.isEmpty()) return;
 
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames))
+    std::vector<RimSummaryCase*> newCases;
+    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
     {
-        for(const auto& fileName : fileNames) RiaApplication::instance()->addToRecentFiles(fileName);
+        for (const RimSummaryCase* newCase : newCases)
+        {
+            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
+        }
     }
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
-
-    if (cases.size() == 0)
+    if (cases.size() == 0 && !newCases.empty())
     {
         RiuMainWindow::instance()->close();
     }

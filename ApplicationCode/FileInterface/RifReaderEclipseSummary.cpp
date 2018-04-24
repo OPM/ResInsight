@@ -147,18 +147,6 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const Q
     currFile.fileName = headerFileName;
     while(!currFile.fileName.isEmpty())
     {
-        QString prevFile = currFile.fileName;
-
-        currFile = getRestartFile(currFile.fileName);
-
-        // Fix to stop potential infinite loop
-        if (currFile.fileName == prevFile)
-        {
-            m_warnings.push_back("RifReaderEclipseSummary: Restart file reference loop detected");
-            *hasWarnings = true;
-            break;
-        }
-
         // Due to a weakness in libecl regarding restart summary header file selection,
         // do some extra checking
         {
@@ -187,6 +175,17 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const Q
                     break;
                 }
             }
+            QString prevFile = currFile.fileName;
+            currFile = getRestartFile(currFile.fileName);
+
+            // Fix to stop potential infinite loop
+            if (currFile.fileName == prevFile)
+            {
+                m_warnings.push_back("RifReaderEclipseSummary: Restart file reference loop detected");
+                *hasWarnings = true;
+                break;
+            }
+
         }
 
         if (!currFile.fileName.isEmpty())

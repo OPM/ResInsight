@@ -41,22 +41,26 @@ public:
     RifSummaryCaseRestartSelector();
     ~RifSummaryCaseRestartSelector();
 
-    bool        getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
-    bool        getFilesToImportFromGridFiles(const QStringList& initialGridFiles);
+    void determineFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
+    void determineFilesToImportFromGridFiles(const QStringList& initialGridFiles);
 
     void                                showDialog(bool show)               { m_showDialog = show; }
     std::vector<RifSummaryCaseFileInfo> summaryFileInfos() const            { return m_summaryFileInfos; }
     QStringList                         gridCaseFiles() const               { return m_gridFiles; }
+    bool                                foundErrors() const;
+    const QStringList&                  summaryFilesWithErrors() const;
+    QString                             createCombinedErrorMessage() const;
+
 
     static QStringList  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
     static QString      getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
-    bool                getFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
+    void                determineFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
 
-    bool                getFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
+    void                determineFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
                                                      bool enableApplyToAllField);
-    bool                getFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
+    void                determineFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
 
     bool                                                m_showDialog;
     RicSummaryCaseRestartDialog::ImportOptions          m_defaultSummaryImportMode;
@@ -64,6 +68,7 @@ private:
 
     std::vector<RifSummaryCaseFileInfo>                 m_summaryFileInfos;
     QStringList                                         m_gridFiles;
+    QStringList                                         m_summaryFileErrors;
 };
 
 //==================================================================================================

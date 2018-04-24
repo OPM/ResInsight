@@ -26,6 +26,7 @@
 #include "RicSummaryCaseRestartDialog.h"
 
 #include "RifEclipseSummaryTools.h"
+#include "RifReaderEclipseSummary.h"
 
 #include <string>
 #include <assert.h>
@@ -85,53 +86,57 @@ RifSummaryCaseRestartSelector::~RifSummaryCaseRestartSelector()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseRestartSelector::getFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles)
+void RifSummaryCaseRestartSelector::determineFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles)
 {
     std::vector<std::pair<QString, QString>> files;
     for (QString f : initialSummaryFiles)
     {
         files.push_back(std::make_pair(f, ""));
     }
-    return getFilesToImport(files);
+    determineFilesToImport(files);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseRestartSelector::getFilesToImportFromGridFiles(const QStringList& initialGridFiles)
+void RifSummaryCaseRestartSelector::determineFilesToImportFromGridFiles(const QStringList& initialGridFiles)
 {
     std::vector<std::pair<QString, QString>>    files;
     for (QString f : initialGridFiles)
     {
         files.push_back(std::make_pair(getSummaryFileFromGridFile(f), f));
     }
-    return getFilesToImport(files);
+    determineFilesToImport(files);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseRestartSelector::getFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles)
+void RifSummaryCaseRestartSelector::determineFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles)
 {
     std::vector<RifSummaryCaseFileInfo> fileInfos;
     if (m_showDialog)
     {
         bool enableApplyToAllField = initialFiles.size() > 1;
-        return getFilesToImportByAskingUser(initialFiles, enableApplyToAllField);
+        determineFilesToImportByAskingUser(initialFiles, enableApplyToAllField);
     }
     else
     {
-        return getFilesToImportUsingPrefs(initialFiles);
+        determineFilesToImportUsingPrefs(initialFiles);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
-                                                                                                bool enableApplyToAllField)
+void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
+                                                                       bool enableApplyToAllField)
 {
     RicSummaryCaseRestartDialogResult lastResult;
+
+    m_summaryFileInfos.clear();
+    m_gridFiles.clear();
+    m_summaryFileErrors.clear();
 
     for (const std::pair<QString, QString>& initialFile : initialFiles)
     {
@@ -140,8 +145,9 @@ bool RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const std::vect
                                                                                            m_defaultSummaryImportMode,
                                                                                            m_defaultGridImportMode,
                                                                                            &lastResult);
-        if (result.ok)
+        switch (result.status)
         {
+        case RicSummaryCaseRestartDialogResult::OK:
             for (const QString& file : result.summaryFiles)
             {
                 RifSummaryCaseFileInfo fi(file, result.summaryImportOption == RicSummaryCaseRestartDialog::IMPORT_ALL);
@@ -156,54 +162,76 @@ bool RifSummaryCaseRestartSelector::getFilesToImportByAskingUser(const std::vect
             {
                 m_gridFiles.push_back(gridFile);
             }
-        }
-        else
+            break;
+        case RicSummaryCaseRestartDialogResult::ERROR:
         {
+            // An error occurred with one of the files. The others may still have worked.
+            m_summaryFileErrors.push_back(initialFile.first);
+            break;
+        }
+        case RicSummaryCaseRestartDialogResult::CANCELLED:
             // Cancel pressed, cancel everything
             m_summaryFileInfos.clear();
             m_gridFiles.clear();
-            return false;
+            m_summaryFileErrors.clear();
         }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles)
+void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles)
 {
     RicSummaryCaseRestartDialogResult lastResult;
 
+    m_summaryFileInfos.clear();
     m_gridFiles.clear();
+    m_summaryFileErrors.clear();
 
     for (const std::pair<QString, QString>& initialFile : initialFiles)
     {
         QString initialSummaryFile = RiaFilePathTools::toInternalSeparator(initialFile.first);
         QString initialGridFile = RiaFilePathTools::toInternalSeparator(initialFile.second);
-        bool handleGridFile = !initialGridFile.isEmpty();
+        bool handleSummaryFile = false;
+        bool handleGridFile = !initialGridFile.isEmpty();        
 
-        if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL)
-        {
-            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, true));
-        }
-        else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT)
-        {
-            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
-        }
-        else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
-        {
-            m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
-
-            RifReaderEclipseSummary reader;
-            bool hasWarnings = false;
-            std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
-            for (const auto& rfi : restartFileInfos)
+        RifReaderEclipseSummary reader;
+        if (!initialSummaryFile.isEmpty())
+        {            
+            RifRestartFileInfo fileInfo = reader.getFileInfo(initialSummaryFile);
+            if (!fileInfo.valid())
             {
-                RifSummaryCaseFileInfo fi(rfi.fileName, false);
-                if (!vectorContains(m_summaryFileInfos, fi))
+                m_summaryFileErrors.push_back(initialSummaryFile);
+            }
+            else
+            {
+                handleSummaryFile = true;
+            }
+        }
+        
+        if (handleSummaryFile)
+        {
+            if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL)
+            {
+                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, true));
+            }
+            else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT)
+            {
+                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+            }
+            else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
+            {
+                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+                bool hasWarnings = false;
+                std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
+                for (const auto& rfi : restartFileInfos)
                 {
-                    m_summaryFileInfos.push_back(fi);
+                    RifSummaryCaseFileInfo fi(RiaFilePathTools::toInternalSeparator(rfi.fileName), false);
+                    if (!vectorContains(m_summaryFileInfos, fi))
+                    {
+                        m_summaryFileInfos.push_back(fi);
+                    }
                 }
             }
         }
@@ -231,9 +259,46 @@ bool RifSummaryCaseRestartSelector::getFilesToImportUsingPrefs(const std::vector
                     for (const QString& warning : reader.warnings()) RiaLogging::error(warning);
                 }
             }
+        }        
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifSummaryCaseRestartSelector::foundErrors() const
+{
+    return !m_summaryFileErrors.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QStringList& RifSummaryCaseRestartSelector::summaryFilesWithErrors() const
+{
+    return m_summaryFileErrors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RifSummaryCaseRestartSelector::createCombinedErrorMessage() const
+{
+    QString errorMessage;
+    if (!m_summaryFileErrors.empty())
+    {
+        errorMessage = QString("Failed to import the following summary file");
+        if (m_summaryFileErrors.size() > 1)
+        {
+            errorMessage += QString("s");
+        }
+        errorMessage += QString(":\n");
+        for (const QString& fileWarning : m_summaryFileErrors)
+        {
+            errorMessage += fileWarning + QString("\n");
         }
     }
-    return true;
+    return errorMessage;
 }
 
 //--------------------------------------------------------------------------------------------------

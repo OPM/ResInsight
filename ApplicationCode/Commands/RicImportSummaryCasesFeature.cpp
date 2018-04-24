@@ -19,6 +19,7 @@
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RicFileHierarchyDialog.h"
@@ -40,6 +41,7 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicImportSummaryCasesFeature, "RicImportSummaryCasesFeature");
 
@@ -116,16 +118,24 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     if (!sumCaseColl) return false;
 
     RifSummaryCaseRestartSelector       fileSelector;
-    std::vector<RifSummaryCaseFileInfo> importFileInfos;
-    if (fileSelector.getFilesToImportFromSummaryFiles(fileNames))
+    fileSelector.determineFilesToImportFromSummaryFiles(fileNames);
+
+    std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.summaryFileInfos();
+
+    if (!importFileInfos.empty())
     {
-        importFileInfos = fileSelector.summaryFileInfos();
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos);
+        if (newCases) newCases->insert(newCases->end(), sumCases.begin(), sumCases.end());
     }
 
-    std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos);
+    if (fileSelector.foundErrors())
+    {
+        QString errorMessage = fileSelector.createCombinedErrorMessage();
+        RiaLogging::error(errorMessage);
+        QMessageBox::warning(NULL, QString("Problem Importing Summary Case File(s)"), errorMessage);
+    }
 
-    if (newCases) newCases->insert(newCases->end(), sumCases.begin(), sumCases.end());
-    return true;
+    return !importFileInfos.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
