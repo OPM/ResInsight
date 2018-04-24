@@ -267,7 +267,7 @@ void RicFileHierarchyDialog::clearFileList()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::updateStatus(Status status, bool force)
+void RicFileHierarchyDialog::updateStatus(Status status, bool force, const QString& extraText)
 {
     static time_t lastStatusUpdate = 0;
     time_t now = time(nullptr);
@@ -284,6 +284,7 @@ void RicFileHierarchyDialog::updateStatus(Status status, bool force)
         else if (currStatus == WORKING_TEXT_1) newStatus = WORKING_TEXT_2;
         else if (currStatus == WORKING_TEXT_2) newStatus = WORKING_TEXT_3;
         else if (currStatus == WORKING_TEXT_3) newStatus = WORKING_TEXT_1;
+        newStatus += " " + extraText;
     }
     else if (status == NO_FILES_FOUND)
     {
@@ -309,7 +310,10 @@ QStringList RicFileHierarchyDialog::findMatchingFiles()
 {
     if (m_rootDir->text().isEmpty()) return QStringList();
 
-    const QStringList& dirs = buildDirectoryListRecursive(rootDir());
+    //const QStringList& dirs = buildDirectoryListRecursive(rootDir());
+    QStringList dirs;
+    buildDirectoryListRecursiveSimple(this->rootDir(), this->pathFilter(), &dirs );
+
     const QStringList& files = findFilesInDirs(dirs);
 
     for (const auto& file : files)
@@ -366,6 +370,116 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
     }
     return cancelPressed() ? QStringList() : allDirs;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& rootDir, 
+                                                               const QString& remainingPathFilter, 
+                                                               QStringList* accumulatedDirs)
+{
+    if (cancelPressed()) return;
+
+    QString currentRemainingpathFilter = remainingPathFilter;
+    {
+        // Remove prefixing or trailing path separators from filter
+
+        int pathSepIdx = currentRemainingpathFilter.indexOf(SEPARATOR);
+        while ( pathSepIdx == 0 )
+        {
+            currentRemainingpathFilter.remove(pathSepIdx, 1);
+            pathSepIdx = currentRemainingpathFilter.indexOf(SEPARATOR);
+        }
+
+        if ( currentRemainingpathFilter.endsWith(SEPARATOR) )
+        {
+            currentRemainingpathFilter.chop(1);
+        }
+    }
+
+    QString effectiveRootDir = rootDir;
+    {
+        // Remove trailing path separator from root
+        if ( effectiveRootDir.endsWith(SEPARATOR) )
+        {
+            effectiveRootDir.chop(1);
+        }
+    }
+
+    // Search pathfilter for the first wildcard. use the path up to that directory directly, short-cutting the search
+    {
+        std::set<int> sortedWildCardPositions;
+        sortedWildCardPositions.insert(currentRemainingpathFilter.indexOf("*"));
+        sortedWildCardPositions.insert(currentRemainingpathFilter.indexOf("?"));
+        sortedWildCardPositions.insert(currentRemainingpathFilter.indexOf("["));
+
+        int minWildCardPos = -1;
+        for ( int wildCardPos : sortedWildCardPositions )
+        {
+            if ( wildCardPos == -1 ) continue;
+
+            minWildCardPos = wildCardPos;
+            break;
+        }
+
+        if ( minWildCardPos == -1 )
+        {
+            effectiveRootDir += SEPARATOR + currentRemainingpathFilter;
+            currentRemainingpathFilter = "";
+            //(*accumulatedDirs) += effectiveRootDir;
+        }
+        else
+        {
+            int pathSepPos = currentRemainingpathFilter.indexOf(SEPARATOR);
+            while ( pathSepPos != -1 && pathSepPos < minWildCardPos )
+            {
+                effectiveRootDir += SEPARATOR + currentRemainingpathFilter.left(pathSepPos);
+                currentRemainingpathFilter.remove(0, pathSepPos + 1); // include the separator
+                minWildCardPos -= (pathSepPos + 1);
+                pathSepPos = currentRemainingpathFilter.indexOf(SEPARATOR);
+            }
+        }
+    }
+
+    // Find the filter to use for this directory level 
+    // Assumes no prefixed path separator
+
+    QStringList subDirsFullPath;
+    {
+        int pathSepIdx = currentRemainingpathFilter.indexOf(SEPARATOR);
+        QString currentDirNameFilter = currentRemainingpathFilter.left(pathSepIdx);
+        
+        if ( pathSepIdx == -1 ) 
+        {
+            currentRemainingpathFilter = "";
+        }
+        else
+        {
+            currentRemainingpathFilter.remove(0, pathSepIdx);
+        }
+
+        if ( currentDirNameFilter.isEmpty() ) currentDirNameFilter = "*";
+
+        QDir qdir(effectiveRootDir, currentDirNameFilter, QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot);
+        QStringList subDirs = qdir.entryList();
+
+
+        for ( const QString& subDir : subDirs )
+        {
+            QString fullPath = qdir.absoluteFilePath(subDir);
+            subDirsFullPath += fullPath;
+            (*accumulatedDirs) += fullPath;
+        }
+    }
+
+    for (const QString& subDir : subDirsFullPath)
+    {
+        updateStatus(WORKING, true, subDir);
+        QApplication::processEvents();
+        buildDirectoryListRecursiveSimple(subDir, currentRemainingpathFilter, accumulatedDirs);
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

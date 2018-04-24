@@ -62,12 +62,16 @@ private:
     bool        cancelPressed() const;
     void        appendToFileList(const QString& fileName);
     void        clearFileList();
-    void        updateStatus(Status status, bool force = false);
+    void        updateStatus(Status status, bool force = false,  const QString& extraText = "");
     QString     currentStatus() const;
 
     QStringList findMatchingFiles();
 
     QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
+    void buildDirectoryListRecursiveSimple(const QString& rootDir,
+                                           const QString& remainingPathFilter,
+                                           QStringList* accumulatedDirs);
+
 
     QStringList findFilesInDirs(const QStringList& dirs);
 
