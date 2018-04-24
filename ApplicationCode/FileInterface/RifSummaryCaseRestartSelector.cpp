@@ -28,6 +28,8 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
 
+#include "cafProgressInfo.h"
+
 #include <string>
 #include <assert.h>
 
@@ -166,7 +168,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
     m_summaryFileInfos.clear();
     m_gridFiles.clear();
     m_summaryFileErrors.clear();
-
+    
+    caf::ProgressInfo progress(initialFiles.size(), QString("Importing files"));
     for (const RifSummaryCaseFileImportInfo& initialFile : initialFiles)
     {
         RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog(initialFile.summaryFileName(),
@@ -176,8 +179,6 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
                                                                                            m_defaultSummaryImportMode,
                                                                                            m_defaultGridImportMode,
                                                                                            &lastResult);
-
-        lastResult = result;
 
         if (result.status == RicSummaryCaseRestartDialogResult::CANCELLED)
         {
@@ -206,14 +207,17 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
             }
         }
 
-        if (result.status == RicSummaryCaseRestartDialogResult::OK ||
-            result.status == RicSummaryCaseRestartDialogResult::SUMMARY_FILE_WARNING)
+        if (result.status != RicSummaryCaseRestartDialogResult::ERROR)
         {
+            lastResult = result;
+
             for (const QString& gridFile : result.gridFiles)
             {
                 m_gridFiles.push_back(gridFile);
             }
         }
+
+        progress.incrementProgress();
     }
 }
 
@@ -228,6 +232,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(const std::
     m_gridFiles.clear();
     m_summaryFileErrors.clear();
 
+    caf::ProgressInfo progress(initialFiles.size(), QString("Importing files"));
     for (const RifSummaryCaseFileImportInfo& initialFile : initialFiles)
     {
         QString initialSummaryFile = RiaFilePathTools::toInternalSeparator(initialFile.summaryFileName());
@@ -302,7 +307,9 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(const std::
                     for (const QString& warning : reader.warnings()) RiaLogging::error(warning);
                 }
             }
-        }        
+        }
+        
+        progress.incrementProgress();
     }
 }
 
