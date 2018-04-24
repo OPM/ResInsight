@@ -599,26 +599,6 @@ void RiuMainWindow::createDockPanels()
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
     }
     
-/*
-    {
-        QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
-
-        m_undoView = new QUndoView(this);
-        m_undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
-        //connect(caf::CmdExecCommandManager::instance()->undoStack(), SIGNAL(indexChanged(int)), SLOT(slotIndexChanged()));
-
-        dockWidget->setWidget(m_undoView);
-
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-
-        dockWidget->hide();
-
-        //m_windowsMenu->addAction(dockWidget->toggleViewAction());
-    }
-*/
-
     QDockWidget* resultPlotDock = nullptr;
     QDockWidget* relPermPlotDock = nullptr;
     QDockWidget* pvtPlotDock = nullptr;
@@ -677,6 +657,8 @@ void RiuMainWindow::createDockPanels()
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
         mohrsCirclePlotDock = dockPanel;
+
+        dockPanel->hide();
     }
 #endif
  
