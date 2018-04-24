@@ -582,7 +582,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
-    RimViewWindow::initAfterRead();
+    RimGridView::initAfterRead();
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();

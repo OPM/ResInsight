@@ -271,6 +271,27 @@ Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGridView::initAfterRead()
+{
+    RimViewWindow::initAfterRead();
+
+    RimProject* proj = nullptr;
+    firstAncestorOrThisOfType(proj);
+    if (proj && proj->isProjectFileVersionEqualOrOlderThan("2018.1.1"))
+    {
+        // For version prior to 2018.1.1 : Grid visualization mode was derived from surfaceMode and meshMode
+        // Current : Grid visualization mode is directly defined by m_gridCollection->isActive
+        // This change was introduced in https://github.com/OPM/ResInsight/commit/f7bfe8d0
+
+        bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RimGridView::FULL_MESH));
+
+        m_gridCollection->isActive = isGridVisualizationModeBefore_2018_1_1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGridView::onTimeStepChanged()
 {
     if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())

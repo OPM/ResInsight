@@ -59,7 +59,7 @@ public:
     virtual bool                                      isGridVisualizationMode() const override;
 
 protected:
-                                                      
+    virtual void                                      initAfterRead() override;
     virtual void                                      onTimeStepChanged() override;
     virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
     virtual void                                      selectOverlayInfoConfig() override;

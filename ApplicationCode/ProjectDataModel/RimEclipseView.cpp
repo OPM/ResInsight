@@ -857,7 +857,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::initAfterRead()
 {
-    RimViewWindow::initAfterRead();
+    RimGridView::initAfterRead();
 
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
