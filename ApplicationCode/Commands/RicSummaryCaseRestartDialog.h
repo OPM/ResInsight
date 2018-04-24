@@ -52,7 +52,9 @@ public:
     RicSummaryCaseRestartDialog(QWidget* parent);
     ~RicSummaryCaseRestartDialog();
 
-    static RicSummaryCaseRestartDialogResult    openDialog(const std::pair<QString /*sum*/, QString /*grid*/>& initialFiles,
+    static RicSummaryCaseRestartDialogResult    openDialog(const QString& initialSummaryFile,
+                                                           const QString& initialGridFile,
+                                                           bool failOnSummaryImportError,
                                                            bool showApplyToAllWidget,
                                                            ImportOptions defaultSummaryImportOption,
                                                            ImportOptions defaultGridImportOption,
@@ -106,7 +108,8 @@ public:
     {
         OK = 0,
         CANCELLED = 1,
-        ERROR = 2
+        SUMMARY_FILE_WARNING = 2,
+        ERROR = 3
     };
     RicSummaryCaseRestartDialogResult(Status _status = ERROR) :
         status(_status),

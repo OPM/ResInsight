@@ -26,10 +26,9 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 class RifSummaryCaseFileInfo;
-
+class RifSummaryCaseFileImportInfo;
 
 //==================================================================================================
 //
@@ -56,19 +55,17 @@ public:
     static QString      getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
-    void                determineFilesToImport(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
+    void determineFilesToImport(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
+    void determineFilesToImportByAskingUser(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles, bool enableApplyToAllField);
+    void determineFilesToImportUsingPrefs(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
 
-    void                determineFilesToImportByAskingUser(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles,
-                                                     bool enableApplyToAllField);
-    void                determineFilesToImportUsingPrefs(const std::vector<std::pair<QString /*sum*/, QString /*grid*/>>& initialFiles);
+    bool                                       m_showDialog;
+    RicSummaryCaseRestartDialog::ImportOptions m_defaultSummaryImportMode;
+    RicSummaryCaseRestartDialog::ImportOptions m_defaultGridImportMode;
 
-    bool                                                m_showDialog;
-    RicSummaryCaseRestartDialog::ImportOptions          m_defaultSummaryImportMode;
-    RicSummaryCaseRestartDialog::ImportOptions          m_defaultGridImportMode;
-
-    std::vector<RifSummaryCaseFileInfo>                 m_summaryFileInfos;
-    QStringList                                         m_gridFiles;
-    QStringList                                         m_summaryFileErrors;
+    std::vector<RifSummaryCaseFileInfo>        m_summaryFileInfos;
+    QStringList                                m_gridFiles;
+    QStringList                                m_summaryFileErrors;
 };
 
 //==================================================================================================
@@ -85,4 +82,22 @@ public:
 
     bool operator<(const RifSummaryCaseFileInfo& other) const { return fileName < other.fileName; }
     bool operator==(const RifSummaryCaseFileInfo& other) const { return fileName == other.fileName; }
+};
+
+//==================================================================================================
+///  
+//==================================================================================================
+class RifSummaryCaseFileImportInfo
+{
+public:
+    RifSummaryCaseFileImportInfo(const QString& summaryFileName, const QString& gridFileName, bool failOnSummaryFileImportError = false);
+
+    const QString& summaryFileName() const;
+    const QString& gridFileName() const;
+    bool           failOnSummaryFileError() const;
+
+private:
+    QString m_summaryFileName;
+    QString m_gridFileName;
+    bool    m_failOnSummaryFileImportError;
 };

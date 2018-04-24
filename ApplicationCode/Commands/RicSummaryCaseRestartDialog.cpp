@@ -193,22 +193,48 @@ RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const std::pair<QString /*sum*/, QString /*grid*/>& initialFiles,
-                                                                          bool showApplyToAllWidget,
-                                                                          ImportOptions defaultSummaryImportOption,
-                                                                          ImportOptions defaultGridImportOption,
-                                                                          RicSummaryCaseRestartDialogResult *lastResult,
-                                                                          QWidget *parent)
+RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& initialSummaryFile,
+                                                                          const QString& initialGridFile,
+                                                                          bool           failOnSummaryImportError,
+                                                                          bool           showApplyToAllWidget,
+                                                                          ImportOptions  defaultSummaryImportOption,
+                                                                          ImportOptions  defaultGridImportOption,
+                                                                          RicSummaryCaseRestartDialogResult* lastResult,
+                                                                          QWidget*                           parent)
 {
     RicSummaryCaseRestartDialog  dialog(parent);
-    QString initialSummaryFile = initialFiles.first;
-    QString initialGridFile = initialFiles.second;
+    bool handleSummaryFile = false;
+
+    RifRestartFileInfo currentFileInfo;
+    if (!initialSummaryFile.isEmpty())
+    {
+        currentFileInfo = dialog.getFileInfo(initialSummaryFile);
+
+        if (!currentFileInfo.valid())
+        {
+            if (failOnSummaryImportError)
+            {
+                return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::ERROR);
+            }
+        }
+        else
+        {
+            handleSummaryFile = true;
+        }
+    }
+
     bool handleGridFile = !initialGridFile.isEmpty();
 
     // If only grid file is present, return
-    if (initialSummaryFile.isEmpty() && !initialGridFile.isEmpty())
+    if (!handleSummaryFile && !initialGridFile.isEmpty())
     {
-        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::OK,
+        RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::OK;
+        if (!initialSummaryFile.isEmpty())
+        {
+            // We were meant to have a summary file but due to an error we don't.
+            status = RicSummaryCaseRestartDialogResult::SUMMARY_FILE_WARNING;
+        }
+        return RicSummaryCaseRestartDialogResult(status,
                                                  defaultSummaryImportOption,
                                                  defaultGridImportOption,
                                                  {},
@@ -216,11 +242,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                  lastResult && lastResult->applyToAll);
     }
 
-    RifRestartFileInfo currentFileInfo = dialog.getFileInfo(initialSummaryFile);
-    if (!currentFileInfo.valid())
-    {
-        return RicSummaryCaseRestartDialogResult();
-    }
+  
 
     RifReaderEclipseSummary reader;
     bool hasWarnings = false;
@@ -311,6 +333,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialog.exec();
 
         RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::OK;
+
         if (dialog.result() == QDialog::Rejected)
         {
             status = RicSummaryCaseRestartDialogResult::CANCELLED;
