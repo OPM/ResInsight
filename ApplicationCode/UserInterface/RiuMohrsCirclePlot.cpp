@@ -97,28 +97,25 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::appendSelection(const RiuSelectionItem* selectionItem)
 {
-    const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
-
-    m_sourceGeoMechViewOfLastPlot = nullptr;
-
-    if (!geoMechSelectionItem)
-    {
-        return;
-    }
-
-    RimGeoMechView* geoMechView = geoMechSelectionItem->m_view;
-    CVF_ASSERT(geoMechView);
-
     if (this->isVisible())
     {
-        const size_t       gridIndex = geoMechSelectionItem->m_gridIndex;
-        const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
-        const cvf::Color3f color     = geoMechSelectionItem->m_color;
+        m_sourceGeoMechViewOfLastPlot = nullptr;
 
-        queryData(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
-        updatePlot();
+        const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
+        if (geoMechSelectionItem)
+        {
+            RimGeoMechView* geoMechView = geoMechSelectionItem->m_view;
+            CVF_ASSERT(geoMechView);
 
-        m_sourceGeoMechViewOfLastPlot = geoMechView;
+            const size_t       gridIndex = geoMechSelectionItem->m_gridIndex;
+            const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
+            const cvf::Color3f color     = geoMechSelectionItem->m_color;
+
+            queryData(geoMechView, gridIndex, cellIndex, cvf::Color3ub(color));
+            updatePlot();
+
+            m_sourceGeoMechViewOfLastPlot = geoMechView;
+        }
     }
     else
     {
@@ -132,6 +129,8 @@ void RiuMohrsCirclePlot::appendSelection(const RiuSelectionItem* selectionItem)
 void RiuMohrsCirclePlot::clearPlot()
 {
     deletePlotItems();
+
+    m_sourceGeoMechViewOfLastPlot = nullptr;
 
     this->replot();
 }
