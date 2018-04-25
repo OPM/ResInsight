@@ -33,8 +33,8 @@ namespace caf
     void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
     {
         addItem(RiaPreferences::IMPORT, "IMPORT", "Unified");
-        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
         addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases");
+        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
         setDefault(RiaPreferences::IMPORT);
     }
 }
