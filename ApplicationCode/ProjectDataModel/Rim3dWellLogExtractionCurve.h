@@ -41,8 +41,9 @@ public:
     Rim3dWellLogExtractionCurve();
     virtual ~Rim3dWellLogExtractionCurve();
 
-    void         setPropertiesFromView(Rim3dView* view);
-    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void            setPropertiesFromView(Rim3dView* view);
+    virtual QString resultPropertyString() const override;
+    virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,

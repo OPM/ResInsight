@@ -40,7 +40,7 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 {
     CAF_PDM_InitObject("3d Well Log File Curve", ":/WellLogCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
 
@@ -71,8 +71,8 @@ void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 
         if (!fileLogs.empty())
         {
-            m_wellLogChannnelName = fileLogs[0]->name();
-            m_name                = "LAS: " + m_wellLogChannnelName;
+            m_wellLogChannelName = fileLogs[0]->name();
+            m_name                = "LAS: " + m_wellLogChannelName;
         }
     }
 }
@@ -90,10 +90,18 @@ void Rim3dWellLogFileCurve::curveValuesAndMds(std::vector<double>* values, std::
         RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
         if (wellLogFile)
         {
-            *values              = wellLogFile->values(m_wellLogChannnelName);
+            *values              = wellLogFile->values(m_wellLogChannelName);
             *measuredDepthValues = wellLogFile->depthValues();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogFileCurve::resultPropertyString() const
+{
+    return m_wellLogChannelName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +111,7 @@ void Rim3dWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue)
 {
-    if (changedField == &m_wellLogFile || changedField == &m_wellLogChannnelName)
+    if (changedField == &m_wellLogFile || changedField == &m_wellLogChannelName)
     {
         this->resetMinMaxValuesAndUpdateUI();
     }
@@ -122,7 +130,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions(const
 
     if (!options.empty()) return options;
 
-    if (fieldNeedingOptions == &m_wellLogChannnelName)
+    if (fieldNeedingOptions == &m_wellLogChannelName)
     {
         if (m_wellLogFile)
         {
@@ -166,7 +174,7 @@ void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_wellLogFile);
-    curveDataGroup->add(&m_wellLogChannnelName);
+    curveDataGroup->add(&m_wellLogChannelName);
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 

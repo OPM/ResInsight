@@ -79,6 +79,14 @@ void Rim3dWellLogRftCurve::curveValuesAndMds(std::vector<double>* values, std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogRftCurve::resultPropertyString() const
+{
+    return caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(m_wellLogChannelName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue)

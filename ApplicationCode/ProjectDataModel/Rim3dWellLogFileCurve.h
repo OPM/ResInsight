@@ -38,8 +38,9 @@ public:
     Rim3dWellLogFileCurve();
     virtual ~Rim3dWellLogFileCurve();
 
-    void         setDefaultFileCurveDataInfo();
-    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void            setDefaultFileCurveDataInfo();
+    virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    virtual QString resultPropertyString() const override;
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
@@ -54,5 +55,5 @@ private:
 
 private:
     caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmField<QString>            m_wellLogChannnelName;
+    caf::PdmField<QString>            m_wellLogChannelName;
 };

@@ -44,6 +44,8 @@ public:
 
     virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
 
+    virtual QString resultPropertyString() const override;
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                   const QVariant& oldValue,

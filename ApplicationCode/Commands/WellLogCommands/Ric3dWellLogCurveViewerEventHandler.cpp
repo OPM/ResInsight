@@ -21,6 +21,7 @@
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
+#include "RimWellPath.h"
 #include "RiuMainWindow.h"
 #include "RivObjectSourceInfo.h"
 
@@ -53,6 +54,9 @@ bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject
         Rim3dWellLogCurveCollection* curveCollection = dynamic_cast<Rim3dWellLogCurveCollection*>(sourceInfo->object());
         if (curveCollection)
         {
+            RimWellPath* wellPath;
+            curveCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+            QString wellPathName = wellPath->name();
             cvf::Vec3d closestPoint;
             double measuredDepthAtPoint;
             double valueAtPoint;
@@ -61,6 +65,14 @@ bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject
             if (curve)
             {
                 RiuMainWindow::instance()->selectAsCurrentItem(curve);
+
+                QString curveText;
+                curveText += QString("Curve name : %1\n").arg(curve->name());;
+                curveText += QString("Well path name: %1\n").arg(wellPathName);
+                curveText += QString("Measured depth: %1\n").arg(measuredDepthAtPoint);
+                curveText += QString("%1 at depth: %2\n").arg(curve->resultPropertyString()).arg(valueAtPoint);
+
+                RiuMainWindow::instance()->setResultInfo(curveText);
             }
             else
             {

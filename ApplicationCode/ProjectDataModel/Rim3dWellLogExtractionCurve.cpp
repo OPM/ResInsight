@@ -115,6 +115,14 @@ void Rim3dWellLogExtractionCurve::setPropertiesFromView(Rim3dView* view)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogExtractionCurve::resultPropertyString() const
+{
+    return m_eclipseResultDefinition->resultVariableUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogExtractionCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
 {
     CAF_ASSERT(values != nullptr);
