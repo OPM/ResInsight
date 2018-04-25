@@ -42,7 +42,7 @@ public:
     static bool createSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases);
     static void addSummaryCases(const std::vector<RimSummaryCase*> cases);
 
-    static std::vector<RimSummaryCase*> importSummaryCases(const QString& dialogTitle);
+    static QStringList runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle);
 
 protected:
     // Overrides

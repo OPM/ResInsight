@@ -60,15 +60,18 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication*                 app = RiaApplication::instance();
-
-    std::vector<RimSummaryCase*> cases = RicImportSummaryCasesFeature::importSummaryCases("Import Ensemble");
+    RiaApplication* app   = RiaApplication::instance();
+    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble");
     
-    if (cases.empty()) return;
-    validateEnsembleCases(cases);
+    if (fileNames.isEmpty()) return;
 
     QString ensembleName = askForEnsembleName();
     if (ensembleName.isEmpty()) return;
+
+    std::vector<RimSummaryCase*> cases;
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
+
+    validateEnsembleCases(cases);
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName);

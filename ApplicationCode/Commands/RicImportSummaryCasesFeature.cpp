@@ -65,9 +65,12 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication*                 app = RiaApplication::instance();
-    std::vector<RimSummaryCase*>    cases = importSummaryCases("Import Summary Cases");
+    RiaApplication* app   = RiaApplication::instance();
+    QStringList fileNames = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases");
     
+    std::vector<RimSummaryCase*> cases;
+    if (!fileNames.isEmpty()) createSummaryCasesFromFiles(fileNames, &cases);
+
     addSummaryCases(cases);
 
     for (const auto& rimCase : cases) RiaApplication::instance()->addToRecentFiles(rimCase->summaryHeaderFilename());
@@ -108,7 +111,8 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList& fileNames, std::vector<RimSummaryCase*>* newCases)
+bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList& fileNames, 
+                                                               std::vector<RimSummaryCase*>* newCases)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -161,7 +165,7 @@ void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicImportSummaryCasesFeature::importSummaryCases(const QString& dialogTitle)
+QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
@@ -177,15 +181,10 @@ std::vector<RimSummaryCase*> RicImportSummaryCasesFeature::importSummaryCases(co
     m_pathFilter = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if (!result.ok) return std::vector<RimSummaryCase*>();
+    if (!result.ok) return QStringList();
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(result.rootDir).absoluteFilePath());
 
-    QStringList fileNames = result.files;
-    if (fileNames.isEmpty()) return std::vector<RimSummaryCase*>();
-
-    std::vector<RimSummaryCase*> newCases;
-    createSummaryCasesFromFiles(fileNames, &newCases);
-    return newCases;
+    return result.files;
 }
