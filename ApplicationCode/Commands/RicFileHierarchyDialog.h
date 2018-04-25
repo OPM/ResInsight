@@ -40,7 +40,7 @@ class RicFileHierarchyDialog : public QDialog
 {
     Q_OBJECT
 
-    enum Status {WORKING, NO_FILES_FOUND};
+    enum Status {SEARCHING_FOR_DIRS, SEARCHING_FOR_FILES, NO_FILES_FOUND};
 
 public:
     RicFileHierarchyDialog(QWidget* parent);
@@ -62,7 +62,7 @@ private:
     bool        cancelPressed() const;
     void        appendToFileList(const QString& fileName);
     void        clearFileList();
-    void        updateStatus(Status status, bool force = false,  const QString& extraText = "");
+    void        updateStatus(Status status, const QString& extraText = "");
     QString     currentStatus() const;
 
     QStringList findMatchingFiles();

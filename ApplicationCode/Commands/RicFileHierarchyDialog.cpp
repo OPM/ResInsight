@@ -55,9 +55,8 @@
 #define FIND_BUTTON_FIND_TEXT       "Find"
 #define FIND_BUTTON_CANCEL_TEXT     "Cancel"
 #define NO_FILES_FOUND_TEXT         "No files found"
-#define WORKING_TEXT_1              "Working ."
-#define WORKING_TEXT_2              "Working .."
-#define WORKING_TEXT_3              "Working ..."
+#define SCANNING_DIRS_TEXT          "Scanning Directories"
+#define FINDING_FILES_TEXT          "Finding Files"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -246,10 +245,9 @@ bool RicFileHierarchyDialog::cancelPressed() const
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
-    if (currentStatus().startsWith(WORKING_TEXT_1)) clearFileList();
-
     QString itemText = fileName;
-    QListWidgetItem* item = new QListWidgetItem(itemText.remove(0, rootDir().size()), m_fileList);
+    itemText.remove(0, rootDir().size());
+    QListWidgetItem* item = new QListWidgetItem(itemText, m_fileList);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
 }
@@ -267,29 +265,38 @@ void RicFileHierarchyDialog::clearFileList()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::updateStatus(Status status, bool force, const QString& extraText)
+void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraText)
 {
+    static int progressLoopStep = 0;
     static time_t lastStatusUpdate = 0;
     time_t now = time(nullptr);
 
-    // If less than one second since last update, then return
-    if (!force && now == lastStatusUpdate) return;
-    lastStatusUpdate = now;
-
     QString newStatus;
-    if (status == WORKING)
+    if (status == SEARCHING_FOR_DIRS || status == SEARCHING_FOR_FILES )
     {
-        QString currStatus = currentStatus();
-        if (currStatus == "") newStatus = WORKING_TEXT_1;
-        else if (currStatus == WORKING_TEXT_1) newStatus = WORKING_TEXT_2;
-        else if (currStatus == WORKING_TEXT_2) newStatus = WORKING_TEXT_3;
-        else if (currStatus == WORKING_TEXT_3) newStatus = WORKING_TEXT_1;
-        newStatus += " " + extraText;
+        switch ( status )
+        {
+            case SEARCHING_FOR_DIRS: newStatus = SCANNING_DIRS_TEXT; break;
+            case SEARCHING_FOR_FILES: newStatus = FINDING_FILES_TEXT; break;
+        }
+
+        for (int progress = 0; progress < progressLoopStep; ++progress)
+        {
+            newStatus += " .";
+        }
+
+        if (now != lastStatusUpdate) progressLoopStep++;    // If less than one second since last update, do not increment
+        
+        if (progressLoopStep >= 5) progressLoopStep = 0;
+
+        if (!extraText.isEmpty()) newStatus += "\n" + extraText;
     }
     else if (status == NO_FILES_FOUND)
     {
         newStatus = NO_FILES_FOUND_TEXT;
     }
+
+    lastStatusUpdate = now;
 
     m_fileList->clear();
     new QListWidgetItem(newStatus, m_fileList);
@@ -318,8 +325,9 @@ QStringList RicFileHierarchyDialog::findMatchingFiles()
 
     buildDirectoryListRecursiveSimple(this->rootDir(), this->pathFilter(), &dirs);
 
-
     const QStringList& files = findFilesInDirs(dirs);
+
+    this->clearFileList();
 
     for (const auto& file : files)
     {
@@ -369,9 +377,10 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
     QStringList subDirs = qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (QString subDir : subDirs)
     {
-        updateStatus(WORKING);
+        QString subDirFullPath = qdir.absoluteFilePath(subDir);
+        updateStatus(SEARCHING_FOR_DIRS, subDirFullPath);
         QApplication::processEvents();
-        allDirs += buildDirectoryListRecursive(qdir.absoluteFilePath(subDir), level + 1);
+        allDirs += buildDirectoryListRecursive(subDirFullPath, level + 1);
     }
     return cancelPressed() ? QStringList() : allDirs;
 }
@@ -490,7 +499,7 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& ro
 
     for (const QString& subDir : subDirsFullPath)
     {
-        updateStatus(WORKING, true, subDir);
+        updateStatus(SEARCHING_FOR_DIRS, subDir);
         QApplication::processEvents();
         buildDirectoryListRecursiveSimple(subDir, currentRemainingpathFilter, accumulatedDirs);
     }
@@ -510,7 +519,7 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
         QDir qdir(dir);
         QStringList files = qdir.entryList(filters, QDir::Files);
 
-        updateStatus(WORKING);
+        updateStatus(SEARCHING_FOR_FILES, qdir.absolutePath());
         QApplication::processEvents();
 
         for (QString file : files)
@@ -694,7 +703,7 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
         }
         else if(m_files.isEmpty())
         {
-            updateStatus(NO_FILES_FOUND, true);
+            updateStatus(NO_FILES_FOUND);
         }
 
         setOkButtonEnabled(!m_files.isEmpty());
