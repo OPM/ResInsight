@@ -341,18 +341,17 @@ void RiuMohrsCirclePlot::deleteEnvelopes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::queryData(RimGeoMechView*      geoMechView,
-                                   size_t               gridIndex,
-                                   size_t               elmIndex,
-                                   const cvf::Color3ub& color)
+void RiuMohrsCirclePlot::queryData(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color)
 {
     CVF_ASSERT(geoMechView);
     m_sourceGeoMechViewOfLastPlot = geoMechView;
 
-    RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
+    RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
+    if (femPart->elementType(elmIndex) != HEX8P) return;
 
-    int                 frameIdx = geoMechView->currentTimeStep();
-    RigFemResultAddress address(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "");
+    int                          frameIdx         = geoMechView->currentTimeStep();
+    RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
+    RigFemResultAddress          address(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "");
 
     // TODO: All tensors are calculated every time this function is called. FIX
     std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(address, 0, frameIdx);
@@ -360,8 +359,6 @@ void RiuMohrsCirclePlot::queryData(RimGeoMechView*      geoMechView,
     {
         return;
     }
-
-    RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
 
     // Calculate average tensor in element
     caf::Ten3f tensorSumOfElmNodes = vertexTensors[femPart->elementNodeResultIdx((int)elmIndex, 0)];
@@ -384,13 +381,14 @@ void RiuMohrsCirclePlot::queryData(RimGeoMechView*      geoMechView,
     size_t i, j, k;
     femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
 
-    MohrsCirclesInfo mohrsCircle(principals, gridIndex, elmIndex, i, j, k, geoMechView, calculateFOS(principals, frictionAngleDeg, cohesion), color);
+    MohrsCirclesInfo mohrsCircle(
+        principals, gridIndex, elmIndex, i, j, k, geoMechView, calculateFOS(principals, frictionAngleDeg, cohesion), color);
 
     addMohrsCirclesInfo(mohrsCircle);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::updatePlot()
 {
@@ -578,7 +576,7 @@ void RiuMohrsCirclePlot::deletePlotItems()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::scheduleUpdateAxisScale()
 {
