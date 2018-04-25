@@ -1045,7 +1045,7 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
     
     if (geomView && geomView->geoMechCase())
     {
-        geomView->geoMechCase()->geoMechData()->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
+        geomView->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
     }
 }
 

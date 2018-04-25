@@ -78,7 +78,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
     if (!m_rimReservoirView->tensorResults()->showTensors()) return;
 
-    RigFemPartCollection* femParts = m_rimReservoirView->geoMechCase()->geoMechData()->femParts();
+    RigFemPartCollection* femParts = m_rimReservoirView->femParts();
     if (!femParts) return;
 
     std::vector<TensorVisualization> tensorVisualizations;

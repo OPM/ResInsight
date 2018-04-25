@@ -261,11 +261,11 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility(cvf::UByteArray* to
 {
     if (!m_geomechView->geoMechCase()) return;
 
-    size_t gridCount = m_geomechView->geoMechCase()->geoMechData()->femParts()->partCount();
+    size_t gridCount = m_geomechView->femParts()->partCount();
     
     if (gridCount == 0) return;
 
-    RigFemPart* part = m_geomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+    RigFemPart* part = m_geomechView->femParts()->part(0);
     int elmCount = part->elementCount();
 
     totalVisibility->resize(elmCount);

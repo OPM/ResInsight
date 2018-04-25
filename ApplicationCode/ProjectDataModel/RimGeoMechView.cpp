@@ -220,7 +220,7 @@ void RimGeoMechView::createDisplayModel()
 
    // Well path model
 
-   cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+   cvf::BoundingBox femBBox = femParts()->boundingBox();
 
    m_wellPathPipeVizModel->removeAllParts();
    addWellPathsToModel(m_wellPathPipeVizModel.p(), femBBox);
@@ -285,7 +285,7 @@ void RimGeoMechView::updateCurrentTimeStep()
                     cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                     wellPathModelBasicList->setName(name);
 
-                    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+                    cvf::BoundingBox femBBox = femParts()->boundingBox();
                     addDynamicWellPathsToModel(wellPathModelBasicList.p(), femBBox);
 
                     frameScene->addModel(wellPathModelBasicList.p());
@@ -528,6 +528,32 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
 
     return absLegendConfigs;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFemPartCollection* RimGeoMechView::femParts() const
+{
+    if (m_geomechCase && m_geomechCase->geoMechData())
+    {
+        return m_geomechCase->geoMechData()->femParts();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemPartCollection* RimGeoMechView::femParts()
+{
+    if (m_geomechCase && m_geomechCase->geoMechData())
+    {
+        return m_geomechCase->geoMechData()->femParts();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

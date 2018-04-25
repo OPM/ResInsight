@@ -590,15 +590,15 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     }
 
     if (masterGeomechView && masterGeomechView->geoMechCase()->geoMechData()
-        && masterGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+        && masterGeomechView->femParts()->partCount())
     {
-        masterFemPart = masterGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+        masterFemPart = masterGeomechView->femParts()->part(0);
     }
 
     if (dependGeomechView &&  dependGeomechView->geoMechCase()->geoMechData()
-        && dependGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+        && dependGeomechView->femParts()->partCount())
     {
-        dependFemPart = dependGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+        dependFemPart = dependGeomechView->femParts()->part(0);
     }
 
     // If we have the correct mapping already, return it.
@@ -839,7 +839,7 @@ bool RimViewController::isRangeFilterControlPossible() const
         if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
-            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+            RigFemPart* femPart = geomView->femParts()->part(0);
             
             if (eclGrid && femPart)
             {
@@ -871,7 +871,7 @@ bool RimViewController::isRangeFilterMappingApliccable() const
         if (eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->mainGrid();
-            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+            RigFemPart* femPart = geomView->femParts()->part(0);
 
             if (eclGrid && femPart)
             {
@@ -988,7 +988,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
                 if (eclipseMasterView->mainGrid())
                 {
                     RigMainGrid* srcEclGrid = eclipseMasterView->mainGrid();
-                    RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    RigFemPart* dstFemPart = depGeomView->femParts()->part(0);
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
                         RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
@@ -1002,7 +1002,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             {
                 if (depEclView->mainGrid())
                 {
-                    RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    RigFemPart* srcFemPart = geoMasterView->femParts()->part(0);
                     RigMainGrid* dstEclGrid = depEclView->mainGrid();
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {

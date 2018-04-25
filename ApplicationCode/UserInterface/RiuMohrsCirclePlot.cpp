@@ -346,7 +346,7 @@ void RiuMohrsCirclePlot::queryData(RimGeoMechView* geoMechView, size_t gridIndex
     CVF_ASSERT(geoMechView);
     m_sourceGeoMechViewOfLastPlot = geoMechView;
 
-    RigFemPart* femPart = geoMechView->geoMechCase()->geoMechData()->femParts()->part(gridIndex);
+    RigFemPart* femPart = geoMechView->femParts()->part(gridIndex);
     if (femPart->elementType(elmIndex) != HEX8P) return;
 
     int                          frameIdx         = geoMechView->currentTimeStep();

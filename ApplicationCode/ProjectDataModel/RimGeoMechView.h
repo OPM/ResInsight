@@ -32,17 +32,18 @@
 #include "cvfObject.h"
 
 class RigFemPart;
+class RigFemPartCollection;
 class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
-class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
+class RimGeoMechResultDefinition;
+class RimRegularLegendConfig;
 class RimTensorResults;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
-class RimRegularLegendConfig;
 class RivTensorResultPartMgr;
 
 namespace cvf {
@@ -94,6 +95,9 @@ public:
     RimTensorResults*                                   tensorResults();
 
     std::vector<RimLegendConfig*>                       legendConfigs() const override;
+
+    const RigFemPartCollection*                         femParts() const;
+    RigFemPartCollection*                               femParts();
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;

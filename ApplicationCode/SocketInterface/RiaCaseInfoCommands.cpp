@@ -616,7 +616,7 @@ public:
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
 
-                geomechItem->m_view->geoMechCase()->geoMechData()->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
                 gridIndex = geomechItem->m_gridIndex;
                 caseId = geomechItem->m_view->geoMechCase()->caseId;
             }
