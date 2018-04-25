@@ -166,7 +166,12 @@ std::vector<RimSummaryCase*> RicImportSummaryCasesFeature::importSummaryCases(co
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
+    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(nullptr, 
+                                                                                           dialogTitle, 
+                                                                                           defaultDir, 
+                                                                                           m_pathFilter, 
+                                                                                           m_fileNameFilter, 
+                                                                                           QStringList(".SMSPEC"));
 
     // Remember filters
     m_pathFilter = result.pathFilter;

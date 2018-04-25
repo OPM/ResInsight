@@ -159,12 +159,12 @@ RicFileHierarchyDialog::~RicFileHierarchyDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicFileHierarchyDialogResult RicFileHierarchyDialog::getOpenFileNames(QWidget *parent /*= 0*/,
-                                                                      const QString &caption /*= QString()*/,
-                                                                      const QString &dir /*= QString()*/,
-                                                                      const QString &pathFilter /*= QString()*/,
-                                                                      const QString &fileNameFilter /*= QString()*/,
-                                                                      const QStringList &fileExtensions /*= QStringList()*/)
+RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QWidget *parent /*= 0*/,
+                                                                              const QString &caption /*= QString()*/,
+                                                                              const QString &dir /*= QString()*/,
+                                                                              const QString &pathFilter /*= QString()*/,
+                                                                              const QString &fileNameFilter /*= QString()*/,
+                                                                              const QStringList &fileExtensions /*= QStringList()*/)
 {
     QStringList             files;
     RicFileHierarchyDialog  dialog(parent);

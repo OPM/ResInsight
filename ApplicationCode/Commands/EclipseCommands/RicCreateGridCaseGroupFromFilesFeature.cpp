@@ -50,7 +50,12 @@ void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::getOpenFileNames(nullptr, "Create Grid Case Group from Files", defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".EGRID"));
+    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(nullptr, 
+                                                                                           "Create Grid Case Group from Files", 
+                                                                                           defaultDir, 
+                                                                                           m_pathFilter, 
+                                                                                           m_fileNameFilter, 
+                                                                                           QStringList(".EGRID"));
 
     // Remember filters
     m_pathFilter = result.pathFilter;
