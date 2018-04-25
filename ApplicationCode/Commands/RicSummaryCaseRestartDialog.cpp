@@ -214,7 +214,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         {
             if (failOnSummaryImportError)
             {
-                return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::ERROR);
+                return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_ERROR);
             }
         }
         else
@@ -228,11 +228,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     // If only grid file is present, return
     if (!handleSummaryFile && !initialGridFile.isEmpty())
     {
-        RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::OK;
+        RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::SUMMARY_OK;
         if (!initialSummaryFile.isEmpty())
         {
             // We were meant to have a summary file but due to an error we don't.
-            status = RicSummaryCaseRestartDialogResult::SUMMARY_FILE_WARNING;
+            status = RicSummaryCaseRestartDialogResult::SUMMARY_WARNING;
         }
         return RicSummaryCaseRestartDialogResult(status,
                                                  defaultSummaryImportOption,
@@ -251,7 +251,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     // If no restart files are found and no warnings, do not show dialog
     if (originFileInfos.empty() &&!hasWarnings)
     {
-        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::OK, NOT_IMPORT, NOT_IMPORT, QStringList({ initialSummaryFile }), QStringList({ initialGridFile }), false);
+        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK, NOT_IMPORT, NOT_IMPORT, QStringList({ initialSummaryFile }), QStringList({ initialGridFile }), false);
     }
 
     RicSummaryCaseRestartDialogResult dialogResult;
@@ -332,11 +332,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
 
-        RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::OK;
+        RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::SUMMARY_OK;
 
         if (dialog.result() == QDialog::Rejected)
         {
-            status = RicSummaryCaseRestartDialogResult::CANCELLED;
+            status = RicSummaryCaseRestartDialogResult::SUMMARY_CANCELLED;
         }
 
         dialogResult = RicSummaryCaseRestartDialogResult(status,
@@ -347,7 +347,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                          dialog.applyToAllSelected());
     }
 
-    if (dialogResult.status != RicSummaryCaseRestartDialogResult::OK)
+    if (dialogResult.status != RicSummaryCaseRestartDialogResult::SUMMARY_OK)
     {
         return RicSummaryCaseRestartDialogResult(dialogResult.status, NOT_IMPORT, NOT_IMPORT, QStringList(), QStringList(), false);
     }

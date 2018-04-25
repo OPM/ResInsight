@@ -180,7 +180,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
                                                                                            m_defaultGridImportMode,
                                                                                            &lastResult);
 
-        if (result.status == RicSummaryCaseRestartDialogResult::CANCELLED)
+        if (result.status == RicSummaryCaseRestartDialogResult::SUMMARY_CANCELLED)
         {
             // Cancel pressed, cancel everything and return early
             m_summaryFileInfos.clear();
@@ -189,8 +189,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
             return;
         }        
         
-        if (result.status == RicSummaryCaseRestartDialogResult::ERROR ||
-            result.status == RicSummaryCaseRestartDialogResult::SUMMARY_FILE_WARNING)
+        if (result.status == RicSummaryCaseRestartDialogResult::SUMMARY_ERROR ||
+            result.status == RicSummaryCaseRestartDialogResult::SUMMARY_WARNING)
         {
             // A summary import failure occurred with one of the files. The others may still have worked.
             m_summaryFileErrors.push_back(initialFile.summaryFileName());
@@ -207,7 +207,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
             }
         }
 
-        if (result.status != RicSummaryCaseRestartDialogResult::ERROR)
+        if (result.status != RicSummaryCaseRestartDialogResult::SUMMARY_ERROR)
         {
             lastResult = result;
 

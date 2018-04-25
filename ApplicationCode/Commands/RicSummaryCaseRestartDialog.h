@@ -106,12 +106,12 @@ class RicSummaryCaseRestartDialogResult
 public:
     enum Status
     {
-        OK = 0,
-        CANCELLED = 1,
-        SUMMARY_FILE_WARNING = 2,
-        ERROR = 3
+        SUMMARY_OK = 0,
+        SUMMARY_CANCELLED,
+        SUMMARY_WARNING,
+        SUMMARY_ERROR
     };
-    RicSummaryCaseRestartDialogResult(Status _status = ERROR) :
+    RicSummaryCaseRestartDialogResult(Status _status = SUMMARY_ERROR) :
         status(_status),
         summaryImportOption(RicSummaryCaseRestartDialog::IMPORT_ALL),
         gridImportOption(RicSummaryCaseRestartDialog::NOT_IMPORT),
