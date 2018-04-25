@@ -129,7 +129,9 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
          
             RigFemPart* femPart = geomData->femParts()->part(m_gridIndex);
             int elementId = femPart->elmId(m_cellIndex);
-            text += QString("Element : Id[%1]").arg(elementId);
+            auto elementType = femPart->elementType(m_cellIndex);
+
+            text += QString("Element : Id[%1], Type[%2]").arg(elementId).arg(RigFemTypes::elementTypeText(elementType));
 
             size_t i = 0;
             size_t j = 0;
@@ -141,7 +143,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 j++;
                 k++;
 
-                cvf::Vec3d domainCoord = m_intersectionPoint; //  + geomCase->femParts()->displayModelOffset();
+                cvf::Vec3d domainCoord = m_intersectionPoint;
 
                 //cvf::StructGridInterface::FaceEnum faceEnum(m_face);
 
