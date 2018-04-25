@@ -311,8 +311,13 @@ QStringList RicFileHierarchyDialog::findMatchingFiles()
     if (m_rootDir->text().isEmpty()) return QStringList();
 
     //const QStringList& dirs = buildDirectoryListRecursive(rootDir());
+
     QStringList dirs;
-    buildDirectoryListRecursiveSimple(this->rootDir(), this->pathFilter(), &dirs );
+
+    if ( this->pathFilter().isEmpty() ) dirs.append(this->rootDir());
+
+    buildDirectoryListRecursiveSimple(this->rootDir(), this->pathFilter(), &dirs);
+
 
     const QStringList& files = findFilesInDirs(dirs);
 
@@ -406,7 +411,8 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& ro
         }
     }
 
-    // Search pathfilter for the first wildcard. use the path up to that directory directly, short-cutting the search
+    // Search pathfilter for the first wildcard. 
+    // Use the path up to that directory directly, short-cutting the search
     {
         std::set<int> sortedWildCardPositions;
         sortedWildCardPositions.insert(currentRemainingpathFilter.indexOf("*"));
@@ -426,7 +432,6 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& ro
         {
             effectiveRootDir += SEPARATOR + currentRemainingpathFilter;
             currentRemainingpathFilter = "";
-            //(*accumulatedDirs) += effectiveRootDir;
         }
         else
         {
@@ -460,9 +465,20 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& ro
 
         if ( currentDirNameFilter.isEmpty() ) currentDirNameFilter = "*";
 
-        QDir qdir(effectiveRootDir, currentDirNameFilter, QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot);
-        QStringList subDirs = qdir.entryList();
 
+
+        QDir qdir(effectiveRootDir, currentDirNameFilter, QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot);
+
+        // Add effectiveRoot if current dir name filter =""or"*" or "?" and currentRemainingpathFilter = ""
+        // and remainingPathFilter not empty
+        if ( (currentDirNameFilter == "*" || currentDirNameFilter == "?") 
+            && currentRemainingpathFilter.isEmpty()
+            && !remainingPathFilter.isEmpty())
+        {
+            (*accumulatedDirs) += qdir.absolutePath();
+        }
+
+        QStringList subDirs = qdir.entryList();
 
         for ( const QString& subDir : subDirs )
         {
