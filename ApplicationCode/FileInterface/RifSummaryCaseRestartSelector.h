@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-class RifSummaryCaseFileInfo;
 class RifSummaryCaseFileImportInfo;
+class RifSummaryCaseFileResultInfo;
 
 //==================================================================================================
 //
@@ -43,16 +43,15 @@ public:
     void determineFilesToImportFromSummaryFiles(const QStringList& initialSummaryFiles);
     void determineFilesToImportFromGridFiles(const QStringList& initialGridFiles);
 
-    void                                showDialog(bool show)               { m_showDialog = show; }
-    std::vector<RifSummaryCaseFileInfo> summaryFileInfos() const            { return m_summaryFileInfos; }
-    QStringList                         gridCaseFiles() const               { return m_gridFiles; }
-    bool                                foundErrors() const;
-    const QStringList&                  summaryFilesWithErrors() const;
-    QString                             createCombinedErrorMessage() const;
+    void                                      showDialog(bool show);
+    std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos() const;
+    QStringList                               gridCaseFiles() const;
+    bool                                      foundErrors() const;
+    const QStringList&                        summaryFilesWithErrors() const;
+    QString                                   createCombinedErrorMessage() const;
 
-
-    static QStringList  getSummaryFilesFromGridFiles(const QStringList& gridFiles);
-    static QString      getSummaryFileFromGridFile(const QString& gridFile);
+    static QStringList getSummaryFilesFromGridFiles(const QStringList& gridFiles);
+    static QString     getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
     void determineFilesToImport(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
@@ -63,41 +62,48 @@ private:
     RicSummaryCaseRestartDialog::ImportOptions m_defaultSummaryImportMode;
     RicSummaryCaseRestartDialog::ImportOptions m_defaultGridImportMode;
 
-    std::vector<RifSummaryCaseFileInfo>        m_summaryFileInfos;
-    QStringList                                m_gridFiles;
-    QStringList                                m_summaryFileErrors;
+    std::vector<RifSummaryCaseFileResultInfo> m_summaryFileInfos;
+    QStringList                               m_gridFiles;
+    QStringList                               m_summaryFileErrors;
 };
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RifSummaryCaseFileInfo
-{
-public:
-    RifSummaryCaseFileInfo(const QString _fileName, bool _includeRestartFiles) :
-        fileName(_fileName), includeRestartFiles(_includeRestartFiles) {}
-
-    QString fileName;
-    bool    includeRestartFiles;
-
-    bool operator<(const RifSummaryCaseFileInfo& other) const { return fileName < other.fileName; }
-    bool operator==(const RifSummaryCaseFileInfo& other) const { return fileName == other.fileName; }
-};
-
-//==================================================================================================
-///  
-//==================================================================================================
 class RifSummaryCaseFileImportInfo
 {
 public:
-    RifSummaryCaseFileImportInfo(const QString& summaryFileName, const QString& gridFileName, bool failOnSummaryFileImportError = false);
+    RifSummaryCaseFileImportInfo(const QString& summaryFileName,
+                                 const QString& gridFileName);
 
     const QString& summaryFileName() const;
     const QString& gridFileName() const;
     bool           failOnSummaryFileError() const;
+    void           setFailOnSummaryFileError(bool failOnSummaryFileImportError);
 
 private:
     QString m_summaryFileName;
     QString m_gridFileName;
     bool    m_failOnSummaryFileImportError;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RifSummaryCaseFileResultInfo
+{
+public:
+    RifSummaryCaseFileResultInfo(const QString& summaryFileName, 
+                                 bool           includeRestartFiles);
+
+    const QString& summaryFileName() const;
+    bool           includeRestartFiles() const;
+
+    bool operator<(const RifSummaryCaseFileResultInfo& other) const;
+    bool operator==(const RifSummaryCaseFileResultInfo& other) const;
+
+private:
+    QString m_summaryFileName;
+    bool    m_includeRestartFiles;
+};
+

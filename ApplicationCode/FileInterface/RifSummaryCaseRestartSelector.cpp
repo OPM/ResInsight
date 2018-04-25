@@ -91,7 +91,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportFromSummaryFiles(const
     std::vector<RifSummaryCaseFileImportInfo> files;
     for (QString f : initialSummaryFiles)
     {
-        files.push_back(RifSummaryCaseFileImportInfo(f, "", true));
+        RifSummaryCaseFileImportInfo importInfo(f, "");
+        importInfo.setFailOnSummaryFileError(true);
+        files.push_back(importInfo);
+        
     }
     determineFilesToImport(files);
 }
@@ -104,7 +107,9 @@ void RifSummaryCaseRestartSelector::determineFilesToImportFromGridFiles(const QS
     std::vector<RifSummaryCaseFileImportInfo> files;
     for (QString f : initialGridFiles)
     {
-        files.push_back(RifSummaryCaseFileImportInfo(getSummaryFileFromGridFile(f), f));
+        RifSummaryCaseFileImportInfo importInfo(getSummaryFileFromGridFile(f), f);
+        importInfo.setFailOnSummaryFileError(false);
+        files.push_back(importInfo);
     }
     determineFilesToImport(files);
 }
@@ -112,9 +117,33 @@ void RifSummaryCaseRestartSelector::determineFilesToImportFromGridFiles(const QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RifSummaryCaseRestartSelector::showDialog(bool show)
+{
+    m_showDialog = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifSummaryCaseFileResultInfo> RifSummaryCaseRestartSelector::summaryFileInfos() const
+{
+    return m_summaryFileInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RifSummaryCaseRestartSelector::gridCaseFiles() const
+{
+    return m_gridFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifSummaryCaseRestartSelector::determineFilesToImport(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles)
 {
-    std::vector<RifSummaryCaseFileInfo> fileInfos;
+    std::vector<RifSummaryCaseFileImportInfo> fileInfos;
     if (m_showDialog)
     {
         bool enableApplyToAllField = initialFiles.size() > 1;
@@ -169,10 +198,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(const std
         {
             for (const QString& file : result.summaryFiles)
             {
-                RifSummaryCaseFileInfo fi(file, result.summaryImportOption == RicSummaryCaseRestartDialog::IMPORT_ALL);
-                if (!vectorContains(m_summaryFileInfos, fi))
+                RifSummaryCaseFileResultInfo resultFileInfo(file, result.summaryImportOption == RicSummaryCaseRestartDialog::IMPORT_ALL);
+                if (!vectorContains(m_summaryFileInfos, resultFileInfo))
                 {
-                    m_summaryFileInfos.push_back(fi);
+                    m_summaryFileInfos.push_back(resultFileInfo);
                 }
             }
         }
@@ -228,23 +257,23 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(const std::
         {
             if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL)
             {
-                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, true));
+                m_summaryFileInfos.push_back(RifSummaryCaseFileResultInfo(initialSummaryFile, true));
             }
             else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT)
             {
-                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+                m_summaryFileInfos.push_back(RifSummaryCaseFileResultInfo(initialSummaryFile, false));
             }
             else if (m_defaultSummaryImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES)
             {
-                m_summaryFileInfos.push_back(RifSummaryCaseFileInfo(initialSummaryFile, false));
+                m_summaryFileInfos.push_back(RifSummaryCaseFileResultInfo(initialSummaryFile, false));
                 bool hasWarnings = false;
                 std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
                 for (const auto& rfi : restartFileInfos)
                 {
-                    RifSummaryCaseFileInfo fi(RiaFilePathTools::toInternalSeparator(rfi.fileName), false);
-                    if (!vectorContains(m_summaryFileInfos, fi))
+                    RifSummaryCaseFileResultInfo resultFileInfo(RiaFilePathTools::toInternalSeparator(rfi.fileName), false);
+                    if (!vectorContains(m_summaryFileInfos, resultFileInfo))
                     {
-                        m_summaryFileInfos.push_back(fi);
+                        m_summaryFileInfos.push_back(resultFileInfo);
                     }
                 }
             }
@@ -261,10 +290,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(const std::
                 std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
                 for (const auto& rfi : restartFileInfos)
                 {
-                    RifSummaryCaseFileInfo fi(RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(rfi.fileName), false);
-                    if (!m_gridFiles.contains(fi.fileName) && QFileInfo(fi.fileName).exists())
+                    QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(rfi.fileName);
+                    if (!m_gridFiles.contains(gridFileName) && QFileInfo(gridFileName).exists())
                     {
-                        m_gridFiles.push_back(fi.fileName);
+                        m_gridFiles.push_back(gridFileName);
                     }
                 }
 
@@ -356,23 +385,15 @@ QString RifSummaryCaseRestartSelector::getSummaryFileFromGridFile(const QString&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifSummaryCaseFileImportInfo::RifSummaryCaseFileImportInfo(const QString& summaryFileName,
-    const QString& gridFileName,
-    bool           failOnSummaryFileImportError /*= false*/)
+                                                           const QString& gridFileName)
     : m_summaryFileName(summaryFileName)
     , m_gridFileName(gridFileName)
-    , m_failOnSummaryFileImportError(failOnSummaryFileImportError)
+    , m_failOnSummaryFileImportError(false)
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifSummaryCaseFileImportInfo::failOnSummaryFileError() const
-{
-    return m_failOnSummaryFileImportError;
+    CVF_ASSERT(!m_summaryFileName.isEmpty());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,4 +410,62 @@ const QString& RifSummaryCaseFileImportInfo::summaryFileName() const
 const QString& RifSummaryCaseFileImportInfo::gridFileName() const
 {
     return m_gridFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifSummaryCaseFileImportInfo::failOnSummaryFileError() const
+{
+    return m_failOnSummaryFileImportError;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifSummaryCaseFileImportInfo::setFailOnSummaryFileError(bool failOnSummaryFileImportError)
+{
+    m_failOnSummaryFileImportError = failOnSummaryFileImportError;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryCaseFileResultInfo::RifSummaryCaseFileResultInfo(const QString& summaryFileName, bool includeRestartFiles)
+    : m_summaryFileName(summaryFileName)
+    , m_includeRestartFiles(includeRestartFiles)
+{
+    CVF_ASSERT(!m_summaryFileName.isEmpty());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString& RifSummaryCaseFileResultInfo::summaryFileName() const
+{
+    return m_summaryFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifSummaryCaseFileResultInfo::includeRestartFiles() const
+{
+    return m_includeRestartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifSummaryCaseFileResultInfo::operator<(const RifSummaryCaseFileResultInfo& other) const
+{
+    return m_summaryFileName < other.summaryFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifSummaryCaseFileResultInfo::operator==(const RifSummaryCaseFileResultInfo& other) const
+{
+    return m_summaryFileName == other.summaryFileName();
 }

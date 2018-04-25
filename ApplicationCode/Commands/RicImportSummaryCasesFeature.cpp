@@ -120,7 +120,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     RifSummaryCaseRestartSelector       fileSelector;
     fileSelector.determineFilesToImportFromSummaryFiles(fileNames);
 
-    std::vector<RifSummaryCaseFileInfo> importFileInfos = fileSelector.summaryFileInfos();
+    std::vector<RifSummaryCaseFileResultInfo> importFileInfos = fileSelector.summaryFileInfos();
 
     if (!importFileInfos.empty())
     {

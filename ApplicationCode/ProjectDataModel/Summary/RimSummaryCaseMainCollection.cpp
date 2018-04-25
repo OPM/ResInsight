@@ -117,7 +117,7 @@ void RimSummaryCaseMainCollection::createSummaryCasesFromRelevantEclipseResultCa
                     QStringList summaryFileNames = RifSummaryCaseRestartSelector::getSummaryFilesFromGridFiles(QStringList({ eclResCase->gridFileName() }));
                     if (!summaryFileNames.isEmpty())
                     {
-                        RifSummaryCaseFileInfo fileInfo(summaryFileNames.front(), false);
+                        RifSummaryCaseFileResultInfo fileInfo(summaryFileNames.front(), false);
                         createAndAddSummaryCasesFromFileInfos({ fileInfo });
                     }
                 }
@@ -315,7 +315,7 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileInfo>& summaryHeaderFileInfos)
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos)
 {
     std::vector<RimSummaryCase*> newCases = createSummaryCasesFromFileInfos(summaryHeaderFileInfos);
     addCases(newCases);
@@ -325,16 +325,16 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileInfo>& summaryHeaderFileInfos)
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos)
 {
     RimProject* project = RiaApplication::instance()->project();
 
     std::vector<RimSummaryCase*>    sumCases;
 
-    for (RifSummaryCaseFileInfo fileInfo : summaryHeaderFileInfos)
+    for (RifSummaryCaseFileResultInfo fileInfo : summaryHeaderFileInfos)
     {
         RimEclipseCase* eclCase = nullptr;
-        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(fileInfo.fileName);
+        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(fileInfo.summaryFileName());
         if (!gridCaseFile.isEmpty())
         {
             eclCase = project->eclipseCaseFromGridFileName(gridCaseFile);
@@ -344,22 +344,22 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
         {
             RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
 
-            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles);
+            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
             newSumCase->setAssociatedEclipseCase(eclCase);
             newSumCase->createSummaryReaderInterface();
             newSumCase->updateOptionSensitivity();
-            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.fileName);
+            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.summaryFileName());
             sumCases.push_back(newSumCase);
         }
         else
         {
             RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
-            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles);
-            newSumCase->setSummaryHeaderFileName(fileInfo.fileName);
+            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
+            newSumCase->setSummaryHeaderFileName(fileInfo.summaryFileName());
             newSumCase->createSummaryReaderInterface();
             newSumCase->updateOptionSensitivity();
-            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.fileName);
+            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.summaryFileName());
             sumCases.push_back(newSumCase);
         }
     }
