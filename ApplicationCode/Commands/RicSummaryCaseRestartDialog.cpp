@@ -251,7 +251,10 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
     // If no restart files are found and no warnings, do not show dialog
     if (originFileInfos.empty() &&!hasWarnings)
     {
-        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK, NOT_IMPORT, NOT_IMPORT, QStringList({ initialSummaryFile }), QStringList({ initialGridFile }), false);
+        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK, NOT_IMPORT, NOT_IMPORT,
+                                                 QStringList({ initialSummaryFile }),
+                                                 QStringList({ initialGridFile }),
+                                                 lastResult->applyToAll);
     }
 
     RicSummaryCaseRestartDialogResult dialogResult;
