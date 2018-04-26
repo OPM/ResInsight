@@ -121,7 +121,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_summaryNotReadBtn->setText("Skip");
     m_gridSeparateCasesBtn->setText("Separate Cases");
     m_gridNotReadBtn->setText("Skip");
-    m_applyToAllCheckBox->setText("Apply Settings to Remaining Files");
+    m_applyToAllCheckBox->setText("OK to All");
     m_applyToAllCheckBox->setLayoutDirection(Qt::RightToLeft);
 
     // Define layout
