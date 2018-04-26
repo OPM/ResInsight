@@ -128,11 +128,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
         {
+            menuBuilder.subMenuStart("Import");
             menuBuilder << "RicImportEclipseCaseFeature";
             menuBuilder << "RicImportEclipseCasesFeature";
             menuBuilder << "RicImportInputEclipseCaseFeature";
             menuBuilder << "RicCreateGridCaseGroupFeature";
             menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
+            menuBuilder.subMenuEnd();
             menuBuilder << "RicEclipseCaseNewGroupFeature";
         }
         else if (dynamic_cast<RimGeoMechView*>(uiItem))
