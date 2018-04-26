@@ -102,6 +102,7 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
     // Validate ensemble parameters
     try
     {
+        QString errors;
         std::hash<std::string> paramsHasher;
         size_t paramsHash = 0;
 
@@ -109,7 +110,7 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
         {
             if (rimCase->caseRealizationParameters().isNull() || rimCase->caseRealizationParameters()->parameters().empty())
             {
-                throw QString("The case %1 has no ensemble parameters").arg(rimCase->summaryHeaderFilename());
+                errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
             }
             else
             {
@@ -129,6 +130,11 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
                     throw QString("Ensemble parameters differ between cases");
                 }
             }
+        }
+
+        if (!errors.isEmpty())
+        {
+            throw errors;
         }
         return true;
     }
