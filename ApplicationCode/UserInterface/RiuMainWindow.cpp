@@ -1589,6 +1589,8 @@ void RiuMainWindow::showDockPanel(const QString &dockPanelName)
         if (dock && dock->objectName() == dockPanelName)
         {
             dock->show();
+            dock->raise();
+
             return;
         }
     }
