@@ -20,9 +20,13 @@
 
 #include "RiaVersionInfo.h"
 
-#include <QSettings>
-#include "cafPdmUiTreeView.h"
+#include "RiuDockWidgetTools.h"
+
 #include "cafPdmObject.h"
+#include "cafPdmUiTreeView.h"
+
+#include <QSettings>
+#include <QDockWidget>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -117,4 +121,25 @@ void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool a
 void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
     m_projectTreeView->setExpanded(uiItem, expanded);
+}
+
+//-------------------------------------------------------------------------------------------------- 
+///  
+/// 
+//-------------------------------------------------------------------------------------------------- 
+void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
+{
+    if (!sender()) return;
+
+    auto dockWidget = dynamic_cast<QDockWidget*>(sender()->parent());
+    if (dockWidget)
+    {
+        if (dockWidget->isVisible())
+        {
+            // Raise the dock widget to make it visible if the widget is part of a tab widget 
+            dockWidget->raise();
+        }
+
+        RiuDockWidgetTools::instance()->setDockWidgetVisibility(dockWidget->objectName(), dockWidget->isVisible());
+    }
 }

@@ -84,10 +84,7 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
-
-
-#define DOCK_PANEL_NAME_PROCESS_MONITOR "dockProcessMonitor"
-
+#include "RiuDockWidgetTools.h"
 
 
 //==================================================================================================
@@ -367,39 +364,30 @@ void RiuMainWindow::createMenus()
 
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-
-    QMenu* importEclipseMenu = importMenu->addMenu(QIcon(":/Case48x48.png"), "Eclipse Cases");
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCasesFeature"));
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
-    importEclipseMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
-
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCasesFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
+    importMenu->addSeparator();
     #ifdef USE_ODB_API
+    importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu(QIcon(":/GeoMechCase48x48.png"), "Geo Mechanical Cases");
-    importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
-    importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     #endif
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu(QIcon(":/SummaryCase48x48.png"), "Summary Cases");
-    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
-    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
-    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
-    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
-
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
     importMenu->addSeparator();
-    QMenu* importWellMenu = importMenu->addMenu(QIcon(":/Well.png"), "Wells");
-    importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
-    importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
-    importWellMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
-    
-    importMenu->addSeparator();
-    QMenu* importFormationsMenu = importMenu->addMenu(QIcon(":/FormationCollection16x16.png"), "Formations");
-    importFormationsMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
-    importFormationsMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
@@ -575,9 +563,11 @@ void RiuMainWindow::createToolBars()
 
 void RiuMainWindow::createDockPanels()
 {
+    auto dwt = RiuDockWidgetTools::instance();
+
     {
         QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName(dwt->projectTreeName());
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         m_projectTreeView = new caf::PdmUiTreeView(this);
@@ -615,7 +605,7 @@ void RiuMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName(dwt->propertyEditorName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
@@ -625,84 +615,84 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockPanel = new QDockWidget("Result Info", this);
-        dockPanel->setObjectName("dockResultInfoPanel");
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_resultInfoPanel = new RiuResultInfoPanel(dockPanel);
-        dockPanel->setWidget(m_resultInfoPanel);
+        QDockWidget* dockWidget = new QDockWidget("Result Info", this);
+        dockWidget->setObjectName(dwt->resultInfoName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_resultInfoPanel = new RiuResultInfoPanel(dockWidget);
+        dockWidget->setWidget(m_resultInfoPanel);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
     }
 
     {
-        QDockWidget* dockPanel = new QDockWidget("Process Monitor", this);
-        dockPanel->setObjectName(DOCK_PANEL_NAME_PROCESS_MONITOR);
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_processMonitor = new RiuProcessMonitor(dockPanel);
-        dockPanel->setWidget(m_processMonitor);
+        QDockWidget* dockWidget = new QDockWidget("Process Monitor", this);
+        dockWidget->setObjectName(dwt->processMonitorName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_processMonitor = new RiuProcessMonitor(dockWidget);
+        dockWidget->setWidget(m_processMonitor);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        dockPanel->hide();
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        dockWidget->hide();
     }
 
     {
-        QDockWidget* dockPanel = new QDockWidget("Result Plot", this);
-        dockPanel->setObjectName("dockTimeHistoryPanel");
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_resultQwtPlot = new RiuResultQwtPlot(dockPanel);
-        dockPanel->setWidget(m_resultQwtPlot);
+        QDockWidget* dockWidget = new QDockWidget("Result Plot", this);
+        dockWidget->setObjectName(dwt->resultPlotName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_resultQwtPlot = new RiuResultQwtPlot(dockWidget);
+        dockWidget->setWidget(m_resultQwtPlot);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        resultPlotDock = dockPanel;
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        resultPlotDock = dockWidget;
     }
 
 #ifdef USE_ODB_API
     {
-        QDockWidget* dockPanel = new QDockWidget("Mohr's Circle Plot", this);
-        dockPanel->setObjectName("dockTimeHistoryPanel");
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_mohrsCirclePlot = new RiuMohrsCirclePlot(dockPanel);
-        dockPanel->setWidget(m_mohrsCirclePlot);
+        QDockWidget* dockWidget = new QDockWidget("Mohr's Circle Plot", this);
+        dockWidget->setObjectName(dwt->mohrsCirclePlotName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_mohrsCirclePlot = new RiuMohrsCirclePlot(dockWidget);
+        dockWidget->setWidget(m_mohrsCirclePlot);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        mohrsCirclePlotDock = dockPanel;
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        mohrsCirclePlotDock = dockWidget;
 
-        dockPanel->hide();
+        dockWidget->hide();
     }
 #endif
  
     {
-        QDockWidget* dockPanel = new QDockWidget("Relative Permeability Plot", this);
-        dockPanel->setObjectName("dockRelativePermeabilityPlotPanel");
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel(dockPanel);
-        dockPanel->setWidget(m_relPermPlotPanel);
+        QDockWidget* dockWidget = new QDockWidget("Relative Permeability Plot", this);
+        dockWidget->setObjectName(dwt->relPermPlotName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel(dockWidget);
+        dockWidget->setWidget(m_relPermPlotPanel);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        relPermPlotDock = dockPanel;
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        relPermPlotDock = dockWidget;
     }
 
     {
-        QDockWidget* dockPanel = new QDockWidget("PVT Plot", this);
-        dockPanel->setObjectName("dockPvtPlotPanel");
-        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_pvtPlotPanel = new RiuPvtPlotPanel(dockPanel);
-        dockPanel->setWidget(m_pvtPlotPanel);
+        QDockWidget* dockWidget = new QDockWidget("PVT Plot", this);
+        dockWidget->setObjectName(dwt->pvtPlotName());
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_pvtPlotPanel = new RiuPvtPlotPanel(dockWidget);
+        dockWidget->setWidget(m_pvtPlotPanel);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-        pvtPlotDock = dockPanel;
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        pvtPlotDock = dockWidget;
     }
 
     {
         QDockWidget* dockWidget = new QDockWidget("Messages", this);
-        dockWidget->setObjectName("dockMessages");
+        dockWidget->setObjectName(dwt->messagesName());
         m_messagePanel = new RiuMessagePanel(dockWidget);
         dockWidget->setWidget(m_messagePanel);
         addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
         dockWidget->hide();
     }
 
-    setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
     // Tabify docks
@@ -714,6 +704,11 @@ void RiuMainWindow::createDockPanels()
     tabifyDockWidget(relPermPlotDock, resultPlotDock);
 #endif
 
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+    for (QDockWidget* dock : dockWidgets)
+    {
+        connect(dock->toggleViewAction(), SIGNAL(triggered()), SLOT(slotDockWidgetToggleViewActionTriggered()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1270,18 +1265,20 @@ void RiuMainWindow::slotBuildWindowActions()
     m_windowMenu->addAction(m_newPropertyView);
     m_windowMenu->addSeparator();
 
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+    auto dwt = RiuDockWidgetTools::instance();
 
-    int i = 0;
-    foreach (QDockWidget* dock, dockWidgets)
-    {
-        if (dock)
-        {
-            if (i == 4) m_windowMenu->addSeparator();
-            m_windowMenu->addAction(dock->toggleViewAction());
-            ++i;
-        }
-    }
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->projectTreeName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->propertyEditorName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->messagesName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->processMonitorName()));
+
+    m_windowMenu->addSeparator();
+
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->resultInfoName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->resultPlotName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->relPermPlotName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->pvtPlotName()));
+    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->mohrsCirclePlotName()));
 
     m_windowMenu->addSeparator();
     QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
@@ -1406,42 +1403,6 @@ void RiuMainWindow::hideAllDockWindows()
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-/*void RiuMainWindow::slotOpenMultipleCases()
-{
-#if 1
-    QAction* action = caf::CmdFeatureManager::instance()->action("RicCreateGridCaseGroupFeature");
-    CVF_ASSERT(action);
-
-    action->trigger();
-
-#else  // Code to fast generate a test project
-    RiaApplication* app = RiaApplication::instance();
-
-    QStringList gridFileNames;
-
-    if (1)
-    {
-        gridFileNames += RiaDefines::mockModelBasicWithResults();
-        gridFileNames += RiaDefines::mockModelBasicWithResults();
-        gridFileNames += RiaDefines::mockModelBasicWithResults();
-    }
-    else
-    {
-        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID";
-        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID";
-        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID";
-        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID";
-    }
-
-    app->addEclipseCases(gridFileNames);
-#endif
-
-}
-*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1635,7 +1596,7 @@ void RiuMainWindow::updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectT
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
-    showDockPanel(DOCK_PANEL_NAME_PROCESS_MONITOR);
+    showDockPanel(RiuDockWidgetTools::instance()->processMonitorName());
 }
 
 //--------------------------------------------------------------------------------------------------

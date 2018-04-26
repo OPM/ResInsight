@@ -39,28 +39,32 @@ class RiuMainWindowBase : public QMainWindow
 public:
     RiuMainWindowBase();
 
-    virtual QString mainWindowName() = 0;
+    virtual QString     mainWindowName() = 0;
 
-    virtual void    removeViewer( QWidget* viewer ) = 0;
-    virtual void    addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)= 0;
-    virtual void    setActiveViewer(QWidget* subWindow) = 0;
+    virtual void        removeViewer( QWidget* viewer ) = 0;
+    virtual void        addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)= 0;
+    virtual void        setActiveViewer(QWidget* subWindow) = 0;
 
     virtual RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) = 0;
 
-    void            loadWinGeoAndDockToolBarLayout();
-    void            saveWinGeoAndDockToolBarLayout();
-    void            showWindow();
+    void                loadWinGeoAndDockToolBarLayout();
+    void                saveWinGeoAndDockToolBarLayout();
+    void                showWindow();
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    void            selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
+    void                selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
+
+protected slots:
+    void                slotDockWidgetToggleViewActionTriggered();
 
 protected:
-    caf::PdmUiTreeView*            m_projectTreeView;
-    bool                           m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control 
+    caf::PdmUiTreeView* m_projectTreeView;
+    bool                m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control 
                                                                          // whether to select the corresponding active view or not
 
+
 private:
-    QString         registryFolderName();
+    QString             registryFolderName();
 };

@@ -72,6 +72,7 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
@@ -195,11 +196,12 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RiaApplication::~RiaApplication()
 {
+    RiuDockWidgetTools::instance()->saveDockWidgetsState();
+
     deleteMainPlotWindow();
 
     delete m_preferences;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -208,7 +210,6 @@ RiaApplication* RiaApplication::instance()
 {
     return static_cast<RiaApplication*>qApp;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Return -1 if unit test is not executed, returns 0 if test passed, returns 1 if tests failed
@@ -1074,8 +1075,6 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     return true;
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1167,6 +1166,8 @@ RimViewWindow* RiaApplication::activePlotWindow() const
 void RiaApplication::setActiveReservoirView(Rim3dView* rv)
 {
     m_activeReservoirView = rv;
+
+    RiuDockWidgetTools::instance()->changeDockWidgetVisibilityBasedOnView(rv);
 }
 
 //--------------------------------------------------------------------------------------------------

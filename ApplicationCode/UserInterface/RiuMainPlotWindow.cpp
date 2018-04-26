@@ -394,6 +394,12 @@ void RiuMainPlotWindow::createDockPanels()
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+    for (QDockWidget* dock : dockWidgets)
+    {
+        connect(dock->toggleViewAction(), SIGNAL(triggered()), SLOT(slotDockWidgetToggleViewActionTriggered()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -596,17 +602,9 @@ void RiuMainPlotWindow::slotBuildWindowActions()
     m_windowMenu->clear();
 
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    int i = 0;
-    foreach (QDockWidget* dock, dockWidgets)
+    for (QDockWidget* dock : dockWidgets)
     {
-        if (dock)
-        {
-            if (i == 4)
-                m_windowMenu->addSeparator();
-            m_windowMenu->addAction(dock->toggleViewAction());
-            ++i;
-        }
+        m_windowMenu->addAction(dock->toggleViewAction());
     }
 
     m_windowMenu->addSeparator();
