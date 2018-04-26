@@ -346,7 +346,6 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
-
     }
 
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup("Colors");
@@ -362,6 +361,14 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         m_ensembleParameter.uiCapability()->setUiReadOnly(!m_yValuesSummaryGroup());
         colorsGroup->add(&m_ensembleParameter);
     }
+
+    // Set default initial ensemble
+    RimProject* project = RiaApplication::instance()->project();
+    if (m_yValuesSummaryGroup() == nullptr && project->summaryGroups().size() == 1)
+    {
+        m_yValuesSummaryGroup = project->summaryGroups().front();
+    }
+
     uiOrdering.skipRemainingFields(true);
 }
 
