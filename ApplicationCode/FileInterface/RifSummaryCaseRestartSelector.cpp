@@ -400,7 +400,6 @@ RifSummaryCaseFileImportInfo::RifSummaryCaseFileImportInfo(const QString& summar
     , m_gridFileName(gridFileName)
     , m_failOnSummaryFileImportError(false)
 {
-    CVF_ASSERT(!m_summaryFileName.isEmpty());
 }
 
 //--------------------------------------------------------------------------------------------------
