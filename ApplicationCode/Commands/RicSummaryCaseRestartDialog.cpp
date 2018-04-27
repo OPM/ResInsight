@@ -126,12 +126,15 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
     m_currentFilesGroup = new QGroupBox("Current Summary File");
+    m_currentFilesGroup->setStyleSheet("QGroupBox { font-weight: bold; }");
     m_currentFilesLayout = new QGridLayout();
     m_currentFilesGroup->setLayout(m_currentFilesLayout);
 
     // Summary files
     QGroupBox* summaryFilesGroup = new QGroupBox("Origin Summary Files");
     {
+        summaryFilesGroup->setStyleSheet("QGroupBox { font-weight: bold; }");
+
         QVBoxLayout* filesGroupLayout = new QVBoxLayout();
         summaryFilesGroup->setLayout(filesGroupLayout);
 
@@ -154,6 +157,8 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     // Grid files
     m_gridFilesGroup = new QGroupBox("Origin Grid Files");
     {
+        m_gridFilesGroup->setStyleSheet("QGroupBox { font-weight: bold; }");
+
         QVBoxLayout* filesGroupLayout = new QVBoxLayout();
         m_gridFilesGroup->setLayout(filesGroupLayout);
 
