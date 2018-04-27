@@ -66,7 +66,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<RifRestartFileInfo>> removeCommonRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
+std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> removeCommonRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
 {
     // Find common root path among all paths
     QStringList allPaths;
@@ -78,15 +78,16 @@ std::vector<std::vector<RifRestartFileInfo>> removeCommonRootPath(const std::vec
     int commonRootSize = commonRoot.size();
 
     // Build output lists
-    std::vector<std::vector<RifRestartFileInfo>> output;
+    std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> output;
     for (const auto& fileInfoList : fileInfoLists)
     {
-        std::vector<RifRestartFileInfo> currList;
+        std::vector<std::pair<RifRestartFileInfo, QString>> currList;
 
         for (auto& fi : fileInfoList)
         {
-            RifRestartFileInfo newFi = fi;
-            newFi.fileName.remove(0, commonRootSize);
+            std::pair<RifRestartFileInfo, QString> newFi;
+            newFi = std::make_pair(fi, fi.fileName);
+            newFi.first.fileName.remove(0, commonRootSize);
             currList.push_back(newFi);
         }
         output.push_back(currList);
@@ -318,7 +319,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         }
 
         // Remove common root path
-        std::vector<std::vector<RifRestartFileInfo>> fileInfosNoRoot = removeCommonRootPath(
+        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot = removeCommonRootPath(
             {
                 currentFileInfos, originSummaryFileInfos, originGridFileInfos
             }
@@ -414,7 +415,7 @@ bool RicSummaryCaseRestartDialog::okToAllSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos)
+void RicSummaryCaseRestartDialog::populateFileList(QGridLayout* gridLayout, const std::vector<std::pair<RifRestartFileInfo, QString>>& fileInfos)
 {
     if (fileInfos.empty())
     {
@@ -424,14 +425,14 @@ void RicSummaryCaseRestartDialog::populateFileList(QGridLayout* gridLayout, cons
 
     for (const auto& fileInfo : fileInfos)
     {
-        appendFileInfoToGridLayout(gridLayout, fileInfo);
+        appendFileInfoToGridLayout(gridLayout, fileInfo.first, fileInfo.second);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo)
+void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName)
 {
     CVF_ASSERT(gridLayout);
 
@@ -451,7 +452,7 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
     gridLayout->addWidget(dateLabel, rowCount, 1);
 
     // Full path in tooltip
-    fileNameLabel->setToolTip(fileInfo.fileName);
+    fileNameLabel->setToolTip(fullPathFileName);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -67,8 +67,8 @@ public:
     bool                                        okToAllSelected() const;
 
 private:
-    void                                        populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos);
-    void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo);
+    void                                        populateFileList(QGridLayout* gridLayout, const std::vector<std::pair<RifRestartFileInfo, QString>>& fileInfos);
+    void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
     void                                        displayWarningsIfAny(const QStringList& warnings);
 
