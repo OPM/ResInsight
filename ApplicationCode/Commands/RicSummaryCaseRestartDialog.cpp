@@ -107,13 +107,11 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_summaryNotReadBtn = new QRadioButton(this);
     m_gridSeparateCasesBtn = new QRadioButton(this);
     m_gridNotReadBtn = new QRadioButton(this);
-    m_applyToAllCheckBox = new QCheckBox(this);
     m_warnings = new QListWidget(this);
-    m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
 
     // Connect to signals
-    connect(m_buttons, SIGNAL(accepted()), this, SLOT(slotDialogOkClicked()));
-    connect(m_buttons, SIGNAL(rejected()), this, SLOT(slotDialogCancelClicked()));
+    connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotDialogButtonClicked(QAbstractButton*)));
 
     // Set widget properties
     m_summaryReadAllBtn->setText("Unified");
@@ -121,8 +119,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_summaryNotReadBtn->setText("Skip");
     m_gridSeparateCasesBtn->setText("Separate Cases");
     m_gridNotReadBtn->setText("Skip");
-    m_applyToAllCheckBox->setText("OK to All");
-    m_applyToAllCheckBox->setLayoutDirection(Qt::RightToLeft);
+    m_buttons->button(QDialogButtonBox::Apply)->setText("OK to All");
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
@@ -171,7 +168,6 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     // Apply to all checkbox and buttons
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
     buttonsLayout->addStretch(1);
-    buttonsLayout->addWidget(m_applyToAllCheckBox);
     buttonsLayout->addWidget(m_buttons);
 
     dialogLayout->addWidget(m_currentFilesGroup);
@@ -181,6 +177,8 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     dialogLayout->addLayout(buttonsLayout);
 
     setLayout(dialogLayout);
+
+    m_okToAllPressed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,7 +329,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
         // Set properties and show dialog
         dialog.setWindowTitle("Restart Files");
-        dialog.m_applyToAllCheckBox->setVisible(showApplyToAllWidget);
+        dialog.m_buttons->button(QDialogButtonBox::Apply)->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
         dialog.exec();
 
@@ -347,7 +345,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                          dialog.selectedGridImportOption(),
                                                          {},
                                                          {},
-                                                         dialog.applyToAllSelected());
+                                                         dialog.okToAllSelected());
     }
 
     if (dialogResult.status != RicSummaryCaseRestartDialogResult::SUMMARY_OK)
@@ -403,9 +401,9 @@ RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selected
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCaseRestartDialog::applyToAllSelected() const
+bool RicSummaryCaseRestartDialog::okToAllSelected() const
 {
-    return m_applyToAllCheckBox->isChecked();
+    return m_okToAllPressed;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -476,20 +474,13 @@ void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::slotDialogOkClicked()
+void RicSummaryCaseRestartDialog::slotDialogButtonClicked(QAbstractButton* button)
 {
-    accept();
+    bool okButtonClicked        = m_buttons->button(QDialogButtonBox::Ok) == button;
+    bool cancelButtonClicked    = m_buttons->button(QDialogButtonBox::Cancel) == button;
+    bool okToAllButtonClicked   = m_buttons->button(QDialogButtonBox::Apply) == button;
+
+    m_okToAllPressed = okToAllButtonClicked;
+    if (cancelButtonClicked) reject();
+    else                     accept();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::slotDialogCancelClicked()
-{
-    reject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
-

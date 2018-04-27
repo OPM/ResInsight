@@ -38,6 +38,7 @@ class QGridLayout;
 class QCheckBox;
 class QGroupBox;
 class RicSummaryCaseRestartDialogResult;
+class QAbstractButton;
 
 //==================================================================================================
 ///  
@@ -63,7 +64,7 @@ public:
 
     ImportOptions                               selectedSummaryImportOption() const;
     ImportOptions                               selectedGridImportOption() const;
-    bool                                        applyToAllSelected() const;
+    bool                                        okToAllSelected() const;
 
 private:
     void                                        populateFileList(QGridLayout* gridLayout, const std::vector<RifRestartFileInfo>& fileInfos);
@@ -72,8 +73,7 @@ private:
     void                                        displayWarningsIfAny(const QStringList& warnings);
 
 private slots:
-    void slotDialogOkClicked();
-    void slotDialogCancelClicked();
+    void slotDialogButtonClicked(QAbstractButton* button);
 
 private:
     QGroupBox*                          m_currentFilesGroup;
@@ -91,9 +91,9 @@ private:
     QRadioButton*                       m_gridNotReadBtn;
     QRadioButton*                       m_gridSeparateCasesBtn;
 
-    QCheckBox*                          m_applyToAllCheckBox;
     QDialogButtonBox*                   m_buttons;
 
+    bool                                m_okToAllPressed;
     QListWidget*                        m_warnings;
 };
 
