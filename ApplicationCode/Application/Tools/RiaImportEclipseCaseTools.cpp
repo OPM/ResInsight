@@ -45,7 +45,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 
 #include "cafUtils.h"

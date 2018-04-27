@@ -57,7 +57,7 @@ class RimWellLogPlot;
 class RimWellAllocationPlot;
 
 class RiuMainWindowBase;
-class RiuMainPlotWindow;
+class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 
@@ -180,8 +180,8 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
-    RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
-    RiuMainPlotWindow*  mainPlotWindow();
+    RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindow*  mainPlotWindow();
     RiuMainWindowBase*  mainWindowByID(int mainWindowID);
 
     static RimViewWindow* activeViewWindow();
@@ -249,7 +249,7 @@ private:
 
     bool                                m_runningWorkerProcess;
 
-    RiuMainPlotWindow*                  m_mainPlotWindow;
+    RiuPlotMainWindow*                  m_mainPlotWindow;
     
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 };

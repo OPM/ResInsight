@@ -7,7 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuLineSegmentQwtPlotCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMainPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
@@ -80,7 +80,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuLineSegmentQwtPlotCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuMainPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.cpp
@@ -153,7 +153,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMainPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuResultInfoPanel.h

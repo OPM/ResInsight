@@ -73,7 +73,7 @@
 #include "RimWellRftPlot.h"
 
 #include "RiuDockWidgetTools.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
@@ -1291,7 +1291,7 @@ void RiaApplication::createMainPlotWindow()
 {
     CVF_ASSERT(m_mainPlotWindow == nullptr);
 
-    m_mainPlotWindow = new RiuMainPlotWindow;
+    m_mainPlotWindow = new RiuPlotMainWindow;
 
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
@@ -1314,7 +1314,7 @@ void RiaApplication::deleteMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
+RiuPlotMainWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
 {
     if (!m_mainPlotWindow)
     {
@@ -1341,7 +1341,7 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow* RiaApplication::mainPlotWindow()
+RiuPlotMainWindow* RiaApplication::mainPlotWindow()
 {
     return m_mainPlotWindow;
 }
@@ -1369,9 +1369,9 @@ RimViewWindow* RiaApplication::activeViewWindow()
     {
         viewWindow = RiaApplication::instance()->activeReservoirView();
     }
-    else if (dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget))
+    else if (dynamic_cast<RiuPlotMainWindow*>(mainWindowWidget))
     {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget);
+        RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>(mainWindowWidget);
 
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)

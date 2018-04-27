@@ -27,7 +27,7 @@
 #include "RimEclipseView.h"
 #include "Rim3dOverlayInfoConfig.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 

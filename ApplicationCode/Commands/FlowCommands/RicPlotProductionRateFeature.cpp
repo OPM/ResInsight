@@ -40,7 +40,7 @@
 #include "Rim3dView.h"
 #include "RiaSummaryTools.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -184,7 +184,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
 
     if (summaryPlotToSelect)
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);

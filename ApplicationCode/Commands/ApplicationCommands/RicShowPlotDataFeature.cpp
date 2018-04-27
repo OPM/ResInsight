@@ -25,7 +25,7 @@
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuTextDialog.h"
 
 #include "cafSelectionManagerTools.h"
@@ -82,7 +82,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
     for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
@@ -117,7 +117,7 @@ void RicShowPlotDataFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString& text)
 {
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
     RiuTextDialog* textWiget = new RiuTextDialog();

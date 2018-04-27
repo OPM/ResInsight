@@ -26,7 +26,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuWellAllocationPlot.h"
@@ -62,9 +62,9 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
         RimViewWindow* viewWindow = RiaApplication::instance()->activeReservoirView();
         viewWindow->zoomAll();
     }
-    else if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    else if (dynamic_cast<RiuPlotMainWindow*>(topLevelWidget))
     {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+        RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>(topLevelWidget);
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)
         {

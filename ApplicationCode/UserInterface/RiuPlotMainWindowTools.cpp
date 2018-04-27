@@ -18,7 +18,7 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiaApplication.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -33,7 +33,7 @@ void RiuPlotMainWindowTools::showPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::setActiveViewer(QWidget* subWindow)
 {
-    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
 
     if (mpw) mpw->setActiveViewer(subWindow);
 }
@@ -43,7 +43,7 @@ void RiuPlotMainWindowTools::setActiveViewer(QWidget* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expanded /*= true*/)
 {
-    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
 
     if (mpw) mpw->setExpanded(uiItem, expanded);
 }
@@ -53,7 +53,7 @@ void RiuPlotMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expa
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange /*= true*/)
 {
-    RiuMainPlotWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
 
     if (mpw) mpw->selectAsCurrentItem(object, allowActiveViewChange);
 }

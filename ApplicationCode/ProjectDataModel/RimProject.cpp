@@ -65,7 +65,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"

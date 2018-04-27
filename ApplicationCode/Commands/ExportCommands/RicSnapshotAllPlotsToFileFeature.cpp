@@ -50,7 +50,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
     if (!mainPlotWindow) return;
 
     RimProject* proj = app->project();

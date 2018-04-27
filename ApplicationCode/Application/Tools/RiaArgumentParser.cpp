@@ -28,7 +28,7 @@
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicfMessages.h"
 #include "RicfCommandFileExecutor.h"

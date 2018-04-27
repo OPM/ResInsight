@@ -30,7 +30,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 
 #include "RiuMainWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"

@@ -28,7 +28,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuNightchartsWidget.h"
 #include "RiuWellAllocationPlot.h"
 

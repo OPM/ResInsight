@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
@@ -51,18 +51,11 @@
 #include <QToolBar>
 #include <QTreeView>
 
-//==================================================================================================
-///
-/// \class RiuMainPlotWindow
-///
-/// Contains our main window
-///
-//==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow::RiuMainPlotWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(nullptr), m_blockSlotSubWindowActivated(false)
+RiuPlotMainWindow::RiuPlotMainWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(nullptr), m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
@@ -86,15 +79,15 @@ RiuMainPlotWindow::RiuMainPlotWindow() : m_activePlotViewWindow(nullptr), m_wind
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuMainPlotWindow::mainWindowName()
+QString RiuPlotMainWindow::mainWindowName()
 {
-    return "RiuMainPlotWindow";
+    return "RiuPlotMainWindow";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
+void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
@@ -110,7 +103,7 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
+void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
     setPdmRoot(nullptr);
 
@@ -129,7 +122,7 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::cleanUpTemporaryWidgets()
+void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 {
     for (QWidget* w : m_temporaryWidgets)
     {
@@ -143,7 +136,7 @@ void RiuMainPlotWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
+void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -169,7 +162,7 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::createMenus()
+void RiuPlotMainWindow::createMenus()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
 
@@ -263,7 +256,7 @@ void RiuMainPlotWindow::createMenus()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
+QStringList RiuPlotMainWindow::toolbarCommandIds(const QString& toolbarName)
 {
     QStringList commandIds;
 
@@ -301,7 +294,7 @@ QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::createToolBars()
+void RiuPlotMainWindow::createToolBars()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
@@ -331,7 +324,7 @@ void RiuMainPlotWindow::createToolBars()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::refreshToolbars()
+void RiuPlotMainWindow::refreshToolbars()
 {
     QStringList allToolbarCommandNames = toolbarCommandIds();
 
@@ -341,7 +334,7 @@ void RiuMainPlotWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::createDockPanels()
+void RiuPlotMainWindow::createDockPanels()
 {
     {
         QDockWidget* dockWidget = new QDockWidget("Plot Project Tree", this);
@@ -406,7 +399,7 @@ void RiuMainPlotWindow::createDockPanels()
 ///
 //--------------------------------------------------------------------------------------------------
 
-QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
+QMdiSubWindow* RiuPlotMainWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
     int                   i;
@@ -424,7 +417,7 @@ QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QMdiSubWindow*> RiuMainPlotWindow::subWindowList(QMdiArea::WindowOrder order)
+QList<QMdiSubWindow*> RiuPlotMainWindow::subWindowList(QMdiArea::WindowOrder order)
 {
     return m_mdiArea->subWindowList(order);
 }
@@ -432,7 +425,7 @@ QList<QMdiSubWindow*> RiuMainPlotWindow::subWindowList(QMdiArea::WindowOrder ord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
+void RiuPlotMainWindow::addToTemporaryWidgets(QWidget* widget)
 {
     CVF_ASSERT(widget);
 
@@ -442,7 +435,7 @@ void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::updateSummaryPlotToolBar()
+void RiuPlotMainWindow::updateSummaryPlotToolBar()
 {
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow.p());
     if (summaryPlot)
@@ -469,7 +462,7 @@ void RiuMainPlotWindow::updateSummaryPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::removeViewer(QWidget* viewer)
+void RiuPlotMainWindow::removeViewer(QWidget* viewer)
 {
     m_blockSlotSubWindowActivated = true;
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
@@ -481,7 +474,7 @@ void RiuMainPlotWindow::removeViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
+void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
     RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
@@ -544,7 +537,7 @@ void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
 //--------------------------------------------------------------------------------------------------
 /// This method needs to handle memory deallocation !!!
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
+void RiuPlotMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
@@ -554,7 +547,7 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
+void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow)
         return;
@@ -583,7 +576,7 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
+void RiuPlotMainWindow::setActiveViewer(QWidget* viewer)
 {
     m_blockSlotSubWindowActivated = true;
 
@@ -597,7 +590,7 @@ void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::slotBuildWindowActions()
+void RiuPlotMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
 
@@ -622,7 +615,7 @@ void RiuMainPlotWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::selectedObjectsChanged()
+void RiuPlotMainWindow::selectedObjectsChanged()
 {
     std::vector<caf::PdmUiItem*> uiItems;
     m_projectTreeView->selectedUiItems(uiItems);
@@ -682,7 +675,7 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::hideAllDockWindows()
+void RiuPlotMainWindow::hideAllDockWindows()
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 
@@ -695,7 +688,7 @@ void RiuMainPlotWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::restoreTreeViewState()
+void RiuPlotMainWindow::restoreTreeViewState()
 {
     if (m_projectTreeView)
     {
@@ -720,7 +713,7 @@ void RiuMainPlotWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::setDefaultWindowSize()
+void RiuPlotMainWindow::setDefaultWindowSize()
 {
     resize(1000, 810);
 }
@@ -728,7 +721,7 @@ void RiuMainPlotWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
+void RiuPlotMainWindow::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
@@ -749,7 +742,7 @@ void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
+RimMdiWindowGeometry RiuPlotMainWindow::windowGeometryForViewer(QWidget* viewer)
 {
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
@@ -763,7 +756,7 @@ RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::tileWindows()
+void RiuPlotMainWindow::tileWindows()
 {
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
@@ -783,7 +776,7 @@ void RiuMainPlotWindow::tileWindows()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMainPlotWindow::isAnyMdiSubWindowVisible()
+bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
 }

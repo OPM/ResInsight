@@ -32,7 +32,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimTools.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 

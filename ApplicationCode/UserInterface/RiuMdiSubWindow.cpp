@@ -24,7 +24,7 @@
 #include "Rim3dView.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"

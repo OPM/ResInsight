@@ -48,12 +48,12 @@ namespace caf
 // 
 //
 //==================================================================================================
-class RiuMainPlotWindow : public RiuMainWindowBase
+class RiuPlotMainWindow : public RiuMainWindowBase
 {
     Q_OBJECT
 
 public:
-    RiuMainPlotWindow();
+    RiuPlotMainWindow();
     
     QString             mainWindowName() override;
     

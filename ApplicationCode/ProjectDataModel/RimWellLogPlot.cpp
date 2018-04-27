@@ -29,7 +29,7 @@
 #include "RimWellRftPlot.h"
 #include "RimWellPltPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 

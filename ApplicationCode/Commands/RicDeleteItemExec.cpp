@@ -44,7 +44,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RimFractureTemplateCollection.h"
 
@@ -262,7 +262,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
         if (summaryPlotCollection)
         {
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
 
@@ -270,7 +270,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryCrossPlotCollection);
         if (summaryCrossPlotCollection)
         {
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
 

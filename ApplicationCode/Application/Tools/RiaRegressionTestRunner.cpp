@@ -32,7 +32,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
@@ -432,7 +432,7 @@ void RiaRegressionTestRunner::resizeMaximizedPlotWindows()
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    RiuMainPlotWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
     if (!plotMainWindow) return;
 
     std::vector<RimViewWindow*> viewWindows;
