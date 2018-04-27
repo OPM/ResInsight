@@ -144,7 +144,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
         filesGroupLayout->addWidget(optionsLabel);
 
         QVBoxLayout* optionsLayout = new QVBoxLayout();
-        optionsLayout->setContentsMargins(0, 0, 0, 0);
+        optionsLayout->setSpacing(0);
         optionsLayout->addWidget(m_summaryReadAllBtn);
         optionsLayout->addWidget(m_summarySeparateCasesBtn);
         optionsLayout->addWidget(m_summaryNotReadBtn);
@@ -166,6 +166,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
         filesGroupLayout->addWidget(optionsLabel);
 
         QVBoxLayout* optionsLayout = new QVBoxLayout();
+        optionsLayout->setSpacing(0);
         optionsLayout->addWidget(m_gridSeparateCasesBtn);
         optionsLayout->addWidget(m_gridNotReadBtn);
         filesGroupLayout->addLayout(optionsLayout);
@@ -176,9 +177,13 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(m_buttons);
 
-    dialogLayout->addWidget(m_currentFilesGroup);
-    dialogLayout->addWidget(summaryFilesGroup);
-    dialogLayout->addWidget(m_gridFilesGroup);
+    QVBoxLayout* innerDialogLayout = new QVBoxLayout();
+    innerDialogLayout->setSpacing(20);
+    innerDialogLayout->addWidget(m_currentFilesGroup);
+    innerDialogLayout->addWidget(summaryFilesGroup);
+    innerDialogLayout->addWidget(m_gridFilesGroup);
+
+    dialogLayout->addLayout(innerDialogLayout);
     dialogLayout->addWidget(m_warnings);
     dialogLayout->addLayout(buttonsLayout);
 
