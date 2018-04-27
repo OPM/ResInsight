@@ -13,22 +13,15 @@ package "Summary case ensamble" {
         
         RimSummaryCase -> RigCaseRealizationParameters
         
-        'RimSummaryCaseMainCollection ..> RifEnsambleParametersReader
         RimSummaryCaseMainCollection ..> RifCaseRealizationParametersReader : create
         RifCaseRealizationParametersReader ..> RimSummaryCase : set parameters
 
         class RifSummaryReaderInterface {
             allResultAddresses()
         }
-        class RimEnsambleSummaryCase << New >>
-        class RifReaderEnsambleSummary << New >>
         RimSummaryCase <|-- RimGridSummaryCase
-        RimSummaryCase <|-- RimEnsambleSummaryCase
         RimSummaryCase --> RifSummaryReaderInterface
         RifSummaryReaderInterface <|-- RifReaderEclipseSummary
-        RifSummaryReaderInterface <|-- RifReaderEnsambleSummary
-        RimEnsambleSummaryCase ..> RifReaderEnsambleSummary
-        RimEnsambleSummaryCase --> RimSummaryCaseCollection
         RimGridSummaryCase ..> RifReaderEclipseSummary
     }
     
