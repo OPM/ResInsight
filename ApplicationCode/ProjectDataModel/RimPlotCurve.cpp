@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPlotCurve.h"
+
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
-#include "RimEnsembleCurveSet.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
@@ -578,19 +580,15 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
-    if (m_showLegend())
+    bool showLegendInQwt = m_showLegend();
+
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(summaryPlot);
+    if (summaryPlot && summaryPlot->curveCount() == 1)
     {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
+        // Disable display of legend if the summary plot has only one single curve
+        showLegendInQwt = false;
     }
-    else
-    {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-    }
+
+    m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
 }
