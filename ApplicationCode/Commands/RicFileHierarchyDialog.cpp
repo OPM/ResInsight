@@ -749,7 +749,7 @@ void RicFileHierarchyDialog::slotDialogCancelClicked()
 void RicFileHierarchyDialog::slotBrowseButtonClicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this, "Select root folder", m_rootDir->text());
-    m_rootDir->setText(folder);
+    if(!folder.isEmpty()) m_rootDir->setText(folder);
 }
 
 
