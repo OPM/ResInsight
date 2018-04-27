@@ -18,12 +18,14 @@
 
 #include "Rim3dWellLogRftCurve.h"
 
+#include "RifReaderEclipseRft.h"
+#include "RigWellLogCurveData.h"
+
+#include "RimWellLogCurveNameConfig.h"
+#include "RimEclipseResultCase.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellLogCurve.h"
-#include "RigWellLogCurveData.h"
-#include "RimEclipseResultCase.h"
-#include "RifReaderEclipseRft.h"
-#include "RimTools.h"
 
 //==================================================================================================
 ///
@@ -49,7 +51,8 @@ Rim3dWellLogRftCurve::Rim3dWellLogRftCurve()
     m_2dWellLogRftCurve = new RimWellLogRftCurve();
     m_2dWellLogRftCurve.xmlCapability()->disableIO();
 
-    m_name = "3D Well Log RFT Curve";
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimWellLogRftCurveNameConfig(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +60,7 @@ Rim3dWellLogRftCurve::Rim3dWellLogRftCurve()
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogRftCurve::~Rim3dWellLogRftCurve()
 {
+    delete m_nameConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +86,53 @@ void Rim3dWellLogRftCurve::curveValuesAndMds(std::vector<double>* values, std::v
 QString Rim3dWellLogRftCurve::resultPropertyString() const
 {
     return caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(m_wellLogChannelName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogRftCurve::name() const
+{
+    return m_nameConfig->name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogRftCurve::createCurveAutoName() const
+{
+    QStringList name;
+
+    if (!wellName().isEmpty())
+    {
+        name.push_back(wellName());
+    }
+
+    name.push_back("RFT");
+
+    if (m_eclipseResultCase)
+    {
+        name.push_back(m_eclipseResultCase->caseUserDescription());
+    }
+    if (m_wellLogChannelName().text() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
+    {
+        RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = m_wellLogChannelName();
+        name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelNameEnum));
+    }
+    if (!m_timeStep().isNull())
+    {
+        name.push_back(m_timeStep().toString(RimTools::dateFormatString()));
+    }
+
+    return name.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dWellLogRftCurve::userDescriptionField()
+{
+    return m_nameConfig()->nameField();
 }
 
 //--------------------------------------------------------------------------------------------------

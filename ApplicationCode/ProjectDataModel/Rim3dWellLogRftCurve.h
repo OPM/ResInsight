@@ -28,6 +28,7 @@
 #include "RimWellLogRftCurve.h"
 
 class RimEclipseResultCase;
+class RimWellLogRftCurveNameConfig;
 class QString;
 
 //==================================================================================================
@@ -45,8 +46,12 @@ public:
     virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
 
     virtual QString resultPropertyString() const override;
+    virtual QString name() const override;
+    virtual QString createCurveAutoName() const override;
 
 protected:
+    virtual caf::PdmFieldHandle*            userDescriptionField() override;
+
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                   const QVariant& oldValue,
                                   const QVariant& newValue) override;
@@ -66,4 +71,5 @@ private:
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 
     caf::PdmChildField<RimWellLogRftCurve*> m_2dWellLogRftCurve;
+    caf::PdmChildField<RimWellLogRftCurveNameConfig*> m_nameConfig;
 };

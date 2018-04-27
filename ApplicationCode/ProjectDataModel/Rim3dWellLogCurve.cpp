@@ -69,8 +69,6 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 
     CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
-    CAF_PDM_InitField(&m_name, "Name", QString("3D Well Log Curve"), "3d Well Log Curve", "", "", "");
-    m_name.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,14 +86,6 @@ void Rim3dWellLogCurve::updateCurveIn3dView()
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString& Rim3dWellLogCurve::name() const
-{
-    return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,14 +164,6 @@ void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* Rim3dWellLogCurve::userDescriptionField()
-{
-    return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Configuration");
@@ -249,17 +231,23 @@ void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::initAfterRead()
+{
+    this->createCurveAutoName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
 {
     this->resetMinMaxValues();
     this->updateConnectedEditors();
 }
 
-void Rim3dWellLogCurve::setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator)
-{
-    m_geometryGenerator = generator;
-}
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
                                                 cvf::Vec3d*       closestPoint,
                                                 double*           measuredDepthAtPoint,
@@ -272,6 +260,17 @@ bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersec
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator)
+{
+    m_geometryGenerator = generator;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerator()
 {
     return m_geometryGenerator;

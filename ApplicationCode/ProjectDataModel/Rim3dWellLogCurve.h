@@ -23,9 +23,11 @@
 #include "cafPdmObject.h"
 
 #include "cafPdmFieldCvfColor.h"
-
+#include "cafPdmChildField.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+
+#include "RimWellLogCurveNameConfig.h"
 
 class Riv3dWellLogCurveGeometryGenerator;
 
@@ -33,7 +35,7 @@ class Riv3dWellLogCurveGeometryGenerator;
 ///
 ///
 //==================================================================================================
-class Rim3dWellLogCurve : public caf::PdmObject
+class Rim3dWellLogCurve : public caf::PdmObject, public RimCurveNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -52,7 +54,7 @@ public:
 
     void updateCurveIn3dView();
 
-    const QString&  name() const;
+    virtual QString name() const = 0;
     virtual QString resultPropertyString() const = 0;
     DrawPlane       drawPlane() const;
     cvf::Color3f    color() const;
@@ -72,18 +74,17 @@ public:
 
     void setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator);
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
-    
+
 protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*            userDescriptionField() override;
     void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);    
+    virtual void                            initAfterRead();
 private:
     void                                    resetMinMaxValues();
 protected:
-    caf::PdmField<QString>                          m_name;
     caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
     caf::PdmField<cvf::Color3f>                     m_color;
     caf::PdmField<double>                           m_minCurveValue;

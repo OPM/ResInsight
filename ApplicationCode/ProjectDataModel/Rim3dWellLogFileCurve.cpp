@@ -20,6 +20,7 @@
 
 #include "RigWellLogFile.h"
 
+#include "RimWellLogCurveNameConfig.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
@@ -44,13 +45,17 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
 
-    m_name = "3D Well Log LAS Curve";
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimWellLogFileCurveNameConfig(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve() {}
+Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve()
+{
+    delete m_nameConfig;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,7 +77,6 @@ void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
         if (!fileLogs.empty())
         {
             m_wellLogChannelName = fileLogs[0]->name();
-            m_name                = "LAS: " + m_wellLogChannelName;
         }
     }
 }
@@ -102,6 +106,76 @@ void Rim3dWellLogFileCurve::curveValuesAndMds(std::vector<double>* values, std::
 QString Rim3dWellLogFileCurve::resultPropertyString() const
 {
     return m_wellLogChannelName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogFileCurve::name() const
+{
+    return m_nameConfig->name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dWellLogFileCurve::createCurveAutoName() const
+{
+    QStringList name;
+    QString unit;
+    bool channelNameAvailable = false;
+
+    RimWellPath* wellPath;
+    this->firstAncestorOrThisOfType(wellPath);
+
+    if (wellPath)
+    {
+        name.push_back(wellPath->name());
+        name.push_back("LAS");
+
+        if (!m_wellLogChannelName().isEmpty())
+        {
+            name.push_back(m_wellLogChannelName);
+            channelNameAvailable = true;
+        }
+
+        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+
+        if (wellLogFile)
+        {
+            if (channelNameAvailable)
+            {
+             /*   RimWellLogPlot* wellLogPlot;
+                firstAncestorOrThisOfType(wellLogPlot);
+                CVF_ASSERT(wellLogPlot);
+                QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
+
+                if (!unitName.isEmpty())
+                {
+                    name.back() += QString(" [%1]").arg(unitName);
+                } */
+            }
+
+            QString date = wellLogFile->date();
+            if (!date.isEmpty())
+            {
+                name.push_back(wellLogFile->date());
+            }
+
+        }
+
+        return name.join(", ");
+    }
+
+    return "Empty curve";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dWellLogFileCurve::userDescriptionField()
+{
+    return m_nameConfig()->nameField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +251,8 @@ void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveDataGroup->add(&m_wellLogChannelName);
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
+
+    caf::PdmUiGroup* nameGroup = m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

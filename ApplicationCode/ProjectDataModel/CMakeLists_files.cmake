@@ -104,6 +104,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogRftCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveNameConfig.h
 )
 
 
@@ -212,6 +213,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogRftCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveNameConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
