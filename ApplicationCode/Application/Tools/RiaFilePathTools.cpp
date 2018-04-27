@@ -100,22 +100,30 @@ QString RiaFilePathTools::canonicalPath(const QString& path)
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::commonRootPath(const QStringList& paths)
 {
-    QString root = paths.front();
-    for (const auto& item : paths)
+    if (paths.size() < 2) return "";
+
+    int i = 0;
+    int iDir = 0;
+    for(i = 0; ; i++)
     {
-        if (root.length() > item.length()) root.truncate(item.length());
+        bool isCommon = true;
+        QChar ch = i < paths.front().size() ? paths.front()[i] : 0;
 
-        int iDir = 0;
-        for (int i = 0; i < root.length(); ++i)
+        // Remember last directory separator
+        if (i > 0 && (ch == '/' || ch == '\\')) iDir = i;
+
+        // Compare characters at position i
+        for (const QString& path : paths)
         {
-            if (i > 0 && (root[i-1] == '/' || root[i-1] == '\\')) iDir = i;
-
-            if (root[i] != item[i] || i == root.length() - 1)
+            if (ch == 0 || path[i] != ch)
             {
-                root.truncate(std::min(i, iDir));
+                isCommon = false;
                 break;
             }
         }
+
+        if (!isCommon) break;
     }
-    return root;
+
+    return paths.front().left(iDir + 1);
 }
