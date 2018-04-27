@@ -370,30 +370,39 @@ void RiuMainWindow::createMenus()
 
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCasesFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
-    importMenu->addSeparator();
+
+    QMenu* importEclipseMenu = importMenu->addMenu(QIcon(":/Case48x48.png"), "Eclipse Cases");
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCasesFeature"));
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importEclipseMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFromFilesFeature"));
+
     #ifdef USE_ODB_API
-    importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     importMenu->addSeparator();
+    QMenu* importGeoMechMenu = importMenu->addMenu(QIcon(":/GeoMechCase48x48.png"), "Geo Mechanical Cases");
+    importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
+    importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     #endif
-    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
 
     importMenu->addSeparator();
-    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
+    QMenu* importSummaryMenu = importMenu->addMenu(QIcon(":/SummaryCase48x48.png"), "Summary Cases");
+    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
+    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
+    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
+    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
+
     importMenu->addSeparator();
-    importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
-    importMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
+    QMenu* importWellMenu = importMenu->addMenu(QIcon(":/Well.png"), "Wells");
+    importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+    importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
+    importWellMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
+    
+    importMenu->addSeparator();
+    QMenu* importFormationsMenu = importMenu->addMenu(QIcon(":/FormationCollection16x16.png"), "Formations");
+    importFormationsMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
+    importFormationsMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
