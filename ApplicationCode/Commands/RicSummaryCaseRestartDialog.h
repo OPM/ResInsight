@@ -41,6 +41,13 @@ class RicSummaryCaseRestartDialogResult;
 class QAbstractButton;
 
 //==================================================================================================
+///  Constants
+//==================================================================================================
+#define CURRENT_FILES_LIST_INDEX    0
+#define SUMMARY_FILES_LIST_INDEX    1
+#define GRID_FILES_LIST_INDEX       2
+
+//==================================================================================================
 ///  
 //==================================================================================================
 class RicSummaryCaseRestartDialog : public QDialog
@@ -67,12 +74,13 @@ public:
     bool                                        okToAllSelected() const;
 
 private:
-    void                                        populateFileList(QGridLayout* gridLayout, const std::vector<std::pair<RifRestartFileInfo, QString>>& fileInfos);
+    void                                        updateFileListWidget(QGridLayout* gridLayout, int listIndex);
     void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
     void                                        displayWarningsIfAny(const QStringList& warnings);
 
 private slots:
+    void slotShowFullPathToggled(int state);
     void slotDialogButtonClicked(QAbstractButton* button);
 
 private:
@@ -91,10 +99,13 @@ private:
     QRadioButton*                       m_gridNotReadBtn;
     QRadioButton*                       m_gridSeparateCasesBtn;
 
+    QCheckBox*                          m_showFullPathCheckBox;
     QDialogButtonBox*                   m_buttons;
 
     bool                                m_okToAllPressed;
     QListWidget*                        m_warnings;
+
+    std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> m_fileLists;
 };
 
 

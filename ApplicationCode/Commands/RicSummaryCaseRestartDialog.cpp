@@ -96,6 +96,36 @@ std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> removeCommonRoo
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
+{
+    // Build output lists
+    std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> output;
+
+    QString currentFilePath = QFileInfo(fileInfoLists[CURRENT_FILES_LIST_INDEX].front().fileName).absoluteDir().absolutePath();
+
+    for (const auto& fileInfoList : fileInfoLists)
+    {
+        std::vector<std::pair<RifRestartFileInfo, QString>> currList;
+
+        for (auto& fi : fileInfoList)
+        {
+            std::pair<RifRestartFileInfo, QString> newFi;
+            newFi = std::make_pair(fi, fi.fileName);
+            QFileInfo(fi.fileName).fileName();
+
+            QString absPath = QFileInfo(fi.fileName).absoluteDir().absolutePath();
+            QString prefix = RiaFilePathTools::equalPaths(currentFilePath, absPath) ? "" : ".../";
+            newFi.first.fileName = prefix + QFileInfo(fi.fileName).fileName();
+            currList.push_back(newFi);
+        }
+        output.push_back(currList);
+    }
+    return output;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
@@ -109,9 +139,11 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_gridSeparateCasesBtn = new QRadioButton(this);
     m_gridNotReadBtn = new QRadioButton(this);
     m_warnings = new QListWidget(this);
+    m_showFullPathCheckBox = new QCheckBox(this);
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
 
     // Connect to signals
+    connect(m_showFullPathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(slotShowFullPathToggled(int)));
     connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotDialogButtonClicked(QAbstractButton*)));
 
     // Set widget properties
@@ -120,6 +152,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_summaryNotReadBtn->setText("Skip");
     m_gridSeparateCasesBtn->setText("Separate Cases");
     m_gridNotReadBtn->setText("Skip");
+    m_showFullPathCheckBox->setText("Show full paths");
     m_buttons->button(QDialogButtonBox::Apply)->setText("OK to All");
 
     // Define layout
@@ -179,6 +212,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
 
     // Apply to all checkbox and buttons
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
+    buttonsLayout->addWidget(m_showFullPathCheckBox);
     buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(m_buttons);
 
@@ -329,16 +363,21 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         }
 
         // Remove common root path
-        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot = removeCommonRootPath(
+        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot = makeShortPath(
             {
                 currentFileInfos, originSummaryFileInfos, originGridFileInfos
             }
         );
 
-        // Populate file list widgets
-        dialog.populateFileList(dialog.m_currentFilesLayout, fileInfosNoRoot[0]);
-        dialog.populateFileList(dialog.m_summaryFilesLayout, fileInfosNoRoot[1]);
-        dialog.populateFileList(dialog.m_gridFilesLayout, fileInfosNoRoot[2]);
+        // Populate file list backing lists
+        dialog.m_fileLists.push_back(fileInfosNoRoot[CURRENT_FILES_LIST_INDEX]);
+        dialog.m_fileLists.push_back(fileInfosNoRoot[SUMMARY_FILES_LIST_INDEX]);
+        dialog.m_fileLists.push_back(fileInfosNoRoot[GRID_FILES_LIST_INDEX]);
+
+        // Update file list widgets
+        dialog.updateFileListWidget(dialog.m_currentFilesLayout, CURRENT_FILES_LIST_INDEX);
+        dialog.updateFileListWidget(dialog.m_summaryFilesLayout, SUMMARY_FILES_LIST_INDEX);
+        dialog.updateFileListWidget(dialog.m_gridFilesLayout, GRID_FILES_LIST_INDEX);
 
         // Display warnings if any
         dialog.displayWarningsIfAny(reader.warnings());
@@ -425,15 +464,24 @@ bool RicSummaryCaseRestartDialog::okToAllSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::populateFileList(QGridLayout* gridLayout, const std::vector<std::pair<RifRestartFileInfo, QString>>& fileInfos)
+void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, int listIndex)
 {
-    if (fileInfos.empty())
+    // Remove current items
+    QLayoutItem* item;
+    while (item = gridLayout->takeAt(0))
+    {
+        gridLayout->removeItem(item);
+        delete item->widget();
+        delete item;
+    }
+    
+     if (m_fileLists[listIndex].empty())
     {
         QWidget* parent = gridLayout->parentWidget();
         if (parent) parent->setVisible(false);
     }
 
-    for (const auto& fileInfo : fileInfos)
+    for (const auto& fileInfo : m_fileLists[listIndex])
     {
         appendFileInfoToGridLayout(gridLayout, fileInfo.first, fileInfo.second);
     }
@@ -454,7 +502,7 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
 
     QLabel* fileNameLabel = new QLabel();
     QLabel* dateLabel = new QLabel();
-    fileNameLabel->setText(fileInfo.fileName);
+    fileNameLabel->setText(m_showFullPathCheckBox->isChecked() ? fullPathFileName : fileInfo.fileName);
     dateLabel->setText(startDateString + " - " + endDateString);
 
     fileNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -485,6 +533,17 @@ void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnin
         QListWidgetItem* item = new QListWidgetItem(warning, m_warnings);
         item->setForeground(Qt::red);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
+{
+    // Update file list widgets
+    updateFileListWidget(m_currentFilesLayout, CURRENT_FILES_LIST_INDEX);
+    updateFileListWidget(m_summaryFilesLayout, SUMMARY_FILES_LIST_INDEX);
+    updateFileListWidget(m_gridFilesLayout, GRID_FILES_LIST_INDEX);
 }
 
 //--------------------------------------------------------------------------------------------------
