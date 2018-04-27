@@ -66,7 +66,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<RifRestartFileInfo>> removeRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
+std::vector<std::vector<RifRestartFileInfo>> removeCommonRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
 {
     // Find common root path among all paths
     QStringList allPaths;
@@ -129,40 +129,45 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     m_currentFilesGroup->setLayout(m_currentFilesLayout);
 
     // Summary files
-    QGroupBox* summaryFilesGroup = new QGroupBox("Found Origin Summary Files");
+    QGroupBox* summaryFilesGroup = new QGroupBox("Origin Summary Files");
     {
         QVBoxLayout* filesGroupLayout = new QVBoxLayout();
         summaryFilesGroup->setLayout(filesGroupLayout);
 
         m_summaryFilesLayout = new QGridLayout();
         filesGroupLayout->addLayout(m_summaryFilesLayout);
-        m_summaryFilesLayout->setContentsMargins(0, 0, 0, 20);
+        m_summaryFilesLayout->setContentsMargins(0, 0, 0, 5);
 
-        QGroupBox* optionsGroup = new QGroupBox("Import Options");
+        QLabel* optionsLabel = new QLabel("Import Options");
+        optionsLabel->setStyleSheet("font-weight: bold;");
+        filesGroupLayout->addWidget(optionsLabel);
+
         QVBoxLayout* optionsLayout = new QVBoxLayout();
-        optionsGroup->setLayout(optionsLayout);
+        optionsLayout->setContentsMargins(0, 0, 0, 0);
         optionsLayout->addWidget(m_summaryReadAllBtn);
         optionsLayout->addWidget(m_summarySeparateCasesBtn);
         optionsLayout->addWidget(m_summaryNotReadBtn);
-        filesGroupLayout->addWidget(optionsGroup);
+        filesGroupLayout->addLayout(optionsLayout);
     }
 
     // Grid files
-    m_gridFilesGroup = new QGroupBox("Found Origin Grid Files");
+    m_gridFilesGroup = new QGroupBox("Origin Grid Files");
     {
         QVBoxLayout* filesGroupLayout = new QVBoxLayout();
         m_gridFilesGroup->setLayout(filesGroupLayout);
 
         m_gridFilesLayout = new QGridLayout();
         filesGroupLayout->addLayout(m_gridFilesLayout);
-        m_gridFilesLayout->setContentsMargins(0, 0, 0, 20);
+        m_gridFilesLayout->setContentsMargins(0, 0, 0, 5);
 
-        QGroupBox* optionsGroup = new QGroupBox("Import Options");
+        QLabel* optionsLabel = new QLabel("Import Options");
+        optionsLabel->setStyleSheet("font-weight: bold;");
+        filesGroupLayout->addWidget(optionsLabel);
+
         QVBoxLayout* optionsLayout = new QVBoxLayout();
-        optionsGroup->setLayout(optionsLayout);
         optionsLayout->addWidget(m_gridSeparateCasesBtn);
         optionsLayout->addWidget(m_gridNotReadBtn);
-        filesGroupLayout->addWidget(optionsGroup);
+        filesGroupLayout->addLayout(optionsLayout);
     }
 
     // Apply to all checkbox and buttons
@@ -313,7 +318,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         }
 
         // Remove common root path
-        std::vector<std::vector<RifRestartFileInfo>> fileInfosNoRoot = removeRootPath(
+        std::vector<std::vector<RifRestartFileInfo>> fileInfosNoRoot = removeCommonRootPath(
             {
                 currentFileInfos, originSummaryFileInfos, originGridFileInfos
             }
