@@ -20,14 +20,15 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotNameHelper.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
 #include "cafPdmUiPushButtonEditor.h"
-#include "RimEnsembleCurveSet.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveAutoName, "SummaryCurveAutoName");
 
@@ -49,7 +50,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
     CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",            true, "Aquifer Number", "", "", "");
     
-    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
+    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case/Ensemble Name", "", "", "");
 
     // clang-format on
 }
@@ -81,7 +82,23 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
 
     appendAddressDetails(text, summaryAddress, nameHelper);
 
-    if (summaryCurve)
+    RimEnsembleCurveSet* ensambleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(ensambleCurveSet);
+
+    if (ensambleCurveSet)
+    {
+        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
+
+        if (m_caseName && !skipSubString)
+        {
+            if (ensambleCurveSet && ensambleCurveSet->summaryCaseCollection())
+            {
+                if (text.size() > 0) text += ", ";
+                text += ensambleCurveSet->summaryCaseCollection()->name().toStdString();
+            }
+        }
+    }
+    else if (summaryCurve)
     {
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 

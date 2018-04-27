@@ -79,6 +79,8 @@ public:
     RimRegularLegendConfig*                 legendConfig();
     void                                    onLegendDefinitionChanged();
 
+    RimSummaryCaseCollection*               summaryCaseCollection() const;
+
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();

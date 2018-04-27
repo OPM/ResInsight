@@ -296,6 +296,14 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimEnsembleCurveSet::summaryCaseCollection() const
+{
+    return m_yValuesSummaryGroup();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
