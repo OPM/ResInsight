@@ -40,6 +40,7 @@
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
@@ -81,10 +82,10 @@
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QSpinBox>
+#include <QStatusBar>
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
-#include "RiuDockWidgetTools.h"
 
 
 //==================================================================================================
@@ -174,6 +175,11 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     }
 
     m_processMonitor->slotClearTextEdit();
+
+    if (statusBar())
+    {
+        statusBar()->showMessage("Ready ...");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
