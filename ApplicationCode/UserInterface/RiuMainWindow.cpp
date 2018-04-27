@@ -176,14 +176,14 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 
     m_processMonitor->slotClearTextEdit();
 
-    if (statusBar())
+    if (statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
         statusBar()->showMessage("Ready ...");
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiCaseClose()
 {

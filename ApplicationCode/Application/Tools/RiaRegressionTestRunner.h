@@ -29,8 +29,6 @@ class QDir;
 class RiaRegressionTestRunner
 {
 public:
-    RiaRegressionTestRunner();
-
     static RiaRegressionTestRunner* instance();
 
     void executeRegressionTests(const QString& regressionTestPath, const QStringList& testFilter);
@@ -41,6 +39,8 @@ public:
     static void updateRegressionTest(const QString& testRootPath);
 
 private:
+    RiaRegressionTestRunner();
+
     void runRegressionTest(const QString& testRootPath, const QStringList& testFilter);
 
     static void  removeDirectoryWithContent(QDir& dirToDelete);

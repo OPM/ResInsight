@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QMdiSubWindow>
 #include <QSettings>
+#include <QStatusBar>
 #include <QString>
 #include <QUrl>
 
@@ -494,6 +495,7 @@ void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTe
     if (mainWnd)
     {
         mainWnd->hideAllDockWindows();
+        mainWnd->statusBar()->close();
 
         mainWnd->setDefaultWindowSize();
         runRegressionTest(regressionTestPath, testFilter);
