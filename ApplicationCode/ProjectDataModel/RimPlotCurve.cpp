@@ -550,7 +550,7 @@ void RimPlotCurve::showLegend(bool show)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setZOrder(double z)
 {
@@ -561,24 +561,11 @@ void RimPlotCurve::setZOrder(double z)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
-    if (m_showLegend()) {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
-    }
-    else
-    {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-    }
+    updateLegendEntryVisibilityNoPlotUpdate();
 
     if (m_parentQwtPlot != nullptr)
     {
@@ -587,11 +574,12 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
-    if (m_showLegend()) {
+    if (m_showLegend())
+    {
         if (m_curveName().isEmpty())
         {
             m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
