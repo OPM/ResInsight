@@ -27,6 +27,7 @@
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "RimEnsembleCurveSet.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveAutoName, "SummaryCurveAutoName");
 
@@ -323,6 +324,8 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     {
         summaryCurve->updateCurveNameAndUpdatePlotLegend();
         summaryCurve->updateConnectedEditors();
+
+        return;
     }
 
     RicSummaryCurveCreator* curveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->parentField()->ownerObject());
@@ -330,6 +333,18 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     {
         curveCreator->updateCurveNames();
         curveCreator->updateConnectedEditors();
+
+        return;
+    }
+
+    {
+        auto ensambleCurveSet = dynamic_cast<RimEnsembleCurveSet*>(this->parentField()->ownerObject());
+        if (ensambleCurveSet)
+        {
+            ensambleCurveSet->updateConnectedEditors();
+        
+            return;
+        }
     }
 }
 
