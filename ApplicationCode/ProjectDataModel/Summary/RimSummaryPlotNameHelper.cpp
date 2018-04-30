@@ -213,30 +213,17 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
     }
 
     {
-        QString summaryCaseTitle;
-        if (m_summaryCases.size() == 1)
+        if (m_summaryCases.size() == 1 && m_ensembleCases.empty())
         {
             auto summaryCase = *(m_summaryCases.begin());
 
-            summaryCaseTitle = summaryCase->caseName();
+            m_titleCaseName = summaryCase->caseName();
         }
-
-        QString ensembleCaseTitle;
-        if (m_titleCaseName.isEmpty() && m_ensembleCases.size() == 1)
+        else if (m_ensembleCases.size() == 1 && m_summaryCases.empty())
         {
             auto ensembleCase = *(m_ensembleCases.begin());
 
-            ensembleCaseTitle = ensembleCase->name();
-        }
-
-        // If one case title is the single available, use the single title
-        if (summaryCaseTitle.isEmpty() && !ensembleCaseTitle.isEmpty())
-        {
-            m_titleCaseName = ensembleCaseTitle;
-        }
-        else if (!summaryCaseTitle.isEmpty() && ensembleCaseTitle.isEmpty())
-        {
-            m_titleCaseName = summaryCaseTitle;
+            m_titleCaseName = ensembleCase->name();
         }
     }
 }

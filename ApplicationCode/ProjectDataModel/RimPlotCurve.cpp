@@ -19,6 +19,7 @@
 #include "RimPlotCurve.h"
 
 #include "RimEnsembleCurveSet.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -588,6 +589,18 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
     {
         // Disable display of legend if the summary plot has only one single curve
         showLegendInQwt = false;
+    }
+
+    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(ensembleCurveSet);
+    if (ensembleCurveSet)
+    {
+        auto firstCurve = ensembleCurveSet->firstCurve();
+        if (firstCurve != this)
+        {
+            // Hide legend display for curves other than the first
+            showLegendInQwt = false;
+        }
     }
 
     m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);

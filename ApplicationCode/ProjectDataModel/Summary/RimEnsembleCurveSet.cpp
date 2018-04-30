@@ -184,6 +184,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
         firstAncestorOrThisOfTypeAsserted(parentPlot);
         if (parentPlot->qwtPlot())
         {
+            parentPlot->updatePlotTitle();
             parentPlot->qwtPlot()->updateLegend();
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
@@ -275,6 +276,16 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::visibleCurves() const
     }
 
     return visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimEnsembleCurveSet::firstCurve() const
+{
+    if (!curves().empty()) return curves().front();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

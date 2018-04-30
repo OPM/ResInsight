@@ -1516,6 +1516,16 @@ void RimSummaryPlot::updateCurveNames()
             }
         }
     }
+
+    for (auto curveSet : m_ensembleCurveSetCollection->curveSets())
+    {
+        if (curveSet->isCurvesVisible() && curveSet->firstCurve())
+        {
+            // Only the first curve in the set is used in the legend, 
+            // skip update of other curves
+            curveSet->firstCurve()->updateCurveNameNoLegendUpdate();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

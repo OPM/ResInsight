@@ -111,17 +111,18 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
     //    curve->updateQwtPlotAxis();
     //}
 
-    //if ( updateParentPlot )
-    //{
-    //    RimSummaryPlot* parentPlot;
-    //    firstAncestorOrThisOfTypeAsserted(parentPlot);
-    //    if ( parentPlot->qwtPlot() )
-    //    {
-    //        parentPlot->qwtPlot()->updateLegend();
-    //        parentPlot->updateAxes();
-    //        parentPlot->updateZoomInQwt();
-    //    }
-    //}
+    if ( updateParentPlot )
+    {
+       RimSummaryPlot* parentPlot;
+       firstAncestorOrThisOfTypeAsserted(parentPlot);
+       if ( parentPlot->qwtPlot() )
+       {
+           parentPlot->updatePlotTitle();
+           parentPlot->qwtPlot()->updateLegend();
+           parentPlot->updateAxes();
+           parentPlot->updateZoomInQwt();
+       }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

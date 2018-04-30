@@ -107,6 +107,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
         firstAncestorOrThisOfTypeAsserted(parentPlot);
         if ( parentPlot->qwtPlot() )
         {
+            parentPlot->updatePlotTitle();
             parentPlot->qwtPlot()->updateLegend();
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
