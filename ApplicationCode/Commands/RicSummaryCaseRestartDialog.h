@@ -25,6 +25,7 @@
 #include "cafPdmPointer.h"
 
 #include <QDialog>
+#include <QMenu>
 
 class QLabel;
 class QRadioButton;
@@ -78,10 +79,13 @@ private:
     void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
     void                                        displayWarningsIfAny(const QStringList& warnings);
+    QString                                     fullFileName(const QString& shortOrFullFileName);
 
 private slots:
     void slotShowFullPathToggled(int state);
     void slotDialogButtonClicked(QAbstractButton* button);
+    void slotFileNameCopyCustomMenuRequested(const QPoint& point);
+    void slotCopyFileNameToClipboard();
 
 private:
     QGroupBox*                          m_currentFilesGroup;

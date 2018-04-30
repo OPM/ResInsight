@@ -52,6 +52,7 @@
 #include <QAbstractItemView>
 #include <QMenu>
 #include <QDateTime>
+#include <QClipboard>
 
 #include <cvfAssert.h>
 
@@ -509,6 +510,10 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
     gridLayout->addWidget(fileNameLabel, rowCount, 0);
     gridLayout->addWidget(dateLabel, rowCount, 1);
 
+    // File name copy context menu
+    fileNameLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(fileNameLabel, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(slotFileNameCopyCustomMenuRequested(const QPoint&)));
+
     // Full path in tooltip
     fileNameLabel->setToolTip(fullPathFileName);
 }
@@ -538,6 +543,22 @@ void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RicSummaryCaseRestartDialog::fullFileName(const QString& shortOrFullFileName)
+{
+    for (const auto& fileInfos : m_fileLists)
+    {
+        for (const auto& fileInfo : fileInfos)
+        {
+            if (fileInfo.first.fileName == shortOrFullFileName || fileInfo.second == shortOrFullFileName)
+                return fileInfo.second;
+        }
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
 {
     // Update file list widgets
@@ -558,4 +579,39 @@ void RicSummaryCaseRestartDialog::slotDialogButtonClicked(QAbstractButton* butto
     m_okToAllPressed = okToAllButtonClicked;
     if (cancelButtonClicked) reject();
     else                     accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCaseRestartDialog::slotFileNameCopyCustomMenuRequested(const QPoint& point)
+{
+    QMenu menu;
+    QPoint globalPoint = point;
+    QAction* action;
+
+    QLabel* sourceLabel = dynamic_cast<QLabel*>(sender());
+
+    action = new QAction("Copy file name", this);
+    action->setData(fullFileName(sourceLabel->text()));
+    connect(action, SIGNAL(triggered()), SLOT(slotCopyFileNameToClipboard()));
+    menu.addAction(action);
+
+    globalPoint = sourceLabel->mapToGlobal(point);
+    menu.exec(globalPoint);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCaseRestartDialog::slotCopyFileNameToClipboard()
+{
+    QAction* a = dynamic_cast<QAction*>(sender());
+    
+    QClipboard* cb = RiaApplication::clipboard();
+    if (cb)
+    {
+        QString fullFileName = a->data().toString();
+        cb->setText(QDir::toNativeSeparators(fullFileName));
+    }
 }
