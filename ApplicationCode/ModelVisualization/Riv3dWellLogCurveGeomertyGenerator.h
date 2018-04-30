@@ -55,6 +55,8 @@ public:
                               double                            planeWidth,
                               double                            minResultValue,
                               double                            maxResultValue);
+    
+    void clearCurvePointsAndGeometry();
 
     const RigWellPath* wellPathGeometry() const;
 
@@ -67,9 +69,10 @@ public:
 
 private:
     caf::PdmPointer<RimWellPath> m_wellPath;
+    double                       m_planeWidth;
+	
     cvf::ref<cvf::DrawableGeo>   m_curveDrawable;
     std::vector<cvf::Vec3f>      m_curveVertices;
     std::vector<double>          m_curveMeasuredDepths;
     std::vector<double>          m_curveValues;
-    double                       m_planeWidth;
 };

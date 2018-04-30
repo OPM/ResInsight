@@ -57,6 +57,10 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 {
     m_planeWidth = planeWidth;
 
+    // Make sure all drawables are cleared in case we return early to avoid a
+    // previous drawable being "stuck" when changing result type.    
+    clearCurvePointsAndGeometry();
+    
     if (!wellPathGeometry()) return;
     if (wellPathGeometry()->m_wellPathPoints.empty()) return;
     if (!wellPathClipBoundingBox.isValid()) return;
@@ -170,6 +174,17 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_curveVertices);
     m_curveDrawable->setVertexArray(vertexArray.p());    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Riv3dWellLogCurveGeometryGenerator::clearCurvePointsAndGeometry()
+{
+    m_curveDrawable = nullptr;
+    m_curveVertices.clear();
+    m_curveMeasuredDepths.clear();
+    m_curveValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
