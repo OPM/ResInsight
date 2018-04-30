@@ -387,7 +387,10 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialog.setWindowTitle("Restart Files");
         dialog.m_buttons->button(QDialogButtonBox::Apply)->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
+
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
         dialog.exec();
+        QApplication::restoreOverrideCursor();
 
         RicSummaryCaseRestartDialogResult::Status status = RicSummaryCaseRestartDialogResult::SUMMARY_OK;
 
