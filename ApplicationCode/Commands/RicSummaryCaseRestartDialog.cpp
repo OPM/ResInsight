@@ -476,15 +476,23 @@ void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, 
         delete item;
     }
     
-     if (m_fileLists[listIndex].empty())
+    if (m_fileLists[listIndex].empty())
     {
         QWidget* parent = gridLayout->parentWidget();
         if (parent) parent->setVisible(false);
     }
 
+    int maxFilesToDisplay = 4;
+    int currFiles = 0;
     for (const auto& fileInfo : m_fileLists[listIndex])
     {
         appendFileInfoToGridLayout(gridLayout, fileInfo.first, fileInfo.second);
+        if (++currFiles == maxFilesToDisplay)
+        {
+            size_t remainingFileCount = m_fileLists[listIndex].size() - maxFilesToDisplay;
+            appendTextToGridLayout(gridLayout, QString("+ %1 more files").arg(remainingFileCount));
+            break;
+        }
     }
 }
 
@@ -516,6 +524,22 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
 
     // Full path in tooltip
     fileNameLabel->setToolTip(fullPathFileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCaseRestartDialog::appendTextToGridLayout(QGridLayout* gridLayout, const QString& text)
+{
+    CVF_ASSERT(gridLayout);
+
+    int rowCount = gridLayout->rowCount();
+
+    QLabel* textLabel = new QLabel();
+    textLabel->setText(text);
+
+    textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    gridLayout->addWidget(textLabel, rowCount, 0, 1, 2);
 }
 
 //--------------------------------------------------------------------------------------------------

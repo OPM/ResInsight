@@ -77,6 +77,7 @@ public:
 private:
     void                                        updateFileListWidget(QGridLayout* gridLayout, int listIndex);
     void                                        appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName);
+    void                                        appendTextToGridLayout(QGridLayout* gridLayout, const QString& text);
     RifRestartFileInfo                          getFileInfo(const QString& summaryHeaderFile);
     void                                        displayWarningsIfAny(const QStringList& warnings);
     QString                                     fullFileName(const QString& shortOrFullFileName);
