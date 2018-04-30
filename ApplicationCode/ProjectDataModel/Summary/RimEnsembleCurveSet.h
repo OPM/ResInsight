@@ -71,6 +71,7 @@ public:
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);
 
+    RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
     std::vector<RimSummaryCurve*>           visibleCurves() const;
 
@@ -79,6 +80,7 @@ public:
     RimRegularLegendConfig*                 legendConfig();
     void                                    onLegendDefinitionChanged();
 
+    void                                    setSummaryCaseCollection(RimSummaryCaseCollection* sumCaseCollection);
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
 private:

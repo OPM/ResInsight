@@ -82,33 +82,30 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
 
     appendAddressDetails(text, summaryAddress, nameHelper);
 
-    RimEnsembleCurveSet* ensambleCurveSet = nullptr;
-    this->firstAncestorOrThisOfType(ensambleCurveSet);
+    QString caseName;
 
-    if (ensambleCurveSet)
     {
-        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
-
-        if (m_caseName && !skipSubString)
+        RimEnsembleCurveSet* ensambleCurveSet = nullptr;
+        this->firstAncestorOrThisOfType(ensambleCurveSet);
+        if (ensambleCurveSet && ensambleCurveSet->summaryCaseCollection())
         {
-            if (ensambleCurveSet && ensambleCurveSet->summaryCaseCollection())
-            {
-                if (!text.empty()) text += ", ";
-                text += ensambleCurveSet->summaryCaseCollection()->name().toStdString();
-            }
+            caseName = ensambleCurveSet->summaryCaseCollection()->name();
         }
     }
-    else if (summaryCurve)
+
+    if (caseName.isEmpty() && summaryCurve && summaryCurve->summaryCaseY())
+    {
+        caseName = summaryCurve->summaryCaseY()->caseName();
+    }
+
+    if (!caseName.isEmpty())
     {
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
         {
-            if (summaryCurve && summaryCurve->summaryCaseY())
-            {
-                if (!text.empty()) text += ", ";
-                text += summaryCurve->summaryCaseY()->caseName().toStdString();
-            }
+            if (!text.empty()) text += ", ";
+            text += caseName.toStdString();
         }
     }
 
@@ -142,8 +139,10 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     appendAddressDetails(text, summaryAddress, nameHelper);
 
-    if (summaryCurve)
+    if (summaryCurve && summaryCurve->summaryCaseX())
     {
+        QString caseName = summaryCurve->summaryCaseX()->caseName();
+
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
@@ -151,7 +150,7 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
             if (summaryCurve && summaryCurve->summaryCaseX())
             {
                 if (!text.empty()) text += ", ";
-                text += summaryCurve->summaryCaseX()->caseName().toStdString();
+                text += caseName.toStdString();
             }
         }
     }

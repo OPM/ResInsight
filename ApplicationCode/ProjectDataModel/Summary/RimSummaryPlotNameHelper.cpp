@@ -21,6 +21,8 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+
 #include "RiuSummaryVectorDescriptionMap.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +31,7 @@
 RimSummaryPlotNameHelper::RimSummaryPlotNameHelper() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::clear()
 {
@@ -51,7 +53,7 @@ void RimSummaryPlotNameHelper::appendAddresses(const std::vector<RifEclipseSumma
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
 {
@@ -60,6 +62,21 @@ void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCa
     for (auto c : summaryCases)
     {
         m_summaryCases.insert(c);
+    }
+
+    extractPlotTitleSubStrings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotNameHelper::appendEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases)
+{
+    m_ensembleCases.clear();
+
+    for (auto c : ensembleCases)
+    {
+        m_ensembleCases.insert(c);
     }
 
     extractPlotTitleSubStrings();
@@ -143,7 +160,7 @@ bool RimSummaryPlotNameHelper::isRegionInTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isCaseInTitle() const
 {
@@ -151,7 +168,7 @@ bool RimSummaryPlotNameHelper::isCaseInTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::clearTitleSubStrings()
 {
@@ -195,11 +212,31 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
         m_titleRegion = std::to_string(*(regions.begin()));
     }
 
-    // Case mane
-    if (m_summaryCases.size() == 1)
     {
-        auto summaryCase = *(m_summaryCases.begin());
+        QString summaryCaseTitle;
+        if (m_summaryCases.size() == 1)
+        {
+            auto summaryCase = *(m_summaryCases.begin());
 
-        m_titleCaseName = summaryCase->caseName();
+            summaryCaseTitle = summaryCase->caseName();
+        }
+
+        QString ensembleCaseTitle;
+        if (m_titleCaseName.isEmpty() && m_ensembleCases.size() == 1)
+        {
+            auto ensembleCase = *(m_ensembleCases.begin());
+
+            ensembleCaseTitle = ensembleCase->name();
+        }
+
+        // If one case title is the single available, use the single title
+        if (summaryCaseTitle.isEmpty() && !ensembleCaseTitle.isEmpty())
+        {
+            m_titleCaseName = ensembleCaseTitle;
+        }
+        else if (!summaryCaseTitle.isEmpty() && ensembleCaseTitle.isEmpty())
+        {
+            m_titleCaseName = summaryCaseTitle;
+        }
     }
 }

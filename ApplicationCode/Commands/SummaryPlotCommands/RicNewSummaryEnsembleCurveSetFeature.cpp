@@ -65,6 +65,11 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
     {
         RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
+        if (!project->summaryGroups().empty())
+        {
+            curveSet->setSummaryCaseCollection(project->summaryGroups().back());
+        }
+
         plot->ensembleCurveSets()->addCurveSet(curveSet);
         plot->updateConnectedEditors();
 
