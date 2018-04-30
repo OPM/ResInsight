@@ -139,7 +139,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
         QMessageBox::warning(NULL, QString("Problem Importing Summary Case File(s)"), errorMessage);
     }
 
-    return !importFileInfos.empty();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
