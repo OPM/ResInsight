@@ -61,7 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
 //--------------------------------------------------------------------------------------------------
-static QString SEPARATOR = "/";
+static const QChar SEPARATOR = RiaFilePathTools::SEPARATOR;
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -613,7 +613,7 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
     do
     {
         len = internalFilter.size();
-        internalFilter.replace(SEPARATOR + SEPARATOR, SEPARATOR);
+        internalFilter.replace(QString("%1%1").arg(SEPARATOR), SEPARATOR);
     } while (internalFilter.size() != len);
 
     // Present native separators to the user
