@@ -56,9 +56,10 @@ public:
                             const caf::DisplayCoordTransform* displayCoordTransform,
                             const cvf::BoundingBox&           wellPathClipBoundingBox);
 private:
-    void append3dWellLogCurvesToModel(cvf::ModelBasicList*              model,
-                                      const caf::DisplayCoordTransform* displayCoordTransform,
-                                      const cvf::BoundingBox&           wellPathClipBoundingBox);
+    void append3dWellLogCurveToModel(cvf::ModelBasicList*              model,
+                                     const caf::DisplayCoordTransform* displayCoordTransform,
+                                     const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                     Rim3dWellLogCurve*                rim3dWellLogCurve);
 
     void appendGridToModel(cvf::ModelBasicList*                 model,
                            const caf::DisplayCoordTransform*    displayCoordTransform,
@@ -68,8 +69,7 @@ private:
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
-    static double planeAngle(const Rim3dWellLogCurveCollection* collection, const Rim3dWellLogCurve* curve);
-    double wellPathCenterToPlotStartOffset(const Rim3dWellLogCurveCollection* collection, const Rim3dWellLogCurve* curve) const;
+    double wellPathCenterToPlotStartOffset(const Rim3dWellLogCurve* curve) const;
     double planeWidth() const;
 
 private:

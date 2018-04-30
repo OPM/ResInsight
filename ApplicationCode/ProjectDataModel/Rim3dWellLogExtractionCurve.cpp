@@ -78,7 +78,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameGenerator", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
     m_nameConfig = new RimWellLogExtractionCurveNameConfig(this);    
 }
 
@@ -328,7 +328,7 @@ void Rim3dWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::Pd
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
-    caf::PdmUiGroup* nameGroup = m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

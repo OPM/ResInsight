@@ -43,9 +43,11 @@ public:
     enum DrawPlane
     {
         VERTICAL_ABOVE,
-        VERTICAL_BELOW,
+        VERTICAL_CENTER,
+        VERTICAL_BELOW,        
         HORIZONTAL_LEFT,
-        HORIZONTAL_RIGHT
+        HORIZONTAL_CENTER,
+        HORIZONTAL_RIGHT        
     };
     typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
 public:
@@ -56,7 +58,10 @@ public:
 
     virtual QString name() const = 0;
     virtual QString resultPropertyString() const = 0;
+    
     DrawPlane       drawPlane() const;
+    double          drawPlaneAngle() const;
+
     cvf::Color3f    color() const;
     bool            isShowingCurve() const;
 
@@ -79,7 +84,6 @@ protected:
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);    
     virtual void                            initAfterRead();
 private:

@@ -252,7 +252,7 @@ void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
-    caf::PdmUiGroup* nameGroup = m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

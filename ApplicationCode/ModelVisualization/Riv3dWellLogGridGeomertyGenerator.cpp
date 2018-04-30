@@ -56,6 +56,8 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
 {
     CVF_ASSERT(gridIntervalSize > 0);
 
+    clearGeometry();
+
     if (!wellPathGeometry() || wellPathGeometry()->m_measuredDepths.empty())
     {
         return false;
@@ -81,7 +83,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
     }
 
-    std::vector<cvf::Vec3d> wellPathSegmentNormals =
+    std::vector<cvf::Vec3d> segmentNormals =
         RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, planeAngle);
 
 
@@ -106,11 +108,10 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
 
     // Note that normals are calculated on the full non-clipped well path to increase the likelihood of creating good normals
     // for the end points of the curve. So we need to clip the remainder here.
-    wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
+    segmentNormals.erase(segmentNormals.begin(), segmentNormals.end() - wellPathPoints.size());
 
     {
-        std::vector<cvf::Vec3f> vertices;
-        vertices.reserve(wellPathPoints.size() * 2);
+        m_vertices.reserve(wellPathPoints.size() * 2);
 
         std::vector<cvf::uint> backgroundIndices;
         backgroundIndices.reserve(wellPathPoints.size() * 2);
@@ -118,15 +119,15 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         // Vertices are used for both surface and border
         for (size_t i = 0; i < wellPathPoints.size(); i++)
         {
-            vertices.push_back(cvf::Vec3f(
-                wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter));
-            vertices.push_back(cvf::Vec3f(
-                wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
+            m_vertices.push_back(cvf::Vec3f(
+                wellPathPoints[i] + segmentNormals[i] * planeOffsetFromWellPathCenter));
+            m_vertices.push_back(cvf::Vec3f(
+                wellPathPoints[i] + segmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
             backgroundIndices.push_back((cvf::uint) (2 * i));
             backgroundIndices.push_back((cvf::uint) (2 * i + 1));
         }
         
-        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
+        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_vertices);
 
         {
             // Background specific
@@ -141,9 +142,9 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
        
         {
             std::vector<cvf::uint> borderIndices;
-            borderIndices.reserve(vertices.size());
+            borderIndices.reserve(m_vertices.size());
 
-            int secondLastEvenVertex = (int) vertices.size() - 4;
+            int secondLastEvenVertex = (int) m_vertices.size() - 4;
 
             // Border close to the well. All even indices.
             for (int i = 0; i <= secondLastEvenVertex; i += 2)
@@ -153,11 +154,11 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
             }
 
             // Connect to border away from well
-            borderIndices.push_back((cvf::uint) (vertices.size() - 2));
-            borderIndices.push_back((cvf::uint) (vertices.size() - 1));
+            borderIndices.push_back((cvf::uint) (m_vertices.size() - 2));
+            borderIndices.push_back((cvf::uint) (m_vertices.size() - 1));
 
             int secondOddVertex = 3;
-            int lastOddVertex = (int) vertices.size() - 1;
+            int lastOddVertex = (int) m_vertices.size() - 1;
 
             // Border away from from well are odd indices in reverse order to create a closed surface.
             for (int i = lastOddVertex; i >= secondOddVertex; i -= 2)
@@ -190,15 +191,15 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         while (md >= firstMd)
         {
             cvf::Vec3d point = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathPoints, md);
-            cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathSegmentNormals, md);
+            cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(segmentNormals, md);
             interpolatedGridPoints.push_back(point);
             interpolatedGridCurveNormals.push_back(curveNormal.getNormalized());
             md -= gridIntervalSize;
         }
 
-        std::vector<cvf::Vec3f> vertices;
+        std::vector<cvf::Vec3f> arrowVertices;
         std::vector<cvf::Vec3f> arrowVectors;
-        vertices.reserve(interpolatedGridPoints.size());
+        arrowVertices.reserve(interpolatedGridPoints.size());
         arrowVectors.reserve(interpolatedGridPoints.size());
 
         double shaftRelativeRadius = 0.0125f;
@@ -208,14 +209,14 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
         // Normal lines. Start from one to avoid drawing at surface edge.        
         for (size_t i = 1; i < interpolatedGridCurveNormals.size(); i++)
         {
-            vertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter));
+            arrowVertices.push_back(cvf::Vec3f(interpolatedGridPoints[i] + interpolatedGridCurveNormals[i] * planeOffsetFromWellPathCenter));
 
             arrowVectors.push_back(cvf::Vec3f(interpolatedGridCurveNormals[i] * planeWidth * totalArrowScaling));
         }
 
         m_curveNormalVectors = new cvf::DrawableVectors();
 
-        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
+        cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(arrowVertices);
         cvf::ref<cvf::Vec3fArray> vectorArray = new cvf::Vec3fArray(arrowVectors);
 
         // Create the arrow glyph for the vector drawer
@@ -233,19 +234,47 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
     return true;
 }
 
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::background()
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Riv3dWellLogGridGeometryGenerator::clearGeometry()
+{
+    m_background = nullptr;
+    m_border = nullptr;
+    m_curveNormalVectors = nullptr;
+    m_vertices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::background() const
 {
     return m_background;
 }
 
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border()
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border() const
 {
     return m_border;
 }
 
-cvf::ref<cvf::DrawableVectors> Riv3dWellLogGridGeometryGenerator::curveNormalVectors()
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableVectors> Riv3dWellLogGridGeometryGenerator::curveNormalVectors() const
 {
     return m_curveNormalVectors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f>& Riv3dWellLogGridGeometryGenerator::vertices() const
+{
+    return m_vertices;
 }
 
 //--------------------------------------------------------------------------------------------------

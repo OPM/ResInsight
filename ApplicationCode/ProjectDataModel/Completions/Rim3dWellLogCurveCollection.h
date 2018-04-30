@@ -37,13 +37,6 @@ class Rim3dWellLogCurveCollection : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    enum PlanePosition
-    {
-        ALONG_WELLPATH,
-        ON_WELLPATH
-    };
-
-public:
     Rim3dWellLogCurveCollection();
     virtual ~Rim3dWellLogCurveCollection();
 
@@ -55,8 +48,6 @@ public:
     bool isShowingGrid() const;
     bool isShowingBackground() const;
 
-    PlanePosition planePositionVertical() const;
-    PlanePosition planePositionHorizontal() const;
     float         planeWidthScaling() const;
 
     std::vector<Rim3dWellLogCurve*> vectorOf3dWellLogCurves() const;
@@ -73,8 +64,6 @@ private:
     virtual void                 defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 private:
     caf::PdmField<bool>                         m_showPlot;
-    caf::PdmField<caf::AppEnum<PlanePosition>>  m_planePositionVertical;
-    caf::PdmField<caf::AppEnum<PlanePosition>>  m_planePositionHorizontal;
     caf::PdmField<float>                        m_planeWidthScaling;
 
     caf::PdmField<bool>                         m_showGrid;

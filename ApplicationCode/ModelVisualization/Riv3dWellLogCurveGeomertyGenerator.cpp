@@ -47,14 +47,14 @@ Riv3dWellLogCurveGeometryGenerator::Riv3dWellLogCurveGeometryGenerator(RimWellPa
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::DisplayCoordTransform* displayCoordTransform,
                                                               const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                              const std::vector<double>&        resultValues,
-                                                              const std::vector<double>&        resultMds,
-                                                              double                            minResultValue,
-                                                              double                            maxResultValue,
-                                                              double                            planeAngle,
+                                                              const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                               double                            planeOffsetFromWellPathCenter,
                                                               double                            planeWidth)
 {
+    std::vector<double> resultValues;
+    std::vector<double> resultMds;
+    rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+
     m_planeWidth = planeWidth;
 
     // Make sure all drawables are cleared in case we return early to avoid a
@@ -68,7 +68,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == resultMds.size());
 
-    if (maxResultValue - minResultValue < 1.0e-6)
+    if (rim3dWellLogCurve->maxCurveValue() - rim3dWellLogCurve->minCurveValue() < 1.0e-6)
     {
         return;
     }
@@ -90,7 +90,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
     }
 
-    std::vector<cvf::Vec3d> wellPathCurveNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, planeAngle);
+    std::vector<cvf::Vec3d> wellPathCurveNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, rim3dWellLogCurve->drawPlaneAngle());
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;
@@ -123,7 +123,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     {
         if (!RigCurveDataTools::isValidValue(result, false)) continue;
 
-        result = cvf::Math::clamp(result, minResultValue, maxResultValue);
+        result = cvf::Math::clamp(result, rim3dWellLogCurve->minCurveValue(), rim3dWellLogCurve->maxCurveValue());
 
         maxClampedResult = std::max(result, maxClampedResult);
         minClampedResult = std::min(result, minClampedResult);

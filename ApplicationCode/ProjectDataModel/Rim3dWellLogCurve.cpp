@@ -44,8 +44,10 @@ namespace caf
     void AppEnum< Rim3dWellLogCurve::DrawPlane >::setUp()
     {
         addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Above");
+        addItem(Rim3dWellLogCurve::VERTICAL_CENTER, "VERTICAL_CENTER", "Centered - Vertical");
         addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Below");
         addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Left");
+        addItem(Rim3dWellLogCurve::HORIZONTAL_CENTER, "HORIZONTAL_CENTER", "Centered - Horizontal");
         addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Right");
         setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
     } 
@@ -94,6 +96,28 @@ void Rim3dWellLogCurve::updateCurveIn3dView()
 Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 {
     return m_drawPlane();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim3dWellLogCurve::drawPlaneAngle() const
+{
+    switch (drawPlane())
+    {
+        case HORIZONTAL_LEFT:
+        case HORIZONTAL_CENTER:
+            return cvf::PI_D / 2.0;
+        case HORIZONTAL_RIGHT:
+            return -cvf::PI_D / 2.0;
+        case VERTICAL_ABOVE:
+        case VERTICAL_CENTER:
+            return 0.0;
+        case VERTICAL_BELOW:
+            return cvf::PI_D;
+        default:
+            return 0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,35 +195,6 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
     configurationGroup->add(&m_color);
     configurationGroup->add(&m_minCurveValue);
     configurationGroup->add(&m_maxCurveValue);
-}
-
-QList<caf::PdmOptionItemInfo> Rim3dWellLogCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_drawPlane)
-    {
-        Rim3dWellLogCurveCollection* collection;
-        this->firstAncestorOrThisOfTypeAsserted(collection);
-        if (collection->planePositionVertical() == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
-        {
-            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::VERTICAL_ABOVE), Rim3dWellLogCurve::VERTICAL_ABOVE));
-            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::VERTICAL_BELOW), Rim3dWellLogCurve::VERTICAL_BELOW));
-        }
-        else
-        {
-            options.push_back(caf::PdmOptionItemInfo(QString("Vertical"), Rim3dWellLogCurve::VERTICAL_ABOVE));
-        }
-        if (collection->planePositionHorizontal() == Rim3dWellLogCurveCollection::ALONG_WELLPATH)
-        {
-            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::HORIZONTAL_LEFT), Rim3dWellLogCurve::HORIZONTAL_LEFT));
-            options.push_back(caf::PdmOptionItemInfo(DrawPlaneEnum::uiText(Rim3dWellLogCurve::HORIZONTAL_RIGHT), Rim3dWellLogCurve::HORIZONTAL_RIGHT));
-        }
-        else
-        {
-            options.push_back(caf::PdmOptionItemInfo(QString("Horizontal"), Rim3dWellLogCurve::HORIZONTAL_LEFT));
-        }
-    }
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

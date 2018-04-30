@@ -26,7 +26,7 @@
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimCurveNameConfig, "RimCurveNameGenerator");
+CAF_PDM_SOURCE_INIT(RimCurveNameConfig, "RimCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -108,7 +108,6 @@ void RimCurveNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     if (changedField == &m_isUsingAutoName && !isUsingAutoName())
     {
         m_customName = m_configHolder->createCurveAutoName();
-        m_customName.uiCapability()->updateConnectedEditors();
     }
 
     updateAllSettings();
@@ -152,7 +151,7 @@ void RimCurveNameConfig::updateAllSettings()
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCurveNameGenerator");
+CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -244,7 +243,7 @@ void RimWellLogExtractionCurveNameConfig::updateAllSettings()
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameGenerator");
+CAF_PDM_SOURCE_INIT(RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -261,7 +260,7 @@ RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig(const RimCurveNameC
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogRftCurveNameConfig, "RimWellLogRftCurveNameGenerator");
+CAF_PDM_SOURCE_INIT(RimWellLogRftCurveNameConfig, "RimWellLogRftCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 

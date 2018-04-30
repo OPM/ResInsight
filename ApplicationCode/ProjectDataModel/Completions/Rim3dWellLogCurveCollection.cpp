@@ -28,17 +28,6 @@
 
 CAF_PDM_SOURCE_INIT(Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection");
 
-namespace caf
-{
-    template<>
-    void AppEnum< Rim3dWellLogCurveCollection::PlanePosition >::setUp()
-    {
-        addItem(Rim3dWellLogCurveCollection::ALONG_WELLPATH, "ALONG_WELLPATH", "Beside Well Path");
-        addItem(Rim3dWellLogCurveCollection::ON_WELLPATH, "ON_WELLPATH", "Centered On Well Path");
-        setDefault(Rim3dWellLogCurveCollection::ALONG_WELLPATH);
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -49,8 +38,6 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
     CAF_PDM_InitField(&m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves", "", "", "");
     m_showPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_planePositionVertical, "PlanePositionVertical", "Vertical Position", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_planePositionHorizontal, "PlanePositionHorizontal", "Horizontal Position", "", "", "");
     CAF_PDM_InitField(&m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling", "", "", "");    
     m_planeWidthScaling.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "");
@@ -119,22 +106,6 @@ bool Rim3dWellLogCurveCollection::isShowingGrid() const
 bool Rim3dWellLogCurveCollection::isShowingBackground() const
 {
     return m_showBackground;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurveCollection::PlanePosition Rim3dWellLogCurveCollection::planePositionVertical() const
-{
-    return m_planePositionVertical();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurveCollection::PlanePosition Rim3dWellLogCurveCollection::planePositionHorizontal() const
-{
-    return m_planePositionHorizontal();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,8 +203,6 @@ caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Draw Plane Configuration");
-    settingsGroup->add(&m_planePositionVertical);
-    settingsGroup->add(&m_planePositionHorizontal);
     settingsGroup->add(&m_planeWidthScaling);
 
     caf::PdmUiGroup* appearanceSettingsGroup = uiOrdering.addNewGroup("Draw Plane Appearance");

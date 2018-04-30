@@ -51,10 +51,15 @@ public:
                     double                             planeOffsetFromWellPathCenter,
                     double                             planeWidth,
                     double                             gridIntervalSize);
+    
+    void clearGeometry();
 
-    cvf::ref<cvf::DrawableGeo> background();
-    cvf::ref<cvf::DrawableGeo> border();
-    cvf::ref<cvf::DrawableVectors> curveNormalVectors();
+    cvf::ref<cvf::DrawableGeo> background() const;
+    cvf::ref<cvf::DrawableGeo> border() const;
+    cvf::ref<cvf::DrawableVectors> curveNormalVectors() const;
+
+    const std::vector<cvf::Vec3f>& vertices() const;
+
 private:
     const RigWellPath* wellPathGeometry() const;
 
@@ -63,4 +68,6 @@ private:
     cvf::ref<cvf::DrawableGeo>       m_background;
     cvf::ref<cvf::DrawableGeo>       m_border;
     cvf::ref<cvf::DrawableVectors>   m_curveNormalVectors;
+
+    std::vector<cvf::Vec3f>          m_vertices;
 };

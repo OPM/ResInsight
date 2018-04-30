@@ -39,6 +39,7 @@ class BoundingBox;
 
 class RigWellPath;
 class RimWellPath;
+class Rim3dWellLogCurve;
 
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
@@ -48,13 +49,9 @@ public:
 
     void createCurveDrawables(const caf::DisplayCoordTransform* displayCoordTransform,
                               const cvf::BoundingBox&           wellPathClipBoundingBox,
-                              const std::vector<double>&        resultValues,
-                              const std::vector<double>&        resultMds,
-                              double                            planeAngle,
+                              const Rim3dWellLogCurve*          rim3dWellLogCurve,
                               double                            planeOffsetFromWellPathCenter,
-                              double                            planeWidth,
-                              double                            minResultValue,
-                              double                            maxResultValue);
+                              double                            planeWidth);
     
     void clearCurvePointsAndGeometry();
 
