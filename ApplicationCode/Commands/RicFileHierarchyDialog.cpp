@@ -67,6 +67,9 @@ static QString SEPARATOR = "/";
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 static QStringList  prefixStrings(const QStringList& strings, const QString& prefix);
+static QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText);
+static void         sortStringsByLength(QStringList& strings, bool ascending = true);
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -82,7 +85,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_pathFilter        = new QLineEdit();
     m_fileFilterLabel   = new QLabel();
     m_fileFilter        = new QLineEdit();
-    m_fileExtension     = new QLabel();
+    m_fileExtensionLabel = new QLabel();
     m_effectiveFilterLabel = new QLabel();
     m_effectiveFilter   = new QLabel();
     m_fileListLabel     = new QLabel();
@@ -130,7 +133,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     inputGridLayout->addWidget(m_pathFilter, 1, 1);
     inputGridLayout->addWidget(m_fileFilterLabel, 2, 0);
     inputGridLayout->addWidget(m_fileFilter, 2, 1);
-    inputGridLayout->addWidget(m_fileExtension, 2, 2);
+    inputGridLayout->addWidget(m_fileExtensionLabel, 2, 2);
     inputGroup->setLayout(inputGridLayout);
 
     QGroupBox* outputGroup = new QGroupBox("Files");
@@ -174,7 +177,7 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
     dialog.m_rootDir->setText(QDir::toNativeSeparators(dir));
     dialog.m_pathFilter->setText(pathFilter);
     dialog.m_fileFilter->setText(fileNameFilter);
-    dialog.m_fileExtension->setText(prefixStrings(fileExtensions, ".").join(" | "));
+    dialog.m_fileExtensions = trimLeftStrings(fileExtensions, ".");
 
     dialog.updateEffectiveFilter();
     dialog.clearFileList();
@@ -224,12 +227,40 @@ QString RicFileHierarchyDialog::fileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 QStringList RicFileHierarchyDialog::fileExtensions() const
 {
-    QStringList exts = m_fileExtension->text().split("|");
-    for (QString& ext : exts)
+    QString extFromFilter = extensionFromFileNameFilter();
+    if (!extFromFilter.isEmpty())
     {
-        ext = ext.trimmed();
+        return QStringList({ extFromFilter });
     }
+
+    QStringList exts = m_fileExtensions;
+    sortStringsByLength(exts);
     return exts;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicFileHierarchyDialog::fileExtensionsText() const
+{
+    QString extFromFilter = extensionFromFileNameFilter();
+    if (!extFromFilter.isEmpty())   return "";
+    else                            return prefixStrings(fileExtensions(), ".").join(" | ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicFileHierarchyDialog::extensionFromFileNameFilter() const
+{
+    for (const QString& ext : m_fileExtensions)
+    {
+        if (m_fileFilter->text().endsWith(ext, Qt::CaseInsensitive))
+        {
+            return ext;
+        }
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -539,7 +570,7 @@ QStringList RicFileHierarchyDialog::createNameFilterList(const QString &fileName
     QStringList nameFilter;
     QString effectiveFileNameFilter = !fileNameFilter.isEmpty() ? fileNameFilter : "*";
 
-    if (fileExtensions.size() == 0)
+    if (fileExtensions.size() == 0 || !extensionFromFileNameFilter().isEmpty())
     {
         nameFilter.append(effectiveFileNameFilter);
     }
@@ -547,7 +578,7 @@ QStringList RicFileHierarchyDialog::createNameFilterList(const QString &fileName
     {
         for (QString fileExtension : fileExtensions)
         {
-            nameFilter.append(effectiveFileNameFilter + fileExtension);
+            nameFilter.append(effectiveFileNameFilter + "." + fileExtension);
         }
     }
     return nameFilter;
@@ -572,8 +603,8 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
     QString effFilter = QString("%1/%2/%3%4")
         .arg(m_rootDir->text())
         .arg(m_pathFilter->text())
-        .arg(m_fileFilter->text())
-        .arg(m_fileExtension->text());
+        .arg(fileNameFilter())
+        .arg(fileExtensionsText());
 
     QString internalFilter(RiaFilePathTools::toInternalSeparator(effFilter));
 
@@ -775,4 +806,50 @@ QStringList prefixStrings(const QStringList& strings, const QString& prefix)
         }
     }
     return prefixedStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText)
+{
+    QStringList trimmedStrings;
+    for (const auto& string : strings)
+    {
+        QString trimmedString = string;
+        if (string.startsWith(trimText))
+        {
+            trimmedString = string.right(string.size() - trimText.size());
+        }
+        trimmedStrings.append(trimmedString);
+    }
+    return trimmedStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void sortStringsByLength(QStringList& strings, bool ascending /*= true*/)
+{
+    QStringList sorted = strings;
+    int numItems = sorted.size();
+    bool swapped;
+    do
+    {
+        swapped = false;
+        for (int i = 0; i < numItems - 1; i++)
+        {
+            int s0 = strings[i].size();
+            int s1 = strings[i + 1].size();
+            if (ascending && s0 > s1 || !ascending && s0 < s1)
+            {
+                const QString temp = strings[i];
+                strings[i] = strings[i + 1];
+                strings[i + 1] = temp;
+                swapped = true;
+            }
+        }
+    } while (swapped);
+
+
 }

@@ -59,6 +59,9 @@ private:
     QString     pathFilter() const;
     QString     fileNameFilter() const;
     QStringList fileExtensions() const;
+    QString     fileExtensionsText() const;
+    QString     extensionFromFileNameFilter() const;
+
     bool        cancelPressed() const;
     void        appendToFileList(const QString& fileName);
     void        clearFileList();
@@ -105,7 +108,7 @@ private:
 
     QLabel*                             m_fileFilterLabel;
     QLineEdit*                          m_fileFilter;
-    QLabel*                             m_fileExtension;
+    QLabel*                             m_fileExtensionLabel;
 
     QLabel*                             m_effectiveFilterLabel;
     QLabel*                             m_effectiveFilter;
@@ -117,6 +120,7 @@ private:
     QDialogButtonBox*                   m_buttons;
 
     QStringList                         m_files;
+    QStringList                         m_fileExtensions;
 
     bool                                m_cancelPressed;
 };
