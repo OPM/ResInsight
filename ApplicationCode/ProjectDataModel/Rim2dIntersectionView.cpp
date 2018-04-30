@@ -345,13 +345,8 @@ std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
 {
     std::vector<RimLegendConfig*> legendsIn3dView;
 
-    Rim3dView* associated3dView = nullptr;
-    this->firstAncestorOrThisOfType(associated3dView);
-
-    if (associated3dView)
-    {
-        legendsIn3dView = associated3dView->legendConfigs();
-    }
+    legendsIn3dView.push_back(m_legendConfig);
+    legendsIn3dView.push_back(m_ternaryLegendConfig);
 
     return legendsIn3dView;
 }
