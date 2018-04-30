@@ -525,6 +525,7 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
     std::vector<RimLegendConfig*> absLegendConfigs;
 
     absLegendConfigs.push_back(cellResult()->legendConfig());
+    absLegendConfigs.push_back(tensorResults()->arrowColorLegendConfig());
 
     return absLegendConfigs;
 
