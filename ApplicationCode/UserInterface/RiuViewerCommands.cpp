@@ -1062,15 +1062,22 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 
     if (pickedOverlayItem)
     {
-        std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
-
-        for (const auto& legendConfig : legendConfigs)
+        auto intersectionView = dynamic_cast<Rim2dIntersectionView*>(m_reservoirView.p());
+        if (intersectionView && intersectionView->handleOverlayItemPicked(pickedOverlayItem))
         {
-            if (legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem)
+            return true;
+        }
+        else
+        {
+            std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
+            for (const auto& legendConfig : legendConfigs)
             {
-                RiuMainWindow::instance()->selectAsCurrentItem(legendConfig);
+                if (legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem)
+                {
+                    RiuMainWindow::instance()->selectAsCurrentItem(legendConfig);
 
-                return true;
+                    return true;
+                }
             }
         }
     }

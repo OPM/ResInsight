@@ -32,6 +32,7 @@ class RivIntersectionPartMgr;
 namespace cvf
 {
     class ModelBasicList;
+    class OverlayItem;
 }
 
 //==================================================================================================
@@ -69,6 +70,7 @@ public:
     bool                       showDefiningPoints() const;
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
+    bool                        handleOverlayItemPicked(const cvf::OverlayItem* pickedOverlayItem) const;
 
 protected:
     void                       updateLegends() override;
@@ -108,4 +110,6 @@ protected:
     cvf::ref<cvf::Transform>           m_scaleTransform;
 
     caf::PdmField<bool>                m_showDefiningPoints;
+
+    caf::PdmPointer<caf::PdmObject>    m_legendObjectToSelect;
 };

@@ -17,24 +17,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Rim2dIntersectionView.h"
-#include "RimCase.h"
-#include "RimIntersection.h"
-#include "RimGridView.h"
+
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseView.h"
+#include "RimCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimGeoMechView.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechView.h"
+#include "RimGridView.h"
+#include "RimIntersection.h"
 #include "RimRegularLegendConfig.h"
-#include "RimTernaryLegendConfig.h"
 #include "RimSimWellInView.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimWellPath.h"
 
+#include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
 #include "RivIntersectionPartMgr.h"
-#include "RivTernarySaturationOverlayItem.h"
 #include "RivSimWellPipesPartMgr.h"
+#include "RivTernarySaturationOverlayItem.h"
 #include "RivWellHeadPartMgr.h"
 #include "RivWellPathPartMgr.h"
 
@@ -345,10 +347,24 @@ std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
 {
     std::vector<RimLegendConfig*> legendsIn3dView;
 
-    legendsIn3dView.push_back(m_legendConfig);
-    legendsIn3dView.push_back(m_ternaryLegendConfig);
-
+    // Return empty list, as the intersection view has a copy of the legend items. Picking and selection of the corresponding
+    // item is handeled by handleOverlayItemPicked()
     return legendsIn3dView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim2dIntersectionView::handleOverlayItemPicked(const cvf::OverlayItem* pickedOverlayItem) const
+{
+    if (m_legendObjectToSelect)
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(m_legendObjectToSelect);
+
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,6 +590,8 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::updateLegends()
 {
+    m_legendObjectToSelect = nullptr;
+
     if (!m_viewer) return; 
     
     m_viewer->removeAllColorLegends();
@@ -598,11 +616,15 @@ void Rim2dIntersectionView::updateLegends()
         {
             m_ternaryLegendConfig()->setTitle("Cell Result:\n");
             legend = m_ternaryLegendConfig()->titledOverlayFrame();
+
+            m_legendObjectToSelect = eclView->cellResult()->ternaryLegendConfig();
         }
         else
         {
             m_legendConfig()->setTitle("Cell Result:\n" + eclView->cellResult()->resultVariableUiShortName());
             legend = m_legendConfig()->titledOverlayFrame();
+
+            m_legendObjectToSelect = eclView->cellResult()->legendConfig();
         }
     }
 
@@ -612,6 +634,8 @@ void Rim2dIntersectionView::updateLegends()
 
         geoView->updateLegendTextAndRanges(m_legendConfig(), m_currentTimeStep());
         legend = m_legendConfig()->titledOverlayFrame();
+
+        m_legendObjectToSelect = geoView->cellResult()->legendConfig();
     }
 
     if ( legend )
