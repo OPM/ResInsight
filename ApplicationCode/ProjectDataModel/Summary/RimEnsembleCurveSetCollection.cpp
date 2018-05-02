@@ -212,11 +212,14 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::visibleCurveSet
 {
     std::vector<RimEnsembleCurveSet*> visible;
 
-    for (auto c : m_curveSets)
+    if (m_showCurves())
     {
-        if (c->isCurvesVisible())
+        for (auto c : m_curveSets)
         {
-            visible.push_back(c);
+            if (c->isCurvesVisible())
+            {
+                visible.push_back(c);
+            }
         }
     }
 
