@@ -19,7 +19,7 @@
 #include "Rim3dWellLogCurve.h"
 
 #include "RigCurveDataTools.h"
-#include "Riv3dWellLogCurveGeomertyGenerator.h"
+#include "Riv3dWellLogCurveGeometryGenerator.h"
 
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"

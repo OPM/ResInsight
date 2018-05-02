@@ -45,7 +45,7 @@ class DisplayCoordTransform;
 
 class RimGridView;
 class RimWellPath;
-class Riv3dWellLogGridGeometryGenerator;
+class Riv3dWellLogDrawSurfaceGenerator;
 
 class Riv3dWellLogPlanePartMgr : public cvf::Object
 {
@@ -60,13 +60,13 @@ private:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           wellPathClipBoundingBox,
                                      Rim3dWellLogCurve*                rim3dWellLogCurve,
-                                     const std::vector<cvf::Vec3f>&    gridVertices);
+                                     const std::vector<cvf::Vec3f>&    drawSurfaceVertices);
 
-    void appendGridToModel(cvf::ModelBasicList*                 model,
-                           const caf::DisplayCoordTransform*    displayCoordTransform,
-                           const cvf::BoundingBox&              wellPathClipBoundingBox,
-                           const Rim3dWellLogCurve*             rim3dWellLogCurve,
-                           double                               gridIntervalSize);
+    void appendDrawSurfaceToModel(cvf::ModelBasicList*              model,
+                                  const caf::DisplayCoordTransform* displayCoordTransform,
+                                  const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                  const Rim3dWellLogCurve*          rim3dWellLogCurve,
+                                  double                            samplingInterval);
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
@@ -74,7 +74,7 @@ private:
     double planeWidth() const;
 
 private:
-    cvf::ref<Riv3dWellLogGridGeometryGenerator> m_3dWellLogGridGeometryGenerator;
+    cvf::ref<Riv3dWellLogDrawSurfaceGenerator> m_3dWellLogDrawSurfaceGeometryGenerator;
     
     caf::PdmPointer<RimWellPath>                m_wellPath;
     caf::PdmPointer<RimGridView>                m_gridView;

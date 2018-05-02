@@ -40,17 +40,17 @@ class BoundingBox;
 class RigWellPath;
 class RimWellPath;
 
-class Riv3dWellLogGridGeometryGenerator : public cvf::Object
+class Riv3dWellLogDrawSurfaceGenerator : public cvf::Object
 {
 public:
-    Riv3dWellLogGridGeometryGenerator(RimWellPath* wellPath);
+    Riv3dWellLogDrawSurfaceGenerator(RimWellPath* wellPath);
 
-    bool createGrid(const caf::DisplayCoordTransform*  displayCoordTransform,
+    bool createDrawSurface(const caf::DisplayCoordTransform*  displayCoordTransform,
                     const cvf::BoundingBox&            wellPathClipBoundingBox,
                     double                             planeAngle,
                     double                             planeOffsetFromWellPathCenter,
                     double                             planeWidth,
-                    double                             gridIntervalSize);
+                    double                             samplingIntervalSize);
     
     void clearGeometry();
 

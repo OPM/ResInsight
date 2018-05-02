@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "Riv3dWellLogGridGeomertyGenerator.h"
+#include "Riv3dWellLogDrawSurfaceGenerator.h"
 
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Riv3dWellLogGridGeometryGenerator::Riv3dWellLogGridGeometryGenerator(RimWellPath* wellPath)
+Riv3dWellLogDrawSurfaceGenerator::Riv3dWellLogDrawSurfaceGenerator(RimWellPath* wellPath)
     : m_wellPath(wellPath)
 {
 }
@@ -47,14 +47,14 @@ Riv3dWellLogGridGeometryGenerator::Riv3dWellLogGridGeometryGenerator(RimWellPath
 ///
 //--------------------------------------------------------------------------------------------------
 bool
-Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* displayCoordTransform,
+Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTransform* displayCoordTransform,
                                               const cvf::BoundingBox& wellPathClipBoundingBox,
                                               double                  planeAngle,
                                               double                  planeOffsetFromWellPathCenter,
                                               double                  planeWidth,
-                                              double                  gridIntervalSize)
+                                              double                  samplingIntervalSize)
 {
-    CVF_ASSERT(gridIntervalSize > 0);
+    CVF_ASSERT(samplingIntervalSize > 0);
 
     clearGeometry();
 
@@ -194,7 +194,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
             cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(segmentNormals, md);
             interpolatedGridPoints.push_back(point);
             interpolatedGridCurveNormals.push_back(curveNormal.getNormalized());
-            md -= gridIntervalSize;
+            md -= samplingIntervalSize;
         }
 
         std::vector<cvf::Vec3f> arrowVertices;
@@ -237,7 +237,7 @@ Riv3dWellLogGridGeometryGenerator::createGrid(const caf::DisplayCoordTransform* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogGridGeometryGenerator::clearGeometry()
+void Riv3dWellLogDrawSurfaceGenerator::clearGeometry()
 {
     m_background = nullptr;
     m_border = nullptr;
@@ -248,7 +248,7 @@ void Riv3dWellLogGridGeometryGenerator::clearGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::background() const
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogDrawSurfaceGenerator::background() const
 {
     return m_background;
 }
@@ -256,7 +256,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::background() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border() const
+cvf::ref<cvf::DrawableGeo> Riv3dWellLogDrawSurfaceGenerator::border() const
 {
     return m_border;
 }
@@ -264,7 +264,7 @@ cvf::ref<cvf::DrawableGeo> Riv3dWellLogGridGeometryGenerator::border() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableVectors> Riv3dWellLogGridGeometryGenerator::curveNormalVectors() const
+cvf::ref<cvf::DrawableVectors> Riv3dWellLogDrawSurfaceGenerator::curveNormalVectors() const
 {
     return m_curveNormalVectors;
 }
@@ -272,7 +272,7 @@ cvf::ref<cvf::DrawableVectors> Riv3dWellLogGridGeometryGenerator::curveNormalVec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f>& Riv3dWellLogGridGeometryGenerator::vertices() const
+const std::vector<cvf::Vec3f>& Riv3dWellLogDrawSurfaceGenerator::vertices() const
 {
     return m_vertices;
 }
@@ -280,7 +280,7 @@ const std::vector<cvf::Vec3f>& Riv3dWellLogGridGeometryGenerator::vertices() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellPath* Riv3dWellLogGridGeometryGenerator::wellPathGeometry() const
+const RigWellPath* Riv3dWellLogDrawSurfaceGenerator::wellPathGeometry() const
 {
     return m_wellPath->wellPathGeometry();
 }

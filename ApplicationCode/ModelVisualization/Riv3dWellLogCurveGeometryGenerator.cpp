@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "Riv3dWellLogCurveGeomertyGenerator.h"
+#include "Riv3dWellLogCurveGeometryGenerator.h"
 
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -51,7 +51,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
                                                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                               double                            planeOffsetFromWellPathCenter,
                                                               double                            planeWidth,
-                                                              const std::vector<cvf::Vec3f>&    gridVertices)
+                                                              const std::vector<cvf::Vec3f>&    drawSurfaceVertices)
 {
     // Make sure all drawables are cleared in case we return early to avoid a
     // previous drawable being "stuck" when changing result type.
@@ -152,8 +152,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         m_curveVertices.push_back(cvf::Vec3f(curvePoint));
     }
 
-    createNewVerticesAlongTriangleEdges(gridVertices);
-    projectVerticesOntoTriangles(gridVertices);
+    createNewVerticesAlongTriangleEdges(drawSurfaceVertices);
+    projectVerticesOntoTriangles(drawSurfaceVertices);
    
 
     std::vector<cvf::uint> indices;
@@ -252,12 +252,12 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& gridVertices)
+void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& drawSurfaceVertices)
 {
     std::vector<cvf::Vec3f> expandedCurveVertices;
     std::vector<double> expandedMeasuredDepths;
     std::vector<double> expandedValues;
-    size_t estimatedNumberOfPoints = m_curveVertices.size() + gridVertices.size();
+    size_t estimatedNumberOfPoints = m_curveVertices.size() + drawSurfaceVertices.size();
     expandedCurveVertices.reserve(estimatedNumberOfPoints);
     expandedMeasuredDepths.reserve(estimatedNumberOfPoints);
     expandedValues.reserve(estimatedNumberOfPoints);
@@ -272,24 +272,24 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
             // Find segments that intersects the triangle edge
             caf::Line<float> curveLine(m_curveVertices[i], m_curveVertices[i + 1]);
             
-            for (size_t j = 0; j < gridVertices.size() - 1; ++j)
+            for (size_t j = 0; j < drawSurfaceVertices.size() - 1; ++j)
             {
-                caf::Line<float> gridLine(gridVertices[j], gridVertices[j + 1]);
+                caf::Line<float> drawSurfaceLine(drawSurfaceVertices[j], drawSurfaceVertices[j + 1]);
                 bool withinSegments = false;
-                caf::Line<float> connectingLine = curveLine.findLineBetweenNearestPoints(gridLine, &withinSegments);
+                caf::Line<float> connectingLine = curveLine.findLineBetweenNearestPoints(drawSurfaceLine, &withinSegments);
                 
                 if (withinSegments)
                 {
-                    cvf::Vec3f closestGridPoint = connectingLine.end();
+                    cvf::Vec3f closestDrawSurfacePoint = connectingLine.end();
                     double measuredDepth;
                     double valueAtPoint;
-                    cvf::Vec3d closestPoint(closestGridPoint);
+                    cvf::Vec3d closestPoint(closestDrawSurfacePoint);
                     cvf::Vec3d dummyArgument;
                     // Interpolate measured depth and value
                     bool worked = findClosestPointOnCurve(closestPoint, &dummyArgument, &measuredDepth, &valueAtPoint);
                     if (worked)
                     {
-                        expandedCurveVertices.push_back(closestGridPoint);
+                        expandedCurveVertices.push_back(closestDrawSurfacePoint);
                         expandedMeasuredDepths.push_back(measuredDepth);
                         expandedValues.push_back(valueAtPoint);
                     }
@@ -312,24 +312,24 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& gridVertices)
+void Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& drawSurfaceVertices)
 {
     for (size_t i = 0; i < m_curveVertices.size(); ++i)
     {
-        for (size_t j = 0; j < gridVertices.size() - 2; j += 1)
+        for (size_t j = 0; j < drawSurfaceVertices.size() - 2; j += 1)
         {
             cvf::Vec3f triangleVertex1, triangleVertex2, triangleVertex3;
             if (j % 2 == 0)
             {
-                triangleVertex1 = gridVertices[j];
-                triangleVertex2 = gridVertices[j + 1];
-                triangleVertex3 = gridVertices[j + 2];
+                triangleVertex1 = drawSurfaceVertices[j];
+                triangleVertex2 = drawSurfaceVertices[j + 1];
+                triangleVertex3 = drawSurfaceVertices[j + 2];
             }
             else
             {
-                triangleVertex1 = gridVertices[j];
-                triangleVertex2 = gridVertices[j + 2];
-                triangleVertex3 = gridVertices[j + 1];
+                triangleVertex1 = drawSurfaceVertices[j];
+                triangleVertex2 = drawSurfaceVertices[j + 2];
+                triangleVertex3 = drawSurfaceVertices[j + 1];
             }
 
             bool wasInsideTriangle = false;

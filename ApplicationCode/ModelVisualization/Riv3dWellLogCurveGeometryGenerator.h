@@ -52,7 +52,7 @@ public:
                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                               double                            planeOffsetFromWellPathCenter,
                               double                            planeWidth,
-                              const std::vector<cvf::Vec3f>&    gridVertices);
+                              const std::vector<cvf::Vec3f>&    drawSurfaceVertices);
 
     void clearCurvePointsAndGeometry();
 
@@ -66,8 +66,8 @@ public:
                                  double*           valueAtClosestPoint) const;
 
 private:
-    void                         createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& gridVertices);
-    void                         projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& gridVertices);
+    void                         createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& drawSurfaceVertices);
+    void                         projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& drawSurfaceVertices);
     static cvf::Vec3f            projectPointOntoTriangle(const cvf::Vec3f& point,
                                                           const cvf::Vec3f& triangleVertex1,
                                                           const cvf::Vec3f& triangleVertex2,
