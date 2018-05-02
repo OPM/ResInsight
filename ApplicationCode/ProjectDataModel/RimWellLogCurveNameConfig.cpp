@@ -42,8 +42,6 @@ RimCurveNameConfig::RimCurveNameConfig(const RimCurveNameConfigHolderInterface* 
     m_autoName.registerGetMethod(this, &RimCurveNameConfig::autoName);
     m_autoName.registerSetMethod(this, &RimCurveNameConfig::setCustomName);
     m_autoName.xmlCapability()->disableIO();
-
-    CVF_ASSERT(configHolder);
 }
 
 //--------------------------------------------------------------------------------------------------
