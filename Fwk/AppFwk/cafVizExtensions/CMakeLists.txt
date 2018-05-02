@@ -26,6 +26,8 @@ add_library( ${PROJECT_NAME}
     cafFixedAtlasFont.cpp
 	cafTransparentWBRenderConfiguration.h
 	cafTransparentWBRenderConfiguration.cpp
+	cafLine.h
+	cafLine.inl
 	TranspWB_CombinationFrag.glsl
 	TranspWB_PartlyTranspPartsFrag.glsl
 	TranspWB_TransparentPartsFrag.glsl

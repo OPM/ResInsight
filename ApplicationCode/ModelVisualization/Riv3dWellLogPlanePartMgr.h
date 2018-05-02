@@ -59,7 +59,8 @@ private:
     void append3dWellLogCurveToModel(cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                     Rim3dWellLogCurve*                rim3dWellLogCurve);
+                                     Rim3dWellLogCurve*                rim3dWellLogCurve,
+                                     const std::vector<cvf::Vec3f>&    gridVertices);
 
     void appendGridToModel(cvf::ModelBasicList*                 model,
                            const caf::DisplayCoordTransform*    displayCoordTransform,

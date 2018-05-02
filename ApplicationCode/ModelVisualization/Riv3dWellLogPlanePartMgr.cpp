@@ -72,8 +72,15 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
 
     for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
-        appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve, planeWidth());        
-        append3dWellLogCurveToModel(model, displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve);
+        if (rim3dWellLogCurve->isShowingCurve())
+        {
+            appendGridToModel(model, displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve, planeWidth());
+            append3dWellLogCurveToModel(model,
+                                        displayCoordTransform,
+                                        wellPathClipBoundingBox,
+                                        rim3dWellLogCurve,
+                                        m_3dWellLogGridGeometryGenerator->vertices());
+        }
     }
 }
 
@@ -83,10 +90,10 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
 void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList*              model,
                                                            const caf::DisplayCoordTransform* displayCoordTransform,
                                                            const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                           Rim3dWellLogCurve*                rim3dWellLogCurve)
+                                                           Rim3dWellLogCurve*                rim3dWellLogCurve,
+                                                           const std::vector<cvf::Vec3f>&    gridVertices)
 {
     CVF_ASSERT(rim3dWellLogCurve);
-    if (!rim3dWellLogCurve->isShowingCurve()) return;
 
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> generator = rim3dWellLogCurve->geometryGenerator();
     if (generator.isNull())
@@ -99,7 +106,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
         wellPathClipBoundingBox,
         rim3dWellLogCurve,
         wellPathCenterToPlotStartOffset(rim3dWellLogCurve),
-        planeWidth());
+        planeWidth(),
+        gridVertices);
 
     cvf::ref<cvf::DrawableGeo> curveDrawable = generator->curveDrawable();
 

@@ -51,8 +51,9 @@ public:
                               const cvf::BoundingBox&           wellPathClipBoundingBox,
                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                               double                            planeOffsetFromWellPathCenter,
-                              double                            planeWidth);
-    
+                              double                            planeWidth,
+                              const std::vector<cvf::Vec3f>&    gridVertices);
+
     void clearCurvePointsAndGeometry();
 
     const RigWellPath* wellPathGeometry() const;
@@ -65,6 +66,13 @@ public:
                                  double*           valueAtClosestPoint) const;
 
 private:
+    void                         createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& gridVertices);
+    void                         projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& gridVertices);
+    static cvf::Vec3f            projectPointOntoTriangle(const cvf::Vec3f& point,
+                                                          const cvf::Vec3f& triangleVertex1,
+                                                          const cvf::Vec3f& triangleVertex2,
+                                                          const cvf::Vec3f& triangleVertex3,
+                                                          bool*             wasInsideTriangle);
     caf::PdmPointer<RimWellPath> m_wellPath;
     double                       m_planeWidth;
 	
