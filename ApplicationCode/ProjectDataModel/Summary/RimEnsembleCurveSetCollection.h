@@ -23,9 +23,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrArrayField.h"
 
-class RimSummaryCase;
 class RimEnsembleCurveSet;
 class QwtPlot;
 class QwtPlotCurve;
@@ -55,22 +53,12 @@ public:
     std::vector<RimEnsembleCurveSet*>       curveSets() const;
     std::vector<RimEnsembleCurveSet*>       visibleCurveSets() const;
 
-    //void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurveSets();
-    //void                                    updateCaseNameHasChanged();
 
     void                                    setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet);
 
-    //std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
-
-    //void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
-
 private:
-    caf::PdmFieldHandle*                    objectToggleField();
-    virtual void                            defineObjectEditorAttribute(QString uiConfigName, 
-                                                                        caf::PdmUiEditorAttribute* attribute) override;
-    
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    caf::PdmFieldHandle*                    objectToggleField() override;
     
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
