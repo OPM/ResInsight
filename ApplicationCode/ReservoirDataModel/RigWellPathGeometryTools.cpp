@@ -139,5 +139,11 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const st
         }
         directionSum += vec;
     }
+    
+    if (directionSum.length() < 1.0e-8)
+    {
+        directionSum = cvf::Vec3d(0, -1, 0);
+    }
+
     return directionSum.getNormalized();
 }
