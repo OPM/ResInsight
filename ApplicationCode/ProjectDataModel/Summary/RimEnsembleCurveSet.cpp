@@ -340,6 +340,12 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &m_showCurves)
     {
         loadDataAndUpdate(true);
+
+        updateConnectedEditors();
+
+        RimSummaryPlot* summaryPlot = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+        summaryPlot->updateConnectedEditors();
     }
     else if (changedField == &m_yValuesUiFilterResultSelection)
     {

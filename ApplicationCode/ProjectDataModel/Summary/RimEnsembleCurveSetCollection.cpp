@@ -375,6 +375,10 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
     if (changedField == &m_showCurves)
     {
         loadDataAndUpdate(true);
+
+        RimSummaryPlot* summaryPlot = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+        summaryPlot->updateConnectedEditors();
     }
 }
 
