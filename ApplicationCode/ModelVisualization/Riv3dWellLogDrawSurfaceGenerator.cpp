@@ -102,7 +102,7 @@ Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTrans
     // Create curve normal vectors using the unclipped well path points and normals.
     createCurveNormalVectors(displayCoordTransform, indexToFirstVisibleSegment, planeOffsetFromWellPathCenter, planeWidth, samplingIntervalSize, wellPathSegmentNormals);
 
-    // Note that normals are calculated on the full non-clipped well path. So we need to clip the remainder here.
+    // Note that normals are calculated on the full non-clipped well path. So we need to clip the start here.
     wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
 
     if (wellPathPoints.size() < (size_t)2)
