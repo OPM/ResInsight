@@ -45,13 +45,13 @@ class Riv3dWellLogDrawSurfaceGenerator : public cvf::Object
 public:
     Riv3dWellLogDrawSurfaceGenerator(RimWellPath* wellPath);
 
-    bool createDrawSurface(const caf::DisplayCoordTransform*  displayCoordTransform,
-                    const cvf::BoundingBox&            wellPathClipBoundingBox,
-                    double                             planeAngle,
-                    double                             planeOffsetFromWellPathCenter,
-                    double                             planeWidth,
-                    double                             samplingIntervalSize);
-    
+    bool createDrawSurface(const caf::DisplayCoordTransform* displayCoordTransform,
+                           const cvf::BoundingBox&           wellPathClipBoundingBox,
+                           double                            planeAngle,
+                           double                            planeOffsetFromWellPathCenter,
+                           double                            planeWidth,
+                           double                            samplingIntervalSize);
+
     void clearGeometry();
 
     cvf::ref<cvf::DrawableGeo> background() const;
@@ -61,6 +61,16 @@ public:
     const std::vector<cvf::Vec3f>& vertices() const;
 
 private:
+    void               createCurveNormalVectors(const caf::DisplayCoordTransform* displayCoordTransform, 
+                                                size_t                         clipStartIndex,
+                                                double                         planeOffsetFromWellPathCenter,
+                                                double                         planeWidth,
+                                                double                         samplingIntervalSize,
+                                                const std::vector<cvf::Vec3d>& wellPathSegmentNormals);
+    
+    void               createBackground(cvf::Vec3fArray* vertexArray);
+    void               createBorder(cvf::Vec3fArray* vertexArray);
+
     const RigWellPath* wellPathGeometry() const;
 
 private:
