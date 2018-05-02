@@ -87,7 +87,7 @@ caf::Line<S> caf::Line<S>::findLineBetweenNearestPoints(const Line& otherLine, b
 
     S d = a * e - b * b;
 
-    if (d < std::numeric_limits<typename S>::epsilon())
+    if (d < std::numeric_limits<S>::epsilon())
     {
         // Parallel lines. Choice of closest points is arbitrary.
         // Just use start to start.
