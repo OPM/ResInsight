@@ -331,6 +331,14 @@ RimSummaryCaseCollection* RimEnsembleCurveSet::summaryCaseCollection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet::ColorMode RimEnsembleCurveSet::colorMode() const
+{
+    return m_colorMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
@@ -641,6 +649,11 @@ void RimEnsembleCurveSet::updateCurveColors()
             plot->qwtPlot()->removeEnsembleCurveSetLegend(this);
         }
         plot->qwtPlot()->replot();
+    }
+
+    if (firstCurve())
+    {
+        firstCurve()->updateLegendEntryVisibilityAndPlotLegend();
     }
 }
 

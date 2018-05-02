@@ -594,6 +594,13 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
             // Hide legend display for curves other than the first
             showLegendInQwt = false;
         }
+        else
+        {
+            if (ensembleCurveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM)
+            {
+                showLegendInQwt = false;
+            }
+        }
     }
     else
     {
@@ -608,8 +615,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
                 showLegendInQwt = false;
             }
         }
-
     }
-    
+
     m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
 }

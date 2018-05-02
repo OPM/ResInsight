@@ -84,6 +84,8 @@ public:
     void                                    setSummaryCaseCollection(RimSummaryCaseCollection* sumCaseCollection);
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
+    ColorMode                               colorMode() const;
+
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();
