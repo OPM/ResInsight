@@ -61,14 +61,14 @@ private:
             , result(result)
             , faceNormal(faceNormal)
             , isPressure(isPressure)
-            , princialNumber(princial)
+            , principalNumber(princial)
             , principalValue(principalValue) {};
 
         cvf::Vec3f vertex;
         cvf::Vec3f result;
         cvf::Vec3f faceNormal;
         bool       isPressure;
-        int        princialNumber;
+        int        principalNumber;
         float      principalValue;
     };
 

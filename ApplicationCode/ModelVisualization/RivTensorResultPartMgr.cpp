@@ -420,7 +420,7 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(cvf::Vec2fA
     {
         for (size_t vxIdx = 0; vxIdx < 5; ++vxIdx)
         {
-            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.princialNumber);
+            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.principalNumber);
             textureCoords->add(texCoord);
         }
     }
