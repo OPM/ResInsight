@@ -602,7 +602,7 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
 {
     QString effFilter = QString("%1/%2/%3%4")
         .arg(m_rootDir->text())
-        .arg(m_pathFilter->text())
+        .arg(!m_pathFilter->text().isEmpty() ? m_pathFilter->text() : "*")
         .arg(fileNameFilter())
         .arg(fileExtensionsText());
 
