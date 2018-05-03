@@ -152,8 +152,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         m_curveVertices.push_back(cvf::Vec3f(curvePoint));
     }
 
-    createNewVerticesAlongTriangleEdges(drawSurfaceVertices);
     projectVerticesOntoTriangles(drawSurfaceVertices);
+    createNewVerticesAlongTriangleEdges(drawSurfaceVertices);
    
 
     std::vector<cvf::uint> indices;
@@ -266,34 +266,42 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
         if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
             RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
         {
-            expandedCurveVertices.push_back(m_curveVertices[i]);
+            caf::Line<float> fullSegmentLine(m_curveVertices[i], m_curveVertices[i + 1]);
+            cvf::Vec3f fullSegmentVector = fullSegmentLine.vector();
+            cvf::Vec3f lastVertex = m_curveVertices[i];
+            expandedCurveVertices.push_back(lastVertex);
             expandedMeasuredDepths.push_back(m_curveMeasuredDepths[i]);
             expandedValues.push_back(m_curveValues[i]);
-            // Find segments that intersects the triangle edge
-            caf::Line<float> curveLine(m_curveVertices[i], m_curveVertices[i + 1]);
-            
-            for (size_t j = 0; j < drawSurfaceVertices.size() - 1; ++j)
+            // Find segments that intersects the triangle edges
+            for (size_t j = 0; j < drawSurfaceVertices.size() - 2; j += 1)
             {
-                caf::Line<float> drawSurfaceLine(drawSurfaceVertices[j], drawSurfaceVertices[j + 1]);
+                cvf::Vec3f currentSubSegment = m_curveVertices[i + 1] - lastVertex;
+                caf::Line<float> triangleEdge1 = caf::Line<float>(drawSurfaceVertices[j], drawSurfaceVertices[j + 1]);
+                caf::Line<float> triangleEdge2 = caf::Line<float>(drawSurfaceVertices[j + 2], drawSurfaceVertices[j + 1]);
+                cvf::Vec3f triangleNormal = (triangleEdge1.vector().getNormalized() ^ triangleEdge2.vector().getNormalized()).getNormalized();
+                cvf::Vec3f projectedSegmentVector = currentSubSegment - (currentSubSegment * triangleNormal) * triangleNormal;
+                caf::Line<float> projectedCurveLine (lastVertex, lastVertex + projectedSegmentVector);
+
+                // Only attempt to find intersections with the first edge. The other edge is handled with the next triangle.
                 bool withinSegments = false;
-                caf::Line<float> connectingLine = curveLine.findLineBetweenNearestPoints(drawSurfaceLine, &withinSegments);
-                
+                caf::Line<float> connectingLine = projectedCurveLine.findLineBetweenNearestPoints(triangleEdge1, &withinSegments);    
                 if (withinSegments)
                 {
-                    cvf::Vec3f closestDrawSurfacePoint = connectingLine.end();
-                    double measuredDepth;
-                    double valueAtPoint;
-                    cvf::Vec3d closestPoint(closestDrawSurfacePoint);
-                    cvf::Vec3d dummyArgument;
-                    // Interpolate measured depth and value
-                    bool worked = findClosestPointOnCurve(closestPoint, &dummyArgument, &measuredDepth, &valueAtPoint);
-                    if (worked)
+                    cvf::Vec3f newVertex = connectingLine.end();
+
+                    cvf::Vec3f newSegmentVector = newVertex - lastVertex;
+                    if (newSegmentVector.lengthSquared() < fullSegmentVector.lengthSquared())
                     {
-                        expandedCurveVertices.push_back(closestDrawSurfacePoint);
+                        expandedCurveVertices.push_back(newVertex);
+                        // Scalar projection (a * b / |b|) divided by full segment length to become (a * b / |b|^2)
+                        float dotProduct = newSegmentVector * fullSegmentVector;
+                        float fractionAlongFullSegment = dotProduct / fullSegmentVector.lengthSquared();
+                        float measuredDepth = m_curveMeasuredDepths[i] * (1 - fractionAlongFullSegment) + m_curveMeasuredDepths[i + 1] * fractionAlongFullSegment;
+                        float valueAtPoint = m_curveValues[i] * (1 - fractionAlongFullSegment) + m_curveValues[i + 1] * fractionAlongFullSegment;
                         expandedMeasuredDepths.push_back(measuredDepth);
                         expandedValues.push_back(valueAtPoint);
+                        lastVertex = newVertex;
                     }
-
                 }
             }
 
@@ -316,6 +324,8 @@ void Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(const std:
 {
     for (size_t i = 0; i < m_curveVertices.size(); ++i)
     {
+        // Sort projections onto triangle by the distance of the projection.
+        std::map<float, cvf::Vec3f> projectionsInsideTriangle;
         for (size_t j = 0; j < drawSurfaceVertices.size() - 2; j += 1)
         {
             cvf::Vec3f triangleVertex1, triangleVertex2, triangleVertex3;
@@ -337,8 +347,15 @@ void Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(const std:
                 m_curveVertices[i], triangleVertex1, triangleVertex2, triangleVertex3, &wasInsideTriangle);
             if (wasInsideTriangle)
             {
-                m_curveVertices[i] = projectedPoint;
+                projectionsInsideTriangle.insert(std::make_pair((projectedPoint - m_curveVertices[i]).lengthSquared(),
+                                                                projectedPoint));                
             }
+        }
+        
+        // Take the closest projection
+        if (!projectionsInsideTriangle.empty())
+        {
+            m_curveVertices[i] = projectionsInsideTriangle.begin()->second;
         }
     }
 }
@@ -359,8 +376,9 @@ cvf::Vec3f Riv3dWellLogCurveGeometryGenerator::projectPointOntoTriangle(const cv
 
     // Project vertex onto triangle plane
     cvf::Vec3f av = point - triangleVertex1;
-    cvf::Vec3f projectedPoint = point - (av * n) * n;
-
+    cvf::Vec3f projectedAv = av - (av * n) * n;
+    cvf::Vec3f projectedPoint = projectedAv + triangleVertex1;
+    
     // Calculate barycentric coordinates
     float areaABC = n * (e1 ^ e2);
     float areaPBC = n * ((triangleVertex2 - projectedPoint) ^ (triangleVertex3 - projectedPoint));
@@ -369,9 +387,15 @@ cvf::Vec3f Riv3dWellLogCurveGeometryGenerator::projectPointOntoTriangle(const cv
     float v = areaPCA / areaABC;
     float w = 1.0 - u - v;
 
-    if (u >= 0.0 && v >= 0.0 && w >= 0.0)
+    if (u >= -1.0e-6 && v >= -1.0e-6 && w >= -1.0e-6)
     {
         *wasInsideTriangle = true;
+        // Clamp to ensure it is inside the triangle
+        u = cvf::Math::clamp(u, 0.0f, 1.0f);
+        v = cvf::Math::clamp(v, 0.0f, 1.0f);
+        w = cvf::Math::clamp(w, 0.0f, 1.0f);
+        projectedPoint = triangleVertex1 * u + triangleVertex2 * v + triangleVertex3 * w;
+
     }
     return projectedPoint;
 }
