@@ -114,6 +114,7 @@ private:
     void                                    updateQwtPlotAxis();
     std::vector<QString>                    ensembleParameters() const;
 
+    QString                                 name() const;
     QString                                 createAutoName() const;
 
     void                                    updateLegendMappingMode();
