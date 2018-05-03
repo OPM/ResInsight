@@ -28,6 +28,8 @@
 #include "RigFemPartGrid.h"
 
 #include "RiaDefines.h"
+
+#include "Rim3dWellLogCurve.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -262,6 +264,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     this->firstAncestorOrThisOfType(view);
     RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
+    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
+    this->firstAncestorOrThisOfType(rim3dWellLogCurve);
+
 
     if (&m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField)
     {
@@ -330,6 +335,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             {
                 curve->loadDataAndUpdate(true);
             }
+
+            if (rim3dWellLogCurve)
+            {
+                rim3dWellLogCurve->updateCurveIn3dView();
+            }
         }
     }
       
@@ -341,6 +351,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (curve)
     {
         curve->updateConnectedEditors();
+    }
+
+    if (rim3dWellLogCurve)
+    {        
+        rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
     }
 }
 
