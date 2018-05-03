@@ -19,6 +19,7 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "RimGridSummaryCase.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 
@@ -43,6 +44,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 RimSummaryCaseCollection::~RimSummaryCaseCollection()
 {
     m_cases.deleteAllChildObjects();
+    updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +53,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
+    updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +62,7 @@ void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase)
 {
     m_cases.push_back(summaryCase);
+    updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,4 +95,20 @@ QString RimSummaryCaseCollection::name() const
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 {
     return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::updateReferringCurveSets() const
+{
+    // Update curve set referring to this group
+    std::vector<PdmObjectHandle*> referringObjects;
+    objectsWithReferringPtrFields(referringObjects);
+
+    for (PdmObjectHandle* obj : referringObjects)
+    {
+        RimEnsembleCurveSet* curveSet = dynamic_cast<RimEnsembleCurveSet*>(obj);
+        if (curveSet) curveSet->updateAllCurves();
+    }
 }

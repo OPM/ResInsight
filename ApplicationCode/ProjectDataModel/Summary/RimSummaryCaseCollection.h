@@ -42,6 +42,7 @@ public:
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 updateReferringCurveSets() const;
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

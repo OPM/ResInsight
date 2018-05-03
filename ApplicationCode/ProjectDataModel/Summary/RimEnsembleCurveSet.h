@@ -88,6 +88,8 @@ public:
     ColorMode                               colorMode() const;
     EnsembleParameterType                   currentEnsembleParameterType() const;
 
+    void                                    updateAllCurves();
+
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();
@@ -110,7 +112,6 @@ private:
 
     void                                    updateCurveColors();
     void                                    updateQwtPlotAxis();
-    void                                    updateAllCurves();
     std::vector<QString>                    ensembleParameters() const;
 
     QString                                 createAutoName() const;
