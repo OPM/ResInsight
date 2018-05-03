@@ -399,8 +399,11 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTen
     }
 
     scalarMapper->setColors(arrowColors);
-    scalarMapper->setRange(0.5, 3.5);
-    scalarMapper->setLevelCount(3, true);
+
+    // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)    
+    // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.    
+    std::set<double> levelValues = { 0.5, 1.5, 2.5, 3.5 };
+    scalarMapper->setLevelsFromValues(levelValues);
 }
 
 //--------------------------------------------------------------------------------------------------
