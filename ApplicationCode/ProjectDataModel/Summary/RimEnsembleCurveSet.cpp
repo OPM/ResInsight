@@ -42,6 +42,9 @@
 
 #include "cvfScalarMapper.h"
 
+#include "qwt_plot_curve.h"
+#include "qwt_symbol.h"
+
 
 namespace caf
 {
@@ -133,6 +136,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_summaryAddressNameTools.uiCapability()->setUiTreeChildrenHidden(true);
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
+    
+    m_qwtPlotCurveForLegendText = new QwtPlotCurve;
+    m_qwtPlotCurveForLegendText->setLegendAttribute(QwtPlotCurve::LegendShowSymbol, true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,6 +186,12 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->loadDataAndUpdate(false);
+
+        if (curve->qwtPlotCurve())
+        {
+            curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
+        }
+
         curve->updateQwtPlotAxis();
     }
 
@@ -208,6 +220,8 @@ void RimEnsembleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
     {
         curve->setParentQwtPlotNoReplot(plot);
     }
+
+    m_qwtPlotCurveForLegendText->attach(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,6 +233,8 @@ void RimEnsembleCurveSet::detachQwtCurves()
     {
         curve->detachQwtCurve();
     }
+
+    m_qwtPlotCurveForLegendText->detach();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,16 +297,6 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::visibleCurves() const
     }
 
     return visible;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimEnsembleCurveSet::firstCurve() const
-{
-    if (!curves().empty()) return curves().front();
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,10 +430,25 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         m_userDefinedName = createAutoName();
     }
+
+    if (changedField == &m_isUsingAutoName ||
+        changedField == &m_userDefinedName ||
+        changedField == &m_colorMode ||
+        changedField == &m_color)
+    {
+        updateEnsembleLegendItem();
+
+        RimSummaryPlot* summaryPlot = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+        if (summaryPlot->qwtPlot())
+        {
+            summaryPlot->qwtPlot()->updateLegend();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -759,11 +780,6 @@ void RimEnsembleCurveSet::updateCurveColors()
         }
         plot->qwtPlot()->replot();
     }
-
-    if (firstCurve())
-    {
-        firstCurve()->updateLegendEntryVisibilityAndPlotLegend();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -804,6 +820,11 @@ void RimEnsembleCurveSet::updateAllCurves()
 
             curve->updateCurveVisibility(true);
             curve->loadDataAndUpdate(true);
+
+            if (curve->qwtPlotCurve())
+            {
+                curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
+            }
         }
 
         RimSummaryPlot* plot;
@@ -815,6 +836,39 @@ void RimEnsembleCurveSet::updateAllCurves()
         }
     }
     updateCurveColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateEnsembleLegendItem()
+{
+    m_qwtPlotCurveForLegendText->setTitle(name());
+
+    {
+        QwtSymbol* symbol = nullptr;
+        
+        if (m_colorMode == SINGLE_COLOR)
+        {
+            symbol = new QwtSymbol(QwtSymbol::HLine);
+
+            QColor curveColor(m_color.value().rByte(), m_color.value().gByte(), m_color.value().bByte());
+            QPen curvePen(curveColor);
+            curvePen.setWidth(2);
+
+            symbol->setPen(curvePen);
+        }
+        else if (m_colorMode == BY_ENSEMBLE_PARAM)
+        {
+            symbol = new QwtSymbol(QwtSymbol::Star1);
+        }
+
+        symbol->setSize(6, 6);
+        m_qwtPlotCurveForLegendText->setSymbol(symbol);
+    }
+
+    bool showLegendItem = isCurvesVisible();
+    m_qwtPlotCurveForLegendText->setItemAttribute(QwtPlotItem::Legend, showLegendItem);
 }
 
 //--------------------------------------------------------------------------------------------------

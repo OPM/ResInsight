@@ -506,9 +506,9 @@ void RimSummaryPlot::updatePlotTitle()
     if (m_useAutoPlotTitle)
     {
         m_userDefinedPlotTitle = generatePlotTitle(m_nameHelper.get());
-
-        updateCurveNames();
     }
+
+    updateCurveNames();
 
     updateMdiWindowTitle();
 }
@@ -1519,12 +1519,7 @@ void RimSummaryPlot::updateCurveNames()
 
     for (auto curveSet : m_ensembleCurveSetCollection->curveSets())
     {
-        if (curveSet->isCurvesVisible() && curveSet->firstCurve())
-        {
-            // Only the first curve in the set is used in the legend, 
-            // skip update of other curves
-            curveSet->firstCurve()->updateCurveNameNoLegendUpdate();
-        }
+        curveSet->updateEnsembleLegendItem();
     }
 }
 

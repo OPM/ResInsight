@@ -75,7 +75,6 @@ public:
     RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
     std::vector<RimSummaryCurve*>           visibleCurves() const;
-    RimSummaryCurve*                        firstCurve() const;
 
     void                                    deleteAllCurves();
 
@@ -86,6 +85,7 @@ public:
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
     ColorMode                               colorMode() const;
+    void                                    updateEnsembleLegendItem();
     EnsembleParameterType                   currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
@@ -146,5 +146,7 @@ private:
     caf::PdmChildField<RimSummaryCurveAutoName*>    m_summaryAddressNameTools;
 
     std::set<RifEclipseSummaryAddress>              m_allAddressesCache;
+
+    QwtPlotCurve*                                   m_qwtPlotCurveForLegendText; 
 };
 

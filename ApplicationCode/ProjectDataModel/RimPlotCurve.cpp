@@ -582,28 +582,26 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
-    bool showLegendInQwt = m_showLegend();
-
     RimEnsembleCurveSet* ensembleCurveSet = nullptr;
     this->firstAncestorOrThisOfType(ensembleCurveSet);
     if (ensembleCurveSet)
     {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        return;
     }
-    else
-    {
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfType(summaryPlot);
 
-        if (summaryPlot)
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(summaryPlot);
+
+    if (summaryPlot)
+    {
+        bool showLegendInQwt = m_showLegend();
+
+        if (summaryPlot->ensembleCurveSets()->visibleCurveSets().empty() && summaryPlot->curveCount() == 1)
         {
-            if (summaryPlot->ensembleCurveSets()->visibleCurveSets().empty() && summaryPlot->curveCount() == 1)
-            {
-                // Disable display of legend if the summary plot has only one single curve
-                showLegendInQwt = false;
-            }
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInQwt = false;
         }
-    
+
         m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
     }
 }
