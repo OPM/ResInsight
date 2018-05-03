@@ -128,6 +128,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
 
     m_overlayItemLabel->setPixmap(pixmap);
     this->setMinimumSize(QSize(width, height));
+    this->resize(QSize(width, height));
 
 }
 
