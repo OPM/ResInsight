@@ -61,6 +61,7 @@ public:
     virtual bool               isTimeStepDependentDataVisible() const override;
 
     void                       update3dInfo();
+    void                       updateName();
 
     cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const;
     cvf::Vec3d                 transformToUtm(const cvf::Vec3d& unscaledPointInFlatDomain) const;

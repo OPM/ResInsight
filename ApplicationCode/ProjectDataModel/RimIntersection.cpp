@@ -165,6 +165,16 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
+    if (changedField == &name)
+    {
+        Rim2dIntersectionView* iView = correspondingIntersectionView();
+        if (iView)
+        {
+            iView->updateName();
+            iView->updateConnectedEditors();
+        }
+    }
+
     if (changedField == &inputPolyLineFromViewerEnabled
         || changedField == &m_userPolyline)
     {
@@ -612,6 +622,12 @@ void RimIntersection::updateName()
         name = wellPath()->name();
     }
 
+    Rim2dIntersectionView* iView = correspondingIntersectionView();
+    if (iView)
+    {
+        iView->updateName();
+        iView->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -116,11 +116,8 @@ void Rim2dIntersectionView::setIntersection(RimIntersection* intersection)
     CAF_ASSERT(intersection);
 
     m_intersection = intersection;
-    Rim3dView * parentView = nullptr;
-    intersection->firstAncestorOrThisOfTypeAsserted(parentView);
-    name = parentView->name() + ": " + intersection->name();
 
-    
+    this->updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +291,19 @@ void Rim2dIntersectionView::update3dInfo()
     m_viewer->setInfoText(overlayInfoText);
     m_viewer->showInfoText(true);
     m_viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::updateName()
+{
+    if ( m_intersection )
+    {
+        Rim3dView * parentView = nullptr;
+        m_intersection->firstAncestorOrThisOfTypeAsserted(parentView);
+        name = parentView->name() + ": " + m_intersection->name();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
