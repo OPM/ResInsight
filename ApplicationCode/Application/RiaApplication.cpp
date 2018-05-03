@@ -137,6 +137,40 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::notify(QObject* receiver, QEvent* event)
+{
+    // Pre-allocating a memory exhaustion message 
+    // Doing som e trickery to avoid deadlock, as creating a messagebox actually triggers a call to this notify method.
+
+    static QMessageBox* memoryExhaustedBox = nullptr;
+    static bool allocatingMessageBox = false;
+    if (!memoryExhaustedBox && !allocatingMessageBox)
+    {
+        allocatingMessageBox = true;
+        memoryExhaustedBox = new QMessageBox(QMessageBox::Critical, 
+                                             "ResInsight Exhausted Memory", 
+                                             "Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now unstable and will probably crash soon.");
+    }
+
+    bool done = true;
+    try
+    {
+        done = QApplication::notify(receiver, event);
+    }
+    catch ( const std::bad_alloc& )
+    {
+        if (memoryExhaustedBox) memoryExhaustedBox->exec();
+        std::cout << "ResInsight: Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now unstable and will probably crash soon."  << std::endl;
+        // If we really want to crash instead of limping forward: 
+        // throw;
+    }
+
+    return done;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiaApplication::RiaApplication(int& argc, char** argv)
 :   QApplication(argc, argv)
 {

@@ -49,7 +49,22 @@ int main(int argc, char *argv[])
         RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
         RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
-        int exitCode = app.exec();
+        int exitCode = 0;
+        try
+        {
+            exitCode = app.exec();
+        }
+        catch (std::exception& exep )
+        {
+            std::cout << "A standard c++ exception that terminated ResInsight caught in RiaMain.cpp: " << exep.what() << std::endl;
+            throw;
+        }
+        catch(...)
+        {
+            std::cout << "An unknown exception that terminated ResInsight caught in RiaMain.cpp.  " << std::endl;
+            throw;
+        }
+
         RiaLogging::deleteLoggerInstance();
 
         return exitCode;

@@ -216,6 +216,8 @@ private:
     friend RiaArgumentParser;
     void                    setHelpText(const QString& helpText);
 
+    virtual bool            notify(QObject *, QEvent *) override;
+
 private slots:
     void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
