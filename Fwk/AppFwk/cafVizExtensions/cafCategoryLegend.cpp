@@ -503,7 +503,7 @@ cvf::Vec2ui CategoryLegend::preferredSize()
     OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
     layoutInfo(&layout);
 
-    float prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_categoryMapper->categoryCount() )* layout.lineSpacing ;
+    float prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_categoryMapper->categoryCount() + 1)* layout.lineSpacing ;
 
     unsigned int maxTickTextWidth = 0;
     for (size_t cIdx = 0; cIdx <  m_categoryMapper->categoryCount(); ++cIdx )
