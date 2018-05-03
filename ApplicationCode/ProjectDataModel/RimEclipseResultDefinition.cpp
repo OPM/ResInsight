@@ -343,7 +343,6 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     if (rim3dWellLogCurve)
     {
         rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
-        rim3dWellLogCurve->updateConnectedEditors();
     }
 }
 
