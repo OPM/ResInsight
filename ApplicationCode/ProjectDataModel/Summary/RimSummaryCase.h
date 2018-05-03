@@ -58,6 +58,7 @@ public:
 
     void                setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters);
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
+    bool                hasCaseRealizationParameters() const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

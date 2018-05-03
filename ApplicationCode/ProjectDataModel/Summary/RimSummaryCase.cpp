@@ -102,6 +102,14 @@ std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationPar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::hasCaseRealizationParameters() const
+{
+    return m_crlParameters != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_useAutoShortName)

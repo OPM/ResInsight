@@ -76,7 +76,7 @@ void RimSummaryPlotNameHelper::appendEnsembleCases(const std::vector<RimSummaryC
 
     for (auto c : ensembleCases)
     {
-        m_ensembleCases.insert(c);
+        if(c) m_ensembleCases.insert(c);
     }
 
     extractPlotTitleSubStrings();

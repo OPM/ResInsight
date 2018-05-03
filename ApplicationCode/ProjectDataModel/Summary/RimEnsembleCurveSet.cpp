@@ -539,9 +539,19 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
 
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
+    else if (fieldNeedingOptions == &m_colorMode)
+    {
+        auto singleColorOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>(RimEnsembleCurveSet::SINGLE_COLOR);
+        auto byEnsParamOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
+
+        options.push_back(caf::PdmOptionItemInfo(singleColorOption.uiText(), RimEnsembleCurveSet::SINGLE_COLOR));
+        if (!ensembleParameters().empty())
+        {
+            options.push_back(caf::PdmOptionItemInfo(byEnsParamOption.uiText(), RimEnsembleCurveSet::BY_ENSEMBLE_PARAM));
+        }
+    }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-
         for (auto param : ensembleParameters())
         {
             options.push_back(caf::PdmOptionItemInfo(param, param));
@@ -668,12 +678,18 @@ void RimEnsembleCurveSet::updateCurveColors()
                 for (auto& curve : m_curves)
                 {
                     RimSummaryCase* rimCase = curve->summaryCaseY();
-                    QString tValue = rimCase->caseRealizationParameters()->parameterValue(parameterName).textValue();
+                    QString tValue = rimCase->hasCaseRealizationParameters() ?
+                        rimCase->caseRealizationParameters()->parameterValue(parameterName).textValue() :
+                        "";
                     double nValue = m_legendConfig->categoryValueFromCategoryName(tValue);
                     if (nValue != HUGE_VAL)
                     {
                         int iValue = static_cast<int>(nValue);
                         curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(iValue)));
+                    }
+                    else
+                    {
+                        curve->setColor(cvf::Color3f::GRAY);
                     }
                     curve->updateCurveAppearance();
                 }
@@ -705,8 +721,11 @@ void RimEnsembleCurveSet::updateCurveColors()
                 for (auto& curve : m_curves)
                 {
                     RimSummaryCase* rimCase = curve->summaryCaseY();
-                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue();
-                    curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
+                    double value = rimCase->hasCaseRealizationParameters() ? 
+                        rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue() :
+                        HUGE_VAL;
+                    if(value != HUGE_VAL) curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
+                    else                  curve->setColor(cvf::Color3f::GRAY);
                     curve->updateCurveAppearance();
                 }
             }
@@ -725,7 +744,7 @@ void RimEnsembleCurveSet::updateCurveColors()
     firstAncestorOrThisOfType(plot);
     if (plot && plot->qwtPlot())
     {
-        if (isCurvesVisible() && m_colorMode == BY_ENSEMBLE_PARAM && m_legendConfig->showLegend())
+        if (m_yValuesSummaryGroup() && isCurvesVisible() && m_colorMode == BY_ENSEMBLE_PARAM && m_legendConfig->showLegend())
         {
             plot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend(this);
         }
