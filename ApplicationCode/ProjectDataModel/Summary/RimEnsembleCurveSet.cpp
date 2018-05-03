@@ -54,6 +54,11 @@ namespace caf
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveSet, "RimEnsembleCurveSet");
 
@@ -682,7 +687,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                         rimCase->caseRealizationParameters()->parameterValue(parameterName).textValue() :
                         "";
                     double nValue = m_legendConfig->categoryValueFromCategoryName(tValue);
-                    if (nValue != HUGE_VAL)
+                    if (nValue != DOUBLE_INF)
                     {
                         int iValue = static_cast<int>(nValue);
                         curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(iValue)));
@@ -696,8 +701,8 @@ void RimEnsembleCurveSet::updateCurveColors()
             }
             else
             {
-                double minValue = std::numeric_limits<double>::infinity();
-                double maxValue = -std::numeric_limits<double>::infinity();
+                double minValue = DOUBLE_INF;
+                double maxValue = -DOUBLE_INF;
 
                 for (RimSummaryCase* rimCase : group->allSummaryCases())
                 {
@@ -707,7 +712,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                         if (value.isNumeric())
                         {
                             double nValue = value.numericValue();
-                            if (nValue != std::numeric_limits<double>::infinity())
+                            if (nValue != DOUBLE_INF)
                             {
                                 if (nValue < minValue) minValue = nValue;
                                 if (nValue > maxValue) maxValue = nValue;
@@ -723,9 +728,9 @@ void RimEnsembleCurveSet::updateCurveColors()
                     RimSummaryCase* rimCase = curve->summaryCaseY();
                     double value = rimCase->hasCaseRealizationParameters() ? 
                         rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue() :
-                        HUGE_VAL;
-                    if(value != HUGE_VAL) curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
-                    else                  curve->setColor(cvf::Color3f::GRAY);
+                        DOUBLE_INF;
+                    if(value != DOUBLE_INF) curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
+                    else                    curve->setColor(cvf::Color3f::GRAY);
                     curve->updateCurveAppearance();
                 }
             }
