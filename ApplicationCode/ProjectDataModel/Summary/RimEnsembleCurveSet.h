@@ -57,6 +57,7 @@ class RimEnsembleCurveSet : public caf::PdmObject
 
 public:
     enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
+    enum EnsembleParameterType {TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT};
 
     RimEnsembleCurveSet();
     virtual ~RimEnsembleCurveSet();
@@ -85,6 +86,7 @@ public:
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
     ColorMode                               colorMode() const;
+    EnsembleParameterType                   currentEnsembleParameterType() const;
 
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
@@ -113,6 +115,7 @@ private:
 
     QString                                 createAutoName() const;
 
+    void                                    updateLegendMappingMode();
 
 private:
     caf::PdmField<bool>                             m_showCurves;

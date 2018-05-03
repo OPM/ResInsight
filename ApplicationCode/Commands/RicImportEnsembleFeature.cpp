@@ -108,14 +108,14 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
 
         for (RimSummaryCase* rimCase : cases)
         {
-            if (rimCase->caseRealizationParameters().isNull() || rimCase->caseRealizationParameters()->parameters().empty())
+            if (rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty())
             {
                 errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
             }
             else
             {
                 QString paramNames;
-                for (std::pair<QString, double> paramPair : rimCase->caseRealizationParameters()->parameters())
+                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters())
                 {
                     paramNames.append(paramPair.first);
                 }

@@ -139,7 +139,7 @@ bool RiaDateStringParser::tryParseMonthFirst(const std::string& s, int& year, in
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseYear(const std::string& s, int &year)
 {
-    if (containsAlphabetic(s)) return false;
+    if (RiaStdStringTools::containsAlphabetic(s)) return false;
 
     auto today = QDate::currentDate();
     int y = RiaStdStringTools::toInt(s);
@@ -158,7 +158,7 @@ bool RiaDateStringParser::tryParseYear(const std::string& s, int &year)
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
 {
-    if (containsAlphabetic(s))
+    if (RiaStdStringTools::containsAlphabetic(s))
     {
         auto sMonth = s;
         sMonth = trimString(sMonth);
@@ -190,7 +190,7 @@ bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseDay(const std::string& s, int &day)
 {
-    if (containsAlphabetic(s)) return false;
+    if (RiaStdStringTools::containsAlphabetic(s)) return false;
 
     int d = RiaStdStringTools::toInt(s);
     if (d >= 1 && d <= 31)
@@ -201,14 +201,6 @@ bool RiaDateStringParser::tryParseDay(const std::string& s, int &day)
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaDateStringParser::containsAlphabetic(const std::string& s)
-{
-    return std::find_if(s.begin(), s.end(), [](char c) { return isalpha(c); }) != s.end();
 }
 
 //--------------------------------------------------------------------------------------------------

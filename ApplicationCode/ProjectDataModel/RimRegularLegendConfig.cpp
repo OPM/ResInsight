@@ -51,7 +51,7 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
-
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT(RimRegularLegendConfig, "Legend");
 
@@ -151,6 +151,36 @@ RimRegularLegendConfig::RimRegularLegendConfig()
 RimRegularLegendConfig::~RimRegularLegendConfig()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setNamedCategories(const std::vector<QString>& categoryNames, bool inverse)
+{
+    std::list<int> nameIndices;
+    std::list<cvf::String> names;
+
+    int categoriesCount = static_cast<int>(categoryNames.size());
+    for (int i = 0; i < categoriesCount; i++)
+    {
+        if (!inverse)
+        {
+            nameIndices.push_back(i);
+            names.push_back(cvfqt::Utils::toString(categoryNames[i]));
+        }
+        else
+        {
+            nameIndices.push_front(i);
+            names.push_front(cvfqt::Utils::toString(categoryNames[i]));
+        }
+    }
+
+    m_categories = std::vector<int>(nameIndices.begin(), nameIndices.end());
+    m_categoryNames = std::vector<cvf::String>(names.begin(), names.end());
+    m_categoryColors.clear();
+
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -585,21 +615,17 @@ void RimRegularLegendConfig::setIntegerCategories(const std::vector<int>& catego
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setNamedCategories(const std::vector<QString>& categoryNames)
+{
+    setNamedCategories(categoryNames, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& categoryNames)
 {
-    std::vector<int> nameIndices;
-    std::vector<cvf::String> names;
-    for(int i =  static_cast<int>(categoryNames.size()) - 1; i >= 0; --i)
-    {
-        nameIndices.push_back(i);
-        names.push_back(cvfqt::Utils::toString(categoryNames[i]));
-    }
-    
-    m_categories = nameIndices;
-    m_categoryNames = names;
-    m_categoryColors.clear();
-
-    updateLegend();
+    setNamedCategories(categoryNames, true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,6 +667,21 @@ QString RimRegularLegendConfig::categoryNameFromCategoryValue(double categoryRes
     }
 
     return QString("%1").arg(categoryResultValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimRegularLegendConfig::categoryValueFromCategoryName(const QString& categoryName) const
+{
+    for (int i = 0; i < m_categoryNames.size(); i++)
+    {
+        if (cvfqt::Utils::toQString(m_categoryNames[i]).compare(categoryName, Qt::CaseInsensitive) == 0)
+        {
+            return i;
+        }
+    }
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -795,9 +836,10 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         RimCellEdgeColors* eclCellEdgColors = nullptr;
         this->firstAncestorOrThisOfType(eclCellEdgColors);
 
-        if (   ( eclCellColors && eclCellColors->hasCategoryResult()) 
-            || ( gmCellColors && gmCellColors->hasCategoryResult()) 
-            || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult()) )
+        if (   ( eclCellColors && eclCellColors->hasCategoryResult())
+            || ( gmCellColors && gmCellColors->hasCategoryResult())
+            || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult())
+            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == RimEnsembleCurveSet::TYPE_TEXT) )
         {
             isCategoryResult = true;
         }

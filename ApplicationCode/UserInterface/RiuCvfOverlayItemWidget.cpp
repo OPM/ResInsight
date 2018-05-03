@@ -76,7 +76,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
     caf::Viewer*  viewer = new caf::Viewer(glFormat, nullptr);
     cvf::OpenGLContext* cvfOglContext = viewer->cvfOpenGLContext();
     viewer->resize(width, height);
-
+    
     // Create a rendering
 
     cvf::ref<cvf::Rendering> rendering = new cvf::Rendering;

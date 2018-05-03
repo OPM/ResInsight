@@ -86,7 +86,7 @@ bool RimSummaryCase::isObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::setCaseRealizationParameters(cvf::ref<RigCaseRealizationParameters> crlParameters)
+void RimSummaryCase::setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters)
 {
     m_crlParameters = crlParameters;
 }
@@ -94,7 +94,7 @@ void RimSummaryCase::setCaseRealizationParameters(cvf::ref<RigCaseRealizationPar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigCaseRealizationParameters> RimSummaryCase::caseRealizationParameters() const
+std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationParameters() const
 {
     return m_crlParameters;
 }

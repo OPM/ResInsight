@@ -339,6 +339,27 @@ RimEnsembleCurveSet::ColorMode RimEnsembleCurveSet::colorMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet::EnsembleParameterType RimEnsembleCurveSet::currentEnsembleParameterType() const
+{
+    if (m_colorMode() == BY_ENSEMBLE_PARAM)
+    {
+        RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+        QString parameterName = m_ensembleParameter();
+
+        if (group && !parameterName.isEmpty() && !group->allSummaryCases().empty())
+        {
+            bool isTextParameter = group->allSummaryCases().front()->caseRealizationParameters() != nullptr ?
+                group->allSummaryCases().front()->caseRealizationParameters()->parameterValue(parameterName).isText() : false;
+
+            return isTextParameter ? TYPE_TEXT : TYPE_NUMERIC;
+        }
+    }
+    return TYPE_NONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
@@ -367,9 +388,13 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         m_allAddressesCache.clear();
         updateAllCurves();
     }
-    else if (changedField == &m_ensembleParameter ||
-             changedField == &m_color)
+    else if (changedField == &m_color)
     {
+        updateCurveColors();
+    }
+    else if (changedField == &m_ensembleParameter)
+    {
+        updateLegendMappingMode();
         updateCurveColors();
     }
     else if (changedField == &m_colorMode)
@@ -615,32 +640,75 @@ void RimEnsembleCurveSet::updateCurveColors()
             m_legendConfig->setTitle(legendTitle);
         }
 
-        if (group && !parameterName.isEmpty())
+        if (group && !parameterName.isEmpty() && !group->allSummaryCases().empty())
         {
-            double minValue = std::numeric_limits<double>::infinity();
-            double maxValue = -std::numeric_limits<double>::infinity();
+            bool isTextParameter = group->allSummaryCases().front()->caseRealizationParameters() != nullptr ?
+                group->allSummaryCases().front()->caseRealizationParameters()->parameterValue(parameterName).isText() : false;
 
-            for (RimSummaryCase* rimCase : group->allSummaryCases())
+            if (isTextParameter)
             {
-                if (!rimCase->caseRealizationParameters().isNull())
+                std::set<QString> categories;
+
+                for (RimSummaryCase* rimCase : group->allSummaryCases())
                 {
-                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                    if (value != std::numeric_limits<double>::infinity())
+                    if (rimCase->caseRealizationParameters() != nullptr)
                     {
-                        if (value < minValue) minValue = value;
-                        if (value > maxValue) maxValue = value;
+                        RigCaseRealizationParameters::Value value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                        if (value.isText())
+                        {
+                            categories.insert(value.textValue());
+                        }
                     }
                 }
+
+                std::vector<QString> categoryNames = std::vector<QString>(categories.begin(), categories.end());
+                m_legendConfig->setNamedCategories(categoryNames);
+                m_legendConfig->setAutomaticRanges(0, categoryNames.size() - 1, 0, categoryNames.size() - 1);
+
+                for (auto& curve : m_curves)
+                {
+                    RimSummaryCase* rimCase = curve->summaryCaseY();
+                    QString tValue = rimCase->caseRealizationParameters()->parameterValue(parameterName).textValue();
+                    double nValue = m_legendConfig->categoryValueFromCategoryName(tValue);
+                    if (nValue != HUGE_VAL)
+                    {
+                        int iValue = static_cast<int>(nValue);
+                        curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(iValue)));
+                    }
+                    curve->updateCurveAppearance();
+                }
             }
-
-            m_legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
-
-            for (auto& curve : m_curves)
+            else
             {
-                RimSummaryCase* rimCase = curve->summaryCaseY();
-                double value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
-                curve->updateCurveAppearance();
+                double minValue = std::numeric_limits<double>::infinity();
+                double maxValue = -std::numeric_limits<double>::infinity();
+
+                for (RimSummaryCase* rimCase : group->allSummaryCases())
+                {
+                    if (rimCase->caseRealizationParameters() != nullptr)
+                    {
+                        RigCaseRealizationParameters::Value value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
+                        if (value.isNumeric())
+                        {
+                            double nValue = value.numericValue();
+                            if (nValue != std::numeric_limits<double>::infinity())
+                            {
+                                if (nValue < minValue) minValue = nValue;
+                                if (nValue > maxValue) maxValue = nValue;
+                            }
+                        }
+                    }
+                }
+
+                m_legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
+
+                for (auto& curve : m_curves)
+                {
+                    RimSummaryCase* rimCase = curve->summaryCaseY();
+                    double value = rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue();
+                    curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
+                    curve->updateCurveAppearance();
+                }
             }
         }
     }
@@ -737,7 +805,7 @@ std::vector<QString> RimEnsembleCurveSet::ensembleParameters() const
     {
         for (RimSummaryCase* rimCase : group->allSummaryCases())
         {
-            if (!rimCase->caseRealizationParameters().isNull())
+            if (rimCase->caseRealizationParameters() != nullptr)
             {
                 auto ps = rimCase->caseRealizationParameters()->parameters();
                 for (auto p : ps) paramSet.insert(p.first);
@@ -767,4 +835,23 @@ QString RimEnsembleCurveSet::createAutoName() const
     }
 
     return curveSetName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateLegendMappingMode()
+{
+    switch (currentEnsembleParameterType())
+    {
+    case TYPE_TEXT:
+        if (m_legendConfig->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER)
+            m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::CATEGORY_INTEGER);
+        break;
+
+    case TYPE_NUMERIC:
+        if (m_legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER)
+            m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS);
+        break;
+    }
 }

@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 class QStringList;
 class QTextStream;
@@ -46,9 +47,9 @@ public:
     RifCaseRealizationParametersReader(const QString& fileName);
     ~RifCaseRealizationParametersReader();
 
-    void                                            setFileName(const QString& fileName);
-    void                                            parse();
-    const cvf::ref<RigCaseRealizationParameters>    parameters() const;
+    void                                                setFileName(const QString& fileName);
+    void                                                parse();
+    const std::shared_ptr<RigCaseRealizationParameters> parameters() const;
 
 private:
     QTextStream*                    openDataStream();
@@ -56,7 +57,7 @@ private:
     void                            openFile();
     void                            closeFile();
 private:
-    cvf::ref<RigCaseRealizationParameters>  m_parameters;
+    std::shared_ptr<RigCaseRealizationParameters>  m_parameters;
 
     QString                                 m_fileName;
     QFile*                                  m_file;

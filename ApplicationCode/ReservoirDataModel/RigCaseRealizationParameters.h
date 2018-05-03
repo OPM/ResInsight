@@ -31,14 +31,41 @@
 //
 //
 //==================================================================================================
-class RigCaseRealizationParameters : public cvf::Object
+class RigCaseRealizationParameters
 {
 public:
-    void                        addParameter(const QString& name, double value);
-    double                      parameterValue(const QString& name);
+    // Internal class
+    class Value
+    {
+        enum ValueType { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
 
-    std::map<QString, double>   parameters() const;
+    public:
+        Value();
+        Value(double value);
+        Value(const QString& value);
+
+        void setValue(double value);
+        void setValue(const QString& value);
+
+        bool isEmpty() const { return m_valueType == TYPE_NONE; }
+        bool isNumeric() const { return m_valueType == TYPE_NUMERIC; }
+        bool isText() const { return m_valueType == TYPE_TEXT; }
+
+        double          numericValue() const;
+        const QString&  textValue() const;
+
+    private:
+        ValueType   m_valueType;
+        double      m_numericValue;
+        QString     m_textValue;
+    };
+
+    void                        addParameter(const QString& name, double value);
+    void                        addParameter(const QString& name, const QString& value);
+    Value                       parameterValue(const QString& name);
+
+    std::map<QString, Value>    parameters() const;
 
 private:
-    std::map<QString, double>   m_parameters;
+    std::map<QString, Value>    m_parameters;
 };

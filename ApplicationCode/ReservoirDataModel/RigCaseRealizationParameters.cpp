@@ -22,15 +22,81 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseRealizationParameters::addParameter(const QString& name, double value)
+RigCaseRealizationParameters::Value::Value() : m_valueType(TYPE_NONE), m_numericValue(HUGE_VAL)
 {
-    m_parameters[name] = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCaseRealizationParameters::parameterValue(const QString& name)
+RigCaseRealizationParameters::Value::Value(double value) : Value()
+{
+    setValue(value);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCaseRealizationParameters::Value::Value(const QString& value) : Value()
+{
+    setValue(value);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::Value::setValue(double value)
+{
+    m_valueType = TYPE_NUMERIC;
+    m_numericValue = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::Value::setValue(const QString& value)
+{
+    m_valueType = TYPE_TEXT;
+    m_textValue = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCaseRealizationParameters::Value::numericValue() const
+{
+    return m_numericValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString& RigCaseRealizationParameters::Value::textValue() const
+{
+    return m_textValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::addParameter(const QString& name, double value)
+{
+    m_parameters[name].setValue(value);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::addParameter(const QString& name, const QString& value)
+{
+    m_parameters[name].setValue(value);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCaseRealizationParameters::Value RigCaseRealizationParameters::parameterValue(const QString& name)
 {
     if (m_parameters.count(name) == 0) return HUGE_VAL;
     return m_parameters[name];
@@ -39,7 +105,7 @@ double RigCaseRealizationParameters::parameterValue(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QString, double> RigCaseRealizationParameters::parameters() const
+std::map<QString, RigCaseRealizationParameters::Value> RigCaseRealizationParameters::parameters() const
 {
     return m_parameters;
 }

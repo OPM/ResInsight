@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <memory>
+
 class RifSummaryReaderInterface;
 
 //==================================================================================================
@@ -54,8 +56,8 @@ public:
 
     bool                isObservedData();
 
-    void                setCaseRealizationParameters(cvf::ref<RigCaseRealizationParameters> crlParameters);
-    cvf::ref<RigCaseRealizationParameters> caseRealizationParameters() const;
+    void                setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters);
+    std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -66,7 +68,7 @@ protected:
     caf::PdmField<QString>          m_summaryHeaderFilename;
     bool                            m_isObservedData;
     
-    cvf::ref<RigCaseRealizationParameters> m_crlParameters;
+    std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
 private:
     virtual void        initAfterRead() override;

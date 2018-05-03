@@ -42,16 +42,20 @@ TEST(RifCaseRealizationParametersReaderTest, SuccessfulParsing)
     {
         reader.parse();
 
-        const cvf::ref<RigCaseRealizationParameters> parameters = reader.parameters();
-        std::map<QString, double> params = parameters->parameters();
+        const std::shared_ptr<RigCaseRealizationParameters> parameters(reader.parameters());
+        std::map<QString, RigCaseRealizationParameters::Value> params = parameters->parameters();
 
         EXPECT_EQ(1U, params.count("LETSWOF:L_1OW"));
         EXPECT_EQ(1U, params.count("LETSGOF:KRG1"));
         EXPECT_EQ(1U, params.count("LOG10_MULTFLT:MULTFLT_F1"));
+        EXPECT_EQ(1U, params.count("TST:TEXT_PARAM"));
 
-        EXPECT_EQ(1.83555,   params["LETSWOF:L_1OW"]);
-        EXPECT_EQ(0.97,      params["LETSGOF:KRG1"]);
-        EXPECT_EQ(-0.168356, params["LOG10_MULTFLT:MULTFLT_F1"]);
+        EXPECT_TRUE(params["LETSWOF:L_1OW"].isNumeric());
+        EXPECT_EQ(1.83555,          params["LETSWOF:L_1OW"].numericValue());
+        EXPECT_TRUE(params["LETSGOF:KRG1"].isNumeric());
+        EXPECT_EQ(0.97,             params["LETSGOF:KRG1"].numericValue());
+        EXPECT_TRUE(params["TST:TEXT_PARAM"].isText());
+        EXPECT_EQ(std::string("YES"), params["TST:TEXT_PARAM"].textValue().toStdString());
     }
     catch (...)
     {

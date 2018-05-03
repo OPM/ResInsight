@@ -102,9 +102,11 @@ public:
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
     
     void                                        setIntegerCategories(const std::vector<int>& categories);
+    void                                        setNamedCategories(const std::vector<QString>& categoryNames);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
     void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
     QString                                     categoryNameFromCategoryValue(double categoryResultValue) const;
+    double                                      categoryValueFromCategoryName(const QString& categoryName) const;
 
     void                                        setTitle(const QString& title);
 
@@ -117,6 +119,7 @@ public:
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
 
 private:
+    void                                        setNamedCategories(const std::vector<QString>& categoryNames, bool inverse);
     void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                        initAfterRead() override;
     caf::PdmFieldHandle*                        objectToggleField() override;
