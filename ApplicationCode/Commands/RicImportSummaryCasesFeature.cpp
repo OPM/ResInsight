@@ -39,6 +39,8 @@
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
+#include "cafProgressInfo.h"
+
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -128,7 +130,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
 
     if (!importFileInfos.empty())
     {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos);
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos, true);
         if (newCases) newCases->insert(newCases->end(), sumCases.begin(), sumCases.end());
     }
 

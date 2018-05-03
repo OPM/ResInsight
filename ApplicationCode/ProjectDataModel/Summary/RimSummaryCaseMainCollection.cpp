@@ -325,11 +325,18 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createAndAddSummaryCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos)
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+                                                                                           bool showProgress)
 {
     RimProject* project = RiaApplication::instance()->project();
 
     std::vector<RimSummaryCase*>    sumCases;
+    std::unique_ptr<caf::ProgressInfo> progress;
+    
+    if (showProgress)
+    {
+        progress.reset(new caf::ProgressInfo(summaryHeaderFileInfos.size(), "Creating summary cases"));
+    }
 
     for (RifSummaryCaseFileResultInfo fileInfo : summaryHeaderFileInfos)
     {
@@ -362,6 +369,8 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
             addCaseRealizationParametersIfFound(*newSumCase, fileInfo.summaryFileName());
             sumCases.push_back(newSumCase);
         }
+
+        if (progress != nullptr) progress->incrementProgress();
     }
     return sumCases;
 }
