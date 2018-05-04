@@ -1480,7 +1480,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
         }
 
 #pragma omp parallel for
-        for (long n = 0; n < nodeCount; n++)
+        for (long n = 0; n < static_cast<long>(nodeCount); n++)
         {
             RefElement refElement;
             findReferenceElementForNode(*part, n, resVarAddr.refKLayerIndex, &refElement);
