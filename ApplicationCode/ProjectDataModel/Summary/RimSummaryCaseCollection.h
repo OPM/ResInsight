@@ -21,6 +21,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include <vector>
 
@@ -34,17 +35,19 @@ public:
     RimSummaryCaseCollection();
     virtual ~RimSummaryCaseCollection();
 
-    void                         removeCase(RimSummaryCase* summaryCase);
-    void                         addCase(RimSummaryCase* summaryCase);
-    std::vector<RimSummaryCase*> allSummaryCases();
-    void                         setName(const QString& name);
-    QString                      name() const;
+    void                            removeCase(RimSummaryCase* summaryCase);
+    void                            addCase(RimSummaryCase* summaryCase);
+    std::vector<RimSummaryCase*>    allSummaryCases();
+    void                            setName(const QString& name);
+    QString                         name() const;
 
 private:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 updateReferringCurveSets() const;
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    void                            updateReferringCurveSets() const;
+    QString                         nameAndItemCount() const;
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmField<QString>                   m_name;
+    caf::PdmProxyValueField<QString>         m_nameAndItemCount;
 };

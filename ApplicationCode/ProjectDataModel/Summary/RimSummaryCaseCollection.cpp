@@ -18,8 +18,8 @@
 
 #include "RimSummaryCaseCollection.h"
 
-#include "RimGridSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 
@@ -36,6 +36,11 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_cases.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_name, "SummaryCollectionName", QString("Case Group"), "Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_nameAndItemCount, "NameCount", "Name", "", "", "");
+    m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
+    m_nameAndItemCount.uiCapability()->setUiReadOnly(true);
+    m_nameAndItemCount.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,11 +99,11 @@ QString RimSummaryCaseCollection::name() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 {
-    return &m_name;
+    return &m_nameAndItemCount;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::updateReferringCurveSets() const
 {
@@ -111,4 +116,18 @@ void RimSummaryCaseCollection::updateReferringCurveSets() const
         RimEnsembleCurveSet* curveSet = dynamic_cast<RimEnsembleCurveSet*>(obj);
         if (curveSet) curveSet->updateAllCurves();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCaseCollection::nameAndItemCount() const
+{
+    size_t itemCount = m_cases.size();
+    if (itemCount > 20)
+    {
+        return QString("%1 (%2)").arg(m_name()).arg(itemCount);
+    }
+
+    return m_name();
 }
