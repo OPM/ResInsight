@@ -76,6 +76,7 @@ extern "C" {
   double          ecl_grid_get_cell_dz3( const ecl_grid_type * grid , int i , int j , int k);
   double          ecl_grid_get_cell_thickness3( const ecl_grid_type * grid , int i , int j , int k);
 
+  void            ecl_grid_get_distance(const ecl_grid_type * grid , int global_index1, int global_index2 , double *dx , double *dy , double *dz);
   double          ecl_grid_get_cdepth1A(const ecl_grid_type * grid , int active_index);
   double          ecl_grid_get_cdepth1(const ecl_grid_type * grid , int global_index);
   double          ecl_grid_get_cdepth3(const ecl_grid_type * grid , int i, int j , int k);
@@ -118,6 +119,9 @@ extern "C" {
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_dxv_dyv_dzv( int nx, int ny , int nz , const double * dxv , const double * dyv , const double * dzv , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_dxv_dyv_dzv_depthz( int nx, int ny , int nz , const double * dxv , const double * dyv , const double * dzv , const double * depthz , const int * actnum);
+  ecl_kw_type   * ecl_grid_alloc_volume_kw( const ecl_grid_type * grid , bool active_size);
+  ecl_kw_type   * ecl_grid_alloc_mapaxes_kw( const ecl_grid_type * grid );
+  ecl_kw_type   * ecl_grid_alloc_coord_kw( const ecl_grid_type * grid);
 
   bool            ecl_grid_exists( const char * case_input );
   char          * ecl_grid_alloc_case_filename( const char * case_input );

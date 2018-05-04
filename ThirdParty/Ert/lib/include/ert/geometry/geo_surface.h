@@ -46,6 +46,16 @@ extern "C" {
   int                 geo_surface_get_ny( const geo_surface_type * surface );
   void                geo_surface_iget_xy( const geo_surface_type* surface, int index, double* x, double* y);
 
+  void                geo_surface_shift( const geo_surface_type * src , double value);
+  void                geo_surface_scale( const geo_surface_type * src , double value);
+  void                geo_surface_isub( geo_surface_type * self , const geo_surface_type * other);
+  void                geo_surface_iset_zvalue(geo_surface_type * surface, int index , double value);
+  void                geo_surface_assign_value( const geo_surface_type * src , double value);
+  geo_surface_type  * geo_surface_alloc_copy( const geo_surface_type * src , bool copy_zdata);
+  void                geo_surface_iadd( geo_surface_type * self , const geo_surface_type * other);
+  void                geo_surface_imul( geo_surface_type * self , const geo_surface_type * other);
+  void                geo_surface_isqrt( geo_surface_type * surface );
+
 #ifdef __cplusplus
 }
 #endif

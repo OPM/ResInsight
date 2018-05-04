@@ -24,6 +24,7 @@
 extern "C" {
 #endif
 #include <stdlib.h>
+#include <stdint.h>
 #include <time.h>
 
 #include <ert/util/time_t_vector.h>
@@ -86,8 +87,23 @@ typedef struct ecl_sum_data_struct ecl_sum_data_type ;
   bool                     ecl_sum_data_report_step_equal( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2);
   bool                     ecl_sum_data_report_step_compatible( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2);
   void                     ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, FILE *fp);
+  double                   ecl_sum_data_get_last_value(const ecl_sum_data_type * data, int param_index);
+  double                   ecl_sum_data_iget_last_value(const ecl_sum_data_type * data, int param_index);
+  double                   ecl_sum_data_iget_first_value(const ecl_sum_data_type * data, int param_index);
+  void                     ecl_sum_data_init_double_vector(const ecl_sum_data_type * data, int params_index, double * output_data);
+  void                     ecl_sum_data_init_datetime64_vector(const ecl_sum_data_type * data, int64_t * output_data, int multiplier);
 
-  double_vector_type * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const smspec_node_type * node , double value, bool rates_clamp_lower);
+  void                     ecl_sum_data_init_double_frame(const ecl_sum_data_type * data, const ecl_sum_vector_type * keywords, double *output_data);
+  double_vector_type     * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const smspec_node_type * node , double value, bool rates_clamp_lower);
+  void                     ecl_sum_data_init_double_frame_interp(const ecl_sum_data_type * data,
+                                                                 const ecl_sum_vector_type * keywords,
+                                                                 const time_t_vector_type * time_points,
+                                                                 double * output_data);
+
+  void ecl_sum_data_init_double_vector_interp(const ecl_sum_data_type * data,
+                                              const smspec_node_type * smspec_node,
+                                              const time_t_vector_type * time_points,
+                                              double * output_data);
 
 
 #ifdef __cplusplus

@@ -179,7 +179,7 @@ static void util_fprintf_backtrace(FILE * stream) {
 
     if (util_addr2line_lookup(bt_addr[i], &func_name , &file_name , &line_nr)) {
       int pad_length;
-      char * function;
+      const char * function;
       // Seems it can return true - but with func_name == NULL?! Static/inlinded functions?
       if (func_name)
         function = func_name;
@@ -282,7 +282,7 @@ void util_abort__(const char * file , const char * function , int line , const c
       if (__abort_program_message != NULL) {
 #if !defined(__GLIBC__)
         /* allocate a temporary buffer to hold the path */
-        char* program_invocation_name = alloca (PATH_MAX);
+        char* program_invocation_name = (char*)alloca (PATH_MAX);
 #  if defined(__APPLE__)
         uint32_t buflen = PATH_MAX;
         _NSGetExecutablePath (program_invocation_name, &buflen);

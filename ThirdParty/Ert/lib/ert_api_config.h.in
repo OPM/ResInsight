@@ -7,6 +7,7 @@
 #cmakedefine ERT_HAVE_OPENDIR
 #cmakedefine ERT_HAVE_SYMLINK
 #cmakedefine ERT_HAVE_READLINKAT
+#cmakedefine ERT_HAVE_READLINKAT_DECLARATION
 #cmakedefine ERT_HAVE_GLOB
 #cmakedefine ERT_HAVE_GETUID
 #cmakedefine ERT_HAVE_REGEXP

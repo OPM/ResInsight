@@ -9,23 +9,23 @@ else()
 endif()
 
 if (ERT_HAVE_GETUID AND ERT_HAVE_OPENDIR)
-    list(APPEND opt_srcs util/test_work_area.c util/util_getuid.c)
+    list(APPEND opt_srcs util/test_work_area.cpp util/util_getuid.cpp)
 endif()
 
 if (ERT_HAVE_OPENDIR)
-    list(APPEND opt_srcs util/util_opendir.c)
+    list(APPEND opt_srcs util/util_opendir.cpp)
 endif()
 
 if (ERT_HAVE_SPAWN)
-    list(APPEND opt_srcs util/util_spawn.c)
+    list(APPEND opt_srcs util/util_spawn.cpp)
 endif()
 
 if (ERT_HAVE_LOCKF)
-    list(APPEND opt_srcs util/util_lockf.c)
+    list(APPEND opt_srcs util/util_lockf.cpp)
 endif ()
 
 if (ERT_HAVE_UNISTD)
-   list(APPEND opt_srcs util/path_stack.c)
+   list(APPEND opt_srcs util/path_stack.cpp)
 endif ()
 
 if (MSVC)
@@ -36,20 +36,22 @@ foreach (type int double long time_t float)
     set(TYPE ${type})
     set(SIGNED_TYPE true)
     configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-    configure_file(util/vector_template.c ${type}_vector.c)
-    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
+    configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
+    configure_file(util/vector_template.cpp ${type}_vector.cpp)
+    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
 endforeach ()
 
 foreach (type bool size_t)
     set(TYPE ${type})
     set(SIGNED_TYPE false)
     configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-    configure_file(util/vector_template.c ${type}_vector.c)
-    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
+    configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
+    configure_file(util/vector_template.cpp ${type}_vector.cpp)
+    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
 endforeach ()
 
 if (ZLIB_FOUND)
-    list(APPEND opt_srcs util/util_zlib.c)
+    list(APPEND opt_srcs util/util_zlib.cpp)
 endif ()
 
 if (ERT_BUILD_CXX)
@@ -60,95 +62,96 @@ if (ERT_BUILD_CXX)
 )
 endif ()
 
-
 configure_file(build_config.h.in   include/ert/util/build_config.h)
 configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
+configure_file(build_config.hpp.in   include/ert/util/build_config.hpp)
+configure_file(ert_api_config.hpp.in include/ert/util/ert_api_config.hpp)
 
-add_library(ecl util/rng.c
-                util/lookup_table.c
-                util/statistics.c
-                util/mzran.c
-                util/set.c
-                util/hash_node.c
-                util/hash_sll.c
-                util/hash.c
-                util/node_data.c
-                util/node_ctype.c
+add_library(ecl util/rng.cpp
+                util/lookup_table.cpp
+                util/statistics.cpp
+                util/mzran.cpp
+                util/set.cpp
+                util/hash_node.cpp
+                util/hash_sll.cpp
+                util/hash.cpp
+                util/node_data.cpp
+                util/node_ctype.cpp
                 util/util.c
-                util/util_symlink.c
+                util/util_symlink.cpp
                 util/util_lfs.c
-                util/util_unlink.c
-                util/arg_pack.c
-                util/vector.c
-                util/parser.c
-                util/stringlist.c
-                util/buffer.c
-                util/timer.c
-                util/string_util.c
-                util/type_vector_functions.c
-                util/ecl_version.c
-                util/struct_vector.c
-                util/perm_vector.c
-                util/test_util.c
+                util/util_unlink.cpp
+                util/arg_pack.cpp
+                util/vector.cpp
+                util/parser.cpp
+                util/stringlist.cpp
+                util/buffer.cpp
+                util/timer.cpp
+                util/string_util.cpp
+                util/type_vector_functions.cpp
+                util/ecl_version.cpp
+                util/struct_vector.cpp
+                util/perm_vector.cpp
+                util/test_util.cpp
                 ${opt_srcs}
 
-                ecl/ecl_rsthead.c
-                ecl/ecl_sum_tstep.c
-                ecl/ecl_rst_file.c
-                ecl/ecl_init_file.c
-                ecl/ecl_grid_cache.c
-                ecl/smspec_node.c
-                ecl/ecl_kw_grdecl.c
-                ecl/ecl_file_kw.c
-                ecl/ecl_file_view.c
-                ecl/ecl_grav.c
-                ecl/ecl_grav_calc.c
-                ecl/ecl_smspec.c
-                ecl/ecl_sum_data.c
-                ecl/ecl_util.c
-                ecl/ecl_kw.c
-                ecl/ecl_sum.c
-                ecl/ecl_sum_vector.c
+                ecl/ecl_rsthead.cpp
+                ecl/ecl_sum_tstep.cpp
+                ecl/ecl_rst_file.cpp
+                ecl/ecl_init_file.cpp
+                ecl/ecl_grid_cache.cpp
+                ecl/smspec_node.cpp
+                ecl/ecl_kw_grdecl.cpp
+                ecl/ecl_file_kw.cpp
+                ecl/ecl_file_view.cpp
+                ecl/ecl_grav.cpp
+                ecl/ecl_grav_calc.cpp
+                ecl/ecl_smspec.cpp
+                ecl/ecl_sum_data.cpp
+                ecl/ecl_util.cpp
+                ecl/ecl_kw.cpp
+                ecl/ecl_sum.cpp
+                ecl/ecl_sum_vector.cpp
                 ecl/fortio.c
-                ecl/ecl_rft_file.c
-                ecl/ecl_rft_node.c
-                ecl/ecl_rft_cell.c
-                ecl/ecl_grid.c
-                ecl/ecl_coarse_cell.c
-                ecl/ecl_box.c
-                ecl/ecl_io_config.c
-                ecl/ecl_file.c
-                ecl/ecl_region.c
-                ecl/ecl_subsidence.c
-                ecl/ecl_grid_dims.c
-                ecl/grid_dims.c
-                ecl/nnc_info.c
-                ecl/ecl_grav_common.c
-                ecl/nnc_vector.c
-                ecl/ecl_nnc_export.c
-                ecl/ecl_nnc_data.c
-                ecl/ecl_nnc_geometry.c
-                ecl/layer.c
-                ecl/fault_block.c
-                ecl/fault_block_layer.c
-                ecl/ecl_type.c
-                ecl/ecl_type_python.c
-                ecl/well_state.c
-                ecl/well_conn.c
-                ecl/well_info.c
-                ecl/well_ts.c
-                ecl/well_conn_collection.c
-                ecl/well_segment.c
-                ecl/well_segment_collection.c
-                ecl/well_branch_collection.c
-                ecl/well_rseg_loader.c
+                ecl/ecl_rft_file.cpp
+                ecl/ecl_rft_node.cpp
+                ecl/ecl_rft_cell.cpp
+                ecl/ecl_grid.cpp
+                ecl/ecl_coarse_cell.cpp
+                ecl/ecl_box.cpp
+                ecl/ecl_io_config.cpp
+                ecl/ecl_file.cpp
+                ecl/ecl_region.cpp
+                ecl/ecl_subsidence.cpp
+                ecl/ecl_grid_dims.cpp
+                ecl/grid_dims.cpp
+                ecl/nnc_info.cpp
+                ecl/ecl_grav_common.cpp
+                ecl/nnc_vector.cpp
+                ecl/ecl_nnc_export.cpp
+                ecl/ecl_nnc_data.cpp
+                ecl/ecl_nnc_geometry.cpp
+                ecl/layer.cpp
+                ecl/fault_block.cpp
+                ecl/fault_block_layer.cpp
+                ecl/ecl_type.cpp
+                ecl/ecl_type_python.cpp
+                ecl/well_state.cpp
+                ecl/well_conn.cpp
+                ecl/well_info.cpp
+                ecl/well_ts.cpp
+                ecl/well_conn_collection.cpp
+                ecl/well_segment.cpp
+                ecl/well_segment_collection.cpp
+                ecl/well_branch_collection.cpp
+                ecl/well_rseg_loader.cpp
 
-                geometry/geo_surface.c
-                geometry/geo_util.c
-                geometry/geo_pointset.c
-                geometry/geo_region.c
-                geometry/geo_polygon.c
-                geometry/geo_polygon_collection.c
+                geometry/geo_surface.cpp
+                geometry/geo_util.cpp
+                geometry/geo_pointset.cpp
+                geometry/geo_region.cpp
+                geometry/geo_polygon.cpp
+                geometry/geo_polygon_collection.cpp
 )
 
 target_link_libraries(ecl PUBLIC ${m}
@@ -190,7 +193,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -215,7 +218,6 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()

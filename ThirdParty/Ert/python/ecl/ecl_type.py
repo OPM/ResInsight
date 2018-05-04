@@ -46,7 +46,7 @@ class EclDataType(BaseCClass):
     _alloc_from_name  = EclPrototype("void* ecl_type_alloc_from_name_python(char*)", bind=False)
     _free             = EclPrototype("void ecl_type_free_python(ecl_data_type)")
     _get_type         = EclPrototype("ecl_type_enum ecl_type_get_type_python(ecl_data_type)")
-    _get_element_size = EclPrototype("size_t ecl_type_get_sizeof_ctype_fortio_python(ecl_data_type)")
+    _get_element_size = EclPrototype("size_t ecl_type_get_sizeof_iotype_python(ecl_data_type)")
     _is_int           = EclPrototype("bool ecl_type_is_int_python(ecl_data_type)")
     _is_char          = EclPrototype("bool ecl_type_is_char_python(ecl_data_type)")
     _is_float         = EclPrototype("bool ecl_type_is_float_python(ecl_data_type)")

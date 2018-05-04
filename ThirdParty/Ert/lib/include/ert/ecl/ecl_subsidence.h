@@ -19,7 +19,7 @@
 
 #ifndef ERT_ECL_SUBSIDENCE_H
 #define ERT_ECL_SUBSIDENCE_H
-#ifdef __plusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -43,8 +43,12 @@ extern "C" {
                                                     ecl_region_type * region , 
                                                     double utm_x, double utm_y , double depth, double compressibility, double poisson_ratio);
 
+  double ecl_subsidence_eval_geertsma( const ecl_subsidence_type * subsidence , const char * base, const char * monitor , ecl_region_type * region ,
+                                       double utm_x, double utm_y , double depth,
+                                       double youngs_modulus, double poisson_ratio, double seabed);
 
-#ifdef __plusplus
+
+#ifdef __cplusplus
 }
 #endif
 #endif

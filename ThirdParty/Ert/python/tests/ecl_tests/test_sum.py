@@ -67,7 +67,7 @@ def fgpt(days):
 
 def create_case(case = "CSV", restart_case = None, restart_step = -1, data_start = None):
     length = 100
-    return createEclSum(case , [("FOPT", None , 0) , ("FOPR" , None , 0), ("FGPT" , None , 0)],
+    return createEclSum(case , [("FOPT", None , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY"), ("FGPT" , None , 0, "SM3")],
                         sim_length_days = length,
                         num_report_step = 10,
                         num_mini_step = 10,
@@ -82,12 +82,12 @@ class SumTest(EclTest):
 
 
     def test_mock(self):
-        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
+        case = createEclSum("CSV" , [("FOPT", None , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY")])
         self.assertTrue("FOPT" in case)
         self.assertFalse("WWCT:OPX" in case)
 
     def test_TIME_special_case(self):
-        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
+        case = createEclSum("CSV" , [("FOPT", None , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY")])
         keys = case.keys()
         self.assertEqual( len(keys) , 2 )
         self.assertIn( "FOPT" , keys )
@@ -107,10 +107,10 @@ class SumTest(EclTest):
         self.assertEqual( EclSum.varType( "WNEWTON") , EclSumVarType.ECL_SMSPEC_MISC_VAR )
         self.assertEqual( EclSum.varType( "AARQ:4") , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
 
-        case = createEclSum("CSV" , [("FOPT", None , 0) ,
-                                     ("FOPR" , None , 0),
-                                     ("AARQ" , None , 10),
-                                    ("RGPT" , None  ,1)])
+        case = createEclSum("CSV" , [("FOPT", None , 0, "SM3") ,
+                                     ("FOPR" , None , 0, "SM3/DAY"),
+                                     ("AARQ" , None , 10, "???"),
+                                    ("RGPT" , None  ,1, "SM3")])
 
         node1 = case.smspec_node( "FOPT" )
         self.assertEqual( node1.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
@@ -133,7 +133,7 @@ class SumTest(EclTest):
             a = node1 < 1
 
     def test_csv_export(self):
-        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
+        case = createEclSum("CSV" , [("FOPT", None , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY")])
         sep = ";"
         with TestAreaContext("ecl/csv"):
             case.exportCSV( "file.csv" , sep = sep)
@@ -147,7 +147,7 @@ class SumTest(EclTest):
                 self.assertEqual( len(row) , 4 )
                 break
 
-
+            self.assertEqual(case.unit("FOPT"), "SM3")
 
         with TestAreaContext("ecl/csv"):
             case.exportCSV( "file.csv" , keys = ["FOPT"] , sep = sep)
@@ -270,6 +270,7 @@ class SumTest(EclTest):
 
             case2 = EclSum.load( "CSVX.SMSPEC" , "CSV.UNSMRY" )
             self.assert_solve( case2 )
+            self.assertEqual(case.unit("FOPR"), "SM3/DAY")
 
     def test_invalid(self):
         case = create_case()
@@ -300,7 +301,7 @@ class SumTest(EclTest):
 
     def test_kw_vector(self):
         case1 = create_case()
-        case2 = createEclSum("CSV" , [("FOPR", None , 0) , ("FOPT" , None , 0), ("FWPT" , None , 0)],
+        case2 = createEclSum("CSV" , [("FOPR", None , 0, "SM3/DAY") , ("FOPT" , None , 0, "SM3"), ("FWPT" , None , 0, "SM3")],
                              sim_length_days = 100,
                              num_report_step = 10,
                              num_mini_step = 10,
@@ -364,6 +365,21 @@ class SumTest(EclTest):
         self.assertEqual( len(keys), len(ecl_sum_vector))
         for key in keys:
             self.assertIn(key, ecl_sum_vector)
+
+
+    def test_first_last(self):
+        case = create_case()
+        with self.assertRaises(KeyError):
+            case.last_value("NO_SUCH_KEY")
+        last_fopt = case.last_value("FOPT")
+        values = case.get_values("FOPT")
+        self.assertEqual( last_fopt, values[-1])
+
+        with self.assertRaises(KeyError):
+            case.first_value("NO_SUCH_KEY")
+
+        first_fopt = case.first_value("FOPT")
+        self.assertEqual(first_fopt, values[0])
 
 
     def test_time_range(self):
@@ -486,3 +502,61 @@ class SumTest(EclTest):
 
             case = EclSum("UNITS")
             self.assertEqual(case.unit_system, EclUnitTypeEnum.ECL_LAB_UNITS)
+
+
+    def test_numpy_vector(self):
+        case = create_case()
+
+        with self.assertRaises(KeyError):
+            case.numpy_vector("NO_SUCH_KEY")
+
+        numpy_vector = case.numpy_vector("FOPT")
+        self.assertEqual(len(numpy_vector), len(case))
+        numpy_dates = case.numpy_dates
+        self.assertEqual( numpy_dates[0].tolist(), case.getDataStartTime())
+        self.assertEqual( numpy_dates[-1].tolist(), case.getEndTime())
+
+        dates = case.dates
+        self.assertEqual( dates[0], case.getDataStartTime())
+        self.assertEqual( dates[-1], case.getEndTime())
+
+        dates = [datetime.datetime(2000,1,1)] + case.dates + [datetime.datetime(2020,1,1)]
+        fopr = case.numpy_vector("FOPR", time_index = dates)
+        fopt = case.numpy_vector("FOPT", time_index = dates)
+
+
+        self.assertEqual(fopr[0], 0)
+        self.assertEqual(fopr[-1], 0)
+
+        self.assertEqual(fopt[0], 0)
+        self.assertEqual(fopt[0], case.first_value("FOPT"))
+        self.assertEqual(fopt[-1], case.last_value("FOPT"))
+
+
+
+    def test_pandas(self):
+        case = create_case()
+        dates = [datetime.datetime(2000,1,1)] + case.dates + [datetime.datetime(2020,1,1)]
+        frame = case.pandas_frame(column_keys=["FOPT", "FOPR"], time_index = dates)
+
+        fopr = frame["FOPR"]
+        fopt = frame["FOPT"]
+
+        self.assertEqual(fopr[0], 0)
+        self.assertEqual(fopr[-1], 0)
+
+        self.assertEqual(fopt[0], 0)
+        self.assertEqual(fopt[0], case.first_value("FOPT"))
+        self.assertEqual(fopt[-1], case.last_value("FOPT"))
+
+
+        with self.assertRaises(ValueError):
+            frame = case.pandas_frame(column_keys=[])
+
+        with self.assertRaises(ValueError):
+            frame = case.pandas_frame(column_keys=["NO_KEY"])
+
+        frame = case.pandas_frame( )
+        rows, columns = frame.shape
+        self.assertEqual(len(case.keys()), columns)
+        self.assertEqual(len(case), rows)

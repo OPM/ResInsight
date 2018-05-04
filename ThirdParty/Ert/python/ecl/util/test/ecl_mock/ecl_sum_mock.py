@@ -20,8 +20,8 @@ def createEclSum( case,
 
     ecl_sum = EclSum.restart_writer(case , restart_case, restart_step, sim_start , dims[0] , dims[1] , dims[2])
     var_list = []
-    for (kw,wgname,num) in keys:
-        var_list.append( ecl_sum.addVariable( kw , wgname = wgname , num = num) )
+    for (kw,wgname,num,unit) in keys:
+        var_list.append( ecl_sum.addVariable( kw , wgname = wgname , num = num, unit =unit) )
 
     # This is a bug! This should not be integer division, but tests are written
     # around that assumption.

@@ -17,7 +17,7 @@
 */
 #include <string>
 
-#include <ert/util/util.h>
+#include <ert/util/util.hpp>
 #include <ert/util/TestArea.hpp>
 #include <cstdlib>
 #include <memory>

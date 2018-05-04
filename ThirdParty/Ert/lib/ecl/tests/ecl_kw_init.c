@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <ert/util/bool_vector.h>
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
 
@@ -57,9 +58,29 @@ void test_float() {
 }
 
 
+void test_bool() {
+  size_t N = 100;
+  bool * data = util_malloc(N * sizeof * data);
+  ecl_kw_type * kw = ecl_kw_alloc("BOOL", N , ECL_BOOL);
+  for (int i=0; i < N/2; i++) {
+    ecl_kw_iset_bool(kw, 2*i, true);
+    ecl_kw_iset_bool(kw, 2*i + 1, false);
+
+    data[2*i] = true;
+    data[2*i + 1] = false;
+  }
+
+  const bool * internal_data = ecl_kw_get_bool_ptr(kw);
+
+  test_assert_int_equal( memcmp(internal_data, data, N * sizeof * data), 0);
+  ecl_kw_free(kw);
+  free(data);
+}
+
 int main( int argc , char ** argv) {
   test_int();
   test_double();
   test_float();
+  test_bool();
   exit(0);
 }

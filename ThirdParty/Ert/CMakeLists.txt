@@ -268,6 +268,13 @@ try_compile( HAVE_PID_T   ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/
 try_compile( HAVE_MODE_T  ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_mode_t.c )
 try_compile( ERT_HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c)
 
+if (ERT_HAVE_READLINKAT)
+  try_compile( ERT_HAVE_READLINKAT_DECLARATION
+    ${CMAKE_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/cmake/Tests/test_have_readlinkat_decl.c
+    )
+endif()
+
 set( BUILD_CXX ON )
 try_compile( HAVE_CXX_SHARED_PTR ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_shared_ptr.cpp )
 if (NOT HAVE_CXX_SHARED_PTR)
@@ -357,9 +364,6 @@ if (ENABLE_PYTHON)
    endif()
 endif()
 
-if (INSTALL_ERT)
-   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
-endif()
-
+install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 export(TARGETS ecl FILE eclConfig.cmake)
 export(PACKAGE ecl)

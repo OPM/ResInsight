@@ -284,7 +284,8 @@ static bool EOL_CHAR(char c) {
        numbers, but deterministic runtime.
 */
 
-void util_fread_dev_random(int buffer_size , char * buffer) {
+void util_fread_dev_random(int buffer_size_ , char * buffer) {
+  size_t buffer_size = buffer_size_;
   FILE * stream = util_fopen("/dev/random" , "r");
   if (fread(buffer , 1 , buffer_size , stream) != buffer_size)
     util_abort("%s: failed to read:%d bytes from /dev/random \n",__func__ , buffer_size);
@@ -293,7 +294,8 @@ void util_fread_dev_random(int buffer_size , char * buffer) {
 }
 
 
-void util_fread_dev_urandom(int buffer_size , char * buffer) {
+void util_fread_dev_urandom(int buffer_size_ , char * buffer) {
+  size_t buffer_size = buffer_size_;
   FILE * stream = util_fopen("/dev/urandom" , "r");
   if (fread(buffer , 1 , buffer_size , stream) != buffer_size)
     util_abort("%s: failed to read:%d bytes from /dev/random \n",__func__ , buffer_size);
@@ -401,7 +403,8 @@ bool util_double_approx_equal( double d1 , double d2) {
 }
 
 
-char * util_alloc_substring_copy(const char *src , int offset , int N) {
+char * util_alloc_substring_copy(const char *src , int offset , int N_) {
+  size_t N = N_;
   char *copy;
   if ((N + offset) < strlen(src)) {
     copy = (char*)util_calloc(N + 1 , sizeof * copy );
@@ -461,7 +464,7 @@ char * util_realloc_dequoted_string(char *s) {
 }
 
 void util_strupr(char *s) {
-  int i;
+  size_t i;
   for (i=0; i < strlen(s); i++)
     s[i] = toupper(s[i]);
 }
@@ -478,7 +481,7 @@ char * util_alloc_strupr_copy(const char * s) {
     Replaces all occurences of c1 in s with c2.
 */
 void util_string_tr(char * s, char c1, char c2) {
-  int i;
+  size_t i;
   for (i=0; i < strlen(s);i++)
     if (s[i] == c1) s[i] = c2;
 }
@@ -811,11 +814,11 @@ char * util_alloc_realpath__(const char * input_path) {
 
   {
     char ** path_list;
-    char ** path_stack;
+    const char ** path_stack;
     int     path_len;
 
     util_path_split( abs_path , &path_len , &path_list );
-    path_stack = util_malloc( path_len * sizeof * path_stack );
+    path_stack = (const char **) util_malloc( path_len * sizeof * path_stack );
     for (int i=0; i < path_len; i++)
       path_stack[i] = NULL;
 
@@ -1135,7 +1138,7 @@ bool util_char_in(char c , int set_size , const char * set) {
     isspace().
 */
 bool util_string_isspace(const char * s) {
-  int  index = 0;
+  size_t  index = 0;
   while (index < strlen(s)) {
     if (!isspace( s[index] ))
       return false;
@@ -2000,8 +2003,8 @@ char * util_fread_alloc_file_content(const char * filename , int * buffer_size) 
 
 bool util_copy_stream(FILE *src_stream , FILE *target_stream , size_t buffer_size , void * buffer , bool abort_on_error) {
   while ( ! feof(src_stream)) {
-    int bytes_read;
-    int bytes_written;
+    size_t bytes_read;
+    size_t bytes_written;
     bytes_read = fread (buffer , 1 , buffer_size , src_stream);
 
     if (bytes_read < buffer_size && !feof(src_stream)) {
@@ -2419,7 +2422,7 @@ bool util_entry_writable( const char * entry ) {
 
 
 
-static int util_get_path_length(const char * file) {
+static size_t util_get_path_length(const char * file) {
   if (util_is_directory(file))
     return strlen(file);
   else {
@@ -2434,7 +2437,7 @@ static int util_get_path_length(const char * file) {
 
 
 static int util_get_base_length(const char * file) {
-  int path_length   = util_get_path_length(file);
+  size_t path_length   = util_get_path_length(file);
   const char * base_start;
   const char * last_point;
   long character_index;
@@ -3304,9 +3307,10 @@ char * util_realloc_string_copy(char * old_string , const char *src ) {
 }
 
 
-char * util_realloc_substring_copy(char * old_string , const char *src , int len) {
+char * util_realloc_substring_copy(char * old_string , const char *src , int len_) {
+  size_t len = len_;
   if (src != NULL) {
-    int str_len;
+    size_t str_len;
     char *copy;
     if (strlen(src) < len)
       str_len = strlen(src);
@@ -3692,7 +3696,7 @@ void util_binary_split_string(const char * __src , const char * sep_set, bool sp
   char * src;
 
   if (__src != NULL) {
-    int offset = 0;
+    size_t offset = 0;
     int len;
     /* 1: Remove leading split characters. */
     while ((offset < strlen(__src)) && (strchr(sep_set , __src[offset]) != NULL))
@@ -3781,7 +3785,7 @@ void util_binary_split_string_from_max_length(const char * __src , const char * 
   char * second_part = NULL;
   if (__src != NULL) {
     char * src;
-    int pos;
+    size_t pos;
     /* Removing leading separators. */
     pos = 0;
     while ((pos < strlen(__src)) && (strchr(sep_set , __src[pos]) != NULL))
@@ -3863,7 +3867,7 @@ int static util_string_replace_inplace__(char ** _buffer , const char * expr , c
   int len_expr             = strlen( expr );
   int len_subs             = strlen( subs );
   int    size              = strlen(buffer);
-  int    offset            = 0;
+  size_t offset            = 0;
   int    match_count       = 0;
 
   char  * match = NULL;
@@ -4355,14 +4359,14 @@ FILE * util_mkdir_fopen( const char * filename , const char * mode ) {
 
 
 void util_fwrite(const void *ptr , size_t element_size , size_t items, FILE * stream , const char * caller) {
-  int items_written = fwrite(ptr , element_size , items , stream);
+  size_t items_written = fwrite(ptr , element_size , items , stream);
   if (items_written != items)
     util_abort("%s/%s: only wrote %d/%d items to disk - aborting: %s(%d) .\n",caller , __func__ , items_written , items , strerror(errno) , errno);
 }
 
 
 void util_fread(void *ptr , size_t element_size , size_t items, FILE * stream , const char * caller) {
-  int items_read = fread(ptr , element_size , items , stream);
+  size_t items_read = fread(ptr , element_size , items , stream);
   if (items_read != items)
     util_abort("%s/%s: only read %d/%d items from disk - aborting.\n %s(%d) \n",caller , __func__ , items_read , items , strerror(errno) , errno);
 }
@@ -4491,9 +4495,10 @@ void util_fprintf_int(int value , int width , FILE * stream) {
 
 
 
-void util_fprintf_string(const char * s , int width , string_alignement_type alignement , FILE * stream) {
+void util_fprintf_string(const char * s , int width_ , string_alignement_type alignement , FILE * stream) {
   char fmt[32];
-  int i;
+  size_t i;
+  size_t width = width_;
   if (alignement == left_pad) {
     i = 0;
     if (width > strlen(s)) {
@@ -4502,7 +4507,7 @@ void util_fprintf_string(const char * s , int width , string_alignement_type ali
     }
     fprintf(stream , "%s", s);
   } else if (alignement == right_pad) {
-    sprintf(fmt , "%%-%ds" , width);
+    sprintf(fmt , "%%-%lus" , width);
     fprintf(stream , fmt , s);
   } else {
     int total_pad  = width - strlen(s);
@@ -4908,7 +4913,7 @@ void util_make_path(const char *_path) {
     int i = 0;
     active_path = (char*)util_calloc(strlen(path) + 1 , sizeof * active_path );
     do {
-      int n = strcspn(path , UTIL_PATH_SEP_STRING);
+      size_t n = strcspn(path , UTIL_PATH_SEP_STRING);
       if (n < strlen(path))
         n += 1;
       path += n;

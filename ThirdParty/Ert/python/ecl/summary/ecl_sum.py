@@ -21,10 +21,11 @@ in the C source files ecl_sum.c, ecl_smspec.c and ecl_sum_data in the
 libecl/src directory.
 """
 
-
+import warnings
 import numpy
 import datetime
 import os.path
+import ctypes
 
 # Observe that there is some convention conflict with the C code
 # regarding order of arguments: The C code generally takes the time
@@ -142,7 +143,11 @@ class EclSum(BaseCClass):
     _add_tstep                     = EclPrototype("ecl_sum_tstep_ref ecl_sum_add_tstep(ecl_sum, int, double)")
     _export_csv                    = EclPrototype("void ecl_sum_export_csv(ecl_sum, char*, stringlist, char*, char*)")
     _identify_var_type             = EclPrototype("ecl_sum_var_type ecl_sum_identify_var_type(char*)", bind = False)
-
+    _get_last_value                = EclPrototype("double ecl_sum_get_last_value_gen_key(ecl_sum, char*)")
+    _get_first_value               = EclPrototype("double ecl_sum_get_first_value_gen_key(ecl_sum, char*)")
+    _init_numpy_vector             = EclPrototype("void ecl_sum_init_double_vector(ecl_sum, char*, double*)")
+    _init_numpy_vector_interp      = EclPrototype("void ecl_sum_init_double_vector_interp(ecl_sum, char*, time_t_vector, double*)")
+    _init_numpy_datetime64         = EclPrototype("void ecl_sum_init_datetime64_vector(ecl_sum, int64*, int)")
 
 
     def __init__(self, load_case, join_string=":", include_restart=True):
@@ -395,6 +400,7 @@ class EclSum(BaseCClass):
         also available as the 'values' property of an EclSumVector
         instance.
         """
+        warnings.warn("The method get_values() has been deprecated - use numpy_vector() instead.", DeprecationWarning)
         if self.has_key(key):
             key_index = self._get_general_var_index(key)
             if report_only:
@@ -412,6 +418,121 @@ class EclSum(BaseCClass):
             return values
         else:
             raise KeyError("Summary object does not have key:%s" % key)
+
+    def _make_time_vector(self, time_index):
+        time_points = TimeVector()
+        for t in time_index:
+            time_points.append(t)
+        return time_points
+
+    def numpy_vector(self, key, time_index = None):
+        """Will return numpy vector of all the values corresponding to @key.
+
+        The optional argument @time_index can be used to limit the time points
+        where you want evaluation. The time_index argument should be a list of
+        datetime instances. The values will be interpolated to the time points
+        given in the time_index vector. If the time points in the time_inedx
+        vector are outside of the simulated range you will get an extrapolated
+        value:
+
+             Rates    -> 0
+             Not rate -> first or last simulated value.
+
+        The function will raise KeyError if the requested key does not exist.
+        If many keys are needed it will be faster to use the pandas_frame()
+        function.
+        """
+        if key not in self:
+            raise KeyError("No such key:%s" % key)
+
+        if time_index is None:
+            np_vector = numpy.zeros(len(self))
+            self._init_numpy_vector(key ,np_vector.ctypes.data_as(ctypes.POINTER(ctypes.c_double)))
+            return np_vector
+        else:
+           time_vector = self._make_time_vector(time_index)
+           np_vector = numpy.zeros(len(time_vector))
+           self._init_numpy_vector_interp(key, time_vector, np_vector.ctypes.data_as(ctypes.POINTER(ctypes.c_double)))
+           return np_vector
+
+
+    @property
+    def numpy_dates(self):
+        """
+        Will return numpy vector of numpy.datetime64() values for all the simulated timepoints.
+        """
+        np_dates = numpy.zeros(len(self), dtype="datetime64[ms]")
+        self._init_numpy_datetime64(np_dates.ctypes.data_as(ctypes.POINTER(ctypes.c_int64)), 1000)
+        return np_dates
+
+
+    @property
+    def dates(self):
+        """
+        Will return ordinary Python list of datetime.datetime() objects of simulated timepoints.
+        """
+        np_dates = self.numpy_dates
+        return np_dates.tolist()
+
+
+    def pandas_frame(self, time_index = None, column_keys = None):
+        """Will create a pandas frame with summary data.
+
+        By default you will get all time points in the summary case, but by
+        using the time_index argument you can control which times you are
+        interested in. If you have supplied a time_index argument the data will
+        be interpolated to these time values. If the time points in the
+        time_index vector are outside of the simulated range you will get an
+        extrapolated value:
+
+             Rates    -> 0
+             Not rate -> first or last simulated value.
+
+
+        By default the frame will contain all the summary vectors in the case,
+        but this can be controlled by using the column_keys argument. The
+        column_keys should be a list of strings, and each summary vector
+        matching one of the elements in the @column_keys will get a column in
+        the frame, you can use wildcards like "WWCT:*" and "*:OP". If you
+        supply a column_keys argument which does not resolve to any valid
+        summary keys you will get a ValueError exception.
+
+
+          sum = EclSum(case)
+          monthly_dates = sum.time_range(interval="1M")
+          data = sum.pandas_frame(time_index = monthly_dates, column_keys=["F*PT"])
+
+                            FOPT       FGPT      FWPT
+              2010-01-01    100.7      200.0     25.0
+              2010-02-01    150.7      275.0     67.6
+              2010-03-01    276.7      310.6     67.0
+              2010-04-01    672.7      620.4     78.7
+              ....
+        """
+        from ecl.summary import EclSumKeyWordVector
+        import pandas
+        if column_keys is None:
+            keywords = EclSumKeyWordVector(self, add_keywords = True)
+        else:
+            keywords = EclSumKeyWordVector(self)
+            for key in column_keys:
+                keywords.add_keywords(key)
+
+
+        if len(keywords) == 0:
+            raise ValueError("No valid key")
+
+        if time_index is None:
+            time_index = self.numpy_dates
+            data = numpy.zeros([len(time_index), len(keywords)])
+            EclSum._init_pandas_frame(self, keywords,data.ctypes.data_as(ctypes.POINTER(ctypes.c_double)))
+        else:
+            time_points = self._make_time_vector(time_index)
+            data = numpy.zeros([len(time_points), len(keywords)])
+            EclSum._init_pandas_frame_interp(self, keywords, time_points, data.ctypes.data_as(ctypes.POINTER(ctypes.c_double)))
+
+        frame = pandas.DataFrame(index = time_index, columns=list(keywords), data=data)
+        return frame
 
 
     def get_key_index(self, key):
@@ -440,7 +561,7 @@ class EclSum(BaseCClass):
             return None
 
 
-    def get_last_value(self, key):
+    def last_value(self, key):
         """
         Will return the last value corresponding to @key.
 
@@ -452,14 +573,31 @@ class EclSum(BaseCClass):
         The alternative method 'last' will return a EclSumNode
         instance with some extra time related information.
         """
-        return self[key].last_value
+        if not key in self:
+            raise KeyError("No such key:%s" % key)
+
+        return self._get_last_value(key)
+
+
+    def first_value(self, key):
+        """
+        Will return first value corresponding to @key.
+        """
+        if not key in self:
+            raise KeyError("No such key:%s" % key)
+
+        return self._get_first_value(key)
+
+    def get_last_value(self,key):
+        warnings.warn("The function get_last_value() is deprecated, use last_value() instead",DeprecationWarning)
+        return self.last_value(key)
 
     def get_last(self, key):
         """
         Will return the last EclSumNode corresponding to @key.
 
         If you are only interested in the final value, you can use the
-        get_last_value() method.
+        last_value() method.
         """
         return self[key].last
 
@@ -694,7 +832,7 @@ class EclSum(BaseCClass):
                 if t < CTime(self.start_time):
                     total.append(0)
                 elif t >= CTime(self.end_time):
-                    total.append(self.get_last_value(totalKey))
+                    total.append(self.last_value(totalKey))
                 else:
                     total.append(self.get_interp(totalKey, date=t))
             tmp = total << 1
@@ -898,16 +1036,6 @@ class EclSum(BaseCClass):
             return self.__daysR
         else:
             return self.__days
-
-    @property
-    def dates(self):
-        """
-        Will return a list of simulation dates.
-
-        The list will be an ordinary Python list, and the dates will
-        be in terms ordinary Python datetime values.
-        """
-        return self.get_dates(False)
 
     def get_dates(self, report_only=False):
         """
@@ -1373,8 +1501,10 @@ class EclSum(BaseCClass):
 
 
 import ecl.summary.ecl_sum_keyword_vector
-EclSum._dump_csv_line = EclPrototype("void  ecl_sum_fwrite_interp_csv_line(ecl_sum, time_t, ecl_sum_vector, FILE)", bind=False)
-EclSum._get_interp_vector = EclPrototype("void  ecl_sum_get_interp_vector(ecl_sum, time_t, ecl_sum_vector, double_vector)", bind=False)
+EclSum._dump_csv_line = EclPrototype("void ecl_sum_fwrite_interp_csv_line(ecl_sum, time_t, ecl_sum_vector, FILE)", bind=False)
+EclSum._get_interp_vector = EclPrototype("void ecl_sum_get_interp_vector(ecl_sum, time_t, ecl_sum_vector, double_vector)", bind=False)
+EclSum._init_pandas_frame = EclPrototype("void ecl_sum_init_double_frame(ecl_sum, ecl_sum_vector, double*)", bind=False)
+EclSum._init_pandas_frame_interp = EclPrototype("void ecl_sum_init_double_frame_interp(ecl_sum, ecl_sum_vector, time_t_vector, double*)", bind=False)
 
 monkey_the_camel(EclSum, 'varType', EclSum.var_type, classmethod)
 monkey_the_camel(EclSum, 'addVariable', EclSum.add_variable)

@@ -79,10 +79,8 @@ class KWTest(EclTest):
         name1 = "file1.txt"
         name2 = "file2.txt"
         kw = EclKW("TEST", len(data), data_type)
-        i = 0
-        for d in data:
+        for (i,d) in enumerate(data):
             kw[i] = d
-            i += 1
 
         file1 = cwrap.open(name1, "w")
         kw.fprintf_data(file1, fmt)

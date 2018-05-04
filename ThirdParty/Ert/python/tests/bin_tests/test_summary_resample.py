@@ -39,7 +39,7 @@ def fgpt(days):
 
 def create_case(num_mini_step = 10, case = "CSV"):
     length = 100
-    return createEclSum(case, [("FOPT", None , 0) , ("FOPR" , None , 0), ("FGPT" , None , 0)],
+    return createEclSum(case, [("FOPT", None , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY"), ("FGPT" , None , 0, "SM3")],
                         sim_length_days = length,
                         num_report_step = 10,
                         num_mini_step = num_mini_step,

@@ -35,7 +35,6 @@ extern "C" {
 #include <ert/ecl/ecl_sum_tstep.h>
 #include <ert/ecl/smspec_node.h>
 
-
   typedef struct {
     char * locale;
     const char * sep;
@@ -53,6 +52,8 @@ extern "C" {
 
 
   /*****************************************************************/
+  /* This is a forward declaration. */
+typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
 
 typedef struct ecl_sum_struct       ecl_sum_type;
 
@@ -136,6 +137,8 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   double            ecl_sum_get_general_var_from_sim_days( const ecl_sum_type * ecl_sum , double sim_days , const char * var);
   double            ecl_sum_get_general_var_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const char * var);
   const char *      ecl_sum_get_general_var_unit( const ecl_sum_type * ecl_sum , const char * var);
+  ert_ecl_unit_enum ecl_sum_get_unit_system(const ecl_sum_type * ecl_sum);
+
   /***************/
   void              ecl_sum_fprintf(const ecl_sum_type * , FILE * , const stringlist_type * , bool report_only , const ecl_sum_fmt_type * fmt);
 
@@ -143,6 +146,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
 
 
   /* Time related functions */
+  int    ecl_sum_get_restart_step(const ecl_sum_type * ecl_sum);
   int    ecl_sum_get_first_gt( const ecl_sum_type * ecl_sum , int param_index , double limit);
   int    ecl_sum_get_first_lt( const ecl_sum_type * ecl_sum , int param_index , double limit);
   int    ecl_sum_get_last_report_step( const ecl_sum_type * ecl_sum );
@@ -211,7 +215,8 @@ typedef struct ecl_sum_struct       ecl_sum_type;
                                                        int nx,
                                                        int ny,
                                                        int nz);
- 
+  void                  ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * input_arg);
+
   ecl_sum_type * ecl_sum_alloc_restart_writer(const char * ecl_case ,
                                               const char * restart_case ,
                                               bool fmt_output ,
@@ -229,7 +234,6 @@ typedef struct ecl_sum_struct       ecl_sum_type;
                                              time_t sim_start ,
                                              bool time_in_days ,
                                              int nx , int ny , int nz);
-  void                  ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case);
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );
   void                  ecl_sum_fwrite_smspec( const ecl_sum_type * ecl_sum );
   smspec_node_type    * ecl_sum_add_smspec_node(ecl_sum_type * ecl_sum, const smspec_node_type * node);
@@ -265,6 +269,18 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   double_vector_type * ecl_sum_alloc_days_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);
   time_t_vector_type * ecl_sum_alloc_time_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);
 
+  double               ecl_sum_iget_last_value(const ecl_sum_type * ecl_sum, int param_index);
+  double               ecl_sum_get_last_value_gen_key(const ecl_sum_type * ecl_sum, const char * gen_key);
+  double               ecl_sum_get_last_value_node(const ecl_sum_type * ecl_sum, const smspec_node_type *node);
+  double               ecl_sum_iget_first_value(const ecl_sum_type * ecl_sum, int param_index);
+  double               ecl_sum_get_first_value_gen_key(const ecl_sum_type * ecl_sum, const char * gen_key);
+  double               ecl_sum_get_first_value_node(const ecl_sum_type * ecl_sum, const smspec_node_type *node);
+
+  void                 ecl_sum_init_datetime64_vector(const ecl_sum_type * ecl_sum, int64_t * data, int multiplier);
+  void                 ecl_sum_init_double_vector_interp(const ecl_sum_type * ecl_sum, const char * gen_key, const time_t_vector_type * time_points, double * data);
+  void                 ecl_sum_init_double_vector(const ecl_sum_type * ecl_sum, const char * gen_key, double * data);
+  void                 ecl_sum_init_double_frame(const ecl_sum_type * ecl_sum, const ecl_sum_vector_type * keywords, double * data);
+  void                 ecl_sum_init_double_frame_interp(const ecl_sum_type * ecl_sum, const ecl_sum_vector_type * keywords, const time_t_vector_type * time_points, double * data);
   UTIL_IS_INSTANCE_HEADER( ecl_sum );
 
 #ifdef __cplusplus

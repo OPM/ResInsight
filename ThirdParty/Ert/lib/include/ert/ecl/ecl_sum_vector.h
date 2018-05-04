@@ -41,6 +41,8 @@ typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
   int ecl_sum_vector_get_size(const ecl_sum_vector_type * ecl_sum_vector);
   bool ecl_sum_vector_iget_valid(const ecl_sum_vector_type * ecl_sum_vector, int index);
 
+  ecl_sum_vector_type * ecl_sum_vector_alloc_layout_copy(const ecl_sum_vector_type * src_vector, const ecl_sum_type * ecl_sum);
+
 
   UTIL_IS_INSTANCE_HEADER( ecl_sum_vector);
 

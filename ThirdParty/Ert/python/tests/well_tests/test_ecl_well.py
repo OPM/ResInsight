@@ -446,3 +446,10 @@ class EclWellTest(EclTest):
             self.assertFalse(connection.isFractureConnection())
             self.assertTrue(connection.isMatrixConnection())
             self.assertEqual(connection.direction(), WellConnectionDirectionEnum.well_conn_dirY)
+
+
+    def test_load_broken_direction(self):
+        grid_path = self.createTestPath("Statoil/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.EGRID")
+        rst_path  = self.createTestPath("Statoil/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.UNRST")
+        grid = EclGrid(grid_path)
+        well_info = WellInfo(grid, rst_path)

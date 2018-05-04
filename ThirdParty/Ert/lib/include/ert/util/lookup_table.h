@@ -37,7 +37,7 @@ typedef struct lookup_table_struct lookup_table_type;
   double               lookup_table_get_max_value(  lookup_table_type * lookup_table );
   double               lookup_table_get_min_value(  lookup_table_type * lookup_table );
   double               lookup_table_get_max_arg(  lookup_table_type * lookup_table );
-  double               lookup_table_get_max_arg(  lookup_table_type * lookup_table );
+  double               lookup_table_get_min_arg( lookup_table_type * lookup_table );
   int                  lookup_table_get_size( const lookup_table_type * lt );
   void                 lookup_table_set_low_limit( lookup_table_type * lt , double limit);
   bool                 lookup_table_has_low_limit(const lookup_table_type * lt  ); 
