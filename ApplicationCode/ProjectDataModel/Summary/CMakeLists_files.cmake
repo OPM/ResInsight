@@ -31,6 +31,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCsvUserData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -65,6 +66,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCsvUserData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

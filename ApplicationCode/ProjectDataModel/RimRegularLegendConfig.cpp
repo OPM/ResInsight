@@ -27,6 +27,8 @@
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleCurveSetColorManager.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimIntersectionCollection.h"
@@ -53,6 +55,11 @@
 #include <cmath>
 #include <algorithm>
 
+using ColorManager = RimEnsembleCurveSetColorManager;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 CAF_PDM_SOURCE_INIT(RimRegularLegendConfig, "Legend");
 
 
@@ -60,17 +67,22 @@ namespace caf {
     template<>
     void RimRegularLegendConfig::ColorRangeEnum::setUp()
     {
-        addItem(RimRegularLegendConfig::NORMAL,         "NORMAL",          "Full color, Red on top");
-        addItem(RimRegularLegendConfig::OPPOSITE_NORMAL,"OPPOSITE_NORMAL", "Full color, Blue on top");
-        addItem(RimRegularLegendConfig::WHITE_PINK,     "WHITE_PIMK",      "White to pink");
-        addItem(RimRegularLegendConfig::PINK_WHITE,     "PINK_WHITE",      "Pink to white");
-        addItem(RimRegularLegendConfig::BLUE_WHITE_RED, "BLUE_WHITE_RED",  "Blue, white, red");
-        addItem(RimRegularLegendConfig::RED_WHITE_BLUE, "RED_WHITE_BLUE",  "Red, white, blue");
-        addItem(RimRegularLegendConfig::WHITE_BLACK,    "WHITE_BLACK",     "White to black");
-        addItem(RimRegularLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
-        addItem(RimRegularLegendConfig::CATEGORY,       "CATEGORY",        "Category colors");
-        addItem(RimRegularLegendConfig::ANGULAR,        "ANGULAR",         "Full color cyclic");
-        addItem(RimRegularLegendConfig::STIMPLAN,       "STIMPLAN",        "StimPlan colors");
+        addItem(RimRegularLegendConfig::NORMAL,             "NORMAL",               "Full color, Red on top");
+        addItem(RimRegularLegendConfig::OPPOSITE_NORMAL,    "OPPOSITE_NORMAL",      "Full color, Blue on top");
+        addItem(RimRegularLegendConfig::WHITE_PINK,         "WHITE_PIMK",           "White to pink");
+        addItem(RimRegularLegendConfig::PINK_WHITE,         "PINK_WHITE",           "Pink to white");
+        addItem(RimRegularLegendConfig::BLUE_WHITE_RED,     "BLUE_WHITE_RED",       "Blue, white, red");
+        addItem(RimRegularLegendConfig::RED_WHITE_BLUE,     "RED_WHITE_BLUE",       "Red, white, blue");
+        addItem(RimRegularLegendConfig::WHITE_BLACK,        "WHITE_BLACK",          "White to black");
+        addItem(RimRegularLegendConfig::BLACK_WHITE,        "BLACK_WHITE",          "Black to white");
+        addItem(RimRegularLegendConfig::CATEGORY,           "CATEGORY",             "Category colors");
+        addItem(RimRegularLegendConfig::ANGULAR,            "ANGULAR",              "Full color cyclic");
+        addItem(RimRegularLegendConfig::STIMPLAN,           "STIMPLAN",             "StimPlan colors");
+        addItem(RimRegularLegendConfig::RED_LIGHT_DARK,     "RED_DARK_LIGHT",       "Red Light to Dark");
+        addItem(RimRegularLegendConfig::GREEN_LIGHT_DARK,   "GREEN_DARK_LIGHT",     "Green Light to Dark");
+        addItem(RimRegularLegendConfig::BLUE_LIGHT_DARK,    "BLUE_DARK_LIGHT",      "Blue Light to Dark");
+        addItem(RimRegularLegendConfig::GREEN_RED,          "GREEN_RED",            "Green to Red");
+        addItem(RimRegularLegendConfig::BLUE_MAGENTA,       "BLUE_MAGENTA",         "Blue to Magenta");
         setDefault(RimRegularLegendConfig::NORMAL);
     }
 }
@@ -735,6 +747,15 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::initForEnsembleCurveSet(RimEnsembleCurveSet* curveSet)
+{
+    // Set default color palette for ensemble curve sets
+    setColorRangeMode(ColorManager::nextColorRange(curveSet));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig)
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
@@ -783,6 +804,7 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType(ColorRangesTy
         return RiaColorTables::stimPlanPaletteColors().color3ubArray();
         break;
     default:
+        if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::ENSEMBLE_COLOR_RANGES.at(colorType);
         break;
     }
 
@@ -870,15 +892,26 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
         std::vector<ColorRangesType> rangeTypes;
-        rangeTypes.push_back(NORMAL);
-        rangeTypes.push_back(OPPOSITE_NORMAL);
-        rangeTypes.push_back(WHITE_PINK);
-        rangeTypes.push_back(PINK_WHITE);
-        rangeTypes.push_back(BLUE_WHITE_RED);
-        rangeTypes.push_back(RED_WHITE_BLUE);
-        rangeTypes.push_back(WHITE_BLACK);
-        rangeTypes.push_back(BLACK_WHITE);
-        rangeTypes.push_back(ANGULAR);
+        if (!hasEnsembleCurveSetParent)
+        {
+            rangeTypes.push_back(NORMAL);
+            rangeTypes.push_back(OPPOSITE_NORMAL);
+            rangeTypes.push_back(WHITE_PINK);
+            rangeTypes.push_back(PINK_WHITE);
+            rangeTypes.push_back(BLUE_WHITE_RED);
+            rangeTypes.push_back(RED_WHITE_BLUE);
+            rangeTypes.push_back(WHITE_BLACK);
+            rangeTypes.push_back(BLACK_WHITE);
+            rangeTypes.push_back(ANGULAR);
+        }
+        else
+        {
+            for (const auto& col : ColorManager::ENSEMBLE_COLOR_RANGES)
+            {
+                rangeTypes.push_back(col.first);
+            }
+        }
+
         if (hasStimPlanParent) rangeTypes.push_back(STIMPLAN);
 
         if (isCategoryResult)

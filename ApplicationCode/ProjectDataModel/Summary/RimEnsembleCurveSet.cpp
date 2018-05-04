@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveSet.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -46,6 +47,14 @@
 #include "qwt_symbol.h"
 
 
+//--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 namespace caf
 {
     template<>
@@ -56,11 +65,6 @@ namespace caf
         setDefault(RimEnsembleCurveSet::SINGLE_COLOR);
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// Internal constants
-//--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF  std::numeric_limits<double>::infinity()
 
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveSet, "RimEnsembleCurveSet");
@@ -208,6 +212,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
         }
     }
 
+    m_legendConfig->initForEnsembleCurveSet(this);
     updateCurveColors();
 }
 
@@ -715,7 +720,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                     }
                     else
                     {
-                        curve->setColor(cvf::Color3f::GRAY);
+                        curve->setColor(RiaColorTables::undefinedCellColor());
                     }
                     curve->updateCurveAppearance();
                 }
@@ -751,7 +756,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                         rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue() :
                         DOUBLE_INF;
                     if(value != DOUBLE_INF) curve->setColor(cvf::Color3f(m_legendConfig->scalarMapper()->mapToColor(value)));
-                    else                    curve->setColor(cvf::Color3f::GRAY);
+                    else                    curve->setColor(RiaColorTables::undefinedCellColor());
                     curve->updateCurveAppearance();
                 }
             }

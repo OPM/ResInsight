@@ -48,6 +48,7 @@ namespace caf
 }
 
 class Rim3dView;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///  
@@ -74,7 +75,13 @@ public:
         RED_WHITE_BLUE,
         CATEGORY,
         ANGULAR,
-        STIMPLAN
+        STIMPLAN,
+
+        GREEN_RED,
+        BLUE_MAGENTA,
+        RED_LIGHT_DARK,
+        GREEN_LIGHT_DARK,
+        BLUE_LIGHT_DARK
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
@@ -117,6 +124,8 @@ public:
 
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
+
+    void                                        initForEnsembleCurveSet(RimEnsembleCurveSet* curveSet);
 
 private:
     void                                        setNamedCategories(const std::vector<QString>& categoryNames, bool inverse);
