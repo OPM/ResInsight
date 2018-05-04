@@ -244,15 +244,21 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
 
                     if (normalizedValue(newLevel) > 1.0 - stepSizeNorm*0.4) break;
 
-                    domainValues->push_back(newLevel);
+                    if (newLevel != prevDomValue) domainValues->push_back(newLevel);
+
                     prevDomValue = newLevel;
                 }
             }
             else
             {
+                double prevDomValue =  domainValue(0);
                 for (i = 1; i < m_levelCount; ++i)
                 {
-                    domainValues->push_back(domainValue(stepSizeNorm*i));
+                    double newLevel = domainValue(stepSizeNorm*i);
+
+                    if (newLevel != prevDomValue)  domainValues->push_back(newLevel);
+                    
+                    prevDomValue = newLevel;
                 }
             }
         }
