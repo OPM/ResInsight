@@ -50,6 +50,14 @@ public:
         HORIZONTAL_RIGHT        
     };
     typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
+
+    enum DrawStyle
+    {
+        LINE,
+        FILLED
+    };
+    typedef caf::AppEnum<DrawStyle> DrawStyleEnum;
+
 public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
@@ -60,7 +68,8 @@ public:
     virtual QString resultPropertyString() const = 0;
     
     DrawPlane       drawPlane() const;
-    double          drawPlaneAngle() const;
+    DrawStyle       drawStyle() const;
+    double          drawPlaneAngle() const;    
 
     cvf::Color3f    color() const;
     bool            isShowingCurve() const;
@@ -73,7 +82,7 @@ public:
     double          maxCurveValue() const;
     void            resetMinMaxValuesAndUpdateUI();
     bool            findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                           cvf::Vec3d*       closestPoint,
+                                            cvf::Vec3d*       closestPoint,
                                             double*           measuredDepthAtPoint,
                                             double*           valueAtPoint) const;
 
@@ -89,7 +98,8 @@ protected:
 private:
     void                                    resetMinMaxValues();
 protected:
-    caf::PdmField<caf::AppEnum<DrawPlane>>          m_drawPlane;
+    caf::PdmField<DrawPlaneEnum>                    m_drawPlane;
+    caf::PdmField<DrawStyleEnum>                    m_drawStyle;
     caf::PdmField<cvf::Color3f>                     m_color;
     caf::PdmField<double>                           m_minCurveValue;
     caf::PdmField<double>                           m_maxCurveValue;

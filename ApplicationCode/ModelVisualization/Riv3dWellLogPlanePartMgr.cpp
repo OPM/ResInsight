@@ -109,24 +109,46 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
         planeWidth(),
         drawSurfaceVertices);
 
+    
     cvf::ref<cvf::DrawableGeo> curveDrawable = generator->curveDrawable();
-
-    if (curveDrawable.isNull() || !curveDrawable->boundingBox().isValid())
+    if (curveDrawable.notNull() && curveDrawable->boundingBox().isValid())
     {
-        return;
+        caf::MeshEffectGenerator meshEffectGen(rim3dWellLogCurve->color());
+        meshEffectGen.setLineWidth(2.0f);
+        cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+
+	    cvf::ref<cvf::Part> part = new cvf::Part;
+	    part->setDrawable(curveDrawable.p());
+	    part->setEffect(effect.p());
+	
+	    if (part.notNull())
+	    {
+	        model->addPart(part.p());
+	    }
     }
 
-    caf::MeshEffectGenerator meshEffectGen(rim3dWellLogCurve->color());
-    meshEffectGen.setLineWidth(2.0f);
-    cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable(curveDrawable.p());
-    part->setEffect(effect.p());
-
-    if (part.notNull())
+    if (rim3dWellLogCurve->drawStyle() == Rim3dWellLogCurve::FILLED)
     {
-        model->addPart(part.p());
+        Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
+        cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
+
+        cvf::ref<cvf::DrawableGeo> curveFilledDrawable = generator->curveFilledDrawable();
+        if (curveFilledDrawable.notNull() && curveFilledDrawable->boundingBox().isValid())
+        {
+            caf::SurfaceEffectGenerator filledEffectGen(rim3dWellLogCurve->color(), caf::PO_NONE);
+            filledEffectGen.enableLighting(false);
+            cvf::ref<cvf::Effect> filledEffect = filledEffectGen.generateCachedEffect();
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setDrawable(curveFilledDrawable.p());
+            part->setEffect(filledEffect.p());
+
+            if (part.notNull())
+            {
+                model->addPart(part.p());
+                part->setSourceInfo(sourceInfo.p());
+            }
+        }
     }
 }
 
@@ -186,6 +208,8 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*    
                                                  double                              samplingInterval)
 {
     Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
+    cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
+
     bool                         showCoordinateSystemMesh = curveCollection->isShowingGrid();
     bool                         showBackground = curveCollection->isShowingBackground();
 
@@ -216,7 +240,7 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*    
     cvf::ref<cvf::Effect> curveNormalsEffect = curveNormalsEffectGen.generateCachedEffect();
     
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogDrawSurfaceGeometryGenerator->background();
-    cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
+    
     if (background.notNull())
     {
         cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());

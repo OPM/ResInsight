@@ -115,9 +115,9 @@ Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTrans
     for (size_t i = 0; i < wellPathPoints.size(); i++)
     {
         m_vertices.push_back(cvf::Vec3f(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * planeOffsetFromWellPathCenter));
+            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter - 0.025*planeWidth)));
         m_vertices.push_back(cvf::Vec3f(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + planeWidth)));
+            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + 1.025*planeWidth)));
     }
         
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_vertices);
