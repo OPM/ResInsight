@@ -1470,7 +1470,17 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
         frameCountProgress.incrementProgress();
 
         compactionFrame.resize(nodeCount);
-        for (size_t n = 0; n < nodeCount; n++)
+
+        // Make sure the AABB-tree is created before using OpenMP
+        {
+            cvf::BoundingBox bb;
+            std::vector<size_t> refElementCandidates;
+
+            part->findIntersectingCells(bb, &refElementCandidates);
+        }
+
+#pragma omp parallel for
+        for (long n = 0; n < nodeCount; n++)
         {
             RefElement refElement;
             findReferenceElementForNode(*part, n, resVarAddr.refKLayerIndex, &refElement);
