@@ -687,7 +687,9 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
     OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
     layoutInfo(&layout);
 
-    float prefferredYSize = 2*layout.margins.y() +  (this->titleStrings().size() + m_tickValues.size() )* layout.lineSpacing ;
+    float prefferredYSize =   2 * layout.margins.y() 
+                            + layout.lineSpacing * this->titleStrings().size() 
+                            + 1.5f * layout.lineSpacing * m_tickValues.size();
     
     unsigned int maxTickTextWidth = 0;
     for (double tickValue : m_tickValues )
