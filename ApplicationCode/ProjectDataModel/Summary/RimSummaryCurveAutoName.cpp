@@ -85,11 +85,11 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
     QString caseName;
 
     {
-        RimEnsembleCurveSet* ensambleCurveSet = nullptr;
-        this->firstAncestorOrThisOfType(ensambleCurveSet);
-        if (ensambleCurveSet && ensambleCurveSet->summaryCaseCollection())
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        this->firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet && ensembleCurveSet->summaryCaseCollection())
         {
-            caseName = ensambleCurveSet->summaryCaseCollection()->name();
+            caseName = ensembleCurveSet->summaryCaseCollection()->name();
         }
     }
 
@@ -359,10 +359,10 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     }
 
     {
-        auto ensambleCurveSet = dynamic_cast<RimEnsembleCurveSet*>(this->parentField()->ownerObject());
-        if (ensambleCurveSet)
+        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>(this->parentField()->ownerObject());
+        if (ensembleCurveSet)
         {
-            ensambleCurveSet->updateConnectedEditors();
+            ensembleCurveSet->updateConnectedEditors();
 
             return;
         }

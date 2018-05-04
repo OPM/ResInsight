@@ -1460,7 +1460,7 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
 
     std::vector<RifEclipseSummaryAddress> addresses;
     std::vector<RimSummaryCase*>          sumCases;
-    std::vector<RimSummaryCaseCollection*>  ensambleCases;
+    std::vector<RimSummaryCaseCollection*>  ensembleCases;
 
     if (m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible())
     {
@@ -1489,14 +1489,14 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
         if (curveSet->isCurvesVisible())
         {
             addresses.push_back(curveSet->summaryAddress());
-            ensambleCases.push_back(curveSet->summaryCaseCollection());
+            ensembleCases.push_back(curveSet->summaryCaseCollection());
         }
     }
 
     nameHelper->clear();
     nameHelper->appendAddresses(addresses);
     nameHelper->appendSummaryCases(sumCases);
-    nameHelper->appendEnsembleCases(ensambleCases);
+    nameHelper->appendEnsembleCases(ensembleCases);
 
     return nameHelper->plotTitle();
 }
