@@ -383,11 +383,12 @@ void RimGeoMechView::updateLegends()
             m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->titledOverlayFrame());
         }
 
-        updateTensorLegendTextAndRanges(m_tensorResults->arrowColorLegendConfig(), m_currentTimeStep());
-
-        if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS && tensorResults()->showTensors())
+        if (tensorResults()->showTensors())
         {
-            if (tensorResults()->arrowColorLegendConfig()->showLegend())
+            updateTensorLegendTextAndRanges(m_tensorResults->arrowColorLegendConfig(), m_currentTimeStep());
+
+            if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS &&
+                tensorResults()->arrowColorLegendConfig()->showLegend())
             {
                 m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->arrowColorLegendConfig->titledOverlayFrame());
             }
