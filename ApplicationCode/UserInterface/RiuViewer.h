@@ -127,6 +127,7 @@ protected:
     virtual void    leaveEvent(QEvent *) override;
 
 private:
+    void            updateLegendLayout();
     void            updateTextAndTickMarkColorForOverlayItems();
     void            updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend);
 

@@ -63,6 +63,7 @@
 #include <QMouseEvent>
 #include <QProgressBar>
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
+#include <algorithm>
 
 using cvf::ManipulatorTrackball;
 
@@ -88,7 +89,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
-    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
     m_mainRendering->addOverlayItem(m_axisCross.p());
     m_showAxisCross = true;
 
@@ -536,7 +537,7 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend)
+void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* addedLegend)
 {
     RiaApplication* app = RiaApplication::instance();
     CVF_ASSERT(app);
@@ -545,91 +546,97 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend
     CVF_ASSERT(preferences);
     CVF_ASSERT(firstRendering);
 
-    if (legend)
+    if (addedLegend)
     {
         cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
         backgroundColor.a() = 0.8f;
         cvf::Color3f frameColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b());
-        updateLegendTextAndTickMarkColor(legend);
+        updateLegendTextAndTickMarkColor(addedLegend);
         
-        firstRendering->addOverlayItem(legend);
-        legend->enableBackground(preferences->showLegendBackground());
-        legend->setBackgroundColor(backgroundColor);
-        legend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(frameColor, 0.3f), 0.9f));
+        firstRendering->addOverlayItem(addedLegend);
+        addedLegend->enableBackground(preferences->showLegendBackground());
+        addedLegend->setBackgroundColor(backgroundColor);
+        addedLegend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(frameColor, 0.3f), 0.9f));
 
-        m_visibleLegends.push_back(legend);
+        m_visibleLegends.push_back(addedLegend);
     }
 
-    // Category count used to switch between standard height and full height of legend
-    const size_t categoryThreshold = 13;
+    updateLegendLayout();
 
-    std::vector<caf::CategoryLegend*> categoryLegends;
-    std::vector<caf::TitledOverlayFrame*> overlayItems;
-    for (auto legend : m_visibleLegends)
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateLegendLayout()
+{
+    int viewPortHeight = static_cast<int>(m_mainCamera->viewport()->height());
+
+    const float maxFreeLegendHeight = 0.7f*viewPortHeight;
+    const int border = 3;
+    int edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth(): 0;
+    int edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight(): 0;
+
+    int xPos = border + edgeAxisBorderWidth;
+    int yPos = border + edgeAxisBorderHeight;
+
+    std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
+    
+    // Place the legends needing the full height, and sort out the standard height legends
+
+    for ( cvf::ref<caf::TitledOverlayFrame> legend : m_visibleLegends )
     {
-        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-
-
-        caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
-        if (catLegend)
+        cvf::Vec2ui prefSize = legend->preferredSize();
+        if (prefSize.y() > maxFreeLegendHeight)
         {
-            categoryLegends.push_back(catLegend);
+            int legendWidth = prefSize.x();
+            legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            legend->setRenderSize(cvf::Vec2ui(legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight));
+            xPos += legendWidth + border;
         }
         else
         {
-            overlayItems.push_back(legend.p());
+            standardHeightLegends.push_back(legend.p());
         }
     }
 
-    if (categoryLegends.size() > 0 || m_showWindowEdgeAxes)
+    // Place the rest of the legends in columns that fits within the screen height
+    
+    int maxColumnWidht = 0;
+    std::vector<caf::TitledOverlayFrame*> columnLegends;
+
+    for ( caf::TitledOverlayFrame* legend : standardHeightLegends )
     {
-        const int border = 3;
-        const int categoryWidth = 150;
-        int edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth(): 0;
-        int edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight(): 0;
+        cvf::Vec2ui prefSize = legend->preferredSize();
 
-        // This value is taken from OverlayAxisCross, as the axis cross is always shown in the lower left corner
-        const int axisCrossHeight = m_showAxisCross? 120 : 0;
-
-        int height = static_cast<int>(m_mainCamera->viewport()->height());
-        int xPos = border + edgeAxisBorderWidth;
-
-        int yPos = axisCrossHeight + 2*border + edgeAxisBorderHeight;
-
-        for (auto catLegend : categoryLegends)
+        // Check if we need a new column
+        if ((yPos + (int)prefSize.y() + border) > viewPortHeight)
         {
-            catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            xPos += border + maxColumnWidht;
+            yPos = border + edgeAxisBorderHeight;
 
-            if (catLegend->categoryCount() > categoryThreshold)
+            // Set same width to all legends in the column
+            for (caf::TitledOverlayFrame* legend : columnLegends )
             {
-                catLegend->setRenderSize(cvf::Vec2ui(categoryWidth, height - 3 * border - axisCrossHeight - 2 * edgeAxisBorderHeight));
+                legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
             }
-            else
-            {
-                catLegend->setRenderSize(cvf::Vec2ui(categoryWidth, 200));
-            }
-            xPos += categoryWidth + border;
+            maxColumnWidht = 0;
+            columnLegends.clear();
         }
 
-        for (auto item : overlayItems)
-        {
-            item->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+        legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+        legend->setRenderSize(cvf::Vec2ui(prefSize.x(),  prefSize.y()));
+        columnLegends.push_back(legend);
 
-            yPos += item->renderSize().y() + border + edgeAxisBorderHeight;
-        }
+        yPos += legend->renderSize().y() + border;
+        maxColumnWidht = std::max(maxColumnWidht, (int)prefSize.x());
     }
 
-    unsigned int requiredLegendWidth = 0u;
-    for (auto legend : overlayItems)
-    {
-        requiredLegendWidth = std::max(requiredLegendWidth, legend->preferredSize().x());
-    }
+    // Set same width to all legends in the last column
 
-    for (auto legend : overlayItems)
+    for (caf::TitledOverlayFrame* legend : columnLegends )
     {
-        cvf::Vec2ui widthAdjustedSize = legend->renderSize();
-        widthAdjustedSize.x() = requiredLegendWidth;
-        legend->setRenderSize(widthAdjustedSize);
+        legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
     }
 }
 
@@ -758,21 +765,7 @@ void RiuViewer::optimizeClippingPlanes()
 void RiuViewer::resizeGL(int width, int height)
 {
     caf::Viewer::resizeGL(width, height);
-
-    bool hasCategoryLegend = false;
-    for (size_t i = 0; i < m_visibleLegends.size(); i++)
-    {
-        caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(m_visibleLegends.at(i));
-        if (categoryLegend)
-        {
-            hasCategoryLegend = true;
-        }
-    }
-
-    if (hasCategoryLegend)
-    {
-        m_rimView->updateCurrentTimeStepAndRedraw();
-    }
+    this->updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
