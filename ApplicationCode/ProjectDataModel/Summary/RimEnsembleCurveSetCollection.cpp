@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollectio
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 {
-    CAF_PDM_InitObject("Ensemble Curve Sets", ":/SummaryCurveFilter16x16.png", "", "");
+    CAF_PDM_InitObject("Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "");
     m_curveSets.uiCapability()->setUiHidden(true);

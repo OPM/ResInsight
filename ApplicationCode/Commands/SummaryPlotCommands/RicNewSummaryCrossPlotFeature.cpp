@@ -77,6 +77,6 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Cross Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
 }
 

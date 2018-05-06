@@ -70,6 +70,6 @@ void RicDuplicateSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicDuplicateSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Duplicate Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 

@@ -110,7 +110,7 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicEditSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Edit Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -86,7 +86,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryEnsembleCurveSetFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Ensemble Curve Set");
-    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
+    actionToSetup->setIcon(QIcon(":/EnsembleCurveSet16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

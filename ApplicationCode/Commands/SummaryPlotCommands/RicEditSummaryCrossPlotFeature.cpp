@@ -108,7 +108,7 @@ void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 void RicEditSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Edit Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

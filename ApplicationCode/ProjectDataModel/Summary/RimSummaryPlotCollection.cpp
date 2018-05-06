@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlotCollection, "SummaryPlotCollection");
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
-    CAF_PDM_InitObject("Summary Plots", ":/SummaryPlots16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Plots", ":/SummaryPlotsLight16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&summaryPlots, "SummaryPlots", "Summary Plots",  "", "", "");
     summaryPlots.uiCapability()->setUiHidden(true);

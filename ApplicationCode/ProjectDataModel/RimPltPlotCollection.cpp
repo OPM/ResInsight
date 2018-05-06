@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimPltPlotCollection, "WellPltPlotCollection");
 //--------------------------------------------------------------------------------------------------
 RimPltPlotCollection::RimPltPlotCollection()
 {
-    CAF_PDM_InitObject("PLT Plots", ":/WellLogPlots16x16.png", "", "");
+    CAF_PDM_InitObject("PLT Plots", ":/WellAllocPlots16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_pltPlots, "PltPlots", "",  "", "", "");
     m_pltPlots.uiCapability()->setUiHidden(true);

@@ -262,7 +262,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.addSeparator();
 
-            menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
+            menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
@@ -537,7 +537,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
 
-            menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
+            menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
             menuBuilder << "Separator";

@@ -96,7 +96,7 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New RFT Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FlowCharPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

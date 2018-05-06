@@ -135,7 +135,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
 void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New PLT Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/WellFlowPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -367,7 +367,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 
                 menuBuilder.addSeparator();
 
-                menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
+                menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";
@@ -419,7 +419,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menuBuilder.addSeparator();
 
-                menuBuilder.subMenuStart("Well Plots", QIcon(":/SummaryPlot16x16.png"));
+                menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
 
                 menuBuilder << "RicNewRftPlotFeature";
                 menuBuilder << "RicNewPltPlotFeature";

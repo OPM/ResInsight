@@ -70,7 +70,7 @@ const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot::RimWellRftPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Well Allocation Plot", ":/FlowCharPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("RFT Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
