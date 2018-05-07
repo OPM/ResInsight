@@ -202,13 +202,18 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
 
                 CAF_ASSERT(act);
 
+                bool duplicateAct = false;
                 for (QAction* existingAct : currentMenu->actions())
                 {
                     // If action exist, continue to make sure the action is positioned at the first
                     // location of a command ID
                     if (existingAct == act)
-                        continue;
+                    {
+                        duplicateAct = true;
+                        break;
+                    }
                 }
+                if (duplicateAct) continue;
 
                 currentMenu->addAction(const_cast<QAction*>(act));
             }
