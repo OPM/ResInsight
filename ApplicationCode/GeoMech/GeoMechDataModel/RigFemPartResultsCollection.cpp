@@ -91,10 +91,10 @@ RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterfa
 
     m_femPartResults.resize(m_femParts->partCount());
     std::vector<std::string> stepNames = m_readerInterface->stepNames();
-    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
+    for (auto & femPartResult : m_femPartResults)
     {
-        m_femPartResults[pIdx] = new RigFemPartResults;
-        m_femPartResults[pIdx]->initResultSteps(stepNames);
+        femPartResult = new RigFemPartResults;
+        femPartResult->initResultSteps(stepNames);
     }
 
     m_cohesion = 10.0;
@@ -149,7 +149,7 @@ RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::addElementPropertyFiles(const std::vector<QString>& filenames)
 {
-    for (const QString filename : filenames)
+    for (const QString& filename : filenames)
     {
         m_elementPropertyReader->addFile(filename.toStdString());
     }
@@ -162,11 +162,11 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::removeElementPrope
 {
     std::vector<RigFemResultAddress> addressesToRemove;
 
-    for (const QString filename : filenames)
+    for (const QString& filename : filenames)
     {
         std::vector<std::string> fields = m_elementPropertyReader->fieldsInFile(filename.toStdString());
         
-        for (std::string field : fields)
+        for (const std::string& field : fields)
         {
             addressesToRemove.push_back(RigFemResultAddress(RIG_ELEMENT, field, ""));
         }
@@ -246,12 +246,12 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 
     std::vector< RigFemResultAddress> resultAddressOfComponents = this->getResAddrToComponentsToRead(resVarAddr);
 
-    if (resultAddressOfComponents.size())
+    if (!resultAddressOfComponents.empty())
     {
         std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
-        for (size_t cIdx = 0; cIdx < resultAddressOfComponents.size(); ++cIdx)
+        for (const auto & resultAddressOfComponent : resultAddressOfComponents)
         {
-            resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponents[cIdx]));
+            resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponent));
         }
 
         int frameCount = this->frameCount();
@@ -265,9 +265,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
             for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
             {
                 std::vector<std::vector<float>*> componentDataVectors;
-                for (size_t cIdx = 0; cIdx < resultsForEachComponent.size(); ++cIdx)
+                for (auto & componentResult : resultsForEachComponent)
                 {
-                    componentDataVectors.push_back(&(resultsForEachComponent[cIdx]->frameData(stepIndex)));
+                    componentDataVectors.push_back(&(componentResult->frameData(stepIndex)));
                 }
 
                 switch (resVarAddr.resultPosType)
@@ -544,7 +544,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
         const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
         std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
         
-        if (!srcFrameData.size()) continue; // Create empty results if we have no POR result.
+        if (srcFrameData.empty()) continue; // Create empty results if we have no POR result.
 
         size_t valCount = femPart->elementNodeResultCount();
         dstFrameData.resize(valCount, inf);
@@ -1973,7 +1973,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return calculateST_12_13_23(partIndex, resVarAddr);
     }
 
-    if (resVarAddr.fieldName == "ST" && resVarAddr.componentName == "")
+    if (resVarAddr.fieldName == "ST" && resVarAddr.componentName.empty())
     {
         // Create and return an empty result
         return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
@@ -1992,7 +1992,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return calculateGamma(partIndex, resVarAddr);
     }
 
-    if (resVarAddr.fieldName == "Gamma" && resVarAddr.componentName == "")
+    if (resVarAddr.fieldName == "Gamma" && resVarAddr.componentName.empty())
     {
         // Create and return an empty result
         return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
@@ -2095,15 +2095,15 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
     if (fcIt != fieldAndComponentNames.end())
     {
         std::vector<std::string> compNames = fcIt->second;
-        if (resVarAddr.componentName != "") // If we did not request a particular component, do not add the components
+        if (!resVarAddr.componentName.empty()) // If we did not request a particular component, do not add the components
         {
-            for (size_t cIdx = 0; cIdx < compNames.size(); ++cIdx)
+            for (const auto & compName : compNames)
             {
-                resAddressToComponents.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, compNames[cIdx]));
+                resAddressToComponents.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, compName));
             }
         }
 
-        if (compNames.size() == 0) // This is a scalar field. Add one component named ""
+        if (compNames.empty()) // This is a scalar field. Add one component named ""
         {
             CVF_ASSERT(resVarAddr.componentName == "");
             resAddressToComponents.push_back(resVarAddr);
@@ -2167,7 +2167,7 @@ bool RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress&
              RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult(pIdx, resVarAddr);
              for (int fIdx = 0; fIdx < scalarResults->frameCount(); ++fIdx)
              {
-                 foundResults = foundResults || scalarResults->frameData(fIdx).size();
+                 foundResults = foundResults || !scalarResults->frameData(fIdx).empty();
              }
         }
     }
@@ -2182,11 +2182,11 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
 {
     CVF_ASSERT ( resVarAddr.isValid() );
 
-    for ( int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx )
+    for (auto & femPartResult : m_femPartResults)
     {
-        if ( m_femPartResults[pIdx].notNull() )
+        if ( femPartResult.notNull() )
         {
-            m_femPartResults[pIdx]->deleteScalarResult(resVarAddr);
+            femPartResult->deleteScalarResult(resVarAddr);
         }
     }
 
@@ -2439,7 +2439,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(cons
 
     double min, max;
 
-    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    for (const auto& address : tensorPrincipalComponentAdresses(resVarAddr))
     {
         this->statistics(address)->minMaxCellScalarValues(frameIndex, min, max);
         if (min < currentMin)
@@ -2466,7 +2466,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents(cons
 
     double min, max;
 
-    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    for (const auto& address : tensorPrincipalComponentAdresses(resVarAddr))
     {
         this->statistics(address)->minMaxCellScalarValues(min, max);
         if (min < currentMin)
@@ -2493,7 +2493,7 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(con
 
     double pos, neg;
 
-    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    for (const auto& address : tensorPrincipalComponentAdresses(resVarAddr))
     {
         this->statistics(address)->posNegClosestToZero(frameIndex, pos, neg);
         if (pos < currentPosClosestToZero)
@@ -2520,7 +2520,7 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(con
 
     double pos, neg;
 
-    for (auto address : tensorPrincipalComponentAdresses(resVarAddr))
+    for (const auto& address : tensorPrincipalComponentAdresses(resVarAddr))
     {
         this->statistics(address)->posNegClosestToZero(pos, neg);
         if (pos < currentPosClosestToZero)
