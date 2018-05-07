@@ -23,7 +23,7 @@
 
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <exception>
 #include <stdexcept>
@@ -37,6 +37,8 @@ namespace Opm { namespace ECLUnits {
 
         template <ert_ecl_unit_enum convention>
         class USys;
+
+        using namespace ImportedOpm;
 
         template <>
         class USys<ECL_METRIC_UNITS> : public ::Opm::ECLUnits::UnitSystem

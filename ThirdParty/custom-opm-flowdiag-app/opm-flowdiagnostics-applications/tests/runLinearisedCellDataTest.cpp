@@ -44,7 +44,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_file_kw.h>
@@ -58,11 +58,11 @@ namespace StringUtils {
         std::string trim(const std::string& s)
         {
             const auto anchor_ws =
-                boost::regex(R"~~(^\s+([^\s]+)\s+$)~~");
+                std::regex(R"~~(^\s+([^\s]+)\s+$)~~");
 
-            auto m = boost::smatch{};
+            auto m = std::smatch{};
 
-            if (boost::regex_match(s, m, anchor_ws)) {
+            if (std::regex_match(s, m, anchor_ws)) {
                 return m[1];
             }
 
@@ -77,9 +77,9 @@ namespace StringUtils {
                 return { "" };
             }
 
-            const auto sep = boost::regex(R"~~([\s,;.|]+)~~");
+            const auto sep = std::regex(R"~~([\s,;.|]+)~~");
 
-            using TI = boost::sregex_token_iterator;
+            using TI = std::sregex_token_iterator;
 
             // vector<string>(begin, end)
             //

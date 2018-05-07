@@ -22,7 +22,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <ert/ecl/ecl_kw_magic.h>
 
@@ -315,7 +315,7 @@ namespace {
 
     double calculateScaleFactor(const double from, const double to)
     {
-        using namespace ::Opm::unit;
+        using namespace ::ImportedOpm::unit;
 
         // "return from / to", essentially.
         return convert::to(convert::from(1.0, from), to);

@@ -132,7 +132,7 @@ public:
 
         try
         {
-            m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData, true, Opm::ECLSaturationFunc::InvalidEPBehaviour::IgnorePoint));
+            m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
         }
         catch (...)
         {
@@ -676,7 +676,13 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
     for (RelPermCurve::EpsMode epsMode : epsModeArr)
     {
         const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
-        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEps);
+
+        Opm::ECLSaturationFunc::SatFuncScaling scaling;
+        if (!useEps) {
+            scaling.enable = static_cast<unsigned char>(0);
+        }
+        scaling.invalid = Opm::SatFunc::EPSEvalInterface::InvalidEndpointBehaviour::IgnorePoint;
+        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), scaling);
         for (size_t i = 0; i < graphArr.size(); i++)
         {
             const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;

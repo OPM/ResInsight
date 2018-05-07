@@ -15,7 +15,7 @@
 ###########################################################################
 
 # Mandatory call to project
-project(opm-flowdiagnostics CXX)
+project(opm-flowdiagnostics C CXX)
 
 cmake_minimum_required (VERSION 2.8)
 

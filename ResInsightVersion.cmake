@@ -19,10 +19,10 @@ set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f")
 set(ECL_GITHUB_SHA "0188b08081eb1ac4ade89ac224b8128b4c9b0481")
 
 # https://github.com/OPM/opm-flowdiagnostics
-set(OPM_FLOWDIAGNOSTICS_SHA "7e2be931d430796ed42efcfb5c6b67a8d5962f7f")
+set(OPM_FLOWDIAGNOSTICS_SHA "f8af0914f8b1ddcda41f040f539c945a6057f5e4")
 
 # https://github.com/OPM/opm-flowdiagnostics-applications
-set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "5bcd6d99259a63f5cd820db541b45c4f07aec808")
+set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "e769c492ccd3fc4e1f834ed60f4f9279ba8524bc")
 
 # https://github.com/OPM/opm-parser/blob/master/opm/parser/eclipse/Units/Units.hpp
 # This file was moved from opm-core to opm-parser october 2016

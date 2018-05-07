@@ -35,6 +35,7 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <regex>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -98,9 +99,9 @@ namespace {
     // -----------------------------------------------------------------
     // Relative permeability
 
-    void krg(const Opm::ECLSaturationFunc& sfunc,
-             const int                     activeCell,
-             const bool                    useEPS)
+    void krg(const Opm::ECLSaturationFunc&                 sfunc,
+             const int                                     activeCell,
+             const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -115,14 +116,14 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "krg", graph);
     }
 
-    void krog(const Opm::ECLSaturationFunc& sfunc,
-              const int                     activeCell,
-              const bool                    useEPS)
+    void krog(const Opm::ECLSaturationFunc&                 sfunc,
+              const int                                     activeCell,
+              const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -137,14 +138,14 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "krog", graph);
     }
 
-    void krow(const Opm::ECLSaturationFunc& sfunc,
-              const int                     activeCell,
-              const bool                    useEPS)
+    void krow(const Opm::ECLSaturationFunc&                 sfunc,
+              const int                                     activeCell,
+              const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -159,14 +160,14 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "krow", graph);
     }
 
-    void krw(const Opm::ECLSaturationFunc& sfunc,
-             const int                     activeCell,
-             const bool                    useEPS)
+    void krw(const Opm::ECLSaturationFunc&                 sfunc,
+             const int                                     activeCell,
+             const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -181,7 +182,7 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "krw", graph);
     }
@@ -189,9 +190,9 @@ namespace {
     // -----------------------------------------------------------------
     // Capillary pressure
 
-    void pcgo(const Opm::ECLSaturationFunc& sfunc,
-              const int                     activeCell,
-              const bool                    useEPS)
+    void pcgo(const Opm::ECLSaturationFunc&                 sfunc,
+              const int                                     activeCell,
+              const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -206,14 +207,14 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "pcgo", graph);
     }
 
-    void pcow(const Opm::ECLSaturationFunc& sfunc,
-              const int                     activeCell,
-              const bool                    useEPS)
+    void pcow(const Opm::ECLSaturationFunc&                 sfunc,
+              const int                                     activeCell,
+              const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
     {
         using RC = Opm::ECLSaturationFunc::RawCurve;
 
@@ -228,7 +229,7 @@ namespace {
         });
 
         const auto graph =
-            sfunc.getSatFuncCurve(func, activeCell, useEPS);
+            sfunc.getSatFuncCurve(func, activeCell, scaling);
 
         printGraph(std::cout, "pcow", graph);
     }
@@ -407,13 +408,41 @@ namespace {
 
         return acell;
     }
+
+    Opm::ECLSaturationFunc::SatFuncScaling
+    saturationFuncScaling(const Opm::ParameterGroup& prm)
+    {
+        using T = Opm::ECLSaturationFunc::SatFuncScaling::Type;
+
+        const auto opt =
+            std::regex_constants::icase |
+            std::regex_constants::ECMAScript;
+
+        const auto horiz  = std::regex { "horizontal", opt };
+        const auto vert   = std::regex { "vertical"  , opt };
+        const auto useEPS =
+            prm.getDefault("useEPS", std::string{"off"});
+
+        auto scaling = Opm::ECLSaturationFunc::SatFuncScaling{};
+        scaling.enable  = static_cast<unsigned char>(0);
+        scaling.invalid = handleInvalid(prm);
+
+        if (std::regex_search(useEPS, horiz)) {
+            scaling.enable |= T::Horizontal;
+        }
+
+        if (std::regex_search(useEPS, vert)) {
+            scaling.enable |= T::Vertical;
+        }
+
+        return scaling;
+    }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
 try {
-    const auto prm    = example::initParam(argc, argv);
-    const auto useEPS = prm.getDefault("useEPS", false);
-    const auto h_inv  = handleInvalid(prm);
+    const auto prm     = example::initParam(argc, argv);
+    const auto scaling = saturationFuncScaling(prm);
 
     const auto rset  = example::identifyResultSet(prm);
     const auto init  = Opm::ECLInitFileData(rset.initFile());
@@ -421,7 +450,7 @@ try {
 
     const auto cellID = getActiveCell(graph, prm);
 
-    auto sfunc = Opm::ECLSaturationFunc(graph, init, useEPS, h_inv);
+    auto sfunc = Opm::ECLSaturationFunc(graph, init);
     auto pvtCC = Opm::ECLPVT::ECLPvtCurveCollection(graph, init);
 
     if (prm.has("unit")) {
@@ -434,15 +463,15 @@ try {
     // -----------------------------------------------------------------
     // Relative permeability
 
-    if (prm.getDefault("krg" , false)) { krg (sfunc, cellID, useEPS); }
-    if (prm.getDefault("krog", false)) { krog(sfunc, cellID, useEPS); }
-    if (prm.getDefault("krow", false)) { krow(sfunc, cellID, useEPS); }
-    if (prm.getDefault("krw" , false)) { krw (sfunc, cellID, useEPS); }
+    if (prm.getDefault("krg" , false)) { krg (sfunc, cellID, scaling); }
+    if (prm.getDefault("krog", false)) { krog(sfunc, cellID, scaling); }
+    if (prm.getDefault("krow", false)) { krow(sfunc, cellID, scaling); }
+    if (prm.getDefault("krw" , false)) { krw (sfunc, cellID, scaling); }
 
     // -----------------------------------------------------------------
     // Capillary pressure
-    if (prm.getDefault("pcgo", false)) { pcgo(sfunc, cellID, useEPS); }
-    if (prm.getDefault("pcow", false)) { pcow(sfunc, cellID, useEPS); }
+    if (prm.getDefault("pcgo", false)) { pcgo(sfunc, cellID, scaling); }
+    if (prm.getDefault("pcow", false)) { pcow(sfunc, cellID, scaling); }
 
     // -----------------------------------------------------------------
     // PVT Curves
