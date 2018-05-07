@@ -99,7 +99,7 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
     oilFields.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "");
     scriptCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
@@ -156,7 +156,7 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
     scriptCollection->uiCapability()->setUiName("Scripts");
-    scriptCollection->uiCapability()->setUiIcon(QIcon(":/Default.png"));
+    scriptCollection->uiCapability()->setUiIcon(QIcon(":/octave.png"));
 
     mainPlotCollection = new RimMainPlotCollection();
 

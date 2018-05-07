@@ -37,7 +37,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
 {
-    CAF_PDM_InitObject("Summary Case",":/SummaryCase48x48.png","","");
+    CAF_PDM_InitObject("Summary Case",":/SummaryCase16x16.png","","");
 
     CAF_PDM_InitField(&m_shortName, "ShortName", QString("Display Name"), "Display Name", "", "", "");
     CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "");

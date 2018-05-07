@@ -20,9 +20,12 @@
     <file>Well.png</file>
     <file>WellCollection.png</file>
     <file>octave.png</file>
+    <file>OctaveScriptFile16x16.png</file>
     <file>Folder.png</file>
     <file>EclipseInput48x48.png</file>
     <file>Cases16x16.png</file>
+    <file>SummaryCases16x16.png</file>
+    <file>SummaryEnsemble16x16.png</file>
     <file>CreateGridCaseGroup16x16.png</file>
     <file>GridCaseGroup16x16.png</file>
     <file>Histogram16x16.png</file>
@@ -65,6 +68,9 @@
     <file>EnsembleCurveSets16x16.png</file>
     <file>SummaryXPlotLight16x16.png</file>
     <file>SummaryXPlotsLight16x16.png</file>
+    <file>ObservedDataFile16x16.png</file>
+    <file>ObservedRSMDataFile16x16.png</file>
+    <file>ObservedCSVDataFile16x16.png</file>
     <file>FormationCollection16x16.png</file>
     <file>Formations16x16.png</file>
     <file>Parallel24x24.png</file>
@@ -77,6 +83,7 @@
     <file>3DWindow24x24.png</file>
     <file>3DView16x16.png</file>
     <file>SummaryCase48x48.png</file>
+    <file>SummaryCase16x16.png</file>
     <file>openFolder24x24.png</file>
     <file>clipboard.png</file>
     <file>Copy.png</file>

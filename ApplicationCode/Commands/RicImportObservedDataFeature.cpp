@@ -131,6 +131,6 @@ void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/Default.png"));
+    actionToSetup->setIcon(QIcon(":/ObservedDataFile16x16.png"));
     actionToSetup->setText("Import Observed Time History Data");
 }

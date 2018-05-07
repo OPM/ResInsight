@@ -92,5 +92,5 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 void RicCreateSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Group Summary Cases");
-    actionToSetup->setIcon(QIcon(":/Folder.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryEnsemble16x16.png"));
 }

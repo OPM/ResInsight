@@ -27,7 +27,7 @@ CAF_PDM_SOURCE_INIT(RimCalcScript, "CalcScript");
 //--------------------------------------------------------------------------------------------------
 RimCalcScript::RimCalcScript()
 {
-    CAF_PDM_InitObject("CalcScript", ":/octave.png", "Calc Script", "");
+    CAF_PDM_InitObject("CalcScript", ":/OctaveScriptFile16x16.png", "Calc Script", "");
 
     CAF_PDM_InitField(&absolutePath, "AbsolutePath", QString(), "Location", "", "" ,"");
     CAF_PDM_InitField(&content, "Content", QString(), "Directory", "", "" ,"");
