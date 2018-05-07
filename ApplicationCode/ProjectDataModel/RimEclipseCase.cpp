@@ -905,10 +905,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
             if (sumCaseColl)
             {
-                for (auto sumCase : sumCaseColl->allSummaryCases())
-                {
-                    sumCase->createSummaryReaderInterface();
-                }
+                sumCaseColl->loadAllSummaryCaseData();
             }
 
             if (project->mainPlotCollection())
