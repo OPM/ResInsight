@@ -115,7 +115,7 @@ void ScalarMapperRangeBased::setLevelCount(size_t levelCount, bool adjustLevels)
 //--------------------------------------------------------------------------------------------------
 void ScalarMapperRangeBased::setLevelsFromValues(const std::set<double>& levelValues)
 {
-    CVF_ASSERT(!m_userDefinedLevelValues.empty());
+    CVF_ASSERT(!levelValues.empty());
 
     m_userDefinedLevelValues = levelValues;
     m_rangeMax = (*levelValues.rbegin());
