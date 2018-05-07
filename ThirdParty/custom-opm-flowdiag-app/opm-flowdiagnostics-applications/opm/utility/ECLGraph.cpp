@@ -25,7 +25,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <algorithm>
 #include <array>
@@ -604,7 +604,7 @@ ECL::getPVolVector(const ecl_grid_type*          G,
             getUnitSystem(init, gridID)->reservoirVolume();
 
         for (auto& pv : pvol) {
-            pv = ::Opm::unit::convert::from(pv, pvol_unit);
+            pv = ::ImportedOpm::unit::convert::from(pv, pvol_unit);
         }
     }
 
@@ -1157,7 +1157,7 @@ connectionData(const ::Opm::ECLRestartData&    rstrt,
             "Direction must be I, J, or K");
 
     for (const auto& cell : cells->second) {
-        x.push_back(::Opm::unit::convert::from(v[cell], unit));
+        x.push_back(::ImportedOpm::unit::convert::from(v[cell], unit));
     }
 }
 
@@ -1208,7 +1208,7 @@ deriveNeighbours(const std::vector<std::size_t>& gcells,
 
     auto SI_trans = [trans_unit](const double trans)
     {
-        return ::Opm::unit::convert::from(trans, trans_unit);
+        return ::ImportedOpm::unit::convert::from(trans, trans_unit);
     };
 
     auto& ocell = this->outCell_[d];
@@ -1288,6 +1288,9 @@ public:
     /// Retrieve number of active cells in graph.
     std::size_t numCells() const;
 
+    /// Retrieve number of active cells in particular subgrid.
+    std::size_t numCells(const std::string& gridID) const;
+
     /// Retrieve number of connections in graph.
     std::size_t numConnections() const;
 
@@ -1363,6 +1366,24 @@ public:
     std::vector<T>
     rawLinearisedCellData(const ResultSet&   rset,
                           const std::string& vector) const;
+
+    /// Retrieve result set vector from current view (e.g., particular
+    /// report step) linearised on active cells of a particular sub-grid.
+    ///
+    /// \tparam T Element type of result set vector.
+    ///
+    /// \param[in] vector Name of result set vector.
+    ///
+    /// \param[in] gridID Identity of specific grid to which to relate the
+    ///    requested vector.  Use empty for main grid and names for any
+    ///    LGRs.
+    ///
+    /// \return Result set vector linearised on active cells of sub-grid.
+    template <typename T, class ResultSet>
+    std::vector<T>
+    rawLinearisedCellData(const ResultSet&   rset,
+                          const std::string& vector,
+                          const std::string& gridID) const;
 
     /// Retrieve floating-point result set vector from current view
     /// (e.g., particular report step) linearised on active cells and
@@ -1776,7 +1797,7 @@ NNC::add(const std::vector<ECL::CartesianGridData>& grid,
 
     // Capture transmissibility field to support on-demand flux calculations
     // if flux fields are not output to the on-disk result set.
-    this->trans_.push_back(unit::convert::from(nnc.trans, trans_unit));
+    this->trans_.push_back(ImportedOpm::unit::convert::from(nnc.trans, trans_unit));
 
     const auto cat = this->classifyConnection(nnc.grid_nr1, nnc.grid_nr2);
 
@@ -1998,6 +2019,15 @@ Opm::ECLGraph::Impl::numCells() const
 }
 
 std::size_t
+Opm::ECLGraph::Impl::numCells(const std::string& gridID) const
+{
+    auto i = this->gridID_.find(gridID);
+
+    return (i == std::end(this->gridID_))
+        ? 0 : this->grid_[i->second].numCells();
+}
+
+std::size_t
 Opm::ECLGraph::Impl::numConnections() const
 {
     auto nconn = std::size_t{0};
@@ -2185,6 +2215,21 @@ namespace Opm {
 
         return x;
     }
+
+    template <typename T, class ResultSet>
+    std::vector<T>
+    ECLGraph::Impl::rawLinearisedCellData(const ResultSet&   rset,
+                                          const std::string& vector,
+                                          const std::string& gridID) const
+    {
+        auto i = this->gridID_.find(gridID);
+
+        if (i == std::end(this->gridID_)) {
+            return {};
+        }
+
+        return this->grid_[i->second].activeCellData<T>(rset, vector);
+    }
 } // namespace Opm
 
 std::vector<double>
@@ -2211,7 +2256,7 @@ Opm::ECLGraph::Impl::linearisedCellData(const ECLRestartData& rstrt,
                        std::back_inserter(x),
             [vector_unit](const double value)
             {
-                return ::Opm::unit::convert::from(value, vector_unit);
+                return ::ImportedOpm::unit::convert::from(value, vector_unit);
             });
     }
 
@@ -2285,7 +2330,7 @@ Opm::ECLGraph::Impl::fluxNNC(const ECLRestartData& rstrt,
                 assert (ix.kwIdx    < q.size());
 
                 v[ix.neighIdx] =
-                    unit::convert::from(q[ix.kwIdx], flux_unit);
+                    ImportedOpm::unit::convert::from(q[ix.kwIdx], flux_unit);
 
                 assigned[ix.neighIdx] = true;
             }
@@ -2408,6 +2453,11 @@ std::size_t Opm::ECLGraph::numCells() const
     return this->pImpl_->numCells();
 }
 
+std::size_t Opm::ECLGraph::numCells(const std::string& gridID) const
+{
+    return this->pImpl_->numCells(gridID);
+}
+
 std::size_t Opm::ECLGraph::numConnections() const
 {
     return this->pImpl_->numConnections();
@@ -2462,6 +2512,15 @@ namespace Opm {
         return this->pImpl_->rawLinearisedCellData<T>(rset, vector);
     }
 
+    template <typename T, class ResultSet>
+    std::vector<T>
+    ECLGraph::rawLinearisedCellData(const ResultSet&   rset,
+                                    const std::string& vector,
+                                    const std::string& gridID) const
+    {
+        return this->pImpl_->rawLinearisedCellData<T>(rset, vector, gridID);
+    }
+
     // Explicit instantiations of method rawLinearisedCellData() for the
     // element and result set types we care about.
     template std::vector<int>
@@ -2479,6 +2538,26 @@ namespace Opm {
     template std::vector<double>
     ECLGraph::rawLinearisedCellData<double>(const ECLRestartData& rset,
                                             const std::string&    vector) const;
+
+    template std::vector<int>
+    ECLGraph::rawLinearisedCellData<int>(const ECLInitFileData& rset,
+                                         const std::string&     vector,
+                                         const std::string&     gridID) const;
+
+    template std::vector<int>
+    ECLGraph::rawLinearisedCellData<int>(const ECLRestartData& rset,
+                                         const std::string&    vector,
+                                         const std::string&    gridID) const;
+
+    template std::vector<double>
+    ECLGraph::rawLinearisedCellData<double>(const ECLInitFileData& rset,
+                                            const std::string&     vector,
+                                            const std::string&     gridID) const;
+
+    template std::vector<double>
+    ECLGraph::rawLinearisedCellData<double>(const ECLRestartData& rset,
+                                            const std::string&    vector,
+                                            const std::string&    gridID) const;
 
 } // namespace Opm
 

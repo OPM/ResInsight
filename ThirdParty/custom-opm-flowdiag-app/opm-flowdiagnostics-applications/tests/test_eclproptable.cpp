@@ -21,10 +21,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#if HAVE_DYNAMIC_BOOST_TEST
-#define BOOST_TEST_DYN_LINK
-#endif
-
 #define NVERBOSE
 
 #define BOOST_TEST_MODULE TEST_ECLPROPTABLE

@@ -56,9 +56,9 @@ include(OpmInit)
 macro (dir_hook)
 endmacro (dir_hook)
 
-# Look for the opm-data repository; if found the variable
-# HAVE_OPM_DATA will be set to true.
-include (Findopm-data)
+# Look for the "opm-tests" repository (OPM's Regression Test data
+# repository)--HAVE_OPM_TESTS true if found.
+include (Findopm-tests)
 
 # list of prerequisites for this particular project; this is in a
 # separate file (in cmake/Modules sub-directory) because it is shared
@@ -93,6 +93,7 @@ endmacro (install_hook)
 # all setup common to the OPM library modules is done here
 include (OpmLibMain)
 
-if (HAVE_OPM_DATA)
+if (HAVE_OPM_TESTS)
+  # Regression test data available.  Enable additional tests.
   include (${CMAKE_CURRENT_SOURCE_DIR}/AcceptanceTests.cmake)
 endif()

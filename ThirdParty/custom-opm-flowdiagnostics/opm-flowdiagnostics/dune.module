@@ -5,8 +5,8 @@
 
 Module: opm-flowdiagnostics
 Description: Open Porous Media Initiative flow diagnostics
-Version: 2016.10-pre
-Label: 2016.10-pre
+Version: 2018.10-pre
+Label: 2018.10-pre
 Maintainer: opm@opm-project.org
 MaintainerName: OPM community
 Url: http://opm-project.org

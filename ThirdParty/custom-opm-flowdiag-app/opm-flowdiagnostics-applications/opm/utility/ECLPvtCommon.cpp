@@ -22,7 +22,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <functional>
 #include <utility>
@@ -64,7 +64,7 @@ namespace {
         return ::Opm::ECLPVT::ConvertUnits::Converter {
             [uscale](const double q) -> double
             {
-                return ::Opm::unit::convert::from(q, uscale);
+                return ::ImportedOpm::unit::convert::from(q, uscale);
             }
         };
     }
@@ -326,7 +326,7 @@ Opm::ECLPVT::surfaceMassDensity(const ECLInitFileData& init,
     const auto dens_scale = u->density();
 
     for (auto& rho_i : rho) {
-        rho_i = unit::convert::from(rho_i, dens_scale);
+        rho_i = ImportedOpm::unit::convert::from(rho_i, dens_scale);
     }
 
     return rho;
