@@ -422,7 +422,7 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment(const cvf
 
         cvf::Vec3f newVertex        = connectingLine.end();
         cvf::Vec3f newSegmentVector = newVertex - extraVertices->back();
-        if (withinSegments && newSegmentVector.lengthSquared() < fullSegmentVector.lengthSquared())
+        if (withinSegments && newSegmentVector.lengthSquared() < currentSubSegment.lengthSquared())
         {
             extraVertices->push_back(newVertex);
 

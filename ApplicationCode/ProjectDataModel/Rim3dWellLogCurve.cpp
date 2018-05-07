@@ -64,15 +64,15 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurve::Rim3dWellLogCurve()
-    : m_minCurveDataValue(-std::numeric_limits<float>::max())
-    , m_maxCurveDataValue(std::numeric_limits<float>::max())
+    : m_minCurveDataValue(-std::numeric_limits<float>::infinity())
+    , m_maxCurveDataValue(std::numeric_limits<float>::infinity())
 {
     CAF_PDM_InitObject("3d Well Log Curve", ":/WellLogCurve16x16.png", "", "");
 
     CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_minCurveUIValue, "MinCurveValue", -std::numeric_limits<float>::max(), "Minimum Curve Value", "", "Clip curve values below this.", "");
-    CAF_PDM_InitField(&m_maxCurveUIValue, "MaxCurveValue", std::numeric_limits<float>::max(), "Maximum Curve Value", "", "Clip curve values above this.", "");
+    CAF_PDM_InitField(&m_minCurveUIValue, "MinCurveValue", -std::numeric_limits<float>::infinity(), "Minimum Curve Value", "", "Clip curve values below this.", "");
+    CAF_PDM_InitField(&m_maxCurveUIValue, "MaxCurveValue", std::numeric_limits<float>::infinity(), "Maximum Curve Value", "", "Clip curve values above this.", "");
 
     CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
     CAF_PDM_InitField(&m_drawStyle, "DrawStyle", DrawStyleEnum(LINE), "Draw Style", "", "", "");
@@ -218,8 +218,8 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (m_minCurveDataValue == -std::numeric_limits<float>::max() &&
-        m_maxCurveDataValue == std::numeric_limits<float>::max())
+    if (m_minCurveDataValue == -std::numeric_limits<float>::infinity() &&
+        m_maxCurveDataValue == std::numeric_limits<float>::infinity())
     {
     	this->resetMinMaxValues();
     }
@@ -281,8 +281,8 @@ void Rim3dWellLogCurve::resetMinMaxValues()
     std::vector<double> values;
     std::vector<double> measuredDepths;
     this->curveValuesAndMds(&values, &measuredDepths);
-    double foundMinValue = std::numeric_limits<float>::max();
-    double foundMaxValue = -std::numeric_limits<float>::max();
+    double foundMinValue = std::numeric_limits<float>::infinity();
+    double foundMaxValue = -std::numeric_limits<float>::infinity();
     for (double value : values)
     {
         if (RigCurveDataTools::isValidValue(value, false))
