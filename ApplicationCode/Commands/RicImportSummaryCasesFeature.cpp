@@ -31,6 +31,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -40,6 +41,7 @@
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "cafProgressInfo.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -75,7 +77,17 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 
     addSummaryCases(cases);
 
+    addCasesToGroupIfRelevant(cases);
+
     for (const auto& rimCase : cases) RiaApplication::instance()->addToRecentFiles(rimCase->summaryHeaderFilename());
+
+    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow && !cases.empty())
+    {
+        mainPlotWindow->selectAsCurrentItem(cases.back());
+
+        mainPlotWindow->updateSummaryPlotToolBar();
+    }
 
     std::vector<RimCase*> allCases;
     app->project()->allCases(allCases);
@@ -154,13 +166,30 @@ void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryC
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     sumCaseColl->addCases(cases);
     sumCaseColl->updateAllRequiredEditors();
+}
 
-    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<RimSummaryCase*> cases)
+{
+    std::vector<RimSummaryCaseCollection*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
+
+    if (selectedColl.size() == 1)
     {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
+        RimSummaryCaseCollection*       coll = selectedColl.front();
+        RimSummaryCaseMainCollection*   mainColl;
+        coll->firstAncestorOrThisOfType(mainColl);
 
-        mainPlotWindow->updateSummaryPlotToolBar();
+        if (mainColl)
+        {
+            for (const auto sumCase : cases)
+            {
+                mainColl->removeCase(sumCase);
+                selectedColl.front()->addCase(sumCase);
+            }
+            mainColl->updateConnectedEditors();
+        }
     }
 }
 

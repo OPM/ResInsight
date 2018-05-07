@@ -76,6 +76,14 @@ void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
     RicImportSummaryCasesFeature::addSummaryCases(cases);
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName);
 
+    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow && !cases.empty())
+    {
+        mainPlotWindow->selectAsCurrentItem(cases.back());
+
+        mainPlotWindow->updateSummaryPlotToolBar();
+    }
+
     std::vector<RimCase*> allCases;
     app->project()->allCases(allCases);
 

@@ -76,9 +76,18 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
     std::vector<RimSummaryCase*> newCases;
     if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
     {
+        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
         for (const RimSummaryCase* newCase : newCases)
         {
             RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
+        }
+
+        RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+        if (mainPlotWindow && !newCases.empty())
+        {
+            mainPlotWindow->selectAsCurrentItem(newCases.back());
+
+            mainPlotWindow->updateSummaryPlotToolBar();
         }
     }
 

@@ -41,6 +41,7 @@ public:
     static bool createAndAddSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases = nullptr);
     static bool createSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases);
     static void addSummaryCases(const std::vector<RimSummaryCase*> cases);
+    static void addCasesToGroupIfRelevant(const std::vector<RimSummaryCase*> cases);
 
     static QStringList runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle);
 
