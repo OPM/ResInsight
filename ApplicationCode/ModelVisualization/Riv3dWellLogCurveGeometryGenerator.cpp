@@ -130,11 +130,11 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
         if ((rim3dWellLogCurve->minCurveUIValue() - result) > curveEpsilon * curveUIRange)
         {
-            result = -std::numeric_limits<float>::max();
+            result = -HUGE_VAL;
         }
         else if ((result - rim3dWellLogCurve->maxCurveUIValue()) > curveEpsilon * curveUIRange)
         {
-            result = std::numeric_limits<float>::max();
+            result = HUGE_VAL;
         }
         else
         {
