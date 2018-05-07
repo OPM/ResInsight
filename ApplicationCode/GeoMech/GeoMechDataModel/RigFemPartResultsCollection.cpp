@@ -550,6 +550,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
         dstFrameData.resize(valCount, inf);
 
         int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
         for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
         {
             RigElementType elmType = femPart->elementType(elmIdx);
@@ -604,7 +606,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
             size_t valCount = srcFrameData.size();
             dstFrameData.resize(valCount);
 
-            for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+            for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx )
             {
                 dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
             }
@@ -680,7 +683,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM(in
         size_t valCount = sa11Data.size();
         dstFrameData.resize(valCount);
 
-        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = (sa11Data[vIdx] + sa22Data[vIdx] + sa33Data[vIdx])/3.0f;
         }
@@ -722,7 +726,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partInde
         size_t valCount = se1Data.size();
         dstFrameData.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             float se1 = se1Data[vIdx];
             float se3 = se3Data[vIdx];
@@ -775,7 +780,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partInde
         size_t valCount = se1Data.size();
         dstFrameData.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = dsm(se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle);
         }
@@ -812,7 +818,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFOS(int partInde
         size_t valCount = dsmData.size();
         dstFrameData.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             float dsm = dsmData[vIdx];
             dstFrameData[vIdx] = 1.0f/dsm;
@@ -856,7 +863,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM(in
         size_t valCount = st11Data.size();
         dstFrameData.resize(valCount);
 
-        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = (st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx])/3.0f;
         }
@@ -904,7 +912,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStress
         size_t valCount = st11Data.size();
         dstFrameData.resize(valCount);
 
-        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             float stmVal = stmData[vIdx];
             float st11Corr = st11Data[vIdx] - stmVal;
@@ -958,7 +967,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain
         size_t valCount = ea11Data.size();
         dstFrameData.resize(valCount);
 
-        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = (ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx]);
         }
@@ -1002,7 +1012,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStrain
         size_t valCount = ea11Data.size();
         dstFrameData.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = 0.666666666666667f*(ea11Data[vIdx] - ea33Data[vIdx]);
         }
@@ -1094,6 +1105,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
         PCRITDat.resize(valCount);
 
         int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
         for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
         {
             RigElementType elmType = femPart->elementType(elmIdx);
@@ -1206,6 +1219,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles(in
         Pinc.resize(valCount);
 
         int elementCount = femPart->elementCount();
+#pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             RigElementType elmType = femPart->elementType(elmIdx);
@@ -1904,6 +1918,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         frameCountProgress.incrementProgress();
 
         int elementCount = femPart->elementCount();
+#pragma omp parallel for
         for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
         {
             RigElementType elmType = femPart->elementType(elmIdx);
@@ -1961,6 +1976,8 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
         dstFrameData.resize(valCount);
 
         int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             RigElementType elmType = femPart->elementType(elmIdx);
