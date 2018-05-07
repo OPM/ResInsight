@@ -32,8 +32,6 @@
 #include "cvfBoundingBox.h"
 #include "cvfMath.h"
 
-#include <cmath>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -53,9 +51,18 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
                                                               double                            planeWidth,
                                                               const std::vector<cvf::Vec3f>&    drawSurfaceVertices)
 {
+    CVF_ASSERT(rim3dWellLogCurve);
+
     // Make sure all drawables are cleared in case we return early to avoid a
     // previous drawable being "stuck" when changing result type.
     clearCurvePointsAndGeometry();
+    
+    float curveUIRange = rim3dWellLogCurve->maxCurveUIValue() - rim3dWellLogCurve->minCurveUIValue();
+    if (curveUIRange < 1.0e-6f)
+    {
+        return;
+    }
+
 
     std::vector<double> resultValues;
     std::vector<double> resultMds;
@@ -69,11 +76,6 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     if (resultValues.empty()) return;
     CVF_ASSERT(resultValues.size() == resultMds.size());
-
-    if (rim3dWellLogCurve->maxCurveValue() - rim3dWellLogCurve->minCurveValue() < 1.0e-6)
-    {
-        return;
-    }
 
     RimWellPathCollection* wellPathCollection = nullptr;
     m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
@@ -117,25 +119,36 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     m_curveValues         = std::vector<double>(resultValues.end() - interpolatedWellPathPoints.size(), resultValues.end());
     m_curveMeasuredDepths = std::vector<double>(resultMds.end() - interpolatedWellPathPoints.size(), resultMds.end());
 
-    double maxClampedResult = -HUGE_VAL;
-    double minClampedResult = HUGE_VAL;
+    double maxVisibleResult = -std::numeric_limits<float>::max();
+    double minVisibleResult = std::numeric_limits<float>::max();
+
+    double curveEpsilon = 1.0e-6;
 
     for (double& result : m_curveValues)
     {
         if (!RigCurveDataTools::isValidValue(result, false)) continue;
 
-        result = cvf::Math::clamp(result, rim3dWellLogCurve->minCurveValue(), rim3dWellLogCurve->maxCurveValue());
-
-        maxClampedResult = std::max(result, maxClampedResult);
-        minClampedResult = std::min(result, minClampedResult);
+        if ((rim3dWellLogCurve->minCurveUIValue() - result) > curveEpsilon * curveUIRange)
+        {
+            result = -std::numeric_limits<float>::max();
+        }
+        else if ((result - rim3dWellLogCurve->maxCurveUIValue()) > curveEpsilon * curveUIRange)
+        {
+            result = std::numeric_limits<float>::max();
+        }
+        else
+        {
+            maxVisibleResult = std::max(result, maxVisibleResult);
+            minVisibleResult = std::min(result, minVisibleResult);
+        }
     }
 
-    if (minClampedResult >= maxClampedResult)
+    if (minVisibleResult > maxVisibleResult)
     {
         return;
     }
 
-    double plotRangeToResultRangeFactor = planeWidth / (maxClampedResult - minClampedResult);
+    double plotRangeToResultRangeFactor = planeWidth / curveUIRange;
 
     m_curveVertices.reserve(interpolatedWellPathPoints.size());
     for (size_t i = 0; i < interpolatedWellPathPoints.size(); i++)
@@ -144,7 +157,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
         if (RigCurveDataTools::isValidValue(m_curveValues[i], false))
         {
-            scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - minClampedResult) * plotRangeToResultRangeFactor;
+            scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - rim3dWellLogCurve->minCurveUIValue()) * plotRangeToResultRangeFactor;
         }
         cvf::Vec3d curvePoint(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);
         m_curveVertices.push_back(cvf::Vec3f(curvePoint));
@@ -169,8 +182,12 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         indices.reserve(m_curveVertices.size() * 2);
         for (size_t i = 0; i < m_curveVertices.size() - 1; ++i)
         {
-            indices.push_back(cvf::uint(i));
-            indices.push_back(cvf::uint(i + 1));
+            if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
+            {
+                indices.push_back(cvf::uint(i));
+                indices.push_back(cvf::uint(i + 1));
+            }
         }
 
         cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
@@ -347,6 +364,15 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
                 lastVertex = extraVertex;
             }
             expandedBottomVertices.insert(expandedBottomVertices.end(), extraBottomVertices.begin(), extraBottomVertices.end());
+        }
+        else
+        {
+            // Add the invalid points and values.
+            expandedCurveVertices.push_back(m_curveVertices[i]);
+            expandedBottomVertices.push_back(m_bottomVertices[i]);
+            expandedMeasuredDepths.push_back(m_curveMeasuredDepths[i]);
+            expandedValues.push_back(m_curveValues[i]);
+            
         }
     }
 

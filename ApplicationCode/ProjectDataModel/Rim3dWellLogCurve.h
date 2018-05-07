@@ -78,8 +78,8 @@ public:
 
     void            setColor(const cvf::Color3f& color);
 
-    double          minCurveValue() const;
-    double          maxCurveValue() const;
+    float           minCurveUIValue() const;
+    float           maxCurveUIValue() const;
     void            resetMinMaxValuesAndUpdateUI();
     bool            findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
                                             cvf::Vec3d*       closestPoint,
@@ -101,10 +101,10 @@ protected:
     caf::PdmField<DrawPlaneEnum>                    m_drawPlane;
     caf::PdmField<DrawStyleEnum>                    m_drawStyle;
     caf::PdmField<cvf::Color3f>                     m_color;
-    caf::PdmField<double>                           m_minCurveValue;
-    caf::PdmField<double>                           m_maxCurveValue;
-    double                                          m_minCurveDataValue;
-    double                                          m_maxCurveDataValue;
+    caf::PdmField<float>                            m_minCurveUIValue;
+    caf::PdmField<float>                            m_maxCurveUIValue;
+    float                                           m_minCurveDataValue;
+    float                                           m_maxCurveDataValue;
     cvf::ref<Riv3dWellLogCurveGeometryGenerator>    m_geometryGenerator;
 private:
     caf::PdmField<bool>                             m_showCurve;
