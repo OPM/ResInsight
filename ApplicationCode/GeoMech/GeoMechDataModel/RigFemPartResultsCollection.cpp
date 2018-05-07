@@ -509,7 +509,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
         size_t valCount = srcFrameData.size();
         dstFrameData.resize(valCount);
 
-        for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             dstFrameData[vIdx] = 1.0e-5*srcFrameData[vIdx];
         }
@@ -1324,7 +1325,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
         s3inc.resize(valCount);
         s3azi.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for ( long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx )
         {
             caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx]);
             cvf::Vec3f principalDirs[3];
@@ -1342,7 +1344,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
             else
             {
                 s1inc[vIdx] = std::numeric_limits<float>::infinity();
-                s1azi[vIdx] =    std::numeric_limits<float>::infinity();
+                s1azi[vIdx] = std::numeric_limits<float>::infinity();
             }
 
             if ( principals[1] != std::numeric_limits<float>::infinity() )
@@ -1354,7 +1356,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
             else
             {
                 s2inc[vIdx] = std::numeric_limits<float>::infinity();
-                s2azi[vIdx] =    std::numeric_limits<float>::infinity();
+                s2azi[vIdx] = std::numeric_limits<float>::infinity();
             }
 
             if ( principals[2] != std::numeric_limits<float>::infinity() )
@@ -1428,7 +1430,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStrainV
         s2.resize(valCount);
         s3.resize(valCount);
 
-        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
         {
             caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx]);
             cvf::Vec3f principalDirs[3];
@@ -1626,7 +1629,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             size_t valCount = srcFrameData.size();
             dstFrameData.resize(valCount);
 
-            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+            for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
             {
                 dstFrameData[vIdx] = -srcFrameData[vIdx];
             }
@@ -1814,7 +1818,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
-            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+
+#pragma omp parallel for
+            for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
             {
                 dstFrameData[vIdx] = -srcSFrameData[vIdx];
             }
@@ -2193,7 +2199,8 @@ std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors(const RigFemResultA
     size_t valCount = v11.size();
     outputTensors.resize(valCount);
 
-    for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+#pragma omp parallel for
+    for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
     {
         caf::Ten3f tensor(v11[vIdx], v22[vIdx], v33[vIdx], v12[vIdx], v23[vIdx], v13[vIdx]);
         outputTensors[vIdx] = tensor;
