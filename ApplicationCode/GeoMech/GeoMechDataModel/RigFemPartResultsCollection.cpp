@@ -1536,6 +1536,301 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNE(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "E", resVarAddr.componentName));
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount = srcDataFrames->frameCount();
+    for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = srcFrameData.size();
+        dstFrameData.resize(valCount);
+
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
+        {
+            dstFrameData[vIdx] = -srcFrameData[vIdx];
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
+    frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
+    RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    float inf = std::numeric_limits<float>::infinity();
+
+    int frameCount = srcDataFrames->frameCount();
+    for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcSFrameData = srcDataFrames->frameData(fIdx);
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = srcSFrameData.size();
+        dstFrameData.resize(valCount);
+
+        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
+
+        int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
+        for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+
+            if (elmType == HEX8P)
+            {
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                }
+            }
+            else
+            {
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                    dstFrameData[elmNodResIdx] = inf;
+                }
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    int frameCount = srcSDataFrames->frameCount();
+
+    frameCountProgress.incrementProgress();
+
+    const float inf = std::numeric_limits<float>::infinity();
+
+    for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
+        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+
+        size_t valCount = srcSFrameData.size();
+        dstFrameData.resize(valCount);
+
+        int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
+        for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+
+            if (elmType == HEX8P)
+            {
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+
+                    float por = srcPORFrameData[nodeIdx];
+                    if (por == inf)  por = 0.0f;
+
+                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                }
+            }
+            else
+            {
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                }
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_12_13_23(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount = srcSDataFrames->frameCount();
+    for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+
+        size_t valCount = srcSFrameData.size();
+        dstFrameData.resize(valCount);
+
+#pragma omp parallel for
+        for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
+        {
+            dstFrameData[vIdx] = -srcSFrameData[vIdx];
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateGamma(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemResultAddress totStressCompAddr(resVarAddr.resultPosType, "ST", "");
+    {
+        std::string scomp;
+        std::string gcomp = resVarAddr.componentName;
+        if (gcomp == "Gamma1")       scomp = "S1";
+        else if (gcomp == "Gamma2")  scomp = "S2";
+        else if (gcomp == "Gamma3")  scomp = "S3";
+        else if (gcomp == "Gamma11") scomp = "S11";
+        else if (gcomp == "Gamma22") scomp = "S22";
+        else if (gcomp == "Gamma33") scomp = "S33";
+        totStressCompAddr.componentName = scomp;
+    }
+
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, totStressCompAddr);
+
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    calculateGammaFromFrames(partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress);
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices(int partIndex, const RigFemResultAddress &resVarAddr)
+{
+    caf::ProgressInfo frameCountProgress(2, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+
+    RigFemScalarResultFrames* resFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    resFrames->enableAsSingleFrameResult();
+
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    std::vector<float>& dstFrameData = resFrames->frameData(0);
+
+    size_t valCount = femPart->elementNodeResultCount();
+    float inf = std::numeric_limits<float>::infinity();
+    dstFrameData.resize(valCount, inf);
+
+    RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
+
+    frameCountProgress.incrementProgress();
+
+    if (activeFormNames)
+    {
+        int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
+        for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+
+            size_t i, j, k;
+            femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+            int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
+
+            for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+            {
+                size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                if (formNameIdx != -1)
+                {
+                    dstFrameData[elmNodResIdx] = formNameIdx;
+                }
+                else
+                {
+                    dstFrameData[elmNodResIdx] = HUGE_VAL;
+                }
+            }
+        }
+    }
+
+    return resFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     if (resVarAddr.isTimeLapse())
@@ -1625,33 +1920,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
            || resVarAddr.componentName == "E13"
            || resVarAddr.componentName == "E23"))
     {
-        caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "E", resVarAddr.componentName));
-        RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-        
-        frameCountProgress.incrementProgress();
-
-        int frameCount = srcDataFrames->frameCount();
-        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
-        {
-            const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
-            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-            size_t valCount = srcFrameData.size();
-            dstFrameData.resize(valCount);
-
-#pragma omp parallel for
-            for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
-            {
-                dstFrameData[vIdx] = -srcFrameData[vIdx];
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-
-        return dstDataFrames;
+        return calculateNE(partIndex, resVarAddr);
     }
 
     if ( (resVarAddr.fieldName == "NE")
@@ -1670,60 +1939,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             || resVarAddr.componentName == "S13" 
             || resVarAddr.componentName == "S23" ))
     {
-        caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
-        frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
-        RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-
-        frameCountProgress.incrementProgress();
-
-        const RigFemPart * femPart = m_femParts->part(partIndex);
-        float inf = std::numeric_limits<float>::infinity();
-
-        int frameCount = srcDataFrames->frameCount();
-        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
-        {
-            const std::vector<float>& srcSFrameData = srcDataFrames->frameData(fIdx);
-            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-            size_t valCount = srcSFrameData.size();
-            dstFrameData.resize(valCount);
-
-            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
-
-           int elementCount = femPart->elementCount();
-            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-            {
-                RigElementType elmType = femPart->elementType(elmIdx);
-
-                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
-
-                if (elmType == HEX8P)
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
-                    }
-                }
-                else 
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-
-                        dstFrameData[elmNodResIdx] = inf;
-                    }
-                }
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-
-        return dstDataFrames;
+        return calculateSE(partIndex, resVarAddr);
     }
 
     if (   (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" )
@@ -1746,67 +1962,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             ||  resVarAddr.componentName == "S22"  
             ||  resVarAddr.componentName == "S33" ))
     {
-        caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
-
-        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-        const RigFemPart * femPart = m_femParts->part(partIndex);
-        int frameCount = srcSDataFrames->frameCount();
-        
-        frameCountProgress.incrementProgress();
-
-        const float inf = std::numeric_limits<float>::infinity();
-
-        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
-        {
-            const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
-            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
-            
-            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-
-            size_t valCount = srcSFrameData.size();
-            dstFrameData.resize(valCount);
-
-            int elementCount = femPart->elementCount();
-            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-            {
-                RigElementType elmType = femPart->elementType(elmIdx);
-
-                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
-
-                if (elmType == HEX8P)
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
-
-                        float por = srcPORFrameData[nodeIdx];
-                        if (por == inf)  por = 0.0f;
-
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
-                    }
-                }
-                else 
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
-                    }
-                }
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-        return dstDataFrames; 
+        return calculateST_11_22_33(partIndex, resVarAddr);
     }
 
     if ( resVarAddr.fieldName == "ST" 
@@ -1814,33 +1970,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             ||  resVarAddr.componentName == "S13"  
             ||  resVarAddr.componentName == "S23" ))
     {
-        caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
-        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-
-        frameCountProgress.incrementProgress();
-
-        int frameCount = srcSDataFrames->frameCount();
-        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
-        {
-            const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
-            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-
-            size_t valCount = srcSFrameData.size();
-            dstFrameData.resize(valCount);
-
-#pragma omp parallel for
-            for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
-            {
-                dstFrameData[vIdx] = -srcSFrameData[vIdx];
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-        return dstDataFrames; 
+        return calculateST_12_13_23(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "ST" && resVarAddr.componentName == "")
@@ -1859,36 +1989,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
              || resVarAddr.componentName == "Gamma33"
              ))
     {
-        caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemResultAddress totStressCompAddr(resVarAddr.resultPosType, "ST", "");
-        {
-            std::string scomp;
-            std::string gcomp = resVarAddr.componentName;
-            if ( gcomp == "Gamma1" )       scomp =  "S1";
-            else if ( gcomp == "Gamma2" )  scomp =  "S2";
-            else if ( gcomp == "Gamma3" )  scomp =  "S3";
-            else if ( gcomp == "Gamma11" ) scomp =  "S11";
-            else if ( gcomp == "Gamma22" ) scomp =  "S22";
-            else if ( gcomp == "Gamma33" ) scomp =  "S33";
-            totStressCompAddr.componentName = scomp;
-        }
-
-        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, totStressCompAddr);
-        
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement(this->frameCount());
-
-        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
-        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-
-        frameCountProgress.incrementProgress();
-
-        calculateGammaFromFrames(partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress);
-
-        return dstDataFrames; 
+        return calculateGamma(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "Gamma" && resVarAddr.componentName == "")
@@ -1899,55 +2000,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
     if (resVarAddr.resultPosType == RIG_FORMATION_NAMES)
     {
-        caf::ProgressInfo frameCountProgress(2, "");
-        frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
-
-        RigFemScalarResultFrames* resFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-        resFrames->enableAsSingleFrameResult();
-
-        const RigFemPart * femPart = m_femParts->part(partIndex);
-        std::vector<float>& dstFrameData = resFrames->frameData(0);
-
-        size_t valCount = femPart->elementNodeResultCount();
-        float inf       = std::numeric_limits<float>::infinity();
-        dstFrameData.resize(valCount, inf);
-
-        RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
-
-        frameCountProgress.incrementProgress();
-
-        if (activeFormNames)
-        {
-            int elementCount = femPart->elementCount();
-
-#pragma omp parallel for
-            for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-            {
-                RigElementType elmType = femPart->elementType(elmIdx);
-                int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-
-                size_t i, j, k;
-                femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-                int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
-
-                for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-
-                    if (formNameIdx != -1)
-                    {
-                        dstFrameData[elmNodResIdx] = formNameIdx;
-                    }
-                    else
-                    {
-                        dstFrameData[elmNodResIdx] = HUGE_VAL;
-                    }
-                }
-            }
-        }
-
-        return resFrames;
+        return calculateFormationIndices(partIndex, resVarAddr);
     }
+
     return nullptr;
 }
 
