@@ -65,6 +65,9 @@ public:
     void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 private:
+    static void         loadSummaryCaseData(std::vector<RimSummaryCase*> summaryCases);
+
+private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmChildArrayField<RimSummaryCaseCollection*> m_caseCollections;
 };

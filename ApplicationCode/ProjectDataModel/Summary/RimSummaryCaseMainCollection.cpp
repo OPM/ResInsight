@@ -298,17 +298,28 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
     std::vector<RimSummaryCase*> sumCases = allSummaryCases();
 
-    caf::ProgressInfo progInfo(sumCases.size(), "Loading Summary Cases");
+    RimSummaryCaseMainCollection::loadSummaryCaseData(sumCases);
+}
 
-    for (size_t cIdx = 0; cIdx < sumCases.size(); ++cIdx)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::loadSummaryCaseData(std::vector<RimSummaryCase*> summaryCases)
+{
+    caf::ProgressInfo progInfo(summaryCases.size(), "Loading Summary Cases");
+
+    for (int cIdx = 0; cIdx < static_cast<int>(summaryCases.size()); ++cIdx)
     {
-        RimSummaryCase* sumCase = sumCases[cIdx];
+        RimSummaryCase* sumCase = summaryCases[cIdx];
         if (sumCase)
         {
             sumCase->createSummaryReaderInterface();
             addCaseRealizationParametersIfFound(*sumCase, sumCase->summaryHeaderFilename());
         }
-        progInfo.incrementProgress();
+
+        {
+            progInfo.incrementProgress();
+        }
     }
 }
 
@@ -330,48 +341,53 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 {
     RimProject* project = RiaApplication::instance()->project();
 
-    std::vector<RimSummaryCase*>    sumCases;
-    std::unique_ptr<caf::ProgressInfo> progress;
-    
-    if (showProgress)
+    std::vector<RimSummaryCase*> sumCases;
+
+    // Split into two stages to be able to use multi threading
+    // First stage : Create summary case objects
+    // Second stage : Load data
     {
-        progress.reset(new caf::ProgressInfo(summaryHeaderFileInfos.size(), "Creating summary cases"));
+        std::unique_ptr<caf::ProgressInfo> progress;
+
+        if (showProgress)
+        {
+            progress.reset(new caf::ProgressInfo(summaryHeaderFileInfos.size(), "Creating summary cases"));
+        }
+
+        for (const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos)
+        {
+            RimEclipseCase* eclCase = nullptr;
+            QString gridCaseFile    = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(fileInfo.summaryFileName());
+            if (!gridCaseFile.isEmpty())
+            {
+                eclCase = project->eclipseCaseFromGridFileName(gridCaseFile);
+            }
+
+            if (eclCase)
+            {
+                RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
+
+                newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
+                newSumCase->setAssociatedEclipseCase(eclCase);
+                newSumCase->updateOptionSensitivity();
+                sumCases.push_back(newSumCase);
+            }
+            else
+            {
+                RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+
+                newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
+                newSumCase->setSummaryHeaderFileName(fileInfo.summaryFileName());
+                newSumCase->updateOptionSensitivity();
+                sumCases.push_back(newSumCase);
+            }
+
+            if (progress != nullptr) progress->incrementProgress();
+        }
     }
 
-    for (RifSummaryCaseFileResultInfo fileInfo : summaryHeaderFileInfos)
-    {
-        RimEclipseCase* eclCase = nullptr;
-        QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(fileInfo.summaryFileName());
-        if (!gridCaseFile.isEmpty())
-        {
-            eclCase = project->eclipseCaseFromGridFileName(gridCaseFile);
-        }
+    RimSummaryCaseMainCollection::loadSummaryCaseData(sumCases);
 
-        if (eclCase)
-        {
-            RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
-
-            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
-            newSumCase->setAssociatedEclipseCase(eclCase);
-            newSumCase->createSummaryReaderInterface();
-            newSumCase->updateOptionSensitivity();
-            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.summaryFileName());
-            sumCases.push_back(newSumCase);
-        }
-        else
-        {
-            RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
-
-            newSumCase->setIncludeRestartFiles(fileInfo.includeRestartFiles());
-            newSumCase->setSummaryHeaderFileName(fileInfo.summaryFileName());
-            newSumCase->createSummaryReaderInterface();
-            newSumCase->updateOptionSensitivity();
-            addCaseRealizationParametersIfFound(*newSumCase, fileInfo.summaryFileName());
-            sumCases.push_back(newSumCase);
-        }
-
-        if (progress != nullptr) progress->incrementProgress();
-    }
     return sumCases;
 }
 
