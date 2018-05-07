@@ -551,15 +551,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
 
         int elementCount = femPart->elementCount();
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
         for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
         {
             RigElementType elmType = femPart->elementType(elmIdx);
 
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-
             if (elmType == HEX8P)
             {
+                int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
@@ -1339,7 +1338,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
         s3inc.resize(valCount);
         s3azi.resize(valCount);
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
         for ( long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx )
         {
             caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx]);
@@ -1917,32 +1916,32 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
         frameCountProgress.incrementProgress();
 
-        int elementCount = femPart->elementCount();
-#pragma omp parallel for
-        for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        if (activeFormNames)
         {
-            RigElementType elmType = femPart->elementType(elmIdx);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+            int elementCount = femPart->elementCount();
 
-            size_t i, j, k;
-            femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-            int formNameIdx = -1;
-            if (activeFormNames)
+#pragma omp parallel for
+            for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
             {
-                formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
-            }
+                RigElementType elmType = femPart->elementType(elmIdx);
+                int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
 
-            for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-            {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                size_t i, j, k;
+                femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+                int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
 
-                if (formNameIdx != -1)
+                for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
-                    dstFrameData[elmNodResIdx] = formNameIdx;
-                }
-                else
-                {
-                    dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                    if (formNameIdx != -1)
+                    {
+                        dstFrameData[elmNodResIdx] = formNameIdx;
+                    }
+                    else
+                    {
+                        dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    }
                 }
             }
         }
