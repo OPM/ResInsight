@@ -482,18 +482,24 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryCaseCollection*>(uiItem))
         {
+            menuBuilder.subMenuStart("Import");
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportEnsembleFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
+            menuBuilder.subMenuStart("Import");
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportEnsembleFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();

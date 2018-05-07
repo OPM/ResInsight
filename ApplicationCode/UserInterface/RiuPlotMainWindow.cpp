@@ -197,18 +197,17 @@ void RiuPlotMainWindow::createMenus()
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
-    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
 
     importMenu->addSeparator();
-    QMenu* importWellMenu = importMenu->addMenu(QIcon(":/Well.png"), "Wells");
+    QMenu* importWellMenu = importMenu->addMenu(QIcon(":/Well.png"), "Well Data");
     importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
     importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
     importWellMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
-    
+    importWellMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
+
     importMenu->addSeparator();
-    QMenu* importFormationsMenu = importMenu->addMenu(QIcon(":/FormationCollection16x16.png"), "Formations");
-    importFormationsMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
-    importFormationsMenu->addAction(cmdFeatureMgr->action("RicWellPathFormationsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
