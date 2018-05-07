@@ -29,6 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
+#include "RimIntersectionCollection.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
 
@@ -108,6 +109,7 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     if (&faultLabelColor == changedField)
     {
         m_reservoirView->scheduleReservoirGridGeometryRegen();
+        m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     if (&showFaultFaces == changedField ||
@@ -124,6 +126,7 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         if (m_reservoirView) 
         {
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+            m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 

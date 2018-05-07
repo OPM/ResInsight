@@ -26,6 +26,7 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
@@ -37,6 +38,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimIntersection.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -1478,7 +1480,18 @@ void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 {
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+    if (!activeRiv)
+    {
+        Rim2dIntersectionView* isectView = dynamic_cast<Rim2dIntersectionView*>(activeView);
+        if (isectView)
+        {
+            isectView->intersection()->firstAncestorOrThisOfType(activeRiv);
+        }
+    }
+
     if (!activeRiv) return;
 
     activeRiv->faultCollection()->showFaultLabel.setValueWithFieldChanged(showLabels);
@@ -1492,14 +1505,14 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 void RiuMainWindow::refreshDrawStyleActions()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    bool enable = view != nullptr;
+    bool is3DView = view != nullptr;
     bool isGridView = RiaApplication::instance()->activeGridView() != nullptr;
 
-    m_drawStyleLinesAction->setEnabled(enable);
-    m_drawStyleLinesSolidAction->setEnabled(enable);
-    m_drawStyleSurfOnlyAction->setEnabled(enable);
-    m_drawStyleFaultLinesSolidAction->setEnabled(enable);
-    m_disableLightingAction->setEnabled(enable);
+    m_drawStyleLinesAction->setEnabled(is3DView);
+    m_drawStyleLinesSolidAction->setEnabled(is3DView);
+    m_drawStyleSurfOnlyAction->setEnabled(is3DView);
+    m_drawStyleFaultLinesSolidAction->setEnabled(is3DView);
+    m_disableLightingAction->setEnabled(is3DView);
 
     bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
 
@@ -1516,22 +1529,36 @@ void RiuMainWindow::refreshDrawStyleActions()
     }
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
-    enable = enable && eclView;
 
-    m_toggleFaultsLabelAction->setEnabled(enable);
-    m_showWellCellsAction->setEnabled(enable);
+    bool hasEclipseView = eclView != nullptr;
+    m_showWellCellsAction->setEnabled(hasEclipseView);
 
-    if (enable) 
+    if (hasEclipseView) 
     {   
-        m_toggleFaultsLabelAction->blockSignals(true);
-        m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
-        m_toggleFaultsLabelAction->blockSignals(false);
-
         m_showWellCellsAction->blockSignals(true);
         eclView->wellCollection()->updateStateForVisibilityCheckboxes();
         m_showWellCellsAction->setChecked(eclView->wellCollection()->showWellCells());
         m_showWellCellsAction->blockSignals(false);
     }
+
+    if (!eclView)
+    {
+        Rim2dIntersectionView * intView = dynamic_cast<Rim2dIntersectionView*>(view);
+        if (intView)
+        {
+            intView->intersection()->firstAncestorOrThisOfType(eclView);
+        }
+    }
+  
+    m_toggleFaultsLabelAction->setEnabled(eclView != nullptr);
+
+    if (eclView )
+    {
+        m_toggleFaultsLabelAction->blockSignals(true);
+        m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
+        m_toggleFaultsLabelAction->blockSignals(false);
+    }
+
 }
 
 

@@ -31,6 +31,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
@@ -599,6 +600,12 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
 
     if (!labelAndAnchors.size()) return;
 
+    RimEclipseView* eclipseView = nullptr;
+    m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
+
+    if (!(eclipseView && eclipseView->faultCollection()->showFaultLabel())) return;
+    
+    cvf::Color3f defWellLabelColor = eclipseView->faultCollection()->faultLabelColor();
     cvf::Font* font = RiaApplication::instance()->customFont();
 
     std::vector<cvf::Vec3f> lineVertices;
@@ -610,7 +617,6 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
-        cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         drawableText->setTextColor(defWellLabelColor);
     }
 
