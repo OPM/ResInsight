@@ -55,7 +55,7 @@ public:
     void                                    setMultiSelectionMode(bool multiSelectionMode);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
-    void                                    setDefaultSelection();
+    void                                    setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases);
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 

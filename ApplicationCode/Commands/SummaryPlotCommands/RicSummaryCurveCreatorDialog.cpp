@@ -68,6 +68,15 @@ void RicSummaryCurveCreatorDialog::updateFromSummaryPlot(RimSummaryPlot* summary
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorDialog::updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases)
+{
+    m_curveCreatorSplitterUi->updateFromDefaultCases(defaultCases);
+    m_curveCreatorSplitterUi->updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorDialog::slotDialogFinished()
 {
     RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();

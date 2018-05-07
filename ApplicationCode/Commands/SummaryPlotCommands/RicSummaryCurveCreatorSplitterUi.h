@@ -24,6 +24,7 @@
 #include <memory>
 
 class RimSummaryPlot;
+class RimSummaryCase;
 class RicSummaryCurveCreator;
 
 class QMinimizePanel;
@@ -52,6 +53,7 @@ public:
     ~RicSummaryCurveCreatorSplitterUi();
 
     void                    updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
+    void                    updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases);
 
 private:
     virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,

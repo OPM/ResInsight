@@ -485,17 +485,23 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportEnsembleFeature";
+            menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryCrossPlotFeature";
+            menuBuilder.addSeparator();
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportEnsembleFeature";
+            menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryCrossPlotFeature";
+            menuBuilder.addSeparator();
 
             if (!dynamic_cast<RimObservedData*>(uiItem))
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-                menuBuilder << "RicNewSummaryPlotFeature";
+                //menuBuilder << "RicNewSummaryPlotFeature";
             }
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
@@ -652,8 +658,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicShowPlotDataFeature";
         menuBuilder << "RicShowTotalAllocationDataFeature";
         
+        menuBuilder << "RicNewSummaryPlotFeature";
+        menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
-        
+        menuBuilder.addSeparator();
+
         if (!menuBuilder.isCmdFeatureAdded("RicNewFishbonesSubsFeature"))
         {
             menuBuilder << "RicNewFishbonesSubsFeature";

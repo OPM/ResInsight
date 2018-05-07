@@ -59,7 +59,8 @@ public:
     virtual ~RicSummaryCurveCreator();
 
     RimSummaryPlot*                         previewPlot() const;
-    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
+    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot, 
+                                                                  const std::vector<RimSummaryCase*>& defaultCases = std::vector<RimSummaryCase*>());
 
     QWidget*                                addressSelectionWidget(QWidget* parent);
 
@@ -87,7 +88,7 @@ private:
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
     static void                             copyEnsembleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
-    void                                    setDefaultCurveSelection();
+    void                                    setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases);
 
     void                                    resetAllFields();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);

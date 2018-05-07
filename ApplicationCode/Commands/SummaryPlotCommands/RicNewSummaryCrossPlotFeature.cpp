@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicSummaryCurveCreator.h"
@@ -30,8 +31,12 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "RiuPlotMainWindowTools.h"
+
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -45,6 +50,24 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotFeature, "RicNewSummaryCrossPlotFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 {
+    RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        sumPlotColl = RiaSummaryTools::parentCrossPlotCollection(selObj);
+    }
+
+    if (sumPlotColl) return true;
+
+    // Multiple case selections
+    std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();
+
+    for (auto item : selectedItems)
+    {
+        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item))
+            return false;
+    }
     return true;
 }
 

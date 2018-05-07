@@ -69,6 +69,14 @@ void RicSummaryCurveCreatorSplitterUi::updateFromSummaryPlot(RimSummaryPlot* sum
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorSplitterUi::updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases)
+{
+    m_summaryCurveCreator->updateFromSummaryPlot(nullptr, defaultCases);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
     if (m_summaryCurveCreator->isCloseButtonPressed())
