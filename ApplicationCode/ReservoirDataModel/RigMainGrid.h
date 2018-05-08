@@ -51,6 +51,9 @@ public:
     std::vector<RigCell>&                   globalCellArray() {return m_cells;}
     const std::vector<RigCell>&             globalCellArray() const {return m_cells;}
 
+    RigGridBase*                            gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx);
+    const RigGridBase*                      gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx) const;
+
     const RigCell&                          cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const;
     size_t                                  reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const;
 

@@ -360,9 +360,12 @@ QString RimSimWellFracture::createOneBasedIJKText() const
     size_t i,j,k;
     size_t anchorCellIdx = findAnchorEclipseCell(mainGrid);
     if (anchorCellIdx == cvf::UNDEFINED_SIZE_T) return "";
+    
+    size_t gridLocalCellIdx;
+    const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(anchorCellIdx, &gridLocalCellIdx);
 
-    bool ok = mainGrid->ijkFromCellIndex(anchorCellIdx, &i, &j, &k);
+    bool ok = hostGrid->ijkFromCellIndex(gridLocalCellIdx, &i, &j, &k);
     if (!ok) return "";
 
-    return QString("[%1, %2, %3]").arg(i + 1).arg(j + 1).arg(k + 1);
+    return QString("Grid %1: [%2, %3, %4]").arg(QString::fromStdString(hostGrid->gridName())).arg(i + 1).arg(j + 1).arg(k + 1);
 }

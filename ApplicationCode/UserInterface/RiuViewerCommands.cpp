@@ -853,11 +853,8 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionSourceInfo* cr
         crossSectionSourceInfo->crossSection()->firstAncestorOrThisOfType(eclipseView);
 
         size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-
-        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
-
-        *cellIndex = cell.gridLocalCellIndex();
-        *gridIndex = cell.hostGrid()->gridIndex();
+        const RigGridBase* hostGrid = eclipseView->mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIndex, cellIndex);
+        *gridIndex = hostGrid->gridIndex();
     }
     else if (geomCase)
     {

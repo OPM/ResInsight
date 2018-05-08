@@ -50,6 +50,33 @@ RigMainGrid::~RigMainGrid(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx)
+{
+    CVF_ASSERT(globalCellIdx < m_cells.size());
+    RigCell& cell = m_cells[globalCellIdx];
+    RigGridBase* hostGrid = cell.hostGrid();
+    CVF_ASSERT(hostGrid);
+    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    return hostGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx) const
+{
+    CVF_ASSERT(globalCellIdx < m_cells.size());
+    const RigCell& cell = m_cells[globalCellIdx];
+    const RigGridBase* hostGrid = cell.hostGrid();
+    CVF_ASSERT(hostGrid);
+    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    return hostGrid;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const
 {
      return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
@@ -313,8 +340,10 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
                 // Find neighbor cell
                 if (firstNO_FAULTFaceForCell) // To avoid doing this for every face, and only when detecting a NO_FAULT
                 {
-                    hostGrid = m_cells[gcIdx].hostGrid();
-                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
+                    size_t gridLocalCellIndex;
+                    hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx(gcIdx, &gridLocalCellIndex);
+
+                    hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i,&j, &k);
                     isCellActive = activeCellInfo->isActive(gcIdx);
 
                     firstNO_FAULTFaceForCell = false;

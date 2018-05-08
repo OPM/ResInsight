@@ -285,10 +285,8 @@ void RimFaultInViewCollection::syncronizeFaults()
             QString secondConnectionText;
             
             {
-                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c1GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+                size_t gridLocalCellIndex;
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c1GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -308,10 +306,8 @@ void RimFaultInViewCollection::syncronizeFaults()
             }
 
             {
-                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c2GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+                size_t gridLocalCellIndex;
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c2GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))

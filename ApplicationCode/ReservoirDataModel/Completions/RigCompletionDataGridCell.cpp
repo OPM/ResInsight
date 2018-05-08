@@ -33,12 +33,11 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
 {
     if (mainGrid)
     {
-        const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
-        RigGridBase*   grid = cell.hostGrid();
+        size_t gridLocalCellIndex;
+        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIndex, &gridLocalCellIndex);
+        
         if (grid)
         {
-            size_t gridLocalCellIndex = cell.gridLocalCellIndex();
-
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
