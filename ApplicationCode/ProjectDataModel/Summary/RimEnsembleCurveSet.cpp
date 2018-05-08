@@ -184,36 +184,10 @@ void RimEnsembleCurveSet::setColor(cvf::Color3f color)
 void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
 {
     m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
-
-    m_yValuesSummaryFilter->updateFromAddress(m_yValuesCurveVariable->address());
-
-    for (RimSummaryCurve* curve : m_curves)
-    {
-        curve->loadDataAndUpdate(false);
-
-        if (curve->qwtPlotCurve())
-        {
-            curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-
-        curve->updateQwtPlotAxis();
-    }
-
-    if (updateParentPlot)
-    {
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted(parentPlot);
-        if (parentPlot->qwtPlot())
-        {
-            parentPlot->updatePlotTitle();
-            parentPlot->qwtPlot()->updateLegend();
-            parentPlot->updateAxes();
-            parentPlot->updateZoomInQwt();
-        }
-    }
+    m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
 
     m_legendConfig->initForEnsembleCurveSet(this);
-    updateCurveColors();
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -809,8 +783,6 @@ void RimEnsembleCurveSet::updateAllCurves()
 
     deleteAllCurves();
 
-    plot->loadDataAndUpdate();
-
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
     if (group && plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
@@ -831,6 +803,7 @@ void RimEnsembleCurveSet::updateAllCurves()
                 curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
             }
         }
+        m_yValuesSummaryFilter->updateFromAddress(addr->address());
 
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType(plot);

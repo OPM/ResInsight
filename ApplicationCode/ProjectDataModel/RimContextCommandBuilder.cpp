@@ -423,6 +423,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
+            menuBuilder << "RicPasteEnsembleCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
@@ -469,6 +470,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEnsembleCurveSetCollection*>(uiItem))
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+            menuBuilder << "RicPasteEnsembleCurveSetFeature";
         }
         else if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))
         {
