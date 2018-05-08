@@ -123,7 +123,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones Subs Definition");
+    actionToSetup->setText("New Fishbones");
 }
 
 //--------------------------------------------------------------------------------------------------
