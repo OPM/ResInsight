@@ -68,7 +68,7 @@ RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilitie
 ///
 //--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
-    RimWellPath*                                 wellPath,
+    const RimWellPath*                                 wellPath,
     std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
 {
     auto item = m_mapFromWellToCompletionData.find(wellPath);
@@ -85,7 +85,7 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
             values.push_back(oneTimeStep);
         }
 
-        auto pair = std::pair<RimWellPath*, std::vector<CompletionDataFrame>>(wellPath, values);
+        auto pair = std::pair<const RimWellPath*, std::vector<CompletionDataFrame>>(wellPath, values);
 
         m_mapFromWellToCompletionData.insert(pair);
     }
@@ -95,7 +95,7 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
 ///
 //--------------------------------------------------------------------------------------------------
 const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(RimWellPath* wellPath, size_t timeStepIndex) const
+    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(const RimWellPath* wellPath, size_t timeStepIndex) const
 {
     static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> dummy;
 

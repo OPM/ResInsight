@@ -56,10 +56,10 @@ public:
     RigVirtualPerforationTransmissibilities();
     ~RigVirtualPerforationTransmissibilities();
 
-    void setCompletionDataForWellPath(RimWellPath* wellPath, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+    void setCompletionDataForWellPath(const RimWellPath* wellPath, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
 
     const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-        multipleCompletionsPerEclipseCell(RimWellPath* wellPath, size_t timeStepIndex) const;
+        multipleCompletionsPerEclipseCell(const RimWellPath* wellPath, size_t timeStepIndex) const;
 
     void setCompletionDataForSimWell(const RigSimWellData* simWellData, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
     
@@ -68,6 +68,6 @@ public:
 
     void computeMinMax(double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
 private:
-    std::map<RimWellPath*, std::vector<CompletionDataFrame>> m_mapFromWellToCompletionData;
+    std::map<const RimWellPath*, std::vector<CompletionDataFrame>> m_mapFromWellToCompletionData;
     std::map<const RigSimWellData*, std::vector<std::vector<RigCompletionData>>> m_mapFromSimWellToCompletionData;
 };
