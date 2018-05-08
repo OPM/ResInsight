@@ -44,7 +44,8 @@ public:
                                    const cvf::Vec3d& a, 
                                    const cvf::Vec3d& b, 
                                    cvf::Vec3d* intersection, 
-                                   double* normalizedDistFromA);
+                                   double* normalizedDistFromA,
+                                   double epsilon);
 
     static bool planeTriangleIntersection(const cvf::Plane& plane,
                                           const cvf::Vec3d& p1, 

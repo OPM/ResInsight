@@ -4,7 +4,7 @@
 #include "cvfPlane.h"
 #include <math.h>
 
-
+#include <algorithm>
 
 namespace caf {
 
@@ -31,10 +31,16 @@ HexGridIntersectionTools::ClipVx::ClipVx()
 /// \param normalizedDistFromA Returns the normalized (0..1) position from a to b of the intersection point. 
 ///                            Will return values along the infinite line defined by the a-b direcion, 
 ///                            and HUGE_VAL if plane and line are parallel. 
+/// \param epsilon      Tolerance margin for accepting the position being within (0..1)
 ///
 /// \return True if line segment intersects the plane
 //--------------------------------------------------------------------------------------------------
-bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf::Vec3d& b, cvf::Vec3d* intersection, double* normalizedDistFromA)
+bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane,
+                                                  const cvf::Vec3d& a,
+                                                  const cvf::Vec3d& b,
+                                                  cvf::Vec3d*       intersection,
+                                                  double*           normalizedDistFromA,
+                                                  double            epsilon)
 {
     // From Real-Time Collision Detection by Christer Eriscon, published by Morgen Kaufmann Publishers, (c) 2005 Elsevier Inc
 
@@ -53,7 +59,7 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
     (*intersection) = a + interpolationParameter * ab;
     (*normalizedDistFromA) = interpolationParameter;
 
-    return (interpolationParameter >= 0.0 && interpolationParameter <= 1.0);
+    return (interpolationParameter >= -epsilon && interpolationParameter <= 1.0 + epsilon);
 }
 
 
@@ -66,7 +72,8 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 
 // The permutations except for the trivial cases where all vertices are in front or behind plane:
 //
-// Single vertex on positive side of plane => isMostVxesOnPositiveSide = false                              
+//
+// 1. Single vertex on positive side of plane => isMostVxesOnPositiveSide = false                              
 //
 //  +\   /\3               /\3   /+          /\3        .
 //    \ /  \              /  \  /       +   /  \   +    .
@@ -75,7 +82,8 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 //  1/___\1___\2      1/____2/__\2      1/________\2    .
 //       +\                 /+
 //
-// Two vertices vertex on positive side of plane => isMostVxesOnPositiveSide = true
+//
+// 2. Two vertices vertex on positive side of plane => isMostVxesOnPositiveSide = true
 //
 //     \+  /\3               /\3  +/        /\3         .   
 //      \ /  \              /  \  /        /  \         .  
@@ -83,6 +91,20 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 //      / \    \          /     /\     + /      \ +     .
 //    1/___\1___\2      1/____2/__\2   1/________\2     .        
 //          \+               +/                       
+//
+// 3. The special cases of touching one vertex, either exactly or "close enough"
+//    in finite precision. These occur for both 2. and 3 and in any rotation.
+// 
+//    a) Should not be counted      b) May need a tolerance margin to intersect
+//       as intersecting:              both 1->3 and 2->3 as it is theoretically required to:
+//                                   3
+//        \        /\               /|\
+//         \      /  \             / | \
+//          \    /    \           /  |  \
+//           \  /      \         /   |   \
+//            \/________\       /____|____\
+//             \               1     |     2
+
 //--------------------------------------------------------------------------------------------------
 
 bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane,
@@ -92,10 +114,21 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
                                                          ClipVx* newVx1, ClipVx* newVx2,
                                                          bool * isMostVxesOnPositiveSide)
 {
-    int onPosSide[3];
-    onPosSide[0] = plane.distanceSquared(p1) >= 0;
-    onPosSide[1] = plane.distanceSquared(p2) >= 0;
-    onPosSide[2] = plane.distanceSquared(p3) >= 0;
+    const double epsilon = 1.0e-8;
+
+    double sqrSignedDistances[3];
+    sqrSignedDistances[0] = plane.distanceSquared(p1);
+    sqrSignedDistances[1] = plane.distanceSquared(p2);
+    sqrSignedDistances[2] = plane.distanceSquared(p3);
+
+    double maxSqrAbsDistance = std::max(std::abs(sqrSignedDistances[0]), 
+                                        std::max(std::abs(sqrSignedDistances[1]), 
+                                                 std::abs(sqrSignedDistances[2])));
+
+    int onPosSide[3];    
+    onPosSide[0] = sqrSignedDistances[0] >= 0;
+    onPosSide[1] = sqrSignedDistances[1] >= 0;
+    onPosSide[2] = sqrSignedDistances[2] >= 0;
 
     const int numPositiveVertices = onPosSide[0] + onPosSide[1] + onPosSide[2];
 
@@ -122,12 +155,24 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         if (onPosSide[0]) topVx = 1;
         if (onPosSide[1]) topVx = 2;
         if (onPosSide[2]) topVx = 3;
+
+        // Case 3a: Two negative distances and the last is within tolerance of zero.
+        if (sqrSignedDistances[topVx - 1] < epsilon * maxSqrAbsDistance)
+        {
+            return false;
+        }
     }
     else if (numPositiveVertices == 2)
     {
         if (!onPosSide[0]) topVx = 1;
         if (!onPosSide[1]) topVx = 2;
         if (!onPosSide[2]) topVx = 3;
+
+        // Case 3a: Two positive distances and the last is within tolerance of zero.
+        if (sqrSignedDistances[topVx - 1] > -epsilon * maxSqrAbsDistance)
+        {
+            return false;
+        }
     }
     else
     {
@@ -139,29 +184,28 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
 
     if (topVx == 1)
     {
-        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
         (*newVx1).clippedEdgeVx1Id = p1Id;
         (*newVx1).clippedEdgeVx2Id = p2Id;
-        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
         (*newVx2).clippedEdgeVx1Id = p1Id;
         (*newVx2).clippedEdgeVx2Id = p3Id;
-        CVF_TIGHT_ASSERT(ok1 && ok2);
     }
     else if (topVx == 2)
     {
-        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
         (*newVx1).clippedEdgeVx1Id = p2Id;
         (*newVx1).clippedEdgeVx2Id = p3Id;
-        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
         (*newVx2).clippedEdgeVx1Id = p2Id;
         (*newVx2).clippedEdgeVx2Id = p1Id;
     }
     else if (topVx == 3)
     {
-        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
         (*newVx1).clippedEdgeVx1Id = p3Id;
         (*newVx1).clippedEdgeVx2Id = p1Id;
-        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
         (*newVx2).clippedEdgeVx1Id = p3Id;
         (*newVx2).clippedEdgeVx2Id = p2Id;
     }
