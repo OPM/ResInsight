@@ -92,7 +92,7 @@ double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& p
     
     size_t closestIndex = findClosestIndex(position);
 
-    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    if (closestIndex != cvf::UNDEFINED_SIZE_T)
     {
         cvf::Vec3d p1 = m_wellPathPoints[closestIndex - 1];
         cvf::Vec3d p2 = m_wellPathPoints[closestIndex - 0];
