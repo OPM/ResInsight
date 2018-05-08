@@ -31,6 +31,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -74,7 +75,7 @@ void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
     validateEnsembleCases(cases);
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName);
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if (mainPlotWindow && !cases.empty())
@@ -162,13 +163,15 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
 QString RicImportEnsembleFeature::askForEnsembleName()
 {
     RimProject* project = RiaApplication::instance()->project();
-    int groupCount = (int)project->summaryGroups().size() + 1;
+    std::vector<RimSummaryCaseCollection*> groups = project->summaryGroups();
+    int ensembleCount = std::count_if(groups.begin(), groups.end(), [](RimSummaryCaseCollection* group) { return group->isEnsemble(); });
+    ensembleCount += 1;
 
     QInputDialog dialog;
     dialog.setInputMode(QInputDialog::TextInput);
     dialog.setWindowTitle("Ensemble Name");
     dialog.setLabelText("Ensemble Name");
-    dialog.setTextValue(QString("Ensemble %1").arg(groupCount));
+    dialog.setTextValue(QString("Ensemble %1").arg(ensembleCount));
     dialog.resize(300, 50);
     dialog.exec();
     return dialog.result() == QDialog::Accepted ? dialog.textValue() : QString("");

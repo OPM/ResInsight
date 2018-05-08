@@ -392,6 +392,7 @@ void RiuMainWindow::createMenus()
     QMenu* importSummaryMenu = importMenu->addMenu(QIcon(":/SummaryCase48x48.png"), "Summary Cases");
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCasesFeature"));
+    importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportSummaryGroupFeature"));
     importSummaryMenu->addAction(cmdFeatureMgr->action("RicImportEnsembleFeature"));
 
     importMenu->addSeparator();

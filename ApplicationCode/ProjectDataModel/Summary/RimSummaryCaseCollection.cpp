@@ -41,6 +41,9 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
     m_nameAndItemCount.uiCapability()->setUiReadOnly(true);
     m_nameAndItemCount.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
+    m_isEnsemble.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +98,23 @@ QString RimSummaryCaseCollection::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCaseCollection::isEnsemble() const
+{
+    return m_isEnsemble();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
+{
+    m_isEnsemble = isEnsemble;
+    updateIcon();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
@@ -130,4 +150,32 @@ QString RimSummaryCaseCollection::nameAndItemCount() const
     }
 
     return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::updateIcon()
+{
+    if (m_isEnsemble) setUiIcon(QIcon(":/SummaryEnsemble16x16.png"));
+    else              setUiIcon(QIcon(":/SummaryGroup16x16.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::initAfterRead()
+{
+    updateIcon();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_isEnsemble)
+    {
+        updateIcon();
+    }
 }

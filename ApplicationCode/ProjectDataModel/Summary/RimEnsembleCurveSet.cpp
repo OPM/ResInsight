@@ -84,7 +84,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_showCurves.uiCapability()->setUiHidden(true);
 
     // Y Values
-    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryGroup, "SummaryGroup", "Group", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryGroup, "SummaryGroup", "Ensemble", "", "", "");
     m_yValuesSummaryGroup.uiCapability()->setUiTreeChildrenHidden(true);
     m_yValuesSummaryGroup.uiCapability()->setAutoAddingOptionFromValue(false);
 
@@ -539,7 +539,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
 
         for (RimSummaryCaseCollection* group : groups)
         {
-            options.push_back(caf::PdmOptionItemInfo(group->name(), group));
+            if(group->isEnsemble()) options.push_back(caf::PdmOptionItemInfo(group->name(), group));
         }
 
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));

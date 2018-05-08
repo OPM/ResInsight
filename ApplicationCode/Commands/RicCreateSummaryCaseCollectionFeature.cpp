@@ -36,14 +36,14 @@ CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCase
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName)
+void RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble)
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
     if (!cases.empty())
     {
         cases[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
 
-        summaryCaseMainCollection->addCaseCollection(cases, groupName);
+        summaryCaseMainCollection->addCaseCollection(cases, groupName, isEnsemble);
         summaryCaseMainCollection->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
@@ -92,5 +92,5 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 void RicCreateSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Group Summary Cases");
-    actionToSetup->setIcon(QIcon(":/SummaryEnsemble16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryGroup16x16.png"));
 }

@@ -40,14 +40,21 @@ public:
     std::vector<RimSummaryCase*>    allSummaryCases();
     void                            setName(const QString& name);
     QString                         name() const;
+    bool                            isEnsemble() const;
+    void                            setAsEnsemble(bool isEnsemble);
 
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
     void                            updateReferringCurveSets() const;
     QString                         nameAndItemCount() const;
+    void                            updateIcon();
+
+    virtual void                    initAfterRead() override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmField<QString>                   m_name;
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
+    caf::PdmField<bool>                      m_isEnsemble; 
 };
