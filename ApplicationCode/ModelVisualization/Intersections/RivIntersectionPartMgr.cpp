@@ -75,6 +75,7 @@
 #include <functional>
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RimFaultInView.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -602,10 +603,11 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
 
     RimEclipseView* eclipseView = nullptr;
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
+    RimFaultInViewCollection* faultInViewColl = eclipseView->faultCollection();
 
-    if (!(eclipseView && eclipseView->faultCollection()->showFaultLabel())) return;
+    if (!(eclipseView && faultInViewColl->showFaultLabel())) return;
     
-    cvf::Color3f defWellLabelColor = eclipseView->faultCollection()->faultLabelColor();
+    cvf::Color3f defWellLabelColor = faultInViewColl->faultLabelColor();
     cvf::Font* font = RiaApplication::instance()->customFont();
 
     std::vector<cvf::Vec3f> lineVertices;
@@ -622,9 +624,14 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
 
     cvf::BoundingBox bb = m_crossSectionFaces->boundingBox();
     double labelZOffset = bb.extent().z() / 10;
-    
+    int visibleFaultNameCount = 0;
+
     for (const auto& labelAndAnchorPair : labelAndAnchors)
     {
+        RimFaultInView* fault = faultInViewColl->findFaultByName(labelAndAnchorPair.first);
+
+        if (!(fault && fault->showFault())) continue;
+        
         cvf::String cvfString = cvfqt::Utils::toString(labelAndAnchorPair.first);
         cvf::Vec3f textCoord(labelAndAnchorPair.second);
 
@@ -633,7 +640,10 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
 
         lineVertices.push_back(cvf::Vec3f(labelAndAnchorPair.second));
         lineVertices.push_back(textCoord);
+        visibleFaultNameCount++;
     }
+
+    if (visibleFaultNameCount == 0) return;
 
     // Labels part
     {

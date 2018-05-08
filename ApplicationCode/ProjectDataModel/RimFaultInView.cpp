@@ -22,6 +22,7 @@
 #include "RigFault.h"
 
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFaultInView, "Fault");
 
@@ -75,6 +76,7 @@ void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         if (reservoirView) 
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
+            reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 }
