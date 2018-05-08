@@ -686,7 +686,7 @@ QString RimRegularLegendConfig::categoryNameFromCategoryValue(double categoryRes
 //--------------------------------------------------------------------------------------------------
 double RimRegularLegendConfig::categoryValueFromCategoryName(const QString& categoryName) const
 {
-    for (int i = 0; i < m_categoryNames.size(); i++)
+    for (int i = 0; i < (int)m_categoryNames.size(); i++)
     {
         if (cvfqt::Utils::toQString(m_categoryNames[i]).compare(categoryName, Qt::CaseInsensitive) == 0)
         {
