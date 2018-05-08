@@ -57,8 +57,48 @@
 #include "RimRegularLegendConfig.h"
 #include "cafTitledOverlayFrame.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryCase.h"
 
 #include <float.h>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class EnsembleCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+{
+public:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QString curveInfoText(QwtPlotCurve* curve) override
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        RimSummaryCurve* sumCurve = nullptr;
+
+        // Lookup RimSummaryCurve from QwtPlotCurve
+        for (auto const plot : project->mainPlotCollection->summaryPlotCollection()->summaryPlots())
+        {
+            RimSummaryPlot* sumPlot = plot->qwtPlot()->ownerPlotDefinition();
+            for (auto const curveSet : sumPlot->ensembleCurveSets()->curveSets())
+            {
+                for (auto const currSumCurve : curveSet->curves())
+                {
+                    if (currSumCurve->qwtPlotCurve() == curve)
+                    {
+                        sumCurve = currSumCurve;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
+    }
+};
+static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -376,7 +416,7 @@ void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
     plot->canvas()->installEventFilter(plot);
     plot->plotLayout()->setAlignCanvasToScales(true);
 
-    new RiuQwtCurvePointTracker(plot, true);
+    new RiuQwtCurvePointTracker(plot, true, &ensembleCurveInfoTextProvider);
 }
 
 //--------------------------------------------------------------------------------------------------

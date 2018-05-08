@@ -32,8 +32,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuQwtCurvePointTracker::RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal)
-    : QwtPlotPicker(plot->canvas()), m_plot(plot), m_isMainAxisHorizontal(isMainAxisHorizontal)
+RiuQwtCurvePointTracker::RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal, IPlotCurveInfoTextProvider* curveInfoTextProvider)
+    : QwtPlotPicker(plot->canvas()), m_plot(plot), m_isMainAxisHorizontal(isMainAxisHorizontal), m_curveInfoTextProvider(curveInfoTextProvider)
 {
     this->setTrackerMode(QwtPicker::AlwaysOn);
     m_plotMarker = new QwtPlotMarker;
@@ -91,12 +91,15 @@ QwtText RiuQwtCurvePointTracker::trackerText(const QPoint& pos) const
         QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
         QwtPlot::Axis relatedXAxis = QwtPlot::xBottom;
 
+        QString curveInfoText;
         QString mainAxisValueString;
         QString valueAxisValueString;
-        QPointF closestPoint = closestCurvePoint(pos, &valueAxisValueString, &mainAxisValueString, &relatedXAxis, &relatedYAxis);
+        QPointF closestPoint = closestCurvePoint(pos, &curveInfoText, &valueAxisValueString, &mainAxisValueString, &relatedXAxis, &relatedYAxis);
         if ( !closestPoint.isNull() )
         {
-            QString str = valueAxisValueString;
+            QString str = !curveInfoText.isEmpty() ?
+                QString("%1: %2").arg(curveInfoText).arg(valueAxisValueString) :
+                valueAxisValueString;
 
             if ( !mainAxisValueString.isEmpty() )
             {
@@ -115,7 +118,12 @@ QwtText RiuQwtCurvePointTracker::trackerText(const QPoint& pos) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QPointF RiuQwtCurvePointTracker::closestCurvePoint(const QPoint& cursorPosition, QString* valueAxisValueString, QString* mainAxisValueString, QwtPlot::Axis* relatedXAxis, QwtPlot::Axis* relatedYAxis) const
+QPointF RiuQwtCurvePointTracker::closestCurvePoint(const QPoint& cursorPosition,
+                                                   QString* curveInfoText,
+                                                   QString* valueAxisValueString,
+                                                   QString* mainAxisValueString,
+                                                   QwtPlot::Axis* relatedXAxis,
+                                                   QwtPlot::Axis* relatedYAxis) const
 {
     QPointF samplePoint;
 
@@ -159,6 +167,11 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint(const QPoint& cursorPosition,
             mainAxisSampleVal = samplePoint.x();
         else
             mainAxisSampleVal = samplePoint.y();
+
+        if (curveInfoText && closestCurve && m_curveInfoTextProvider)
+        {
+            *curveInfoText = m_curveInfoTextProvider->curveInfoText(closestCurve);
+        }
 
         if ( dateScaleDraw )
         {
