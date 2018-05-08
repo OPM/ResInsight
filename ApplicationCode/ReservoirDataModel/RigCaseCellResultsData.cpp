@@ -2254,12 +2254,7 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
 
     if (!eclipseCase) return;
 
-    RimProject* project;
-    eclipseCase->firstAncestorOrThisOfTypeAsserted(project);
-
-    QDateTime timeStepDate = this->timeStepDates()[timeStep];
-
-    RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(project, eclipseCase, completionTypeResult, timeStepDate);
+    RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(eclipseCase, completionTypeResult, timeStep);
 }
 
 

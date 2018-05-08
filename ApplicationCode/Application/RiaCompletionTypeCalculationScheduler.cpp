@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RigEclipseCaseData.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -51,12 +53,10 @@ RiaCompletionTypeCalculationScheduler* RiaCompletionTypeCalculationScheduler::in
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
-    for (RimEclipseCase* eclipseCase : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-    {
-        m_eclipseCasesToRecalculate.push_back(eclipseCase);
-    }
+    std::vector<RimEclipseCase*> eclipseCases =
+        RiaApplication::instance()->project()->activeOilField()->analysisModels->cases().childObjects();
 
-    startTimer();
+    scheduleRecalculateCompletionTypeAndRedrawEclipseCases(eclipseCases);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,29 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
 {
-    m_eclipseCasesToRecalculate.push_back(eclipseCase);
+    std::vector<RimEclipseCase*> eclipseCases;
+    eclipseCases.push_back(eclipseCase);
+
+    scheduleRecalculateCompletionTypeAndRedrawEclipseCases(eclipseCases);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawEclipseCases(
+    const std::vector<RimEclipseCase*>& eclipseCases)
+{
+    for (RimEclipseCase* eclipseCase : eclipseCases)
+    {
+        CVF_ASSERT(eclipseCase);
+
+        if (eclipseCase->eclipseCaseData())
+        {
+            eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities(nullptr);
+        }
+
+        m_eclipseCasesToRecalculate.push_back(eclipseCase);
+    }
 
     startTimer();
 }
@@ -111,7 +133,7 @@ RiaCompletionTypeCalculationScheduler::~RiaCompletionTypeCalculationScheduler()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::startTimer()
 {

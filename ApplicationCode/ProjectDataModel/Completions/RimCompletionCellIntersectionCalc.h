@@ -43,6 +43,10 @@ public:
                                               std::vector<double>&  completionTypeCellResult,
                                               const QDateTime&      fromDate);
 
+    static void calculateCompletionTypeResult(RimEclipseCase* eclipseCase,
+                                              std::vector<double>&  completionTypeCellResult,
+                                              size_t                timeStep);
+
 private:
     static void calculateWellPathIntersections(const RimWellPath*        wellPath,
                                                const RigEclipseCaseData* eclipseCaseData,

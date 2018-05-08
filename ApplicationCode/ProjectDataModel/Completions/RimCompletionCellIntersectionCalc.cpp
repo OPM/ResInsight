@@ -21,11 +21,13 @@
 #include "RiaDefines.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigCompletionData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
@@ -49,6 +51,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
+#include "RiaApplication.h"
 #include <QDateTime>
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +78,93 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(const RimP
     }
 
     // NOTE : Never compute completion type result for simulation well fractures, as these are defined per view
+}
+
+std::vector<RiaDefines::CompletionType> fromCompletionData(const std::vector<RigCompletionData>& data)
+{
+    std::vector<RiaDefines::CompletionType> appCompletionTypes;
+
+    for (const auto& d : data)
+    {
+        switch (d.completionType())
+        {
+            case RigCompletionData::FRACTURE:
+                appCompletionTypes.push_back(RiaDefines::FRACTURE);
+                break;
+            case RigCompletionData::PERFORATION:
+                appCompletionTypes.push_back(RiaDefines::PERFORATION_INTERVAL);
+                break;
+            case RigCompletionData::FISHBONES:
+                appCompletionTypes.push_back(RiaDefines::FISHBONES);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return appCompletionTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipseCase*      eclipseCase,
+                                                                      std::vector<double>& completionTypeCellResult,
+                                                                      size_t               timeStep)
+{
+    CVF_ASSERT(eclipseCase && eclipseCase->eclipseCaseData());
+
+    RimProject* project = nullptr;
+    eclipseCase->firstAncestorOrThisOfTypeAsserted(project);
+
+    if (project->activeOilField()->wellPathCollection->isActive)
+    {
+        const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+        for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
+        {
+            if (wellPath->showWellPath() && wellPath->wellPathGeometry())
+            {
+                auto intersectedCells = RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
+                    eclipseCaseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+
+                for (auto& intersection : intersectedCells)
+                {
+                    completionTypeCellResult[intersection] = RiaDefines::WELL_PATH;
+                }
+
+                auto conn = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+                if (conn)
+                {
+                    for (const auto& connForWell : conn->multipleCompletionsPerEclipseCell(wellPath, timeStep))
+                    {
+                        RiaDefines::CompletionType appCompletionType = RiaDefines::WELL_PATH;
+
+                        auto appCompletionTypes = fromCompletionData(connForWell.second);
+
+                        if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FISHBONES) !=
+                            appCompletionTypes.end())
+                        {
+                            appCompletionType = RiaDefines::FISHBONES;
+                        }
+                        else if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FRACTURE) !=
+                                 appCompletionTypes.end())
+                        {
+                            appCompletionType = RiaDefines::FRACTURE;
+                        }
+                        else if (std::find(appCompletionTypes.begin(),
+                                           appCompletionTypes.end(),
+                                           RiaDefines::PERFORATION_INTERVAL) != appCompletionTypes.end())
+                        {
+                            appCompletionType = RiaDefines::PERFORATION_INTERVAL;
+                        }
+
+                        completionTypeCellResult[connForWell.first.globalCellIndex()] = appCompletionType;
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,9 +265,9 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid*   mainGrid,
-                                                                       const RimWellPathFracture*   fracture,
-                                                                       std::vector<double>& values)
+void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const RigMainGrid*         mainGrid,
+                                                                       const RimWellPathFracture* fracture,
+                                                                       std::vector<double>&       values)
 {
     if (!fracture->fractureTemplate()) return;
     if (!fracture->fractureTemplate()->fractureGrid()) return;

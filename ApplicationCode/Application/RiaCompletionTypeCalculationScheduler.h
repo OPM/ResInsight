@@ -45,6 +45,8 @@ private:
     RiaCompletionTypeCalculationScheduler(const RiaCompletionTypeCalculationScheduler& o) = delete;
     void operator=(const RiaCompletionTypeCalculationScheduler& o) = delete;
 
+    void scheduleRecalculateCompletionTypeAndRedrawEclipseCases(const std::vector<RimEclipseCase*>& eclipseCases);
+
     void startTimer();
 
 private:
