@@ -80,7 +80,23 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (!trans) return;
 
-    auto conn = trans->multipleCompletionsPerEclipseCell(m_rimWellPath, frameIndex);
+    auto completionsForWellPath = trans->multipleCompletionsPerEclipseCell(m_rimWellPath, frameIndex);
+
+    // Remove connection factors for parent grid, they are not supposed to be visualized, but are relevant for export
+    for (auto it = completionsForWellPath.begin(); it != completionsForWellPath.end();)
+    {
+        size_t gridIndex = it->first.globalCellIndex();
+
+        const RigCell& rigCell = mainGrid->cell(gridIndex);
+        if (rigCell.subGrid())
+        {
+            it = completionsForWellPath.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 
     std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections;
     {
@@ -92,11 +108,11 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     }
 
     std::vector<CompletionVizData> completionVizDataItems;
-    for (const auto& cell : conn)
+    for (const auto& completionsForCell : completionsForWellPath)
     {
         if (!m_virtualPerforationResult->showConnectionFactorsOnClosedConnections())
         {
-            for (const auto& completion : cell.second)
+            for (const auto& completion : completionsForCell.second)
             {
                 if (completion.connectionState() == SHUT)
                 {
@@ -105,7 +121,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             }
         }
 
-        size_t gridIndex = cell.first.globalCellIndex();
+        size_t gridIndex = completionsForCell.first.globalCellIndex();
 
         const RigCell& rigCell = mainGrid->cell(gridIndex);
 
@@ -118,7 +134,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         {
             const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
 
-            if (intersectionInfo.globCellIndex == cell.first.globalCellIndex())
+            if (intersectionInfo.globCellIndex == completionsForCell.first.globalCellIndex())
             {
                 double startMD = intersectionInfo.startMD;
                 double endMD   = intersectionInfo.endMD;
@@ -141,14 +157,14 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
         cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
 
-        for (size_t i = 0; i < cell.second.size(); i++)
+        for (size_t i = 0; i < completionsForCell.second.size(); i++)
         {
-            const RigCompletionData& completionData = cell.second[i];
+            const RigCompletionData& completionData = completionsForCell.second[i];
 
             double transmissibility = completionData.transmissibility();
 
             completionVizDataItems.push_back(
-                CompletionVizData(displayCoord, direction, transmissibility, cell.first.globalCellIndex()));
+                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first.globalCellIndex()));
         }
     }
 
