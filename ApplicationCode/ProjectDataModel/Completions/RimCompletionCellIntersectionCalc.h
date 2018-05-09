@@ -18,18 +18,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
-class RigMainGrid;
 class RimEclipseCase;
-class RimFishbonesMultipleSubs;
-class RimWellPathFracture;
-class RimPerforationInterval;
-class RimProject;
-class RimWellPath;
-class RigEclipseCaseData;
-
-class QDateTime;
 
 //==================================================================================================
 ///
@@ -38,31 +30,7 @@ class QDateTime;
 class RimCompletionCellIntersectionCalc
 {
 public:
-    static void calculateCompletionTypeResult(const RimProject*     project,
-                                              const RimEclipseCase* eclipseCase,
-                                              std::vector<double>&  completionTypeCellResult,
-                                              const QDateTime&      fromDate);
-
-    static void calculateCompletionTypeResult(RimEclipseCase* eclipseCase,
-                                              std::vector<double>&  completionTypeCellResult,
-                                              size_t                timeStep);
-
-private:
-    static void calculateWellPathIntersections(const RimWellPath*        wellPath,
-                                               const RigEclipseCaseData* eclipseCaseData,
-                                               std::vector<double>&      values,
-                                               const QDateTime&          fromDate);
-
-    static void calculateFishbonesIntersections(const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                const RigEclipseCaseData*       eclipseCaseData,
-                                                std::vector<double>&            values);
-
-    static void calculatePerforationIntersections(const RimWellPath*            wellPath,
-                                                  const RimPerforationInterval* perforationInterval,
-                                                  const RigEclipseCaseData*     eclipseCaseData,
-                                                  std::vector<double>&          values);
-
-    static void calculateFractureIntersections(const RigMainGrid*   mainGrid, 
-                                               const RimWellPathFracture*   fracture, 
-                                               std::vector<double>& values);
+    static void calculateCompletionTypeResult(RimEclipseCase*      eclipseCase,
+                                              std::vector<double>& completionTypeCellResult,
+                                              size_t               timeStep);
 };
