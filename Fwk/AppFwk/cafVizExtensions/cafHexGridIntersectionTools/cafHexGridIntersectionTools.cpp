@@ -114,7 +114,7 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
                                                          ClipVx* newVx1, ClipVx* newVx2,
                                                          bool * isMostVxesOnPositiveSide)
 {
-    const double epsilon = 1.0e-8;
+    const double nonDimensionalTolerance = 1.0e-8;
 
     double sqrSignedDistances[3];
     sqrSignedDistances[0] = plane.distanceSquared(p1);
@@ -124,6 +124,8 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
     double maxSqrAbsDistance = std::max(std::abs(sqrSignedDistances[0]), 
                                         std::max(std::abs(sqrSignedDistances[1]), 
                                                  std::abs(sqrSignedDistances[2])));
+
+    const double sqrDistanceTolerance = nonDimensionalTolerance * maxSqrAbsDistance;
 
     int onPosSide[3];    
     onPosSide[0] = sqrSignedDistances[0] >= 0;
@@ -157,7 +159,7 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         if (onPosSide[2]) topVx = 3;
 
         // Case 3a: Two negative distances and the last is within tolerance of zero.
-        if (sqrSignedDistances[topVx - 1] < epsilon * maxSqrAbsDistance)
+        if (sqrSignedDistances[topVx - 1] < sqrDistanceTolerance)
         {
             return false;
         }
@@ -169,7 +171,7 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         if (!onPosSide[2]) topVx = 3;
 
         // Case 3a: Two positive distances and the last is within tolerance of zero.
-        if (sqrSignedDistances[topVx - 1] > -epsilon * maxSqrAbsDistance)
+        if (sqrSignedDistances[topVx - 1] > -sqrDistanceTolerance)
         {
             return false;
         }
@@ -184,28 +186,28 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
 
     if (topVx == 1)
     {
-        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
+        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p1Id;
         (*newVx1).clippedEdgeVx2Id = p2Id;
-        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
+        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p1Id;
         (*newVx2).clippedEdgeVx2Id = p3Id;
     }
     else if (topVx == 2)
     {
-        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
+        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p2Id;
         (*newVx1).clippedEdgeVx2Id = p3Id;
-        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
+        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p2Id;
         (*newVx2).clippedEdgeVx2Id = p1Id;
     }
     else if (topVx == 3)
     {
-        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), epsilon);
+        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p3Id;
         (*newVx1).clippedEdgeVx2Id = p1Id;
-        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), epsilon);
+        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p3Id;
         (*newVx2).clippedEdgeVx2Id = p2Id;
     }
