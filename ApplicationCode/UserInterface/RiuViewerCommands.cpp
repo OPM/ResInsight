@@ -278,17 +278,17 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     QVariantList iSliceList;
                     iSliceList.push_back(0);
                     iSliceList.push_back(CVF_MAX(static_cast<int>(i + 1), 1));
-                    iSliceList.push_back(m_currentGridIdx);
+                    iSliceList.push_back(static_cast<int>(m_currentGridIdx));
 
                     QVariantList jSliceList;
                     jSliceList.push_back(1);
                     jSliceList.push_back(CVF_MAX(static_cast<int>(j + 1), 1));
-                    jSliceList.push_back(m_currentGridIdx);
+                    jSliceList.push_back(static_cast<int>(m_currentGridIdx));
 
                     QVariantList kSliceList;
                     kSliceList.push_back(2);
                     kSliceList.push_back(CVF_MAX(static_cast<int>(k + 1), 1));
-                    kSliceList.push_back(m_currentGridIdx);
+                    kSliceList.push_back(static_cast<int>(m_currentGridIdx));
 
                     menuBuilder.subMenuStart("Range Filter Slice", QIcon(":/CellFilter_Range.png"));
 
