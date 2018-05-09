@@ -87,14 +87,14 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipse
                     completionTypeCellResult[intersection] = RiaDefines::WELL_PATH;
                 }
 
-                auto conn = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
-                if (conn)
+                auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+                if (completions)
                 {
-                    for (const auto& connForWell : conn->multipleCompletionsPerEclipseCell(wellPath, timeStep))
+                    for (const auto& completionsForWell : completions->multipleCompletionsPerEclipseCell(wellPath, timeStep))
                     {
                         RiaDefines::CompletionType appCompletionType = RiaDefines::WELL_PATH;
 
-                        auto appCompletionTypes = fromCompletionData(connForWell.second);
+                        auto appCompletionTypes = fromCompletionData(completionsForWell.second);
 
                         if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FISHBONES) !=
                             appCompletionTypes.end())
@@ -113,7 +113,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipse
                             appCompletionType = RiaDefines::PERFORATION_INTERVAL;
                         }
 
-                        completionTypeCellResult[connForWell.first.globalCellIndex()] = appCompletionType;
+                        completionTypeCellResult[completionsForWell.first.globalCellIndex()] = appCompletionType;
                     }
                 }
             }

@@ -56,12 +56,12 @@ public:
     RigVirtualPerforationTransmissibilities();
     ~RigVirtualPerforationTransmissibilities();
 
-    void setCompletionDataForWellPath(const RimWellPath* wellPath, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+    void setCompletionDataForWellPath(const RimWellPath* wellPath, const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
 
     const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
         multipleCompletionsPerEclipseCell(const RimWellPath* wellPath, size_t timeStepIndex) const;
 
-    void setCompletionDataForSimWell(const RigSimWellData* simWellData, std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+    void setCompletionDataForSimWell(const RigSimWellData* simWellData, const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
     
     const std::vector<RigCompletionData>&
         completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const;

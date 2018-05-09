@@ -69,7 +69,7 @@ RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilitie
 //--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
     const RimWellPath*                                 wellPath,
-    std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
+    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
 {
     auto item = m_mapFromWellToCompletionData.find(wellPath);
 
@@ -95,7 +95,8 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
 ///
 //--------------------------------------------------------------------------------------------------
 const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(const RimWellPath* wellPath, size_t timeStepIndex) const
+    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(const RimWellPath* wellPath,
+                                                                               size_t             timeStepIndex) const
 {
     static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> dummy;
 
@@ -118,8 +119,8 @@ const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
 ///
 //--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::setCompletionDataForSimWell(
-    const RigSimWellData*                        simWellData,
-    std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
+    const RigSimWellData*                              simWellData,
+    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
 {
     m_mapFromSimWellToCompletionData[simWellData] = completionsPerTimeStep;
 }
