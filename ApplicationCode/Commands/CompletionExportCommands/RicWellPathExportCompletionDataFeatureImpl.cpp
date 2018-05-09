@@ -63,8 +63,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::vector<RimWellPath*>&         usedWellPaths,
-                                                                   const std::vector<RimSimWellInView*>&    usedSimWells,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::vector<RimWellPath*>&         wellPaths,
+                                                                   const std::vector<RimSimWellInView*>&    simWells,
                                                                    const RicExportCompletionDataSettingsUi& exportSettings)
 {
     if (exportSettings.caseToApply() == nullptr)
@@ -74,31 +74,19 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     }
 
    
+    std::vector<RimWellPath*> usedWellPaths;
+    for (RimWellPath* wellPath : wellPaths)
     {
-        bool unitSystemMismatch = false;
-        for (const RimWellPath* wellPath : usedWellPaths)
+        if (wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType())
         {
-            if (wellPath->unitSystem() != exportSettings.caseToApply->eclipseCaseData()->unitsType())
-            {
-                unitSystemMismatch = true;
-                break;
-            }
+            usedWellPaths.push_back(wellPath);                        
         }
-
-        for (const RimSimWellInView* simWell : usedSimWells)
+        else
         {
-            RimEclipseCase* eclipseCase;
-            simWell->firstAncestorOrThisOfType(eclipseCase);
-            if (exportSettings.caseToApply->eclipseCaseData()->unitsType() != eclipseCase->eclipseCaseData()->unitsType())
-            {
-                unitSystemMismatch = true;
-                break;
-            }
-        }
-        if (unitSystemMismatch)
-        {
-            RiaLogging::error("Well path unit systems must match unit system of chosen eclipse case.");
-            return;
+            int caseId = exportSettings.caseToApply->caseId();
+            QString format = QString("Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"");
+            QString errMsg = format.arg(wellPath->name()).arg(caseId);                    
+            RiaLogging::error(errMsg);
         }
     }
 
@@ -129,13 +117,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         }
     }
 
-    size_t maxProgress = usedWellPaths.size() * 3 + usedSimWells.size() +
+    size_t maxProgress = usedWellPaths.size() * 3 + simWells.size() +
                          (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
                               ? usedWellPaths.size()
                               : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
                                     ? usedWellPaths.size() * 3
                                     : 1) +
-                         usedSimWells.size();
+                         simWells.size();
 
     caf::ProgressInfo progress(maxProgress, "Export Completions");
 
@@ -211,7 +199,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         progress.incrementProgress();
     }
 
-    for (auto simWell : usedSimWells)
+    for (auto simWell : simWells)
     {
         std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCell;
 
@@ -299,7 +287,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ||
         exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
     {
-        for (auto simWell : usedSimWells)
+        for (auto simWell : simWells)
         {
             std::vector<RigCompletionData> wellCompletions;
             for (const auto& completion : completions)
