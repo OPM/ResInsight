@@ -63,8 +63,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::vector<RimWellPath*>&         wellPaths,
-                                                                   const std::vector<RimSimWellInView*>&    simWells,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::vector<RimWellPath*>&         usedWellPaths,
+                                                                   const std::vector<RimSimWellInView*>&    usedSimWells,
                                                                    const RicExportCompletionDataSettingsUi& exportSettings)
 {
     if (exportSettings.caseToApply() == nullptr)
@@ -73,15 +73,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         return;
     }
 
-    std::vector<RimWellPath*> usedWellPaths;
-    for (auto wellPath : wellPaths)
-    {
-        if (wellPath->showWellPath)
-        {
-            usedWellPaths.push_back(wellPath);
-        }
-    }
-
+   
     {
         bool unitSystemMismatch = false;
         for (const RimWellPath* wellPath : usedWellPaths)
@@ -93,7 +85,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             }
         }
 
-        for (const RimSimWellInView* simWell : simWells)
+        for (const RimSimWellInView* simWell : usedSimWells)
         {
             RimEclipseCase* eclipseCase;
             simWell->firstAncestorOrThisOfType(eclipseCase);
@@ -137,13 +129,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         }
     }
 
-    size_t maxProgress = usedWellPaths.size() * 3 + simWells.size() +
+    size_t maxProgress = usedWellPaths.size() * 3 + usedSimWells.size() +
                          (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
                               ? usedWellPaths.size()
                               : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
                                     ? usedWellPaths.size() * 3
                                     : 1) +
-                         simWells.size();
+                         usedSimWells.size();
 
     caf::ProgressInfo progress(maxProgress, "Export Completions");
 
@@ -219,7 +211,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         progress.incrementProgress();
     }
 
-    for (auto simWell : simWells)
+    for (auto simWell : usedSimWells)
     {
         std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCell;
 
@@ -307,7 +299,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ||
         exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
     {
-        for (auto simWell : simWells)
+        for (auto simWell : usedSimWells)
         {
             std::vector<RigCompletionData> wellCompletions;
             for (const auto& completion : completions)

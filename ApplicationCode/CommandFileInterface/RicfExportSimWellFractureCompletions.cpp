@@ -109,9 +109,13 @@ void RicfExportSimWellFractureCompletions::execute()
     {
         for (RimEclipseView* view : views)
         {
-            std::copy(view->wellCollection()->wells.begin(),
-                      view->wellCollection()->wells.end(),
-                      std::back_inserter(simWells));
+            for (auto simWell : view->wellCollection()->wells)
+            {
+                if (simWell->showWell())
+                {
+                    simWells.push_back(simWell);
+                }
+            }
         }
     }
     else

@@ -112,9 +112,13 @@ void RicfExportWellPathCompletions::execute()
     std::vector<RimWellPath*> wellPaths;
     if (m_wellPathNames().empty())
     {
-        std::copy(RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().begin(),
-                  RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().end(),
-                  std::back_inserter(wellPaths));
+        for (auto wellPath : RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths())
+        {
+            if (wellPath->showWellPath())
+            {
+                wellPaths.push_back(wellPath);
+            }
+        }
     }
     else
     {
