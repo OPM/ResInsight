@@ -1487,12 +1487,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
 
         compactionFrame.resize(nodeCount);
 
-        // Make sure the AABB-tree is created before using OpenMP
         {
+            // Make sure the AABB-tree is created before using OpenMP
             cvf::BoundingBox bb;
             std::vector<size_t> refElementCandidates;
 
             part->findIntersectingCells(bb, &refElementCandidates);
+
+            // Also make sure the struct grid is created, as this is required before using OpenMP
+            part->structGrid();
         }
 
 #pragma omp parallel for
