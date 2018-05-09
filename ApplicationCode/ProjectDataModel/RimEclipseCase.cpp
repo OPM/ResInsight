@@ -300,45 +300,6 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
-{
-    results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
-
-    for (Rim3dView* view : views())
-    {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
-        if (eclipseView)
-        {
-            eclipseView->calculateCompletionTypeAndRedrawIfRequired();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::deleteVirtualConnectionFactorDataAndRedrawRequiredViews()
-{
-    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
-
-    if (rigEclipseCase)
-    {
-        rigEclipseCase->setVirtualPerforationTransmissibilities(nullptr);
-    }
-
-    for (Rim3dView* view : views())
-    {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
-        if (eclipseView && eclipseView->isVirtualConnectionFactorGeometryVisible())
-        {
-            eclipseView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirtualPerforationTransmissibilities()
 {
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();

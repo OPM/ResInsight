@@ -1016,7 +1016,7 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclip
         views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
     }
 
-    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------

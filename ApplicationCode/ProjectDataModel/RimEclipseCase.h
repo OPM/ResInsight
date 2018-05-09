@@ -87,9 +87,6 @@ public:
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
-    void                                        recalculateCompletionTypeAndRedrawAllViews();
-    
-    void                                            deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
     const RigVirtualPerforationTransmissibilities*  computeAndGetVirtualPerforationTransmissibilities();
 
     virtual QString                             locationOnDisc() const      { return QString(); }

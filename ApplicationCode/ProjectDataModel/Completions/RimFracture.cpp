@@ -19,6 +19,7 @@
 #include "RimFracture.h"
 
 #include "RiaApplication.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
@@ -226,7 +227,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &m_tilt ||
         changedField == &m_perforationLength)
     {
-        Rim3dView* rimView = nullptr;
+        RimEclipseView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
@@ -234,8 +235,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             rimView->firstAncestorOrThisOfType(eclipseCase);
             if (eclipseCase)
             {
-                eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
-                eclipseCase->deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
+                RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
             }
         }
         else

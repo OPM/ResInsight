@@ -21,10 +21,11 @@
 #include "RiaApplication.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigCaseCellResultsData.h"
 
-#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
@@ -56,24 +57,24 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
     std::vector<RimEclipseCase*> eclipseCases =
         RiaApplication::instance()->project()->activeOilField()->analysisModels->cases().childObjects();
 
-    scheduleRecalculateCompletionTypeAndRedrawEclipseCases(eclipseCases);
+    scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCases);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
+void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(RimEclipseCase* eclipseCase)
 {
     std::vector<RimEclipseCase*> eclipseCases;
     eclipseCases.push_back(eclipseCase);
 
-    scheduleRecalculateCompletionTypeAndRedrawEclipseCases(eclipseCases);
+    scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCases);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawEclipseCases(
+void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(
     const std::vector<RimEclipseCase*>& eclipseCases)
 {
     for (RimEclipseCase* eclipseCase : eclipseCases)
@@ -82,6 +83,9 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 
         if (eclipseCase->eclipseCaseData())
         {
+            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+
+            // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
             eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities(nullptr);
         }
 
@@ -103,8 +107,14 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 
     for (RimEclipseCase* eclipseCase : uniqueCases)
     {
-        eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
-        eclipseCase->deleteVirtualConnectionFactorDataAndRedrawRequiredViews();
+        for (const auto& w : eclipseCase->views())
+        {
+            RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(w);
+            if (eclView)
+            {
+                eclView->calculateCompletionTypeAndRedrawIfRequired();
+            }
+        }
     }
 
     m_eclipseCasesToRecalculate.clear();

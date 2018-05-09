@@ -33,7 +33,7 @@ class RiaCompletionTypeCalculationScheduler : public QObject
 public:
     static RiaCompletionTypeCalculationScheduler* instance();
     void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
+    void                scheduleRecalculateCompletionTypeAndRedrawAllViews(RimEclipseCase* eclipseCase);
 
 private slots:
     void                slotRecalculateCompletionType();
@@ -45,7 +45,7 @@ private:
     RiaCompletionTypeCalculationScheduler(const RiaCompletionTypeCalculationScheduler& o) = delete;
     void operator=(const RiaCompletionTypeCalculationScheduler& o) = delete;
 
-    void scheduleRecalculateCompletionTypeAndRedrawEclipseCases(const std::vector<RimEclipseCase*>& eclipseCases);
+    void scheduleRecalculateCompletionTypeAndRedrawAllViews(const std::vector<RimEclipseCase*>& eclipseCases);
 
     void startTimer();
 
