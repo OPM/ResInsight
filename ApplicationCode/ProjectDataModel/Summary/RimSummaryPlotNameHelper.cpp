@@ -59,9 +59,9 @@ void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCa
 {
     m_summaryCases.clear();
 
-    for (auto c : summaryCases)
+    for (auto summaryCase : summaryCases)
     {
-        m_summaryCases.insert(c);
+        if (summaryCase) m_summaryCases.insert(summaryCase);
     }
 
     extractPlotTitleSubStrings();
@@ -74,9 +74,9 @@ void RimSummaryPlotNameHelper::appendEnsembleCases(const std::vector<RimSummaryC
 {
     m_ensembleCases.clear();
 
-    for (auto c : ensembleCases)
+    for (auto ensembleCase : ensembleCases)
     {
-        if(c) m_ensembleCases.insert(c);
+        if (ensembleCase) m_ensembleCases.insert(ensembleCase);
     }
 
     extractPlotTitleSubStrings();
@@ -212,17 +212,20 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
         m_titleRegion = std::to_string(*(regions.begin()));
     }
 
+    if (m_summaryCases.size() == 1 && m_ensembleCases.empty())
     {
-        if (m_summaryCases.size() == 1 && m_ensembleCases.empty())
-        {
-            auto summaryCase = *(m_summaryCases.begin());
+        auto summaryCase = *(m_summaryCases.begin());
 
+        if (summaryCase)
+        {
             m_titleCaseName = summaryCase->caseName();
         }
-        else if (m_ensembleCases.size() == 1 && m_summaryCases.empty())
+    }
+    else if (m_ensembleCases.size() == 1 && m_summaryCases.empty())
+    {
+        auto ensembleCase = *(m_ensembleCases.begin());
+        if (ensembleCase)
         {
-            auto ensembleCase = *(m_ensembleCases.begin());
-
             m_titleCaseName = ensembleCase->name();
         }
     }
