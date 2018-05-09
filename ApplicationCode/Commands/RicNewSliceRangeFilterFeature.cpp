@@ -63,11 +63,13 @@ void RicNewSliceRangeFilterFeature::onActionTriggered(bool isChecked)
         RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
 
         QVariantList list = userData.toList();
-        CAF_ASSERT(list.size() == 2);
+        CAF_ASSERT(list.size() == 3);
 
         int direction = list[0].toInt();
         int sliceStart = list[1].toInt();
+        int gridIndex = list[2].toInt();
 
+        filterExec->m_gridIndex = gridIndex;
         if (direction == 0)
         {
             filterExec->m_iSlice = true;

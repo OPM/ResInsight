@@ -57,7 +57,7 @@ void RicRangeFilterInsertExec::redo()
     RimCellRangeFilter* rangeFilter = createRangeFilter();
     if (rangeFilter)
     {
-        size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_cellRangeFilter);
+        size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_insertBeforeCellRangeFilter);
         CVF_ASSERT(index < m_cellRangeFilterCollection->rangeFilters.size());
 
         m_cellRangeFilterCollection->rangeFilters.insertAt(static_cast<int>(index), rangeFilter);
