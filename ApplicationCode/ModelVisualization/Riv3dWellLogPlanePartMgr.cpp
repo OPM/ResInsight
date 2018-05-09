@@ -114,7 +114,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
     if (curveDrawable.notNull() && curveDrawable->boundingBox().isValid())
     {
         caf::MeshEffectGenerator meshEffectGen(rim3dWellLogCurve->color());
-        meshEffectGen.setLineWidth(2.0f);
+        meshEffectGen.setLineWidth(3.0f);
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
 	    cvf::ref<cvf::Part> part = new cvf::Part;

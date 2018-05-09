@@ -202,12 +202,10 @@ caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Draw Plane Configuration");
+    caf::PdmUiGroup* settingsGroup = uiOrdering.addNewGroup("Draw Plane Appearance");
+    settingsGroup->add(&m_showGrid);
+    settingsGroup->add(&m_showBackground);
     settingsGroup->add(&m_planeWidthScaling);
-
-    caf::PdmUiGroup* appearanceSettingsGroup = uiOrdering.addNewGroup("Draw Plane Appearance");
-    appearanceSettingsGroup->add(&m_showGrid);
-    appearanceSettingsGroup->add(&m_showBackground);
 }
 
 //--------------------------------------------------------------------------------------------------

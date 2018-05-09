@@ -88,7 +88,7 @@ QString RimCurveNameConfig::name() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiGroup* RimCurveNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
     nameGroup->add(&m_isUsingAutoName);
     return nameGroup;
 }

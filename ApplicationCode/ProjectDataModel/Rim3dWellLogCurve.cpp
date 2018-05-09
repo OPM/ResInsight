@@ -204,7 +204,7 @@ void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Configuration");
+    caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Appearance");
     configurationGroup->add(&m_drawPlane);
 //  Disable filled draw style in the GUI because of triangle stitching issue #2860.
 //  configurationGroup->add(&m_drawStyle);
