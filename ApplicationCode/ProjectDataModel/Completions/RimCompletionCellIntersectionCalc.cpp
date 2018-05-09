@@ -96,15 +96,15 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipse
 
                         auto appCompletionTypes = fromCompletionData(completionsForWell.second);
 
-                        if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FISHBONES) !=
+                        if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FRACTURE) !=
                             appCompletionTypes.end())
                         {
-                            appCompletionType = RiaDefines::FISHBONES;
+                            appCompletionType = RiaDefines::FRACTURE;
                         }
-                        else if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FRACTURE) !=
+                        else if (std::find(appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FISHBONES) !=
                                  appCompletionTypes.end())
                         {
-                            appCompletionType = RiaDefines::FRACTURE;
+                            appCompletionType = RiaDefines::FISHBONES;
                         }
                         else if (std::find(appCompletionTypes.begin(),
                                            appCompletionTypes.end(),
