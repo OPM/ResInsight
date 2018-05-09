@@ -44,7 +44,8 @@ CAF_PDM_SOURCE_INIT(RicfExportSimWellFractureCompletions, "exportSimWellFracture
 //--------------------------------------------------------------------------------------------------
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    RICF_InitField(&m_caseId,          "case",                  -1,                                                     "Case ID",  "", "", "");
+    RICF_InitField(&m_caseId,          "caseId",                -1,                                                     "Case ID",  "", "", "");
+    RICF_InitField(&m_viewName,        "viewName",              QString(""),                                            "View Name", "", "", "");
     RICF_InitField(&m_timeStep,        "timeStep",              -1,                                                     "Time Step Index",  "", "", "");
     RICF_InitField(&m_simWellNames,    "simulationWellNames",   std::vector<QString>(),                                 "Simulation Well Names",  "", "", "");
     RICF_InitField(&m_fileSplit,       "fileSplit",             RicExportCompletionDataSettingsUi::ExportSplitType(),   "File Split",  "", "", "");
@@ -88,38 +89,46 @@ void RicfExportSimWellFractureCompletions::execute()
     }
     exportSettings->folder = exportFolder;
 
-    // FIXME : Select correct view?
-    RimEclipseView* view;
+    std::vector<RimEclipseView*> views;
     for (Rim3dView* v : exportSettings->caseToApply->views())
     {
-        view = dynamic_cast<RimEclipseView*>(v);
-        if (view) break;
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(v);
+        if (eclipseView && eclipseView->name() == m_viewName())
+        {
+            views.push_back(eclipseView);
+        }
     }
-    if (!view)
+    if (views.empty())
     {
-        RiaLogging::error(QString("exportSimWellCompletions: Could not find a view for case with ID %1").arg(m_caseId()));
+        RiaLogging::error(QString("exportSimWellCompletions: Could not find any views named \"%1\" in the case with ID %2").arg(m_viewName).arg(m_caseId()));
         return;
     }
 
     std::vector<RimSimWellInView*> simWells;
     if (m_simWellNames().empty())
     {
-        std::copy(view->wellCollection()->wells.begin(),
-                  view->wellCollection()->wells.end(),
-                  std::back_inserter(simWells));
+        for (RimEclipseView* view : views)
+        {
+            std::copy(view->wellCollection()->wells.begin(),
+                      view->wellCollection()->wells.end(),
+                      std::back_inserter(simWells));
+        }
     }
     else
     {
         for (const QString& wellPathName : m_simWellNames())
         {
-            RimSimWellInView* simWell = view->wellCollection()->findWell(wellPathName);
-            if (simWell)
+            for (RimEclipseView* view : views)
             {
-                simWells.push_back(simWell);
-            }
-            else
-            {
-                RiaLogging::warning(QString("exportSimWellCompletions: Could not find well with name %1 on case with ID %2").arg(wellPathName).arg(m_caseId()));
+                RimSimWellInView* simWell = view->wellCollection()->findWell(wellPathName);
+                if (simWell)
+                {
+                    simWells.push_back(simWell);
+                }
+                else
+                {
+                    RiaLogging::warning(QString("exportSimWellCompletions: Could not find well with name %1 in view \"%2\" on case with ID %2").arg(wellPathName).arg(m_viewName).arg(m_caseId()));
+                }
             }
         }
     }

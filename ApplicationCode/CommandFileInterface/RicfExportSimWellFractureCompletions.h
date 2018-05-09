@@ -41,8 +41,8 @@ public:
 
 private:
     caf::PdmField<int>                                                  m_caseId;
+    caf::PdmField<QString>                                              m_viewName;
     caf::PdmField<int>                                                  m_timeStep;
-    
     caf::PdmField< std::vector<QString> >                               m_simWellNames;
     
     caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
