@@ -82,7 +82,7 @@ public:
         for (auto const plot : project->mainPlotCollection->summaryPlotCollection()->summaryPlots())
         {
             RimSummaryPlot* sumPlot = plot->qwtPlot()->ownerPlotDefinition();
-            for (auto const curveSet : sumPlot->ensembleCurveSets()->curveSets())
+            for (auto const curveSet : sumPlot->ensembleCurveSetCollection()->curveSets())
             {
                 for (auto const currSumCurve : curveSet->curves())
                 {
@@ -219,9 +219,9 @@ void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
     int ypos = startMarginY;
     int maxColumnWidth = 0; 
 
-    if (!ownerPlotDefinition() || !ownerPlotDefinition()->ensembleCurveSets()) return;
+    if (!ownerPlotDefinition() || !ownerPlotDefinition()->ensembleCurveSetCollection()) return;
 
-    for (RimEnsembleCurveSet * curveSet : ownerPlotDefinition()->ensembleCurveSets()->curveSets())
+    for (RimEnsembleCurveSet * curveSet : ownerPlotDefinition()->ensembleCurveSetCollection()->curveSets())
     {
         auto pairIt = m_ensembleLegendWidgets.find(curveSet);
         if (pairIt !=  m_ensembleLegendWidgets.end())

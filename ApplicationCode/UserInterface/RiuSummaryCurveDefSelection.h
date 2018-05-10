@@ -33,10 +33,15 @@
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class SummaryIdentifierAndField;
+
+
+using SummarySource = caf::PdmObject;
+
 
 //==================================================================================================
 ///  
@@ -86,13 +91,13 @@ private:
                                                                                    std::set<RifEclipseSummaryAddress>& addressSet) const;
 
     void                                    resetAllFields();
-    bool                                    isObservedData(RimSummaryCase *sumCase) const;
+    bool                                    isObservedData(const RimSummaryCase *sumCase) const;
 
-    std::vector<RimSummaryCase*>            selectedSummaryCases() const;
+    std::vector<SummarySource*>             selectedSummarySources() const;
     static RimSummaryCase*                  calculatedSummaryCase();
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
+    caf::PdmPtrArrayField<SummarySource*>                                                               m_selectedSources;
 
     caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>>              m_selectedSummaryCategories;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;

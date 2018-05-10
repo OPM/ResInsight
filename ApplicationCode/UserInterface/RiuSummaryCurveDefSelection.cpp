@@ -39,6 +39,8 @@
 #include "RiuSummaryVectorDescriptionMap.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
+//#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
 #include <algorithm>
 
@@ -147,8 +149,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
     } },
 })
 {
-    CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
-    m_selectedCases.uiCapability()->setAutoAddingOptionFromValue(false);
+    CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SummaryCases", "Cases", "", "", "");
+    m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
 
 
     CAF_PDM_InitFieldNoDefault(&m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "");
@@ -217,9 +219,9 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
         itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     }
 
-    m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedCases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-    m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_selectedSummaryCategories.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedSummaryCategories.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -247,34 +249,55 @@ RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurveDefinitions() const
 {
-    std::vector<RiaSummaryCurveDefinition> caseAndAddressVector;
+    std::vector<RiaSummaryCurveDefinition> curveDefVector;
     
     {
         std::set<RiaSummaryCurveDefinition> caseAndAddressPairs;
 
         std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
-        for (RimSummaryCase* currCase : selectedSummaryCases())
+        for (SummarySource* currSource : selectedSummarySources())
         {
-            if (currCase && currCase->summaryReader())
-            {
-                RifSummaryReaderInterface* reader = currCase->summaryReader();
+            std::vector<RimSummaryCase*> sourceCases;
+            RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
 
-                const std::vector<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
-                for (const auto& readerAddress : readerAddresses)
+            // Build case list
+            if (ensemble)
+            {
+                auto sumCases = ensemble->allSummaryCases();
+                sourceCases.insert(sourceCases.end(), sumCases.begin(), sumCases.end());
+            }
+            else
+            {
+                RimSummaryCase* sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
+                if (sourceCase)
                 {
-                    if (selectedAddressesFromUi.count(readerAddress) > 0)
+                    sourceCases.push_back(sourceCase);
+                }
+            }
+
+            for (const auto& currCase : sourceCases)
+            {
+                if (currCase && currCase->summaryReader())
+                {
+                    RifSummaryReaderInterface* reader = currCase->summaryReader();
+
+                    const std::vector<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
+                    for (const auto& readerAddress : readerAddresses)
                     {
-                        caseAndAddressPairs.insert(RiaSummaryCurveDefinition(currCase, readerAddress));
+                        if (selectedAddressesFromUi.count(readerAddress) > 0)
+                        {
+                            caseAndAddressPairs.insert(RiaSummaryCurveDefinition(currCase, readerAddress, ensemble));
+                        }
                     }
                 }
             }
         }
 
-        std::copy(caseAndAddressPairs.begin(), caseAndAddressPairs.end(), std::back_inserter(caseAndAddressVector));
+        std::copy(caseAndAddressPairs.begin(), caseAndAddressPairs.end(), std::back_inserter(curveDefVector));
     }
 
-    return caseAndAddressVector;
+    return curveDefVector;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,15 +348,15 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 {
     resetAllFields();
 
-    for (const auto& caseAddressPair : curveDefinitions)
+    for (const auto& curveDef : curveDefinitions)
     {
-        RimSummaryCase* summaryCase = caseAddressPair.summaryCase();
+        RimSummaryCase* summaryCase = curveDef.summaryCase();
         if (!summaryCase) continue;
 
-        RifEclipseSummaryAddress summaryAddress = caseAddressPair.summaryAddress();
+        RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
         {
-            // If we have an invalid address, set the default adress to Field
+            // If we have an invalid address, set the default address to Field
             summaryAddress = RifEclipseSummaryAddress::fieldVarAddress(summaryAddress.quantityName());
         }
 
@@ -352,11 +375,13 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         }
 
         // Select case if not already selected
-        if (std::find(m_selectedCases.begin(), m_selectedCases.end(), summaryCase) == m_selectedCases.end())
+        if (std::find(m_selectedSources.begin(), m_selectedSources.end(),
+                      curveDef.isEnsembleCurve() ? (SummarySource*)curveDef.ensemble() : summaryCase) == m_selectedSources.end())
         {
             if (summaryCase != calculatedSummaryCase())
             {
-                m_selectedCases.push_back(summaryCase);
+
+                m_selectedSources.push_back(curveDef.isEnsembleCurve() ? (SummarySource*)curveDef.ensemble() : summaryCase);
             }
         }
 
@@ -421,7 +446,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_selectedCases)
+    if (fieldNeedingOptions == &m_selectedSources)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimSummaryCase*> topLevelCases;
@@ -439,9 +464,28 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                     options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
                 }
 
+                // Ensembles
+                bool ensembleHeaderCreated = false;
+                for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
+                {
+                    if (!sumCaseColl->isEnsemble()) continue;
+
+                    if (!ensembleHeaderCreated)
+                    {
+                        options.push_back(caf::PdmOptionItemInfo::createHeader("Ensembles", true));
+                        ensembleHeaderCreated = true;
+                    }
+
+                    auto optionItem = caf::PdmOptionItemInfo(sumCaseColl->name(), sumCaseColl);
+                    optionItem.setLevel(1);
+                    options.push_back(optionItem);
+                }
+
                 // Grouped cases
                 for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
                 {
+                    if (sumCaseColl->isEnsemble()) continue;
+
                     options.push_back(caf::PdmOptionItemInfo::createHeader(sumCaseColl->name(), true));
 
                     for (const auto& sumCase : sumCaseColl->allSummaryCases())
@@ -575,7 +619,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", RiuSummaryCurveDefinitionKeywords::sources());
-    sourcesGroup->add(&m_selectedCases);
+    sourcesGroup->add(&m_selectedSources);
 
     caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Summary Types", RiuSummaryCurveDefinitionKeywords::summaryTypes());
     itemTypesGroup->add(&m_selectedSummaryCategories);
@@ -729,9 +773,11 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> cases;
-    for (const auto& sumCase : m_selectedCases())
+    for (const auto& source : m_selectedSources())
     {
-        if(isObservedData(sumCase)) continue;
+        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
+
+        if(!sumCase || isObservedData(sumCase)) continue;
         cases.push_back(sumCase);
     }
     return findPossibleSummaryAddresses(cases, identifierAndField);
@@ -743,9 +789,11 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> obsData;
-    for (const auto& sumCase : m_selectedCases())
+    for (const auto& source : m_selectedSources())
     {
-        if (isObservedData(sumCase))
+        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
+
+        if (sumCase && isObservedData(sumCase))
         {
             obsData.push_back(sumCase);
         }
@@ -964,7 +1012,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::resetAllFields()
 {
-    m_selectedCases.clear();
+    m_selectedSources.clear();
     m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>();
 
     // clear all state in fields
@@ -980,27 +1028,30 @@ void RiuSummaryCurveDefSelection::resetAllFields()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuSummaryCurveDefSelection::isObservedData(RimSummaryCase *sumCase) const
+bool RiuSummaryCurveDefSelection::isObservedData(const RimSummaryCase *sumCase) const
 {
-    return dynamic_cast<RimObservedData*>(sumCase) != nullptr;
+    return dynamic_cast<const RimObservedData*>(sumCase) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RiuSummaryCurveDefSelection::selectedSummaryCases() const
+std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources() const
 {
-    std::vector<RimSummaryCase*> cases;
+    std::vector<SummarySource*> sources;
 
-    for (RimSummaryCase* currCase : m_selectedCases)
+    for (const auto& source : m_selectedSources)
     {
-        cases.push_back(currCase);
+        RimSummaryCase* c = dynamic_cast<RimSummaryCase*>(source.p());
+        RimSummaryCaseCollection* cc = dynamic_cast<RimSummaryCaseCollection*>(source.p());
+
+        sources.push_back(source);
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    cases.push_back(RiuSummaryCurveDefSelection::calculatedSummaryCase());
+    sources.push_back(RiuSummaryCurveDefSelection::calculatedSummaryCase());
 
-    return cases;
+    return sources;
 }
 
 //--------------------------------------------------------------------------------------------------

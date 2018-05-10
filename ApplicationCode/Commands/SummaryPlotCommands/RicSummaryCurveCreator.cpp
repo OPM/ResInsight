@@ -309,7 +309,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector = m_summaryCurveSelectionEditor->summaryAddressSelection()->selectedCurveDefinitions();
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions = std::set<RiaSummaryCurveDefinition>(allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end());
 
-    std::vector<RimSummaryCurve*> currentCurvesInPreviewPlot = m_previewPlot->summaryCurves();
+    std::vector<RimSummaryCurve*> currentCurvesInPreviewPlot = m_previewPlot->summaryAndEnsembleCurves();
     if (allCurveDefinitions.size() != currentCurvesInPreviewPlot.size())
     {
         std::set<RiaSummaryCurveDefinition> currentCurveDefs;
@@ -374,8 +374,33 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->setSummaryCaseY(currentCase);
         curve->setSummaryAddressY(curveDef.summaryAddress());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
-        m_previewPlot->addCurveNoUpdate(curve);
-        curveLookCalc.setupCurveLook(curve);
+
+        if (curveDef.isEnsembleCurve())
+        {
+            // Find curveSet
+            RimEnsembleCurveSet* curveSet = nullptr;
+            for (const auto& cs : m_previewPlot->ensembleCurveSetCollection()->curveSets())
+            {
+                if (cs->summaryCaseCollection() == curveDef.ensemble() && cs->summaryAddress() == curveDef.summaryAddress())
+                {
+                    curveSet = cs;
+                    break;
+                }
+            }
+            if (!curveSet)
+            {
+                curveSet = new RimEnsembleCurveSet();
+                curveSet->setSummaryCaseCollection(curveDef.ensemble());
+                curveSet->setSummaryAddress(curveDef.summaryAddress());
+                m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+            }
+            curveSet->addCurve(curve);
+        }
+        else
+        {
+            m_previewPlot->addCurveNoUpdate(curve);
+            curveLookCalc.setupCurveLook(curve);
+        }
     }
 
     m_previewPlot->loadDataAndUpdate();
@@ -489,24 +514,40 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     std::vector<RiaSummaryCurveDefinition> curveDefs;
 
     m_previewPlot->deleteAllSummaryCurves();
+    m_previewPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
+
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
-        bool isObservedDataCase = isObservedData(curve->summaryCaseY());
-
         curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
 
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot(curve, m_previewPlot.get(), true);
     }
 
+    RimEnsembleCurveSetCollection* previewCurveSetColl = m_previewPlot->ensembleCurveSetCollection();
+    for (const auto& curveSet : sourceSummaryPlot.ensembleCurveSetCollection()->curveSets())
+    {
+        RimEnsembleCurveSet* newCurveSet = curveSet->clone();
+        previewCurveSetColl->addCurveSet(newCurveSet);
+
+        RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
+        for (const auto& curve : curveSet->curves())
+        {
+            curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY(), ensemble));
+
+            // Copy curve object to the preview plot
+            copyEnsembleCurveAndAddToCurveSet(curve, newCurveSet, true);
+        }
+    }
+
     // Set visibility for imported curves which were not checked in source plot
     std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
-    for (const auto& curve : sourceSummaryPlot.summaryCurves())
+    for (const auto& curve : sourceSummaryPlot.summaryAndEnsembleCurves())
     {
         sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
     }
 
-    for (const auto& curve : m_previewPlot->summaryCurves())
+    for (const auto& curve : m_previewPlot->summaryAndEnsembleCurves())
     {
         auto curveDef = std::make_pair(curve->summaryCaseY(), curve->summaryAddressY());
         if (sourceCurveDefs.count(curveDef) == 0)
@@ -531,6 +572,7 @@ void RicSummaryCurveCreator::updateTargetPlot()
     if (m_targetPlot == nullptr)  m_targetPlot = new RimSummaryPlot();
 
     m_targetPlot->deleteAllSummaryCurves();
+    m_targetPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
 
     // Add edited curves to target plot
     for (const auto& editedCurve : m_previewPlot->summaryCurves())
@@ -542,22 +584,20 @@ void RicSummaryCurveCreator::updateTargetPlot()
         copyCurveAndAddToPlot(editedCurve, m_targetPlot);
     }
 
-    // DEBUG
-    //{
-    //    m_targetPlot->ensembleCurveSets()->deleteAllCurveSets();
+    for (const auto& editedCurveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets())
+    {
+        if (!editedCurveSet->isCurvesVisible())
+        {
+            continue;
+        }
 
-    //    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
-    //    m_targetPlot->ensembleCurveSets()->addCurveSet(curveSet);
-
-    //    for (const auto& editedCurve : m_previewPlot->summaryCurves())
-    //    {
-    //        if (!editedCurve->isCurveVisible())
-    //        {
-    //            continue;
-    //        }
-    //        copyEnsembleCurveAndAddToPlot(editedCurve, curveSet);
-    //    }
-    //}
+        RimEnsembleCurveSet* newCurveSet = editedCurveSet->clone();
+        m_targetPlot->ensembleCurveSetCollection()->addCurveSet(newCurveSet);
+        for (const auto& editedCurve : newCurveSet->curves())
+        {
+            copyEnsembleCurveAndAddToCurveSet(editedCurve, editedCurveSet);
+        }
+    }
 
     m_targetPlot->enableAutoPlotTitle(m_useAutoPlotTitleProxy());
 
@@ -580,9 +620,6 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
 
     plot->addCurveNoUpdate(curveCopy);
 
-    // Resolve references after object has been inserted into the project data model
-    curveCopy->resolveReferencesRecursively();
-
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCaseY(curve->summaryCaseY());
     curveCopy->initAfterReadRecursively();
@@ -592,7 +629,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::copyEnsembleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsembleCurveSet *curveSet, bool forceVisible)
+void RicSummaryCurveCreator::copyEnsembleCurveAndAddToCurveSet(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible)
 {
     RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(curveCopy);
@@ -603,9 +640,6 @@ void RicSummaryCurveCreator::copyEnsembleCurveAndAddToPlot(const RimSummaryCurve
     }
 
     curveSet->addCurve(curveCopy);
-
-    // Resolve references after object has been inserted into the project data model
-    curveCopy->resolveReferencesRecursively();
 
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCaseY(curve->summaryCaseY());
@@ -703,7 +737,7 @@ std::set<RiaSummaryCurveDefinition> RicSummaryCurveCreator::allPreviewCurveDefs(
 {
     std::set<RiaSummaryCurveDefinition> allCurveDefs;
 
-    for (const auto& curve : m_previewPlot->summaryCurves())
+    for (const auto& curve : m_previewPlot->summaryAndEnsembleCurves())
     {
         allCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
     }

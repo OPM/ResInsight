@@ -52,7 +52,7 @@ RimEnsembleCurveSet* RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollec
     RimEnsembleCurveSet* newCurveSet = dynamic_cast<RimEnsembleCurveSet*>(sourceCurveSet->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(newCurveSet);
 
-    if (!coll) coll = plot->ensembleCurveSets();
+    if (!coll) coll = plot->ensembleCurveSetCollection();
 
     coll->addCurveSet(newCurveSet);
 

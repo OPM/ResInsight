@@ -72,6 +72,7 @@ public:
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);
 
+    void                                    setSummaryAddress(RifEclipseSummaryAddress address);
     RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
     std::vector<RimSummaryCurve*>           visibleCurves() const;
@@ -89,6 +90,7 @@ public:
     EnsembleParameterType                   currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
+    RimEnsembleCurveSet*                    clone() const;
 
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;

@@ -87,7 +87,7 @@ private:
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
-    static void                             copyEnsembleCurveAndAddToPlot(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
+    static void                             copyEnsembleCurveAndAddToCurveSet(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
     void                                    setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases);
 
     void                                    resetAllFields();

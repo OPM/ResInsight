@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

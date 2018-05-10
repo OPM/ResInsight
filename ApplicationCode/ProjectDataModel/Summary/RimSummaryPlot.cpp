@@ -469,6 +469,23 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::summaryAndEnsembleCurves() const
+{
+    std::vector<RimSummaryCurve*> curves = summaryCurves();
+    
+    for (const auto& curveSet : ensembleCurveSetCollection()->curveSets())
+    {
+        for (const auto& curve : curveSet->curves())
+        {
+            curves.push_back(curve);
+        }
+    }
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::summaryCurves() const
 {
     return m_summaryCurveCollection->curves();
@@ -967,7 +984,32 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
     {
         if (m_summaryCurveCollection)
         {
-            m_summaryCurveCollection->deleteCurve(curve);
+            for (auto& c : m_summaryCurveCollection->curves())
+            {
+                if (c == curve)
+                {
+                    m_summaryCurveCollection->deleteCurve(curve);
+                    return;
+                }
+            }
+        }
+        if (m_ensembleCurveSetCollection)
+        {
+            for (auto& curveSet : m_ensembleCurveSetCollection->curveSets())
+            {
+                for (auto& c : curveSet->curves())
+                {
+                    if (c == curve)
+                    {
+                        curveSet->deleteCurve(curve);
+                        if (curveSet->curves().empty())
+                        {
+                            m_ensembleCurveSetCollection->deleteCurveSet(curveSet);
+                        }
+                        return;
+                    }
+                }
+            }
         }
     }
 }
@@ -986,7 +1028,7 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSetCollection* RimSummaryPlot::ensembleCurveSets() const
+RimEnsembleCurveSetCollection* RimSummaryPlot::ensembleCurveSetCollection() const
 {
     return m_ensembleCurveSetCollection;
 }

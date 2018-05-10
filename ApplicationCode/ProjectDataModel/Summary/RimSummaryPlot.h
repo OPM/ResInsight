@@ -75,7 +75,7 @@ public:
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
-    RimEnsembleCurveSetCollection*                  ensembleCurveSets() const;
+    RimEnsembleCurveSetCollection*                  ensembleCurveSetCollection() const;
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
@@ -108,6 +108,7 @@ public:
 
     QString                                         asciiDataForPlotExport() const;
 
+    std::vector<RimSummaryCurve*>                   summaryAndEnsembleCurves() const;
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
     RimSummaryCurveCollection*                      summaryCurveCollection() const;

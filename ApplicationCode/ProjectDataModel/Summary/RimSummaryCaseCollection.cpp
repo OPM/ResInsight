@@ -23,6 +23,8 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 
+#include "RifSummaryReaderInterface.h"
+
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
 //--------------------------------------------------------------------------------------------------

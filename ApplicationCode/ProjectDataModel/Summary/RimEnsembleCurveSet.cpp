@@ -247,6 +247,14 @@ void RimEnsembleCurveSet::deleteCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setSummaryAddress(RifEclipseSummaryAddress address)
+{
+    m_yValuesCurveVariable->setAddress(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 {
     return m_yValuesCurveVariable->address();
@@ -814,6 +822,16 @@ void RimEnsembleCurveSet::updateAllCurves()
         }
     }
     updateCurveColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
+{
+    RimEnsembleCurveSet* copy = dynamic_cast<RimEnsembleCurveSet*>(this->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    copy->m_yValuesSummaryGroup = m_yValuesSummaryGroup();
+    return copy;
 }
 
 //--------------------------------------------------------------------------------------------------

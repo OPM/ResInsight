@@ -70,7 +70,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
             curveSet->setSummaryCaseCollection(project->summaryGroups().back());
         }
 
-        plot->ensembleCurveSets()->addCurveSet(curveSet);
+        plot->ensembleCurveSetCollection()->addCurveSet(curveSet);
         plot->updateConnectedEditors();
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(curveSet);
