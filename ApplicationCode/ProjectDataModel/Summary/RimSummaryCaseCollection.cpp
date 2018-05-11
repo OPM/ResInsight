@@ -41,7 +41,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_nameAndItemCount, "NameCount", "Name", "", "", "");
     m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
-    m_nameAndItemCount.uiCapability()->setUiReadOnly(true);
+    m_nameAndItemCount.uiCapability()->setUiHidden(true);
     m_nameAndItemCount.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
