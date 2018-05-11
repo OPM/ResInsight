@@ -1914,8 +1914,15 @@ bool RiaApplication::openFile(const QString& fileName)
         {
             getOrCreateAndShowMainPlotWindow();
 
-            std::vector<RimCase*> cases;
-            m_project->allCases(cases);
+            const auto& cases = m_project->allSummaryCases();
+
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+            if (mainPlotWindow && !cases.empty())
+            {
+                mainPlotWindow->selectAsCurrentItem(cases.back());
+
+                mainPlotWindow->updateSummaryPlotToolBar();
+            }
 
             if (cases.size() == 0)
             {
