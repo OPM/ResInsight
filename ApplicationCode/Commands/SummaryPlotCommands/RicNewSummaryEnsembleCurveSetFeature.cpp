@@ -67,7 +67,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
     {
         RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
-        size_t colorIndex = plot->ensembleCurveSets()->curveSetCount();
+        size_t colorIndex = plot->ensembleCurveSetCollection()->curveSetCount();
         curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex));
         curveSet->legendConfig()->setColorRange(RimEnsembleCurveSetColorManager::cycledEnsembleColorRange(static_cast<int>(colorIndex)));
 
