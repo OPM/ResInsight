@@ -25,7 +25,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuRimQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -110,7 +110,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
-    m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
+    m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
 
     m_parentQwtPlot = nullptr;
 }

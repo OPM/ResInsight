@@ -60,6 +60,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCase.h"
+#include "RiuRimQwtPlotCurve.h"
+#include "RimSummaryCurve.h"
 
 #include <float.h>
 
@@ -75,23 +77,11 @@ public:
     //--------------------------------------------------------------------------------------------------
     virtual QString curveInfoText(QwtPlotCurve* curve) override
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RiuRimQwtPlotCurve*  riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>(curve);
         RimSummaryCurve* sumCurve = nullptr;
-
-        // Lookup RimSummaryCurve from QwtPlotCurve
-        for (auto const plot : project->mainPlotCollection->summaryPlotCollection()->summaryPlots())
+        if (riuCurve)
         {
-            for (auto const curveSet : plot->ensembleCurveSetCollection()->curveSets())
-            {
-                for (auto const currSumCurve : curveSet->curves())
-                {
-                    if (currSumCurve->qwtPlotCurve() == curve)
-                    {
-                        sumCurve = currSumCurve;
-                        break;
-                    }
-                }
-            }
+            sumCurve = dynamic_cast<RimSummaryCurve*>(riuCurve->ownerRimCurve());
         }
 
         return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
