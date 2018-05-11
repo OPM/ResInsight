@@ -452,6 +452,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_isUsingAutoName ||
         changedField == &m_userDefinedName ||
+        changedField == &m_showCurves ||
         changedField == &m_colorMode ||
         changedField == &m_color)
     {
