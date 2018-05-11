@@ -365,6 +365,8 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     firstAncestorOrThisOfType(plot);
     CVF_ASSERT(plot);
 
+    bool updateTextInPlot = false;
+
     if (changedField == &m_showCurves)
     {
         loadDataAndUpdate(true);
@@ -374,22 +376,27 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         RimSummaryPlot* summaryPlot = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
         summaryPlot->updateConnectedEditors();
+
+        updateTextInPlot = true;
     }
     else if (changedField == &m_yValuesUiFilterResultSelection)
     {
         m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
         updateAllCurves();
+        updateTextInPlot = true;
     }
     else if (changedField == &m_yValuesSummaryGroup)
     {
         // Empty address cache
         m_allAddressesCache.clear();
         updateAllCurves();
+        updateTextInPlot = true;
     }
     else if (changedField == &m_color)
     {
         updateCurveColors();
+        updateTextInPlot = true;
     }
     else if (changedField == &m_ensembleParameter)
     {
@@ -413,10 +420,16 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         }
         updateQwtPlotAxis();
         plot->updateAxes();
+        updateTextInPlot = true;
     }
     else if (changedField == &m_isUsingAutoName && !m_isUsingAutoName)
     {
-        m_userDefinedName = createAutoName();
+        if (!m_isUsingAutoName)
+        {
+            m_userDefinedName = createAutoName();
+        }
+
+        updateTextInPlot = true;
     }
     else if (changedField == &m_yPushButtonSelectSummaryAddress)
     {
@@ -449,12 +462,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         m_yPushButtonSelectSummaryAddress = false;
     }
 
-
-    if (changedField == &m_isUsingAutoName ||
-        changedField == &m_userDefinedName ||
-        changedField == &m_showCurves ||
-        changedField == &m_colorMode ||
-        changedField == &m_color)
+    if (updateTextInPlot)
     {
         updateEnsembleLegendItem();
 
@@ -462,7 +470,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
         if (summaryPlot->qwtPlot())
         {
-            summaryPlot->qwtPlot()->updateLegend();
+            summaryPlot->updatePlotTitle();
         }
     }
 }
