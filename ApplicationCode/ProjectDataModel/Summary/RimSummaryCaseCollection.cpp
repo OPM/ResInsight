@@ -121,7 +121,7 @@ void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 {
-    return &m_nameAndItemCount;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
