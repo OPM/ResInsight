@@ -387,6 +387,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
         updateAllCurves();
+        
         updateTextInPlot = true;
     }
     else if (changedField == &m_yValuesSummaryGroup)
@@ -394,11 +395,13 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         // Empty address cache
         m_allAddressesCache.clear();
         updateAllCurves();
+        
         updateTextInPlot = true;
     }
     else if (changedField == &m_color)
     {
         updateCurveColors();
+        
         updateTextInPlot = true;
     }
     else if (changedField == &m_ensembleParameter)
@@ -414,6 +417,8 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             m_ensembleParameter = !params.empty() ? params.front() : "";
         }
         updateCurveColors();
+        
+        updateTextInPlot = true;
     }
     else if (changedField == &m_plotAxis)
     {
@@ -421,8 +426,10 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         {
             curve->setLeftOrRightAxisY(m_plotAxis());
         }
+        
         updateQwtPlotAxis();
         plot->updateAxes();
+        
         updateTextInPlot = true;
     }
     else if (changedField == &m_isUsingAutoName)
