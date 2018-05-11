@@ -1087,8 +1087,8 @@ void RimEclipseView::updateLegends()
                 }
             }
 
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->titledOverlayFrame());
             this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->titledOverlayFrame());
         }
         else
         {
@@ -1128,8 +1128,8 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 
     if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {
-        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
         resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();

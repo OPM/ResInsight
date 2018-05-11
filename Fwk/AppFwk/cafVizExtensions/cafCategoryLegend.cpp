@@ -485,11 +485,6 @@ void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
                                  colorBarWidth, 
                                  colorBarHeight);
 
-    if (layout->colorBarRect.width() < 1 || layout->colorBarRect.height() < 1)
-    {
-        return;
-    }
-
     layout->tickStartX = layout->margins.x();
     layout->tickMidX = layout->margins.x() + layout->colorBarRect.width();
     layout->tickEndX = layout->tickMidX + 5;
