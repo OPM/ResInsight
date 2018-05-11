@@ -99,8 +99,8 @@ public:
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                                        recreateLegend();
 
-    void                                        setColorRangeMode(ColorRangesType colorMode);
-    ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
+    void                                        setColorRange(ColorRangesType colorMode);
+    ColorRangesType                             colorRange()    { return m_colorRangeMode();}
     void                                        setMappingMode(MappingType mappingType);
     MappingType                                 mappingMode()       { return m_mappingMode();}
     void                                        disableAllTimeStepsRange(bool doDisable);
@@ -124,8 +124,6 @@ public:
 
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
-
-    void                                        initForEnsembleCurveSet(RimEnsembleCurveSet* curveSet);
 
 private:
     void                                        setNamedCategories(const std::vector<QString>& categoryNames, bool inverse);

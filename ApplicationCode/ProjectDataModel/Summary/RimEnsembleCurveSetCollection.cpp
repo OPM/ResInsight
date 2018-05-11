@@ -140,15 +140,13 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
 {
-    static int nextAutoColorIndex = 1;
-    static int numberOfColors     = (int)RiaColorTables::summaryCurveDefaultPaletteColors().size();
 
     if (curveSet)
     {
-        curveSet->setColor(RimSummaryCurveAppearanceCalculator::cycledPaletteColor(nextAutoColorIndex));
+
         m_curveSets.push_back(curveSet);
 
-        nextAutoColorIndex = (++nextAutoColorIndex) % numberOfColors;
+       
     }
 }
 
@@ -191,6 +189,14 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::visibleCurveSet
     }
 
     return visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimEnsembleCurveSetCollection::curveSetCount() const
+{
+    return m_curveSets.size();
 }
 
 //--------------------------------------------------------------------------------------------------

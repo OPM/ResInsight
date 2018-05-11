@@ -19,6 +19,7 @@
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -30,6 +31,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleCurveSetColorManager.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -64,6 +66,10 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
     if (plot)
     {
         RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+        size_t colorIndex = plot->ensembleCurveSets()->curveSetCount();
+        curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex));
+        curveSet->legendConfig()->setColorRange(RimEnsembleCurveSetColorManager::cycledEnsembleColorRange(static_cast<int>(colorIndex)));
 
         if (!project->summaryGroups().empty())
         {

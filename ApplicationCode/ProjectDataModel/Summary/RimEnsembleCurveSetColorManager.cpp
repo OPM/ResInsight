@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimEnsembleCurveSetColorManager::ENSEMBLE_COLOR_RANGES(
+const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimEnsembleCurveSetColorManager::EnsembleColorRanges(
     {
         { RimRegularLegendConfig::GREEN_RED,        cvf::Color3ubArray({ cvf::Color3ub(0x00, 0xff, 0x00), cvf::Color3ub(0xff, 0x00, 0x00) }) },
         { RimRegularLegendConfig::BLUE_MAGENTA,     cvf::Color3ubArray({ cvf::Color3ub(0x00, 0x00, 0xff), cvf::Color3ub(0xff, 0x00, 0xff) }) },
@@ -39,49 +39,14 @@ const RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::D
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::nextColorRange(RimEnsembleCurveSet* curveSet)
+RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledEnsembleColorRange(int index)
 {
-    CVF_ASSERT(curveSet);
+    size_t modIndex = index % EnsembleColorRanges.size();
 
-    RimEnsembleCurveSetCollection* coll;
-    curveSet->firstAncestorOrThisOfType(coll);
+    auto crIt = EnsembleColorRanges.begin();
+    for (int i = 0; i < modIndex; ++i) ++crIt;
 
-    if (coll)
-    {
-        if (m_colorCache.find(coll) != m_colorCache.end())
-        {
-            if (m_colorCache[coll].find(curveSet) != m_colorCache[coll].end())
-            {
-                // CurveSet found in cache, use same color range as last time
-                return m_colorCache[coll][curveSet];
-            }
-        }
-        else
-        {
-            m_colorCache.insert(std::make_pair(coll, std::map<RimEnsembleCurveSet*, RimRegularLegendConfig::ColorRangesType>()));
-            m_nextColorIndexes.insert(std::make_pair(coll, 0));
-        }
-
-        int currColorIndex = m_nextColorIndexes[coll];
-        RimRegularLegendConfig::ColorRangesType resultColorRange = colorRangeByIndex(currColorIndex);
-        m_nextColorIndexes[coll] = (currColorIndex < (int)ENSEMBLE_COLOR_RANGES.size() - 1) ? currColorIndex + 1 : 0;
-        m_colorCache[coll][curveSet] = resultColorRange;
-        return resultColorRange;
-    }
-    return DEFAULT_ENSEMBLE_COLOR_RANGE;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::colorRangeByIndex(int index)
-{
-    int i = 0;
-    for (auto item : ENSEMBLE_COLOR_RANGES)
-    {
-        if (i++ == index) return item.first;
-    }
-    return DEFAULT_ENSEMBLE_COLOR_RANGE;
+    return crIt->first;
 }
 
 std::map<RimEnsembleCurveSetCollection*, int> RimEnsembleCurveSetColorManager::m_nextColorIndexes;

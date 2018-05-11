@@ -52,6 +52,7 @@ public:
 
     std::vector<RimEnsembleCurveSet*>       curveSets() const;
     std::vector<RimEnsembleCurveSet*>       visibleCurveSets() const;
+    size_t                                  curveSetCount() const;
 
     void                                    deleteAllCurveSets();
 

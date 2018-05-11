@@ -24,6 +24,7 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleCurveSetColorManager.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -126,6 +127,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendConfig", "", "", "", "");
     m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig->setColorRange( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE );
 
     CAF_PDM_InitField(&m_userDefinedName, "UserDefinedName", QString("Ensemble Curve Set"), "Curve Set Name", "", "", "");
 
@@ -186,7 +188,6 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
     m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
     m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
 
-    m_legendConfig->initForEnsembleCurveSet(this);
     updateAllCurves();
 }
 

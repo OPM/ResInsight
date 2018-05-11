@@ -513,7 +513,7 @@ void RimRegularLegendConfig::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setColorRangeMode(ColorRangesType colorMode)
+void RimRegularLegendConfig::setColorRange(ColorRangesType colorMode)
 {
     m_colorRangeMode = colorMode;
     updateLegend();
@@ -747,15 +747,6 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::initForEnsembleCurveSet(RimEnsembleCurveSet* curveSet)
-{
-    // Set default color palette for ensemble curve sets
-    setColorRangeMode(ColorManager::nextColorRange(curveSet));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig)
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
@@ -804,7 +795,7 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType(ColorRangesTy
         return RiaColorTables::stimPlanPaletteColors().color3ubArray();
         break;
     default:
-        if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::ENSEMBLE_COLOR_RANGES.at(colorType);
+        if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::EnsembleColorRanges.at(colorType);
         break;
     }
 
@@ -906,7 +897,7 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         }
         else
         {
-            for (const auto& col : ColorManager::ENSEMBLE_COLOR_RANGES)
+            for (const auto& col : ColorManager::EnsembleColorRanges)
             {
                 rangeTypes.push_back(col.first);
             }
