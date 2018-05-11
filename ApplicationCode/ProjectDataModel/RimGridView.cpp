@@ -286,6 +286,14 @@ void RimGridView::initAfterRead()
         bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RimGridView::FULL_MESH));
 
         m_gridCollection->isActive = isGridVisualizationModeBefore_2018_1_1;
+        if (!isGridVisualizationModeBefore_2018_1_1)
+        {
+            // Was showing faults and intersections. 
+            // If was showing with mesh and/or surfaces, turn to full mesh/surf mode to show the mesh, 
+            // and to avoid a strange setup when dropping out into grid mode again
+            if (surfaceMode() != RimGridView::NO_SURFACE) surfaceMode = RimGridView::SURFACE;
+            if (meshMode() != RimGridView::NO_MESH) meshMode = RimGridView::FULL_MESH;
+        }
     }
 }
 
