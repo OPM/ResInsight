@@ -52,7 +52,7 @@ RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledE
     size_t modIndex = index % m_ensembleColorRanges.size();
 
     auto crIt = m_ensembleColorRanges.begin();
-    for (int i = 0; i < modIndex; ++i) ++crIt;
+    for (int i = 0; i < static_cast<int>(modIndex); ++i) ++crIt;
 
     return crIt->first;
 }
