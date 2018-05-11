@@ -276,7 +276,7 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::visibleCurves() const
 {
     std::vector<RimSummaryCurve*> visible;
 
-    for (auto c : m_curves)
+    for (const auto& c : m_curves)
     {
         if (c->isCurveVisible())
         {
@@ -447,7 +447,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         if (dlg.exec() == QDialog::Accepted)
         {
             auto curveSelection = dlg.curveSelection();
-            if (curveSelection.size() > 0)
+            if (!curveSelection.empty())
             {
                 m_yValuesSummaryGroup = curveSelection[0].ensemble();
                 m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
@@ -603,7 +603,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
     }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-        for (auto param : ensembleParameters())
+        for (const auto& param : ensembleParameters())
         {
             options.push_back(caf::PdmOptionItemInfo(param, param));
         }
@@ -628,9 +628,7 @@ void RimEnsembleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEcl
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
         if (reader)
         {
-            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-
-            for (auto& address : allAddresses)
+            for (const auto& address : reader->allResultAddresses())
             {
                 if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
 
