@@ -31,20 +31,15 @@ class RimSummaryCase;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportEnsembleFeature : public caf::CmdFeature
+class RicConvertGroupToEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static bool validateEnsembleCases(std::vector<RimSummaryCase*> cases);
 
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook( QAction* actionToSetup ) override;
-
-    QString askForEnsembleName();
 };
 
 

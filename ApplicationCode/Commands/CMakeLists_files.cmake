@@ -68,6 +68,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
 )
 
 
@@ -134,6 +135,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
 )
 
 

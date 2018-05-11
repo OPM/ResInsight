@@ -495,6 +495,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
+            menuBuilder << "RicConvertGroupToEnsembleFeature";
+            menuBuilder.addSeparator();
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
@@ -672,6 +674,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewSummaryPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
+        menuBuilder.addSeparator();
+        menuBuilder << "RicConvertGroupToEnsembleFeature";
         menuBuilder.addSeparator();
 
         if (!menuBuilder.isCmdFeatureAdded("RicNewFishbonesSubsFeature"))

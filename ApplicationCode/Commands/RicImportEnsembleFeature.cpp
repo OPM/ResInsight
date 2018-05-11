@@ -48,60 +48,6 @@
 
 CAF_CMD_SOURCE_INIT(RicImportEnsembleFeature, "RicImportEnsembleFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
-{
-    RiaApplication* app   = RiaApplication::instance();
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble");
-    
-    if (fileNames.isEmpty()) return;
-
-    QString ensembleName = askForEnsembleName();
-    if (ensembleName.isEmpty()) return;
-
-    std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
-
-    validateEnsembleCases(cases);
-
-    RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
-
-    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
-    {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
-
-        mainPlotWindow->updateSummaryPlotToolBar();
-    }
-
-    std::vector<RimCase*> allCases;
-    app->project()->allCases(allCases);
-
-    if (allCases.size() == 0)
-    {
-        RiuMainWindow::instance()->close();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicImportEnsembleFeature::setupActionLook(QAction* actionToSetup)
-{
-    actionToSetup->setIcon(QIcon(":/SummaryEnsemble16x16.png"));
-    actionToSetup->setText("Import Ensemble");
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -155,6 +101,61 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
         mbox.exec();
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportEnsembleFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
+{
+    RiaApplication* app   = RiaApplication::instance();
+    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble");
+    
+    if (fileNames.isEmpty()) return;
+
+    QString ensembleName = askForEnsembleName();
+    if (ensembleName.isEmpty()) return;
+
+    std::vector<RimSummaryCase*> cases;
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
+
+    validateEnsembleCases(cases);
+
+    RicImportSummaryCasesFeature::addSummaryCases(cases);
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
+
+    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow && !cases.empty())
+    {
+        mainPlotWindow->selectAsCurrentItem(cases.back());
+
+        mainPlotWindow->updateSummaryPlotToolBar();
+    }
+
+    std::vector<RimCase*> allCases;
+    app->project()->allCases(allCases);
+
+    if (allCases.size() == 0)
+    {
+        RiuMainWindow::instance()->close();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setIcon(QIcon(":/SummaryEnsemble16x16.png"));
+    actionToSetup->setText("Import Ensemble");
 }
 
 //--------------------------------------------------------------------------------------------------
