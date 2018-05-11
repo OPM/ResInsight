@@ -112,13 +112,32 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList& fileNames, std::vector<RimSummaryCase*>* newCases)
 {
+    RiaApplication* app = RiaApplication::instance();
+
     std::vector<RimSummaryCase*> temp;
     std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
     if (createSummaryCasesFromFiles(fileNames, cases))
     {
         addSummaryCases(*cases);
+
+        RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+        if (mainPlotWindow && !cases->empty())
+        {
+            mainPlotWindow->selectAsCurrentItem(cases->back());
+            mainPlotWindow->updateSummaryPlotToolBar();
+
+            // Close main window if there are no eclipse cases imported
+            std::vector<RimCase*> cases;
+            app->project()->allCases(cases);
+
+            if (cases.size() == 0)
+            {
+                RiuMainWindow::instance()->close();
+            }
+        }
         return true;
     }
+
     return false;
 }
 
