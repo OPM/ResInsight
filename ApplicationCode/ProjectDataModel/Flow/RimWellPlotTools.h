@@ -86,10 +86,16 @@ public:
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
     static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
 
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
+                                                    calculateRelevantTimeStepsFromCases(const QString&                             wellPathNameOrSimWellName,
+                                                                                        const std::vector<RifDataSourceForRftPlt>& selSources,
+                                                                                        const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults);
+
     static void                                     calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, 
                                                                                       const std::vector<RifDataSourceForRftPlt>& selSources, 
                                                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
                                                                                       QList<caf::PdmOptionItemInfo>& options);
+
     static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 

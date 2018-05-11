@@ -278,47 +278,39 @@ QString RimWellRftPlot::associatedSimWellName() const
 void RimWellRftPlot::applyInitialSelections()
 {
     std::vector<RifDataSourceForRftPlt> sourcesToSelect;
-    std::set<QDateTime>                 rftTimeSteps;
-    std::set<QDateTime>                 observedTimeSteps;
-    std::set<QDateTime>                 gridTimeSteps;
     const QString                       simWellName = associatedSimWellName();
 
     for (RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell(simWellName))
     {
         sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::RFT, rftCase));
-        RimWellPlotTools::appendSet(rftTimeSteps, RimWellPlotTools::timeStepsFromRftCase(rftCase, simWellName));
     }
 
     for (RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell(simWellName))
     {
         sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::GRID, gridCase));
-        RimWellPlotTools::appendSet(gridTimeSteps, RimWellPlotTools::timeStepsFromGridCase(gridCase));
     }
 
     std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(m_wellPathNameOrSimWellName);
     if (!wellLogFiles.empty())
     {
-        sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED));
         for (RimWellLogFile* const wellLogFile : wellLogFiles)
         {
-            observedTimeSteps.insert(RimWellPlotTools::timeStepFromWellLogFile(wellLogFile));
+            sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, wellLogFile));
         }
     }
 
     m_selectedSources = sourcesToSelect;
 
-    std::set<QDateTime> timeStepsToSelect;
-    for (const QDateTime& timeStep : rftTimeSteps)
     {
-        timeStepsToSelect.insert(timeStep);
-    }
-    for (const QDateTime& timeStep : observedTimeSteps)
-    {
-        timeStepsToSelect.insert(timeStep);
-    }
-    if (!gridTimeSteps.empty()) timeStepsToSelect.insert(*gridTimeSteps.begin());
+        auto relevantTimeSteps = RimWellPlotTools::calculateRelevantTimeStepsFromCases(
+            associatedSimWellName(), m_selectedSources, {RifEclipseRftAddress::PRESSURE});
 
-    m_selectedTimeSteps = std::vector<QDateTime>(timeStepsToSelect.begin(), timeStepsToSelect.end());
+        std::vector<QDateTime> timeStepVector;
+        for (const auto& item : relevantTimeSteps)
+            timeStepVector.push_back(item.first);
+
+        m_selectedTimeSteps = timeStepVector;
+    }
 
     syncCurvesFromUiSelection();
 }
