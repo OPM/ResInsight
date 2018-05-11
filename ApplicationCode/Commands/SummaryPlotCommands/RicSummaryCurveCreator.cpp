@@ -549,7 +549,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
     for (const auto& curve : sourceSummaryPlot.summaryAndEnsembleCurves())
     {
-        sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
+        if(curve->isCurveVisible()) sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
     }
 
     for (const auto& curve : m_previewPlot->summaryAndEnsembleCurves())
