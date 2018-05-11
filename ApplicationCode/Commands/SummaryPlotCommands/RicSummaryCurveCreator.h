@@ -51,6 +51,9 @@ class RicSummaryCurveCreator : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+public:
+    static const QString CONFIGURATION_NAME;
+
 private:
     typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
 

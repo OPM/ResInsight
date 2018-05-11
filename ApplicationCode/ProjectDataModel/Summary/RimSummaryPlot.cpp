@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaSummaryCurveAnalyzer.h"
 
+#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridTimeHistoryCurve.h"
@@ -1186,26 +1188,37 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
-
-    if (m_isCrossPlot)
+    if (uiConfigName == RicSummaryCurveCreator::CONFIGURATION_NAME)
     {
-        axisFolder->add(&m_bottomAxisProperties);
+        uiTreeOrdering.add(&m_summaryCurveCollection);
+        if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
+        {
+            uiTreeOrdering.add(&m_ensembleCurveSetCollection);
+        }
     }
     else
     {
-        axisFolder->add(&m_timeAxisProperties);
-    }
-    axisFolder->add(&m_leftYAxisProperties);
-    axisFolder->add(&m_rightYAxisProperties);
+        caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
 
-    uiTreeOrdering.add(&m_summaryCurveCollection);
-    if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
-    {
-        uiTreeOrdering.add(&m_ensembleCurveSetCollection);
+        if (m_isCrossPlot)
+        {
+            axisFolder->add(&m_bottomAxisProperties);
+        }
+        else
+        {
+            axisFolder->add(&m_timeAxisProperties);
+        }
+        axisFolder->add(&m_leftYAxisProperties);
+        axisFolder->add(&m_rightYAxisProperties);
+
+        uiTreeOrdering.add(&m_summaryCurveCollection);
+        if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
+        {
+            uiTreeOrdering.add(&m_ensembleCurveSetCollection);
+        }
+        uiTreeOrdering.add(&m_gridTimeHistoryCurves);
+        uiTreeOrdering.add(&m_asciiDataCurves);
     }
-    uiTreeOrdering.add(&m_gridTimeHistoryCurves);
-    uiTreeOrdering.add(&m_asciiDataCurves);
 
     uiTreeOrdering.skipRemainingChildren(true);
 }

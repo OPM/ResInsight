@@ -62,6 +62,11 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::RicSummaryCurveCreator()
 {
     CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
