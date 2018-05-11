@@ -590,11 +590,15 @@ void RicSummaryCurveCreator::updateTargetPlot()
         {
             copyEnsembleCurveAndAddToCurveSet(editedCurve, editedCurveSet);
         }
+        
+        newCurveSet->setParentQwtPlotNoReplot(m_targetPlot->qwtPlot());
     }
 
     m_targetPlot->enableAutoPlotTitle(m_useAutoPlotTitleProxy());
 
     m_targetPlot->loadDataAndUpdate();
+
+    m_targetPlot->updatePlotTitle();
     m_targetPlot->updateConnectedEditors();
 }
 

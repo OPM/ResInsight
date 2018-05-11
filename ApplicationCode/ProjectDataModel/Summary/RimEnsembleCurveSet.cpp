@@ -158,8 +158,11 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
     firstAncestorOrThisOfType(parentPlot);
     if (parentPlot && parentPlot->qwtPlot())
     {
+        m_qwtPlotCurveForLegendText->detach();
         parentPlot->qwtPlot()->removeEnsembleCurveSetLegend(this);
     }
+
+    delete m_qwtPlotCurveForLegendText;
 }
 
 //--------------------------------------------------------------------------------------------------
