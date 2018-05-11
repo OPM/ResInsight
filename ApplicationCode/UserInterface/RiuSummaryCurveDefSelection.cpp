@@ -740,7 +740,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField();
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR)
-    {
+    {   
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("LGR Blocks");
             myGroup->add(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField());
@@ -776,9 +776,17 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
     for (const auto& source : m_selectedSources())
     {
         RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
+        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(source.p());
 
-        if(!sumCase || isObservedData(sumCase)) continue;
-        cases.push_back(sumCase);
+        if (sumCase)
+        {
+            if(!isObservedData(sumCase)) cases.push_back(sumCase);
+        }
+        else if (ensemble)
+        {
+            const auto& ensembleCases = ensemble->allSummaryCases();
+            cases.insert(cases.end(), ensembleCases.begin(), ensembleCases.end());
+        }
     }
     return findPossibleSummaryAddresses(cases, identifierAndField);
 }
