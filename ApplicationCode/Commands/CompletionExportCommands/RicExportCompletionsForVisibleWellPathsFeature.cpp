@@ -22,6 +22,8 @@
 
 #include "RicWellPathExportCompletionDataFeature.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "RimWellPath.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
@@ -37,6 +39,26 @@ CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleWellPathsFeature, "RicExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 {
+    bool foundWellPathCollection = false;
+    std::vector<caf::PdmObject*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    for (caf::PdmObject* object : selectedObjects)
+    {
+        RimWellPathCollection* wellPathCollection;
+        
+        object->firstAncestorOrThisOfType(wellPathCollection);
+        if (wellPathCollection)
+        {
+            foundWellPathCollection = true;
+            break;
+        }
+    }
+    
+    if (!foundWellPathCollection)
+    {
+        return false;
+    }
+
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
 
     if (wellPaths.empty())
