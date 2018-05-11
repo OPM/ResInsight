@@ -89,13 +89,9 @@ public:
 
     void                                            updateAxes();
     virtual void                                    zoomAll() override;
-    void                                            setZoomWindow(const QwtInterval& leftAxis,
-                                                                  const QwtInterval& rightAxis,
-                                                                  const QwtInterval& timeAxis);
 
     void                                            updateZoomInQwt();
     void                                            updateZoomWindowFromQwt();
-    void                                            disableAutoZoom();
     
     bool                                            isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const;
 
@@ -154,11 +150,14 @@ private:
 
     RimSummaryAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
+
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateTimeAxis();
     void                                            updateBottomXAxis();
-    void                                            setZoomIntervalsInQwtPlot();
+
+    void                                            updateAxisRangesFromQwt();
+    void                                            setAutoZoomForAllAxes(bool enableAutoZoom);
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
@@ -174,7 +173,6 @@ private:
 
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
-    caf::PdmField<bool>                                 m_isAutoZoom;
     caf::PdmChildField<RimSummaryAxisProperties*>       m_leftYAxisProperties;
     caf::PdmChildField<RimSummaryAxisProperties*>       m_rightYAxisProperties;
 
@@ -191,4 +189,6 @@ private:
     // Obsolete fields
     caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
     caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
+    caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
+
 };

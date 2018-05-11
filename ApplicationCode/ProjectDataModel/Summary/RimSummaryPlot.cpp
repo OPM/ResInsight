@@ -120,9 +120,9 @@ RimSummaryPlot::RimSummaryPlot()
     m_timeAxisProperties.uiCapability()->setUiTreeHidden(true);
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
-    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
-    m_isAutoZoom.uiCapability()->setUiHidden(true);
-
+    CAF_PDM_InitField(&m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "");
+    m_isAutoZoom_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_isAutoZoom_OBSOLETE.xmlCapability()->setIOWritable(false);
     setAsPlotMdiWindow();
 
     m_isCrossPlot = false;
@@ -153,8 +153,6 @@ void RimSummaryPlot::updateAxes()
     updateAxis(RiaDefines::PLOT_AXIS_LEFT);
     updateAxis(RiaDefines::PLOT_AXIS_RIGHT);
 
-    updateZoomInQwt();
-
     if (m_isCrossPlot)
     {
         updateBottomXAxis();
@@ -163,6 +161,8 @@ void RimSummaryPlot::updateAxes()
     {
         updateTimeAxis();
     }
+
+    updateZoomInQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -619,43 +619,79 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
 {
-    RimSummaryAxisProperties* yAxisProps = yAxisPropertiesLeftOrRight(plotAxis);
-
-    if (yAxisProps->isLogarithmicScaleEnabled)
+    if (plotAxis == RiaDefines::PLOT_AXIS_BOTTOM)
     {
-        std::vector<double> yValues;
-        std::vector<QwtPlotCurve*> plotCurves;
-
-        for (RimSummaryCurve* c : visibleSummaryCurvesForAxis(plotAxis))
+        if (m_isCrossPlot)
         {
-            std::vector<double> curveValues = c->valuesY();
-            yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
-            plotCurves.push_back(c->qwtPlotCurve());
+            if (m_bottomAxisProperties->isAutoZoom())
+            {
+                m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(QwtPlot::xBottom, m_bottomAxisProperties->visibleRangeMin(), m_bottomAxisProperties->visibleRangeMax());
+            }
         }
-
-        for (RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis(plotAxis))
+        else
         {
-            std::vector<double> curveValues = c->yValues();
-            yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
-            plotCurves.push_back(c->qwtPlotCurve());
+            if (m_timeAxisProperties->isAutoZoom())
+            {
+                m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(QwtPlot::xBottom, m_timeAxisProperties->visibleRangeMin(), m_timeAxisProperties->visibleRangeMax());
+            }
+
         }
-
-        for (RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis(plotAxis))
-        {
-            std::vector<double> curveValues = c->yValues();
-            yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
-            plotCurves.push_back(c->qwtPlotCurve());
-        }
-
-        double min, max;
-        RimSummaryPlotYAxisRangeCalculator calc(plotCurves, yValues);
-        calc.computeYRange(&min, &max);
-
-        m_qwtPlot->setAxisScale(yAxisProps->qwtPlotAxisType(), min, max);
     }
     else
     {
-        m_qwtPlot->setAxisAutoScale(yAxisProps->qwtPlotAxisType(), true);
+        RimSummaryAxisProperties* yAxisProps = yAxisPropertiesLeftOrRight(plotAxis);
+
+        if (yAxisProps->isAutoZoom())
+        {
+            if (yAxisProps->isLogarithmicScaleEnabled)
+            {
+                std::vector<double> yValues;
+                std::vector<QwtPlotCurve*> plotCurves;
+
+                for (RimSummaryCurve* c : visibleSummaryCurvesForAxis(plotAxis))
+                {
+                    std::vector<double> curveValues = c->valuesY();
+                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
+                    plotCurves.push_back(c->qwtPlotCurve());
+                }
+
+                for (RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis(plotAxis))
+                {
+                    std::vector<double> curveValues = c->yValues();
+                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
+                    plotCurves.push_back(c->qwtPlotCurve());
+                }
+
+                for (RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis(plotAxis))
+                {
+                    std::vector<double> curveValues = c->yValues();
+                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
+                    plotCurves.push_back(c->qwtPlotCurve());
+                }
+
+                double min, max;
+                RimSummaryPlotYAxisRangeCalculator calc(plotCurves, yValues);
+                calc.computeYRange(&min, &max);
+
+                m_qwtPlot->setAxisScale(yAxisProps->qwtPlotAxisType(), min, max);
+            }
+            else
+            {
+                m_qwtPlot->setAxisAutoScale(yAxisProps->qwtPlotAxisType(), true);
+            }
+        }
+        else
+        {
+            m_qwtPlot->setAxisScale(yAxisProps->qwtPlotAxisType(), yAxisProps->visibleRangeMin(), yAxisProps->visibleRangeMax());
+        }
     }
 }
 
@@ -898,50 +934,12 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
-{
-    m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
-    m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
-    m_leftYAxisProperties->updateConnectedEditors();
-
-    m_rightYAxisProperties->visibleRangeMax = rightAxis.maxValue();
-    m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
-    m_rightYAxisProperties->updateConnectedEditors();
-
-    if (m_isCrossPlot)
-    {
-        m_bottomAxisProperties->visibleRangeMax = timeAxis.maxValue();
-        m_bottomAxisProperties->visibleRangeMin = timeAxis.minValue();
-        m_bottomAxisProperties->updateConnectedEditors();
-    }
-    else
-    {
-        m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
-        m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
-        m_timeAxisProperties->updateConnectedEditors();
-    }
-
-    disableAutoZoom();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::zoomAll()
 {
-    if (m_qwtPlot)
-    {
-        m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
+    setAutoZoomForAllAxes(true);
+    updateZoomInQwt();
+    updateAxisRangesFromQwt();
 
-        updateZoomForAxis(RiaDefines::PLOT_AXIS_LEFT);
-        updateZoomForAxis(RiaDefines::PLOT_AXIS_RIGHT);
-
-        m_qwtPlot->replot();
-    }
-
-    updateZoomWindowFromQwt();
-
-    m_isAutoZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1260,42 +1258,15 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomInQwt()
 {
-    if (!m_qwtPlot) return;
-    
-    if (m_isAutoZoom)
+    if (m_qwtPlot)
     {
-        zoomAll();
-    }
-    else
-    {
-        setZoomIntervalsInQwtPlot();
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setZoomIntervalsInQwtPlot()
-{
-    QwtInterval left, right, time;
+        updateZoomForAxis(RiaDefines::PLOT_AXIS_BOTTOM);
+        updateZoomForAxis(RiaDefines::PLOT_AXIS_LEFT);
+        updateZoomForAxis(RiaDefines::PLOT_AXIS_RIGHT);
 
-    left.setMinValue(m_leftYAxisProperties->visibleRangeMin());
-    left.setMaxValue(m_leftYAxisProperties->visibleRangeMax());
-    right.setMinValue(m_rightYAxisProperties->visibleRangeMin());
-    right.setMaxValue(m_rightYAxisProperties->visibleRangeMax());
-
-    if (m_isCrossPlot)
-    {
-        time.setMinValue(m_bottomAxisProperties->visibleRangeMin());
-        time.setMaxValue(m_bottomAxisProperties->visibleRangeMax());
+        m_qwtPlot->replot();
     }
-    else
-    {
-        time.setMinValue(m_timeAxisProperties->visibleRangeMin());
-        time.setMaxValue(m_timeAxisProperties->visibleRangeMax());
-    }
-
-    m_qwtPlot->setZoomWindow(left, right, time);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1303,20 +1274,59 @@ void RimSummaryPlot::setZoomIntervalsInQwtPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomWindowFromQwt()
 {
-    if (!m_qwtPlot) return;
-
-    QwtInterval left, right, time;
-    m_qwtPlot->currentVisibleWindow(&left, &right, &time);
-
-    setZoomWindow(left, right, time);
+    updateAxisRangesFromQwt();
+    setAutoZoomForAllAxes(false);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::disableAutoZoom()
+void RimSummaryPlot::updateAxisRangesFromQwt()
 {
-    m_isAutoZoom = false;
+    if (!m_qwtPlot) return;
+
+    QwtInterval leftAxis, rightAxis, timeAxis;
+    m_qwtPlot->currentVisibleWindow(&leftAxis, &rightAxis, &timeAxis);
+
+    m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
+    m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
+    m_leftYAxisProperties->updateConnectedEditors();
+
+    m_rightYAxisProperties->visibleRangeMax = rightAxis.maxValue();
+    m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
+    m_rightYAxisProperties->updateConnectedEditors();
+
+    if (m_isCrossPlot)
+    {
+        m_bottomAxisProperties->visibleRangeMax = timeAxis.maxValue();
+        m_bottomAxisProperties->visibleRangeMin = timeAxis.minValue();
+        m_bottomAxisProperties->updateConnectedEditors();
+    }
+    else
+    {
+        m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
+        m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
+        m_timeAxisProperties->updateConnectedEditors();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setAutoZoomForAllAxes(bool enableAutoZoom)
+{
+    m_leftYAxisProperties->setAutoZoom(enableAutoZoom);
+    m_rightYAxisProperties->setAutoZoom(enableAutoZoom);
+
+    if (m_isCrossPlot)
+    {
+        m_bottomAxisProperties->setAutoZoom(enableAutoZoom);
+    }
+    else
+    {
+        m_timeAxisProperties->setAutoZoom(enableAutoZoom);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1456,6 +1466,11 @@ void RimSummaryPlot::initAfterRead()
     for (const auto& curve : curvesToMove)
     {
         m_summaryCurveCollection->addCurve(curve);
+    }
+
+    if (!m_isAutoZoom_OBSOLETE())
+    {
+        setAutoZoomForAllAxes(false);
     }
 
     RimProject* proj = nullptr;

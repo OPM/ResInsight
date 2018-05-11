@@ -61,6 +61,8 @@ public:
     bool                 showDescription() const;
     bool                 showAcronym() const;
     bool                 showUnitText() const;
+    bool                 isAutoZoom() const;
+    void                 setAutoZoom(bool enableAutoZoom);
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
@@ -98,6 +100,7 @@ private:
     caf::PdmField<bool> m_displayShortName;
     caf::PdmField<bool> m_displayLongName;
     caf::PdmField<bool> m_displayUnitText;
+    caf::PdmField<bool> m_isAutoZoom;
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
