@@ -58,6 +58,8 @@ public:
     void                                    setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
     std::vector<RiaSummaryCurveDefinition>  selectedCurveDefinitions() const;
     void                                    setMultiSelectionMode(bool multiSelectionMode);
+    void                                    hideEnsembles(bool hide);
+    void                                    hideSummaryCases(bool hide);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
     void                                    setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases);
@@ -105,6 +107,9 @@ private:
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     bool                                                                                                m_multiSelectionMode;
+    
+    bool                                                                                                m_hideEnsembles;
+    bool                                                                                                m_hideSummaryCases;
 
     std::function<void()>                                                                               m_toggleChangedHandler;
 };

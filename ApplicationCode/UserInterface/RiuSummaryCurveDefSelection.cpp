@@ -228,6 +228,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
 
     m_currentSummaryCategory.uiCapability()->setUiHidden(true);
     m_multiSelectionMode = false;
+    m_hideEnsembles = false;
+    m_hideSummaryCases = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,6 +308,22 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurv
 void RiuSummaryCurveDefSelection::setMultiSelectionMode(bool multiSelectionMode)
 {
     m_multiSelectionMode = multiSelectionMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelection::hideEnsembles(bool hide)
+{
+    m_hideEnsembles = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelection::hideSummaryCases(bool hide)
+{
+    m_hideSummaryCases = hide;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,55 +476,64 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
             RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
             if (sumCaseMainColl)
             {
-                // Top level cases
-                for (const auto& sumCase : sumCaseMainColl->topLevelSummaryCases())
+                if (!m_hideSummaryCases)
                 {
-                    options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+                    // Top level cases
+                    for (const auto& sumCase : sumCaseMainColl->topLevelSummaryCases())
+                    {
+                        options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+                    }
                 }
 
                 // Ensembles
-                bool ensembleHeaderCreated = false;
-                for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
+                if (!m_hideEnsembles)
                 {
-                    if (!sumCaseColl->isEnsemble()) continue;
-
-                    if (!ensembleHeaderCreated)
+                    bool ensembleHeaderCreated = false;
+                    for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
                     {
-                        options.push_back(caf::PdmOptionItemInfo::createHeader("Ensembles", true));
-                        ensembleHeaderCreated = true;
-                    }
+                        if (!sumCaseColl->isEnsemble()) continue;
 
-                    auto optionItem = caf::PdmOptionItemInfo(sumCaseColl->name(), sumCaseColl);
-                    optionItem.setLevel(1);
-                    options.push_back(optionItem);
-                }
+                        if (!ensembleHeaderCreated)
+                        {
+                            options.push_back(caf::PdmOptionItemInfo::createHeader("Ensembles", true));
+                            ensembleHeaderCreated = true;
+                        }
 
-                // Grouped cases
-                for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
-                {
-                    if (sumCaseColl->isEnsemble()) continue;
-
-                    options.push_back(caf::PdmOptionItemInfo::createHeader(sumCaseColl->name(), true));
-
-                    for (const auto& sumCase : sumCaseColl->allSummaryCases())
-                    {
-                        auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                        auto optionItem = caf::PdmOptionItemInfo(sumCaseColl->name(), sumCaseColl);
                         optionItem.setLevel(1);
                         options.push_back(optionItem);
                     }
                 }
 
-                // Observed data
-                auto observedDataColl = oilField->observedDataCollection();
-                if (observedDataColl->allObservedData().size() > 0)
+                if (!m_hideSummaryCases)
                 {
-                    options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Data", true));
-
-                    for (const auto& obsData : observedDataColl->allObservedData())
+                    // Grouped cases
+                    for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
                     {
-                        auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
-                        optionItem.setLevel(1);
-                        options.push_back(optionItem);
+                        if (sumCaseColl->isEnsemble()) continue;
+
+                        options.push_back(caf::PdmOptionItemInfo::createHeader(sumCaseColl->name(), true));
+
+                        for (const auto& sumCase : sumCaseColl->allSummaryCases())
+                        {
+                            auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                            optionItem.setLevel(1);
+                            options.push_back(optionItem);
+                        }
+                    }
+
+                    // Observed data
+                    auto observedDataColl = oilField->observedDataCollection();
+                    if (observedDataColl->allObservedData().size() > 0)
+                    {
+                        options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Data", true));
+
+                        for (const auto& obsData : observedDataColl->allObservedData())
+                        {
+                            auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
+                            optionItem.setLevel(1);
+                            options.push_back(optionItem);
+                        }
                     }
                 }
             }

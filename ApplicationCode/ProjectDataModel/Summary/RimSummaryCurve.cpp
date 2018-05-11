@@ -697,6 +697,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             candicateAddress = m_xValuesCurveVariable->address();
         }
 
+        dlg.hideEnsembles();
         dlg.setCaseAndAddress(candidateCase, candicateAddress);
         
         if (dlg.exec() == QDialog::Accepted)
@@ -730,6 +731,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             candicateAddress = m_yValuesCurveVariable->address();
         }
 
+        dlg.hideEnsembles();
         dlg.setCaseAndAddress(candidateCase, candicateAddress);
 
         if (dlg.exec() == QDialog::Accepted)

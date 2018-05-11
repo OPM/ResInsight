@@ -20,6 +20,8 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RimSummaryCaseCollection.h"
+
 #include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefSelectionEditor.h"
 #include "RiuTools.h"
@@ -77,9 +79,28 @@ void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress(RimSummaryCase* summar
 {
     if (summaryCase)
     {
-        std::vector<RiaSummaryCurveDefinition> sumCasePairs;
-        sumCasePairs.push_back(RiaSummaryCurveDefinition(summaryCase, address));
-        summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        curveDefs.push_back(RiaSummaryCurveDefinition(summaryCase, address));
+        summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
+    }
+
+    summaryAddressSelection()->updateConnectedEditors();
+    updateLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelectionDialog::setEnsembleAndAddress(RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address)
+{
+    if (ensemble)
+    {
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for (const auto& summaryCase : ensemble->allSummaryCases())
+        {
+            curveDefs.push_back(RiaSummaryCurveDefinition(summaryCase, address, ensemble));
+        }
+        summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
     }
 
     summaryAddressSelection()->updateConnectedEditors();
@@ -92,6 +113,22 @@ void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress(RimSummaryCase* summar
 std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelectionDialog::curveSelection() const
 {
     return summaryAddressSelection()->selectedCurveDefinitions();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelectionDialog::hideEnsembles()
+{
+    summaryAddressSelection()->hideEnsembles(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelectionDialog::hideSummaryCases()
+{
+    summaryAddressSelection()->hideSummaryCases(true);
 }
 
 //--------------------------------------------------------------------------------------------------

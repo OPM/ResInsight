@@ -35,7 +35,9 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryCurveDefSelectionDialog.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiListEditor.h"
@@ -112,8 +114,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault(&m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_yPushButtonSelectSummaryAddress);
     m_yPushButtonSelectSummaryAddress = false;
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiReadOnly(true);
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiHidden(true);
 
     m_yValuesCurveVariable = new RimSummaryAddress;
 
@@ -418,6 +418,37 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         m_userDefinedName = createAutoName();
     }
+    else if (changedField == &m_yPushButtonSelectSummaryAddress)
+    {
+        RiuSummaryCurveDefSelectionDialog dlg(nullptr);
+        RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryGroup();
+        RifEclipseSummaryAddress candicateAddress = m_yValuesCurveVariable->address();
+
+        dlg.hideSummaryCases();
+        dlg.setEnsembleAndAddress(candidateEnsemble, candicateAddress);
+
+        if (dlg.exec() == QDialog::Accepted)
+        {
+            auto curveSelection = dlg.curveSelection();
+            if (curveSelection.size() > 0)
+            {
+                m_yValuesSummaryGroup = curveSelection[0].ensemble();
+                m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+
+                this->loadDataAndUpdate(true);
+
+                plot->updateAxes();
+                plot->updatePlotTitle();
+                plot->updateConnectedEditors();
+
+                RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+                mainPlotWindow->updateSummaryPlotToolBar();
+            }
+        }
+
+        m_yPushButtonSelectSummaryAddress = false;
+    }
+
 
     if (changedField == &m_isUsingAutoName ||
         changedField == &m_userDefinedName ||
