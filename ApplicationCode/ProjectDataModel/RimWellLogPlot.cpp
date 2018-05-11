@@ -562,10 +562,9 @@ void RimWellLogPlot::uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
 {
-    RimWellRftPlot* rftp;
-    firstAncestorOrThisOfType(rftp);
+    RimWellRftPlot* rftp = rftPlot();
 
-    if (!rftp)
+    if (!(rftp || pltPlot()))
     {
         uiOrdering.add(&m_depthType);
     }
@@ -883,6 +882,7 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     else if (isPltPlotChild())
     {
         m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
+        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
         m_disabledDepthTypes.insert(CONNECTION_NUMBER);
     }
     else
