@@ -91,6 +91,7 @@ public:
 
     void                                    updateAllCurves();
     RimEnsembleCurveSet*                    clone() const;
+    void                                    showCurves(bool show);
 
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;

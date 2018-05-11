@@ -147,14 +147,16 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, c
     if (m_targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
+        syncPreviewCurvesFromUiSelection();
+        setInitialCurveVisibility(targetPlot);
+        m_previewPlot->loadDataAndUpdate();
     }
     else
     {
         setDefaultCurveSelection(defaultCases);
         m_previewPlot->enableAutoPlotTitle(true);
+        syncPreviewCurvesFromUiSelection();
     }
-
-    syncPreviewCurvesFromUiSelection();
 
     caf::PdmUiItem::updateConnectedEditors();
 }
@@ -545,20 +547,6 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         }
     }
 
-    // Set visibility for imported curves which were not checked in source plot
-    std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
-    for (const auto& curve : sourceSummaryPlot.summaryAndEnsembleCurves())
-    {
-        if(curve->isCurveVisible()) sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
-    }
-
-    for (const auto& curve : m_previewPlot->summaryAndEnsembleCurves())
-    {
-        auto curveDef = std::make_pair(curve->summaryCaseY(), curve->summaryAddressY());
-        if (sourceCurveDefs.count(curveDef) == 0)
-            curve->setCurveVisiblity(false);
-    }
-
     m_previewPlot->copyAxisPropertiesFromOther(sourceSummaryPlot);
     m_previewPlot->enableAutoPlotTitle(sourceSummaryPlot.autoPlotTitle());
     m_previewPlot->updatePlotTitle();
@@ -859,4 +847,41 @@ void RicSummaryCurveCreator::proxyEnablePlotAutoTitle(const bool& enable)
 bool RicSummaryCurveCreator::proxyPlotAutoTitle() const
 {
     return m_previewPlot->autoPlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::setInitialCurveVisibility(const RimSummaryPlot* targetPlot)
+{
+    // Set visibility for imported curves which were not checked in source plot
+    std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
+    for (const auto& curve : targetPlot->summaryCurves())
+    {
+        sourceCurveDefs.insert(std::make_pair(curve->summaryCaseY(), curve->summaryAddressY()));
+    }
+
+    for (const auto& curve : m_previewPlot->summaryCurves())
+    {
+        auto curveDef = std::make_pair(curve->summaryCaseY(), curve->summaryAddressY());
+        if (sourceCurveDefs.count(curveDef) == 0)
+        {
+            curve->setCurveVisiblity(false);
+        }
+    }
+
+    std::set <std::pair<RimSummaryCaseCollection*, RifEclipseSummaryAddress>> sourceCurveSetDefs;
+    for (const auto& curveSet : targetPlot->ensembleCurveSetCollection()->curveSets())
+    {
+        sourceCurveSetDefs.insert(std::make_pair(curveSet->summaryCaseCollection(), curveSet->summaryAddress()));
+    }
+
+    for (const auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets())
+    {
+        auto curveDef = std::make_pair(curveSet->summaryCaseCollection(), curveSet->summaryAddress());
+        if (sourceCurveSetDefs.count(curveDef) == 0)
+        {
+            curveSet->showCurves(false);
+        }
+    }
 }

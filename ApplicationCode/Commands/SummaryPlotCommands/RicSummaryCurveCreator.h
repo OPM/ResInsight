@@ -106,6 +106,7 @@ private:
 
     void                                    proxyEnablePlotAutoTitle(const bool& enable);
     bool                                    proxyPlotAutoTitle() const;
+    void                                    setInitialCurveVisibility(const RimSummaryPlot* targetPlot);
 
 private:
     caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
