@@ -28,19 +28,15 @@ class RiuSummaryCurveDefSelection {
 '
 ' Class Hierarchy
 '
-PdmUiWidgetBasedObjectEditor <|- RicSummaryCurveCreatorSplitterUi
-PdmUiWidgetBasedObjectEditor <|- RicSummaryCurveCreatorTabsUi
+PdmUiWidgetBasedObjectEditor <|-- RicSummaryCurveCreatorSplitterUi
 PdmUiWidgetBasedObjectEditor <|-- RiuSummaryCurveDefSelectionEditor
 
 '
 ' Class references
 '
-RicSummaryCurveCreatorDialog --> RicSummaryCurveCreatorTabsUi
+RicSummaryCurveCreatorDialog --> RicSummaryCurveCreatorSplitterUi
 
 RicSummaryCurveCreatorSplitterUi ->RicSummaryCurveCreator
-
-RicSummaryCurveCreatorTabsUi -> RicSummaryCurveCreatorSplitterUi : curves
-RicSummaryCurveCreatorTabsUi -> RicSummaryCurveCreatorSplitterUi : ensambles
 
 RicSummaryCurveCreator --> RiuSummaryCurveDefSelectionEditor
 
