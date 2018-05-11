@@ -1270,8 +1270,9 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
     // Compute SGAS based on SWAT if the simulation contains no oil
     testAndComputeSgasForTimeStep(timeStepIndex);
 
-    size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
-    size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
+    size_t scalarIndexSWAT     = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
+    size_t scalarIndexSGAS     = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
+    size_t scalarIndexSSOLVENT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SSOLVENT", timeStepIndex);
 
     // Early exit if none of SWAT or SGAS is present
     if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
@@ -1317,8 +1318,9 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     this->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
 
-    std::vector<double>* swatForTimeStep = nullptr;
-    std::vector<double>* sgasForTimeStep = nullptr;
+    std::vector<double>* swatForTimeStep     = nullptr;
+    std::vector<double>* sgasForTimeStep     = nullptr;
+    std::vector<double>* ssolventForTimeStep = nullptr;
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
@@ -1338,6 +1340,15 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         }
     }
 
+    if (scalarIndexSSOLVENT != cvf::UNDEFINED_SIZE_T)
+    {
+        ssolventForTimeStep = &(this->cellScalarResults(scalarIndexSSOLVENT, timeStepIndex));
+        if (ssolventForTimeStep->size() == 0)
+        {
+            ssolventForTimeStep = nullptr;
+        }
+    }
+
     std::vector<double>& soilForTimeStep = this->cellScalarResults(soilResultScalarIndex, timeStepIndex);
 
     #pragma omp parallel for
@@ -1352,6 +1363,11 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         if (swatForTimeStep)
         {
             soilValue -= swatForTimeStep->at(idx);
+        }
+
+        if (ssolventForTimeStep)
+        {
+            soilValue -= ssolventForTimeStep->at(idx);
         }
 
         soilForTimeStep[idx] = soilValue;
