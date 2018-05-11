@@ -81,8 +81,7 @@ public:
         // Lookup RimSummaryCurve from QwtPlotCurve
         for (auto const plot : project->mainPlotCollection->summaryPlotCollection()->summaryPlots())
         {
-            RimSummaryPlot* sumPlot = plot->qwtPlot()->ownerPlotDefinition();
-            for (auto const curveSet : sumPlot->ensembleCurveSetCollection()->curveSets())
+            for (auto const curveSet : plot->ensembleCurveSetCollection()->curveSets())
             {
                 for (auto const currSumCurve : curveSet->curves())
                 {
