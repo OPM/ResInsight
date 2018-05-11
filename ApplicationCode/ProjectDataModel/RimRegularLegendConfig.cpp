@@ -795,7 +795,7 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType(ColorRangesTy
         return RiaColorTables::stimPlanPaletteColors().color3ubArray();
         break;
     default:
-        if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::EnsembleColorRanges.at(colorType);
+        if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::EnsembleColorRanges().at(colorType);
         break;
     }
 
@@ -897,7 +897,7 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         }
         else
         {
-            for (const auto& col : ColorManager::EnsembleColorRanges)
+            for (const auto& col : ColorManager::EnsembleColorRanges())
             {
                 rangeTypes.push_back(col.first);
             }

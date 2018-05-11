@@ -35,19 +35,19 @@ class RimEnsembleCurveSetCollection;
 class RimEnsembleCurveSetColorManager
 {
 public:
-    static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> EnsembleColorRanges;
+    static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>& EnsembleColorRanges();
 
     static const RimRegularLegendConfig::ColorRangesType DEFAULT_ENSEMBLE_COLOR_RANGE;
     static RimRegularLegendConfig::ColorRangesType cycledEnsembleColorRange(int index);
 
     static bool isEnsembleColorRange(RimRegularLegendConfig::ColorRangesType colorRange)
     {
-        return EnsembleColorRanges.find(colorRange) != EnsembleColorRanges.end();
+        return m_ensembleColorRanges.find(colorRange) != m_ensembleColorRanges.end();
     }
 
-    static RimRegularLegendConfig::ColorRangesType nextColorRange(RimEnsembleCurveSet* curveSet);
-
 private:
+
+    static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> m_ensembleColorRanges;
 
     static std::map<RimEnsembleCurveSetCollection*, int> m_nextColorIndexes;
     static std::map<RimEnsembleCurveSetCollection*, std::map<RimEnsembleCurveSet*, RimRegularLegendConfig::ColorRangesType>> m_colorCache;

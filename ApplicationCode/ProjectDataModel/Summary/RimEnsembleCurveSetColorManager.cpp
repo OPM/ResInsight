@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimEnsembleCurveSetColorManager::EnsembleColorRanges(
+const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimEnsembleCurveSetColorManager::m_ensembleColorRanges(
     {
         { RimRegularLegendConfig::GREEN_RED,        cvf::Color3ubArray({ cvf::Color3ub(0x00, 0xff, 0x00), cvf::Color3ub(0xff, 0x00, 0x00) }) },
         { RimRegularLegendConfig::BLUE_MAGENTA,     cvf::Color3ubArray({ cvf::Color3ub(0x00, 0x00, 0xff), cvf::Color3ub(0xff, 0x00, 0xff) }) },
@@ -34,6 +34,14 @@ const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimE
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>& RimEnsembleCurveSetColorManager::EnsembleColorRanges()
+{
+    return m_ensembleColorRanges;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE = RimRegularLegendConfig::GREEN_RED;
 
 //--------------------------------------------------------------------------------------------------
@@ -41,9 +49,9 @@ const RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::D
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledEnsembleColorRange(int index)
 {
-    size_t modIndex = index % EnsembleColorRanges.size();
+    size_t modIndex = index % m_ensembleColorRanges.size();
 
-    auto crIt = EnsembleColorRanges.begin();
+    auto crIt = m_ensembleColorRanges.begin();
     for (int i = 0; i < modIndex; ++i) ++crIt;
 
     return crIt->first;
