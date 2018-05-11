@@ -93,6 +93,8 @@ public:
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
 
+    void                                    updateAllTextInPlot();
+
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();

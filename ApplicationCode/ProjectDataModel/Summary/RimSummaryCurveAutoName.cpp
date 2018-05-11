@@ -362,6 +362,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
         auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>(this->parentField()->ownerObject());
         if (ensembleCurveSet)
         {
+            ensembleCurveSet->updateAllTextInPlot();
             ensembleCurveSet->updateConnectedEditors();
 
             return;

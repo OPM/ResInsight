@@ -422,13 +422,17 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         plot->updateAxes();
         updateTextInPlot = true;
     }
-    else if (changedField == &m_isUsingAutoName && !m_isUsingAutoName)
+    else if (changedField == &m_isUsingAutoName)
     {
         if (!m_isUsingAutoName)
         {
             m_userDefinedName = createAutoName();
         }
 
+        updateTextInPlot = true;
+    }
+    else if (changedField == &m_userDefinedName)
+    {
         updateTextInPlot = true;
     }
     else if (changedField == &m_yPushButtonSelectSummaryAddress)
@@ -464,14 +468,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (updateTextInPlot)
     {
-        updateEnsembleLegendItem();
-
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
-        if (summaryPlot->qwtPlot())
-        {
-            summaryPlot->updatePlotTitle();
-        }
+        updateAllTextInPlot();
     }
 }
 
@@ -881,6 +878,21 @@ RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 void RimEnsembleCurveSet::showCurves(bool show)
 {
     m_showCurves = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateAllTextInPlot()
+{
+    updateEnsembleLegendItem();
+
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+    if (summaryPlot->qwtPlot())
+    {
+        summaryPlot->updatePlotTitle();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
