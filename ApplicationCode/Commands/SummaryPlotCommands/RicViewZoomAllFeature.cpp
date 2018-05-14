@@ -52,7 +52,10 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
     if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
     {
         RimViewWindow* viewWindow = RiaApplication::instance()->activeReservoirView();
-        viewWindow->zoomAll();
+        if (viewWindow)
+        {
+            viewWindow->zoomAll();
+        }
     }
     else if (dynamic_cast<RiuPlotMainWindow*>(topLevelWidget))
     {
