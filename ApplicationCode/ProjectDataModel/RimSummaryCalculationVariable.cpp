@@ -85,6 +85,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 
         {
             RiuSummaryCurveDefSelectionDialog dlg(nullptr);
+            dlg.hideEnsembles();
             dlg.setCaseAndAddress(m_case(), m_summaryAddress->address());
 
             if (dlg.exec() == QDialog::Accepted)
