@@ -274,7 +274,7 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
 
     QString filePath = QFileInfo(fullPathFileName).absoluteFilePath();
     filePath = QFileInfo(filePath).path();
-    QString fileNameBase = QFileInfo(fullPathFileName).baseName();
+    QString fileNameBase = QFileInfo(fullPathFileName).completeBaseName();
 
     stringlist_type* eclipseFiles = stringlist_alloc_new();
     ecl_util_select_filelist(RiaStringEncodingTools::toNativeEncoded(filePath).data(), RiaStringEncodingTools::toNativeEncoded(fileNameBase).data(), ECL_OTHER_FILE, false, eclipseFiles);
