@@ -922,13 +922,17 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
             curvePen.setWidth(2);
 
             symbol->setPen(curvePen);
+            symbol->setSize(6, 6);
         }
         else if (m_colorMode == BY_ENSEMBLE_PARAM)
         {
-            symbol = new QwtSymbol(QwtSymbol::Star1);
+            QPixmap p = QPixmap(":/Legend.png");
+            
+            symbol = new QwtSymbol;
+            symbol->setPixmap(p);
+            symbol->setSize(8, 8);
         }
 
-        symbol->setSize(6, 6);
         m_qwtPlotCurveForLegendText->setSymbol(symbol);
     }
 
