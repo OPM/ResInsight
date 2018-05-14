@@ -61,7 +61,7 @@ bool RicImportSummaryGroupFeature::isCommandEnabled()
 void RicImportSummaryGroupFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app   = RiaApplication::instance();
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble");
+    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Summary Case Group");
     
     if (fileNames.isEmpty()) return;
 
