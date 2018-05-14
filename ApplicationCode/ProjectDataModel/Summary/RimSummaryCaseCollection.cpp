@@ -37,7 +37,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitFieldNoDefault(&m_cases, "SummaryCases", "", "", "", "");
     m_cases.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_name, "SummaryCollectionName", QString("Case Group"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "SummaryCollectionName", QString("Group"), "Name", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_nameAndItemCount, "NameCount", "Name", "", "", "");
     m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
