@@ -1004,6 +1004,10 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
                         curveSet->deleteCurve(curve);
                         if (curveSet->curves().empty())
                         {
+                            if (curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM)
+                            {
+                                qwtPlot()->removeEnsembleCurveSetLegend(curveSet);
+                            }
                             m_ensembleCurveSetCollection->deleteCurveSet(curveSet);
                         }
                         return;
@@ -1189,7 +1193,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     if (uiConfigName == RicSummaryCurveCreator::CONFIGURATION_NAME)
     {
         uiTreeOrdering.add(&m_summaryCurveCollection);
-        if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
+        if (!m_isCrossPlot)
         {
             uiTreeOrdering.add(&m_ensembleCurveSetCollection);
         }
@@ -1210,7 +1214,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
         axisFolder->add(&m_rightYAxisProperties);
 
         uiTreeOrdering.add(&m_summaryCurveCollection);
-        if (!m_isCrossPlot && !m_ensembleCurveSetCollection->curveSets().empty())
+        if (!m_isCrossPlot)
         {
             uiTreeOrdering.add(&m_ensembleCurveSetCollection);
         }
