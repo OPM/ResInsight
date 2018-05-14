@@ -123,7 +123,6 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "");
     m_isAutoZoom_OBSOLETE.uiCapability()->setUiHidden(true);
     m_isAutoZoom_OBSOLETE.xmlCapability()->setIOWritable(false);
-    setAsPlotMdiWindow();
 
     m_isCrossPlot = false;
 
