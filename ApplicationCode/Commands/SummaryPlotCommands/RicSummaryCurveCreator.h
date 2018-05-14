@@ -34,7 +34,6 @@
 
 #include <memory>
 
-
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
 class RimSummaryCase;
@@ -107,7 +106,7 @@ private:
     void                                    proxyEnablePlotAutoTitle(const bool& enable);
     bool                                    proxyPlotAutoTitle() const;
     void                                    setInitialCurveVisibility(const RimSummaryPlot* targetPlot);
-
+    
 private:
     caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
     

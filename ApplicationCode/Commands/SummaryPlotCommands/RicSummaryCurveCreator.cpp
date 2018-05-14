@@ -54,6 +54,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <QInputDialog>
+#include <QMessageBox>
 
 #include <algorithm>
 #include <sstream>
@@ -64,6 +65,11 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 ///
 //--------------------------------------------------------------------------------------------------
 const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+int  ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -367,10 +373,14 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
-                                                                     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
-                                                                     const std::set<RimSummaryCurve*>&          curvesToDelete)
+void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
+    const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
+    const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
+    const std::set<RimSummaryCurve*>&          curvesToDelete)
 {
+    const size_t ENSEMBLE_CURVE_COUNT_THRESHOLD = 200;
+    static bool                         warningDisplayed               = false;
+
     RimSummaryCase*                     prevCase = nullptr;
     std::set<RiaSummaryCurveDefinition> summaryCurveDefsToDisplay;
 
@@ -380,7 +390,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         if (!def.isEnsembleCurve()) summaryCurveDefsToDisplay.insert(def);
     }
 
-    RimSummaryCurveAppearanceCalculator curveLookCalc(summaryCurveDefsToDisplay, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(
+        summaryCurveDefsToDisplay, getAllSummaryCaseNames(), getAllSummaryWellNames());
     initCurveAppearanceCalculator(curveLookCalc);
 
     // Delete curves
@@ -388,6 +399,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
     {
         m_previewPlot->deleteCurve(curve);
     }
+
+    size_t ensembleCurveCnt = ensembleCurveCount(allCurveDefsToDisplay);
 
     // Add new curves
     for (const auto& curveDef : curveDefsToAdd)
@@ -420,6 +433,22 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
                 // Set single curve set color
                 size_t colorIndex = m_previewPlot->ensembleCurveSetCollection()->curveSetCount();
                 curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex));
+
+                if (m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 && ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD)
+                {
+                    // Toggle off new curve set and display warning
+                    curveSet->showCurves(false);
+
+                    if (!warningDisplayed)
+                    {
+                        QMessageBox mbox;
+                        mbox.setIcon(QMessageBox::Icon::Warning);
+                        mbox.setInformativeText(
+                            "The new curve set is hidden. Too many visible curve sets may lead to poor performance");
+                        mbox.exec();
+                        warningDisplayed = true;
+                    }
+                }
             }
             curveSet->addCurve(curve);
         }
@@ -910,4 +939,13 @@ void RicSummaryCurveCreator::setInitialCurveVisibility(const RimSummaryPlot* tar
             curveSet->showCurves(false);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs)
+{
+    return std::count_if(
+        allCurveDefs.begin(), allCurveDefs.end(), [](const RiaSummaryCurveDefinition& def) { return def.isEnsembleCurve(); });
 }

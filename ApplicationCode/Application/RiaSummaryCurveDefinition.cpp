@@ -22,6 +22,15 @@
 #include "RimSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
+{
+    m_curveDefinition = std::make_pair(nullptr, RifEclipseSummaryAddress());
+    m_ensemble        = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
@@ -62,6 +71,14 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
     return m_ensemble != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryCurveDefinition::isValid() const
+{
+    return m_curveDefinition.first != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

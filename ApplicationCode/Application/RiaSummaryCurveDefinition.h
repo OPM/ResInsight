@@ -34,6 +34,7 @@ class RimSummaryCaseCollection;
 class RiaSummaryCurveDefinition
 {
 public:
+    RiaSummaryCurveDefinition();
     explicit RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
                                        const RifEclipseSummaryAddress& summaryAddress,
                                        RimSummaryCaseCollection* emsemble = nullptr);
@@ -42,6 +43,8 @@ public:
     const RifEclipseSummaryAddress& summaryAddress() const;
     RimSummaryCaseCollection*       ensemble() const;
     bool                            isEnsembleCurve() const;
+
+    bool                            isValid() const;
 
     bool operator < (const RiaSummaryCurveDefinition& other) const;
 
