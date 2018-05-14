@@ -806,7 +806,13 @@ void RiuMainWindow::slotRefreshViewActions()
 
     updateScaleValue();
 
-    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature" << "RicTogglePerspectiveViewFeature");
+    QStringList commandIds;
+    commandIds << "RicLinkVisibleViewsFeature"
+               << "RicTileWindowsFeature"
+               << "RicTogglePerspectiveViewFeature"
+               << "RicViewZoomAllFeature";
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
 }
 
 //--------------------------------------------------------------------------------------------------
