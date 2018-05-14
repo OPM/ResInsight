@@ -613,7 +613,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateTargetPlot()
 {
-    if (m_targetPlot == nullptr) m_targetPlot = new RimSummaryPlot();
+    if (!m_targetPlot) return;
 
     m_targetPlot->deleteAllSummaryCurves();
     m_targetPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
