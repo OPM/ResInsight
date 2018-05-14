@@ -1272,7 +1272,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     size_t scalarIndexSWAT     = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
     size_t scalarIndexSGAS     = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
-    size_t scalarIndexSSOLVENT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SSOLVENT", timeStepIndex);
+    size_t scalarIndexSSOL     = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SSOL", timeStepIndex);
 
     // Early exit if none of SWAT or SGAS is present
     if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
@@ -1320,7 +1320,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     std::vector<double>* swatForTimeStep     = nullptr;
     std::vector<double>* sgasForTimeStep     = nullptr;
-    std::vector<double>* ssolventForTimeStep = nullptr;
+    std::vector<double>* ssolForTimeStep = nullptr;
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
@@ -1340,12 +1340,12 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         }
     }
 
-    if (scalarIndexSSOLVENT != cvf::UNDEFINED_SIZE_T)
+    if (scalarIndexSSOL != cvf::UNDEFINED_SIZE_T)
     {
-        ssolventForTimeStep = &(this->cellScalarResults(scalarIndexSSOLVENT, timeStepIndex));
-        if (ssolventForTimeStep->size() == 0)
+        ssolForTimeStep = &(this->cellScalarResults(scalarIndexSSOL, timeStepIndex));
+        if (ssolForTimeStep->size() == 0)
         {
-            ssolventForTimeStep = nullptr;
+            ssolForTimeStep = nullptr;
         }
     }
 
@@ -1365,9 +1365,9 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
             soilValue -= swatForTimeStep->at(idx);
         }
 
-        if (ssolventForTimeStep)
+        if (ssolForTimeStep)
         {
-            soilValue -= ssolventForTimeStep->at(idx);
+            soilValue -= ssolForTimeStep->at(idx);
         }
 
         soilForTimeStep[idx] = soilValue;
