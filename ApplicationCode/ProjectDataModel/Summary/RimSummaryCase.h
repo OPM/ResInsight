@@ -25,6 +25,7 @@
 #include <memory>
 
 class RifSummaryReaderInterface;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 //
@@ -59,6 +60,8 @@ public:
     void                setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters);
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
     bool                hasCaseRealizationParameters() const;
+    RimSummaryCaseCollection* ensemble() const;
+    bool                isEnsembleCase() const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

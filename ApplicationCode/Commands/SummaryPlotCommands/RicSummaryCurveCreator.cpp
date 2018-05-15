@@ -337,7 +337,8 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
         for (const auto& curve : currentCurvesInPreviewPlot)
         {
-            currentCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
+            RimSummaryCase* sumCase = curve->summaryCaseY();
+            currentCurveDefs.insert(RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr));
         }
 
         if (allCurveDefinitions.size() < currentCurvesInPreviewPlot.size())
@@ -352,7 +353,8 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
             for (const auto& curve : currentCurvesInPreviewPlot)
             {
-                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY());
+                RimSummaryCase* sumCase = curve->summaryCaseY();
+                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr);
                 if (deleteCurveDefs.count(curveDef) > 0) curvesToDelete.insert(curve);
             }
         }
@@ -592,9 +594,6 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         for (const auto& curve : curveSet->curves())
         {
             curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY(), ensemble));
-
-            // Copy curve object to the preview plot
-            copyEnsembleCurveAndAddToCurveSet(curve, newCurveSet, true);
         }
     }
 

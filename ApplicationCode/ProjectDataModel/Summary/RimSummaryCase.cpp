@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cvfAssert.h"
 
@@ -105,6 +106,24 @@ std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationPar
 bool RimSummaryCase::hasCaseRealizationParameters() const
 {
     return m_crlParameters != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimSummaryCase::ensemble() const
+{
+    RimSummaryCaseCollection* e;
+    firstAncestorOrThisOfType(e);
+    return e;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::isEnsembleCase() const
+{
+    return ensemble() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

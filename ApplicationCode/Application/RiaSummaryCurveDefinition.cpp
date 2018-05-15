@@ -146,9 +146,12 @@ bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other
 {
     if (m_curveDefinition.first == other.summaryCase())
     {
+        if (m_curveDefinition.second == other.summaryAddress())
+        {
+            return m_ensemble < other.m_ensemble;
+        }
         return (m_curveDefinition.second < other.summaryAddress());
     }
-
     return (m_curveDefinition.first < other.summaryCase());
 }
 

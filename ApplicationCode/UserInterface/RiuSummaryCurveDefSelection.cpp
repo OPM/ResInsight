@@ -1077,9 +1077,6 @@ std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources(
 
     for (const auto& source : m_selectedSources)
     {
-        RimSummaryCase* c = dynamic_cast<RimSummaryCase*>(source.p());
-        RimSummaryCaseCollection* cc = dynamic_cast<RimSummaryCaseCollection*>(source.p());
-
         sources.push_back(source);
     }
 

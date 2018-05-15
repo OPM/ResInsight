@@ -859,6 +859,12 @@ RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 {
     RimEnsembleCurveSet* copy = dynamic_cast<RimEnsembleCurveSet*>(this->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     copy->m_yValuesSummaryGroup = m_yValuesSummaryGroup();
+
+    // Update summary case references
+    for (int i = 0; i < m_curves.size(); i++)
+    {
+        copy->m_curves[i]->setSummaryCaseY(m_curves[i]->summaryCaseY());
+    }
     return copy;
 }
 
