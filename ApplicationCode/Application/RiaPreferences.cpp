@@ -193,7 +193,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     
         m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
 
-        caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Restart Files");
+        caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Origin Files");
         restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
         caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
         summaryImportOptionGroup->add(&summaryImportMode);

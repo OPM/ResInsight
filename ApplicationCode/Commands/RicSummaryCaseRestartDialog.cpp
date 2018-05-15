@@ -384,7 +384,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         dialog.displayWarningsIfAny(reader.warnings());
 
         // Set properties and show dialog
-        dialog.setWindowTitle("Restart Files");
+        dialog.setWindowTitle("Origin Files");
         dialog.m_buttons->button(QDialogButtonBox::Apply)->setVisible(showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
 
