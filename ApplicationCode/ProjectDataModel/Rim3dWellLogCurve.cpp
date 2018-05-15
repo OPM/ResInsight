@@ -77,6 +77,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
     CAF_PDM_InitField(&m_drawStyle, "DrawStyle", DrawStyleEnum(LINE), "Draw Style", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
+    this->uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
