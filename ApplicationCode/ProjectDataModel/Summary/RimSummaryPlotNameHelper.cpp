@@ -191,25 +191,29 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
     auto wellNames      = m_analyzer.wellNames();
     auto wellGroupNames = m_analyzer.wellGroupNames();
     auto regions        = m_analyzer.regionNumbers();
+    auto categories     = m_analyzer.categories();
 
-    if (quantities.size() == 1)
+    if (categories.size() == 1)
     {
-        m_titleQuantity = *(quantities.begin());
-    }
+        if (quantities.size() == 1)
+        {
+            m_titleQuantity = *(quantities.begin());
+        }
 
-    if (wellNames.size() == 1)
-    {
-        m_titleWellName = *(wellNames.begin());
-    }
+        if (wellNames.size() == 1)
+        {
+            m_titleWellName = *(wellNames.begin());
+        }
 
-    if (wellGroupNames.size() == 1)
-    {
-        m_titleWellGroupName = *(wellGroupNames.begin());
-    }
+        if (wellGroupNames.size() == 1)
+        {
+            m_titleWellGroupName = *(wellGroupNames.begin());
+        }
 
-    if (regions.size() == 1)
-    {
-        m_titleRegion = std::to_string(*(regions.begin()));
+        if (regions.size() == 1)
+        {
+            m_titleRegion = std::to_string(*(regions.begin()));
+        }
     }
 
     if (m_summaryCases.size() == 1 && m_ensembleCases.empty())
