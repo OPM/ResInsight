@@ -249,12 +249,12 @@ RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurveDefinitions() const
+std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefinitionsFromSelection() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefVector;
     
     {
-        std::set<RiaSummaryCurveDefinition> caseAndAddressPairs;
+        std::set<RiaSummaryCurveDefinition> curveDefinitions;
 
         std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
@@ -289,17 +289,57 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurv
                     {
                         if (selectedAddressesFromUi.count(readerAddress) > 0)
                         {
-                            caseAndAddressPairs.insert(RiaSummaryCurveDefinition(currCase, readerAddress, ensemble));
+                            curveDefinitions.insert(RiaSummaryCurveDefinition(currCase, readerAddress, ensemble));
                         }
                     }
                 }
             }
         }
 
-        std::copy(caseAndAddressPairs.begin(), caseAndAddressPairs.end(), std::back_inserter(curveDefVector));
+        std::copy(curveDefinitions.begin(), curveDefinitions.end(), std::back_inserter(curveDefVector));
     }
 
     return curveDefVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One CurveDefinition pr ensemble curve set
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() const
+{
+    std::vector<RiaSummaryCurveDefinition> curveDefSelection;
+    std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
+    for (SummarySource* currSource : selectedSummarySources())
+    {
+        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+        RimSummaryCase* sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
+        if (ensemble)
+        {
+            std::set<RifEclipseSummaryAddress> addressUnion = ensemble->calculateUnionOfSummaryAddresses();
+            for ( const auto& addr : selectedAddressesFromUi)
+            {
+                if (addressUnion.count(addr))
+                {
+                    curveDefSelection.push_back(RiaSummaryCurveDefinition(nullptr, addr, ensemble));
+                }
+            }
+        }
+        else
+        {
+            if (!(sourceCase &&  sourceCase->summaryReader())) continue;
+
+            const std::vector<RifEclipseSummaryAddress>& readerAddresses = sourceCase->summaryReader()->allResultAddresses();
+            for ( const auto& addr : readerAddresses)
+            {
+                if (selectedAddressesFromUi.count(addr))
+                {
+                    curveDefSelection.push_back(RiaSummaryCurveDefinition(sourceCase, addr, nullptr));
+                }
+            }
+        }
+    }
+
+    return curveDefSelection;
 }
 
 //--------------------------------------------------------------------------------------------------

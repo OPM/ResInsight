@@ -56,7 +56,9 @@ public:
     virtual ~RiuSummaryCurveDefSelection();
 
     void                                    setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
-    std::vector<RiaSummaryCurveDefinition>  selectedCurveDefinitions() const;
+    std::vector<RiaSummaryCurveDefinition>  allCurveDefinitionsFromSelection() const;
+    std::vector<RiaSummaryCurveDefinition>  selection() const;
+
     void                                    setMultiSelectionMode(bool multiSelectionMode);
     void                                    hideEnsembles(bool hide);
     void                                    hideSummaryCases(bool hide);

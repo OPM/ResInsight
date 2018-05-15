@@ -324,7 +324,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 {
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector =
-        m_summaryCurveSelectionEditor->summaryAddressSelection()->selectedCurveDefinitions();
+        m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveDefinitionsFromSelection();
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions =
         std::set<RiaSummaryCurveDefinition>(allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end());
 
