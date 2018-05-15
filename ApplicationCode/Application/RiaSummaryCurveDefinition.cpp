@@ -25,9 +25,10 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
+: m_summaryCase(nullptr)
+, m_ensemble(nullptr)
+
 {
-    m_curveDefinition = std::make_pair(nullptr, RifEclipseSummaryAddress());
-    m_ensemble        = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,9 +37,11 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
                                                      const RifEclipseSummaryAddress& summaryAddress,
                                                      RimSummaryCaseCollection* ensemble)
+                                                     : m_summaryCase(summaryCase)
+                                                     , m_ensemble(ensemble)
+                                                     , m_summaryAddress(summaryAddress)
 {
-    m_curveDefinition = std::make_pair(summaryCase, summaryAddress);
-    m_ensemble = ensemble;
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +49,7 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase* summaryCase
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiaSummaryCurveDefinition::summaryCase() const
 {
-    return m_curveDefinition.first;
+    return m_summaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +65,7 @@ RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 //--------------------------------------------------------------------------------------------------
 const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() const
 {
-    return m_curveDefinition.second;
+    return m_summaryAddress;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,13 +76,6 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
     return m_ensemble != nullptr;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaSummaryCurveDefinition::isValid() const
-{
-    return m_curveDefinition.first != nullptr;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -144,14 +140,16 @@ QString RiaSummaryCurveDefinition::curveDefinitionText(RimSummaryCase* summaryCa
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other) const
 {
-    if (m_curveDefinition.first == other.summaryCase())
+    if (m_summaryCase != other.summaryCase())
     {
-        if (m_curveDefinition.second == other.summaryAddress())
-        {
-            return m_ensemble < other.m_ensemble;
-        }
-        return (m_curveDefinition.second < other.summaryAddress());
+        return m_summaryCase < other.summaryCase();
     }
-    return (m_curveDefinition.first < other.summaryCase());
+
+    if (m_ensemble != other.ensemble())
+    {
+        return (m_ensemble < other.ensemble());
+    }
+    
+    return (m_summaryAddress < other.summaryAddress());
 }
 

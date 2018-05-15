@@ -44,8 +44,6 @@ public:
     RimSummaryCaseCollection*       ensemble() const;
     bool                            isEnsembleCurve() const;
 
-    bool                            isValid() const;
-
     bool operator < (const RiaSummaryCurveDefinition& other) const;
 
     // TODO: Consider moving to a separate tools class
@@ -59,6 +57,7 @@ public:
 private:
 
 private:
-    std::pair<RimSummaryCase*, RifEclipseSummaryAddress>    m_curveDefinition;
+    RimSummaryCase*                                         m_summaryCase;
+    RifEclipseSummaryAddress                                m_summaryAddress;
     RimSummaryCaseCollection*                               m_ensemble;
 };
