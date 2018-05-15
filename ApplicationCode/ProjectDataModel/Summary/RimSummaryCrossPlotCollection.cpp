@@ -89,6 +89,7 @@ void RimSummaryCrossPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionIte
 RimSummaryPlot* RimSummaryCrossPlotCollection::createSummaryPlot()
 {
     RimSummaryPlot* plot = new RimSummaryCrossPlot();
+    plot->setAsPlotMdiWindow();
 
     plot->setDescription(QString("Summary Cross Plot %1").arg(m_summaryCrossPlots.size()));
 
