@@ -823,23 +823,27 @@ void RimEnsembleCurveSet::updateAllCurves()
     RimSummaryAddress* addr = m_yValuesCurveVariable();
     if (group && plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
-        for (auto& sumCase : group->allSummaryCases())
+        if(m_showCurves)
         {
-            RimSummaryCurve* curve = new RimSummaryCurve();
-            curve->setSummaryCaseY(sumCase);
-            curve->setSummaryAddressY(addr->address());
-
-            addCurve(curve);
-
-            curve->updateCurveVisibility(true);
-            curve->loadDataAndUpdate(true);
-
-            if (curve->qwtPlotCurve())
+            for (auto& sumCase : group->allSummaryCases())
             {
-                curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
+                RimSummaryCurve* curve = new RimSummaryCurve();
+                curve->setSummaryCaseY(sumCase);
+                curve->setSummaryAddressY(addr->address());
+                curve->setLeftOrRightAxisY(m_plotAxis());
+
+                addCurve(curve);
+
+                curve->updateCurveVisibility(true);
+                curve->loadDataAndUpdate(true);
+
+                if (curve->qwtPlotCurve())
+                {
+                    curve->qwtPlotCurve()->setItemAttribute(QwtPlotItem::Legend, false);
+                }
             }
+            m_yValuesSummaryFilter->updateFromAddress(addr->address());
         }
-        m_yValuesSummaryFilter->updateFromAddress(addr->address());
 
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType(plot);
