@@ -182,13 +182,12 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
 
     for (RimSummaryCase* summaryCase : m_cases)
     {
-        RimFileSummaryCase* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>(summaryCase);
-        if (fileSummaryCase)
+        if (summaryCase)
         {
-            QFileInfo summaryFileInfo(fileSummaryCase->summaryHeaderFilename());
+            QFileInfo summaryFileInfo(summaryCase->summaryHeaderFilename());
             if (incomingFileInfo == summaryFileInfo)
             {
-                return fileSummaryCase;
+                return summaryCase;
             }
         }
     }
@@ -197,13 +196,12 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
     {
         for (RimSummaryCase* summaryCase : collection->allSummaryCases())
         {
-            RimFileSummaryCase* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>(summaryCase);
-            if (fileSummaryCase)
+            if (summaryCase)
             {
-                QFileInfo summaryFileInfo(fileSummaryCase->summaryHeaderFilename());
+                QFileInfo summaryFileInfo(summaryCase->summaryHeaderFilename());
                 if (incomingFileInfo == summaryFileInfo)
                 {
-                    return fileSummaryCase;
+                    return summaryCase;
                 }
             }
         }
@@ -432,7 +430,9 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
                 eclCase = project->eclipseCaseFromGridFileName(gridCaseFile);
             }
 
-            if (eclCase)
+            RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>(findSummaryCaseFromFileName(fileInfo.summaryFileName()));
+
+            if (eclCase && !existingGridSummaryCase)
             {
                 RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
 
