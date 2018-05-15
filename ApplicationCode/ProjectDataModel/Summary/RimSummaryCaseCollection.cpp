@@ -117,6 +117,29 @@ void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::calculateUnionOfSummaryAddresses() const
+{
+   std::set<RifEclipseSummaryAddress> addressUnion;
+
+   for (RimSummaryCase* currCase: m_cases)
+   {
+       if ( !currCase ) continue;
+       
+       RifSummaryReaderInterface* reader = currCase->summaryReader();
+
+       if ( !reader ) continue;
+
+       const std::vector<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
+       addressUnion.insert(readerAddresses.begin(), readerAddresses.end());
+
+    }
+
+    return addressUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()

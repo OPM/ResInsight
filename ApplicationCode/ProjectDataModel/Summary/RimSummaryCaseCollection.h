@@ -44,7 +44,7 @@ public:
     QString                         name() const;
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
-
+    std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
     void                            updateReferringCurveSets() const;
