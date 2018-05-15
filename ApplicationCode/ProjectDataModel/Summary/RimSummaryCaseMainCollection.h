@@ -45,7 +45,6 @@ public:
     std::vector<RimSummaryCase*>            topLevelSummaryCases() const;
     std::vector<RimSummaryCaseCollection*>  summaryCaseCollections() const;
 
-    void                createSummaryCasesFromRelevantEclipseResultCases();
     std::vector<RimSummaryCase*> createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos);
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos, bool showProgress = false);
 

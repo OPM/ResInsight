@@ -82,66 +82,6 @@ RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::createSummaryCasesFromRelevantEclipseResultCases()
-{
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType(proj);
-    if (proj)
-    {
-        std::vector<RimCase*> all3DCases;
-        proj->allCases(all3DCases);
-        for (RimCase* aCase: all3DCases)
-        {
-            RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(aCase);
-            if (eclResCase)
-            {
-                // If we have no summary case corresponding to this eclipse case,
-                // try to create one.
-                bool isFound = false;
-                for (size_t scIdx = 0; scIdx < m_cases.size(); ++scIdx)
-                {
-                    RimGridSummaryCase* grdSumCase = dynamic_cast<RimGridSummaryCase*>(m_cases[scIdx]);
-                    if (grdSumCase)
-                    {
-                        if (grdSumCase->associatedEclipseCase() == eclResCase)
-                        {
-                            isFound = true;
-                            break;
-                        }
-                    }
-                }
-
-                for (size_t sccIdx = 0; sccIdx < m_caseCollections.size() && !isFound; ++sccIdx)
-                {
-                    for (RimSummaryCase* sumCase : m_caseCollections[sccIdx]->allSummaryCases())
-                    {
-                        RimGridSummaryCase* grdSumCase = dynamic_cast<RimGridSummaryCase*>(sumCase);
-                        if (grdSumCase && grdSumCase->associatedEclipseCase() == eclResCase)
-                        {
-                            isFound = true;
-                            break;
-                        }
-                    }
-                }                
-
-                if (!isFound)
-                {
-                    // Create new GridSummaryCase
-                    QStringList summaryFileNames = RifSummaryCaseRestartSelector::getSummaryFilesFromGridFiles(QStringList({ eclResCase->gridFileName() }));
-                    if (!summaryFileNames.isEmpty())
-                    {
-                        RifSummaryCaseFileResultInfo fileInfo(summaryFileNames.front(), false);
-                        createAndAddSummaryCasesFromFileInfos({ fileInfo });
-                    }
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclipseResultCase) const
 {
     for (RimSummaryCase* summaryCase : m_cases)

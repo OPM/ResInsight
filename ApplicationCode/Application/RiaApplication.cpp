@@ -478,7 +478,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             oilField->summaryCaseMainCollection = new RimSummaryCaseMainCollection();
         }
-        oilField->summaryCaseMainCollection()->createSummaryCasesFromRelevantEclipseResultCases();
         oilField->summaryCaseMainCollection()->loadAllSummaryCaseData();
 
         if (!oilField->observedDataCollection())
