@@ -50,6 +50,7 @@ public:
     virtual QString createCurveAutoName() const override;
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;

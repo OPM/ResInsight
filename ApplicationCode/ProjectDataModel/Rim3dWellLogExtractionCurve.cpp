@@ -268,6 +268,18 @@ caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{   
+    if (changedField == &m_timeStep || changedField == &m_case)
+    {
+        this->resetMinMaxValuesAndUpdateUI();
+    }
+    Rim3dWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);     
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim3dWellLogExtractionCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                                  bool*                      useOptionsOnly)
 {
