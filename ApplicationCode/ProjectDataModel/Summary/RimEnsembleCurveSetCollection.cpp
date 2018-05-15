@@ -171,27 +171,6 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() con
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::visibleCurveSets() const
-{
-    std::vector<RimEnsembleCurveSet*> visible;
-
-    if (m_showCurves())
-    {
-        for (const auto& c : m_curveSets)
-        {
-            if (c->isCurvesVisible())
-            {
-                visible.push_back(c);
-            }
-        }
-    }
-
-    return visible;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 size_t RimEnsembleCurveSetCollection::curveSetCount() const

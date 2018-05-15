@@ -596,7 +596,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
     {
         bool showLegendInQwt = m_showLegend();
 
-        if (summaryPlot->ensembleCurveSetCollection()->visibleCurveSets().empty() && summaryPlot->curveCount() == 1)
+        if (summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1)
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInQwt = false;

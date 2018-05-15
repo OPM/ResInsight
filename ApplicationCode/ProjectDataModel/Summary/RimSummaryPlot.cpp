@@ -1558,11 +1558,8 @@ void RimSummaryPlot::updateNameHelperWithCurveData(RimSummaryPlotNameHelper* nam
 
     for (auto curveSet : m_ensembleCurveSetCollection->curveSets())
     {
-        if (curveSet->isCurvesVisible())
-        {
-            addresses.push_back(curveSet->summaryAddress());
-            ensembleCases.push_back(curveSet->summaryCaseCollection());
-        }
+        addresses.push_back(curveSet->summaryAddress());
+        ensembleCases.push_back(curveSet->summaryCaseCollection());
     }
 
     nameHelper->clear();
