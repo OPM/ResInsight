@@ -22,6 +22,7 @@
 
 #include <vector>
 
+class RimGridSummaryCase;
 class RimSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
@@ -50,6 +51,7 @@ public:
 
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
+    void                convertGridSummaryCasesToFileSummaryCases(RimGridSummaryCase* gridSummaryCase);
  
     void                addCases(const std::vector<RimSummaryCase*> cases);
     void                addCase(RimSummaryCase* summaryCase);

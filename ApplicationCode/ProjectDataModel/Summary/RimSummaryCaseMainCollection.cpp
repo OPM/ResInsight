@@ -111,6 +111,19 @@ void RimSummaryCaseMainCollection::createSummaryCasesFromRelevantEclipseResultCa
                     }
                 }
 
+                for (size_t sccIdx = 0; sccIdx < m_caseCollections.size() && !isFound; ++sccIdx)
+                {
+                    for (RimSummaryCase* sumCase : m_caseCollections[sccIdx]->allSummaryCases())
+                    {
+                        RimGridSummaryCase* grdSumCase = dynamic_cast<RimGridSummaryCase*>(sumCase);
+                        if (grdSumCase && grdSumCase->associatedEclipseCase() == eclResCase)
+                        {
+                            isFound = true;
+                            break;
+                        }
+                    }
+                }                
+
                 if (!isFound)
                 {
                     // Create new GridSummaryCase
@@ -143,6 +156,18 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCa
         }
     }
 
+    for (auto collection : m_caseCollections)
+    {
+        for (RimSummaryCase* sumCase : collection->allSummaryCases())
+        {
+            RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(sumCase);
+            if (gridSummaryCase && gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName())
+            {
+                return gridSummaryCase;
+            }
+        }
+    }
+
     return nullptr;
 }
 
@@ -168,7 +193,50 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
         }
     }
 
+    for (auto collection : m_caseCollections)
+    {
+        for (RimSummaryCase* summaryCase : collection->allSummaryCases())
+        {
+            RimFileSummaryCase* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>(summaryCase);
+            if (fileSummaryCase)
+            {
+                QFileInfo summaryFileInfo(fileSummaryCase->summaryHeaderFilename());
+                if (incomingFileInfo == summaryFileInfo)
+                {
+                    return fileSummaryCase;
+                }
+            }
+        }
+    }
+
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::convertGridSummaryCasesToFileSummaryCases(RimGridSummaryCase* gridSummaryCase)
+{
+    RimFileSummaryCase* fileSummaryCase = gridSummaryCase->createFileSummaryCaseCopy();
+    addCaseRealizationParametersIfFound(*fileSummaryCase, fileSummaryCase->summaryHeaderFilename());
+
+    RimSummaryCaseCollection* collection;
+    gridSummaryCase->firstAncestorOrThisOfType(collection);
+
+    removeCase(gridSummaryCase);
+    delete gridSummaryCase;
+
+    if (collection)
+    {
+        collection->addCase(fileSummaryCase);
+        collection->updateConnectedEditors();
+    }
+    else
+    {
+        this->addCase(fileSummaryCase);
+        this->updateConnectedEditors();
+    }
+    loadSummaryCaseData({ fileSummaryCase });
 }
 
 //--------------------------------------------------------------------------------------------------

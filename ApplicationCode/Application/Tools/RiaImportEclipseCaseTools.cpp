@@ -34,12 +34,15 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimFileSummaryCase.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
@@ -83,48 +86,67 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
     if (!summaryFileInfos.empty())
     {
         RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
-        std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createAndAddSummaryCasesFromFileInfos(summaryFileInfos);
-
-        for (RimSummaryCase* newSumCase : newSumCases)
+        if (sumCaseColl)
         {
-            QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
-            RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName(gridCaseFile);
-            if (gridCase)
+            std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createSummaryCasesFromFileInfos(summaryFileInfos);
+
+            for (RimSummaryCase* newSumCase : newSumCases)
             {
-                RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
-                if (existingFileSummaryCase)
+                RimSummaryCaseCollection* existingCollection = nullptr;
+                QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
+                RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName(gridCaseFile);
+                if (gridCase)
                 {
-                    // Replace all occurrences of file sum with ecl sum
-
-                    std::vector<caf::PdmObjectHandle*> referringObjects;
-                    existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
-
-                    // UI settings of a curve filter is updated based
-                    // on the new case association for the curves in the curve filter
-                    // UI is updated by loadDataAndUpdate()
-
-                    for (caf::PdmObjectHandle* objHandle : referringObjects)
+                    RimSummaryCase* existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
+                    RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>(existingSummaryCase);
+                    RimFileSummaryCase* existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>(existingSummaryCase);
+                    if (existingGridSummaryCase)
                     {
-                        RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
-                        if (summaryCurve)
+                        delete newSumCase; // No need to add anything new. Already have one.
+                        continue;
+                    }
+                    else if (existingFileSummaryCase)
+                    {
+                        existingFileSummaryCase->firstAncestorOrThisOfType(existingCollection);
+
+                        // Replace all occurrences of file sum with ecl sum
+
+                        std::vector<caf::PdmObjectHandle*> referringObjects;
+                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+
+                        // UI settings of a curve filter is updated based
+                        // on the new case association for the curves in the curve filter
+                        // UI is updated by loadDataAndUpdate()
+
+                        for (caf::PdmObjectHandle* objHandle : referringObjects)
                         {
-                            RimSummaryCurveCollection* parentCollection = nullptr;
-                            summaryCurve->firstAncestorOrThisOfType(parentCollection);
-                            if (parentCollection)
+                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
+                            if (summaryCurve)
                             {
-                                parentCollection->loadDataAndUpdate(true);
-                                parentCollection->updateConnectedEditors();
-                                break;
+                                RimSummaryCurveCollection* parentCollection = nullptr;
+                                summaryCurve->firstAncestorOrThisOfType(parentCollection);
+                                if (parentCollection)
+                                {
+                                    parentCollection->loadDataAndUpdate(true);
+                                    parentCollection->updateConnectedEditors();
+                                    break;
+                                }
                             }
                         }
+
+                        // Remove existing case
+                        sumCaseColl->removeCase(existingFileSummaryCase);
+                        delete existingFileSummaryCase;
                     }
-
-                    sumCaseColl->removeCase(existingFileSummaryCase);
-
-                    delete existingFileSummaryCase;
-
                 }
-
+                if (existingCollection)
+                {
+                    existingCollection->addCase(newSumCase);
+                }
+                else
+                {
+                    sumCaseColl->addCase(newSumCase);
+                }
                 sumCaseColl->updateAllRequiredEditors();
             }
         }

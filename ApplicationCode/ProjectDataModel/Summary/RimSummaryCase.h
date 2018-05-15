@@ -62,6 +62,7 @@ public:
     bool                hasCaseRealizationParameters() const;
     RimSummaryCaseCollection* ensemble() const;
     bool                isEnsembleCase() const;
+    void                copyFrom(const RimSummaryCase& rhs);
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

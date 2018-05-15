@@ -26,6 +26,7 @@
 
 class RimEclipseCase;
 class RifReaderEclipseSummary;
+class RimFileSummaryCase;
 
 //==================================================================================================
 //
@@ -52,6 +53,7 @@ public:
 
     void                            setIncludeRestartFiles(bool includeRestartFiles);
 
+    RimFileSummaryCase*             createFileSummaryCaseCopy();
 private:
     QString                         eclipseGridFileName() const;
 

@@ -23,6 +23,7 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
@@ -31,6 +32,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
+#include "RimGridSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -184,6 +187,22 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
     else
     {
         removeCaseFromAllGroups(eclipseCase);
+    }
+
+    RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(eclipseCase);
+    if (resultCase)
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+        if (sumCaseColl)
+        {
+            RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase(resultCase);
+            if (summaryCase)
+            {
+                RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(summaryCase);
+                sumCaseColl->convertGridSummaryCasesToFileSummaryCases(gridSummaryCase);
+            }
+        }
     }
 
     delete eclipseCase;

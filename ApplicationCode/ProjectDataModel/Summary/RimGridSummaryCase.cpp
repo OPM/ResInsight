@@ -196,3 +196,14 @@ void RimGridSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
     m_includeRestartFiles = includeRestartFiles;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFileSummaryCase* RimGridSummaryCase::createFileSummaryCaseCopy()
+{
+    RimFileSummaryCase* fileSummaryCase = new RimFileSummaryCase();
+    fileSummaryCase->copyFrom(*this);
+    fileSummaryCase->setIncludeRestartFiles(m_includeRestartFiles());
+    return fileSummaryCase;
+}
+

@@ -129,6 +129,20 @@ bool RimSummaryCase::isEnsembleCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
+{
+    m_shortName = rhs.m_shortName;
+    m_useAutoShortName = rhs.m_useAutoShortName;
+    m_summaryHeaderFilename = rhs.m_summaryHeaderFilename;
+    m_isObservedData = rhs.m_isObservedData;
+
+    this->updateTreeItemName();
+    this->updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_useAutoShortName)
