@@ -67,6 +67,8 @@ public:
     static RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
 
 private:
+    template<typename S>
+    int                            findMaxApperanceIndexInMap(const std::map<S, int>& mapToSearch) const;
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
     void                           updateApperanceIndices();
     std::map<std::string, size_t>  mapNameToAppearanceIndex(CurveAppearanceType & appearance, const std::set<std::string>& names);
@@ -81,11 +83,6 @@ private:
     cvf::Color3f                   m_currentCurveBaseColor;
     float                          m_currentCurveGradient;
 
-    size_t                         m_caseCount;
-    size_t                         m_variableCount;
-    size_t                         m_wellCount;
-    size_t                         m_groupCount;
-    size_t                         m_regionCount;
     int                            m_dimensionCount;
 
     CurveAppearanceType            m_caseAppearanceType;
