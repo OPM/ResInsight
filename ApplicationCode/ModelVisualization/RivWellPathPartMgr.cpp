@@ -502,6 +502,12 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
+
+    RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
+    if (!gridView) return;
+
+    m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath, gridView);
+    m_3dWellLogPlanePartMgr->appendPlaneToModel(model, displayCoordTransform, wellPathClipBoundingBox);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,12 +566,6 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
 
     appendPerforationsToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize, false);
     appendVirtualTransmissibilitiesToModel(model, timeStepIndex, displayCoordTransform, characteristicCellSize);
-
-    RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
-    if (!gridView) return;
-
-    m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr(m_rimWellPath, gridView);
-    m_3dWellLogPlanePartMgr->appendPlaneToModel(model, displayCoordTransform, wellPathClipBoundingBox);
 }
 
 //--------------------------------------------------------------------------------------------------
