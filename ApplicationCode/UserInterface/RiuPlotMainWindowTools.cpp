@@ -58,5 +58,14 @@ void RiuPlotMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, b
     if (mpw) mpw->selectAsCurrentItem(object, allowActiveViewChange);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::refreshToolbars()
+{
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+
+    if (mpw) mpw->updateSummaryPlotToolBar();
+}
 
 

@@ -33,5 +33,6 @@ public:
     static void            setActiveViewer(QWidget* subWindow) ;
     static void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
     static void            selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
+    static void            refreshToolbars();
 };
 

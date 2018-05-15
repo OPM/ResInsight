@@ -45,8 +45,9 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafUtils.h"
 #include "cafProgressInfo.h"
@@ -134,6 +135,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         QString errorMessage = selector.createCombinedErrorMessage();
         RiaLogging::error(errorMessage);
     }
+
+    RiuPlotMainWindowTools::refreshToolbars();
 
     return true;
 }
