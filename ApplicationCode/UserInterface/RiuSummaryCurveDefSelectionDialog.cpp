@@ -109,7 +109,7 @@ void RiuSummaryCurveDefSelectionDialog::setEnsembleAndAddress(RimSummaryCaseColl
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelectionDialog::curveSelection() const
 {
-    return summaryAddressSelection()->allCurveDefinitionsFromSelection();
+    return summaryAddressSelection()->selection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionDialog::summaryAddressSe
 void RiuSummaryCurveDefSelectionDialog::updateLabel()
 {
     QString curveAddressText;
-    std::vector<RiaSummaryCurveDefinition> sumCasePairs = this->summaryAddressSelection()->allCurveDefinitionsFromSelection();
+    std::vector<RiaSummaryCurveDefinition> sumCasePairs = this->summaryAddressSelection()->selection();
     if (sumCasePairs.size() == 1)
     {
         curveAddressText = sumCasePairs.front().curveDefinitionText();

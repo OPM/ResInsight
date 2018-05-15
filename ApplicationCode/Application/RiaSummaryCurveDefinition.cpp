@@ -20,6 +20,7 @@
 
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -116,7 +117,8 @@ QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
     QString caseName;
     if (summaryCase() ) caseName = summaryCase()->caseName();
-
+    else if (ensemble()) caseName = ensemble()->name();
+    
     return RiaSummaryCurveDefinition::curveDefinitionText(caseName, summaryAddress());
 }
 
