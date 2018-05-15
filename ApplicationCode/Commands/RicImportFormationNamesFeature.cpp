@@ -84,11 +84,13 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     if (!cases.empty())
     {
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimCase* ownerCase = activeView->ownerCase();
-
-        if (ownerCase)
+        if (activeView)
         {
-            ownerCase->setFormationNames(formationName);
+            RimCase* ownerCase = activeView->ownerCase();
+            if (ownerCase)
+            {
+                ownerCase->setFormationNames(formationName);
+            }
         }
     }
 
