@@ -457,6 +457,8 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar()
 
         m_summaryPlotToolBarEditor->hide();
     }
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

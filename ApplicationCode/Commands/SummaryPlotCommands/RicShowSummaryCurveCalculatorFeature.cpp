@@ -54,7 +54,10 @@ void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
 {
-    return true;
+    RimProject* proj = RiaApplication::instance()->project();
+    const auto& allSumCases = proj->allSummaryCases();
+    
+    return !allSumCases.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
