@@ -262,6 +262,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
         if (summaryPlotCollection)
         {
+            summaryPlotCollection->updateSummaryNameHasChanged();
             RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }

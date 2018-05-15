@@ -75,7 +75,6 @@ public:
     void                                    setSummaryAddress(RifEclipseSummaryAddress address);
     RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
-    std::vector<RimSummaryCurve*>           visibleCurves() const;
 
     void                                    deleteAllCurves();
 

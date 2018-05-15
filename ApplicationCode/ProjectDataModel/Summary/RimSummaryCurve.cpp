@@ -355,7 +355,8 @@ QString RimSummaryCurve::createCurveAutoName()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
 
-    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
+    const RimSummaryPlotNameHelper* nameHelper = plot->activePlotTitleHelperAllCurves();
+    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nameHelper);
     if (curveName.isEmpty())
     {
         curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nullptr);
@@ -363,7 +364,7 @@ QString RimSummaryCurve::createCurveAutoName()
 
     if (isCrossPlotCurve())
     {
-        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
+        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nameHelper);
         if (curveNameX.isEmpty())
         {
             curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nullptr);

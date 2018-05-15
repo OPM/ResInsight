@@ -126,7 +126,7 @@ RimSummaryPlot::RimSummaryPlot()
 
     m_isCrossPlot = false;
 
-    m_nameHelper.reset(new RimSummaryPlotNameHelper);
+    m_nameHelperAllCurves.reset(new RimSummaryPlotNameHelper);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -521,24 +521,25 @@ RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updatePlotTitle()
 {
+    updateNameHelperWithCurveData(m_nameHelperAllCurves.get());
+
     if (m_useAutoPlotTitle)
     {
-        m_userDefinedPlotTitle = generatePlotTitle(m_nameHelper.get());
+        m_userDefinedPlotTitle = m_nameHelperAllCurves->plotTitle();
     }
-
+    
     updateCurveNames();
-
     updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelper() const
+const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves() const
 {
     if (m_useAutoPlotTitle())
     {
-        return m_nameHelper.get();
+        return m_nameHelperAllCurves.get();
     }
 
     return nullptr;
@@ -547,11 +548,11 @@ const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelper() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::generatedPlotTitleFromVisibleCurves() const
+QString RimSummaryPlot::generatedPlotTitleFromAllCurves() const
 {
     RimSummaryPlotNameHelper nameHelper;
-
-    return generatePlotTitle(&nameHelper);
+    updateNameHelperWithCurveData(&nameHelper);
+    return nameHelper.plotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1527,10 +1528,11 @@ void RimSummaryPlot::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const
+void RimSummaryPlot::updateNameHelperWithCurveData(RimSummaryPlotNameHelper* nameHelper) const
 {
-    if (!nameHelper) return "";
+    if (!nameHelper) return;
 
+    nameHelper->clear();
     std::vector<RifEclipseSummaryAddress> addresses;
     std::vector<RimSummaryCase*>          sumCases;
     std::vector<RimSummaryCaseCollection*>  ensembleCases;
@@ -1539,19 +1541,16 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
     {
         for (RimSummaryCurve* curve : m_summaryCurveCollection->curves())
         {
-            if (curve->isCurveVisible())
+            addresses.push_back(curve->summaryAddressY());
+            sumCases.push_back(curve->summaryCaseY());
+
+            if (curve->summaryCaseX())
             {
-                addresses.push_back(curve->summaryAddressY());
-                sumCases.push_back(curve->summaryCaseY());
+                sumCases.push_back(curve->summaryCaseX());
 
-                if (curve->summaryCaseX())
+                if (curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
                 {
-                    sumCases.push_back(curve->summaryCaseX());
-
-                    if (curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
-                    {
-                        addresses.push_back(curve->summaryAddressX());
-                    }
+                    addresses.push_back(curve->summaryAddressX());
                 }
             }
         }
@@ -1570,8 +1569,6 @@ QString RimSummaryPlot::generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) 
     nameHelper->appendAddresses(addresses);
     nameHelper->appendSummaryCases(sumCases);
     nameHelper->appendEnsembleCases(ensembleCases);
-
-    return nameHelper->plotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1583,10 +1580,7 @@ void RimSummaryPlot::updateCurveNames()
     {
         for (auto c : summaryCurves())
         {
-            if (c->isCurveVisible())
-            {
-                c->updateCurveNameNoLegendUpdate();
-            }
+            c->updateCurveNameNoLegendUpdate();            
         }
     }
 

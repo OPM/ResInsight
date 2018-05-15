@@ -112,9 +112,9 @@ public:
 
     void                                            updatePlotTitle();
 
-    const RimSummaryPlotNameHelper*                 activePlotTitleHelper() const;
+    const RimSummaryPlotNameHelper*                 activePlotTitleHelperAllCurves() const;
     void                                            updateCurveNames();
-    QString                                         generatedPlotTitleFromVisibleCurves() const;
+    QString                                         generatedPlotTitleFromAllCurves() const;
 
     void                                            copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot);
 
@@ -126,7 +126,7 @@ public:
 
 private:
     void                                            updateMdiWindowTitle() override;
-    QString                                         generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const;
+    void                                            updateNameHelperWithCurveData(RimSummaryPlotNameHelper* nameHelper) const;
 
 protected:
     // Overridden PDM methods
@@ -168,7 +168,7 @@ private:
     caf::PdmField<QString>                              m_userDefinedPlotTitle;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
-    caf::PdmChildField<RimSummaryCurveCollection*>        m_summaryCurveCollection;
+    caf::PdmChildField<RimSummaryCurveCollection*>      m_summaryCurveCollection;
     caf::PdmChildField<RimEnsembleCurveSetCollection*>  m_ensembleCurveSetCollection;
 
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
@@ -184,7 +184,7 @@ private:
 
     bool                                                m_isCrossPlot;
 
-    std::unique_ptr<RimSummaryPlotNameHelper>           m_nameHelper;
+    std::unique_ptr<RimSummaryPlotNameHelper>           m_nameHelperAllCurves;
 
     // Obsolete fields
     caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;

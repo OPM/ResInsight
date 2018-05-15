@@ -229,7 +229,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
     std::vector<QString> identifierTexts;
 
-    RifSummaryReaderInterface* reader = firstSummaryReaderForVisibleCurves();
+    RifSummaryReaderInterface* reader = firstSummaryReaderForCurves();
     if (reader)
     {
         RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(reader);
@@ -253,9 +253,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
             RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
 
-            if (curveCollection->visibleCurves().size() > 0)
+            if (curveCollection->curves().size() > 0)
             {
-                category = curveCollection->visibleCurves()[0]->summaryAddressY().category();
+                category = curveCollection->curves()[0]->summaryAddressY().category();
             }
 
             RiaSummaryCurveAnalyzer quantityAnalyzer;
@@ -301,7 +301,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         if (m_summaryCase())
         {
-            for (auto curve : curveCollection->visibleCurves())
+            for (auto curve : curveCollection->curves())
             {
                 if (isYAxisStepping())
                 {
@@ -324,7 +324,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
     else if (changedField == &m_wellName)
     {
-        for (auto curve : curveCollection->visibleCurves())
+        for (auto curve : curveCollection->curves())
         {
             if (isYAxisStepping())
             {
@@ -353,7 +353,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
     else if (changedField == &m_region)
     {
-        for (auto curve : curveCollection->visibleCurves())
+        for (auto curve : curveCollection->curves())
         {
             if (isYAxisStepping())
             {
@@ -382,7 +382,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
     else if (changedField == &m_quantity)
     {
-        for (auto curve : curveCollection->visibleCurves())
+        for (auto curve : curveCollection->curves())
         {
             if (isYAxisStepping())
             {
@@ -405,7 +405,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
     else if (changedField == &m_wellGroupName)
     {
-        for (auto curve : curveCollection->visibleCurves())
+        for (auto curve : curveCollection->curves())
         {
             if (isYAxisStepping())
             {
@@ -457,35 +457,21 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForVisibleCurves() const
-{
-    RimSummaryCase* sumCase = firstSummaryCaseForVisibleCurves();
-    if (sumCase)
-    {
-        return sumCase->summaryReader();
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryPlotSourceStepping::firstSummaryCaseForVisibleCurves() const
+RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForCurves() const
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
-    for (auto curve : curveCollection->visibleCurves())
+    for (auto curve : curveCollection->curves())
     {
         if (isYAxisStepping() && curve->summaryCaseY())
         {
-            return curve->summaryCaseY();
+            return curve->summaryCaseY()->summaryReader();
         }
 
         if (isXAxisStepping() && curve->summaryCaseX())
         {
-            return curve->summaryCaseX();
+            return curve->summaryCaseX()->summaryReader();
         }
     }
 
@@ -498,7 +484,7 @@ RimSummaryCase* RimSummaryPlotSourceStepping::firstSummaryCaseForVisibleCurves()
 caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses(visibleAddressesCurveCollection());
+    analyzer.appendAdresses(addressesCurveCollection());
 
     if (analyzer.wellNames().size() == 1)
     {
@@ -521,7 +507,7 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::visibleAddressesCurveCollection() const
+std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesCurveCollection() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
@@ -530,7 +516,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::visibleAddresse
 
     if (!curveCollection) return addresses;
 
-    auto curves = curveCollection->visibleCurves();
+    auto curves = curveCollection->curves();
     for (auto c : curves)
     {
         if (isYAxisStepping())
@@ -550,7 +536,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::visibleAddresse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::visibleSummaryCasesCurveCollection() const
+std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollection() const
 {
     std::set<RimSummaryCase*> sumCases;
 
@@ -559,7 +545,7 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::visibleSummaryCasesCurve
 
     if (!curveCollection) return sumCases;
 
-    auto curves = curveCollection->visibleCurves();
+    auto curves = curveCollection->curves();
     for (auto c : curves)
     {
         if (isYAxisStepping())
@@ -589,7 +575,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
 
     std::vector<caf::PdmFieldHandle*> fields;
 
-    auto sumCases = visibleSummaryCasesCurveCollection();
+    auto sumCases = summaryCasesCurveCollection();
     if (sumCases.size() == 1)
     {
         RimProject* proj = RiaApplication::instance()->project();
@@ -604,7 +590,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses(visibleAddressesCurveCollection());
+    analyzer.appendAdresses(addressesCurveCollection());
 
     RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
     {

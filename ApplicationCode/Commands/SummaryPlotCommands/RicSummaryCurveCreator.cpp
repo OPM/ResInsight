@@ -812,7 +812,7 @@ void RicSummaryCurveCreator::createNewPlot()
             QString candidatePlotName;
             if (m_previewPlot)
             {
-                candidatePlotName = m_previewPlot->generatedPlotTitleFromVisibleCurves();
+                candidatePlotName = m_previewPlot->generatedPlotTitleFromAllCurves();
             }
 
             {

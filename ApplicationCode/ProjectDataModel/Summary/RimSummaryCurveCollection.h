@@ -55,7 +55,6 @@ public:
     void                                    deleteCurve(RimSummaryCurve* curve);
 
     std::vector<RimSummaryCurve*>           curves() const;
-    std::vector<RimSummaryCurve*>           visibleCurves() const;
 
     void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurves();

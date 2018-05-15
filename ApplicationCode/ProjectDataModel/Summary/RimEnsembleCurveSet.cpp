@@ -275,24 +275,6 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimEnsembleCurveSet::visibleCurves() const
-{
-    std::vector<RimSummaryCurve*> visible;
-
-    for (const auto& c : m_curves)
-    {
-        if (c->isCurveVisible())
-        {
-            visible.push_back(c);
-        }
-    }
-
-    return visible;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteAllCurves()
 {
     m_curves.deleteAllChildObjects();
@@ -988,7 +970,7 @@ QString RimEnsembleCurveSet::createAutoName() const
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
 
-    QString curveSetName = m_summaryAddressNameTools->curveNameY(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
+    QString curveSetName = m_summaryAddressNameTools->curveNameY(m_yValuesCurveVariable->address(), plot->activePlotTitleHelperAllCurves());
     if (curveSetName.isEmpty())
     {
         curveSetName = m_summaryAddressNameTools->curveNameY(m_yValuesCurveVariable->address(), nullptr);
