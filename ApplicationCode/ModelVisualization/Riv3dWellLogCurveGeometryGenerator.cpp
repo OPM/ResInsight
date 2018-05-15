@@ -122,19 +122,22 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     double maxVisibleResult = -std::numeric_limits<float>::max();
     double minVisibleResult = std::numeric_limits<float>::max();
 
+    double minCurveValue = rim3dWellLogCurve->minCurveUIValue();
+    double maxCurveValue = rim3dWellLogCurve->maxCurveUIValue();
+
     double curveEpsilon = 1.0e-6;
 
     for (double& result : m_curveValues)
     {
         if (!RigCurveDataTools::isValidValue(result, false)) continue;
 
-        if ((rim3dWellLogCurve->minCurveUIValue() - result) > curveEpsilon * curveUIRange)
+        if ((minCurveValue - result) > curveEpsilon * curveUIRange)
         {
-            result = -std::numeric_limits<double>::infinity();
+            result = minCurveValue - curveEpsilon;
         }
-        else if ((result - rim3dWellLogCurve->maxCurveUIValue()) > curveEpsilon * curveUIRange)
+        else if ((result - maxCurveValue) > curveEpsilon * curveUIRange)
         {
-            result = std::numeric_limits<double>::infinity();
+            result = maxCurveValue + curveEpsilon;
         }
         else
         {
@@ -157,7 +160,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
         if (RigCurveDataTools::isValidValue(m_curveValues[i], false))
         {
-            scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - rim3dWellLogCurve->minCurveUIValue()) * plotRangeToResultRangeFactor;
+            scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - minCurveValue) * plotRangeToResultRangeFactor;
         }
         cvf::Vec3d curvePoint(interpolatedWellPathPoints[i] + scaledResult * interpolatedCurveNormals[i]);
         m_curveVertices.push_back(cvf::Vec3f(curvePoint));
@@ -185,8 +188,12 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
             if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
                 RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
             {
-                indices.push_back(cvf::uint(i));
-                indices.push_back(cvf::uint(i + 1));
+                if (cvf::Math::valueInRange(m_curveValues[i], minCurveValue, maxCurveValue) ||
+                    cvf::Math::valueInRange(m_curveValues[i + 1], minCurveValue, maxCurveValue))
+                {
+                    indices.push_back(cvf::uint(i));
+                    indices.push_back(cvf::uint(i + 1));
+                }
             }
         }
 
