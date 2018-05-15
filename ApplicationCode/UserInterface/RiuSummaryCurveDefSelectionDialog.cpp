@@ -96,10 +96,7 @@ void RiuSummaryCurveDefSelectionDialog::setEnsembleAndAddress(RimSummaryCaseColl
     if (ensemble)
     {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for (const auto& summaryCase : ensemble->allSummaryCases())
-        {
-            curveDefs.push_back(RiaSummaryCurveDefinition(summaryCase, address, ensemble));
-        }
+        curveDefs.push_back(RiaSummaryCurveDefinition(nullptr, address, ensemble));
         summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
     }
 

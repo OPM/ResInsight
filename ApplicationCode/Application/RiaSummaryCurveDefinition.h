@@ -52,7 +52,7 @@ public:
 
     QString                             curveDefinitionText() const;
 
-    static QString                      curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress);
+    static QString                      curveDefinitionText(const QString& caseName, const RifEclipseSummaryAddress& summaryAddress);
 
 private:
 

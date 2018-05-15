@@ -123,7 +123,10 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculationVariable::summaryAddressDisplayString() const
 {
-    return RiaSummaryCurveDefinition::curveDefinitionText(m_case(), m_summaryAddress()->address());
+    QString caseName;
+    if (m_case() ) caseName = m_case()->caseName();
+
+    return RiaSummaryCurveDefinition::curveDefinitionText(caseName, m_summaryAddress()->address());
 }
 
 //--------------------------------------------------------------------------------------------------

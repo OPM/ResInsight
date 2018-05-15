@@ -37,9 +37,9 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
                                                      const RifEclipseSummaryAddress& summaryAddress,
                                                      RimSummaryCaseCollection* ensemble)
-                                                     : m_summaryCase(summaryCase)
-                                                     , m_ensemble(ensemble)
-                                                     , m_summaryAddress(summaryAddress)
+    : m_summaryCase(summaryCase)
+    , m_ensemble(ensemble)
+    , m_summaryAddress(summaryAddress)
 {
   
 }
@@ -114,21 +114,21 @@ const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps(const RiaSummary
 //--------------------------------------------------------------------------------------------------
 QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
-    return RiaSummaryCurveDefinition::curveDefinitionText(summaryCase(), summaryAddress());
+    QString caseName;
+    if (summaryCase() ) caseName = summaryCase()->caseName();
+
+    return RiaSummaryCurveDefinition::curveDefinitionText(caseName, summaryAddress());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaSummaryCurveDefinition::curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress)
+QString RiaSummaryCurveDefinition::curveDefinitionText(const QString& caseName, const RifEclipseSummaryAddress& summaryAddress)
 {
     QString txt;
 
-    if (summaryCase)
-    {
-        txt += summaryCase->caseName();
-        txt += ", ";
-    }
+    txt += caseName;
+    txt += ", ";
 
     txt += QString::fromStdString(summaryAddress.uiText());
 

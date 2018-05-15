@@ -368,8 +368,9 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 
     for (const auto& curveDef : curveDefinitions)
     {
+        if (!(curveDef.summaryCase() || curveDef.isEnsembleCurve()) ) continue;
+
         RimSummaryCase* summaryCase = curveDef.summaryCase();
-        if (!summaryCase) continue;
 
         RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
@@ -393,13 +394,12 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         }
 
         // Select case if not already selected
-        if (std::find(m_selectedSources.begin(), m_selectedSources.end(),
-                      curveDef.isEnsembleCurve() ? (SummarySource*)curveDef.ensemble() : summaryCase) == m_selectedSources.end())
+        SummarySource* summSource = curveDef.isEnsembleCurve() ? static_cast<SummarySource*>(curveDef.ensemble()) : summaryCase;
+        if (std::find(m_selectedSources.begin(), m_selectedSources.end(), summSource) == m_selectedSources.end())
         {
             if (summaryCase != calculatedSummaryCase())
             {
-
-                m_selectedSources.push_back(curveDef.isEnsembleCurve() ? (SummarySource*)curveDef.ensemble() : summaryCase);
+                m_selectedSources.push_back(summSource);
             }
         }
 
