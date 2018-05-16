@@ -64,6 +64,11 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const size_t ENSEMBLE_CURVE_COUNT_THRESHOLD = 600;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
 
 //--------------------------------------------------------------------------------------------------
@@ -380,7 +385,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
     const std::set<RimSummaryCurve*>&          curvesToDelete)
 {
-    const size_t ENSEMBLE_CURVE_COUNT_THRESHOLD = 200;
     static bool                         warningDisplayed               = false;
 
     RimSummaryCase*                     prevCase = nullptr;
