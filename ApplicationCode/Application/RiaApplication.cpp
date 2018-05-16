@@ -1539,6 +1539,23 @@ void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::saveWinGeoAndDockToolBarLayout()
+{
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->saveWinGeoAndDockToolBarLayout();
+    }
+
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->saveWinGeoAndDockToolBarLayout();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RiaApplication::scriptDirectories() const
 {
     return m_preferences->scriptDirectories();

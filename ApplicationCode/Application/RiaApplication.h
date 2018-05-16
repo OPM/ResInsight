@@ -200,7 +200,7 @@ public:
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
     void                waitUntilCommandObjectsHasBeenProcessed();
-
+    void                saveWinGeoAndDockToolBarLayout();
 
 private:
     void                    onProjectOpenedOrClosed();
