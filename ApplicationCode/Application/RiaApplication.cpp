@@ -47,7 +47,6 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedData.h"
@@ -561,8 +560,18 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                             stimPlanColors[0]->updateConductivityResultName();
                         }
                     }
-
+                   
                     riv->loadDataAndUpdate();
+
+                    if ( m_project->isProjectFileVersionEqualOrOlderThan("2018.1.1.110") )
+                    {
+                        auto* geoView = dynamic_cast<RimGeoMechView*>(riv);
+                        if ( geoView )
+                        {
+                            geoView->convertCameraPositionFromOldProjectFiles();
+                        }
+                    }
+
                     this->setActiveReservoirView(riv);
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>(riv);

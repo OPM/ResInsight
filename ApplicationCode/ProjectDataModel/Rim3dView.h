@@ -147,6 +147,9 @@ protected:
     virtual void                            setDefaultView();
     void                                    disableGridBoxField();
     void                                    disablePerspectiveProjectionField();
+    cvf::Mat4d                              cameraPosition() const;
+    cvf::Vec3d                              cameraPointOfInterest() const;
+
 
     RimWellPathCollection*                  wellPathCollection() const;
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
