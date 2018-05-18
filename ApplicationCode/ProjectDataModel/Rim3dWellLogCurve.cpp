@@ -51,13 +51,6 @@ namespace caf
         setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
     }
 
-    template<>
-    void AppEnum< Rim3dWellLogCurve::DrawStyle >::setUp()
-    {
-        addItem(Rim3dWellLogCurve::LINE, "LINE", "Line");
-        addItem(Rim3dWellLogCurve::FILLED, "FILLED", "Filled");
-        setDefault(Rim3dWellLogCurve::LINE);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +68,6 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     CAF_PDM_InitField(&m_maxCurveUIValue, "MaxCurveValue", std::numeric_limits<float>::infinity(), "Maximum Curve Value", "", "Clip curve values above this.", "");
 
     CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
-    CAF_PDM_InitField(&m_drawStyle, "DrawStyle", DrawStyleEnum(LINE), "Draw Style", "", "", "");
     CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
     this->uiCapability()->setUiTreeChildrenHidden(true);
 }
@@ -103,14 +95,6 @@ void Rim3dWellLogCurve::updateCurveIn3dView()
 Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 {
     return m_drawPlane();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurve::DrawStyle Rim3dWellLogCurve::drawStyle() const
-{
-    return m_drawStyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,8 +191,6 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Appearance");
     configurationGroup->add(&m_drawPlane);
-//  Disable filled draw style in the GUI because of triangle stitching issue #2860.
-//  configurationGroup->add(&m_drawStyle);
     configurationGroup->add(&m_color);
     configurationGroup->add(&m_minCurveUIValue);
     configurationGroup->add(&m_maxCurveUIValue);

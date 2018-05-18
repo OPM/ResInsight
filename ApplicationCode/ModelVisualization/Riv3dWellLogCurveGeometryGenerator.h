@@ -59,7 +59,6 @@ public:
     const RigWellPath* wellPathGeometry() const;
 
     cvf::ref<cvf::DrawableGeo> curveDrawable();
-    cvf::ref<cvf::DrawableGeo> curveFilledDrawable();
 
     bool findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
                                  cvf::Vec3d*       closestPoint,
@@ -71,10 +70,7 @@ private:
     static void createNewVerticesAlongSegment(const cvf::Vec3d&              ptStart,
                                               const cvf::Vec3d&              ptEnd,
                                               const std::vector<cvf::Vec3d>& drawSurfaceVertices,
-                                              std::vector<cvf::Vec3d>*       extraVertices,
-                                              const cvf::Vec3d*              ptBottomStart = nullptr,
-                                              const cvf::Vec3d*              ptBottomEnd = nullptr,
-                                              std::vector<cvf::Vec3d>*       extraBottomVertices = nullptr);
+                                              std::vector<cvf::Vec3d>*       extraVertices);
 
     static std::vector<cvf::Vec3d> projectVerticesOntoTriangles(const std::vector<cvf::Vec3d>& originalVertices, const std::vector<cvf::Vec3d>& drawSurfaceVertices);
     static cvf::Vec3d              projectPointOntoTriangle(const cvf::Vec3d& point,
@@ -86,9 +82,7 @@ private:
     double                       m_planeWidth;
 	
     cvf::ref<cvf::DrawableGeo>   m_curveDrawable;
-    cvf::ref<cvf::DrawableGeo>   m_curveFilledDrawable;
     std::vector<cvf::Vec3d>      m_curveVertices;
-    std::vector<cvf::Vec3d>      m_bottomVertices;
 
     std::vector<double>          m_curveMeasuredDepths;
     std::vector<double>          m_curveValues;

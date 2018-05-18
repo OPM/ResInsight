@@ -126,30 +126,6 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
 	        model->addPart(part.p());
 	    }
     }
-
-    if (rim3dWellLogCurve->drawStyle() == Rim3dWellLogCurve::FILLED)
-    {
-        Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-        cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
-
-        cvf::ref<cvf::DrawableGeo> curveFilledDrawable = generator->curveFilledDrawable();
-        if (curveFilledDrawable.notNull() && curveFilledDrawable->boundingBox().isValid())
-        {
-            caf::SurfaceEffectGenerator filledEffectGen(rim3dWellLogCurve->color(), caf::PO_NONE);
-            filledEffectGen.enableLighting(false);
-            cvf::ref<cvf::Effect> filledEffect = filledEffectGen.generateCachedEffect();
-
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setDrawable(curveFilledDrawable.p());
-            part->setEffect(filledEffect.p());
-
-            if (part.notNull())
-            {
-                model->addPart(part.p());
-                part->setSourceInfo(sourceInfo.p());
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

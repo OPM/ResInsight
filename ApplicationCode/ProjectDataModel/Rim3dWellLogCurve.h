@@ -51,13 +51,6 @@ public:
     };
     typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
 
-    enum DrawStyle
-    {
-        LINE,
-        FILLED
-    };
-    typedef caf::AppEnum<DrawStyle> DrawStyleEnum;
-
 public:
     Rim3dWellLogCurve();
     virtual ~Rim3dWellLogCurve();
@@ -68,7 +61,6 @@ public:
     virtual QString resultPropertyString() const = 0;
     
     DrawPlane       drawPlane() const;
-    DrawStyle       drawStyle() const;
     double          drawPlaneAngle() const;    
 
     cvf::Color3f    color() const;
@@ -99,7 +91,6 @@ private:
     void                                    resetMinMaxValues();
 protected:
     caf::PdmField<DrawPlaneEnum>                    m_drawPlane;
-    caf::PdmField<DrawStyleEnum>                    m_drawStyle;
     caf::PdmField<cvf::Color3f>                     m_color;
     caf::PdmField<float>                            m_minCurveUIValue;
     caf::PdmField<float>                            m_maxCurveUIValue;
