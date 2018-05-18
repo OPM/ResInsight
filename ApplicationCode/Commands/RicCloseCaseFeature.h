@@ -25,6 +25,7 @@
 
 class RimEclipseCase;
 class RimGeoMechCase;
+class RimCase;
 class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
@@ -45,8 +46,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimEclipseCase* selectedEclipseCase() const;
-    RimGeoMechCase* selectedGeoMechCase() const;
+    std::vector<RimCase*> selectedCases() const;
 
     void deleteGeoMechCase(RimGeoMechCase* geoMechCase);
     
