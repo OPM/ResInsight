@@ -99,7 +99,7 @@ public:
     const RigFemPartCollection*                         femParts() const;
     RigFemPartCollection*                               femParts();
 
-    void                                                updateDisplayModelCoordinates();
+    void                                                convertCameraPositionFromOldProjectFiles();
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;

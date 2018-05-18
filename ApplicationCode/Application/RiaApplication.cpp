@@ -560,14 +560,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                             stimPlanColors[0]->updateConductivityResultName();
                         }
                     }
-
-                    auto* geoView = dynamic_cast<RimGeoMechView*>(riv);
-                    if (geoView)
-                    {
-                        geoView->updateDisplayModelCoordinates();
-                    }
-
+                   
                     riv->loadDataAndUpdate();
+
+                    if ( m_project->isProjectFileVersionEqualOrOlderThan("2018.1.1.110") )
+                    {
+                        auto* geoView = dynamic_cast<RimGeoMechView*>(riv);
+                        if ( geoView )
+                        {
+                            geoView->convertCameraPositionFromOldProjectFiles();
+                        }
+                    }
 
                     this->setActiveReservoirView(riv);
 

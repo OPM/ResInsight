@@ -20,7 +20,6 @@
 #include "RimGeoMechView.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RigFemPartCollection.h"
@@ -37,7 +36,6 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
-#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTensorResults.h"
 #include "RimViewLinker.h"
@@ -129,8 +127,8 @@ void RimGeoMechView::onLoadDataAndUpdate()
             QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
             QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
-                            "File open error", 
-                            displayMessage);
+                                 "File open error", 
+                                 displayMessage);
             m_geomechCase = nullptr;
             return;
         }
@@ -564,62 +562,45 @@ RigFemPartCollection* RimGeoMechView::femParts()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateDisplayModelCoordinates()
+void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
 {
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfType(proj);
-    if (!proj) return;
-
-    if (proj->isProjectFileVersionEqualOrOlderThan("2018.1.1.110"))
+    auto geoMechCase = this->geoMechCase();
+    if ( geoMechCase )
     {
-        auto geoMechCase = this->geoMechCase();
-        if (geoMechCase)
+        // Up-cast to get access to public interface for camera functions
+        RimCase*                  rimCase               = geoMechCase;
+        RiuViewerToViewInterface* viewerToViewInterface = this;
+        cvf::Vec3d offset = rimCase->displayModelOffset();
+        auto diplayCoordTrans = this->displayCoordTransform();
+
         {
-            std::string errorMessage;
-            if (!geoMechCase->openGeoMechCase(&errorMessage))
-            {
-                QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + geoMechCase->caseFileName()
-                                                              : QString::fromStdString(errorMessage);
+            cvf::Mat4d cameraMx = this->cameraPosition().getInverted();
 
-                RiaLogging::error(displayMessage);
-            }
-            else
-            {
-                // Up-cast to get access to public interface for camera functions
-                RimCase*                  rimCase               = geoMechCase;
-                RiuViewerToViewInterface* viewerToViewInterface = this;
-                auto                      offset                = -rimCase->displayModelOffset();
+            cvf::Vec3d translation    = cameraMx.translation();
 
-                auto diplayCoordTrans = this->displayCoordTransform();
+            cvf::Vec3d translationDomainCoord = diplayCoordTrans->scaleToDomainSize(translation);
+            translationDomainCoord -= offset;
 
-/* Does not work as expected
+            cvf::Vec3d newCameraTranslation = diplayCoordTrans->scaleToDisplaySize(translationDomainCoord);
 
-                {
-                    auto pointOfInterest = this->cameraPointOfInterest();
+            cameraMx.setTranslation(newCameraTranslation);
 
-                    auto pointOfInterestDomain = diplayCoordTrans->scaleToDomainSize(pointOfInterest);
-                    pointOfInterestDomain += offset;
-
-                    auto newPointOfInterest = diplayCoordTrans->transformToDisplayCoord(pointOfInterestDomain);
-
-                    viewerToViewInterface->setCameraPointOfInterest(newPointOfInterest);
-                }
-
-                {
-                    auto cameraPosition = this->cameraPosition();
-                    auto translation    = cameraPosition.translation();
-
-                    auto translationDomainCoord = diplayCoordTrans->scaleToDomainSize(translation);
-                    translationDomainCoord += offset;
-
-                    auto newCameraPosition = diplayCoordTrans->transformToDisplayCoord(translationDomainCoord);
-
-                    cameraPosition.setTranslation(newCameraPosition);
-                    viewerToViewInterface->setCameraPosition(cameraPosition);
-                }
-*/
-            }
+            viewerToViewInterface->setCameraPosition(cameraMx.getInverted());
         }
+
+        {
+            cvf::Vec3d pointOfInterest = this->cameraPointOfInterest();
+
+            cvf::Vec3d pointOfInterestDomain = diplayCoordTrans->scaleToDomainSize(pointOfInterest);
+            pointOfInterestDomain -= offset;
+
+            cvf::Vec3d newPointOfInterest = diplayCoordTrans->scaleToDisplaySize(pointOfInterestDomain);
+
+            viewerToViewInterface->setCameraPointOfInterest(newPointOfInterest);
+        }
+
+        m_viewer->mainCamera()->setViewMatrix( this->cameraPosition());
+        m_viewer->setPointOfInterest(this->cameraPointOfInterest());
     }
 }
 
