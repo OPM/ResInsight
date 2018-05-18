@@ -865,7 +865,7 @@ RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
     copy->m_yValuesSummaryGroup = m_yValuesSummaryGroup();
 
     // Update summary case references
-    for (int i = 0; i < m_curves.size(); i++)
+    for (size_t i = 0; i < m_curves.size(); i++)
     {
         copy->m_curves[i]->setSummaryCaseY(m_curves[i]->summaryCaseY());
     }
