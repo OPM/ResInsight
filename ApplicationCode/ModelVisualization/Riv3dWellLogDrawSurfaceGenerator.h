@@ -58,7 +58,7 @@ public:
     cvf::ref<cvf::DrawableGeo> border() const;
     cvf::ref<cvf::DrawableVectors> curveNormalVectors() const;
 
-    const std::vector<cvf::Vec3f>& vertices() const;
+    const std::vector<cvf::Vec3d>& vertices() const;
 
 private:
     void               createCurveNormalVectors(const caf::DisplayCoordTransform* displayCoordTransform, 
@@ -79,5 +79,5 @@ private:
     cvf::ref<cvf::DrawableGeo>       m_border;
     cvf::ref<cvf::DrawableVectors>   m_curveNormalVectors;
 
-    std::vector<cvf::Vec3f>          m_vertices;
+    std::vector<cvf::Vec3d>          m_vertices;
 };

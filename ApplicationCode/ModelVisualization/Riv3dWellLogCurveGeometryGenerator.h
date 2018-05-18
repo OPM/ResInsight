@@ -52,7 +52,7 @@ public:
                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                               double                            planeOffsetFromWellPathCenter,
                               double                            planeWidth,
-                              const std::vector<cvf::Vec3f>&    drawSurfaceVertices);
+                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices);
 
     void clearCurvePointsAndGeometry();
 
@@ -67,28 +67,28 @@ public:
                                  double*           valueAtClosestPoint) const;
 
 private:
-    void        createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3f>& drawSurfaceVertices);
-    static void createNewVerticesAlongSegment(const cvf::Vec3f&              ptStart,
-                                              const cvf::Vec3f&              ptEnd,
-                                              const std::vector<cvf::Vec3f>& drawSurfaceVertices,
-                                              std::vector<cvf::Vec3f>*       extraVertices,
-                                              const cvf::Vec3f*              ptBottomStart = nullptr,
-                                              const cvf::Vec3f*              ptBottomEnd = nullptr,
-                                              std::vector<cvf::Vec3f>*       extraBottomVertices = nullptr);
+    void        createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3d>& drawSurfaceVertices);
+    static void createNewVerticesAlongSegment(const cvf::Vec3d&              ptStart,
+                                              const cvf::Vec3d&              ptEnd,
+                                              const std::vector<cvf::Vec3d>& drawSurfaceVertices,
+                                              std::vector<cvf::Vec3d>*       extraVertices,
+                                              const cvf::Vec3d*              ptBottomStart = nullptr,
+                                              const cvf::Vec3d*              ptBottomEnd = nullptr,
+                                              std::vector<cvf::Vec3d>*       extraBottomVertices = nullptr);
 
-    static std::vector<cvf::Vec3f> projectVerticesOntoTriangles(const std::vector<cvf::Vec3f>& originalVertices, const std::vector<cvf::Vec3f>& drawSurfaceVertices);
-    static cvf::Vec3f              projectPointOntoTriangle(const cvf::Vec3f& point,
-                                                            const cvf::Vec3f& triangleVertex1,
-                                                            const cvf::Vec3f& triangleVertex2,
-                                                            const cvf::Vec3f& triangleVertex3,
+    static std::vector<cvf::Vec3d> projectVerticesOntoTriangles(const std::vector<cvf::Vec3d>& originalVertices, const std::vector<cvf::Vec3d>& drawSurfaceVertices);
+    static cvf::Vec3d              projectPointOntoTriangle(const cvf::Vec3d& point,
+                                                            const cvf::Vec3d& triangleVertex1,
+                                                            const cvf::Vec3d& triangleVertex2,
+                                                            const cvf::Vec3d& triangleVertex3,
                                                             bool*             wasInsideTriangle);
     caf::PdmPointer<RimWellPath> m_wellPath;
     double                       m_planeWidth;
 	
     cvf::ref<cvf::DrawableGeo>   m_curveDrawable;
     cvf::ref<cvf::DrawableGeo>   m_curveFilledDrawable;
-    std::vector<cvf::Vec3f>      m_curveVertices;
-    std::vector<cvf::Vec3f>      m_bottomVertices;
+    std::vector<cvf::Vec3d>      m_curveVertices;
+    std::vector<cvf::Vec3d>      m_bottomVertices;
 
     std::vector<double>          m_curveMeasuredDepths;
     std::vector<double>          m_curveValues;

@@ -114,13 +114,15 @@ Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTrans
     m_vertices.reserve(wellPathPoints.size() * 2);
     for (size_t i = 0; i < wellPathPoints.size(); i++)
     {
-        m_vertices.push_back(cvf::Vec3f(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter - 0.025*planeWidth)));
-        m_vertices.push_back(cvf::Vec3f(
-            wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + 1.025*planeWidth)));
+        m_vertices.push_back(wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter - 0.025*planeWidth));
+        m_vertices.push_back(wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + 1.025*planeWidth));
     }
         
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_vertices);
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_vertices.size());
+    for (size_t i = 0; i < m_vertices.size(); ++i)
+    {
+        (*vertexArray)[i] = cvf::Vec3f(m_vertices[i]);
+    }
     createBackground(vertexArray.p());
     createBorder(vertexArray.p());
   
@@ -165,7 +167,7 @@ cvf::ref<cvf::DrawableVectors> Riv3dWellLogDrawSurfaceGenerator::curveNormalVect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f>& Riv3dWellLogDrawSurfaceGenerator::vertices() const
+const std::vector<cvf::Vec3d>& Riv3dWellLogDrawSurfaceGenerator::vertices() const
 {
     return m_vertices;
 }

@@ -91,7 +91,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
                                                            const caf::DisplayCoordTransform* displayCoordTransform,
                                                            const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                            Rim3dWellLogCurve*                rim3dWellLogCurve,
-                                                           const std::vector<cvf::Vec3f>&    drawSurfaceVertices)
+                                                           const std::vector<cvf::Vec3d>&    drawSurfaceVertices)
 {
     CVF_ASSERT(rim3dWellLogCurve);
 

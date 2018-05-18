@@ -60,7 +60,7 @@ private:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           wellPathClipBoundingBox,
                                      Rim3dWellLogCurve*                rim3dWellLogCurve,
-                                     const std::vector<cvf::Vec3f>&    drawSurfaceVertices);
+                                     const std::vector<cvf::Vec3d>&    drawSurfaceVertices);
 
     void appendDrawSurfaceToModel(cvf::ModelBasicList*              model,
                                   const caf::DisplayCoordTransform* displayCoordTransform,
