@@ -310,16 +310,18 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
 
         const int* elmNodeIndices = part->connectivities(elmIdx);
 
+        cvf::Vec3d displayOffset = part->boundingBox().min();
+
         for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
         {
             int faceNodeCount = 0;
             const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
             if (faceNodeCount == 4)
             {
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]) - displayOffset));
             }
             else
             {
