@@ -52,7 +52,7 @@ CAF_CMD_SOURCE_INIT(RicCloseCaseFeature, "RicCloseCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != nullptr || selectedGeoMechCase() != nullptr;
+    return !selectedCases().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,24 +60,44 @@ bool RicCloseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 {
-    RimEclipseCase* eclipseCase = selectedEclipseCase();
-    RimGeoMechCase* geoMechCase = selectedGeoMechCase();
-    if (eclipseCase)
+    std::vector<RimCase*> rimCases = selectedCases();
+    std::vector<RimEclipseCase*> eclipseCases;
+    std::vector<RimGeoMechCase*> geoMechCases;
+    for (RimCase* rimCase : selectedCases())
     {
-        std::vector<RimEclipseCase*> casesToBeDeleted;
-        casesToBeDeleted.push_back(eclipseCase);
-        
-        if (userConfirmedGridCaseGroupChange(casesToBeDeleted))
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+        if (eclipseCase)
         {
-            deleteEclipseCase(eclipseCase);
+            eclipseCases.push_back(eclipseCase);
+        }
+        else
+        {
+            RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(rimCase);
+            if (geoMechCase)
+            {
+                geoMechCases.push_back(geoMechCase);
+            }
+        }
+    }
 
+    if (!eclipseCases.empty())
+    {
+        if (userConfirmedGridCaseGroupChange(eclipseCases))
+        {
+            for (RimEclipseCase* eclipseCase : eclipseCases)
+            {
+                deleteEclipseCase(eclipseCase);
+            }
             RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
-    else if (geoMechCase)
+    
+    if (!geoMechCases.empty())
     {
-        deleteGeoMechCase(geoMechCase);
-
+        for (RimGeoMechCase* geoMechCase : geoMechCases)
+        {
+            deleteGeoMechCase(geoMechCase);
+        }
         RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
@@ -95,33 +115,11 @@ void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicCloseCaseFeature::selectedEclipseCase() const
+std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 {
-    std::vector<RimEclipseCase*> selection;
+    std::vector<RimCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RicCloseCaseFeature::selectedGeoMechCase() const
-{
-    std::vector<RimGeoMechCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return selection;
 }
 
 //--------------------------------------------------------------------------------------------------
