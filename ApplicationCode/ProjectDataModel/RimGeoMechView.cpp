@@ -20,6 +20,7 @@
 #include "RimGeoMechView.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RigFemPartCollection.h"
@@ -36,6 +37,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTensorResults.h"
 #include "RimViewLinker.h"
@@ -52,10 +54,11 @@
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
+#include "cafOverlayScalarMapperLegend.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
-#include "cafOverlayScalarMapperLegend.h"
 
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
@@ -560,6 +563,68 @@ RigFemPartCollection* RimGeoMechView::femParts()
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateDisplayModelCoordinates()
+{
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfType(proj);
+    if (!proj) return;
+
+    if (proj->isProjectFileVersionEqualOrOlderThan("2018.1.1.110"))
+    {
+        auto geoMechCase = this->geoMechCase();
+        if (geoMechCase)
+        {
+            std::string errorMessage;
+            if (!geoMechCase->openGeoMechCase(&errorMessage))
+            {
+                QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + geoMechCase->caseFileName()
+                                                              : QString::fromStdString(errorMessage);
+
+                RiaLogging::error(displayMessage);
+            }
+            else
+            {
+                // Up-cast to get access to public interface for camera functions
+                RimCase*                  rimCase               = geoMechCase;
+                RiuViewerToViewInterface* viewerToViewInterface = this;
+                auto                      offset                = -rimCase->displayModelOffset();
+
+                auto diplayCoordTrans = this->displayCoordTransform();
+
+/* Does not work as expected
+
+                {
+                    auto pointOfInterest = this->cameraPointOfInterest();
+
+                    auto pointOfInterestDomain = diplayCoordTrans->scaleToDomainSize(pointOfInterest);
+                    pointOfInterestDomain += offset;
+
+                    auto newPointOfInterest = diplayCoordTrans->transformToDisplayCoord(pointOfInterestDomain);
+
+                    viewerToViewInterface->setCameraPointOfInterest(newPointOfInterest);
+                }
+
+                {
+                    auto cameraPosition = this->cameraPosition();
+                    auto translation    = cameraPosition.translation();
+
+                    auto translationDomainCoord = diplayCoordTrans->scaleToDomainSize(translation);
+                    translationDomainCoord += offset;
+
+                    auto newCameraPosition = diplayCoordTrans->transformToDisplayCoord(translationDomainCoord);
+
+                    cameraPosition.setTranslation(newCameraPosition);
+                    viewerToViewInterface->setCameraPosition(cameraPosition);
+                }
+*/
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechView::geoMechCase()
 {

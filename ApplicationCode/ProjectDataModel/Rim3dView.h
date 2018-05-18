@@ -141,6 +141,9 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
     virtual std::vector<RimLegendConfig*>   legendConfigs() const = 0;
 
+    cvf::Mat4d                              cameraPosition() const;
+    cvf::Vec3d                              cameraPointOfInterest() const;
+
 protected:
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 

@@ -47,7 +47,6 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedData.h"
@@ -562,7 +561,14 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                         }
                     }
 
+                    auto* geoView = dynamic_cast<RimGeoMechView*>(riv);
+                    if (geoView)
+                    {
+                        geoView->updateDisplayModelCoordinates();
+                    }
+
                     riv->loadDataAndUpdate();
+
                     this->setActiveReservoirView(riv);
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>(riv);
