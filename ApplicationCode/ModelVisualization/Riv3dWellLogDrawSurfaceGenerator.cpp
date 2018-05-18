@@ -216,6 +216,11 @@ void Riv3dWellLogDrawSurfaceGenerator::createCurveNormalVectors(const caf::Displ
         arrowVectors.push_back(cvf::Vec3f(interpolatedWellPathNormals[i] * planeWidth * totalArrowScaling));
     }
 
+    if (arrowVertices.empty() || arrowVectors.empty())
+    {
+        return;
+    }
+
     m_curveNormalVectors = new cvf::DrawableVectors();
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(arrowVertices);
