@@ -111,7 +111,7 @@ RivFemIntersectionGrid::RivFemIntersectionGrid(const RigFemPart * femPart) : m_f
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RivFemIntersectionGrid::displayOffset() const
 {
-    return cvf::Vec3d::ZERO;
+    return m_femPart->boundingBox().min();
 }
 
 //--------------------------------------------------------------------------------------------------
