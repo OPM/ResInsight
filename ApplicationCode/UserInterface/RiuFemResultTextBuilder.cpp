@@ -25,13 +25,18 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
+
+#include "Rim2dIntersectionView.h"
 #include "RimFormationNames.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "Rim2dIntersectionView.h"
+
 #include "RiuGeoMechXfTensorResultAccessor.h"
+
 #include "RivIntersectionPartMgr.h"
+
+#include "cafDisplayCoordTransform.h"
 
 
 
@@ -143,20 +148,12 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 j++;
                 k++;
 
-                cvf::Vec3d domainCoord = m_intersectionPoint;
-
-                //cvf::StructGridInterface::FaceEnum faceEnum(m_face);
-
-                //QString faceText = faceEnum.text();
-
-                //text += QString("Face : %1").arg(faceText) + itemSeparator;
-                //text += QString("Fem Part %1").arg(m_gridIndex) + itemSeparator;
                 text += QString(", ijk[%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
 
                 QString formattedText;
                 if (m_2dIntersectionView)
                 {
-                    formattedText.sprintf("Horizontal length from well start: %.2f", domainCoord.x());
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
                     text += formattedText + itemSeparator;
 
                     cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
@@ -169,6 +166,9 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 }
                 else
                 {
+                    cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
+
                     formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
                     text += formattedText;
                 }
