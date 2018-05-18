@@ -78,7 +78,11 @@ public:
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
 
+
+
+
 private:
+    virtual cvf::Vec3d                      displayModelOffset() const override;
     static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

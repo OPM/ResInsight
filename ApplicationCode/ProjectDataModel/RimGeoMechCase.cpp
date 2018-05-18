@@ -402,6 +402,14 @@ double RimGeoMechCase::frictionAngleDeg() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimGeoMechCase::displayModelOffset() const
+{
+   return this->allCellsBoundingBox().min();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;

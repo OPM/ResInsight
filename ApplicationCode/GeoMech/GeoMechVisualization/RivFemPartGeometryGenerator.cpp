@@ -188,7 +188,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     trianglesToElements.reserve(estimatedQuadVxCount/2);
     trianglesToElementFaces.reserve(estimatedQuadVxCount/2);
 
-    cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
+    cvf::Vec3d displayOffset = m_part->boundingBox().min();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
 #pragma omp parallel for schedule(dynamic)
@@ -217,12 +217,10 @@ void RivFemPartGeometryGenerator::computeArrays()
                 if (faceNodeCount == 4)
                 {
  
-                   const cvf::Vec3f* quadVxs[4];
-
-                   quadVxs[0] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
-                   quadVxs[1] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
-                   quadVxs[2] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]);
-                   quadVxs[3] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]);
+                   cvf::Vec3f quadVxs0 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs1 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs2 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs3 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]) - displayOffset);
 
                    int qNodeIdx[4];
                    qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
@@ -238,10 +236,10 @@ void RivFemPartGeometryGenerator::computeArrays()
 
                    #pragma omp critical
                    {
-                       vertices.push_back(*quadVxs[0]);
-                       vertices.push_back(*quadVxs[1]);
-                       vertices.push_back(*quadVxs[2]);
-                       vertices.push_back(*quadVxs[3]);
+                       vertices.push_back(quadVxs0);
+                       vertices.push_back(quadVxs1);
+                       vertices.push_back(quadVxs2);
+                       vertices.push_back(quadVxs3);
 
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[0]);
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[1]);
