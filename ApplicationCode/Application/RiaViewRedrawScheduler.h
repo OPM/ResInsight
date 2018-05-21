@@ -33,11 +33,14 @@ public:
     static RiaViewRedrawScheduler* instance();
     void                scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate);
     void                clearViewsScheduledForUpdate();
+    void                updateAndRedrawScheduledViews();
 
-public slots:
-    void                slotUpdateScheduledDisplayModels();
+private slots:
+    void                slotUpdateAndRedrawScheduledViewsWhenReady();
 
 private:
+    void                startTimer(int msecs);
+
     RiaViewRedrawScheduler() : m_resViewUpdateTimer(nullptr)  {}
     ~RiaViewRedrawScheduler();
 

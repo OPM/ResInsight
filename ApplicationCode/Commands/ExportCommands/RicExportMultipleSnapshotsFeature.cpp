@@ -230,7 +230,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimGridView
             // Force update of scheduled display models modifying the time step
             // This is required due to visualization structures updated by the update functions,
             // and this is not triggered by changing time step only
-            RiaViewRedrawScheduler::instance()->slotUpdateScheduledDisplayModels();
+            RiaViewRedrawScheduler::instance()->updateAndRedrawScheduledViews();
 
             viewer->setCurrentFrame(i);
             viewer->animationControl()->setCurrentFrameOnly(i);

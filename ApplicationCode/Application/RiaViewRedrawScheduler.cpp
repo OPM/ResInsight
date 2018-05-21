@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 
 #include <set>
+#include "cafProgressState.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,16 +60,24 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw(Rim3dView* resV
 {
     m_resViewsToUpdate.push_back(resViewToUpdate);
 
+    startTimer(0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaViewRedrawScheduler::startTimer(int msecs)
+{
     if (!m_resViewUpdateTimer) 
     {
         m_resViewUpdateTimer = new QTimer(this);
-        connect(m_resViewUpdateTimer, SIGNAL(timeout()), this, SLOT(slotUpdateScheduledDisplayModels()));
+        connect(m_resViewUpdateTimer, SIGNAL(timeout()), this, SLOT(slotUpdateAndRedrawScheduledViewsWhenReady()));
     }
 
     if (!m_resViewUpdateTimer->isActive())
     {
         m_resViewUpdateTimer->setSingleShot(true);
-        m_resViewUpdateTimer->start(0);
+        m_resViewUpdateTimer->start(msecs);
     }
 }
 
@@ -76,7 +85,7 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw(Rim3dView* resV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::slotUpdateScheduledDisplayModels()
+void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
 {
     // Compress to remove duplicates
     // and update dependent views after independent views
@@ -111,6 +120,20 @@ void RiaViewRedrawScheduler::slotUpdateScheduledDisplayModels()
     }
 
     m_resViewsToUpdate.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaViewRedrawScheduler::slotUpdateAndRedrawScheduledViewsWhenReady()
+{
+    if ( caf::ProgressState::isActive() )
+    {
+        startTimer(100);
+        return;
+    }
+
+    updateAndRedrawScheduledViews();
 }
 
 //--------------------------------------------------------------------------------------------------

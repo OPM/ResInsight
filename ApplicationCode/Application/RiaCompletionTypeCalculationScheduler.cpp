@@ -38,6 +38,7 @@
 #include <QTreeView>
 
 #include <set>
+#include "cafProgressState.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -100,6 +101,12 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 {
+    if ( caf::ProgressState::isActive() )
+    {
+        startTimer();
+        return;
+    }
+
     std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
 
     Rim3dView*  activeView = RiaApplication::instance()->activeReservoirView();
