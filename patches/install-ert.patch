@@ -1,0 +1,49 @@
+From 57a5f7fc667d42a5405021c975dabc2db53079a4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jacob=20St=C3=B8ren?= <jacob.storen@ceetronSolutions.com>
+Date: Thu, 26 Oct 2017 17:16:42 +0200
+Subject: [PATCH] #2011 libecl: Add INSTALL_ERT to control install targets
+
+---
+ ThirdParty/Ert/CMakeLists.txt     | 5 ++++-
+ ThirdParty/Ert/lib/CMakeLists.txt | 3 ++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/ThirdParty/Ert/CMakeLists.txt b/ThirdParty/Ert/CMakeLists.txt
+index ffb2de0f9..73fb3b30d 100644
+--- a/ThirdParty/Ert/CMakeLists.txt
++++ b/ThirdParty/Ert/CMakeLists.txt
+@@ -363,6 +363,9 @@ if (BUILD_PYTHON)
+    endif()
+ endif()
+ 
+-install(EXPORT ecl-config DESTINATION share/cmake/ecl)
++if (INSTALL_ERT)
++   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
++endif()
++
+ export(TARGETS ecl FILE eclConfig.cmake)
+ export(PACKAGE ecl)
+diff --git a/ThirdParty/Ert/lib/CMakeLists.txt b/ThirdParty/Ert/lib/CMakeLists.txt
+index 477f95530..2b91ee17f 100644
+--- a/ThirdParty/Ert/lib/CMakeLists.txt
++++ b/ThirdParty/Ert/lib/CMakeLists.txt
+@@ -220,7 +220,7 @@ endif ()
+ set_target_properties(ecl PROPERTIES
+                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
+                           SOVERSION ${ECL_VERSION_MAJOR})
+-
++if (INSTALL_ERT)
+ install(TARGETS ecl
+         EXPORT  ecl-config
+         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+@@ -245,6 +245,7 @@ if (ERT_BUILD_CXX)
+             PATTERN *.hpp
+ )
+ endif ()
++endif()
+ 
+ if (NOT BUILD_TESTS)
+     return ()
+-- 
+2.16.2.windows.1
+

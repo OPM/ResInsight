@@ -28,7 +28,7 @@ class RigWellPath;
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimView;
+class Rim3dView;
 class RimWellPath;
 
 //==================================================================================================
@@ -52,7 +52,7 @@ public:
     void            setCase(RimCase* rimCase);
     RimCase*        rimCase() const;
 
-    void            setPropertiesFromView(RimView* view);
+    void            setPropertiesFromView(Rim3dView* view);
 
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
@@ -68,14 +68,14 @@ public:
     void            setEclipseResultVariable(const QString& resVarname);
 
 protected:
-    virtual QString                                createCurveAutoName();
-    virtual void                                   onLoadDataAndUpdate(bool updateParentPlot);
+    virtual QString                                createCurveAutoName() override;
+    virtual void                                   onLoadDataAndUpdate(bool updateParentPlot) override;
 
-    virtual void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual void                                   initAfterRead();
+    virtual void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                                   initAfterRead() override;
 
 private:
     void                                           setLogScaleFromSelectedResult();

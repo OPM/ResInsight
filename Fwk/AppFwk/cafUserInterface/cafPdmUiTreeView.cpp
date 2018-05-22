@@ -132,7 +132,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 
     std::vector<PdmUiItem*> objects;
     m_treeViewEditor->selectedUiItems(objects);
-    PdmObjectHandle* objHandle = NULL;
+    PdmObjectHandle* objHandle = nullptr;
 
     if (objects.size())
     {

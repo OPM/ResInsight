@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafFilePath.h"
 #include "cafPdmPointer.h"
 
 #include <vector>
@@ -138,6 +139,29 @@ public:
     {
         assert(false); // Not sure this actually works JJS
         return variantValue == variantValue2;
+    }
+};
+
+//==================================================================================================
+/// Partial specialization for caf::FilePath
+//==================================================================================================
+template <>
+class PdmValueFieldSpecialization<FilePath>
+{
+public:
+    static QVariant convert(const FilePath& value)
+    {
+        return QVariant(value.path());
+    }
+
+    static void setFromVariant(const QVariant& variantValue, FilePath& value)
+    {
+        value.setPath(variantValue.toString());
+    }
+ 
+    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    {
+        return variantValue.value<FilePath>() == variantValue2.value<FilePath>();
     }
 };
 

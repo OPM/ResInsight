@@ -42,7 +42,6 @@ private:
     static bool tryParseMonth(const std::string& s, int &month);
     static bool tryParseDay(const std::string& s, int &day);
 
-    static bool containsAlphabetic(const std::string& s);
     static std::string trimString(const std::string& s);
 };
 

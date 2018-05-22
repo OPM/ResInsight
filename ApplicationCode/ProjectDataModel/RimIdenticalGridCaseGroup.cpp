@@ -36,7 +36,7 @@
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -71,7 +71,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
 
 
-    m_mainGrid = NULL;
+    m_mainGrid = nullptr;
 
     m_unionOfMatrixActiveCells = new RigActiveCellInfo;
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
@@ -82,13 +82,13 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 {
-    m_mainGrid = NULL;
+    m_mainGrid = nullptr;
 
     delete caseCollection;
-    caseCollection = NULL;
+    caseCollection = nullptr;
 
     delete statisticsCaseCollection;
-    statisticsCaseCollection = NULL;
+    statisticsCaseCollection = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ void RimIdenticalGridCaseGroup::removeCase(RimEclipseCase* reservoir)
 
     if (caseCollection()->reservoirs().size() == 0)
     {
-        m_mainGrid = NULL;
+        m_mainGrid = nullptr;
     }
     
     clearActiveCellUnions();
@@ -145,7 +145,7 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
     if (m_mainGrid) return m_mainGrid;
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if (!mainCase->openReserviorCase())
     {
-        QMessageBox::warning(RiuMainWindow::instance(),
+        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                              "Error when opening project file",
                              "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
                              "Current working directory is: \n" +
@@ -512,7 +512,7 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

@@ -43,31 +43,42 @@ class RimEllipseFractureTemplate : public RimFractureTemplate
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimEllipseFractureTemplate(void);
-    virtual ~RimEllipseFractureTemplate(void);
-    
-    caf::PdmField<float>     halfLength;
-    caf::PdmField<float>     height;
+    RimEllipseFractureTemplate();
+    virtual ~RimEllipseFractureTemplate();
 
-    caf::PdmField<float>     width;
-    caf::PdmField<float>     permeability;
-    
-    void                            loadDataAndUpdate();
+    void fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices) override;
 
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    std::vector<cvf::Vec3f> fractureBorderPolygon() override;
+    void                    changeUnits();
+    const RigFractureGrid*  fractureGrid() const override;
+    void                    setDefaultValuesFromUnit();
+    double                  conductivity() const;
     
-    void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                     std::vector<cvf::uint>* polygonIndices, 
-                                                     RiaEclipseUnitTools::UnitSystem neededUnit);
-    std::vector<cvf::Vec3f>         fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem  neededUnit);
-    void                            changeUnits();
-    
-    const RigFractureGrid*          fractureGrid() const;
+    void                    appendDataToResultStatistics(const QString&     uiResultName,
+                                                         const QString&     unit,
+                                                         MinMaxAccumulator& minMaxAccumulator,
+                                                         PosNegAccumulator& posNegAccumulator) const override;
+
+    void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+
+    void                    loadDataAndUpdate() override;
+    std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
+    virtual void            reload() override;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    void                             setupFractureGridCells();
-    cvf::ref<RigFractureGrid>        m_fractureGrid;
+    void                   assignConductivityToCellsInsideEllipse();
+
+    FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const override;
+
+private:
+    cvf::ref<RigFractureGrid>   m_fractureGrid;
+
+    caf::PdmField<double>        m_halfLength;
+    caf::PdmField<double>        m_height;
+    caf::PdmField<double>        m_width;
+    caf::PdmField<double>        m_userDefinedEffectivePermeability;
 };

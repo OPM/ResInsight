@@ -22,7 +22,7 @@ class RigActiveCellInfo;
 class RigFemPartCollection;
 class RigMainGrid;
 class RimCase;
-class RimView;
+class Rim3dView;
 
 namespace cvf
 {
@@ -43,7 +43,7 @@ public:
     static const cvf::StructGridInterface* gridByIndex(RimCase* rimCase, int gridIndex);
     static QString                         gridName(RimCase* rimCase, int gridIndex);
 
-    static RigActiveCellInfo*              activeCellInfo(RimView* rimView);
+    static RigActiveCellInfo*              activeCellInfo(Rim3dView* rimView);
 
 private:
     static RigMainGrid*             eclipseMainGrid(RimCase* rimCase);

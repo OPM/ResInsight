@@ -22,8 +22,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
-#include "RimTernaryLegendConfig.h"
 
 #include "RiuMainWindow.h"
 
@@ -56,7 +54,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
 RimEclipseFaultColors::~RimEclipseFaultColors()
 {
     delete m_customFaultResultColors;
-    m_customFaultResultColors = NULL;
+    m_customFaultResultColors = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +93,14 @@ void RimEclipseFaultColors::initAfterRead()
 RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 {
     return this->m_customFaultResultColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::updateUiFieldsFromActiveResult()
+{
+    m_customFaultResultColors->updateUiFieldsFromActiveResult();
 }
 
 //--------------------------------------------------------------------------------------------------

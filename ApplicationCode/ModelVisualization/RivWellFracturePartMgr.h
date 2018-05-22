@@ -25,13 +25,16 @@
 
 #include "cafPdmPointer.h"
 
+#include <QString>
 #include <vector>
 
 namespace cvf
 {
-     class ModelBasicList;
-     class DrawableGeo;
-     class Part;
+    class ModelBasicList;
+    class DrawableGeo;
+    class Part;
+    class Color3f;
+    class ScalarMapper;
 }
 
 namespace caf
@@ -40,8 +43,10 @@ namespace caf
 }
 
 class RimFracture;
+class RimFractureTemplate;
 class RimStimPlanFractureTemplate;
 class RimEclipseView;
+class RigFractureCell;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,33 +59,37 @@ public:
 
     void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView);
 
-    static std::vector<double>          mirrorDataAtSingleDepth(std::vector<double> depthData);
+    const QString                       resultInfoText(const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint) const;
+
+    const RigFractureCell*              getFractureCellAtDomainCoord(cvf::Vec3d domainCoord) const;
 
 private:
     cvf::ref<cvf::Part>                 createEllipseSurfacePart(const RimEclipseView& activeView);
-    cvf::ref<cvf::Part>                 createStimPlanSurfacePart(const RimEclipseView& activeView);
+    cvf::ref<cvf::Part>                 createStimPlanColorInterpolatedSurfacePart(const RimEclipseView& activeView);
+
+    cvf::ref<cvf::Part>                 createSingleColorSurfacePart(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords, const cvf::Color3f& color);
+
+    cvf::ref<cvf::Part>                 createStimPlanElementColorSurfacePart(const RimEclipseView& activeView);
 
     cvf::ref<cvf::Part>                 createContainmentMaskPart(const RimEclipseView& activeView);
+    
+    void                                appendFracturePerforationLengthParts(const RimEclipseView& activeView, cvf::ModelBasicList* model);
 
     cvf::ref<cvf::Part>                 createStimPlanMeshPart(const RimEclipseView& activeView);
-    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView) const;
+    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView);
 
-    static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon, 
+    std::vector<cvf::Vec3d>             fractureBorderPolygon();
+
+    static cvf::ref<cvf::Part>            createScalarMapperPart(cvf::DrawableGeo* drawableGeo, const cvf::ScalarMapper* scalarMapper, RimFracture* fracture, bool disableLighting);
+    
+    static std::vector<cvf::Vec3f>      transformToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon,
                                                                          cvf::Mat4d m, 
                                                                          const caf::DisplayCoordTransform& displayCoordTransform);
-
-    static bool                         stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, 
-                                                                   double xMin, 
-                                                                   double xMax, 
-                                                                   double yMin, 
-                                                                   double yMax, 
-                                                                   float polygonXmin, 
-                                                                   float polygonXmax, 
-                                                                   float polygonYmin, 
-                                                                   float polygonYmax);
 
     static cvf::ref<cvf::DrawableGeo>   buildDrawableGeoFromTriangles(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
-    caf::PdmPointer<RimFracture>        m_rimFracture;
+    caf::PdmPointer<RimFracture>                    m_rimFracture;
+
+    std::vector<std::vector<cvf::Vec3d>>            m_visibleFracturePolygons;
 };

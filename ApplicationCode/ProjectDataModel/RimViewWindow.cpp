@@ -86,7 +86,7 @@ void RimViewWindow::updateMdiWindowVisibility()
     {
         if (viewWidget())
         {
-            if (m_showWindow)
+            if (isWindowVisible())
             {
                 viewWidget()->show();
             }
@@ -149,7 +149,7 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 {
     if ( changedField == &m_showWindow )
     {
-        if (m_showWindow)
+        if (isWindowVisible())
         {
             onLoadDataAndUpdate();
         }
@@ -198,7 +198,7 @@ void RimViewWindow::setAsMdiWindow(int mainWindowID)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#include "RimView.h"
+#include "Rim3dView.h"
 
 void RimViewWindow::initAfterRead()
 {
@@ -207,7 +207,7 @@ void RimViewWindow::initAfterRead()
        RimMdiWindowGeometry wg;
        int mainWindowID = -1;
        
-       if (dynamic_cast<RimView*> (this))
+       if (dynamic_cast<Rim3dView*> (this))
           mainWindowID = 0;
        else 
           mainWindowID = 1;

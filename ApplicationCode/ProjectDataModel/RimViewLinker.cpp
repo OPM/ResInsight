@@ -33,10 +33,11 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimLegendConfig.h"
+#include "RimIntersectionCollection.h"
+#include "RimRegularLegendConfig.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
@@ -83,7 +84,7 @@ RimViewLinker::~RimViewLinker(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
+void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
 {
     CVF_ASSERT(sourceView);
 
@@ -125,7 +126,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCellResult()
 {
-    RimView* rimView = m_masterView;
+    Rim3dView* rimView = m_masterView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
@@ -137,7 +138,7 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                RimView* rimView = viewLink->managedView();
+                Rim3dView* rimView = viewLink->managedView();
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
                 if (eclipseView)
                 {
@@ -152,10 +153,10 @@ void RimViewLinker::updateCellResult()
                             eclipseView->cellResult()->legendConfig()->updateLegend();
 
                             eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
-                            eclipseView->cellResult()->ternaryLegendConfig()->updateLegend();
                         }
 
                         eclipseView->scheduleCreateDisplayModelAndRedraw();
+                        eclipseView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                     
                     eclipseView->cellResult()->updateIconState();
@@ -175,7 +176,7 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                RimView* rimView = viewLink->managedView();
+                Rim3dView* rimView = viewLink->managedView();
                 RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
                 if (geoView)
                 {
@@ -190,6 +191,7 @@ void RimViewLinker::updateCellResult()
                         }
 
                         geoView->scheduleCreateDisplayModelAndRedraw();
+                        geoView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
 
                     geoView->cellResult()->updateIconState();
@@ -247,7 +249,7 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const
+void RimViewLinker::allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const
 {
     if (!isActive()) return;
 
@@ -283,13 +285,13 @@ void RimViewLinker::updateDependentViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimViewLinker::displayNameForView(RimView* view)
+QString RimViewLinker::displayNameForView(RimGridView* view)
 {
     QString displayName = "None";
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
@@ -303,7 +305,7 @@ QString RimViewLinker::displayNameForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::setMasterView(RimView* view)
+void RimViewLinker::setMasterView(RimGridView* view)
 {
     RimViewController* previousViewController = view->viewController();
 
@@ -311,7 +313,7 @@ void RimViewLinker::setMasterView(RimView* view)
     if (previousViewController)
     {
         delete previousViewController;
-        this->m_viewControllers.removeChildObject(NULL);
+        this->m_viewControllers.removeChildObject(nullptr);
     }
 
     this->removeOverrides();
@@ -324,7 +326,7 @@ void RimViewLinker::setMasterView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::masterView() const
+RimGridView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
@@ -332,7 +334,7 @@ RimView* RimViewLinker::masterView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews(std::vector<RimView*>& views) const
+void RimViewLinker::allViews(std::vector<RimGridView*>& views) const
 {
     views.push_back(m_masterView());
 
@@ -356,7 +358,7 @@ void RimViewLinker::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
+void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
 {
     if (!isActive()) return;
 
@@ -371,7 +373,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
         }
     }
 
-    std::vector<RimView*> views;
+    std::vector<RimGridView*> views;
     allViewsForCameraSync(sourceView, views);
 
     // Make sure scale factors are identical
@@ -386,7 +388,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive() const
 {
-    RimViewLinkerCollection* viewLinkerCollection = NULL;
+    RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
     
     if (!viewLinkerCollection)
@@ -454,7 +456,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView* view)
+void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view)
 {
     CVF_ASSERT(name && icon);
 
@@ -462,7 +464,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))
@@ -487,7 +489,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
+void RimViewLinker::updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord)
 {
     RimViewController* sourceViewLink = sourceView->viewController();
     if (sourceViewLink && !sourceViewLink->showCursor())
@@ -495,10 +497,10 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
         return;
     }
 
-    std::vector<RimView*> viewsToUpdate;
+    std::vector<RimGridView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
-    for (RimView* destinationView : viewsToUpdate)
+    for (Rim3dView* destinationView : viewsToUpdate)
     {
         if (destinationView == sourceView) continue;
 
@@ -521,7 +523,7 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCamera(RimView* sourceView)
+void RimViewLinker::updateCamera(RimGridView* sourceView)
 {
     if (!sourceView->viewer()) return;
     
@@ -536,7 +538,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
         }
     }
 
-    std::vector<RimView*> viewsToUpdate;
+    std::vector<RimGridView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
     RimViewManipulator::applySourceViewCameraOnDestinationViews(sourceView, viewsToUpdate);
@@ -545,7 +547,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addDependentView(RimView* view)
+void RimViewLinker::addDependentView(RimGridView* view)
 {
     CVF_ASSERT(view && view != m_masterView);
      

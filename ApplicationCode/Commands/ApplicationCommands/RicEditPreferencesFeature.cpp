@@ -47,7 +47,7 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
 
     QStringList tabNames = app->preferences()->tabNames();
-    RiuPropertyViewTabWidget propertyDialog(NULL, app->preferences(), "Preferences", tabNames);
+    RiuPropertyViewTabWidget propertyDialog(nullptr, app->preferences(), "Preferences", tabNames);
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application

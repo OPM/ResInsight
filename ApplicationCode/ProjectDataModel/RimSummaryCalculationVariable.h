@@ -28,6 +28,7 @@
 
 class RimSummaryCase;
 class RimSummaryAddress;
+class RiuSummaryCurveDefSelectionDialog;
 
 //==================================================================================================
 ///  
@@ -52,6 +53,9 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
+    void readDataFromApplicationStore(RiuSummaryCurveDefSelectionDialog* selectionDialog) const;
+    void writeDataToApplicationStore() const;
 
 private:
     caf::PdmField<QString>                  m_name;

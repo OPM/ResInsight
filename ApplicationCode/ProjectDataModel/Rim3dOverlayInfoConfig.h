@@ -32,7 +32,7 @@
 
 class RimEclipseView;
 class RimGeoMechView;
-class RimView;
+class RimGridView;
 class RigStatisticsDataCache;
 class RicGridStatisticsDialog;
 
@@ -67,17 +67,22 @@ public:
 
     void update3DInfo();
 
-    void setReservoirView(RimView* ownerView);
+    void setReservoirView(RimGridView* ownerView);
 
     void setPosition(cvf::Vec2ui position);
 
-    HistogramData                               histogramData();
-    QString                                     timeStepText();
-    QString                                     caseInfoText();
-    QString                                     resultInfoText(const HistogramData& histData);
+    HistogramData histogramData();
+    QString       timeStepText();
+    QString       caseInfoText();
+    QString       resultInfoText(const HistogramData& histData);
 
-    void                                        showStatisticsInfoDialog(bool raise = true);
-    QImage                                      statisticsDialogScreenShotImage();
+    void          showStatisticsInfoDialog(bool raise = true);
+    QImage        statisticsDialogScreenShotImage();
+
+    bool          showAnimProgress() const;
+    bool          showCaseInfo() const;
+    bool          showResultInfo() const;
+    bool          isActive() const;
 
     enum StatisticsTimeRangeType
     {
@@ -101,6 +106,8 @@ private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
 
+    void update3DInfoIn2dViews() const;
+
     QString                                     timeStepText(RimEclipseView* eclipseView);
     QString                                     timeStepText(RimGeoMechView* geoMechView);
     HistogramData                               histogramData(RimEclipseView* eclipseView);
@@ -110,17 +117,17 @@ private:
     QString                                     resultInfoText(const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean);
     QString                                     resultInfoText(const HistogramData& histData, RimGeoMechView* geoMechView);
 
-    caf::PdmField<bool>                         active;
-    caf::PdmField<bool>                         showAnimProgress;
-    caf::PdmField<bool>                         showCaseInfo;
-    caf::PdmField<bool>                         showResultInfo;
-    caf::PdmField<bool>                         showVolumeWeightedMean;
-    caf::PdmField<bool>                         showHistogram;
+    caf::PdmField<bool>                         m_active;
+    caf::PdmField<bool>                         m_showAnimProgress;
+    caf::PdmField<bool>                         m_showCaseInfo;
+    caf::PdmField<bool>                         m_showResultInfo;
+    caf::PdmField<bool>                         m_showVolumeWeightedMean;
+    caf::PdmField<bool>                         m_showHistogram;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;
 
-    caf::PdmPointer<RimView>                    m_viewDef;
+    caf::PdmPointer<RimGridView>                    m_viewDef;
 
     cvf::Vec2ui                                 m_position;
     

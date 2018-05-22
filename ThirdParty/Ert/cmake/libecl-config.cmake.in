@@ -5,6 +5,6 @@ set( CMAKE_MODULE_PATH @CMAKE_INSTALL_PREFIX@/share/cmake/Modules ${CMAKE_MODULE
 link_directories( @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@ )
 include_directories( @CMAKE_INSTALL_PREFIX@/include )
 
-if (@BUILD_PYTHON@)
+if (@ENABLE_PYTHON@)
    set(libecl_PYTHONPATH @CMAKE_INSTALL_PREFIX@/@PYTHON_INSTALL_PREFIX@ )
 endif()

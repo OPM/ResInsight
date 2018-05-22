@@ -97,6 +97,10 @@ extern "C" {
   double well_state_get_gas_rate( const well_state_type * well_state );
   double well_state_get_water_rate( const well_state_type * well_state);
   double well_state_get_volume_rate( const well_state_type * well_state);
+  double well_state_get_water_rate_si( const well_state_type * well_state);
+  double well_state_get_oil_rate_si( const well_state_type * well_state );
+  double well_state_get_volume_rate_si( const well_state_type * well_state);
+  double well_state_get_gas_rate_si( const well_state_type * well_state );
 
 
   UTIL_IS_INSTANCE_HEADER( well_state );

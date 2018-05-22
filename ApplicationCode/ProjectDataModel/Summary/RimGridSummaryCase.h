@@ -26,6 +26,7 @@
 
 class RimEclipseCase;
 class RifReaderEclipseSummary;
+class RimFileSummaryCase;
 
 //==================================================================================================
 //
@@ -50,6 +51,9 @@ public:
     virtual void                    createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface* summaryReader() override;
 
+    void                            setIncludeRestartFiles(bool includeRestartFiles);
+
+    RimFileSummaryCase*             createFileSummaryCaseCopy();
 private:
     QString                         eclipseGridFileName() const;
 
@@ -59,4 +63,5 @@ private:
     caf::PdmProxyValueField<QString>    m_eclipseGridFileName;
 
     cvf::ref<RifReaderEclipseSummary>   m_summaryFileReader;
+    caf::PdmField<bool>                 m_includeRestartFiles;
 };

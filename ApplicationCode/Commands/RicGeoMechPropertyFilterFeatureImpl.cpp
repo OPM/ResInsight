@@ -25,7 +25,7 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechResultDefinition.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -66,7 +66,7 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter(RimGeoMechPropertyFi
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
+    Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
 
 }
 
@@ -83,7 +83,7 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropert
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
+    Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
 
 }
 

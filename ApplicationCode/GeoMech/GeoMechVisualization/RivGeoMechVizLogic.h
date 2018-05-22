@@ -43,17 +43,18 @@ public:
     explicit RivGeoMechVizLogic(RimGeoMechView * geomView);
     virtual ~RivGeoMechVizLogic();
 
-    void                             appendNoAnimPartsToModel(cvf::ModelBasicList* model);
-    void                             appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
-    void                             updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultColors);
-    void                             updateStaticCellColors(int timeStepIndex);
-    void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
-    void                             calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex);
+    void                                     appendNoAnimPartsToModel(cvf::ModelBasicList* model);
+    void                                     appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
+    void                                     updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultColors);
+    void                                     updateStaticCellColors(int timeStepIndex);
+    void                                     scheduleGeometryRegen(RivCellSetEnum geometryType);
+    void                                     calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex);
+    std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs(int timeStepIndex) const;
+    const cvf::ref<RivGeoMechPartMgrCache>   partMgrCache() const;
 private:
 
-    std::vector<RivGeoMechPartMgrCache::Key>      keysToVisiblePartMgrs(int timeStepIndex);
-    RivGeoMechPartMgr*                            getUpdatedPartMgr(RivGeoMechPartMgrCache::Key partMgrKey);
-    void                                          scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum geometryType);
+    RivGeoMechPartMgr*                       getUpdatedPartMgr(RivGeoMechPartMgrCache::Key partMgrKey);
+    void                                     scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum geometryType);
 
     cvf::ref<RivGeoMechPartMgrCache> m_partMgrCache;
     RimGeoMechView*                  m_geomechView;

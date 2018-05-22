@@ -20,8 +20,11 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimViewLinker.h"
 
 #include "RivTernarySaturationOverlayItem.h"
@@ -37,16 +40,6 @@
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 
-namespace caf {
-    template<>
-    void AppEnum<RimTernaryLegendConfig::RangeModeType>::setUp()
-    {
-        addItem(RimTernaryLegendConfig::AUTOMATIC_ALLTIMESTEPS,    "AUTOMATIC_ALLTIMESTEPS",       "Global range");
-        addItem(RimTernaryLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,"AUTOMATIC_CURRENT_TIMESTEP",   "Local range");
-        addItem(RimTernaryLegendConfig::USER_DEFINED,              "USER_DEFINED_MAX_MIN",         "User defined range");
-        setDefault(RimTernaryLegendConfig::AUTOMATIC_ALLTIMESTEPS);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,7 +47,8 @@ namespace caf {
 RimTernaryLegendConfig::RimTernaryLegendConfig() 
 {
     CAF_PDM_InitObject("Ternary Legend Definition", ":/Legend.png", "", "");
-
+    CAF_PDM_InitField(&m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "");
+    m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
@@ -74,7 +68,6 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     ternaryRangeSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-
     CAF_PDM_InitField(&userDefinedMaxValueSoil, "UserDefinedMaxSoil", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&userDefinedMinValueSoil, "UserDefinedMinSoil", 0.0, "Min", "", "Max value of the legend", "");
 
@@ -89,7 +82,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
 
-    m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    m_scalarMapper = new RivTernaryScalarMapper(RiaColorTables::undefinedCellColor());
 
     recreateLegend();
     updateLegend();
@@ -100,7 +93,6 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig::~RimTernaryLegendConfig()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +137,7 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     updateLabelText();
     updateLegend();
 
-    RimView* view = nullptr;
+    RimGridView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     if (view)
@@ -157,6 +149,7 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         }
         
         view->updateCurrentTimeStepAndRedraw();
+        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
@@ -198,6 +191,10 @@ void RimTernaryLegendConfig::updateLegend()
     if (!m_legend.isNull())
     {
         m_legend->setRangeText(soilRange, sgasRange, swatRange);
+
+        RiaApplication* app = RiaApplication::instance();
+        RiaPreferences* preferences = app->preferences();
+        m_legend->enableBackground(preferences->showLegendBackground());
     }
 }
 
@@ -243,6 +240,7 @@ void RimTernaryLegendConfig::setUiValuesFromLegendConfig(const RimTernaryLegendC
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
     this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
+    this->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,9 +316,17 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend()
+bool RimTernaryLegendConfig::showLegend() const
 {
-    return m_legend.p();
+    return m_showLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTernaryLegendConfig::setTitle(const QString& title)
+{
+    m_legend->setTitle(cvfqt::Utils::toString(title));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -461,8 +467,31 @@ void RimTernaryLegendConfig::updateLabelText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper()
+const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
 {
     return m_scalarMapper.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame() const
+{
+    return m_legend.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame()
+{
+    return m_legend.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimTernaryLegendConfig::objectToggleField()
+{
+    return &m_showLegend;
+}

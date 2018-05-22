@@ -32,9 +32,11 @@
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
+class RimGridView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimSimWellInView;
+class Rim2dIntersectionView;
 class RimWellPath;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
@@ -109,7 +111,8 @@ public:
         GEOMECH_SELECTION_OBJECT,
         WELLPATH_SELECTION_OBJECT,
         SIMWELL_SELECTION_OBJECT,
-        GENERAL_SELECTION_OBJECT
+        GENERAL_SELECTION_OBJECT,
+        INTERSECTION_SELECTION_OBJECT
     };
 
 public:
@@ -128,8 +131,13 @@ public:
 class RiuEclipseSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex,
-                                     cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint);
+    explicit RiuEclipseSelectionItem(RimEclipseView* view,
+                                     size_t gridIndex,
+                                     size_t cellIndex,
+                                     size_t nncIndex,
+                                     cvf::Color3f color,
+                                     cvf::StructGridInterface::FaceType face,
+                                     const cvf::Vec3d& localIntersectionPoint);
     
     virtual ~RiuEclipseSelectionItem() {};
 
@@ -195,11 +203,40 @@ public:
 // 
 //
 //==================================================================================================
+class Riu2dIntersectionSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem);
+
+    virtual ~Riu2dIntersectionSelectionItem();
+
+    virtual RiuSelectionType type() const
+    {
+        return INTERSECTION_SELECTION_OBJECT;
+    }
+
+public:
+    caf::PdmPointer<Rim2dIntersectionView> view() const;
+    RiuEclipseSelectionItem* eclipseSelectionItem() const;
+    RiuGeoMechSelectionItem* geoMechSelectionItem() const;
+
+private:
+    caf::PdmPointer<Rim2dIntersectionView> m_view;
+    RiuEclipseSelectionItem* m_eclipseSelItem;
+    RiuGeoMechSelectionItem* m_geoMechSelItem;
+};
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
 class RiuWellPathSelectionItem : public RiuSelectionItem
 {
 public:
     explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
-                                      const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                      const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
                                       double measuredDepth);
 
     virtual ~RiuWellPathSelectionItem() {};

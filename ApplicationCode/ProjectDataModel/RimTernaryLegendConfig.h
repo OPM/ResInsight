@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "RimLegendConfig.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
 
 class RimEclipseView;
 class RivTernarySaturationOverlayItem;
@@ -35,13 +35,11 @@ namespace cvf
     class OverlayItem;
 }
 
-
-
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimTernaryLegendConfig : public caf::PdmObject
+class RimTernaryLegendConfig : public RimLegendConfig
 {
     CAF_PDM_HEADER_INIT;
 
@@ -53,38 +51,38 @@ public:
         TERNARY_SWAT_IDX
     };
 
-    enum RangeModeType
-    {
-        AUTOMATIC_ALLTIMESTEPS,
-        AUTOMATIC_CURRENT_TIMESTEP,
-        USER_DEFINED
-    };
-    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
-
 public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();
 
-    void                setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
-    void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
+    void setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
+    void setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
 
-    void                recreateLegend();
-    
-    RivTernarySaturationOverlayItem*    legend();
-    RivTernaryScalarMapper*             scalarMapper();
-
-protected:
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    virtual void        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                           recreateLegend();
+    bool                           showLegend() const;
+    void                           setTitle(const QString& title);
+    const RivTernaryScalarMapper*  scalarMapper() const;
+    const caf::TitledOverlayFrame* titledOverlayFrame() const override;
+    caf::TitledOverlayFrame*       titledOverlayFrame() override;
 
 private:
-    void                updateLegend();
-    void                updateLabelText();
-    double              roundToNumSignificantDigits(double value, double precision);
-    
-    friend class RimViewLinker;
-    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+
+    void   updateLegend();
+    void   updateLabelText();
+    double roundToNumSignificantDigits(double value, double precision);
+
+    void ternaryRanges(double& soilLower,
+                       double& soilUpper,
+                       double& sgasLower,
+                       double& sgasUpper,
+                       double& swatLower,
+                       double& swatUpper) const;
 
 private:
     caf::PdmField<int>              precision;
@@ -101,6 +99,8 @@ private:
     caf::PdmField<bool>             applyGlobalMinMax;
     caf::PdmField<bool>             applyFullRangeMinMax;
     caf::PdmField<QString>          ternaryRangeSummary;
+
+    caf::PdmField<bool>             m_showLegend;
 
     std::vector<double>             m_globalAutoMax;
     std::vector<double>             m_globalAutoMin;

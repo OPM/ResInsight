@@ -58,7 +58,7 @@ RigMainGrid* RigGridManager::findEqualGrid(RigMainGrid* candidateGrid)
             return mainGrid;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -67,7 +67,7 @@ RigMainGrid* RigGridManager::findEqualGrid(RigMainGrid* candidateGrid)
 //--------------------------------------------------------------------------------------------------
 bool RigGridManager::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
 {
-    if (gridA == NULL || gridB == NULL) return false;
+    if (gridA == nullptr || gridB == nullptr) return false;
 
     if (gridA == gridB) return true;
 

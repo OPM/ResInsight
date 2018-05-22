@@ -183,9 +183,9 @@ RimCase* RimWellLogExtractionCurve::rimCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
+void RimWellLogExtractionCurve::setPropertiesFromView(Rim3dView* view)
 {
-    m_case = view ? view->ownerCase() : NULL;
+    m_case = view ? view->ownerCase() : nullptr;
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -657,7 +657,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
 
     if (resVar.toUpper().contains("PERM"))
     {
-        RimWellLogTrack* track = NULL;
+        RimWellLogTrack* track = nullptr;
         this->firstAncestorOrThisOfType(track);
         if (track)
         {

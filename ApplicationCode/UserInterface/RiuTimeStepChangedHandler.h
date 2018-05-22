@@ -18,7 +18,7 @@
 
 #pragma once
 
-class RimView;
+class Rim3dView;
 
 
 //==================================================================================================
@@ -31,7 +31,7 @@ class RiuTimeStepChangedHandler
 public:
     static RiuTimeStepChangedHandler* instance();
 
-    void handleTimeStepChanged(RimView* changedView) const;
+    void handleTimeStepChanged(Rim3dView* changedView) const;
 
 private:
     RiuTimeStepChangedHandler();

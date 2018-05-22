@@ -21,12 +21,30 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
+#include <QString>
+#include <QStringList>
+
 #include <string>
 #include <vector>
 #include <map>
 
-class QString;
-class QStringList;
+
+//==================================================================================================
+//
+//
+//==================================================================================================
+class RifRestartFileInfo
+{
+public:
+    RifRestartFileInfo() : startDate(0), endDate(0) {}
+    RifRestartFileInfo(const QString& _fileName, time_t _startDate, time_t _endDate) : 
+        fileName(_fileName), startDate(_startDate), endDate(_endDate) {}
+    bool valid() { return !fileName.isEmpty(); }
+
+    QString  fileName;
+    time_t   startDate;
+    time_t   endDate;
+};
 
 //==================================================================================================
 //
@@ -38,17 +56,23 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    bool                                open(const QString& headerFileName, const QStringList& dataFileNames);
+    bool                                open(const QString& headerFileName, bool includeRestartFiles);
+
+    std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName, bool* hasWarnings);
+    RifRestartFileInfo                  getFileInfo(const QString& headerFileName);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
     virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
     virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
+    QStringList                         warnings() const { return m_warnings; }
+
 private:
     int                                 timeStepCount() const;
     int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const;
     void                                buildMetaData();
+    RifRestartFileInfo                  getRestartFile(const QString& headerFileName);
 
 private:
     // Taken from ecl_sum.h
@@ -60,5 +84,7 @@ private:
     std::vector<time_t>         m_timeSteps;
 
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
+
+    QStringList                 m_warnings;
 };
 

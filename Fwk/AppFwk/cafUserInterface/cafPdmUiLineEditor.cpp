@@ -208,7 +208,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             {
                 if (isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()))
                 {
-                    QMessageBox::information(NULL, "Invalid operation", "The field you are manipulating is defined to have unique values. A selection of multiple fields is detected. Please select a single item.");
+                    QMessageBox::information(nullptr, "Invalid operation", "The field you are manipulating is defined to have unique values. A selection of multiple fields is detected. Please select a single item.");
                 }
 
                 m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()), leab.errorMessage, this));

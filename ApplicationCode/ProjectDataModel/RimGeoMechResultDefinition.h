@@ -70,11 +70,11 @@ private:
     // Overridden PDM methods
 
     virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                            bool * useOptionsOnly);
+                                                                            bool * useOptionsOnly) override;
     virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                                        const QVariant& oldValue, 
-                                                                       const QVariant& newValue);
-    virtual void                                      initAfterRead();
+                                                                       const QVariant& newValue) override;
+    virtual void                                      initAfterRead() override;
 
     // Metadata and option build tools
 
@@ -101,6 +101,7 @@ private:
     caf::PdmField<QString>                            m_resultComponentName;
     caf::PdmField<bool>                               m_isTimeLapseResult;
     caf::PdmField<int>                                m_timeLapseBaseTimestep;
+    caf::PdmField<int>                                m_compactionRefLayer;
 
     // UI Fields only
 
@@ -112,7 +113,7 @@ private:
     caf::PdmField<QString>                            m_resultVariableUiField;
     caf::PdmField<bool>                               m_isTimeLapseResultUiField;
     caf::PdmField<int>                                m_timeLapseBaseTimestepUiField;
-
+    caf::PdmField<int>                                m_compactionRefLayerUiField;
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
 
     bool                                              m_isChangedByField;

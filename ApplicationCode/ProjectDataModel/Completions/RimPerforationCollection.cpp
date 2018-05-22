@@ -21,13 +21,13 @@
 
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigWellPath.h"
 
 #include "RifWellPathImporter.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimPerforationCollection, "PerforationCollection");
@@ -81,7 +81,7 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
     perforation->setUnitSystemSpecificDefaults();
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(perforation);
+    Riu3DMainWindowTools::selectAsCurrentItem(perforation);
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);

@@ -40,8 +40,8 @@ CAF_CMD_SOURCE_INIT(RicCloseObservedDataFeature, "RicCloseObservedDataFeature");
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {
-	actionToSetup->setText("Close");
-	actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setText("Close");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,8 +96,8 @@ bool RicCloseObservedDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::onActionTriggered(bool isChecked)
 {
-	std::vector<RimObservedData*> selection;
-	caf::SelectionManager::instance()->objectsByType(&selection);
+    std::vector<RimObservedData*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
     CVF_ASSERT(selection.size() > 0);
     
     RicCloseObservedDataFeature::deleteObservedData(selection);

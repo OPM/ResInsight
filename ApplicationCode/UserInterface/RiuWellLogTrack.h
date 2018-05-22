@@ -42,7 +42,7 @@ class RiuWellLogTrack : public QwtPlot
     Q_OBJECT
 
 public:
-    RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent = NULL);
+    RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent = nullptr);
     virtual ~RiuWellLogTrack();
 
     void                                    setDepthZoom(double minDepth, double maxDepth);

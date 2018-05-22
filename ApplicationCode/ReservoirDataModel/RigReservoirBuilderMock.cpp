@@ -298,7 +298,7 @@ bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, con
     size_t k;
 
     /* initialize random seed: */
-    srand ( time(NULL) );
+    srand ( time(nullptr) );
 
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
@@ -536,7 +536,7 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
         size_t k1 = 3;
 
         size_t i2 = 2;
-        size_t j2 = 5;
+        size_t j2 = 1;
         size_t k2 = 4;
 
         addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);

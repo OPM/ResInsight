@@ -23,7 +23,7 @@
 #include "RicRangeFilterFeatureImpl.h"
 #include "RicRangeFilterNewExec.h"
 
-#include "RimView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicNewSliceRangeFilterFeature, "RicNewSliceRangeFilterFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewSliceRangeFilterFeature::isCommandEnabled()
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    RimGridView* view = RiaApplication::instance()->activeGridView();
     if (!view) return false;
     
     RimViewController* vc = view->viewController();
@@ -57,17 +57,19 @@ void RicNewSliceRangeFilterFeature::onActionTriggered(bool isChecked)
 
     if (!userData.isNull() && userData.type() == QVariant::List)
     {
-        RimView* view = RiaApplication::instance()->activeReservoirView();
+        RimGridView* view = RiaApplication::instance()->activeGridView();
         RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
 
         RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
 
         QVariantList list = userData.toList();
-        CAF_ASSERT(list.size() == 2);
+        CAF_ASSERT(list.size() == 3);
 
         int direction = list[0].toInt();
         int sliceStart = list[1].toInt();
+        int gridIndex = list[2].toInt();
 
+        filterExec->m_gridIndex = gridIndex;
         if (direction == 0)
         {
             filterExec->m_iSlice = true;

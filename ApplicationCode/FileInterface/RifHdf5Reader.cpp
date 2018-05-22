@@ -461,7 +461,7 @@ void RifHdf5Reader::getElementResultValues(H5::H5File file, std::string groupNam
 
 	hsize_t dims[2];
 	H5::DataSpace	dataspace = dataset.getSpace();
-	dataspace.getSimpleExtentDims(dims, NULL);
+	dataspace.getSimpleExtentDims(dims, nullptr);
 
 	(*resultValues).resize(dims[0]);
 	dataset.read(resultValues->data(), H5::PredType::NATIVE_DOUBLE);

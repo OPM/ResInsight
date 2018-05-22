@@ -29,6 +29,6 @@ public:
     static RicIntersectionViewerEventHandler* instance();
 
 protected:
-    virtual bool handleEvent(cvf::Object* eventObject) override;
+    virtual bool handleEvent(const RicViewerEventObject& eventObject) override;
 };
 

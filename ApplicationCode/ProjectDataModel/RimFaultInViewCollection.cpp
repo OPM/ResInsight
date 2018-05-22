@@ -29,6 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
+#include "RimIntersectionCollection.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
 
@@ -84,7 +85,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
     faults.uiCapability()->setUiHidden(true);
 
-    m_reservoirView = NULL;
+    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +109,7 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     if (&faultLabelColor == changedField)
     {
         m_reservoirView->scheduleReservoirGridGeometryRegen();
+        m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     if (&showFaultFaces == changedField ||
@@ -124,6 +126,7 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         if (m_reservoirView) 
         {
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+            m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 
@@ -164,7 +167,7 @@ RimFaultInView* RimFaultInViewCollection::findFaultByName(QString name)
             return this->faults()[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -282,10 +285,8 @@ void RimFaultInViewCollection::syncronizeFaults()
             QString secondConnectionText;
             
             {
-                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c1GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+                size_t gridLocalCellIndex;
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c1GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -305,10 +306,8 @@ void RimFaultInViewCollection::syncronizeFaults()
             }
 
             {
-                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c2GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+                size_t gridLocalCellIndex;
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c2GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -377,7 +376,7 @@ void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFaultInViewCollection::showFaultsOutsideFilters() const
+bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 {
     if (!showFaultCollection) return false;
 

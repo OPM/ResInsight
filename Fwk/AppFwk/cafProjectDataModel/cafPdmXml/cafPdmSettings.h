@@ -48,7 +48,7 @@ class PdmSettings
 {
 public:
     static void readFieldsFromApplicationStore(caf::PdmObjectHandle* object, const QString context = "");
-    static void writeFieldsToApplicationStore(caf::PdmObjectHandle* object, const QString context = "");
+    static void writeFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString context = "");
 };
 
 

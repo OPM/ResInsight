@@ -19,20 +19,24 @@
 
 #include <stdlib.h>
 
+#include "RifElementPropertyReader.h"
+#include "RifGeoMechReaderInterface.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RifGeoMechReaderInterface.h"
 
 #ifdef USE_ODB_API 
 #include "RifOdbReader.h"
 #endif
+
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
-#include <cmath>
-#include "cvfBoundingBox.h"
+
 #include "cafProgressInfo.h"
+#include "cvfBoundingBox.h"
+
 #include <QString>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -104,8 +108,9 @@ bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
             progress.incrementProgress();
             progress.setProgressDescription("Calculating element neighbors");
 
+            m_elementPropertyReader = new RifElementPropertyReader(m_femParts->part(0)->elementIdxToId());
             // Initialize results containers
-            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_femParts.p());
+            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p());
 
             // Calculate derived Fem data
             for (int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx)

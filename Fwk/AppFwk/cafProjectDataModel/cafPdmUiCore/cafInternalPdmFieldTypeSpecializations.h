@@ -186,4 +186,42 @@ public:
 
 };
 
+
+//================================================================================================== 
+/// Partial specialization for FilePath 
+//================================================================================================== 
+ 
+template <> 
+class PdmUiFieldSpecialization<caf::FilePath> 
+{ 
+public: 
+    /// Convert the field value into a QVariant 
+    static QVariant convert(const caf::FilePath& value) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::convert(value); 
+    } 
+ 
+    /// Set the field value from a QVariant 
+    static void setFromVariant(const QVariant& variantValue, caf::FilePath& value) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::setFromVariant(variantValue, value); 
+    } 
+ 
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::isEqual(variantValue, variantValue2); 
+    } 
+ 
+    /// Methods to get a list of options for a field, specialized for AppEnum 
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const caf::FilePath& ) 
+    { 
+        return QList<PdmOptionItemInfo>(); 
+    } 
+ 
+    /// Methods to retrieve the possible PdmObject pointed to by a field 
+    static void childObjects(const PdmDataValueField< caf::FilePath > & field, std::vector<PdmObjectHandle*>* objects) 
+    { } 
+ 
+}; 
+ 
 } // End namespace caf

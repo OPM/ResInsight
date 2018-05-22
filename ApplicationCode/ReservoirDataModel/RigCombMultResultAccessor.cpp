@@ -138,6 +138,8 @@ double RigCombMultResultAccessor::nativeMultScalar(size_t gridLocalCellIndex, cv
             }
             break;
         }
+    default:
+        break;
     }
 
     // FaceScalar with value HUGE_VAL means value outside valid IJK-range. Clamp to 1.0 as this means no change in MULT factor.

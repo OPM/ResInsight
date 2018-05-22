@@ -58,7 +58,7 @@ static double sg_createAbsentValue(double lowestDataValue)
 RigWellLogFile::RigWellLogFile()
     : cvf::Object()
 {
-    m_wellLogFile = NULL;
+    m_wellLogFile = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
 {
     close();
 
-    NRLib::Well* well = NULL;
+    NRLib::Well* well = nullptr;
 
     try
     {
@@ -138,7 +138,7 @@ void RigWellLogFile::close()
     if (m_wellLogFile)
     {
         delete m_wellLogFile;
-        m_wellLogFile = NULL;
+        m_wellLogFile = nullptr;
     }
 
     m_wellLogChannelNames.clear();

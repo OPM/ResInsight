@@ -84,7 +84,7 @@ QAction* CmdFeature::actionWithCustomText(const QString& customText)
 //--------------------------------------------------------------------------------------------------
 QAction* CmdFeature::actionWithUserData(const QString& customText, const QVariant& userData)
 {
-    QAction* action = NULL;
+    QAction* action = nullptr;
 
     std::map<QString, QAction*>::iterator it;
     it = m_customTextToActionMap.find(customText);

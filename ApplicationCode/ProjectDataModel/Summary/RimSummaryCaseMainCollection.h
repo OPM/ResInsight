@@ -22,9 +22,11 @@
 
 #include <vector>
 
+class RimGridSummaryCase;
 class RimSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
+class RifSummaryCaseFileResultInfo;
 
 //==================================================================================================
 /// 
@@ -43,17 +45,18 @@ public:
     std::vector<RimSummaryCase*>            topLevelSummaryCases() const;
     std::vector<RimSummaryCaseCollection*>  summaryCaseCollections() const;
 
-    void                createSummaryCasesFromRelevantEclipseResultCases();
-    RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
-    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
-    
+    std::vector<RimSummaryCase*> createAndAddSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos);
+    std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos, bool showProgress = false);
+
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
-
+    void                convertGridSummaryCasesToFileSummaryCases(RimGridSummaryCase* gridSummaryCase);
+ 
+    void                addCases(const std::vector<RimSummaryCase*> cases);
     void                addCase(RimSummaryCase* summaryCase);
     void                removeCase(RimSummaryCase* summaryCase);
 
-    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases);
+    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases, const QString& coolectionName, bool isEnsemble);
     void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
 
     void                loadAllSummaryCaseData();
@@ -61,6 +64,9 @@ public:
     QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
     void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
+private:
+    static void         loadSummaryCaseData(std::vector<RimSummaryCase*> summaryCases);
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

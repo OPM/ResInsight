@@ -33,6 +33,7 @@
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePolygonOffset.h"
+#include "cafInternalLegendRenderTools.h"
 
 
 
@@ -40,12 +41,10 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
-    :    m_textColor(cvf::Color3::BLACK),
-    m_font(font),
-    m_size(100, 140)
+    : TitledOverlayFrame(font, 120, 150)    
 {
+    
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -55,115 +54,121 @@ RivTernarySaturationOverlayItem::~RivTernarySaturationOverlayItem()
     // Empty destructor to avoid errors with undefined types when cvf::ref's destructor gets called
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTernarySaturationOverlayItem::setAxisLabelsColor(const cvf::Color3f& color)
 {
-    m_textColor = color;
+    this->setTextColor(color);
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RivTernarySaturationOverlayItem::sizeHint()
-{
-    return m_size;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::setSize(const cvf::Vec2ui& size)
-{
-    m_size = size;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size)
 {
-    render(oglContext, position, size, false);
+    renderGeneric(oglContext, position, size, false);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTernarySaturationOverlayItem::renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size)
 {
-    render(oglContext, position, size, true);
+    renderGeneric(oglContext, position, size, true);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software)
+void RivTernarySaturationOverlayItem::renderGeneric(cvf::OpenGLContext* oglContext, 
+                                                    const cvf::Vec2i& position, 
+                                                    const cvf::Vec2ui& size, 
+                                                    bool software)
 {
     if (size.x() <= 0 || size.y() <= 0)
     {
         return;
     }
 
+    float border = 0.0f;
+
+    cvf::Vec2ui sizeFrameBox = size;
+
     cvf::Camera camera;
-    camera.setViewport(position.x(), position.y(), size.x(), size.y());
+    camera.setViewport(position.x(), position.y(), sizeFrameBox.x(), sizeFrameBox.y());
     camera.setProjectionAsPixelExact2D();
     camera.setViewMatrix(cvf::Mat4d::IDENTITY);
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL(oglContext, cvf::Viewport::CLEAR_DEPTH);
 
-    cvf::TextDrawer textDrawer(m_font.p());
-    textDrawer.setTextColor(m_textColor);
-
-    float lineHeightInPixels = 10;
-
-    float textPosY = static_cast<float>(size.y() - 10);
-    for (size_t it = 0; it < m_titleStrings.size(); it++)
+    if ( this->backgroundEnabled() )
     {
-        cvf::Vec2f pos(5, textPosY);
-        textDrawer.addText(m_titleStrings[it], pos);
+        if ( software )
+        {
+            caf::InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext,
+                                                                          cvf::Vec2f(sizeFrameBox),
+                                                                          this->backgroundColor(),
+                                                                          this->backgroundFrameColor());
+        }
+        else
+        {
+            const cvf::MatrixState matrixState(camera);
+
+            caf::InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext,
+                                                                         matrixState,
+                                                                         cvf::Vec2f(sizeFrameBox),
+                                                                         this->backgroundColor(),
+                                                                         this->backgroundFrameColor());
+        }
+        border = 8.0f;
+    }
+
+    cvf::TextDrawer textDrawer(this->font());
+    textDrawer.setTextColor(this->textColor());
+
+    float lineHeightInPixels = (float)(this->font()->textExtent("SWAT").y() + 2);
+
+    float textPosY = static_cast<float>(size.y() - lineHeightInPixels - border);
+    for (size_t it = 0; it < this->titleStrings().size(); it++)
+    {
+        cvf::Vec2f pos(border, textPosY);
+        textDrawer.addText(this->titleStrings()[it], pos);
 
         textPosY -= lineHeightInPixels;
     }
 
-    cvf::Vec2f pos(5, textPosY);
+    cvf::Vec2f pos(border, textPosY);
     textDrawer.addText("TERNARY", pos);
     textPosY -= lineHeightInPixels;
-    textPosY -= 2;
+    textPosY -= border;
 
     {
-        cvf::uint sgasTextWidth = m_font->textExtent("SGAS").x();
+        cvf::uint sgasTextWidth = this->font()->textExtent("SGAS").x();
         textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasTextWidth / 2 ), textPosY));
 
-        cvf::uint sgasRangeTextWidth = m_font->textExtent(m_sgasRange).x();
+        cvf::uint sgasRangeTextWidth = this->font()->textExtent(m_sgasRange).x();
         textPosY -= lineHeightInPixels;
         textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY));
     }
 
-    textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
-    textDrawer.addText(m_swatRange, cvf::Vec2f(0.0, 0.0));
+    textDrawer.addText("SWAT", cvf::Vec2f((float)border, (float)(lineHeightInPixels + border)));
+    textDrawer.addText(m_swatRange, cvf::Vec2f((float)border, (float)border));
 
     {
-        cvf::uint soilTextWidth = m_font->textExtent("SOIL").x();
-        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - soilTextWidth), 10.0));
+        cvf::uint soilTextWidth = this->font()->textExtent("SOIL").x();
+        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - soilTextWidth - border), lineHeightInPixels + border));
 
-        cvf::uint soilRangeTextWidth = m_font->textExtent(m_soilRange).x();
-        float soilRangePos = static_cast<float>(size.x()) - soilRangeTextWidth;
+        cvf::uint soilRangeTextWidth = this->font()->textExtent(m_soilRange).x();
+        float soilRangePos = static_cast<float>(size.x()) - soilRangeTextWidth - border;
 
-        textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
+        textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, (float)border));
     }
 
     textDrawer.renderSoftware(oglContext, camera);
 
     textPosY -= 3;
-    renderAxisImmediateMode(textPosY, oglContext);
+    renderAxisImmediateMode(textPosY, 2*lineHeightInPixels + border, border, sizeFrameBox.x(), oglContext);
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -173,7 +178,11 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
 //--------------------------------------------------------------------------------------------------
 /// Draw the axis using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY, cvf::OpenGLContext* oglContext)
+void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY, 
+                                                              float lowerBoundY, 
+                                                              float border, 
+                                                              unsigned int totalWidth, 
+                                                              cvf::OpenGLContext* oglContext)
 {
 #ifdef CVF_OPENGL_ES
     CVF_UNUSED(layout);
@@ -190,12 +199,11 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY,
     cvf::Color3ub colB(cvf::Color3::GREEN);
     cvf::Color3ub colC(cvf::Color3::RED);
 
-    float lowerBoundY = 20;
-    //float upperBoundY = static_cast<float>(m_size.y() - 20);
+    //float upperBoundY = static_cast<float>(this->sizeHint().y() - 20);
 
-    cvf::Vec3f a(0, lowerBoundY, 0);
-    cvf::Vec3f b(static_cast<float>(m_size.x()), lowerBoundY, 0);
-    cvf::Vec3f c(static_cast<float>(m_size.x() / 2), upperBoundY, 0);
+    cvf::Vec3f a(float(border), lowerBoundY, 0);
+    cvf::Vec3f b(static_cast<float>(totalWidth - border), lowerBoundY, 0);
+    cvf::Vec3f c(static_cast<float>(totalWidth / 2), upperBoundY, 0);
 
 
     // Draw filled rectangle elements
@@ -247,17 +255,7 @@ void RivTernarySaturationOverlayItem::setRangeText(const cvf::String& soilRange,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::setTitle(const cvf::String& title)
+cvf::Vec2ui RivTernarySaturationOverlayItem::preferredSize()
 {
-    // Title
-    if (title.isEmpty())
-    {
-        m_titleStrings.clear();
-    }
-    else
-    {
-        m_titleStrings = title.split("\n");
-    }
+    return {140, 180}; // Could do more elaborate text width checks.
 }
-
-

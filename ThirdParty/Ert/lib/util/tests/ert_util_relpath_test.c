@@ -64,7 +64,7 @@ int main(int argc , char ** argv) {
   
   const char * root7 = "/tmp/root/path";
   const char * path7 = "/tmp/root/path";
-  const char * true7 = NULL;
+  const char * true7 = "";
 
   const char * root8 = "/tmp";
   const char * path8 = "root/path";

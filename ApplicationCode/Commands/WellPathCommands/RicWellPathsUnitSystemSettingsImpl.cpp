@@ -20,7 +20,7 @@
 
 #include "RicWellPathsUnitSystemSettingsUi.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 
@@ -35,7 +35,7 @@ bool RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(RimWellPath * wellP
     }
 
     RicWellPathsUnitSystemSettingsUi settings;
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &settings, "Select Unit System for Well Path", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &settings, "Select Unit System for Well Path", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         wellPath->setUnitSystem(settings.unitSystem());

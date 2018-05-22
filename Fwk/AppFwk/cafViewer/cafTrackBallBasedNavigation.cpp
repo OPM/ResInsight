@@ -78,6 +78,7 @@ void caf::TrackBallBasedNavigation::init()
     m_trackball = new cvf::ManipulatorTrackball;
     m_trackball->setCamera(m_viewer->mainCamera());
     m_isRotCenterInitialized = false;
+    m_isRotationEnabled = true;
     m_hasMovedMouseDuringNavigation = false;
     m_isNavigating = false;
     m_isZooming = false;
@@ -190,7 +191,7 @@ cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int
     cvf::Camera* cam = m_viewer->mainCamera();
     ray = cam->rayFromWindowCoordinates(cvfXPos, cvfYPos);
 
-    if (cam->projection() == cvf::Camera::ORTHO)
+    if (ray.notNull() && cam->projection() == cvf::Camera::ORTHO)
     {
         cvf::Vec3d camDir = cam->direction();
         cvf::Plane focusPlane;

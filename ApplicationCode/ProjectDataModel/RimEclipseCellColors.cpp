@@ -29,7 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
@@ -70,7 +70,7 @@ RimEclipseCellColors::RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
-    CVF_ASSERT(obsoleteField_legendConfig() == NULL);
+    CVF_ASSERT(obsoleteField_legendConfig() == nullptr);
 
     m_legendConfigData.deleteAllChildObjects();
 
@@ -143,7 +143,7 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             // Not found ?
             if (!found)
             {
-                    RimLegendConfig* newLegend = new RimLegendConfig;
+                    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
                     newLegend->resultVariableName = resultVarNameOfNewLegend;
                     m_legendConfigData.push_back(newLegend);
 
@@ -168,10 +168,10 @@ void RimEclipseCellColors::initAfterRead()
     if (obsoleteField_legendConfig)
     {
         // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
-        RimLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
+        RimRegularLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
 
         // set to NULL before pushing into container
-        obsoleteField_legendConfig = NULL;
+        obsoleteField_legendConfig = nullptr;
 
         m_legendConfigData.push_back(obsoleteLegend);
         m_legendConfigPtrField = obsoleteLegend;
@@ -208,19 +208,19 @@ void RimEclipseCellColors::updateLegendCategorySettings()
 
     if (this->hasCategoryResult())
     {
-        legendConfig()->setMappingMode(RimLegendConfig::CATEGORY_INTEGER);
-        legendConfig()->setColorRangeMode(RimLegendConfig::CATEGORY);
+        legendConfig()->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
+        legendConfig()->setColorRange(RimRegularLegendConfig::CATEGORY);
     }
     else
     {
-        if (legendConfig()->mappingMode() == RimLegendConfig::CATEGORY_INTEGER)
+        if (legendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER)
         {
-            legendConfig()->setMappingMode(RimLegendConfig::LINEAR_CONTINUOUS);
+            legendConfig()->setMappingMode(RimRegularLegendConfig::LINEAR_CONTINUOUS);
         }
 
-        if (legendConfig()->colorRangeMode() == RimLegendConfig::CATEGORY)
+        if (legendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY)
         {
-            legendConfig()->setColorRangeMode(RimLegendConfig::NORMAL);
+            legendConfig()->setColorRange(RimRegularLegendConfig::NORMAL);
         }
     }
 }
@@ -273,135 +273,229 @@ public :
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
+void RimEclipseCellColors::updateLegendData(size_t currentTimeStep, 
+                                            RimRegularLegendConfig* legendConfig, 
+                                            RimTernaryLegendConfig* ternaryLegendConfig)
 {
-    if (this->isFlowDiagOrInjectionFlooding())
+    if (!legendConfig) legendConfig = this->legendConfig();
+    if (!ternaryLegendConfig) ternaryLegendConfig = this->ternaryLegendConfig();
+
+    if ( this->hasResult() )
     {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
-        RigFlowDiagResultAddress resAddr = this->flowDiagResAddress();
-
-        int integerTimeStep = static_cast<int>(currentTimeStep);
-
-        flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &globalMin, &globalMax);
-        flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
-
-        double localMin, localMax;
-        double localPosClosestToZero, localNegClosestToZero;
-        if (this->hasDynamicResult())
+        if ( this->isFlowDiagOrInjectionFlooding() )
         {
-            flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &localMin, &localMax);
-            flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+            double globalMin, globalMax;
+            double globalPosClosestToZero, globalNegClosestToZero;
+            RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResultAddress resAddr = this->flowDiagResAddress();
+
+            int integerTimeStep = static_cast<int>(currentTimeStep);
+
+            flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &globalMin, &globalMax);
+            flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
+
+            double localMin, localMax;
+            double localPosClosestToZero, localNegClosestToZero;
+            if ( this->hasDynamicResult() )
+            {
+                flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &localMin, &localMax);
+                flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+            }
+            else
+            {
+                localMin = globalMin;
+                localMax = globalMax;
+
+                localPosClosestToZero = globalPosClosestToZero;
+                localNegClosestToZero = globalNegClosestToZero;
+            }
+
+            CVF_ASSERT(legendConfig);
+
+            legendConfig->disableAllTimeStepsRange(true);
+            legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, 
+                                                         localPosClosestToZero, localNegClosestToZero);
+            legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+            if ( this->hasCategoryResult() )
+            {
+                std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare > categories;
+                //std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
+                int tracerIndex = 0;
+                for ( const auto& tracerName : tracerNames )
+                {
+                    RimSimWellInView* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                    cvf::Color3ub color(cvf::Color3::GRAY);
+                    if ( well ) color = cvf::Color3ub(well->wellPipeColor());
+
+                    categories.insert(std::make_tuple(tracerName, tracerIndex, color));
+                    ++tracerIndex;
+                }
+
+                std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
+                for ( auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt )
+                {
+                    reverseCategories.push_back(*tupIt);
+                }
+
+                legendConfig->setCategoryItems(reverseCategories);
+            }
         }
         else
         {
-            localMin = globalMin;
-            localMax = globalMax;
+            RimEclipseCase* rimEclipseCase = nullptr;
+            this->firstAncestorOrThisOfType(rimEclipseCase);
+            CVF_ASSERT(rimEclipseCase);
+            if ( !rimEclipseCase ) return;
 
-            localPosClosestToZero = globalPosClosestToZero;
-            localNegClosestToZero = globalNegClosestToZero;
-        }
+            RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
+            CVF_ASSERT(eclipseCase);
+            if ( !eclipseCase ) return;
 
-        CVF_ASSERT(this->legendConfig());
+            RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
+            CVF_ASSERT(cellResultsData);
 
-        this->legendConfig()->disableAllTimeStepsRange(true);
-        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+            double globalMin, globalMax;
+            double globalPosClosestToZero, globalNegClosestToZero;
+            cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
+            cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
-        if (this->hasCategoryResult())
-        {
-            std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare > categories;
-            //std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
-
-            std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
-            int tracerIndex = 0;
-            for (const auto& tracerName : tracerNames)
+            double localMin, localMax;
+            double localPosClosestToZero, localNegClosestToZero;
+            if ( this->hasDynamicResult() )
             {
-                RimSimWellInView* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
-                cvf::Color3ub color(cvf::Color3::GRAY);
-                if (well) color = cvf::Color3ub(well->wellPipeColor());
+                cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), currentTimeStep, localMin, localMax);
+                cellResultsData->posNegClosestToZero(this->scalarResultIndex(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+            }
+            else
+            {
+                localMin = globalMin;
+                localMax = globalMax;
 
-                categories.insert(std::make_tuple(tracerName, tracerIndex, color));
-                ++tracerIndex;
+                localPosClosestToZero = globalPosClosestToZero;
+                localNegClosestToZero = globalNegClosestToZero;
             }
 
-            std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
-            for (auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt)
+            CVF_ASSERT(legendConfig);
+
+            legendConfig->disableAllTimeStepsRange(false);
+            legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+            legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+            if ( this->hasCategoryResult() )
             {
-                reverseCategories.push_back(*tupIt);
+                if ( this->resultType() == RiaDefines::FORMATION_NAMES )
+                {
+                    const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                    legendConfig->setNamedCategoriesInverse(fnVector);
+                }
+                else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName() )
+                {
+                    std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                    caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
+                    caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
+                    caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
+                    caf::AppEnum<RiaDefines::CompletionType> fracture(RiaDefines::FRACTURE);
+
+                    const std::vector<int>& visibleCatetories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
+
+                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), wellPath.index()) != visibleCatetories.end())
+                    {
+                        categories.push_back(std::make_tuple(wellPath.uiText(), static_cast<int>(wellPath.index()), cvf::Color3::RED));
+                    }
+
+                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fishbone.index()) != visibleCatetories.end())
+                    {
+                        categories.push_back(std::make_tuple(fishbone.uiText(), static_cast<int>(fishbone.index()), cvf::Color3::DARK_GREEN));
+                    }
+
+                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), perforationInterval.index()) != visibleCatetories.end())
+                    {
+                        categories.push_back(std::make_tuple(perforationInterval.uiText(), static_cast<int>(perforationInterval.index()), cvf::Color3::GREEN));
+                    }
+
+                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fracture.index()) != visibleCatetories.end())
+                    {
+                        categories.push_back(std::make_tuple(fracture.uiText(), static_cast<int>(fracture.index()), cvf::Color3::YELLOW_GREEN));
+                    }
+
+                    legendConfig->setCategoryItems(categories);
+                }
+                else
+                {
+                    legendConfig->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
+                }
             }
-           
-            this->legendConfig()->setCategoryItems(reverseCategories);
         }
     }
-    else
+
+    // Ternary legend update
     {
         RimEclipseCase* rimEclipseCase = nullptr;
         this->firstAncestorOrThisOfType(rimEclipseCase);
         CVF_ASSERT(rimEclipseCase);
-        if (!rimEclipseCase) return;
+        if ( !rimEclipseCase ) return;
 
         RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
         CVF_ASSERT(eclipseCase);
-        if (!eclipseCase) return;
+        if ( !eclipseCase ) return;
+
 
         RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
-        CVF_ASSERT(cellResultsData);
 
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
-        cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
-
-        double localMin, localMax;
-        double localPosClosestToZero, localNegClosestToZero;
-        if (this->hasDynamicResult())
+        size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
+        if ( this->isTernarySaturationSelected() && maxTimeStepCount > 1 )
         {
-            cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), currentTimeStep, localMin, localMax);
-            cellResultsData->posNegClosestToZero(this->scalarResultIndex(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
-        }
-        else
-        {
-            localMin = globalMin;
-            localMax = globalMax;
-
-            localPosClosestToZero = globalPosClosestToZero;
-            localNegClosestToZero = globalNegClosestToZero;
-        }
-
-        CVF_ASSERT(this->legendConfig());
-
-        this->legendConfig()->disableAllTimeStepsRange(false);
-        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-        if (this->hasCategoryResult())
-        {
-            if (this->resultType() == RiaDefines::FORMATION_NAMES)
+            RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
-                const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
-                this->legendConfig()->setNamedCategoriesInverse(fnVector);
+                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin = 0.0;
+                    double localMax = 1.0;
+
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
+
+                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+                }
             }
-            else if (this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName())
+
             {
-                std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin = 0.0;
+                    double localMax = 1.0;
 
-                caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
-                caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
-                caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
-                caf::AppEnum<RiaDefines::CompletionType> fracture(RiaDefines::FRACTURE);
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
 
-                categories.push_back(std::make_tuple(wellPath.uiText(),             static_cast<int>(wellPath.index()),             cvf::Color3::RED));
-                categories.push_back(std::make_tuple(fishbone.uiText(),             static_cast<int>(fishbone.index()),             cvf::Color3::DARK_GREEN));
-                categories.push_back(std::make_tuple(perforationInterval.uiText(),  static_cast<int>(perforationInterval.index()),  cvf::Color3::GREEN));
-                categories.push_back(std::make_tuple(fracture.uiText(),             static_cast<int>(fracture.index()),             cvf::Color3::YELLOW_GREEN));
-
-                legendConfig()->setCategoryItems(categories);
+                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+                }
             }
-            else
+
             {
-                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
+                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+                if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin = 0.0;
+                    double localMax = 1.0;
+
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
+
+                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+                }
             }
         }
     }
@@ -420,7 +514,7 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimEclipseCellColors::legendConfig()
+RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 {
     return m_legendConfigPtrField;
 }

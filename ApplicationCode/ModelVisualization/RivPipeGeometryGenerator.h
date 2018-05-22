@@ -54,7 +54,6 @@ public:
     // Appearance
     void setRadius(double radius);
     void setCrossSectionVertexCount(size_t vertexCount);
-    void setPipeColor(cvf::Color3f val) { m_pipeColor = val; }
 
     cvf::ref<cvf::DrawableGeo> createPipeSurface();
     cvf::ref<cvf::DrawableGeo> createCenterLine();
@@ -70,7 +69,7 @@ private:
     void clearComputedData();
     void updateFilteredPipeCenterCoords();
 
-    size_t findFirstSegmentWithLenght(double squareDistanceTolerance);
+    size_t findFirstSegmentWithLength(double squareDistanceTolerance);
 
     static void computeCircle(double radius, size_t tesselationCount, const cvf::Vec3d& center, const cvf::Vec3d& orient1, const cvf::Vec3d& orient2, std::vector<cvf::Vec3d>* nodes);
 
@@ -100,5 +99,4 @@ private:
     double                      m_minimumBendAngle;
     double                      m_bendScalingFactor;
     size_t                      m_crossSectionNodeCount;
-    cvf::Color3f                m_pipeColor;
 };

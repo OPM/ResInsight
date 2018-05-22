@@ -62,8 +62,12 @@ int main(int argc , char ** argv) {
     test_assert_true( well_segment_is_instance( well_branch_collection_iget_start_segment( branches , 0 )));
     test_assert_true( well_segment_is_instance( well_branch_collection_get_start_segment( branches , 78 )));
     test_assert_true( well_branch_collection_has_branch( branches , 78 ));
+
+    well_segment_free( segment2 );
+    well_segment_free( segment1 );
     
   }
+  free( rseg_data );
   well_branch_collection_free( branches );
 
   exit(0);

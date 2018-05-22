@@ -39,7 +39,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
@@ -48,6 +48,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QMessageBox>
+#include "RimIntersectionCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimViewController, "ViewController");
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
     if (fieldNeedingOptions == &m_managedView)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimView*> views;
+        std::vector<RimGridView*> views;
         proj->allNotLinkedViews(views);
 
         // Add currently linked view to list
@@ -114,7 +115,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         this->firstAncestorOrThisOfType(viewLinker);
         CVF_ASSERT(viewLinker);
 
-        for (RimView* view : views)
+        for (RimGridView* view : views)
         {
             if (view != viewLinker->masterView())
             {
@@ -212,7 +213,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     else if (changedField == &m_managedView)
     {
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
-        RimView* previousManagedView = dynamic_cast<RimView*>(prevValue);
+        RimGridView* previousManagedView = dynamic_cast<RimGridView*>(prevValue);
         RimViewController::removeOverrides(previousManagedView);
 
         setManagedView(m_managedView());
@@ -232,7 +233,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimViewController::managedEclipseView() const
 {
-    RimView* rimView = m_managedView;
+    RimGridView* rimView = m_managedView;
 
     return dynamic_cast<RimEclipseView*>(rimView);
 }
@@ -242,7 +243,7 @@ RimEclipseView* RimViewController::managedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimViewController::managedGeoView() const
 {
-    RimView* rimView = m_managedView;
+    RimGridView* rimView = m_managedView;
 
     return dynamic_cast<RimGeoMechView*>(rimView);
 }
@@ -254,7 +255,7 @@ void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
     
-    RimView* masterView = viewLinker->masterView();
+    RimGridView* masterView = viewLinker->masterView();
 
     CVF_ASSERT(masterView);
     
@@ -265,8 +266,8 @@ void RimViewController::updateOverrides()
 
         if (isVisibleCellsOveridden())
         {
-            if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+            if (manEclView) manEclView->setOverridePropertyFilterCollection(nullptr);
+            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(nullptr);
             m_managedView->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
             m_managedView->scheduleCreateDisplayModelAndRedraw();
         }
@@ -284,7 +285,7 @@ void RimViewController::updateOverrides()
                     }
                     else
                     {
-                        manEclView->setOverridePropertyFilterCollection(NULL);
+                        manEclView->setOverridePropertyFilterCollection(nullptr);
                     }
                 }
             }
@@ -300,13 +301,13 @@ void RimViewController::updateOverrides()
                     }
                     else
                     {
-                        manGeoView->setOverridePropertyFilterCollection(NULL);
+                        manGeoView->setOverridePropertyFilterCollection(nullptr);
                     }
                 }
             }
         }
 
-        this->updateRangeFilterOverrides(NULL);
+        this->updateRangeFilterOverrides(nullptr);
         
         if (manGeoView)
         {
@@ -343,17 +344,17 @@ void RimViewController::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::removeOverrides(RimView* view)
+void RimViewController::removeOverrides(RimGridView* view)
 {
     if (view)
     {
         RimEclipseView* manEclView = dynamic_cast<RimEclipseView*>(view);
         RimGeoMechView* manGeoView = dynamic_cast<RimGeoMechView*>(view);
 
-        if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+        if (manEclView) manEclView->setOverridePropertyFilterCollection(nullptr);
+        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(nullptr);
         
-        view->setOverrideRangeFilterCollection(NULL);
+        view->setOverrideRangeFilterCollection(nullptr);
     }
 }
 
@@ -362,7 +363,7 @@ void RimViewController::removeOverrides(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    RimView* mainView = nullptr;
+    RimGridView* mainView = nullptr;
     
     {
         RimViewLinker* linkedViews = nullptr;
@@ -448,7 +449,7 @@ void RimViewController::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::managedView() const
+RimGridView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -456,7 +457,7 @@ RimView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::setManagedView(RimView* view)
+void RimViewController::setManagedView(RimGridView* view)
 {
     m_managedView = view;
 
@@ -557,7 +558,7 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimViewController::ownerViewLinker() const
 {
-    RimViewLinker* viewLinker = NULL;
+    RimViewLinker* viewLinker = nullptr;
     this->firstAncestorOrThisOfType(viewLinker);
 
     return viewLinker;
@@ -573,10 +574,10 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     RimGeoMechView* masterGeomechView = dynamic_cast<RimGeoMechView*>(masterView());
     RimGeoMechView* dependGeomechView = managedGeoView();
 
-    RigMainGrid* masterEclGrid = NULL;
-    RigMainGrid* dependEclGrid = NULL;
-    RigFemPart*  masterFemPart = NULL;
-    RigFemPart*  dependFemPart = NULL;
+    RigMainGrid* masterEclGrid = nullptr;
+    RigMainGrid* dependEclGrid = nullptr;
+    RigFemPart*  masterFemPart = nullptr;
+    RigFemPart*  dependFemPart = nullptr;
 
     if (masterEclipseView)
     {
@@ -589,15 +590,15 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     }
 
     if (masterGeomechView && masterGeomechView->geoMechCase()->geoMechData()
-        && masterGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+        && masterGeomechView->femParts()->partCount())
     {
-        masterFemPart = masterGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+        masterFemPart = masterGeomechView->femParts()->part(0);
     }
 
     if (dependGeomechView &&  dependGeomechView->geoMechCase()->geoMechData()
-        && dependGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+        && dependGeomechView->femParts()->partCount())
     {
-        dependFemPart = dependGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+        dependFemPart = dependGeomechView->femParts()->part(0);
     }
 
     // If we have the correct mapping already, return it.
@@ -612,7 +613,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
             }
             else
             {
-                m_caseToCaseCellMapper = NULL;
+                m_caseToCaseCellMapper = nullptr;
             }
     }
 
@@ -644,7 +645,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::masterView() const
+RimGridView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -687,6 +688,11 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
         {
             this->managedView()->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    if (this->isResultColorControlled() && this->managedView() )
+    {
+        this->managedView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
@@ -833,7 +839,7 @@ bool RimViewController::isRangeFilterControlPossible() const
         if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
-            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+            RigFemPart* femPart = geomView->femParts()->part(0);
             
             if (eclGrid && femPart)
             {
@@ -865,7 +871,7 @@ bool RimViewController::isRangeFilterMappingApliccable() const
         if (eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->mainGrid();
-            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+            RigFemPart* femPart = geomView->femParts()->part(0);
 
             if (eclGrid && femPart)
             {
@@ -954,7 +960,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 
     if (!isRangeFiltersControlled())
     {
-        m_managedView->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(nullptr);
 
         return;
     }
@@ -982,7 +988,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
                 if (eclipseMasterView->mainGrid())
                 {
                     RigMainGrid* srcEclGrid = eclipseMasterView->mainGrid();
-                    RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    RigFemPart* dstFemPart = depGeomView->femParts()->part(0);
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
                         RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
@@ -996,7 +1002,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             {
                 if (depEclView->mainGrid())
                 {
-                    RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    RigFemPart* srcFemPart = geoMasterView->femParts()->part(0);
                     RigMainGrid* dstEclGrid = depEclView->mainGrid();
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
@@ -1028,7 +1034,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
     bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection(m_managedView->name);
     if (restoreOriginal)
     {
-        m_managedView->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(nullptr);
     }
     else
     {
@@ -1041,7 +1047,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::askUserToRestoreOriginalRangeFilterCollection(const QString& viewName)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     QMessageBox msgBox(activeView->viewer()->layoutWidget());
     msgBox.setIcon(QMessageBox::Question);

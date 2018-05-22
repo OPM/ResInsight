@@ -1,13 +1,10 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmCore)
 
 # Qt
 find_package ( Qt4 COMPONENTS QtCore )
 include (${QT_USE_FILE})
-
-include_directories (
-)
 
 set( PROJECT_FILES
 
@@ -39,17 +36,24 @@ set( PROJECT_FILES
     cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
     cafPdmValueField.h
+    cafInternalPdmValueFieldSpecializations.h 
 
     cafNotificationCenter.cpp
     cafNotificationCenter.h
 
     cafTristate.cpp
     cafTristate.h
+    cafFilePath.cpp
+    cafFilePath.h
 )
-
 
 add_library( ${PROJECT_NAME}
     ${PROJECT_FILES}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 source_group("" FILES ${PROJECT_FILES})

@@ -157,7 +157,7 @@ void RiaDefaultConsoleLogger::writeToConsole(const std::string& str)
         DWORD stringLength = static_cast<DWORD>(str.length());
 
         unsigned long iDum = 0;
-        WriteConsoleA(hStdOutputHandle, str.c_str(), stringLength, &iDum, NULL);
+        WriteConsoleA(hStdOutputHandle, str.c_str(), stringLength, &iDum, nullptr);
     }
 #else
     fputs(str.c_str(), stderr);
@@ -192,7 +192,6 @@ void RiaLogging::setLoggerInstance(RiaLogger* loggerInstance)
         delete sm_logger;
     }
 
-//    VF_ASSERT(loggerInstance);
     sm_logger = loggerInstance;
 }
 
@@ -203,7 +202,7 @@ void RiaLogging::setLoggerInstance(RiaLogger* loggerInstance)
 void RiaLogging::deleteLoggerInstance()
 {
     delete sm_logger;
-    sm_logger = NULL;
+    sm_logger = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,6 +212,7 @@ void RiaLogging::error(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_ERROR)
     {
+#pragma omp critical
         sm_logger->error(message.toLatin1().constData());
     }
 }
@@ -224,6 +224,7 @@ void RiaLogging::warning(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_WARNING)
     {
+#pragma omp critical
         sm_logger->warning(message.toLatin1().constData());
     }
 }
@@ -235,6 +236,7 @@ void RiaLogging::info(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_INFO)
     {
+#pragma omp critical
         sm_logger->info(message.toLatin1().constData());
     }
 }
@@ -246,6 +248,7 @@ void RiaLogging::debug(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_DEBUG)
     {
+#pragma omp critical
         sm_logger->debug(message.toLatin1().constData());
     }
 }

@@ -24,7 +24,6 @@
 #cmakedefine HAVE_WINDOWS_MKDIR
 #cmakedefine HAVE_GETPWUID
 #cmakedefine HAVE_FSYNC
-#cmakedefine HAVE_POSIX_SETENV
 #cmakedefine HAVE_CHMOD
 #cmakedefine HAVE_MODE_T
 #cmakedefine HAVE_CXX_SHARED_PTR
@@ -35,6 +34,8 @@
 #cmakedefine HAVE_WINSOCK2_H
 
 
+#cmakedefine HAVE_POSIX_ACCESS
+#cmakedefine HAVE_WINDOWS__ACCESS
 #cmakedefine HAVE_WINDOWS_GET_TEMP_PATH
 #cmakedefine HAVE_WINDOWS_TZNAME
 

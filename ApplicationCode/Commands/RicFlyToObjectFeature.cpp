@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dPropertiesInterface.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuViewer.h"
 
@@ -59,7 +59,7 @@ bool RicFlyToObjectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     RiuViewer* destinationViewer = activeView->viewer();

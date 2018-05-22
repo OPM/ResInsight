@@ -32,7 +32,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
@@ -47,6 +47,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
+#include "Rim2dIntersectionView.h"
 
 
 namespace caf {
@@ -154,9 +155,7 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         || changedField == &isActive 
         || changedField == &type)
     {
-        m_wellBranchCenterlines.clear();
-        updateWellCenterline();
-        m_branchIndex = -1;
+        recomputeSimulationWellBranchData();
     }
 
     if (changedField == &simulationWell 
@@ -164,6 +163,16 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         || changedField == &m_branchIndex)
     {
         updateName();
+    }
+
+    if (changedField == &name)
+    {
+        Rim2dIntersectionView* iView = correspondingIntersectionView();
+        if (iView)
+        {
+            iView->updateName();
+            iView->updateConnectedEditors();
+        }
     }
 
     if (changedField == &inputPolyLineFromViewerEnabled
@@ -230,8 +239,8 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (type == CS_SIMULATION_WELL)
     {
         geometryGroup->add(&simulationWell);
-        updateWellCenterline();
-        if (simulationWell() && m_wellBranchCenterlines.size() > 1)
+        updateSimulationWellCenterline();
+        if (simulationWell() && m_simulationWellBranchCenterlines.size() > 1)
         {
             geometryGroup->add(&m_branchIndex);
         }
@@ -321,9 +330,9 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        updateWellCenterline();
+        updateSimulationWellCenterline();
 
-        size_t branchCount = m_wellBranchCenterlines.size();
+        size_t branchCount = m_simulationWellBranchCenterlines.size();
         
         options.push_back(caf::PdmOptionItemInfo("All", -1));
 
@@ -354,14 +363,14 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
+RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
 {
     RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
     {
-        return eclipseView->wellCollection;
+        return eclipseView->wellCollection();
     }
 
     return nullptr;
@@ -391,31 +400,47 @@ void RimIntersection::updateAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
+std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * flattenedPolylineStartPoint) const
 {
+    if (flattenedPolylineStartPoint)  *flattenedPolylineStartPoint = cvf::Vec3d::ZERO;
+
     std::vector< std::vector <cvf::Vec3d> > lines;
+
+    double horizontalProjectedLengthAlongWellPathToClipPoint = 0.0;
+
     if (type == CS_WELL_PATH)
     {
         if (wellPath() && wellPath->wellPathGeometry() )
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
-            clipToReservoir(lines[0]);
+            RimCase* ownerCase = nullptr;
+            this->firstAncestorOrThisOfType(ownerCase);
+            if (ownerCase)
+            {
+                size_t dummy;
+                lines[0] = RigWellPath::clipPolylineStartAboveZ(lines[0],
+                                                                ownerCase->activeCellsBoundingBox().max().z(),
+                                                                &horizontalProjectedLengthAlongWellPathToClipPoint,
+                                                                &dummy);
+            }
         }
     }
     else if (type == CS_SIMULATION_WELL)
     {
         if (simulationWell())
         {
-            updateWellCenterline();
+            updateSimulationWellCenterline();
 
-            if (0 <= m_branchIndex && m_branchIndex < static_cast<int>(m_wellBranchCenterlines.size()))
+            int branchIndexToUse = branchIndex();
+
+            if (0 <= branchIndexToUse && branchIndexToUse < static_cast<int>(m_simulationWellBranchCenterlines.size()))
             {
-                lines.push_back(m_wellBranchCenterlines[m_branchIndex]);
+                lines.push_back(m_simulationWellBranchCenterlines[branchIndexToUse]);
             }
 
-            if (m_branchIndex == -1)
+            if (branchIndexToUse == -1)
             {
-                lines = m_wellBranchCenterlines;
+                lines = m_simulationWellBranchCenterlines;
             }
         }
     }
@@ -430,13 +455,38 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
     {
+        if (type == CS_SIMULATION_WELL && simulationWell())
+        {
+            cvf::Vec3d top, bottom;
+
+            simulationWell->wellHeadTopBottomPosition(-1, &top, &bottom);
+
+            for ( size_t lIdx = 0; lIdx < lines.size(); ++lIdx )
+            {
+                std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
+                polyLine.insert(polyLine.begin(), top);
+            }
+        }
+
         for (size_t lIdx = 0; lIdx < lines.size(); ++lIdx)
         {
             std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
             addExtents(polyLine);
         }
-    }
 
+        if (flattenedPolylineStartPoint && lines.size() && lines[0].size() > 1) 
+        {
+            (*flattenedPolylineStartPoint)[0] = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
+            (*flattenedPolylineStartPoint)[2] = lines[0][1].z(); // Depth of first point in first polyline
+        }
+    }
+    else
+    {
+        if ( flattenedPolylineStartPoint && lines.size() && lines[0].size() )
+        {
+            (*flattenedPolylineStartPoint)[2] = lines[0][0].z(); // Depth of first point in first polyline
+        }
+    }
     return lines;
 }
 
@@ -453,44 +503,30 @@ RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLinesForExtrusionDirection() const
+std::vector <cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 {
-    std::vector< std::vector <cvf::Vec3d> > lines;
-
-    lines.push_back(m_customExtrusionPoints);
-
-    return lines;
+    return m_customExtrusionPoints;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateWellCenterline() const
+void RimIntersection::updateSimulationWellCenterline() const
 {
     if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
     {
-        if (m_wellBranchCenterlines.size() == 0)
+        if (m_simulationWellBranchCenterlines.empty())
         {
-            RimEclipseCase* rimEclCase = nullptr;
-            simulationWell->firstAncestorOrThisOfType(rimEclCase);
-            if (rimEclCase)
+            auto branches = simulationWell->wellPipeBranches();
+            for (const auto& branch : branches)
             {
-                bool includeCellCenters = false;
-                bool detectBrances = true;
-
-                RigEclipseCaseData* caseData = rimEclCase->eclipseCaseData();
-                auto branches = caseData->simulationWellBranches(simulationWell->name, includeCellCenters, detectBrances);
-
-                for (auto b : branches)
-                {
-                    m_wellBranchCenterlines.push_back(b->m_wellPathPoints);
-                }
+                m_simulationWellBranchCenterlines.push_back(branch->m_wellPathPoints);
             }
         }
     }
     else
     {
-        m_wellBranchCenterlines.clear();
+        m_simulationWellBranchCenterlines.clear();
     }
 }
 
@@ -576,9 +612,9 @@ void RimIntersection::updateName()
     if (type == CS_SIMULATION_WELL && simulationWell())
     {
         name = simulationWell()->name();
-        if (m_branchIndex() != -1)
+        if (branchIndex() != -1)
         { 
-            name = name() + " Branch " + QString::number(m_branchIndex() + 1);
+            name = name() + " Branch " + QString::number(branchIndex() + 1);
         }
     }
     else if (type() == CS_WELL_PATH && wellPath())
@@ -586,52 +622,32 @@ void RimIntersection::updateName()
         name = wellPath()->name();
     }
 
+    Rim2dIntersectionView* iView = correspondingIntersectionView();
+    if (iView)
+    {
+        iView->updateName();
+        iView->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
+int RimIntersection::branchIndex() const
 {
-    RimCase* ownerCase = nullptr;
-    firstAncestorOrThisOfType(ownerCase);
-    
-    std::vector<cvf::Vec3d> clippedPolyLine;
+    RimSimWellInViewCollection* coll = simulationWellCollection();
 
-    if (ownerCase)
+    if (coll && !coll->isAutoDetectingBranches())
     {
-        cvf::BoundingBox caseBB = ownerCase->activeCellsBoundingBox();
-        bool hasEnteredReservoirBB = false;
-        for (size_t vxIdx = 0 ; vxIdx < polyLine.size(); ++vxIdx)
-        {
-            if (!caseBB.contains(polyLine[vxIdx]))
-            { 
-                continue;
-            }
-
-            if (!hasEnteredReservoirBB)
-            {
-                if (vxIdx > 0)
-                {
-                    // clip line, and add vx to start
-                    cvf::Plane topPlane;
-                    topPlane.setFromPointAndNormal(caseBB.max(), cvf::Vec3d::Z_AXIS);
-                    cvf::Vec3d intersection;
-                
-                    if (topPlane.intersect(polyLine[vxIdx-1], polyLine[vxIdx], &intersection))
-                    {
-                        clippedPolyLine.push_back(intersection);
-                    }
-                }
-
-                hasEnteredReservoirBB = true;
-            }
-
-            clippedPolyLine.push_back(polyLine[vxIdx]);
-        }
+        return -1;
     }
- 
-    polyLine.swap(clippedPolyLine);
+
+    if (m_branchIndex >= static_cast<int>(m_simulationWellBranchCenterlines.size()))
+    {
+        return -1;
+    }
+
+    return m_branchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -721,6 +737,24 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
     m_userPolyline.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    this->objectsWithReferringPtrFields(objects);
+    Rim2dIntersectionView* isectView = nullptr;
+    for (auto obj : objects)
+    {
+        isectView = dynamic_cast<Rim2dIntersectionView*>(obj);
+        if (isectView) break;
+    }
+    return isectView;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -833,6 +867,36 @@ void RimIntersection::setLengthDown(double lengthDown)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimIntersection::extentLength()
+{
+    return m_extentLength();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::recomputeSimulationWellBranchData()
+{
+    if (type() == CS_SIMULATION_WELL)
+    {
+        m_simulationWellBranchCenterlines.clear();
+        updateSimulationWellCenterline();
+
+        m_crossSectionPartMgr = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimIntersection::hasDefiningPoints() const
+{
+    return type == CS_POLYLINE || type == CS_AZIMUTHLINE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersection::setLengthUp(double lengthUp)
 {
     m_lengthUp = lengthUp;
@@ -845,11 +909,18 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_crossSectionPartMgr = nullptr;
 
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+
+    Rim2dIntersectionView * iview = correspondingIntersectionView();
+    if (iview)
+    {
+        iview->scheduleGeometryRegen(RivCellSetEnum::ALL_CELLS);
+        iview->scheduleCreateDisplayModelAndRedraw();
     }
 }
 

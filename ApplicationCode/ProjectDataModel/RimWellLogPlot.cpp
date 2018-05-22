@@ -29,7 +29,7 @@
 #include "RimWellRftPlot.h"
 #include "RimWellPltPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
@@ -65,7 +65,7 @@ RimWellLogPlot::RimWellLogPlot()
 {
     CAF_PDM_InitObject("Well Log Plot", ":/WellLogPlot16x16.png", "", "");
 
-    m_viewer = NULL;
+    m_viewer = nullptr;
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     
@@ -562,10 +562,9 @@ void RimWellLogPlot::uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
 {
-    RimWellRftPlot* rftp;
-    firstAncestorOrThisOfType(rftp);
+    RimWellRftPlot* rftp = rftPlot();
 
-    if (!rftp)
+    if (!(rftp || pltPlot()))
     {
         uiOrdering.add(&m_depthType);
     }
@@ -883,6 +882,7 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     else if (isPltPlotChild())
     {
         m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
+        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
         m_disabledDepthTypes.insert(CONNECTION_NUMBER);
     }
     else

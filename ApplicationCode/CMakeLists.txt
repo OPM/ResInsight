@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
@@ -15,29 +15,10 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
 endif()
 
 include_directories(
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    ${cafProjectDataModel_SOURCE_DIR}
 
-    ${cafCommand_SOURCE_DIR}
-    ${cafViewer_SOURCE_DIR}
-    ${cafAnimControl_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-    ${cafPdmCvf_SOURCE_DIR}
-    ${CommonCode_SOURCE_DIR}
-    ${cafVizExtensions_SOURCE_DIR}
-    ${cafTensor_SOURCE_DIR}
-
-	${ResInsight_SOURCE_DIR}/ThirdParty
-    ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
-
-    ${boost-Subset_SOURCE_DIR}
-    ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
-    ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
-    ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
-
+    # required for compilation of gtest, should be refactored
+    ${ResInsight_SOURCE_DIR}/ThirdParty
+    
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
@@ -60,6 +41,7 @@ include_directories(
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
@@ -99,6 +81,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
+    ReservoirDataModel/Completions/CMakeLists_files.cmake
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
@@ -111,18 +94,21 @@ list( APPEND REFERENCED_CMAKE_FILES
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
     ModelVisualization/Intersections/CMakeLists_files.cmake
+    ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
-	
+    
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
+    Commands/CompletionExportCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
+    Commands/IntersectionViewCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
@@ -133,18 +119,19 @@ list( APPEND REFERENCED_CMAKE_FILES
 
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
+    Commands/FractureCommands/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
-	add_definitions(-DUSE_UNIT_TESTS)
+    add_definitions(-DUSE_UNIT_TESTS)
 
     list( APPEND REFERENCED_CMAKE_FILES
         UnitTests/CMakeLists_files.cmake
         )
     
     list( APPEND CPP_SOURCES 
-        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
+        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc    
         )
     
 endif()
@@ -166,18 +153,33 @@ list( APPEND CPP_SOURCES
 add_subdirectory(WellPathImportSsihub)
 add_subdirectory(ResultStatisticsCache)
 
+set( RI_LIBRARIES
+    WellPathImportSsihub
+    ResultStatisticsCache
+)
+
 #
 # Odb api
 #
 set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models")
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "") 
-	add_definitions(-DUSE_ODB_API)
-	add_subdirectory(GeoMech/OdbReader)
-	SET(RESINSIGHT_USE_ODB_API 1)
-	MESSAGE( STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}" )
+    add_definitions(-DUSE_ODB_API)
+    add_subdirectory(GeoMech/OdbReader)
+    SET(RESINSIGHT_USE_ODB_API 1)
+    MESSAGE( STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}" )
 endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
+list( APPEND RI_LIBRARIES
+    RigGeoMechDataModel
+)
+
+if (RESINSIGHT_USE_ODB_API)
+    list( APPEND RI_LIBRARIES
+        RifOdbReader
+    )
+endif()
+
 
 # 
 # HDF5  
@@ -190,16 +192,11 @@ if (RESINSIGHT_FOUND_HDF5)
 
     source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
 
-	add_definitions(-DUSE_HDF5)
+    add_definitions(-DUSE_HDF5)
 endif()
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
-endif()
-
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-	add_definitions(-DUSE_PROTOTYPE_FEATURE_FRACTURES)
 endif()
 
 
@@ -274,8 +271,9 @@ set( EXE_FILES
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
     ${HEADER_FILES}
-	${REFERENCED_CMAKE_FILES}
+    ${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
+    ../.clang-format
 )
 
 add_executable( ResInsight ${EXE_FILES} )
@@ -307,10 +305,7 @@ endif ()
 set( LINK_LIBRARIES
     ${OPM_LIBRARIES}
         
-    WellPathImportSsihub
-
-	ResultStatisticsCache
-	RigGeoMechDataModel
+    ${RI_LIBRARIES}
 
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
@@ -327,11 +322,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         rt
     )
 endif()
-
-# Add the odb reader if we are compiling with odb support
-IF (${RESINSIGHT_USE_ODB_API})
-	set ( LINK_LIBRARIES ${LINK_LIBRARIES} RifOdbReader)
-ENDIF()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
@@ -357,11 +347,14 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ReservoirDataModel/RigTransmissibilityCondenser.cpp
         ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ReservoirDataModel/RigCellGeometryTools.cpp
+        
+        # exclude test files due to cotire redefinition error report
+        UnitTests/RifCaseRealizationParametersReader-Test.cpp
     )
 
-	foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
+    foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
         set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
-	endforeach(fileToExclude)
+    endforeach(fileToExclude)
 
     # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
@@ -392,16 +385,16 @@ if (MSVC)
 
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
-	    # Find all the dlls
-	    file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
-	
-	    # Strip off the path
-	    foreach (aDLL  ${RI_ALL_ODB_DLLS})
-		     get_filename_component(filenameWithExt ${aDLL} NAME)
-		     list(APPEND RI_ODB_DLLS ${filenameWithExt} )
-	    endforeach(aDLL)
+        # Find all the dlls
+        file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
+    
+        # Strip off the path
+        foreach (aDLL  ${RI_ALL_ODB_DLLS})
+             get_filename_component(filenameWithExt ${aDLL} NAME)
+             list(APPEND RI_ODB_DLLS ${filenameWithExt} )
+        endforeach(aDLL)
 
-	    foreach (aDLL ${RI_ODB_DLLS})
+        foreach (aDLL ${RI_ODB_DLLS})
             list(APPEND RI_DLL_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
         endforeach()
     endif()
@@ -420,13 +413,13 @@ endif(MSVC)
 foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     add_custom_command(TARGET ResInsight POST_BUILD
                         COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-						"${FILE_TO_COPY}"  
-						"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+                        "${FILE_TO_COPY}"  
+                        "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
     if (_unityTargetName)
         add_custom_command(TARGET ${_unityTargetName} POST_BUILD
                             COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-		    				"${FILE_TO_COPY}"  
-		    				"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+                            "${FILE_TO_COPY}"  
+                            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
     endif()
 endforeach()
 
@@ -447,10 +440,10 @@ if (RESINSIGHT_PRIVATE_INSTALL)
       # tell binary to first attempt to load libraries from its own directory
       set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
 
-	  if (${RESINSIGHT_USE_ODB_API})
-		# This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
-		# statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
-		# and really do copy them when doing PRIVATE_INSTALL
+      if (${RESINSIGHT_USE_ODB_API})
+        # This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
+        # statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
+        # and really do copy them when doing PRIVATE_INSTALL
         set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ODB_API_DIR}/lib)
       endif()
       
@@ -564,10 +557,6 @@ endif()
 
 if(RESINSIGHT_FOUND_HDF5)
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
-endif()
-
-if(RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_fractures")
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6

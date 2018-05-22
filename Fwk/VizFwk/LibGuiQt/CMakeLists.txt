@@ -14,13 +14,6 @@ endif()
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 
-
-include_directories(../LibCore)
-include_directories(../LibGeometry)
-include_directories(../LibRender)
-include_directories(../LibViewing)
-
-
 set(CEE_HEADER_FILES
 cvfqtBasicAboutDialog.h
 cvfqtCvfBoundQGLContext.h
@@ -43,3 +36,18 @@ cvfqtUtils.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+    LibGeometry
+    LibRender
+    LibViewing
+
+    ${QT_LIBRARIES}
+)
+set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+source_group("" FILES ${PROJECT_FILES})

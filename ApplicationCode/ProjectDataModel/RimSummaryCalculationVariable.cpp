@@ -18,8 +18,12 @@
 
 #include "RimSummaryCalculationVariable.h"
 
+#include "RiaApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RifEclipseSummaryAddressQMetaType.h"
+
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
@@ -85,7 +89,9 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 
         {
             RiuSummaryCurveDefSelectionDialog dlg(nullptr);
-            dlg.setCaseAndAddress(m_case(), m_summaryAddress->address());
+            dlg.hideEnsembles();
+
+            readDataFromApplicationStore(&dlg);
 
             if (dlg.exec() == QDialog::Accepted)
             {
@@ -94,6 +100,8 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
                 {
                     m_case = curveSelection[0].summaryCase();
                     m_summaryAddress->setAddress(curveSelection[0].summaryAddress());
+
+                    writeDataToApplicationStore();
 
                     updateContainingEditor = true;
                 }
@@ -122,7 +130,10 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculationVariable::summaryAddressDisplayString() const
 {
-    return RiaSummaryCurveDefinition::curveDefinitionText(m_case(), m_summaryAddress()->address());
+    QString caseName;
+    if (m_case() ) caseName = m_case()->caseName();
+
+    return RiaSummaryCurveDefinition::curveDefinitionText(caseName, m_summaryAddress()->address());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,4 +174,49 @@ void RimSummaryCalculationVariable::defineObjectEditorAttribute(QString uiConfig
     {
         attr->registerPushButtonTextForFieldKeyword(m_button.keyword(), "Edit");
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::readDataFromApplicationStore(RiuSummaryCurveDefSelectionDialog* selectionDialog) const
+{
+    if (!selectionDialog) return;
+
+    auto sumCase    = m_case();
+    auto sumAddress = m_summaryAddress->address();
+    if (!sumCase && !sumAddress.isValid())
+    {
+        QVariant var = RiaApplication::instance()->cacheDataObject("CalculatorSummaryAddress");
+
+        auto lastUsedAddress = var.value<RifEclipseSummaryAddress>();
+        if (lastUsedAddress.isValid())
+        {
+            sumAddress = lastUsedAddress;
+        }
+        
+        QString lastUsedSummaryCaseString = RiaApplication::instance()->cacheDataObject("CalculatorSummaryCase").toString();
+
+        auto* lastUsedSummaryCase = dynamic_cast<RimSummaryCase*>(
+            caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedSummaryCaseString));
+        if (lastUsedSummaryCase)
+        {
+            sumCase = lastUsedSummaryCase;
+        }
+    }
+
+    selectionDialog->setCaseAndAddress(sumCase, sumAddress);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::writeDataToApplicationStore() const
+{
+    QString refFromProjectToObject =
+        caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), m_case);
+    RiaApplication::instance()->setCacheDataObject("CalculatorSummaryCase", refFromProjectToObject);
+
+    QVariant sumAdrVar = QVariant::fromValue(m_summaryAddress->address());
+    RiaApplication::instance()->setCacheDataObject("CalculatorSummaryAddress", sumAdrVar);
 }

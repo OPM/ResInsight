@@ -20,6 +20,8 @@
 #include <string>
 #include <map>
 
+class QTextStream;
+
 //==================================================================================================
 //
 //
@@ -166,3 +168,7 @@ private:
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
 
 bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
+
+QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj);
+
+QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj);

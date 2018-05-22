@@ -23,18 +23,20 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "RimView.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -42,11 +44,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include "cafNotificationCenter.h"
@@ -55,6 +55,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
+#include "Rim2dIntersectionViewCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +97,7 @@ void RicDeleteItemExec::redo()
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();
         
-        RimView* view = NULL;
+        Rim3dView* view = nullptr;
         parentObj->firstAncestorOrThisOfType(view);
 
         // Range Filters
@@ -106,7 +107,7 @@ void RicDeleteItemExec::redo()
 
         if (rangeFilterColl)
         {
-            rangeFilterColl->updateDisplayModeNotifyManagedViews(NULL);
+            rangeFilterColl->updateDisplayModeNotifyManagedViews(nullptr);
         }
 
         // Prop Filter
@@ -129,7 +130,16 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
         {
+            crossSectionColl->syncronize2dIntersectionViews();
             view->scheduleCreateDisplayModelAndRedraw();
+        }
+        else
+        {
+            RimCase* parentCase = dynamic_cast<RimCase*>(parentObj);
+            if ( parentCase ) // A view was deleted. Need to update the list of intersection views
+            {
+                parentCase->intersectionViewCollection()->syncFromExistingIntersections(true);
+            }
         }
 
         // SimWell Fractures
@@ -140,7 +150,6 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
         if (fracTemplateColl)
@@ -152,9 +161,9 @@ void RicDeleteItemExec::redo()
                 proj->createDisplayModelAndRedrawAllViews();
             }
 
-            std::vector<RimView*> views;
+            std::vector<Rim3dView*> views;
             proj->allVisibleViews(views);
-            for (RimView* view : views)
+            for (Rim3dView* view : views)
             {
                 if (dynamic_cast<RimEclipseView*>(view))
                 {
@@ -162,7 +171,6 @@ void RicDeleteItemExec::redo()
                 }
             }
         }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
         // Well paths
@@ -209,7 +217,7 @@ void RicDeleteItemExec::redo()
         {
             if (wellLogPlotCollection->wellLogPlots.empty())
             {
-                RimProject* project = NULL;
+                RimProject* project = nullptr;
                 parentObj->firstAncestorOrThisOfType(project);
                 if (project)
                 {
@@ -220,13 +228,13 @@ void RicDeleteItemExec::redo()
         
         // Linked views
 
-        RimViewLinkerCollection* viewLinkerCollection = NULL;
+        RimViewLinkerCollection* viewLinkerCollection = nullptr;
         parentObj->firstAncestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)
         {
             viewLinkerCollection->uiCapability()->updateConnectedEditors();
 
-            RimProject* project = NULL;
+            RimProject* project = nullptr;
             parentObj->firstAncestorOrThisOfType(project);
             if (project)
             {
@@ -254,7 +262,8 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
         if (summaryPlotCollection)
         {
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            summaryPlotCollection->updateSummaryNameHasChanged();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
 
@@ -262,8 +271,17 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryCrossPlotCollection);
         if (summaryCrossPlotCollection)
         {
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
+        }
+
+        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
+        parentObj->firstAncestorOrThisOfType(ensembleCurveSetColl);
+        if (ensembleCurveSetColl)
+        {
+            RimSummaryPlot* plot = nullptr;
+            ensembleCurveSetColl->firstAncestorOrThisOfType(plot);
+            if (plot) plot->updateConnectedEditors();
         }
     }
 }

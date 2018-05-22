@@ -30,7 +30,8 @@ class RiaColorTools
 {
 public:
     static bool         isBrightnessAboveThreshold(cvf::Color3f backgroundColor);
-
+    
+    static cvf::Color3f computeOffsetColor(cvf::Color3f color, float offsetFactor);
     static cvf::Color3f darkContrastColor();
     static cvf::Color3f brightContrastColor();
     static cvf::Color3f constrastColor(cvf::Color3f backgroundColor);

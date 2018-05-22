@@ -59,7 +59,7 @@ UiListViewModelPdm::UiListViewModelPdm(QObject* parent)
     : QAbstractTableModel(parent)
 {
     m_columnCount = 0;
-    m_pdmObjectGroup = NULL;
+    m_pdmObjectGroup = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

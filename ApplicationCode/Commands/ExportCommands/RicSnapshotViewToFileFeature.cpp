@@ -24,7 +24,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
 
@@ -90,7 +90,7 @@ void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString
     }
 
     QString defaultAbsFileName = caf::Utils::constructFullFileName(startPath, defaultFileBaseName, ".png");
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), defaultAbsFileName);
+    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Export to File"), defaultAbsFileName);
     if (fileName.isEmpty())
     {
         return;

@@ -42,7 +42,7 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 {
     if (RicWellLogTools::isWellPathOrSimWellSelectedInView()) return false;
     
-    return RiaApplication::instance()->activeReservoirView() != nullptr;
+    return RiaApplication::instance()->activeGridView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::onActionTriggered(bool isChecked)
 {
-    RimView * activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView * activeView = RiaApplication::instance()->activeGridView();
 
     if (activeView)
     {

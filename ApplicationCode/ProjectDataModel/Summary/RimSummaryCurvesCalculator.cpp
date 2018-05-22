@@ -37,11 +37,11 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-// e	format as [-]9.9e[+|-]999
-// E	format as[-]9.9E[+| -]999
-// f	format as[-]9.9
-// g	use e or f format, whichever is the most concise
-// G	use E or f format, whichever is the most concise
+// e    format as [-]9.9e[+|-]999
+// E    format as[-]9.9E[+| -]999
+// f    format as[-]9.9
+// g    use e or f format, whichever is the most concise
+// G    use E or f format, whichever is the most concise
 
 //--------------------------------------------------------------------------------------------------
 class DecimalScaleDraw : public QwtScaleDraw

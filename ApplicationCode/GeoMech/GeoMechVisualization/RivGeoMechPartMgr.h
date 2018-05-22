@@ -61,6 +61,7 @@ public:
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& partIndices);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
+    const cvf::Collection<RivFemPartPartMgr> femPartMgrs() const;
 private:
 
     cvf::Collection<RivFemPartPartMgr>  m_femPartPartMgrs;

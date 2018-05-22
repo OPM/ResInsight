@@ -83,20 +83,20 @@ void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
     if (!fractureTemplate()) return;
 
-    if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
-        || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
+        || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
 
         double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
         {
-            azimuth = wellPathAzimuth;
+            m_azimuth = wellPathAzimuth;
         }
-        if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            if (wellPathAzimuth + 90 < 360) azimuth = wellPathAzimuth + 90;
-            else azimuth = wellPathAzimuth - 90;
+            if (wellPathAzimuth + 90 < 360) m_azimuth = wellPathAzimuth + 90;
+            else m_azimuth = wellPathAzimuth - 90;
         }
     }
 }
@@ -135,6 +135,28 @@ void RimWellPathFracture::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords() const
+{
+    std::vector<cvf::Vec3d> wellPathCoords;
+
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfType(wellPath);
+    if (wellPath && wellPath->wellPathGeometry())
+    {
+        double startMd = m_measuredDepth - perforationLength() / 2.0;
+        double endMd = m_measuredDepth + perforationLength() / 2.0;
+
+        auto coordsAndMd = wellPath->wellPathGeometry()->clippedPointSubset(startMd, endMd);
+
+        wellPathCoords = coordsAndMd.first;
+    }
+
+    return wellPathCoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
@@ -163,23 +185,23 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.add(nameField());
+    uiOrdering.add(&m_fractureTemplate);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_measuredDepth);
-    locationGroup->add(&azimuth);
+    locationGroup->add(&m_azimuth);
     locationGroup->add(&m_uiWellPathAzimuth);
     locationGroup->add(&m_uiWellFractureAzimuthDiff);
     locationGroup->add(&m_wellFractureAzimuthAngleWarning);
-    locationGroup->add(&dip);
-    locationGroup->add(&tilt);
+    locationGroup->add(&m_dip);
+    locationGroup->add(&m_tilt);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_fractureUnit);
-    propertyGroup->add(&m_fractureTemplate);
-    propertyGroup->add(&stimPlanTimeIndexToPlot);
-    propertyGroup->add(&perforationLength);
-    propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellDiameter);
+    propertyGroup->add(&m_stimPlanTimeIndexToPlot);
+    propertyGroup->add(&m_perforationLength);
+    propertyGroup->add(&m_perforationEfficiency);
+    propertyGroup->add(&m_wellDiameter);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);

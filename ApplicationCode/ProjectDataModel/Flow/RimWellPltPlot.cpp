@@ -101,7 +101,7 @@ const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 //--------------------------------------------------------------------------------------------------
 RimWellPltPlot::RimWellPltPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("PLT Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);

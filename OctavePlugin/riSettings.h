@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "../ApplicationCode/SocketInterface/RiaSocketServer.h"
+#include "../ApplicationCode/SocketInterface/RiaSocketServerDefines.h" 
 
 namespace riOctavePlugin
 {

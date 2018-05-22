@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimIntersectionBox.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuSelectionManager.h"
 
@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicHideIntersectionBoxFeature, "RicHideIntersectionBoxFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicHideIntersectionBoxFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
@@ -56,7 +56,7 @@ bool RicHideIntersectionBoxFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHideIntersectionBoxFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();

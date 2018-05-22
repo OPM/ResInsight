@@ -30,7 +30,7 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseCellColors;
 class RimEclipseView;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 class RimCellEdgeMetaData
 {
@@ -86,11 +86,14 @@ public:
     bool                                  isUsingSingleVariable() const;
 
     RimEclipseCellColors*                 singleVarEdgeResultColors();
-    RimLegendConfig*                      legendConfig();
+    RimRegularLegendConfig*                      legendConfig();
     PropertyType                          propertyType() const;
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
     void                                  posNegClosestToZero(double& pos, double& neg);
+
+    void                                  updateUiFieldsFromActiveResult();
+
 protected:
 
     virtual void                          initAfterRead();
@@ -120,7 +123,7 @@ private:
 
 
     caf::PdmField<caf::AppEnum< PropertyType > >    m_propertyType;
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>            m_legendConfig;
     caf::PdmChildField<RimEclipseCellColors*>       m_singleVarEdgeResultColors;
 
 };

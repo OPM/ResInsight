@@ -25,10 +25,10 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellAllocationPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -57,12 +57,12 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 
     if (wellPathCollection.empty()) return false;
     
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     if (!eclView) return false;
 
-    RimSimWellInView* simWellFromWellPath = eclView->wellCollection->findWell(wellPathCollection[0]->associatedSimulationWellName());
+    RimSimWellInView* simWellFromWellPath = eclView->wellCollection()->findWell(wellPathCollection[0]->associatedSimulationWellName());
 
     if (simWellFromWellPath)
     {
@@ -91,12 +91,12 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
     }
     else if (wellPathCollection.size() > 0)
     {
-        RimView* view = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
         if (!view) return;
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
         if (!eclView) return;
 
-        simWell = eclView->wellCollection->findWell(wellPathCollection[0]->associatedSimulationWellName());
+        simWell = eclView->wellCollection()->findWell(wellPathCollection[0]->associatedSimulationWellName());
         if (!simWell) return;
     }
     else return;
@@ -110,8 +110,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
             flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
             // Make sure the summary plot window is created and visible
-            RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-            plotwindow->selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
         }
     }
 }

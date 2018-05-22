@@ -1,20 +1,6 @@
 project(libecl-ecl C CXX)
 
-if (HAVE_PTHREAD)
-    # The block_fs filesystem is so heavily dependant on pthreads that it is
-    # not built if de not have pthreads.
-     list(APPEND opt_srcs util/thread_pool.c)
-endif ()
 
-if (LAPACK_FOUND)
-    list(APPEND opt_srcs util/matrix_lapack.c
-                         util/matrix_blas.c
-                         util/matrix_stat.c
-                         util/regression.c
-                         util/lars.c
-                         util/stepwise.c
-)
-endif ()
 
 if (HAVE_BACKTRACE)
     list(APPEND opt_srcs util/util_abort_gnu.c)
@@ -23,23 +9,23 @@ else()
 endif()
 
 if (ERT_HAVE_GETUID AND ERT_HAVE_OPENDIR)
-    list(APPEND opt_srcs util/test_work_area.c util/util_getuid.c)
+    list(APPEND opt_srcs util/test_work_area.cpp util/util_getuid.cpp)
 endif()
 
 if (ERT_HAVE_OPENDIR)
-    list(APPEND opt_srcs util/util_opendir.c)
+    list(APPEND opt_srcs util/util_opendir.cpp)
 endif()
 
 if (ERT_HAVE_SPAWN)
-    list(APPEND opt_srcs util/util_spawn.c)
+    list(APPEND opt_srcs util/util_spawn.cpp)
 endif()
 
 if (ERT_HAVE_LOCKF)
-    list(APPEND opt_srcs util/util_lockf.c)
+    list(APPEND opt_srcs util/util_lockf.cpp)
 endif ()
 
 if (ERT_HAVE_UNISTD)
-   list(APPEND opt_srcs util/path_stack.c)
+   list(APPEND opt_srcs util/path_stack.cpp)
 endif ()
 
 if (MSVC)
@@ -50,20 +36,22 @@ foreach (type int double long time_t float)
     set(TYPE ${type})
     set(SIGNED_TYPE true)
     configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-    configure_file(util/vector_template.c ${type}_vector.c)
-    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
+    configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
+    configure_file(util/vector_template.cpp ${type}_vector.cpp)
+    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
 endforeach ()
 
 foreach (type bool size_t)
     set(TYPE ${type})
     set(SIGNED_TYPE false)
     configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-    configure_file(util/vector_template.c ${type}_vector.c)
-    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
+    configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
+    configure_file(util/vector_template.cpp ${type}_vector.cpp)
+    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
 endforeach ()
 
 if (ZLIB_FOUND)
-    list(APPEND opt_srcs util/util_zlib.c)
+    list(APPEND opt_srcs util/util_zlib.cpp)
 endif ()
 
 if (ERT_BUILD_CXX)
@@ -71,120 +59,108 @@ if (ERT_BUILD_CXX)
                          ecl/FortIO.cpp
                          ecl/Smspec.cpp
                          ecl/EclFilename.cpp
-                         nexus/nexus_plot.cpp
 )
-endif ()
-
-if (BUILD_NEXUS)
-    list(APPEND opt_srcs nexus/nexus_plot.cpp)
 endif ()
 
 configure_file(build_config.h.in   include/ert/util/build_config.h)
 configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
+configure_file(build_config.hpp.in   include/ert/util/build_config.hpp)
+configure_file(ert_api_config.hpp.in include/ert/util/ert_api_config.hpp)
 
-add_library(ecl util/rng.c
-                util/lookup_table.c
-                util/statistics.c
-                util/mzran.c
-                util/set.c
-                util/hash_node.c
-                util/hash_sll.c
-                util/hash.c
-                util/node_data.c
-                util/node_ctype.c
+add_library(ecl util/rng.cpp
+                util/lookup_table.cpp
+                util/statistics.cpp
+                util/mzran.cpp
+                util/set.cpp
+                util/hash_node.cpp
+                util/hash_sll.cpp
+                util/hash.cpp
+                util/node_data.cpp
+                util/node_ctype.cpp
                 util/util.c
-                util/util_env.c
-                util/util_symlink.c
+                util/util_symlink.cpp
                 util/util_lfs.c
-                util/util_unlink.c
-                util/msg.c
-                util/arg_pack.c
-                util/path_fmt.c
-                util/menu.c
-                util/subst_func.c
-                util/vector.c
-                util/parser.c
-                util/stringlist.c
-                util/matrix.c
-                util/buffer.c
-                util/log.c
-                util/timer.c
-                util/time_interval.c
-                util/string_util.c
-                util/type_vector_functions.c
-                util/ui_return.c
-                util/ecl_version.c
-                util/struct_vector.c
-                util/perm_vector.c
-                util/test_util.c
+                util/util_unlink.cpp
+                util/arg_pack.cpp
+                util/vector.cpp
+                util/parser.cpp
+                util/stringlist.cpp
+                util/buffer.cpp
+                util/timer.cpp
+                util/string_util.cpp
+                util/type_vector_functions.cpp
+                util/ecl_version.cpp
+                util/struct_vector.cpp
+                util/perm_vector.cpp
+                util/test_util.cpp
                 ${opt_srcs}
 
-                ecl/ecl_rsthead.c
-                ecl/ecl_sum_tstep.c
-                ecl/ecl_rst_file.c
-                ecl/ecl_init_file.c
-                ecl/ecl_grid_cache.c
-                ecl/smspec_node.c
-                ecl/ecl_kw_grdecl.c
-                ecl/ecl_file_kw.c
-                ecl/ecl_file_view.c
-                ecl/ecl_grav.c
-                ecl/ecl_grav_calc.c
-                ecl/ecl_smspec.c
-                ecl/ecl_sum_data.c
-                ecl/ecl_util.c
-                ecl/ecl_kw.c
-                ecl/ecl_sum.c
-                ecl/ecl_sum_vector.c
+                ecl/ecl_rsthead.cpp
+                ecl/ecl_sum_tstep.cpp
+                ecl/ecl_rst_file.cpp
+                ecl/ecl_init_file.cpp
+                ecl/ecl_grid_cache.cpp
+                ecl/smspec_node.cpp
+                ecl/ecl_kw_grdecl.cpp
+                ecl/ecl_file_kw.cpp
+                ecl/ecl_file_view.cpp
+                ecl/ecl_grav.cpp
+                ecl/ecl_grav_calc.cpp
+                ecl/ecl_smspec.cpp
+                ecl/ecl_sum_data.cpp
+                ecl/ecl_util.cpp
+                ecl/ecl_kw.cpp
+                ecl/ecl_sum.cpp
+                ecl/ecl_sum_vector.cpp
                 ecl/fortio.c
-                ecl/ecl_rft_file.c
-                ecl/ecl_rft_node.c
-                ecl/ecl_rft_cell.c
-                ecl/ecl_grid.c
-                ecl/ecl_coarse_cell.c
-                ecl/ecl_box.c
-                ecl/ecl_io_config.c
-                ecl/ecl_file.c
-                ecl/ecl_region.c
-                ecl/ecl_subsidence.c
-                ecl/ecl_grid_dims.c
-                ecl/grid_dims.c
-                ecl/nnc_info.c
-                ecl/ecl_grav_common.c
-                ecl/nnc_vector.c
-                ecl/ecl_nnc_export.c
-                ecl/ecl_nnc_data.c
-                ecl/ecl_nnc_geometry.c
-                ecl/layer.c
-                ecl/fault_block.c
-                ecl/fault_block_layer.c
-                ecl/ecl_type.c
-                ecl/ecl_type_python.c
-                ecl/well_state.c
-                ecl/well_conn.c
-                ecl/well_info.c
-                ecl/well_ts.c
-                ecl/well_conn_collection.c
-                ecl/well_segment.c
-                ecl/well_segment_collection.c
-                ecl/well_branch_collection.c
-                ecl/well_rseg_loader.c
+                ecl/ecl_rft_file.cpp
+                ecl/ecl_rft_node.cpp
+                ecl/ecl_rft_cell.cpp
+                ecl/ecl_grid.cpp
+                ecl/ecl_coarse_cell.cpp
+                ecl/ecl_box.cpp
+                ecl/ecl_io_config.cpp
+                ecl/ecl_file.cpp
+                ecl/ecl_region.cpp
+                ecl/ecl_subsidence.cpp
+                ecl/ecl_grid_dims.cpp
+                ecl/grid_dims.cpp
+                ecl/nnc_info.cpp
+                ecl/ecl_grav_common.cpp
+                ecl/nnc_vector.cpp
+                ecl/ecl_nnc_export.cpp
+                ecl/ecl_nnc_data.cpp
+                ecl/ecl_nnc_geometry.cpp
+                ecl/layer.cpp
+                ecl/fault_block.cpp
+                ecl/fault_block_layer.cpp
+                ecl/ecl_type.cpp
+                ecl/ecl_type_python.cpp
+                ecl/well_state.cpp
+                ecl/well_conn.cpp
+                ecl/well_info.cpp
+                ecl/well_ts.cpp
+                ecl/well_conn_collection.cpp
+                ecl/well_segment.cpp
+                ecl/well_segment_collection.cpp
+                ecl/well_branch_collection.cpp
+                ecl/well_rseg_loader.cpp
 
-                geometry/geo_surface.c
-                geometry/geo_util.c
-                geometry/geo_pointset.c
-                geometry/geo_region.c
-                geometry/geo_polygon.c
-                geometry/geo_polygon_collection.c
+                geometry/geo_surface.cpp
+                geometry/geo_util.cpp
+                geometry/geo_pointset.cpp
+                geometry/geo_region.cpp
+                geometry/geo_polygon.cpp
+                geometry/geo_polygon_collection.cpp
 )
 
 target_link_libraries(ecl PUBLIC ${m}
                                  ${dl}
                                  ${pthread}
                                  ${blas}
-                                 ${lapack}
                                  ${zlib}
                                  ${shlwapi}
+                                 ${ws2_32}
 )
 
 target_include_directories(ecl
@@ -207,9 +183,6 @@ target_compile_definitions(ecl PRIVATE
 
 target_compile_options(ecl PUBLIC ${pthreadarg})
 
-if (PING_PATH)
-    target_compile_definitions(ecl PRIVATE -DPING_CMD=${PING_PATH})
-endif()
 
 if (ERT_USE_OPENMP)
     target_compile_options(ecl PUBLIC ${OpenMP_C_FLAGS})
@@ -261,10 +234,7 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_chdir
                 ert_util_filename
                 ert_util_hash_test
-                ert_util_logh
-                ert_util_matrix
                 ert_util_parent_path
-                ert_util_PATH_test
                 ert_util_realpath
                 ert_util_relpath_test
                 ert_util_rng
@@ -275,11 +245,10 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_stringlist_test
                 ert_util_string_util
                 ert_util_strstr_int_format
-                ert_util_time_interval
                 ert_util_type_vector_functions
-                ert_util_ui_return
                 ert_util_vector_test
                 ert_util_datetime
+                ert_util_normal_path
         )
 
     add_executable(${name} util/tests/${name}.c)
@@ -301,15 +270,6 @@ add_test(NAME ert_util_work_area
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/util/tests
 )
 
-find_library( VALGRIND NAMES valgr )
-if (VALGRIND)
-    set(valgrind_cmd valgrind --error-exitcode=1 --tool=memcheck)
-endif ()
-
-add_executable(test_thread_pool util/tests/test_thread_pool.c)
-target_link_libraries(test_thread_pool ecl)
-add_test(NAME test_thread_pool COMMAND ${valgrind_cmd} test_thread_pool)
-
 add_executable(ert_util_cwd_test util/tests/ert_util_cwd_test.c)
 target_link_libraries(ert_util_cwd_test ecl)
 add_test(NAME ert_util_cwd_test COMMAND ert_util_cwd_test ${CMAKE_CURRENT_BINARY_DIR})
@@ -329,15 +289,6 @@ target_link_libraries(ert_util_path_stack_test ecl)
 add_test(NAME ert_util_path_stack_test COMMAND ert_util_path_stack_test
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (LAPACK_FOUND)
-   add_executable(ert_util_matrix_lapack util/tests/ert_util_matrix_lapack.c)
-   target_link_libraries(ert_util_matrix_lapack ecl)
-   add_test(NAME ert_util_matrix_lapack COMMAND ert_util_matrix_lapack)
-
-   add_executable(ert_util_matrix_stat util/tests/ert_util_matrix_stat.c)
-   target_link_libraries(ert_util_matrix_stat ecl)
-   add_test(NAME ert_util_matrix_stat COMMAND ert_util_matrix_stat)
-endif()
 
 if (HAVE_BACKTRACE)
    add_executable(ert_util_abort_gnu_tests util/tests/ert_util_abort_gnu_tests.c)
@@ -372,6 +323,7 @@ endif()
 foreach (name   ecl_alloc_cpgrid
                 ecl_alloc_grid_dxv_dyv_dzv
                 ecl_fault_block_layer
+                ecl_util_path_access
                 ecl_grid_add_nnc
                 ecl_grid_copy
                 ecl_grid_create
@@ -389,11 +341,13 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_nnc_info_test
                 ecl_nnc_vector
                 ecl_rft_cell
+                ecl_sum_alloc_resampled_test
                 ecl_file_view
                 test_ecl_file_index
                 test_transactions
                 ecl_rst_file
                 ecl_sum_writer
+                ecl_util_filenames
                 ecl_util_make_date_no_shift
                 ecl_util_month_range
                 ecl_valid_basename
@@ -467,14 +421,6 @@ if (ERT_BUILD_CXX)
     endforeach ()
 endif ()
 
-if (BUILD_NEXUS)
-    foreach (name nexus_plot_load nexus2ecl)
-        add_executable(${name} nexus/tests/${name}.cpp)
-        target_link_libraries(${name} ecl)
-        add_test(NAME ${name} COMMAND ${name} ${CMAKE_SOURCE_DIR})
-    endforeach ()
-endif()
-
 
 if (NOT STATOIL_TESTDATA_ROOT)
     return ()
@@ -483,12 +429,6 @@ endif()
 #
 # ecl
 #
-
-if (PING_PATH)
-    add_executable(ert_util_ping util/tests/ert_util_ping.c)
-    target_link_libraries(ert_util_ping ecl)
-    add_test(NAME ert_util_ping COMMAND ert_util_ping)
-endif ()
 
 
 add_executable(ecl_coarse_test ecl/tests/ecl_coarse_test.c)

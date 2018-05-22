@@ -88,7 +88,7 @@ void RicfExportProperty::execute()
 
     // FIXME : Select correct view?
     RimEclipseView* view;
-    for (RimView* v : eclipseCase->views())
+    for (Rim3dView* v : eclipseCase->views())
     {
         view = dynamic_cast<RimEclipseView*>(v);
         if (view) break;
@@ -104,9 +104,9 @@ void RicfExportProperty::execute()
         m_eclipseKeyword = m_propertyName;
     }
 
-    view->cellResult->setResultType(m_type());
-    view->cellResult->setResultVariable(m_propertyName());
+    view->cellResult()->setResultType(m_type());
+    view->cellResult()->setResultVariable(m_propertyName());
     view->loadDataAndUpdate();
 
-    RifEclipseInputFileTools::writeBinaryResultToTextFile(filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, view->cellResult, m_eclipseKeyword, m_undefinedValue);
+    RifEclipseInputFileTools::writeBinaryResultToTextFile(filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, view->cellResult(), m_eclipseKeyword, m_undefinedValue);
 }

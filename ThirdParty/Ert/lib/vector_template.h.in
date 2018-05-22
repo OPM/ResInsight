@@ -1,37 +1,36 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'vector_template.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'vector_template.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef ERT_@TYPE@_VECTOR_H
 #define ERT_@TYPE@_VECTOR_H
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <ert/util/buffer.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/perm_vector.h>
 
 typedef struct @TYPE@_vector_struct @TYPE@_vector_type;
 typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
 
-  
+
   int                  @TYPE@_vector_lookup_bin( const @TYPE@_vector_type * limits , @TYPE@ value , int guess);
   int                  @TYPE@_vector_lookup_bin__( const @TYPE@_vector_type * limits , @TYPE@ value , int guess);
   void                 @TYPE@_vector_inplace_div( @TYPE@_vector_type * vector , const @TYPE@_vector_type * inv_factor);
@@ -71,10 +70,10 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   void                 @TYPE@_vector_insert( @TYPE@_vector_type * vector , int index , @TYPE@ value);
   void                 @TYPE@_vector_append(@TYPE@_vector_type *     , @TYPE@);
   void                 @TYPE@_vector_free_container(@TYPE@_vector_type * vector);
-  void                 @TYPE@_vector_free(@TYPE@_vector_type *);  
-  void                 @TYPE@_vector_free__(void *);  
-  void                 @TYPE@_vector_free_data(@TYPE@_vector_type *);  
-  void                 @TYPE@_vector_reset(@TYPE@_vector_type *); 
+  void                 @TYPE@_vector_free(@TYPE@_vector_type *);
+  void                 @TYPE@_vector_free__(void *);
+  void                 @TYPE@_vector_free_data(@TYPE@_vector_type *);
+  void                 @TYPE@_vector_reset(@TYPE@_vector_type *);
   void                 @TYPE@_vector_reset__(void * __vector);
   int                  @TYPE@_vector_size(const @TYPE@_vector_type * );
   void                 @TYPE@_vector_lshift(@TYPE@_vector_type * vector , int shift);
@@ -85,6 +84,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   @TYPE@ *             @TYPE@_vector_get_ptr(const @TYPE@_vector_type * );
   @TYPE@ *             @TYPE@_vector_alloc_data_copy( const @TYPE@_vector_type * vector );
   const @TYPE@ *       @TYPE@_vector_get_const_ptr(const @TYPE@_vector_type * );
+  bool @TYPE@_vector_init_linear(@TYPE@_vector_type * vector , @TYPE@ start_value, @TYPE@ end_value, int num_values);
   void                 @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ value1 , @TYPE@ value2 , @TYPE@ delta);
   void                 @TYPE@_vector_set_many(@TYPE@_vector_type *  , int  , const @TYPE@ *  , int );
   void                 @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value);
@@ -108,14 +108,13 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   perm_vector_type *   @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector);
   void                 @TYPE@_vector_fprintf(const @TYPE@_vector_type * vector , FILE * stream , const char * name , const char * fmt);
   void                 @TYPE@_vector_fwrite(const @TYPE@_vector_type * vector , FILE * stream);
-  void                 @TYPE@_vector_buffer_fread(@TYPE@_vector_type * vector , buffer_type * buffer);
   @TYPE@_vector_type * @TYPE@_vector_fread_alloc( FILE * stream );
-  @TYPE@_vector_type * @TYPE@_vector_buffer_fread_alloc( buffer_type * buffer );
-  void                 @TYPE@_vector_buffer_fwrite(const @TYPE@_vector_type * vector , buffer_type * buffer);
   void                 @TYPE@_vector_fread( @TYPE@_vector_type * vector , FILE * stream );
   void                 @TYPE@_vector_fwrite_data( const @TYPE@_vector_type * vector , FILE * stream );
   void                 @TYPE@_vector_fread_data( @TYPE@_vector_type * vector , int size, FILE * stream);
   bool                 @TYPE@_vector_equal(const @TYPE@_vector_type * vector1 , const @TYPE@_vector_type * vector2);
+  int                  @TYPE@_vector_first_equal(const @TYPE@_vector_type * vector1, const @TYPE@_vector_type * vector2, int offset);
+  int                  @TYPE@_vector_first_not_equal(const @TYPE@_vector_type * vector1, const @TYPE@_vector_type * vector2, int offset);
   void                 @TYPE@_vector_apply(@TYPE@_vector_type * vector , @TYPE@_ftype *func);
   int                  @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value);
   int                  @TYPE@_vector_element_size( const @TYPE@_vector_type * vector );
@@ -125,7 +124,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
   UTIL_IS_INSTANCE_HEADER( @TYPE@_vector );
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
 #endif
 #endif

@@ -35,6 +35,10 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
+#include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
+#include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -47,7 +51,6 @@
 #include "RimGeoMechView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimView.h"
 #include "RimTools.h"
 
 #include "RiuViewer.h"
@@ -92,14 +95,14 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 {
     CAF_PDM_InitObject("Info Box", ":/InfoBox16x16.png", "", "");
 
-    CAF_PDM_InitField(&active, "Active", true, "Active", "", "", "");
-    active.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_active, "Active", true, "Active", "", "", "");
+    m_active.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showAnimProgress,       "ShowAnimProgress",       true, "Animation progress", "", "", "");
-    CAF_PDM_InitField(&showCaseInfo,           "ShowInfoText",           true, "Case Info", "", "", "");
-    CAF_PDM_InitField(&showResultInfo,         "ShowResultInfo",         true, "Result Info", "", "", "");
-    CAF_PDM_InitField(&showHistogram,          "ShowHistogram",          true, "Histogram", "", "", "");
-    CAF_PDM_InitField(&showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "");
+    CAF_PDM_InitField(&m_showAnimProgress,       "ShowAnimProgress",       true, "Animation progress", "", "", "");
+    CAF_PDM_InitField(&m_showCaseInfo,           "ShowInfoText",           true, "Case Info", "", "", "");
+    CAF_PDM_InitField(&m_showResultInfo,         "ShowResultInfo",         true, "Result Info", "", "", "");
+    CAF_PDM_InitField(&m_showHistogram,          "ShowHistogram",          true, "Histogram", "", "", "");
+    CAF_PDM_InitField(&m_showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
@@ -131,17 +134,17 @@ void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         if ( changedField == &m_statisticsCellRange ) m_statisticsCellRange = ALL_CELLS;
     }
 
-    if (changedField == &showResultInfo)
+    if (changedField == &m_showResultInfo)
     {
-        if (!showResultInfo())
+        if (!m_showResultInfo())
         {
-            showVolumeWeightedMean = false;
-            showVolumeWeightedMean.uiCapability()->setUiReadOnly(true);
+            m_showVolumeWeightedMean = false;
+            m_showVolumeWeightedMean.uiCapability()->setUiReadOnly(true);
         }
         else
         {
-            showVolumeWeightedMean = true;
-            showVolumeWeightedMean.uiCapability()->setUiReadOnly(false);
+            m_showVolumeWeightedMean = true;
+            m_showVolumeWeightedMean.uiCapability()->setUiReadOnly(false);
         }
     }
 
@@ -209,7 +212,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
 
-    if (eclipseView) return resultInfoText(histData, eclipseView, showVolumeWeightedMean());
+    if (eclipseView) return resultInfoText(histData, eclipseView, m_showVolumeWeightedMean());
     if (geoMechView) return resultInfoText(histData, geoMechView);
     return "";
 }
@@ -224,6 +227,38 @@ QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
         return m_gridStatisticsDialog->screenShotImage();
     }
     return QImage();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::showAnimProgress() const
+{
+    return m_showAnimProgress;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::showCaseInfo() const
+{
+    return m_showCaseInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::showResultInfo() const
+{
+    return m_showResultInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::isActive() const
+{
+    return m_active;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -467,7 +502,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimGeoMechView* geoMechView)
     {
         RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+        RigFemPartCollection* femParts = caseData ? caseData->femParts() : nullptr;
 
         if (femParts)
         {
@@ -597,12 +632,21 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
             case RIG_INTEGRATION_POINT:
                 resultPos = "Integration point";
                 break;
-
+            
+            case RIG_ELEMENT:
+                resultPos = "Element";
+                break;
             default:
                 break;
             }
-
-            infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+            if (compName == "")
+            {
+                infoText += QString("<b>Cell result:</b> %1, %2").arg(resultPos).arg(fieldName);
+            }
+            else
+            {
+                infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+            }
 
             infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
@@ -645,18 +689,19 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     if (!m_viewDef) return;
     if (!m_viewDef->viewer()) return;
 
-    if (!this->active())
+    if (!this->m_active())
     {
         m_viewDef->viewer()->showInfoText(false);
         m_viewDef->viewer()->showHistogram(false);
         m_viewDef->viewer()->showAnimationProgress(false);
 
+        update3DInfoIn2dViews();
         return;
     }
 
-    m_viewDef->viewer()->showInfoText(showCaseInfo() || showResultInfo());
+    m_viewDef->viewer()->showInfoText(m_showCaseInfo() || m_showResultInfo());
     m_viewDef->viewer()->showHistogram(false);
-    m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
+    m_viewDef->viewer()->showAnimationProgress(m_showAnimProgress());
 
     m_isVisCellStatUpToDate = false;
 
@@ -678,13 +723,15 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (geoMechView)
     {
-        showVolumeWeightedMean = false;
+        m_showVolumeWeightedMean = false;
 
         updateGeoMech3DInfo(geoMechView);
 
         // Update statistics dialog
         m_gridStatisticsDialog->updateFromRimView(geoMechView);
     }
+
+    update3DInfoIn2dViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,7 +739,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
 {
-    return &active;
+    return &m_active;
 }
 
 
@@ -703,16 +750,16 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup("Visibility");
 
-    visGroup->add(&showAnimProgress);
-    visGroup->add(&showCaseInfo);
-    visGroup->add(&showResultInfo);
+    visGroup->add(&m_showAnimProgress);
+    visGroup->add(&m_showCaseInfo);
+    visGroup->add(&m_showResultInfo);
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (!geoMechView)
     {
-        visGroup->add(&showVolumeWeightedMean);
+        visGroup->add(&m_showVolumeWeightedMean);
     }
 
-    visGroup->add(&showHistogram);
+    visGroup->add(&m_showHistogram);
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
@@ -729,7 +776,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
+void Rim3dOverlayInfoConfig::setReservoirView(RimGridView* ownerReservoirView)
 {
     m_viewDef = ownerReservoirView;
 }
@@ -741,19 +788,19 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 {
     HistogramData histData;
 
-    if (showHistogram() || showResultInfo())
+    if (m_showHistogram() || m_showResultInfo())
     {
         histData = histogramData();
     }
 
     QString infoText;
 
-    if (showCaseInfo())
+    if (m_showCaseInfo())
     {
         infoText = caseInfoText();
     }
 
-    if (showResultInfo())
+    if (m_showResultInfo())
     {
         infoText += resultInfoText(histData);
     }
@@ -763,7 +810,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         eclipseView->viewer()->setInfoText(infoText);
     }
 
-    if (showHistogram())
+    if (m_showHistogram())
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
         
@@ -783,7 +830,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
     HistogramData histData;
 
-    if (showResultInfo() || showHistogram())
+    if (m_showResultInfo() || m_showHistogram())
     {
         histData = histogramData(geoMechView);
     }
@@ -792,12 +839,12 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     QString infoText;
 
-    if (showCaseInfo())
+    if (m_showCaseInfo())
     {
         infoText = caseInfoText(geoMechView);
     }
 
-    if (showResultInfo())
+    if (m_showResultInfo())
     {
         infoText += resultInfoText(histData, geoMechView);
     }
@@ -809,7 +856,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     // Populate histogram
 
-    if (showHistogram())
+    if (m_showHistogram())
     {
         RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
@@ -820,6 +867,22 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             geoMechView->viewer()->showHistogram(true);
             geoMechView->viewer()->setHistogram(histData.min, histData.max, *histData.histogram);
             geoMechView->viewer()->setHistogramPercentiles(histData.p10, histData.p90, histData.mean);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::update3DInfoIn2dViews() const
+{
+    RimCase* rimCase;
+    firstAncestorOrThisOfType(rimCase);
+    if (rimCase)
+    {
+        for (Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views())
+        {
+            view->update3dInfo();
         }
     }
 }
@@ -851,7 +914,9 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
 QString Rim3dOverlayInfoConfig::timeStepText(RimGeoMechView* geoMechView)
 {
     int currTimeStepIndex = geoMechView->currentTimeStep();
-    QStringList timeSteps = geoMechView->geoMechCase()->timeStepStrings();
+
+    QStringList timeSteps;
+    if (geoMechView->geoMechCase()) timeSteps = geoMechView->geoMechCase()->timeStepStrings();
 
     QString dateTimeString;
     if (currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size())

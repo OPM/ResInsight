@@ -75,7 +75,7 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* obj
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::~PdmUiPropertyViewDialog()
 {
-    m_pdmUiPropertyView->showProperties(NULL);
+    m_pdmUiPropertyView->showProperties(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

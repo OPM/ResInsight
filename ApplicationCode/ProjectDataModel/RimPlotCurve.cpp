@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPlotCurve.h"
+
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuRimQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -105,9 +110,9 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
-    m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
+    m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
 
-    m_parentQwtPlot = NULL;
+    m_parentQwtPlot = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,17 +120,17 @@ RimPlotCurve::RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::~RimPlotCurve()
 {
-	if (m_qwtPlotCurve)
-	{
-		m_qwtPlotCurve->detach();
-		delete m_qwtPlotCurve;
-		m_qwtPlotCurve = NULL;
-	}
+    if (m_qwtPlotCurve)
+    {
+        m_qwtPlotCurve->detach();
+        delete m_qwtPlotCurve;
+        m_qwtPlotCurve = nullptr;
+    }
 
-	if (m_parentQwtPlot)
-	{
-		m_parentQwtPlot->replot();
-	}
+    if (m_parentQwtPlot)
+    {
+        m_parentQwtPlot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +193,10 @@ void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
         RimSummaryCurveCollection* summaryCurveCollection = nullptr;
         this->firstAncestorOrThisOfType(summaryCurveCollection);
         if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
+
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
     }
 
     if (m_showCurve() && m_parentQwtPlot && isVisibleInPossibleParent)
@@ -373,7 +382,7 @@ void RimPlotCurve::updateCurveAppearance()
 
     QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
 
-    QwtSymbol* symbol = NULL;
+    QwtSymbol* symbol = nullptr;
 
     if (m_pointSymbol() != SYMBOL_NONE)
     {
@@ -545,7 +554,7 @@ void RimPlotCurve::showLegend(bool show)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setZOrder(double z)
 {
@@ -556,24 +565,11 @@ void RimPlotCurve::setZOrder(double z)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
-    if (m_showLegend()) {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
-    }
-    else
-    {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-    }
+    updateLegendEntryVisibilityNoPlotUpdate();
 
     if (m_parentQwtPlot != nullptr)
     {
@@ -582,22 +578,30 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
-    if (m_showLegend()) {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
-    }
-    else
+    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(ensembleCurveSet);
+    if (ensembleCurveSet)
     {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        return;
+    }
+
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(summaryPlot);
+
+    if (summaryPlot)
+    {
+        bool showLegendInQwt = m_showLegend();
+
+        if (summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1)
+        {
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInQwt = false;
+        }
+
+        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
     }
 }

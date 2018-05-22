@@ -165,16 +165,16 @@ like:
   typedef struct {
      .....
      .....
-  } abs_type; 
+  } abs_type;
 
 and "methods" like:
 
   abs_type * abs_type_alloc( ) { }
-  void       abs_type_free( abs_type * at ) {} 
-  int        abs_type_get_an_int( const abs_type * at) {}  
+  void       abs_type_free( abs_type * at ) {}
+  int        abs_type_get_an_int( const abs_type * at) {}
   void       abs_type_set_an_int( abs_type * at , int value) {}
 
-it has therefor been relatively easy to map this onto Python classes
+it has therefore been relatively easy to map this onto Python classes
 and give a pythonic feel to the whole thing. As a ground rule each C
 file implements one struct; this struct is wrapped in a Python module
 with the same name and a Python class with CamelCaps naming:

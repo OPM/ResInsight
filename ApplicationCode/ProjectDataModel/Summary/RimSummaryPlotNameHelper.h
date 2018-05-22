@@ -29,6 +29,7 @@
 
 class RimSummaryCurve;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 //
@@ -42,6 +43,7 @@ public:
 
     void appendAddresses(const std::vector<RifEclipseSummaryAddress>& addresses);
     void appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases);
+    void appendEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases);
 
     QString plotTitle() const;
 
@@ -58,7 +60,8 @@ private:
 private:
     RiaSummaryCurveAnalyzer m_analyzer;
 
-    std::set<RimSummaryCase*> m_summaryCases;
+    std::set<RimSummaryCase*>           m_summaryCases;
+    std::set<RimSummaryCaseCollection*> m_ensembleCases;
 
     std::string m_titleQuantity;
     std::string m_titleWellName;

@@ -32,6 +32,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include "cvfMath.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFishbonesMultipleSubs, "FishbonesMultipleSubs");
@@ -403,23 +404,38 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         changedField == &m_rangeSubSpacing)
     {
         recomputeLocations = true;
+
+        RimWellPath* wellPath = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(wellPath);
+        
+        RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
+        if (rigWellPathGeo && !rigWellPathGeo->m_measuredDepths.empty())
+        {
+            double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
+
+            m_rangeStart = cvf::Math::clamp(m_rangeStart(), 0.0, lastWellPathMD);
+            m_rangeEnd = cvf::Math::clamp(m_rangeEnd(), m_rangeStart(), lastWellPathMD);
+        }
     }
 
-    if (changedField == &m_rangeStart && m_rangeStart > m_rangeEnd)
+    if (changedField == &m_rangeSubSpacing)
     {
-        m_rangeEnd = m_rangeStart;
-    }
+        // Minimum distance between fishbones is 13.0m
+        // Use 10.0m to allow for some flexibility
 
-    if (changedField == &m_rangeEnd && m_rangeEnd < m_rangeStart)
-    {
-        m_rangeStart = m_rangeEnd;
-    }
+        double minimumDistanceMeter = 10.0;
 
-    if (changedField == &m_rangeSubSpacing &&
-        m_rangeSubSpacing() < 13.0)
-    {
-        // Minimum distance between fishbones is 13m
-        m_rangeSubSpacing = 13.0;
+        RimWellPath* wellPath = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(wellPath);
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet(minimumDistanceMeter);
+            m_rangeSubSpacing = cvf::Math::clamp(m_rangeSubSpacing(), minimumDistanceFeet, std::max(m_rangeSubSpacing(), minimumDistanceFeet));
+        }
+        else
+        {
+            m_rangeSubSpacing = cvf::Math::clamp(m_rangeSubSpacing(), minimumDistanceMeter, std::max(m_rangeSubSpacing(), minimumDistanceMeter));
+        }
     }
 
     if (recomputeLocations)
@@ -460,24 +476,6 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::userDescriptionField()
 caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 {
     return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-    if (field == &m_rangeStart ||
-        field == &m_rangeEnd ||
-        field == &m_rangeSubSpacing)
-    {
-        caf::PdmUiDoubleValueEditorAttribute* attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>(attribute);
-
-        if (attr)
-        {
-            attr->m_decimals = 2;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

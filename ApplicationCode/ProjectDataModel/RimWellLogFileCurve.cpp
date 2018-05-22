@@ -332,6 +332,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::initAfterRead()
 {
+    if (!m_wellPath) return;
+    
     if (m_wellPath->wellLogFiles().size() == 1)
     {
         m_wellLogFile = m_wellPath->wellLogFiles().front();
@@ -420,5 +422,10 @@ RimWellLogFile* RimWellLogFileCurve::wellLogFile() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::wellName() const
 {
-    return m_wellPath->name();
+    if (m_wellPath)
+    {
+        return m_wellPath->name();
+    }
+
+    return QString("");
 }

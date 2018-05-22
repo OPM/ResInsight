@@ -851,9 +851,9 @@ ministep sequence, but there will never be holes in this range. It is
 closely coupled to the simulator timestep and what the user of ECLIPSE
 has chosen to store, so no further meaning should be attached to these
 indices. Ultimately all lookups will be based on :code:`time_index`; in the C
-code it is therefor often denoted :code:`internal_index`.
+code it is therefore often denoted :code:`internal_index`.
 
-ministep 
+ministep
 ,,,,,,,,,
 
 Each simulator timestep corresponds to one ministep, but an arbitrary

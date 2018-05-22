@@ -27,7 +27,7 @@
 #include "cafPdmPtrArrayField.h"
 
 class RimCase;
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 ///  
@@ -42,7 +42,7 @@ public:
 
     caf::PdmField<bool>      isActive;
 
-    caf::PdmPtrField<RimView*>  view;
+    caf::PdmPtrField<Rim3dView*>  view;
 
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;

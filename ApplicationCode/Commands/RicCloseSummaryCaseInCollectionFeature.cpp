@@ -30,7 +30,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -86,7 +86,7 @@ void RicCloseSummaryCaseInCollectionFeature::onActionTriggered(bool isChecked)
         RicCloseSummaryCaseFeature::deleteSummaryCases(summaryCaseCollection->allSummaryCases());
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
 }
 

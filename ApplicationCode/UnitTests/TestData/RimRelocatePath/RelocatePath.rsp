@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ResInsightProject>
+    <DocumentFileName>C:/Users/Rebecca Cox/Desktop/regression-tests/ProjectFiles/element_properties.rsp</DocumentFileName>
+    <ProjectFileVersionString>2018.01.00-dev.01</ProjectFileVersionString>
+    <NextValidCaseId>0</NextValidCaseId>
+    <NextValidCaseGroupId>0</NextValidCaseGroupId>
+    <OilFields>
+        <ResInsightOilField>
+            <AnalysisModels>
+                <ResInsightAnalysisModels>
+                    <Reservoirs/>
+                    <CaseGroups/>
+                </ResInsightAnalysisModels>
+            </AnalysisModels>
+            <GeoMechModels>
+                <ResInsightGeoMechModels>
+                    <Cases>
+                        <ResInsightGeoMechCase>
+                            <CaseUserDescription>smal_synt</CaseUserDescription>
+                            <CaseId>-1</CaseId>
+                            <DefaultFormationNames></DefaultFormationNames>
+                            <TimeStepFilter>
+                                <RimTimeStepFilter>
+                                    <TimeStepIndicesToImport></TimeStepIndicesToImport>
+                                    <FirstTimeStep>0</FirstTimeStep>
+                                    <LastTimeStep>0</LastTimeStep>
+                                    <FilterType>TS_ALL</FilterType>
+                                    <Interval>1</Interval>
+                                </RimTimeStepFilter>
+                            </TimeStepFilter>
+                            <CaseFileName>C:\Users\Rebecca Cox\Desktop\regression-tests\ModelData\smal_synt.odb</CaseFileName>
+                            <GeoMechViews>
+                                <GeoMechView>
+                                    <WindowController>
+                                        <MdiWindowController>
+                                            <MainWindowID>0</MainWindowID>
+                                            <xPos>0</xPos>
+                                            <yPos>0</yPos>
+                                            <Width>1034</Width>
+                                            <Height>547</Height>
+                                            <IsMaximized>True </IsMaximized>
+                                        </MdiWindowController>
+                                    </WindowController>
+                                    <ShowWindow>True </ShowWindow>
+                                    <UserDescription>View 1</UserDescription>
+                                    <CameraPosition>-0.594 -0.283646 -0.752801 -5819.28 -0.489311 0.870164 0.0582249 -656.548 0.638544 0.402939 -0.655668 -21775.3 0 0 0 1</CameraPosition>
+                                    <CameraPointOfInterest>3800 1686.01 -4633.9</CameraPointOfInterest>
+                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                    <GridZScale>5</GridZScale>
+                                    <ViewBackgroundColor>0.694118 0.772549 0.870588</ViewBackgroundColor>
+                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                    <AnimationMode>True </AnimationMode>
+                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                    <MeshMode>FULL_MESH</MeshMode>
+                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                    <ShowGridBox>True </ShowGridBox>
+                                    <DisableLighting>False </DisableLighting>
+                                    <RangeFilters>
+                                        <CellRangeFilterCollection>
+                                            <RangeFilters/>
+                                            <Active>True </Active>
+                                        </CellRangeFilterCollection>
+                                    </RangeFilters>
+                                    <CrossSections>
+                                        <CrossSectionCollection>
+                                            <CrossSections/>
+                                            <IntersectionBoxes/>
+                                            <Active>True </Active>
+                                        </CrossSectionCollection>
+                                    </CrossSections>
+                                    <GridCollection>
+                                        <GridCollection>
+                                            <IsActive>True </IsActive>
+                                        </GridCollection>
+                                    </GridCollection>
+                                    <OverlayInfoConfig>
+                                        <View3dOverlayInfoConfig>
+                                            <Active>True </Active>
+                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                            <ShowInfoText>True </ShowInfoText>
+                                            <ShowResultInfo>True </ShowResultInfo>
+                                            <ShowHistogram>True </ShowHistogram>
+                                            <ShowVolumeWeightedMean>False </ShowVolumeWeightedMean>
+                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                        </View3dOverlayInfoConfig>
+                                    </OverlayInfoConfig>
+                                    <GridCellResult>
+                                        <GeoMechResultSlot>
+                                            <ResultPositionType>ELEMENT</ResultPositionType>
+                                            <ResultFieldName>Density</ResultFieldName>
+                                            <ResultComponentName></ResultComponentName>
+                                            <IsTimeLapseResult>False </IsTimeLapseResult>
+                                            <TimeLapseBaseTimeStep>0</TimeLapseBaseTimeStep>
+                                            <LegendDefinition>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage></ResultVariableUsage>
+                                                </Legend>
+                                            </LegendDefinition>
+                                        </GeoMechResultSlot>
+                                    </GridCellResult>
+                                    <PropertyFilters>
+                                        <GeoMechPropertyFilters>
+                                            <Active>True </Active>
+                                            <PropertyFilters>
+                                                <GeoMechPropertyFilter>
+                                                    <UserDescription>E, Density,  (1500 .. 2652.75)</UserDescription>
+                                                    <Active>True </Active>
+                                                    <FilterType>INCLUDE</FilterType>
+                                                    <SelectedValues></SelectedValues>
+                                                    <ResultDefinition>
+                                                        <GeoMechResultDefinition>
+                                                            <ResultPositionType>ELEMENT</ResultPositionType>
+                                                            <ResultFieldName>Density</ResultFieldName>
+                                                            <ResultComponentName></ResultComponentName>
+                                                            <IsTimeLapseResult>False </IsTimeLapseResult>
+                                                            <TimeLapseBaseTimeStep>0</TimeLapseBaseTimeStep>
+                                                        </GeoMechResultDefinition>
+                                                    </ResultDefinition>
+                                                    <LowerBound>1500</LowerBound>
+                                                    <UpperBound>2652.75</UpperBound>
+                                                </GeoMechPropertyFilter>
+                                            </PropertyFilters>
+                                        </GeoMechPropertyFilters>
+                                    </PropertyFilters>
+                                </GeoMechView>
+                                <GeoMechView>
+                                    <WindowController>
+                                        <MdiWindowController>
+                                            <MainWindowID>0</MainWindowID>
+                                            <xPos>0</xPos>
+                                            <yPos>0</yPos>
+                                            <Width>1034</Width>
+                                            <Height>547</Height>
+                                            <IsMaximized>True </IsMaximized>
+                                        </MdiWindowController>
+                                    </WindowController>
+                                    <ShowWindow>True </ShowWindow>
+                                    <UserDescription>View 2</UserDescription>
+                                    <CameraPosition>0.843247 0.06208 -0.533929 -11599.1 -0.347573 0.820684 -0.45351 -7654.19 0.410033 0.568 0.713617 -9392.31 0 0 0 1</CameraPosition>
+                                    <CameraPointOfInterest>0 0 0</CameraPointOfInterest>
+                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                    <GridZScale>5</GridZScale>
+                                    <ViewBackgroundColor>0.694118 0.772549 0.870588</ViewBackgroundColor>
+                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                    <AnimationMode>True </AnimationMode>
+                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                    <MeshMode>FULL_MESH</MeshMode>
+                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                    <ShowGridBox>True </ShowGridBox>
+                                    <DisableLighting>False </DisableLighting>
+                                    <RangeFilters>
+                                        <CellRangeFilterCollection>
+                                            <RangeFilters/>
+                                            <Active>True </Active>
+                                        </CellRangeFilterCollection>
+                                    </RangeFilters>
+                                    <CrossSections>
+                                        <CrossSectionCollection>
+                                            <CrossSections/>
+                                            <IntersectionBoxes/>
+                                            <Active>True </Active>
+                                        </CrossSectionCollection>
+                                    </CrossSections>
+                                    <GridCollection>
+                                        <GridCollection>
+                                            <IsActive>True </IsActive>
+                                        </GridCollection>
+                                    </GridCollection>
+                                    <OverlayInfoConfig>
+                                        <View3dOverlayInfoConfig>
+                                            <Active>True </Active>
+                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                            <ShowInfoText>True </ShowInfoText>
+                                            <ShowResultInfo>True </ShowResultInfo>
+                                            <ShowHistogram>True </ShowHistogram>
+                                            <ShowVolumeWeightedMean>False </ShowVolumeWeightedMean>
+                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                        </View3dOverlayInfoConfig>
+                                    </OverlayInfoConfig>
+                                    <GridCellResult>
+                                        <GeoMechResultSlot>
+                                            <ResultPositionType>ELEMENT</ResultPositionType>
+                                            <ResultFieldName>MODULUS</ResultFieldName>
+                                            <ResultComponentName></ResultComponentName>
+                                            <IsTimeLapseResult>False </IsTimeLapseResult>
+                                            <TimeLapseBaseTimeStep>0</TimeLapseBaseTimeStep>
+                                            <LegendDefinition>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                    <UserDefinedMax>17.41</UserDefinedMax>
+                                                    <UserDefinedMin>5.316</UserDefinedMin>
+                                                    <ResultVariableUsage></ResultVariableUsage>
+                                                </Legend>
+                                            </LegendDefinition>
+                                        </GeoMechResultSlot>
+                                    </GridCellResult>
+                                    <PropertyFilters>
+                                        <GeoMechPropertyFilters>
+                                            <Active>True </Active>
+                                            <PropertyFilters>
+                                                <GeoMechPropertyFilter>
+                                                    <UserDescription>E, Young's Modulus,  (10.4982 .. 17.4091)</UserDescription>
+                                                    <Active>True </Active>
+                                                    <FilterType>INCLUDE</FilterType>
+                                                    <SelectedValues></SelectedValues>
+                                                    <ResultDefinition>
+                                                        <GeoMechResultDefinition>
+                                                            <ResultPositionType>ELEMENT</ResultPositionType>
+                                                            <ResultFieldName>MODULUS</ResultFieldName>
+                                                            <ResultComponentName></ResultComponentName>
+                                                            <IsTimeLapseResult>False </IsTimeLapseResult>
+                                                            <TimeLapseBaseTimeStep>0</TimeLapseBaseTimeStep>
+                                                        </GeoMechResultDefinition>
+                                                    </ResultDefinition>
+                                                    <LowerBound>10.4982</LowerBound>
+                                                    <UpperBound>17.4091</UpperBound>
+                                                </GeoMechPropertyFilter>
+                                            </PropertyFilters>
+                                        </GeoMechPropertyFilters>
+                                    </PropertyFilters>
+                                </GeoMechView>
+                                <GeoMechView>
+                                    <WindowController>
+                                        <MdiWindowController>
+                                            <MainWindowID>0</MainWindowID>
+                                            <xPos>0</xPos>
+                                            <yPos>0</yPos>
+                                            <Width>1034</Width>
+                                            <Height>547</Height>
+                                            <IsMaximized>True </IsMaximized>
+                                        </MdiWindowController>
+                                    </WindowController>
+                                    <ShowWindow>True </ShowWindow>
+                                    <UserDescription>View 3</UserDescription>
+                                    <CameraPosition>-0.541294 0.738323 0.402342 4749.47 0.834496 0.530356 0.14946 1161.22 -0.103035 0.416655 -0.903207 -41220.3 0 0 0 1</CameraPosition>
+                                    <CameraPointOfInterest>3800 -744.597 -10718</CameraPointOfInterest>
+                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                    <GridZScale>5</GridZScale>
+                                    <ViewBackgroundColor>0.694118 0.772549 0.870588</ViewBackgroundColor>
+                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                    <AnimationMode>True </AnimationMode>
+                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                    <MeshMode>FULL_MESH</MeshMode>
+                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                    <ShowGridBox>True </ShowGridBox>
+                                    <DisableLighting>False </DisableLighting>
+                                    <RangeFilters>
+                                        <CellRangeFilterCollection>
+                                            <RangeFilters/>
+                                            <Active>True </Active>
+                                        </CellRangeFilterCollection>
+                                    </RangeFilters>
+                                    <CrossSections>
+                                        <CrossSectionCollection>
+                                            <CrossSections/>
+                                            <IntersectionBoxes/>
+                                            <Active>True </Active>
+                                        </CrossSectionCollection>
+                                    </CrossSections>
+                                    <GridCollection>
+                                        <GridCollection>
+                                            <IsActive>True </IsActive>
+                                        </GridCollection>
+                                    </GridCollection>
+                                    <OverlayInfoConfig>
+                                        <View3dOverlayInfoConfig>
+                                            <Active>True </Active>
+                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                            <ShowInfoText>True </ShowInfoText>
+                                            <ShowResultInfo>True </ShowResultInfo>
+                                            <ShowHistogram>True </ShowHistogram>
+                                            <ShowVolumeWeightedMean>False </ShowVolumeWeightedMean>
+                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                        </View3dOverlayInfoConfig>
+                                    </OverlayInfoConfig>
+                                    <GridCellResult>
+                                        <GeoMechResultSlot>
+                                            <ResultPositionType>ELEMENT</ResultPositionType>
+                                            <ResultFieldName>RATIO</ResultFieldName>
+                                            <ResultComponentName></ResultComponentName>
+                                            <IsTimeLapseResult>False </IsTimeLapseResult>
+                                            <TimeLapseBaseTimeStep>0</TimeLapseBaseTimeStep>
+                                            <LegendDefinition>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage></ResultVariableUsage>
+                                                </Legend>
+                                            </LegendDefinition>
+                                        </GeoMechResultSlot>
+                                    </GridCellResult>
+                                    <PropertyFilters>
+                                        <GeoMechPropertyFilters>
+                                            <Active>True </Active>
+                                            <PropertyFilters/>
+                                        </GeoMechPropertyFilters>
+                                    </PropertyFilters>
+                                </GeoMechView>
+                            </GeoMechViews>
+                            <CaseCohesion>10</CaseCohesion>
+                            <FrctionAngleDeg>30</FrctionAngleDeg>
+                            <ElementPropertyFileNames>C:\Users\Rebecca Cox\Desktop\regression-tests\ModelData\DENSITY_TABLE.inp;C:\Users\Rebecca Cox\Desktop\regression-tests\ModelData\ELASTIC_TABLE.inp</ElementPropertyFileNames>
+                        </ResInsightGeoMechCase>
+                    </Cases>
+                </ResInsightGeoMechModels>
+            </GeoMechModels>
+            <WellPathCollection>
+                <WellPaths>
+                    <Active>True </Active>
+                    <ShowWellPathLabel>True </ShowWellPathLabel>
+                    <WellPathLabelColor>0.929412 0.929412 0.929412</WellPathLabelColor>
+                    <GlobalWellPathVisibility>ALL_ON</GlobalWellPathVisibility>
+                    <WellPathRadiusScale>0.1</WellPathRadiusScale>
+                    <WellPathClip>True </WellPathClip>
+                    <WellPathClipZDistance>100</WellPathClipZDistance>
+                    <WellPaths/>
+                </WellPaths>
+            </WellPathCollection>
+            <FractureDefinitionCollection>
+                <FractureDefinitionCollection>
+                    <DefaultUnitForTemplates>UNITS_METRIC</DefaultUnitForTemplates>
+                    <FractureDefinitions/>
+                </FractureDefinitionCollection>
+            </FractureDefinitionCollection>
+            <SummaryCaseCollection>
+                <SummaryCaseCollection>
+                    <SummaryCases/>
+                    <SummaryCaseCollections/>
+                </SummaryCaseCollection>
+            </SummaryCaseCollection>
+            <FormationNamesCollection>
+                <FormationNamesCollectionObject>
+                    <FormationNamesList/>
+                </FormationNamesCollectionObject>
+            </FormationNamesCollection>
+            <ObservedDataCollection>
+                <ObservedDataCollection>
+                    <ObservedDataArray/>
+                </ObservedDataCollection>
+            </ObservedDataCollection>
+        </ResInsightOilField>
+    </OilFields>
+    <ScriptCollection>
+        <ScriptLocation>
+            <ScriptDirectory></ScriptDirectory>
+            <CalcScripts/>
+            <SubDirectories>
+                <ScriptLocation>
+                    <ScriptDirectory>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts</ScriptDirectory>
+                    <CalcScripts>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\InputPropTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\kaverage.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\kslice.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\LGRSOIL.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\SatNum.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitroot\ResInsight\OctavePlugin\OctaveScripts\SoilTimeDiff.m</AbsolutePath>
+                        </CalcScript>
+                    </CalcScripts>
+                    <SubDirectories/>
+                </ScriptLocation>
+            </SubDirectories>
+        </ScriptLocation>
+    </ScriptCollection>
+    <WellPathImport>
+        <RimWellPathImport>
+            <WellTypeSurvey>True </WellTypeSurvey>
+            <WellTypePlans>True </WellTypePlans>
+            <UtmMode>UTM_FILTER_OFF</UtmMode>
+            <UtmNorth>0</UtmNorth>
+            <UtmSouth>0</UtmSouth>
+            <UtmEast>0</UtmEast>
+            <UtmWest>0</UtmWest>
+            <Regions/>
+        </RimWellPathImport>
+    </WellPathImport>
+    <MainPlotCollection>
+        <MainPlotCollection>
+            <Show>True </Show>
+            <WellLogPlotCollection>
+                <WellLogPlotCollection>
+                    <WellLogPlots/>
+                </WellLogPlotCollection>
+            </WellLogPlotCollection>
+            <RftPlotCollection>
+                <WellRftPlotCollection>
+                    <RftPlots/>
+                </WellRftPlotCollection>
+            </RftPlotCollection>
+            <PltPlotCollection>
+                <WellPltPlotCollection>
+                    <PltPlots/>
+                </WellPltPlotCollection>
+            </PltPlotCollection>
+            <SummaryPlotCollection>
+                <SummaryPlotCollection>
+                    <SummaryPlots/>
+                </SummaryPlotCollection>
+            </SummaryPlotCollection>
+            <SummaryCrossPlotCollection>
+                <SummaryCrossPlotCollection>
+                    <SummaryCrossPlots/>
+                </SummaryCrossPlotCollection>
+            </SummaryCrossPlotCollection>
+            <FlowPlotCollection>
+                <FlowPlotCollection>
+                    <FlowCharacteristicsPlot>
+                        <FlowCharacteristicsPlot>
+                            <WindowController>
+                                <MdiWindowController>
+                                    <MainWindowID>1</MainWindowID>
+                                    <xPos>0</xPos>
+                                    <yPos>0</yPos>
+                                    <Width>-1</Width>
+                                    <Height>-1</Height>
+                                    <IsMaximized>False </IsMaximized>
+                                </MdiWindowController>
+                            </WindowController>
+                            <ShowWindow>False </ShowWindow>
+                            <FlowCase></FlowCase>
+                            <FlowDiagSolution></FlowDiagSolution>
+                            <TimeSelectionType>SELECTED</TimeSelectionType>
+                            <SelectedTimeSteps></SelectedTimeSteps>
+                            <SelectedTimeStepsUi></SelectedTimeStepsUi>
+                            <CellPVThreshold>0.1</CellPVThreshold>
+                            <ShowLegend>True </ShowLegend>
+                            <CellFilter>CELLS_ACTIVE</CellFilter>
+                            <CellFilterView></CellFilterView>
+                            <TracerFilter></TracerFilter>
+                            <SelectedTracerNames></SelectedTracerNames>
+                            <MinCommunication>0</MinCommunication>
+                            <MaxTof>146000</MaxTof>
+                        </FlowCharacteristicsPlot>
+                    </FlowCharacteristicsPlot>
+                    <DefaultWellAllocationPlot/>
+                    <StoredWellAllocationPlots/>
+                    <StoredFlowCharacteristicsPlots/>
+                </FlowPlotCollection>
+            </FlowPlotCollection>
+        </MainPlotCollection>
+    </MainPlotCollection>
+    <LinkedViews>
+        <RimViewLinkerCollection>
+            <Active>True </Active>
+            <ViewLinkers/>
+        </RimViewLinkerCollection>
+    </LinkedViews>
+    <CalculationCollection>
+        <RimSummaryCalculationCollection>
+            <Calculations/>
+        </RimSummaryCalculationCollection>
+    </CalculationCollection>
+    <CommandObjects/>
+    <MultiSnapshotDefinitions/>
+    <TreeViewState>-1-110000050;-1-1100000;-1-110001050;-1-1100010;-1-1100020;-1-11000;-1-110</TreeViewState>
+    <TreeViewCurrentModelIndexPath>1 0;0 0;2 0;2 0</TreeViewCurrentModelIndexPath>
+    <PlotWindowTreeViewState></PlotWindowTreeViewState>
+    <PlotWindowTreeViewCurrentModelIndexPath></PlotWindowTreeViewCurrentModelIndexPath>
+    <show3DWindow>True </show3DWindow>
+    <showPlotWindow>False </showPlotWindow>
+    <DialogData>
+        <RimDialogData>
+            <ExportCarfin>
+                <RicExportCarfinUi>
+                    <CellRange>
+                        <RicCellRangeUi>
+                            <Case></Case>
+                            <GridIndex>0</GridIndex>
+                            <StartIndexI>1</StartIndexI>
+                            <StartIndexJ>1</StartIndexJ>
+                            <StartIndexK>1</StartIndexK>
+                            <CellCountI>1</CellCountI>
+                            <CellCountJ>1</CellCountJ>
+                            <CellCountK>1</CellCountK>
+                        </RicCellRangeUi>
+                    </CellRange>
+                    <ExportFileName></ExportFileName>
+                    <CaseToApply></CaseToApply>
+                    <CellCountI>2</CellCountI>
+                    <CellCountJ>2</CellCountJ>
+                    <CellCountK>2</CellCountK>
+                    <MaxWellCount>8</MaxWellCount>
+                </RicExportCarfinUi>
+            </ExportCarfin>
+            <ExportCompletionData>
+                <RicExportCompletionDataSettingsUi>
+                    <Folder></Folder>
+                    <CaseToApply></CaseToApply>
+                    <FileSplit>UNIFIED_FILE</FileSplit>
+                    <WellSelection>ALL_WELLS</WellSelection>
+                    <compdatExport>TRANSMISSIBILITIES</compdatExport>
+                    <TimeStepIndex>0</TimeStepIndex>
+                    <UseLateralNTG>False </UseLateralNTG>
+                    <IncludePerforations>True </IncludePerforations>
+                    <IncludeFishbones>True </IncludeFishbones>
+                    <IncludeFractures>True </IncludeFractures>
+                    <ExcludeMainBoreForFishbones>False </ExcludeMainBoreForFishbones>
+                </RicExportCompletionDataSettingsUi>
+            </ExportCompletionData>
+        </RimDialogData>
+    </DialogData>
+</ResInsightProject>

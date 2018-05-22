@@ -19,7 +19,7 @@ class PdmFieldCapability;
 class PdmFieldHandle
 {
 public:
-    PdmFieldHandle() { m_ownerObject = NULL; }
+    PdmFieldHandle() { m_ownerObject = nullptr; }
     virtual ~PdmFieldHandle();
 
     QString          keyword() const                                { return m_keyword; }
@@ -45,7 +45,7 @@ public:
     PdmXmlFieldHandle* xmlCapability();
 
 protected:
-    bool isInitializedByInitFieldMacro() const { return m_ownerObject != NULL; }
+    bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);

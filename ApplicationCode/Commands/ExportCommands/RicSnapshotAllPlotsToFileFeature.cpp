@@ -28,7 +28,7 @@
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafUtils.h"
 
@@ -50,7 +50,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
     if (!mainPlotWindow) return;
 
     RimProject* proj = app->project();
@@ -123,11 +123,7 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 
     if (currentActiveWidget)
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->setActiveViewer(currentActiveWidget);
-        }
+        RiuPlotMainWindowTools::setActiveViewer(currentActiveWidget);
     }
 }
 

@@ -18,109 +18,120 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
+
 #include <QString>
 
 #include <vector>
-#include "RiaEclipseUnitTools.h"
-#include "cvfVector3.h"
 
 class RigFractureGrid;
+class MinMaxAccumulator;
+class PosNegAccumulator;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigStimPlanResultFrames
 {
 public:
-    RigStimPlanResultFrames();
+    RigStimPlanResultFrames() {}
 
     QString resultName;
     QString unit;
 
-    // Vector for each time step, for each depth and for each x-value
+    // Vector for each time step, for each y and for each x-value
     std::vector< std::vector< std::vector<double> > > parameterValues;
 
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigStimPlanFractureDefinition: public cvf::Object
 { 
+    friend class RifStimPlanXmlReader;
+
 public:
+    static const double THRESHOLD_VALUE;
+
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-    RiaEclipseUnitTools::UnitSystem           unitSet() const { return m_unitSet; }
-    void                                      setUnitSet(RiaEclipseUnitTools::UnitSystem unitset) { m_unitSet = unitset;}
-
-    size_t                                    gridXCount() const { return m_gridXs.size();}
-    void                                      setGridXs(const std::vector<double>& gridXs) {  m_gridXs = gridXs; }
-
-
-    //TODO: Consider removing gridYs or depths, 
-    //In example file these are the same, but can there be examples where not all gridY values are included in depths?
+    RiaEclipseUnitTools::UnitSystem unitSet() const;
+    size_t                          xCount() const;
+    size_t                          yCount() const;
+    double                          minDepth() const;
+    double                          maxDepth() const;
+    double                          topPerfTvd() const;
+    double                          bottomPerfTvd() const;
+    void                            setTvdToTopPerf(double topPerfTvd);
+    void                            setTvdToBottomPerf(double bottomPerfTvd);
     
-    void                                      setGridYs(const std::vector<double>& gridYs) {  m_gridYs = gridYs; }
-
-    double                                    minDepth()   const { return depths[0]; }
-    double                                    maxDepth()   const { return depths.back(); }
-    size_t                                    depthCount() const { return depths.size(); }
-
-    // Grid Geometry
-
-    std::vector<double>                       getNegAndPosXcoords() const;
-    std::vector<double>                       adjustedDepthCoordsAroundWellPathPosition(double wellPathDepthAtFracture) const;
-    std::vector<std::vector<double>>          getMirroredDataAtTimeIndex(const QString& resultName,
-                                                                         const QString& unitName,
-                                                                         size_t timeStepIndex) const;
-                                              
-                                              
-    cvf::ref<RigFractureGrid>                 createFractureGrid(int m_activeTimeStepIndex,
-                                                                 RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
-                                                                 double m_wellPathDepthAtFracture);
-                                              
-
-    void                                      createFractureTriangleGeometry(double m_wellPathDepthAtFracture,
-                                                                             RiaEclipseUnitTools::UnitSystem neededUnit,
-                                                                             const QString& fractureUserName,
-                                                                             std::vector<cvf::Vec3f>* vertices,
-                                                                             std::vector<cvf::uint>* triangleIndices);
-                                              
-    std::vector<cvf::Vec3f>                   createFractureBorderPolygon(const QString& resultName,
-                                                                          const QString& resultUnit,
-                                                                          int m_activeTimeStepIndex,
-                                                                          double m_wellPathDepthAtFracture,
-                                                                          RiaEclipseUnitTools::UnitSystem neededUnit,
-                                                                          const QString& fractureUserName);
-    // Result Access                                          
+    cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
+                                                       int                                 activeTimeStepIndex,
+                                                       double                              wellPathIntersectionAtFractureDepth,
+                                                       RiaEclipseUnitTools::UnitSystem     requiredUnitSet);
     
-    const std::vector<double>&                timeSteps() const { return m_timeSteps; }
-    void                                      addTimeStep(double time) { if (!timeStepExisist(time)) m_timeSteps.push_back(time); }
-
-    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
-    bool                                      numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
-    size_t                                    totalNumberTimeSteps();
-    void                                      setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue, double condScalingFactor);
-    const std::vector<std::vector<double>>&   getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
-    std::vector<double>                       fractureGridResults(const QString& resultName, 
-                                                                  const QString& unitName, 
-                                                                  size_t timeStepIndex) const;
-    void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
-
-    QString                                   conductivityResultName() const;
+    void                            createFractureTriangleGeometry(double                          wellPathIntersectionAtFractureDepth,
+                                                                   const QString&                  fractureUserName,
+                                                                   std::vector<cvf::Vec3f>*        vertices,
+                                                                   std::vector<cvf::uint>*         triangleIndices);
     
-    // Setup                          
-    void                                      reorderYgridToDepths();
-private:                                      
-    bool                                      timeStepExisist(double timeStepValue);
-    size_t                                    getTimeStepIndex(double timeStepValue);
-    size_t                                    resultIndex(const QString& resultName, const QString& unit) const;
-    size_t                                    mirroredGridXCount() const { return m_gridXs.size() ? m_gridXs.size() + m_gridXs.size() - 1  : 0 ;}
+    const std::vector<double>&               timeSteps() const;
+    void                                     addTimeStep(double time);
+    size_t                                   totalNumberTimeSteps();
 
-    RiaEclipseUnitTools::UnitSystem           m_unitSet;
-    std::vector<double>                       m_gridXs;
-    std::vector<double>                       m_gridYs;
-    std::vector<double>                       depths;
+    std::vector<std::pair<QString, QString>> getStimPlanPropertyNamesUnits() const;
+    
+    void                                     setDataAtTimeValue(QString resultName, 
+                                                                QString unit, 
+                                                                std::vector<std::vector<double>> data, 
+                                                                double timeStepValue);
 
-    std::vector<double>                       m_timeSteps;
-    std::vector<RigStimPlanResultFrames>      m_stimPlanResults;
+    const std::vector<std::vector<double>>& getDataAtTimeIndex(const QString& resultName,
+                                                               const QString& unit,
+                                                               size_t timeStepIndex) const;
+
+    std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+
+    void                                    appendDataToResultStatistics(const QString&     resultName,
+                                                                         const QString&     unit,
+                                                                         MinMaxAccumulator& minMaxAccumulator,
+                                                                         PosNegAccumulator& posNegAccumulator) const;
+
+    QStringList                             conductivityResultNames() const;
+
+private:
+    bool                                    timeStepExists(double timeStepValue);
+    size_t                                  getTimeStepIndex(double timeStepValue);
+    size_t                                  resultIndex(const QString& resultName, const QString& unit) const;
+    void                                    generateXsFromFileXs(bool xMirrorMode);
+    std::vector<std::vector<double>>        generateDataLayoutFromFileDataLayout(std::vector<std::vector<double>> rawXYData);
+    std::vector<double>                     adjustedYCoordsAroundWellPathPosition(double wellPathIntersectionAtFractureDepth) const;
+    bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
+    double                                  minY() const;
+    double                                  maxY() const;
+    void                                    scaleXs(double scaleFactor);
+    void                                    scaleYs(double scaleFactor, double wellPathIntersectionY);
+
+    std::vector<std::vector<double>>        conductivityValuesAtTimeStep(const QString&                  resultName,
+                                                                         int                             activeTimeStepIndex,
+                                                                         RiaEclipseUnitTools::UnitSystem requiredUnitSet) const;
+
+private:
+    RiaEclipseUnitTools::UnitSystem         m_unitSet; // To be deleted
+    std::vector<double>                     m_fileXs;
+    std::vector<double>                     m_Ys;
+    std::vector<double>                     m_timeSteps;
+
+    std::vector<RigStimPlanResultFrames>    m_stimPlanResults;
+    std::vector<double>                     m_Xs;
+    bool                                    m_xMirrorMode;
+
+    double                                  m_topPerfTvd;
+    double                                  m_bottomPerfTvd;
 };
-
-

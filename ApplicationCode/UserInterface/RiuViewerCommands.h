@@ -29,7 +29,7 @@ class RicViewerEventInterface;
 class RimEclipseView;
 class RimGeoMechView;
 class RimIntersection;
-class RimView;
+class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;
 class RivIntersectionSourceInfo;
@@ -53,7 +53,7 @@ public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
     ~RiuViewerCommands();
 
-    void            setOwnerView(RimView * owner);
+    void            setOwnerView(Rim3dView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
@@ -64,20 +64,16 @@ private:
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Vec3d* globalIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
+    void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Vec3d* globalIntersectionPoint, std::vector<std::pair<const cvf::Part*, cvf::uint>>* partAndTriangleIndexPairs, const cvf::Part** nncPart, uint* nncPartFaceHit);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
-    size_t m_currentGridIdx;
-    size_t m_currentCellIndex;
-    cvf::StructGridInterface::FaceType m_currentFaceIndex;
-    cvf::Vec3d  m_currentPickPositionInDomainCoords;
-
-    caf::PdmPointer<RimView> m_reservoirView;
-
-    QPointer<RiuViewer> m_viewer;
-
+private:
+    size_t                                m_currentGridIdx;
+    size_t                                m_currentCellIndex;
+    cvf::StructGridInterface::FaceType    m_currentFaceIndex;
+    cvf::Vec3d                            m_currentPickPositionInDomainCoords;
+    caf::PdmPointer<Rim3dView>            m_reservoirView;
+    QPointer<RiuViewer>                   m_viewer;
     std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
 };
-
-

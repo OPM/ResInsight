@@ -45,7 +45,7 @@ class RiuWellAllocationPlot : public QFrame, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = NULL);
+    RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuWellAllocationPlot();
 
     RimWellAllocationPlot*          ownerPlotDefinition();

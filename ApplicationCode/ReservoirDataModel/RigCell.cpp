@@ -38,13 +38,13 @@ static size_t undefinedCornersArray[8] = {cvf::UNDEFINED_SIZE_T,
 /// 
 //--------------------------------------------------------------------------------------------------
 RigCell::RigCell() : 
+    m_gridLocalCellIndex(cvf::UNDEFINED_SIZE_T),
+    m_hostGrid(nullptr),
+    m_subGrid(nullptr),
     m_parentCellIndex(cvf::UNDEFINED_SIZE_T),
     m_mainGridCellIndex(cvf::UNDEFINED_SIZE_T),
-    m_subGrid(NULL),
-    m_hostGrid(NULL),
-    m_isInvalid(false),
-    m_gridLocalCellIndex(cvf::UNDEFINED_SIZE_T),
-    m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T)
+    m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T),
+    m_isInvalid(false)
 {
     memcpy(m_cornerIndices.data(), undefinedCornersArray, 8*sizeof(size_t));
 
@@ -309,7 +309,7 @@ cvf::Vec3d RigCell::faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType 
 //--------------------------------------------------------------------------------------------------
 int RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const
 {
-    CVF_ASSERT(intersectionPoint != NULL);
+    CVF_ASSERT(intersectionPoint != nullptr);
 
     cvf::ubyte faceVertexIndices[4];
     int face;

@@ -42,7 +42,7 @@ RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigEclipseCaseData* rigCa
     : m_rigCaseData(rigCaseData),
     m_gridIndex(gridIndex),
     m_cellIndex(cellIndex),
-    m_geoMechCase(NULL)
+    m_geoMechCase(nullptr)
 {
 }
 
@@ -53,7 +53,7 @@ RivSingleCellPartGenerator::RivSingleCellPartGenerator(RimGeoMechCase* rimGeoMec
     : m_geoMechCase(rimGeoMechCase),
     m_gridIndex(gridIndex),
     m_cellIndex(cellIndex),
-    m_rigCaseData(NULL)
+    m_rigCaseData(nullptr)
 {
 }
 
@@ -101,5 +101,5 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
         return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement(femPart, m_cellIndex);
     }
 
-    return NULL;
+    return nullptr;
 }

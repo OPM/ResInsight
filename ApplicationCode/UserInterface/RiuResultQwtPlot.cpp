@@ -31,7 +31,6 @@
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include "cvfBase.h"
-#include "cvfAssert.h"
 #include "cvfColor3.h"
 
 #include "qwt_date_scale_draw.h"

@@ -37,6 +37,9 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum SummaryRestartFilesImportMode { IMPORT, NOT_IMPORT, SEPARATE_CASES };
+    typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
+
     RiaPreferences(void);
     virtual ~RiaPreferences(void);
 
@@ -63,17 +66,23 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
     caf::PdmField<QString>  fontSizeInScene;
+    caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
     caf::PdmField<bool>     appendClassNameToUiText;
     caf::PdmField<bool>     appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>     showTestToolbar;
     caf::PdmField<bool>     includeFractureDebugInfoFile;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
+
+    caf::PdmField<bool>                                 summaryRestartFilesShowImportDialog;
+    caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
 protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

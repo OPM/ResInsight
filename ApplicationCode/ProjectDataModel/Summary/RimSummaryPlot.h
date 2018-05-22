@@ -38,6 +38,8 @@ class RimGridTimeHistoryCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
+class RimEnsembleCurveSet;
+class RimEnsembleCurveSetCollection;
 class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
 class RimSummaryAxisProperties;
@@ -73,11 +75,13 @@ public:
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
+    RimEnsembleCurveSetCollection*                  ensembleCurveSetCollection() const;
+
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
     void                                            addAsciiDataCruve(RimAsciiDataCurve* curve);
 
-    caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
+    caf::PdmObject*                                 findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
     void                                            detachAllCurves();
@@ -85,13 +89,9 @@ public:
 
     void                                            updateAxes();
     virtual void                                    zoomAll() override;
-    void                                            setZoomWindow(const QwtInterval& leftAxis,
-                                                                  const QwtInterval& rightAxis,
-                                                                  const QwtInterval& timeAxis);
 
     void                                            updateZoomInQwt();
     void                                            updateZoomWindowFromQwt();
-    void                                            disableAutoZoom();
     
     bool                                            isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const;
 
@@ -104,6 +104,7 @@ public:
 
     QString                                         asciiDataForPlotExport() const;
 
+    std::vector<RimSummaryCurve*>                   summaryAndEnsembleCurves() const;
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
     RimSummaryCurveCollection*                      summaryCurveCollection() const;
@@ -111,9 +112,9 @@ public:
 
     void                                            updatePlotTitle();
 
-    const RimSummaryPlotNameHelper*                 activePlotTitleHelper() const;
+    const RimSummaryPlotNameHelper*                 activePlotTitleHelperAllCurves() const;
     void                                            updateCurveNames();
-    QString                                         generatedPlotTitleFromVisibleCurves() const;
+    QString                                         generatedPlotTitleFromAllCurves() const;
 
     void                                            copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot);
 
@@ -125,7 +126,7 @@ public:
 
 private:
     void                                            updateMdiWindowTitle() override;
-    QString                                         generatePlotTitle(RimSummaryPlotNameHelper* nameHelper) const;
+    void                                            updateNameHelperWithCurveData(RimSummaryPlotNameHelper* nameHelper) const;
 
 protected:
     // Overridden PDM methods
@@ -149,11 +150,14 @@ private:
 
     RimSummaryAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
+
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateTimeAxis();
     void                                            updateBottomXAxis();
-    void                                            setZoomIntervalsInQwtPlot();
+
+    void                                            updateAxisRangesFromQwt();
+    void                                            setAutoZoomForAllAxes(bool enableAutoZoom);
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
@@ -164,10 +168,11 @@ private:
     caf::PdmField<QString>                              m_userDefinedPlotTitle;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
-	caf::PdmChildField<RimSummaryCurveCollection*>		m_summaryCurveCollection;
+    caf::PdmChildField<RimSummaryCurveCollection*>      m_summaryCurveCollection;
+    caf::PdmChildField<RimEnsembleCurveSetCollection*>  m_ensembleCurveSetCollection;
+
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
-    caf::PdmField<bool>                                 m_isAutoZoom;
     caf::PdmChildField<RimSummaryAxisProperties*>       m_leftYAxisProperties;
     caf::PdmChildField<RimSummaryAxisProperties*>       m_rightYAxisProperties;
 
@@ -179,9 +184,11 @@ private:
 
     bool                                                m_isCrossPlot;
 
-    std::unique_ptr<RimSummaryPlotNameHelper>           m_nameHelper;
+    std::unique_ptr<RimSummaryPlotNameHelper>           m_nameHelperAllCurves;
 
     // Obsolete fields
     caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
     caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
+    caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
+
 };

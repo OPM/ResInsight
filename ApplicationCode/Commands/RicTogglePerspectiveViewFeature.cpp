@@ -20,7 +20,7 @@
 #include "RicTogglePerspectiveViewFeature.h"
 
 #include "RiuViewer.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
 
@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicTogglePerspectiveViewFeature, "RicTogglePerspectiveViewFe
 bool RicTogglePerspectiveViewFeature::isCommandEnabled()
 {
     this->action(); // Retrieve the action to update the looks
-    return RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer();
+    return RiaApplication::instance()->activeGridView() &&  RiaApplication::instance()->activeReservoirView()->viewer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ bool RicTogglePerspectiveViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTogglePerspectiveViewFeature::onActionTriggered(bool isChecked)
 {
-    if(RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
+    if(RiaApplication::instance()->activeGridView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
         bool isPerspective = RiaApplication::instance()->activeReservoirView()->isPerspectiveView();
         RiaApplication::instance()->activeReservoirView()->isPerspectiveView = !isPerspective;

@@ -84,7 +84,7 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     QString textValue;
     if (valueOk)
     {
-        textValue = QString::number(value, 'f', m_attributes.m_decimals);
+        textValue = QString::number(value, 'g', m_attributes.m_decimals);
     }
     else
     {

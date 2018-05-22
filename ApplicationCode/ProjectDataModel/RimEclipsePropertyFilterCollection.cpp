@@ -56,7 +56,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
-    RimEclipseView* eclipseView = NULL;
+    RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType(eclipseView);
 
     return eclipseView;
@@ -143,7 +143,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    RimEclipseView* view = NULL;
+    RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     if (view)
     {

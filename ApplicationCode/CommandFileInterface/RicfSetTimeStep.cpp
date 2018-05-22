@@ -22,7 +22,7 @@
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCase.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -63,7 +63,7 @@ void RicfSetTimeStep::execute()
         }
     }
 
-    for (RimView* view : eclipseCase->views())
+    for (Rim3dView* view : eclipseCase->views())
     {
         view->setCurrentTimeStepAndUpdate(m_timeStepIndex);
     }

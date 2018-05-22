@@ -33,17 +33,34 @@ class QXmlStreamReader;
 class RifStimPlanXmlReader
 {
 public:
-    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName, double conductivityScalingFactor, QString * errorMessage);
+    enum MirrorMode { MIRROR_OFF = 0, MIRROR_ON = 1, MIRROR_AUTO = 2};
+
+    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName,
+                                                                       double conductivityScalingFactor,
+                                                                       double xScaleFactor,
+                                                                       double yScaleFactor,
+                                                                       double wellPathIntersectionY,
+                                                                       MirrorMode mirrorMode,
+                                                                       RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                                       QString * errorMessage);
 
 private:
-    static size_t                           readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData, RiaEclipseUnitTools::UnitSystemType& unit);
+    static void                             readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream,
+                                                                         RigStimPlanFractureDefinition* stimPlanFileData,
+                                                                         MirrorMode mirrorMode,
+                                                                         RiaEclipseUnitTools::UnitSystem requiredUnit);
 
     static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
     static void                             getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
 
-    static std::vector<std::vector<double>> getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
+    static std::vector<std::vector<double>> getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream);
 
+    static std::vector<double>              valuesInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                                       RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                                       const std::vector<double>&      values);
+
+    static double                           valueInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                                      RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                                      double                          value);
 };
-
-

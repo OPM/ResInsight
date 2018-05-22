@@ -30,7 +30,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -66,7 +66,6 @@ bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const Q
     RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
     riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
-    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
@@ -77,7 +76,7 @@ bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const Q
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
+    Riu3DMainWindowTools::selectAsCurrentItem(riv->cellResult());
 
     if (fileNames.size() == 1)
     {
@@ -102,7 +101,7 @@ void RicImportInputEclipseCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties Eclipse Input Files (*.GRDECL);;All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties Eclipse Input Files (*.GRDECL);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 

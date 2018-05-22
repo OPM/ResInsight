@@ -77,7 +77,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
-           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier)
+           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled())
             {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick( me->x(),  me->y(), &hic);
@@ -166,6 +166,8 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 isEventHandled = true;
             }
         }
+        break;
+    default:
         break;
     }
 

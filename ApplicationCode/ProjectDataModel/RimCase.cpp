@@ -28,6 +28,11 @@
 
 #include "cafPdmObjectFactory.h"
 
+#include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
+#include "RimIntersection.h"
+#include "RimGridView.h"
+
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 
@@ -35,7 +40,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase::RimCase()
+RimCase::RimCase() : m_isInActiveDestruction(false)
 {
     CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
 
@@ -48,6 +53,10 @@ RimCase::RimCase()
     m_timeStepFilter.uiCapability()->setUiHidden(true);
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_timeStepFilter = new RimTimeStepFilter;
+
+    CAF_PDM_InitFieldNoDefault(&m_2dIntersectionViewCollection, "IntersectionViewCollection", "2D Intersection Views", ":/CrossSections16x16.png", "", "");
+    m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden(true);
+    m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +64,40 @@ RimCase::RimCase()
 //--------------------------------------------------------------------------------------------------
 RimCase::~RimCase()
 {
+    m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<Rim3dView*> RimCase::views() const
+{
+    if (m_isInActiveDestruction) return std::vector<Rim3dView*>();
+
+    std::vector<Rim3dView*> allViews = this->allSpecialViews();
+    std::vector<Rim2dIntersectionView*> isectViews = m_2dIntersectionViewCollection->views();
+
+    for (auto view: isectViews)
+    {
+        allViews.push_back(view);
+    }
+
+    return allViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridView*> RimCase::gridViews() const
+{
+    std::vector<RimGridView*> grViews;
+
+    for (Rim3dView* const view : views())
+    {
+        RimGridView* grView = dynamic_cast<RimGridView*>(view);
+        if (grView) grViews.push_back(grView);
+    }
+    return grViews;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +129,14 @@ size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
     }
 
     return uiTimeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionViewCollection* RimCase::intersectionViewCollection()
+{
+    return m_2dIntersectionViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

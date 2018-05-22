@@ -25,7 +25,7 @@ class RimEclipseCase;
 class RimEclipseView;
 class RimGeoMechCase;
 class RimGeoMechView;
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 /// 
@@ -44,7 +44,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    static RimView*        createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
+    static Rim3dView*        createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
 
     static RimEclipseCase* selectedEclipseCase();
     static RimGeoMechCase* selectedGeoMechCase();

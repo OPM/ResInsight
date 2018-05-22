@@ -22,7 +22,8 @@
 
 class RimMultiSnapshotDefinition;
 class RimProject;
-class RimView;
+class Rim3dView;
+class RimGridView;
 
 //==================================================================================================
 /// 
@@ -39,10 +40,10 @@ protected:
 public:
     static void exportMultipleSnapshots(const QString& folder, RimProject* project);
 
-    static void exportViewVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static void exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
 
 private:
-    static void exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
-    static QString resultName(RimView* rimView);
+    static void exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static QString resultName(Rim3dView* rimView);
 };
 

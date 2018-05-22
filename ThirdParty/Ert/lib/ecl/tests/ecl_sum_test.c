@@ -63,7 +63,7 @@ void test_is_oil_producer( const ecl_sum_type * ecl_sum) {
 
 int main( int argc , char ** argv) {
   const char * case1 = argv[1];
-
+  
   ecl_sum_type * ecl_sum1 = ecl_sum_fread_alloc_case( case1 , ":");
 
   test_assert_true( ecl_sum_is_instance( ecl_sum1 ));

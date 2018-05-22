@@ -85,6 +85,7 @@ public:
     cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex) const;
 
     const RigFemPartGrid*       structGrid() const;   
+    const std::vector<int>&     elementIdxToId() const { return m_elementId; }
 
 private:
     int                         m_elementPartId;

@@ -62,6 +62,42 @@ inline Tensor3<S>& Tensor3<S>::operator=(const Tensor3& obj)
     return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Component-wise addition
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+Tensor3<S> caf::Tensor3<S>::operator+(const Tensor3& rhs) const
+{
+    Tensor3<S> result(*this);
+
+    result.m_tensor[0] += rhs.m_tensor[0];
+    result.m_tensor[1] += rhs.m_tensor[1];
+    result.m_tensor[2] += rhs.m_tensor[2];
+    result.m_tensor[3] += rhs.m_tensor[3];
+    result.m_tensor[4] += rhs.m_tensor[4];
+    result.m_tensor[5] += rhs.m_tensor[5];
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+Tensor3<S> caf::Tensor3<S>::operator*(S scale) const
+{
+    Tensor3<S> result(*this);
+
+    result.m_tensor[0] *= scale;
+    result.m_tensor[1] *= scale;
+    result.m_tensor[2] *= scale;
+    result.m_tensor[3] *= scale;
+    result.m_tensor[4] *= scale;
+    result.m_tensor[5] *= scale;
+
+    return result;
+}
+
 
 //----------------------------------------------------------------------------------------------------
 /// Check if matrices are equal using exact comparisons.

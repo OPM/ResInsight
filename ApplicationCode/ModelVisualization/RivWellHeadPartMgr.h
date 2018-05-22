@@ -30,32 +30,42 @@ namespace cvf
     class Transform;
     class Font;
 }
+namespace caf
+{
+    class DisplayCoordTransform;
+}
 
-class RimEclipseView;
+class Rim3dView;
 class RimSimWellInView;
+class RimSimWellInViewCollection;
 
 class RivWellHeadPartMgr : public cvf::Object
 {
 public:
-    RivWellHeadPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
+    RivWellHeadPartMgr( RimSimWellInView* well);
     ~RivWellHeadPartMgr();
 
-    void setScaleTransform(cvf::Transform * scaleTransform) { m_scaleTransform = scaleTransform;}
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                           size_t frameIndex, 
+                                           const caf::DisplayCoordTransform * displayXf);
+    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                    size_t frameIndex,
+                                                    const caf::DisplayCoordTransform * displayXf, 
+                                                    double xOffset);
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 
 
 private:
-    void buildWellHeadParts(size_t frameIndex);
-    void clearAllGeometry();
-
-
+    void                            buildWellHeadParts(size_t frameIndex, 
+                                                       const caf::DisplayCoordTransform * displayXf, 
+                                                       bool doFlatten, 
+                                                       double xOffset);
+    void                            clearAllGeometry();
+    Rim3dView*                      viewWithSettings();
+    RimSimWellInViewCollection*     simWellInViewCollection();
 private:
-    caf::PdmPointer<RimEclipseView> m_rimReservoirView;
     caf::PdmPointer<RimSimWellInView> m_rimWell;
     
-    cvf::ref<cvf::Transform>        m_scaleTransform; 
-
     cvf::ref< cvf::Part >           m_wellHeadArrowPart;
     cvf::ref< cvf::Part >           m_wellHeadLabelPart;
     cvf::ref< cvf::Part >           m_wellHeadPipeSurfacePart;

@@ -28,7 +28,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -43,8 +43,8 @@ CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature");
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
-	actionToSetup->setText("Close Summary Case");
-	actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setText("Close Summary Case");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummary
         summaryCaseMainCollection->updateAllRequiredEditors();
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
 }
 
@@ -103,8 +103,8 @@ bool RicCloseSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
-	std::vector<RimSummaryCase*> selection;
-	caf::SelectionManager::instance()->objectsByType(&selection);
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
     CVF_ASSERT(selection.size() > 0);
     
     RicCloseSummaryCaseFeature::deleteSummaryCases(selection);

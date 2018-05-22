@@ -96,7 +96,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
         characteristicCellSize                      = rigReservoir->mainGrid()->characteristicIJCellSize();
 
-        m_rimWell->wellHeadTopBottomPosition(frameIndex, &wellHeadTop, &wellHeadBottom);
+        m_rimWell->wellHeadTopBottomPosition(static_cast<int>(frameIndex), &wellHeadTop, &wellHeadBottom);
         wellHeadTop = displayCordXf->transformToDisplayCoord(wellHeadTop);
         wellHeadBottom = displayCordXf->transformToDisplayCoord(wellHeadBottom);
         wellHeadTop.z() += characteristicCellSize;
@@ -183,7 +183,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
         cvf::Vec3d otherWellHeadTop;
         cvf::Vec3d otherWellHeadBottom;
         {
-            otherWell->wellHeadTopBottomPosition(frameIndex, &otherWellHeadTop, &otherWellHeadBottom);
+            otherWell->wellHeadTopBottomPosition(static_cast<int>(frameIndex), &otherWellHeadTop, &otherWellHeadBottom);
             otherWellHeadTop = displayCordXf->transformToDisplayCoord(otherWellHeadTop);
             otherWellHeadBottom = displayCordXf->transformToDisplayCoord(otherWellHeadBottom);
             otherWellHeadTop.z() += characteristicCellSize;

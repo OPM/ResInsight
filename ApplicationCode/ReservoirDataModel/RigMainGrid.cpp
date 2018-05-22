@@ -50,6 +50,33 @@ RigMainGrid::~RigMainGrid(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx)
+{
+    CVF_ASSERT(globalCellIdx < m_cells.size());
+    RigCell& cell = m_cells[globalCellIdx];
+    RigGridBase* hostGrid = cell.hostGrid();
+    CVF_ASSERT(hostGrid);
+    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    return hostGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx) const
+{
+    CVF_ASSERT(globalCellIdx < m_cells.size());
+    const RigCell& cell = m_cells[globalCellIdx];
+    const RigGridBase* hostGrid = cell.hostGrid();
+    CVF_ASSERT(hostGrid);
+    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    return hostGrid;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const
 {
      return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
@@ -295,7 +322,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
         size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
         size_t i, j, k;
-        RigGridBase* hostGrid = NULL; 
+        RigGridBase* hostGrid = nullptr; 
         bool firstNO_FAULTFaceForCell = true;
         bool isCellActive = true;
 
@@ -313,8 +340,10 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
                 // Find neighbor cell
                 if (firstNO_FAULTFaceForCell) // To avoid doing this for every face, and only when detecting a NO_FAULT
                 {
-                    hostGrid = m_cells[gcIdx].hostGrid();
-                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
+                    size_t gridLocalCellIndex;
+                    hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx(gcIdx, &gridLocalCellIndex);
+
+                    hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i,&j, &k);
                     isCellActive = activeCellInfo->isActive(gcIdx);
 
                     firstNO_FAULTFaceForCell = false;
@@ -474,9 +503,9 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 //--------------------------------------------------------------------------------------------------
 const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
 {
-    CVF_ASSERT(m_faultsPrCellAcc.notNull());
+    CVF_TIGHT_ASSERT(m_faultsPrCellAcc.notNull());
 
-    if (face == cvf::StructGridInterface::NO_FACE) return NULL;
+    if (face == cvf::StructGridInterface::NO_FACE) return nullptr;
 
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
     if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
@@ -510,7 +539,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
         }
     }
 #endif
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -555,7 +584,7 @@ void RigMainGrid::buildCellSearchTree()
         }
 
         m_cellSearchTree = new cvf::BoundingBoxTree;
-        m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+        m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, nullptr);
     }
 }
 

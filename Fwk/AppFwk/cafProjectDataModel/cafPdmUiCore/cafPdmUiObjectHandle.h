@@ -48,10 +48,10 @@ public:
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
-    virtual caf::PdmFieldHandle* userDescriptionField() { return NULL; }
+    virtual caf::PdmFieldHandle* userDescriptionField() { return nullptr; }
 
     /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
-    virtual caf::PdmFieldHandle* objectToggleField() { return NULL; }
+    virtual caf::PdmFieldHandle* objectToggleField() { return nullptr; }
 
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}

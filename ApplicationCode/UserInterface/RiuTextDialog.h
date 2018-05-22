@@ -26,7 +26,7 @@ class RiuQPlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    explicit RiuQPlainTextEdit(QWidget *parent = 0) : QPlainTextEdit(parent) {}
+    explicit RiuQPlainTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
 
 protected:
     virtual void keyPressEvent(QKeyEvent *e) override;
@@ -46,7 +46,7 @@ class RiuTextDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RiuTextDialog(QWidget* parent = 0);
+    explicit RiuTextDialog(QWidget* parent = nullptr);
 
     void setText(const QString& text);
 

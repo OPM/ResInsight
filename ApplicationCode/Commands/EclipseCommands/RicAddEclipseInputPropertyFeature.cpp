@@ -23,7 +23,7 @@
 #include "RimEclipseInputCase.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
  
 #include "cafSelectionManager.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicAddEclipseInputPropertyFeature, "RicAddEclipseInputProper
 //--------------------------------------------------------------------------------------------------
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
-    return selectedInputPropertyCollection() != NULL;
+    return selectedInputPropertyCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
 
     if (fileNames.isEmpty()) return;
 

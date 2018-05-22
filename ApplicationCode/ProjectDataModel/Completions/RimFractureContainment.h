@@ -41,6 +41,9 @@ public:
     bool isEnabled() const { return m_isUsingFractureContainment();}
     bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex) const;
 
+    void setTopKLayer(int topKLayer);
+    void setBaseKLayer(int baseKLayer);
+
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 protected:

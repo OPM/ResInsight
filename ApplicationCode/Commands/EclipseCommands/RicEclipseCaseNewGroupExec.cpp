@@ -27,13 +27,13 @@
 #include "RimOilField.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RicEclipseCaseNewGroupExec::RicEclipseCaseNewGroupExec()
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
 }
 
@@ -60,7 +60,7 @@ void RicEclipseCaseNewGroupExec::redo()
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : nullptr;
 
     if (analysisModels)
     {
@@ -73,8 +73,9 @@ void RicEclipseCaseNewGroupExec::redo()
 
         analysisModels->caseGroups().push_back(createdObject);
         analysisModels->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem(createdObject);
-        RiuMainWindow::instance()->setExpanded(createdObject);
+
+        Riu3DMainWindowTools::selectAsCurrentItem(createdObject);
+        Riu3DMainWindowTools::setExpanded(createdObject);
     }
 }
 

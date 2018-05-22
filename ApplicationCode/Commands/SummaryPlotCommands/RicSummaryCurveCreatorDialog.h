@@ -22,6 +22,7 @@
 
 class RicSummaryCurveCreatorSplitterUi;
 class RimSummaryPlot;
+class RimSummaryCase;
 
 //==================================================================================================
 ///  
@@ -35,6 +36,7 @@ public:
     ~RicSummaryCurveCreatorDialog();
 
     void updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
+    void updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases);
 
 private slots:
     void slotDialogFinished();

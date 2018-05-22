@@ -134,8 +134,6 @@ private:
     static void simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase);
     
     static RigEclipseWellLogExtractor* createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection);
-    static RigEclipseWellLogExtractor* createWellPathExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
-    static RigGeoMechWellLogExtractor* createGeoMechExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
 
     static CurveSamplingPointData curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor);
     static CurveSamplingPointData curveSamplingPointData(RigGeoMechWellLogExtractor* extractor, const RigFemResultAddress& resultAddress);

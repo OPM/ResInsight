@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPropertyFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimPropertyFilterCollection, "RimPropertyFilterCollection"); // Abstract class 
@@ -46,7 +46,7 @@ RimPropertyFilterCollection::~RimPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews() const
 {
-    RimView* view = NULL;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     CVF_ASSERT(view);
     if (!view) return;
@@ -83,7 +83,7 @@ void RimPropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& u
 {
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
-    RimView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     RimViewController* viewController = rimView->viewController();
     if (viewController && (viewController->isPropertyFilterOveridden() 

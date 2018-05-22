@@ -164,7 +164,21 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
         {
             if (menus.size() > 1)
             {
+                QMenu* completeSubMenu = menus.back();
                 menus.pop_back();
+
+                if (!menus.empty())
+                {
+                    // Remove the sub menu action if no (sub) actions are present in the sub menu
+                    if (completeSubMenu->actions().isEmpty())
+                    {
+                        QMenu* menuWithEmptySubMenu = menus.back();
+
+                        QAction* subMenuAction = completeSubMenu->menuAction();
+
+                        menuWithEmptySubMenu->removeAction(subMenuAction);
+                    }
+                }
             }
         }
         else
@@ -188,13 +202,18 @@ void CmdFeatureMenuBuilder::appendToMenu(QMenu* menu)
 
                 CAF_ASSERT(act);
 
+                bool duplicateAct = false;
                 for (QAction* existingAct : currentMenu->actions())
                 {
                     // If action exist, continue to make sure the action is positioned at the first
                     // location of a command ID
                     if (existingAct == act)
-                        continue;
+                    {
+                        duplicateAct = true;
+                        break;
+                    }
                 }
+                if (duplicateAct) continue;
 
                 currentMenu->addAction(const_cast<QAction*>(act));
             }

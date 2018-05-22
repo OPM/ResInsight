@@ -32,8 +32,12 @@ class QwtPlotZoomer;
 class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
+class QwtScaleWidget;
+
+class RiuCvfOverlayItemWidget;
 
 class RimSummaryPlot;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 //
@@ -44,7 +48,7 @@ class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
+    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();
@@ -61,6 +65,9 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
+    void                            addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
+    void                            removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
+
     static void                     setCommonPlotBehaviour(QwtPlot* plot);
     static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
 
@@ -71,10 +78,12 @@ protected:
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    virtual void                    updateLayout() override;
 
 private:
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
+    void                            updateEnsembleLegendLayout();
 
 private slots:
     void                            onZoomedSlot( );
@@ -85,5 +94,8 @@ private:
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;
     QPointer<QwtPlotZoomer>         m_zoomerRight;
+
+    std::map< caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget> > m_ensembleLegendWidgets;
+
 };
 

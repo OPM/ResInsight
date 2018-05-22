@@ -283,8 +283,8 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
 
         std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
         hexPlaneCutTriangleVxes.reserve(5*3);
-        std::vector<bool> isTriangleEdgeCellContour;
-        isTriangleEdgeCellContour.reserve(5*3);
+        std::vector<int> cellFaceForEachTriangleEdge;
+        cellFaceForEachTriangleEdge.reserve(5*3);
         cvf::Vec3d cellCorners[8];
         size_t cornerIndices[8];
 
@@ -302,20 +302,20 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
                                                                   cellCorners,
                                                                   cornerIndices,
                                                                   &hexPlaneCutTriangleVxes,
-                                                                  &isTriangleEdgeCellContour);
+                                                                  &cellFaceForEachTriangleEdge);
 
             std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes_once;
-            std::vector<bool> isClippedTriEdgeCellContour_once;
-            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
-                                                                                 &clippedTriangleVxes_once, &isClippedTriEdgeCellContour_once);
+            std::vector<int> cellFaceForEachClippedTriangleEdge_once;
+            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, cellFaceForEachTriangleEdge, p1Plane, p2Plane,
+                                                                                 &clippedTriangleVxes_once, &cellFaceForEachClippedTriangleEdge_once);
 
             for (caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes_once) if (!clvx.isVxIdsNative) clvx.derivedVxLevel = 0;
 
             std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
-            std::vector<bool> isClippedTriEdgeCellContour;
+            std::vector<int> cellFaceForEachClippedTriangleEdge;
 
-            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(clippedTriangleVxes_once, isClippedTriEdgeCellContour_once, p3Plane, p4Plane,
-                                                                                 &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(clippedTriangleVxes_once, cellFaceForEachClippedTriangleEdge_once, p3Plane, p4Plane,
+                                                                                 &clippedTriangleVxes, &cellFaceForEachClippedTriangleEdge);
             for (caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes) if (!clvx.isVxIdsNative && clvx.derivedVxLevel == -1) clvx.derivedVxLevel = 1;
 
             size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
@@ -336,18 +336,20 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
 
 
                 // Accumulate mesh lines
+                
+                #define isFace( faceEnum ) (0 <= faceEnum && faceEnum <= 5 )
 
-                if(isClippedTriEdgeCellContour[triVxIdx])
+                if(isFace(cellFaceForEachClippedTriangleEdge[triVxIdx]))
                 {
                     cellBorderLineVxes.push_back(p0);
                     cellBorderLineVxes.push_back(p1);
                 }
-                if(isClippedTriEdgeCellContour[triVxIdx+1])
+                if(isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+1]))
                 {
                     cellBorderLineVxes.push_back(p1);
                     cellBorderLineVxes.push_back(p2);
                 }
-                if(isClippedTriEdgeCellContour[triVxIdx+2])
+                if(isFace(cellFaceForEachClippedTriangleEdge[triVxIdx+2]))
                 {
                     cellBorderLineVxes.push_back(p2);
                     cellBorderLineVxes.push_back(p0);

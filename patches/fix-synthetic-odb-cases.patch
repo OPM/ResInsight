@@ -4,13 +4,13 @@ Date: Thu, 4 Jan 2018 20:29:09 +0100
 Subject: [PATCH] #2317 Apply fix for synthetic odb files
 
 ---
- ThirdParty/Ert/lib/ecl/ecl_rsthead.c | 10 ++++++++--
+ ThirdParty/Ert/lib/ecl/ecl_rsthead.cpp | 10 ++++++++--
  1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/ThirdParty/Ert/lib/ecl/ecl_rsthead.c b/ThirdParty/Ert/lib/ecl/ecl_rsthead.c
+diff --git a/ThirdParty/Ert/lib/ecl/ecl_rsthead.cpp b/ThirdParty/Ert/lib/ecl/ecl_rsthead.cpp
 index e8d9cef..2993b1e 100644
---- a/ThirdParty/Ert/lib/ecl/ecl_rsthead.c
-+++ b/ThirdParty/Ert/lib/ecl/ecl_rsthead.c
+--- a/ThirdParty/Ert/lib/ecl/ecl_rsthead.cpp
++++ b/ThirdParty/Ert/lib/ecl/ecl_rsthead.cpp
 @@ -88,7 +88,10 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
        // The only derived quantity
        rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );

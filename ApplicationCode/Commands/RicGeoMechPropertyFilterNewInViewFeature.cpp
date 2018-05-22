@@ -26,7 +26,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafCmdExecCommandManager.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewInViewFeature, "RicGeoMechPropert
 //--------------------------------------------------------------------------------------------------
 bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled()
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
@@ -62,7 +62,7 @@ bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterNewInViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return;
     RimGeoMechView* eclView = dynamic_cast<RimGeoMechView*>(view);
     if (!eclView) return;

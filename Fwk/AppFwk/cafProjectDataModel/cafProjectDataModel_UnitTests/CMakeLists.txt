@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 find_package ( Qt4 COMPONENTS QtCore QtGui )
 include (${QT_USE_FILE})
@@ -6,25 +6,15 @@ include (${QT_USE_FILE})
 project ( cafProjectDataModel_UnitTests )
 
 include_directories (
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    
-    ${cafProjectDataModel_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set( PROJECT_FILES
 	cafPdmBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp
-        Child.cpp
-        Parent.cpp
-        TestObj.cpp
-
+    Child.cpp
+    Parent.cpp
+    TestObj.cpp
 )
 
 # add the executable 
@@ -35,9 +25,6 @@ add_executable (${PROJECT_NAME}
 message(${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafPdmCore
-    cafPdmUiCore
-    cafPdmXml
 	cafProjectDataModel 
     ${QT_LIBRARIES}
     ${THREAD_LIBRARY}

@@ -65,7 +65,7 @@ namespace caf
 CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
 {
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return NULL;
+    if (!childArrayFieldHandle) return nullptr;
     
     int indexAfter = -1;
     CmdAddItemExec* addItemExec = new CmdAddItemExec(SelectionManager::instance()->notificationCenter());

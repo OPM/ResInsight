@@ -20,7 +20,9 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotNameHelper.h"
 
@@ -48,7 +50,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
     CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",            true, "Aquifer Number", "", "", "");
     
-    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
+    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case/Ensemble Name", "", "", "");
 
     // clang-format on
 }
@@ -57,7 +59,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summaryAddress,
-                                           const RimSummaryPlotNameHelper* nameHelper) const
+                                            const RimSummaryPlotNameHelper* nameHelper) const
 {
     std::string text;
 
@@ -80,17 +82,30 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
 
     appendAddressDetails(text, summaryAddress, nameHelper);
 
-    if (summaryCurve)
+    QString caseName;
+
+    {
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        this->firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet && ensembleCurveSet->summaryCaseCollection())
+        {
+            caseName = ensembleCurveSet->summaryCaseCollection()->name();
+        }
+    }
+
+    if (caseName.isEmpty() && summaryCurve && summaryCurve->summaryCaseY())
+    {
+        caseName = summaryCurve->summaryCaseY()->caseName();
+    }
+
+    if (!caseName.isEmpty())
     {
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
         {
-            if (summaryCurve && summaryCurve->summaryCaseY())
-            {
-                if (text.size() > 0) text += ", ";
-                text += summaryCurve->summaryCaseY()->caseName().toStdString();
-            }
+            if (!text.empty()) text += ", ";
+            text += caseName.toStdString();
         }
     }
 
@@ -124,16 +139,18 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     appendAddressDetails(text, summaryAddress, nameHelper);
 
-    if (summaryCurve)
+    if (summaryCurve && summaryCurve->summaryCaseX())
     {
+        QString caseName = summaryCurve->summaryCaseX()->caseName();
+
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
         {
             if (summaryCurve && summaryCurve->summaryCaseX())
             {
-                if (text.size() > 0) text += ", ";
-                text += summaryCurve->summaryCaseX()->caseName().toStdString();
+                if (!text.empty()) text += ", ";
+                text += caseName.toStdString();
             }
         }
     }
@@ -161,7 +178,8 @@ void RimSummaryCurveAutoName::applySettings(const RimSummaryCurveAutoName& other
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress,
+void RimSummaryCurveAutoName::appendWellName(std::string&                    text,
+                                             const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryPlotNameHelper* nameHelper) const
 {
     bool skipSubString = nameHelper && nameHelper->isWellNameInTitle();
@@ -169,7 +187,7 @@ void RimSummaryCurveAutoName::appendWellName(std::string& text, const RifEclipse
 
     if (m_wellName)
     {
-        if (text.size() > 0) text += ":";
+        if (!text.empty()) text += ":";
         text += summaryAddress.wellName();
     }
 }
@@ -181,7 +199,7 @@ void RimSummaryCurveAutoName::appendLgrName(std::string& text, const RifEclipseS
 {
     if (m_lgrName)
     {
-        if (text.size() > 0) text += ":";
+        if (!text.empty()) text += ":";
         text += ":" + summaryAddress.lgrName();
     }
 }
@@ -189,7 +207,8 @@ void RimSummaryCurveAutoName::appendLgrName(std::string& text, const RifEclipseS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifEclipseSummaryAddress& summaryAddress,
+void RimSummaryCurveAutoName::appendAddressDetails(std::string&                    text,
+                                                   const RifEclipseSummaryAddress& summaryAddress,
                                                    const RimSummaryPlotNameHelper* nameHelper) const
 {
     switch (summaryAddress.category())
@@ -198,7 +217,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
         {
             if (m_aquiferNumber)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.aquiferNumber());
             }
         }
@@ -210,7 +229,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
                 bool skipSubString = nameHelper && nameHelper->isRegionInTitle();
                 if (!skipSubString)
                 {
-                    if (text.size() > 0) text += ":";
+                    if (!text.empty()) text += ":";
                     text += std::to_string(summaryAddress.regionNumber());
                 }
             }
@@ -220,7 +239,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
         {
             if (m_regionNumber)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.regionNumber());
                 text += "-" + std::to_string(summaryAddress.regionNumber2());
             }
@@ -233,13 +252,15 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
                 bool skipSubString = nameHelper && nameHelper->isWellGroupNameInTitle();
                 if (!skipSubString)
                 {
-                    if (text.size() > 0) text += ":";
+                    if (!text.empty()) text += ":";
                     text += summaryAddress.wellGroupName();
                 }
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL: { appendWellName(text, summaryAddress, nameHelper);
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            appendWellName(text, summaryAddress, nameHelper);
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
@@ -248,7 +269,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
 
             if (m_completion)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
                         std::to_string(summaryAddress.cellK());
             }
@@ -267,7 +288,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
 
             if (m_completion)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
                         std::to_string(summaryAddress.cellK());
             }
@@ -279,7 +300,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
 
             if (m_wellSegmentNumber)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += ":" + summaryAddress.wellSegmentNumber();
             }
         }
@@ -288,7 +309,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
         {
             if (m_completion)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
                         std::to_string(summaryAddress.cellK());
             }
@@ -300,7 +321,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
 
             if (m_completion)
             {
-                if (text.size() > 0) text += ":";
+                if (!text.empty()) text += ":";
                 text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
                         std::to_string(summaryAddress.cellK());
             }
@@ -312,8 +333,9 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string& text, const RifE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                               const QVariant& newValue)
+void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                               const QVariant&            oldValue,
+                                               const QVariant&            newValue)
 {
     // NOTE: The curve filter is parent object of a summary curve, and the update is supposed to update
     // the first parent, not the grandparent. This is the reason for not using firstAncestorOrThisOfType()
@@ -323,6 +345,8 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     {
         summaryCurve->updateCurveNameAndUpdatePlotLegend();
         summaryCurve->updateConnectedEditors();
+
+        return;
     }
 
     RicSummaryCurveCreator* curveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->parentField()->ownerObject());
@@ -330,6 +354,19 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     {
         curveCreator->updateCurveNames();
         curveCreator->updateConnectedEditors();
+
+        return;
+    }
+
+    {
+        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>(this->parentField()->ownerObject());
+        if (ensembleCurveSet)
+        {
+            ensembleCurveSet->updateAllTextInPlot();
+            ensembleCurveSet->updateConnectedEditors();
+
+            return;
+        }
     }
 }
 

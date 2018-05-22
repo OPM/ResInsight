@@ -24,7 +24,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
-#include "RimView.h"
+#include "RimGridView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -56,7 +56,7 @@ bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
     std::vector<RimWellPath*> collection;
@@ -65,7 +65,7 @@ void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 
     RimWellPath* wellPath = collection[0];
     
-    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection, wellPath);
+    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection(), wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -82,7 +82,7 @@ void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection),
     m_wellPath(wellPath)
 {

@@ -92,7 +92,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
 //--------------------------------------------------------------------------------------------------
 void RiuProjectAndPropertyView::setPdmItem(caf::PdmUiItem* object)
 {
-    m_propertyView->showProperties(NULL);
+    m_propertyView->showProperties(nullptr);
     m_projectTreeView->setPdmItem(object);
 }
 

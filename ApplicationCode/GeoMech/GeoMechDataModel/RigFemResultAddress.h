@@ -29,24 +29,23 @@
 class RigFemResultAddress
 {
 public:
-    RigFemResultAddress(RigFemResultPosEnum resPosType,
-                        const std::string& aFieldName,
-                        const std::string& aComponentName)
-        : resultPosType(resPosType),
-        fieldName(aFieldName),
-        componentName(aComponentName),
-        timeLapseBaseFrameIdx(-1)
+    RigFemResultAddress()
     {
+        resultPosType = RIG_NODAL;
+        fieldName = "";
+        componentName = "";
     }
 
     RigFemResultAddress(RigFemResultPosEnum resPosType,
                         const std::string& aFieldName,
                         const std::string& aComponentName,
-                        int aTimeLapseBaseFrame)
+                        int timeLapseBaseFrameIdx = NO_TIME_LAPSE,
+                        int refKLayerIndex = NO_COMPACTION)
         : resultPosType(resPosType),
         fieldName(aFieldName),
         componentName(aComponentName),
-        timeLapseBaseFrameIdx(aTimeLapseBaseFrame)
+        timeLapseBaseFrameIdx(timeLapseBaseFrameIdx),
+        refKLayerIndex(refKLayerIndex)
     {
     }
 
@@ -54,10 +53,13 @@ public:
     std::string         fieldName;
     std::string         componentName;
     int                 timeLapseBaseFrameIdx;
+    int                 refKLayerIndex;
 
     static const int ALL_TIME_LAPSES = -2;
+    static const int NO_TIME_LAPSE = -1;
+    static const int NO_COMPACTION = -1;
 
-    bool isTimeLapse() const { return timeLapseBaseFrameIdx >= 0;}
+    bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE;}
     bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
 
     bool isValid() const
@@ -66,7 +68,8 @@ public:
                             || resultPosType == RIG_ELEMENT_NODAL 
                             || resultPosType == RIG_INTEGRATION_POINT
                             || resultPosType == RIG_ELEMENT_NODAL_FACE
-                            || resultPosType == RIG_FORMATION_NAMES;
+                            || resultPosType == RIG_FORMATION_NAMES
+                            || resultPosType == RIG_ELEMENT;
         bool isFieldValid = fieldName != "";
 
         return isTypeValid && isFieldValid;
@@ -89,7 +92,25 @@ public:
             return (fieldName <  other.fieldName);
         }
  
+        if (refKLayerIndex != other.refKLayerIndex)
+        {
+            return refKLayerIndex < other.refKLayerIndex;
+        }
+
         return (componentName <  other.componentName);
+  }
+
+    bool operator== (const RigFemResultAddress& other) const 
+    {
+        if ( resultPosType != other.resultPosType
+            || fieldName != other.fieldName
+            || componentName != other.componentName
+            || timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx)
+        {
+            return false;
+        }
+
+        return true;
     }
 };
 

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
+#include "RimCheckableObject.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -33,31 +33,42 @@ namespace caf {
 }
 
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 class RimFractureTemplateCollection;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimStimPlanColors : public RimCheckableNamedObject
+class RimStimPlanColors : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum StimPlanResultColorType
+    {
+        COLOR_INTERPOLATION,
+        SINGLE_ELEMENT_COLOR
+    };
+public:
     RimStimPlanColors();
     virtual ~RimStimPlanColors();
 
-    RimLegendConfig*    activeLegend() const;
-    QString             resultName() const;
-    void                setDefaultResultNameForStimPlan();
+    RimRegularLegendConfig*    activeLegend() const;
+    QString             uiResultName() const;
+    void                setDefaultResultName();
     QString             unit() const;
     cvf::Color3f        defaultColor() const;
+    bool                showStimPlanMesh() const { return m_showStimPlanMesh; }
+    void                setShowStimPlanMesh(bool showStimPlanMesh);
 
     void                loadDataAndUpdate();
     void                updateLegendData();
 
     void                updateStimPlanTemplates() const;
+    StimPlanResultColorType stimPlanResultColorType() const { return m_stimPlanCellVizMode(); };
+
+    void                updateConductivityResultName();
 
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -74,6 +85,9 @@ private:
 private:
     caf::PdmField<cvf::Color3f>                 m_defaultColor;
     caf::PdmField<QString>                      m_resultNameAndUnit;
-    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigurations;
+    caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigurations;
+    caf::PdmField<bool>                         m_showStimPlanMesh;
+    caf::PdmField<caf::AppEnum<StimPlanResultColorType>> m_stimPlanCellVizMode;
+
 };
 

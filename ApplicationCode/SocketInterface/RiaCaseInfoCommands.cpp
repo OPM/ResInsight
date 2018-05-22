@@ -207,14 +207,14 @@ public:
             if (actCellInfo->isActive(cIdx))
             {
                 RigGridBase* grid = reservoirCells[cIdx].hostGrid();
-                CVF_ASSERT(grid != NULL);
+                CVF_ASSERT(grid != nullptr);
                 size_t cellIndex = reservoirCells[cIdx].gridLocalCellIndex();
 
                 size_t i, j, k;
                 grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
                 size_t pi, pj, pk;
-                RigGridBase* parentGrid = NULL;
+                RigGridBase* parentGrid = nullptr;
 
                 if (grid->isMainGrid())
                 {
@@ -227,7 +227,7 @@ public:
                 {
                     size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
                     parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
-                    CVF_ASSERT(parentGrid != NULL);
+                    CVF_ASSERT(parentGrid != nullptr);
                     parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
                 }
 
@@ -616,7 +616,7 @@ public:
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
 
-                geomechItem->m_view->geoMechCase()->geoMechData()->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
                 gridIndex = geomechItem->m_gridIndex;
                 caseId = geomechItem->m_view->geoMechCase()->caseId;
             }

@@ -134,7 +134,7 @@ def update_path():
     
 if __name__ == '__main__':
     update_path( )
-    from ecl.test import ErtTestRunner
+    from ecl.util.test import ErtTestRunner
     for test_class in sys.argv[1:]:
         tests = ErtTestRunner.getTestsFromTestClass(test_class)
         

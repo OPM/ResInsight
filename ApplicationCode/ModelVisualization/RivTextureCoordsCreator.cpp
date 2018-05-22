@@ -27,7 +27,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "RivResultToTextureMapper.h"

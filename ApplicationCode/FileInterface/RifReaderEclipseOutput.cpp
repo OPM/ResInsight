@@ -174,7 +174,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 
         // Sub grid in cell
         const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, gridLocalCellIndex);
-        if (subGrid != NULL)
+        if (subGrid != nullptr)
         {
             int subGridId = ecl_grid_get_lgr_nr(subGrid);
             CVF_ASSERT(subGridId > 0);
@@ -208,10 +208,10 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
     m_fileName.clear();
     m_filesWithSameBaseName.clear();
 
-    m_eclipseCase = NULL;
+    m_eclipseCase = nullptr;
 
-    m_ecl_init_file = NULL;
-    m_dynamicResultsAccess = NULL;
+    m_ecl_init_file = nullptr;
+    m_dynamicResultsAccess = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ RifReaderEclipseOutput::~RifReaderEclipseOutput()
     {
         ecl_file_close(m_ecl_init_file);
     }
-    m_ecl_init_file = NULL;
+    m_ecl_init_file = nullptr;
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -1149,7 +1149,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     double oilRate   = well_conn_get_oil_rate(ert_connection) ;
     double gasRate   = well_conn_get_gas_rate(ert_connection);
     double waterRate = well_conn_get_water_rate(ert_connection);
-
+    double connectionFactor = well_conn_get_connection_factor(ert_connection);
  
     RigWellResultPoint resultPoint;
 
@@ -1167,6 +1167,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_waterRate = waterRate;
  
         resultPoint.m_gasRate   =   RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(m_eclipseCase->unitsType(), gasRate);
+
+        resultPoint.m_connectionFactor = connectionFactor;
     }
 
     return resultPoint;
@@ -1634,7 +1636,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
                         if (well_segment_get_outlet_id(segment) == -1)
                         {
-                            segment = NULL;
+                            segment = nullptr;
                         }
                         else
                         {
@@ -1696,11 +1698,11 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                             accLengthFromLastConnection += well_segment_get_length(outletSegment);
                             segmentIdBelow = well_segment_get_id(outletSegment);
 
-                            const well_segment_type* aboveOutletSegment = NULL;
+                            const well_segment_type* aboveOutletSegment = nullptr;
 
                             if (well_segment_get_outlet_id(outletSegment) == -1)
                             {
-                                aboveOutletSegment = NULL;
+                                aboveOutletSegment = nullptr;
                             }
                             else
                             {
@@ -1740,7 +1742,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
                                 if (well_segment_get_outlet_id(aboveOutletSegment) == -1)
                                 {
-                                    aboveOutletSegment = NULL;
+                                    aboveOutletSegment = nullptr;
                                 }
                                 else
                                 {

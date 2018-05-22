@@ -119,6 +119,22 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureContainment::setTopKLayer(int topKLayer)
+{
+    m_topKLayer = topKLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureContainment::setBaseKLayer(int baseKLayer)
+{
+    m_baseKLayer = baseKLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_isUsingFractureContainment);

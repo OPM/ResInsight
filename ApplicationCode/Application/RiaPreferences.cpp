@@ -27,6 +27,19 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 
+namespace caf 
+{
+    template<>
+    void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
+    {
+        addItem(RiaPreferences::IMPORT, "IMPORT", "Unified");
+        addItem(RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases");
+        addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
+        setDefault(RiaPreferences::IMPORT);
+    }
+}
+
+
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -72,8 +85,12 @@ RiaPreferences::RiaPreferences(void)
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
     appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "");
+    showTestToolbar.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
     includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&showLegendBackground, "showLegendBackground", true, "Enable Legend Background", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -83,6 +100,10 @@ RiaPreferences::RiaPreferences(void)
     
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "");
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitFieldNoDefault(&summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog", "", "", "");
+    CAF_PDM_InitField(&summaryImportMode, "summaryImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Summary Import Option", "", "", "");
+    CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
@@ -124,6 +145,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &showHud ||
             field == &appendClassNameToUiText ||
             field == &appendFieldKeywordToToolTipText ||
+            field == &showTestToolbar ||
             field == &includeFractureDebugInfoFile ||
             field == &showLasCurveWithoutTvdWarning)
     {
@@ -150,6 +172,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         defaultSettingsGroup->add(&defaultWellLabelColor);
         defaultSettingsGroup->add(&fontSizeInScene);
         defaultSettingsGroup->add(&defaultScaleFactorZ);
+        defaultSettingsGroup->add(&showLegendBackground);
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D Views");
         viewsGroup->add(&navigationPolicy);
@@ -169,6 +192,13 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
         m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
+
+        caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Origin Files");
+        restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
+        caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
+        summaryImportOptionGroup->add(&summaryImportMode);
+        caf::PdmUiGroup* gridImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Grid Files");
+        gridImportOptionGroup->add(&gridImportMode);
     }
     else if (uiConfigName == m_tabNames[2])
     {
@@ -184,6 +214,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&appendClassNameToUiText);
         uiOrdering.add(&appendFieldKeywordToToolTipText);
+        uiOrdering.add(&showTestToolbar);
         uiOrdering.add(&includeFractureDebugInfoFile);
     }
 
@@ -211,6 +242,15 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
         {
             options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
         }
+    }
+    else if (fieldNeedingOptions == &gridImportMode)
+    {
+        // Manual option handling in order to one only a subset of the enum values
+        SummaryRestartFilesImportModeType skip(RiaPreferences::NOT_IMPORT);
+        SummaryRestartFilesImportModeType separate(RiaPreferences::SEPARATE_CASES);
+
+        options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
+        options.push_back(caf::PdmOptionItemInfo(separate.uiText(), RiaPreferences::SEPARATE_CASES));
     }
 
     return options;

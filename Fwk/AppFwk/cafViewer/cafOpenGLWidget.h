@@ -56,8 +56,8 @@ namespace caf {
 class OpenGLWidget : public QGLWidget
 {
 public:
-    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, OpenGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0);
-    OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f = 0);
+    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, OpenGLWidget* shareWidget = nullptr, Qt::WindowFlags f = nullptr);
+    OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f = nullptr);
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
     void                cvfShutdownOpenGLContext();

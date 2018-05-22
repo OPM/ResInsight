@@ -78,6 +78,9 @@ public:
     void setVisibleRangeMin(double value);
     void setVisibleRangeMax(double value);
 
+    bool isAutoZoom() const;
+    void setAutoZoom(bool enableAutoZoom);
+
     bool isActive() const;
 
 protected:
@@ -100,4 +103,5 @@ private:
     caf::PdmField<QDateTime>                m_visibleDateRangeMax;
     caf::PdmField<double>                   m_visibleTimeRangeMin;
     caf::PdmField<double>                   m_visibleTimeRangeMax;
+    caf::PdmField<bool>                     m_isAutoZoom;
 };

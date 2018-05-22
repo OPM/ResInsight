@@ -25,29 +25,37 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-namespace cvf {
-    class Part;
-}
+namespace cvf { 
+    class Part; 
+} 
 
-class RicViewerEventInterface
+class Rim3dView;
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicViewerEventObject
 {
 public:
-    virtual bool handleEvent(cvf::Object* eventObject) = 0;
-};
-
-
-class RicViewerEventObject : public cvf::Object
-{
-public:
-    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, cvf::Part* firstHitPart,  cvf::uint firstPartTriangleIndex)
-        : globalIntersectionPoint(globalIntersectionPoint),
-        firstHitPart(firstHitPart),
-        firstPartTriangleIndex(firstPartTriangleIndex)
+    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, const std::vector<std::pair<const cvf::Part*, cvf::uint>>& partAndTriangleIndexPairs, Rim3dView* view)
+        : m_globalIntersectionPoint(globalIntersectionPoint),
+        m_partAndTriangleIndexPairs(partAndTriangleIndexPairs),
+        m_view(view)
     {
     }
 
-    cvf::Vec3d  globalIntersectionPoint;
-    cvf::Part*  firstHitPart;
-    cvf::uint   firstPartTriangleIndex;
+    cvf::Vec3d  m_globalIntersectionPoint;
+    std::vector<std::pair<const cvf::Part*, cvf::uint>> m_partAndTriangleIndexPairs;
+    Rim3dView* m_view; 
+};
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicViewerEventInterface
+{
+public:
+    virtual bool handleEvent(const RicViewerEventObject& eventObject) = 0;
 };
 

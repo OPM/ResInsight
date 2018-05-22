@@ -343,6 +343,38 @@ void test_empty() {
   int_vector_free( vec );
 }
 
+
+void test_equal_index() {
+  int_vector_type * v1 = int_vector_alloc(0,0);
+  int_vector_type * v2 = int_vector_alloc(0,0);
+  int_vector_type * v3 = int_vector_alloc(0,0);
+
+  for (int i=0; i < 5; i++) {
+    int_vector_iset(v1,i,i);
+    int_vector_iset(v2,i,i);
+    int_vector_iset(v3,i,i+1);
+  }
+
+  test_assert_int_equal( int_vector_first_equal(v1,v2,10), -2);
+  test_assert_int_equal( int_vector_first_not_equal(v1,v2,10), -2);
+
+  test_assert_int_equal( int_vector_first_equal(v1,v2,0), 0);
+  test_assert_int_equal( int_vector_first_not_equal(v1,v2,0), -1);
+
+
+  int_vector_iset(v1,0,77);
+  test_assert_int_equal( int_vector_first_equal(v1,v2,0), 1);
+  test_assert_int_equal( int_vector_first_not_equal(v1,v2,0),0);
+  test_assert_int_equal( int_vector_first_equal(v1,v3,0), -1);
+  test_assert_int_equal( int_vector_first_not_equal(v1,v1,0), -1);
+
+  int_vector_free(v1);
+  int_vector_free(v2);
+  int_vector_free(v3);
+}
+
+
+
 int main(int argc , char ** argv) {
 
   int_vector_type * int_vector = int_vector_alloc( 0 , 99);
@@ -433,5 +465,6 @@ int main(int argc , char ** argv) {
   test_resize();
   test_empty();
   test_insert_double();
+  test_equal_index();
   exit(0);
 }

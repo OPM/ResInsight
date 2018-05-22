@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimView.h"
+#include "RimGridView.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -32,15 +32,19 @@
 #include "cvfObject.h"
 
 class RigFemPart;
+class RigFemPartCollection;
 class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
-class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
+class RimGeoMechResultDefinition;
+class RimRegularLegendConfig;
+class RimTensorResults;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
+class RivTensorResultPartMgr;
 
 namespace cvf {
     class CellRangeFilter;
@@ -51,7 +55,7 @@ namespace cvf {
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechView : public RimView
+class RimGeoMechView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,7 +76,7 @@ public:
     const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
     void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
-    bool                                                isTimeStepDependentDataVisible();
+    bool                                                isTimeStepDependentDataVisible() const override ;
 
     virtual cvf::Transform*                             scaleTransform() override;
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
@@ -84,6 +88,19 @@ public:
 
     virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
 
+    void                                                updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
+
+    const cvf::ref<RivGeoMechVizLogic>                  vizLogic() const;
+    const RimTensorResults*                             tensorResults() const;
+    RimTensorResults*                                   tensorResults();
+
+    std::vector<RimLegendConfig*>                       legendConfigs() const override;
+
+    const RigFemPartCollection*                         femParts() const;
+    RigFemPartCollection*                               femParts();
+
+    void                                                convertCameraPositionFromOldProjectFiles();
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                                        onLoadDataAndUpdate() override;
@@ -92,7 +109,6 @@ protected:
 
 private:
     virtual void                                        createDisplayModel() override;
-    virtual void                                        updateDisplayModelVisibility() override;
     virtual void                                        updateScaleTransform() override;
 
     virtual void                                        clampCurrentTimestep() override;
@@ -102,13 +118,15 @@ private:
 
     virtual void                                        resetLegendsInViewer() override;
 
-    void                                                updateLegends();
+    void                                                updateLegends() override;
+
+    void                                                updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                        initAfterRead() override;
 
 
-
+    caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 
@@ -116,5 +134,6 @@ private:
     cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;
     cvf::ref<cvf::Transform>                            m_scaleTransform;
 
+    cvf::ref<RivTensorResultPartMgr>                    m_tensorPartMgr;
 };
 

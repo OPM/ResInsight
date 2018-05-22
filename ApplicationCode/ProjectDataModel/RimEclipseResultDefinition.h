@@ -99,6 +99,7 @@ public:
     void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
     void                            setSelectedSouringTracers(const std::vector<QString>& selectedTracers);
 
+    void                            updateUiFieldsFromActiveResult();
 
 protected:
     virtual void                    updateLegendCategorySettings() {};

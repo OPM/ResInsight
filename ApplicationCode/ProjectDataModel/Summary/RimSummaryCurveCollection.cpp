@@ -107,6 +107,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
         firstAncestorOrThisOfTypeAsserted(parentPlot);
         if ( parentPlot->qwtPlot() )
         {
+            parentPlot->updatePlotTitle();
             parentPlot->qwtPlot()->updateLegend();
             parentPlot->updateAxes();
             parentPlot->updateZoomInQwt();
@@ -151,7 +152,7 @@ RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPl
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +175,7 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
     {
         m_curves.removeChildObject(curve);
         delete curve;
+        updateCaseNameHasChanged();
     }
 }
 
@@ -183,24 +185,6 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
     return m_curves.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::visibleCurves() const
-{
-    std::vector<RimSummaryCurve*> visible;
-
-    for (auto c : m_curves)
-    {
-        if (c->isCurveVisible())
-        {
-            visible.push_back(c);
-        }
-    }
-
-    return visible;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +233,8 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
 
     RimSummaryPlot* parentPlot;
     firstAncestorOrThisOfTypeAsserted(parentPlot);
+
+    parentPlot->updatePlotTitle();
     if (parentPlot->qwtPlot()) parentPlot->qwtPlot()->updateLegend();
 }
 

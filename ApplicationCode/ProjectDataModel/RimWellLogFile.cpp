@@ -29,7 +29,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiDateEditor.h"
 
@@ -89,7 +89,7 @@ RimWellLogFile::RimWellLogFile()
     m_invalidDateMessage.uiCapability()->setUiReadOnly(true);
     m_invalidDateMessage.xmlCapability()->disableIO();
 
-    m_wellLogDataFile = NULL;
+    m_wellLogDataFile = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ RimWellLogFile* RimWellLogFile::readWellLogFile(const QString& logFilePath)
 {
     QFileInfo fi(logFilePath);
 
-    RimWellLogFile* wellLogFile = NULL;
+    RimWellLogFile* wellLogFile = nullptr;
 
     if (fi.suffix().toUpper().compare("LAS") == 0)
     {
@@ -124,12 +124,12 @@ RimWellLogFile* RimWellLogFile::readWellLogFile(const QString& logFilePath)
                 displayMessage += errorMessage;
             }
 
-            QMessageBox::warning(RiuMainWindow::instance(), 
-                "File open error", 
-                displayMessage);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                                 "File open error",
+                                 displayMessage);
 
             delete wellLogFile;
-            wellLogFile = NULL;
+            wellLogFile = nullptr;
         }
     }
 
@@ -158,7 +158,7 @@ bool RimWellLogFile::readFile(QString* errorMessage)
 
     if (!m_wellLogDataFile->open(m_fileName, errorMessage))
     {
-        m_wellLogDataFile = NULL;
+        m_wellLogDataFile = nullptr;
         return false;
     }
 

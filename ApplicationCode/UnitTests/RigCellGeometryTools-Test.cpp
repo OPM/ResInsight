@@ -142,7 +142,6 @@ TEST(RigCellGeometryTools, findCellAverageZTest)
 
 }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -296,7 +295,7 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
 }
 
 
-#include "RigWellPathStimplanIntersector.h"
+#include "Completions/RigWellPathStimplanIntersector.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -414,4 +413,3 @@ TEST(RigWellPathStimplanIntersector, intersection)
 
 }
 
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES

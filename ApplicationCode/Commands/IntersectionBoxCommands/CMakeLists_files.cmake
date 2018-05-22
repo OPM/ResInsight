@@ -1,25 +1,20 @@
 
-# Use this workaround until we're on 2.8.3 on all platforms and can use CMAKE_CURRENT_LIST_DIR directly 
-if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
-    set(CEE_CURRENT_LIST_DIR  ${CMAKE_CURRENT_LIST_DIR}/)
-endif()
-
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RicBoxManipulatorEventHandler.h
-${CEE_CURRENT_LIST_DIR}RicAppendIntersectionBoxFeature.h
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxXSliceFeature.h
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxYSliceFeature.h
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxZSliceFeature.h
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxAtPosFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicAppendIntersectionBoxFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxXSliceFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxYSliceFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxZSliceFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RicBoxManipulatorEventHandler.cpp
-${CEE_CURRENT_LIST_DIR}RicAppendIntersectionBoxFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxXSliceFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxYSliceFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxZSliceFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicIntersectionBoxAtPosFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicAppendIntersectionBoxFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxXSliceFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxYSliceFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxZSliceFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -32,8 +27,8 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 set (QT_MOC_HEADERS
 ${QT_MOC_HEADERS}
-${CEE_CURRENT_LIST_DIR}RicBoxManipulatorEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.h
 )
 
 
-source_group( "CommandFeature\\IntersectionBox" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "CommandFeature\\IntersectionBox" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

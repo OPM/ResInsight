@@ -49,8 +49,10 @@ public:
     void                                    computeResultValueRange();
     void                                    updateFromCurrentTimeStep();
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                            initAfterRead();
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            initAfterRead() override;
+
+    void                                    updateUiFieldsFromActiveResult();
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

@@ -28,7 +28,7 @@
 
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPltPlot.h"
 #include "RimWellLogPlot.h"
@@ -38,7 +38,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimEclipseResultCase.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManagerTools.h"
@@ -123,12 +123,9 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         pltPlot->loadDataAndUpdate();
         pltPlotColl->updateConnectedEditors();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->setExpanded(plotTrack);
-            mainPlotWindow->selectAsCurrentItem(pltPlot);
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::setExpanded(plotTrack);
+        RiuPlotMainWindowTools::selectAsCurrentItem(pltPlot);
     }
 }
 
@@ -138,7 +135,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
 void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New PLT Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/WellFlowPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

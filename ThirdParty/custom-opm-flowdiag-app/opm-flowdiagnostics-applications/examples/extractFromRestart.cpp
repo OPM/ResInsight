@@ -22,7 +22,7 @@
 #include <config.h>
 #endif
 
-#include <opm/core/utility/parameters/ParameterGroup.hpp>
+#include <opm/common/utility/parameters/ParameterGroup.hpp>
 #include <opm/utility/ECLResultData.hpp>
 
 #include <iostream>

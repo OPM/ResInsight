@@ -33,10 +33,15 @@
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class SummaryIdentifierAndField;
+
+
+using SummarySource = caf::PdmObject;
+
 
 //==================================================================================================
 ///  
@@ -51,11 +56,15 @@ public:
     virtual ~RiuSummaryCurveDefSelection();
 
     void                                    setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
-    std::vector<RiaSummaryCurveDefinition>  selectedCurveDefinitions() const;
+    std::vector<RiaSummaryCurveDefinition>  allCurveDefinitionsFromSelection() const;
+    std::vector<RiaSummaryCurveDefinition>  selection() const;
+
     void                                    setMultiSelectionMode(bool multiSelectionMode);
+    void                                    hideEnsembles(bool hide);
+    void                                    hideSummaryCases(bool hide);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
-    void                                    setDefaultSelection();
+    void                                    setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases);
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
@@ -86,13 +95,13 @@ private:
                                                                                    std::set<RifEclipseSummaryAddress>& addressSet) const;
 
     void                                    resetAllFields();
-    bool                                    isObservedData(RimSummaryCase *sumCase) const;
+    bool                                    isObservedData(const RimSummaryCase *sumCase) const;
 
-    std::vector<RimSummaryCase*>            selectedSummaryCases() const;
+    std::vector<SummarySource*>             selectedSummarySources() const;
     static RimSummaryCase*                  calculatedSummaryCase();
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
+    caf::PdmPtrArrayField<SummarySource*>                                                               m_selectedSources;
 
     caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>>              m_selectedSummaryCategories;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;
@@ -100,6 +109,9 @@ private:
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     bool                                                                                                m_multiSelectionMode;
+    
+    bool                                                                                                m_hideEnsembles;
+    bool                                                                                                m_hideSummaryCases;
 
     std::function<void()>                                                                               m_toggleChangedHandler;
 };

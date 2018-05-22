@@ -267,7 +267,7 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    RimView* rimView = nullptr;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfTypeAsserted(rimView);
 
     bool isPropertyFilterControlled = false;
@@ -350,7 +350,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     if (resultDefinition->isFlowDiagOrInjectionFlooding())
     {
-        RimView* view;
+        Rim3dView* view;
         this->firstAncestorOrThisOfType(view);
 
         int timeStep = 0;
@@ -390,7 +390,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
                         std::vector<QString> ctNames;
-                        for (QString ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        for (const QString& ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
                         {
                             ctNames.push_back(ctName);
                         }
@@ -446,7 +446,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 
     clearCategories();
 
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(view);
 
     int timeStep = view->currentTimeStep();
@@ -547,4 +547,12 @@ void RimEclipsePropertyFilter::initAfterRead()
 
     resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateUiFieldsFromActiveResult()
+{
+    resultDefinition->updateUiFieldsFromActiveResult();
 }

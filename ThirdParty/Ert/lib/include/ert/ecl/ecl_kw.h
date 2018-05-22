@@ -72,7 +72,6 @@ extern "C" {
   void           ecl_kw_fwrite_data(const ecl_kw_type *_ecl_kw , fortio_type *fortio);
   bool           ecl_kw_fread_realloc_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
   ecl_data_type  ecl_kw_get_data_type(const ecl_kw_type *);
-  size_t         ecl_kw_get_sizeof_ctype(const ecl_kw_type *);
   const char   * ecl_kw_get_header8(const ecl_kw_type *);
   const char   * ecl_kw_get_header(const ecl_kw_type * ecl_kw );
   ecl_kw_type  * ecl_kw_alloc_empty(void);
@@ -88,6 +87,7 @@ extern "C" {
   bool           ecl_kw_fread_realloc(ecl_kw_type *, fortio_type *);
   void           ecl_kw_fread(ecl_kw_type * , fortio_type * );
   ecl_kw_type *  ecl_kw_fread_alloc(fortio_type *);
+  ecl_kw_type *  ecl_kw_alloc_actnum(const ecl_kw_type * porv_kw, float porv_limit);
   void           ecl_kw_free_data(ecl_kw_type *);
   void           ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_data_type, int element_count, const int_vector_type* index_map, char* buffer);
   void           ecl_kw_free(ecl_kw_type *);
@@ -119,6 +119,7 @@ extern "C" {
   ecl_kw_type *  ecl_kw_alloc( const char * header , int size , ecl_data_type );
   ecl_kw_type *  ecl_kw_alloc_new(const char * ,  int , ecl_data_type , const void * );
   ecl_kw_type *  ecl_kw_alloc_new_shared(const char * ,  int , ecl_data_type , void * );
+  ecl_kw_type *  ecl_kw_alloc_global_copy(const ecl_kw_type * src, const ecl_kw_type * actnum);
   void           ecl_kw_fwrite_param(const char * , bool  , const char * ,  ecl_data_type , int , void * );
   void           ecl_kw_fwrite_param_fortio(fortio_type *, const char * ,  ecl_data_type , int , void * );
   void           ecl_kw_summarize(const ecl_kw_type * ecl_kw);
@@ -140,6 +141,9 @@ extern "C" {
   bool           ecl_kw_fskip_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
   bool           ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
   void           ecl_kw_fskip_header( fortio_type * fortio);
+  bool           ecl_kw_size_and_numeric_type_equal( const ecl_kw_type * kw1, const ecl_kw_type * kw2);
+  bool           ecl_kw_inplace_safe_div(ecl_kw_type * target_kw, const ecl_kw_type * divisor);
+  void           ecl_kw_inplace_sqrt( ecl_kw_type * kw );
 
 
   bool ecl_kw_is_kw_file(fortio_type * fortio);
@@ -174,6 +178,7 @@ extern "C" {
 
   ecl_kw_type * ecl_kw_alloc_scatter_copy( const ecl_kw_type * src_kw , int target_size , const int * mapping, void * def_value);
 
+  void ecl_kw_inplace_add_squared(ecl_kw_type * target_kw, const ecl_kw_type * add_kw);
   void ecl_kw_inplace_add( ecl_kw_type * target_kw , const ecl_kw_type * add_kw);
   void ecl_kw_inplace_sub( ecl_kw_type * target_kw , const ecl_kw_type * sub_kw);
   void ecl_kw_inplace_div( ecl_kw_type * target_kw , const ecl_kw_type * div_kw);
@@ -261,6 +266,8 @@ extern "C" {
 #undef ECL_KW_MAX_MIN_HEADER
 
   void ecl_kw_fix_uninitialized(ecl_kw_type * ecl_kw , int nx , int ny , int nz, const int * actnum);
+
+  ecl_type_enum  ecl_kw_get_type(const ecl_kw_type *);
 
 #include <ert/ecl/ecl_kw_grdecl.h>
 

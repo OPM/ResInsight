@@ -27,7 +27,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
@@ -51,7 +51,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
     
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
-    int measuredDepth = wellPathSelItem->m_measuredDepth;
+    double measuredDepth = wellPathSelItem->m_measuredDepth;
     perforationInterval->setStartAndEndMD(measuredDepth, measuredDepth + 50);
 
     wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
@@ -62,7 +62,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(perforationInterval);
+    Riu3DMainWindowTools::selectAsCurrentItem(perforationInterval);
 }
 
 //--------------------------------------------------------------------------------------------------

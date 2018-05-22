@@ -64,7 +64,7 @@ namespace caf
 class PdmUiTreeViewWidget : public QTreeView
 {
 public:
-    explicit PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
+    explicit PdmUiTreeViewWidget(QWidget* parent = nullptr) : QTreeView(parent) {};
     virtual ~PdmUiTreeViewWidget() {};
 
     bool isTreeItemEditWidgetActive() const
@@ -115,7 +115,7 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewEditor::~PdmUiTreeViewEditor()
 {
-    m_treeViewModel->setPdmItemRoot(NULL);
+    m_treeViewModel->setPdmItemRoot(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ void PdmUiTreeViewEditor::updateContextMenuSignals()
     else
     {
         m_treeView->setContextMenuPolicy(Qt::DefaultContextMenu);
-        disconnect(m_treeView, 0, this, 0);
+        disconnect(m_treeView, nullptr, this, nullptr);
     }
 }
 
@@ -303,7 +303,7 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

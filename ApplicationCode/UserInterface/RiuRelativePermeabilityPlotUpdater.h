@@ -23,7 +23,7 @@
 
 class RiuSelectionItem;
 class RiuRelativePermeabilityPlotPanel;
-class RimView;
+class Rim3dView;
 class RimEclipseView;
 class RigEclipseCaseData;
 
@@ -39,7 +39,7 @@ public:
     RiuRelativePermeabilityPlotUpdater(RiuRelativePermeabilityPlotPanel* targetPlotPanel);
 
     void updateOnSelectionChanged(const RiuSelectionItem* selectionItem);
-    void updateOnTimeStepChanged(RimView* changedView);
+    void updateOnTimeStepChanged(Rim3dView* changedView);
 
 private:
     static bool     queryDataAndUpdatePlot(const RimEclipseView& eclipseView, size_t gridIndex, size_t gridLocalCellIndex, RiuRelativePermeabilityPlotPanel* plotPanel);
@@ -47,7 +47,7 @@ private:
 
 private:
     QPointer<RiuRelativePermeabilityPlotPanel>  m_targetPlotPanel;
-    const RimView*                              m_sourceEclipseViewOfLastPlot;
+    const Rim3dView*                              m_sourceEclipseViewOfLastPlot;
 };
 
 

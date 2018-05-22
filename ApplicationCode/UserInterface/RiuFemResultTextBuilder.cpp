@@ -25,11 +25,18 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
+
+#include "Rim2dIntersectionView.h"
 #include "RimFormationNames.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+
 #include "RiuGeoMechXfTensorResultAccessor.h"
+
+#include "RivIntersectionPartMgr.h"
+
+#include "cafDisplayCoordTransform.h"
 
 
 
@@ -73,6 +80,14 @@ void RiuFemResultTextBuilder::setIntersectionTriangle(const std::array<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuFemResultTextBuilder::set2dIntersectionView(Rim2dIntersectionView* intersectionView)
+{
+    m_2dIntersectionView = intersectionView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuFemResultTextBuilder::setFace(int face)
 {
     m_face = face;
@@ -85,7 +100,9 @@ QString RiuFemResultTextBuilder::mainResultText()
 {
     QString text;
 
-    text = closestNodeResultText(m_reservoirView->cellResultResultDefinition());
+    RimGeoMechResultDefinition* cellResultDefinition = m_reservoirView->cellResultResultDefinition();
+
+    text = closestNodeResultText(cellResultDefinition);
 
     if (!text.isEmpty()) text += "\n";
 
@@ -94,7 +111,10 @@ QString RiuFemResultTextBuilder::mainResultText()
     appendDetails(text, formationDetails());
     text += "\n";
 
-    appendDetails(text, gridResultDetails());
+    if (cellResultDefinition->resultPositionType() != RIG_ELEMENT)
+    {
+        appendDetails(text, gridResultDetails());
+    }
 
     return text;
 }
@@ -114,7 +134,9 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
          
             RigFemPart* femPart = geomData->femParts()->part(m_gridIndex);
             int elementId = femPart->elmId(m_cellIndex);
-            text += QString("Element : Id[%1]").arg(elementId);
+            auto elementType = femPart->elementType(m_cellIndex);
+
+            text += QString("Element : Id[%1], Type[%2]").arg(elementId).arg(RigFemTypes::elementTypeText(elementType));
 
             size_t i = 0;
             size_t j = 0;
@@ -126,20 +148,30 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 j++;
                 k++;
 
-                cvf::Vec3d domainCoord = m_intersectionPoint; //  + geomCase->femParts()->displayModelOffset();
-
-                //cvf::StructGridInterface::FaceEnum faceEnum(m_face);
-
-                //QString faceText = faceEnum.text();
-
-                //text += QString("Face : %1").arg(faceText) + itemSeparator;
-                //text += QString("Fem Part %1").arg(m_gridIndex) + itemSeparator;
                 text += QString(", ijk[%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
 
                 QString formattedText;
-                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                if (m_2dIntersectionView)
+                {
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
+                    text += formattedText + itemSeparator;
 
-                text += formattedText;
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
+                    if (!t.isZero())
+                    {
+                        cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
+                        formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
+                        text += formattedText;
+                    }
+                }
+                else
+                {
+                    cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
+
+                    formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                    text += formattedText;
+                }
             }
         }
     }
@@ -185,12 +217,15 @@ QString RiuFemResultTextBuilder::formationDetails()
 
             size_t k =  cvf::UNDEFINED_SIZE_T;
             {
-                RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
-                if(geomData)
+                if ( m_reservoirView->geoMechCase() )
                 {
-                    size_t i = 0;
-                    size_t j = 0;
-                    geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
+                    if ( geomData )
+                    {
+                        size_t i = 0;
+                        size_t j = 0;
+                        geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    }
                 }
             }
 
@@ -244,8 +279,11 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                     int nodeIdx = elmentConn[lNodeIdx];
                     if (resultDefinition->resultPositionType() == RIG_NODAL)
                     {
-
                         scalarValue = scalarResults[nodeIdx];
+                    }
+                    else if (resultDefinition->resultPositionType() == RIG_ELEMENT)
+                    {
+                        scalarValue = scalarResults[cellIndex];
                     }
                     else
                     {
@@ -360,7 +398,11 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
             float scalarValue = (resultIndex >= 0) ? scalarResults[resultIndex]: std::numeric_limits<float>::infinity();
 
 
-            if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
+            if (activeResultPosition == RIG_ELEMENT)
+            {
+                text.append(QString("Element result: %1\n").arg(scalarValue));
+            }
+            else if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
             {
                 text.append(QString("Closest result: N[%1], %2\n").arg(closestNodeId)
                                                                   .arg(scalarValue));

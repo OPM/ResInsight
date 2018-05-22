@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT(RimCsvUserData, "RimCsvUserData");
 //--------------------------------------------------------------------------------------------------
 RimCsvUserData::RimCsvUserData()
 {
-    CAF_PDM_InitObject("Observed CSV Data File", ":/Default.png", "", "");
+    CAF_PDM_InitObject("Observed CSV Data File", ":/ObservedCSVDataFile16x16.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
 
     CAF_PDM_InitFieldNoDefault(&m_parseOptions, "ParseOptions", "", "", "", "");

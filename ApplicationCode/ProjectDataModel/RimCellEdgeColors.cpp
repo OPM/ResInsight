@@ -25,7 +25,7 @@
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmUiListEditor.h"
@@ -70,7 +70,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     m_resultVariable.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-    m_legendConfig = new RimLegendConfig();
+    m_legendConfig = new RimRegularLegendConfig();
 
     m_ignoredResultScalar = cvf::UNDEFINED_DOUBLE;
     resetResultIndices();
@@ -500,6 +500,14 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCellEdgeColors::updateUiFieldsFromActiveResult()
+{
+    m_singleVarEdgeResultColors->updateUiFieldsFromActiveResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::setEclipseCase(RimEclipseCase* eclipseCase)
 {
     m_singleVarEdgeResultColors->setEclipseCase(eclipseCase);
@@ -585,7 +593,7 @@ RimEclipseCellColors* RimCellEdgeColors::singleVarEdgeResultColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimCellEdgeColors::legendConfig()
+RimRegularLegendConfig* RimCellEdgeColors::legendConfig()
 {
     if (isUsingSingleVariable())
     {

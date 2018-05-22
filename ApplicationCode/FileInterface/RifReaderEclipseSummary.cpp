@@ -18,8 +18,9 @@
 
 #include "RifReaderEclipseSummary.h"
 #include "RiaStringEncodingTools.h"
-
-#include "ert/ecl/ecl_sum.h"
+#include "RiaFilePathTools.h"
+#include "RifReaderEclipseOutput.h"
+#include "RifEclipseSummaryTools.h"
 
 #include <string>
 #include <assert.h>
@@ -27,13 +28,70 @@
 #include <QDateTime>
 #include <QString>
 #include <QStringList>
+#include <QDir>
+
+#include "ert/ecl/ecl_sum.h"
 #include "ert/ecl/smspec_node.h"
+#include "ert/ecl/ecl_file.h"
+#include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_kw.h"
+
+std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
+{
+    std::vector<time_t> timeSteps;
+
+    if (ecl_sum)
+    {
+        for (int time_index = 0; time_index < ecl_sum_get_data_length(ecl_sum); time_index++)
+        {
+            time_t sim_time = ecl_sum_iget_sim_time(ecl_sum, time_index);
+            timeSteps.push_back(sim_time);
+        }
+    }
+    return timeSteps;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+ecl_sum_type* openEclSum(const QString& inHeaderFileName, bool includeRestartFiles)
+{
+    QString headerFileName;
+    QStringList dataFileNames;
+    QString nativeHeaderFileName = QDir::toNativeSeparators(inHeaderFileName);
+    RifEclipseSummaryTools::findSummaryFiles(nativeHeaderFileName, &headerFileName, &dataFileNames);
+
+    if (headerFileName.isEmpty() || dataFileNames.size() == 0) return nullptr;
+
+    assert(!headerFileName.isEmpty());
+    assert(dataFileNames.size() > 0);
+
+    stringlist_type* dataFiles = stringlist_alloc_new();
+    for (int i = 0; i < dataFileNames.size(); i++)
+    {
+        stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
+    }
+
+    std::string itemSeparatorInVariableNames = ":";
+    ecl_sum_type* ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), includeRestartFiles);
+
+    stringlist_free(dataFiles);
+
+    return ecl_sum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void closeEclSum(ecl_sum_type* ecl_sum)
+{
+    if(ecl_sum) ecl_sum_free(ecl_sum);
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary::RifReaderEclipseSummary()
-    : m_ecl_sum(NULL), 
+    : m_ecl_sum(nullptr), 
       m_ecl_SmSpec(nullptr)
 {
 
@@ -47,43 +105,24 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
     if (m_ecl_sum)
     {
         ecl_sum_free(m_ecl_sum);
-        m_ecl_sum = NULL;
+        m_ecl_sum = nullptr;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringList& dataFileNames)
+bool RifReaderEclipseSummary::open(const QString& headerFileName, bool includeRestartFiles)
 {
     assert(m_ecl_sum == NULL); 
     
-    if (headerFileName.isEmpty() || dataFileNames.size() == 0) return false;
-
-    assert(!headerFileName.isEmpty());
-    assert(dataFileNames.size() > 0);
-
-    stringlist_type* dataFiles = stringlist_alloc_new();
-    for (int i = 0; i < dataFileNames.size(); i++)
-    {
-        stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
-    }
-
-    std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), false);
-
-    stringlist_free(dataFiles);
+    m_ecl_sum = openEclSum(headerFileName, includeRestartFiles);
 
     if (m_ecl_sum)
     {
         m_timeSteps.clear();
         m_ecl_SmSpec = ecl_sum_get_smspec(m_ecl_sum);
-
-        for ( int time_index = 0; time_index < timeStepCount(); time_index++ )
-        {
-            time_t sim_time = ecl_sum_iget_sim_time(m_ecl_sum, time_index);
-            m_timeSteps.push_back(sim_time);
-        }
+        m_timeSteps = getTimeSteps(m_ecl_sum);
 
         buildMetaData();
 
@@ -91,6 +130,86 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringL
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const QString& headerFileName, bool* hasWarnings)
+{
+    CVF_ASSERT(hasWarnings);
+
+    std::vector<RifRestartFileInfo> restartFiles;
+    m_warnings.clear();
+    *hasWarnings = false;
+
+    RifRestartFileInfo currFile;
+    currFile.fileName = headerFileName;
+    while(!currFile.fileName.isEmpty())
+    {
+        // Due to a weakness in libecl regarding restart summary header file selection,
+        // do some extra checking
+        {
+            QString formattedHeaderExtension = ".FSMSPEC";
+            QString nonformattedHeaderExtension = ".SMSPEC";
+            QString formattedDataFileExtension = ".FUNSMRY";
+
+            if (currFile.fileName.endsWith(nonformattedHeaderExtension, Qt::CaseInsensitive))
+            {
+                QString formattedHeaderFile = currFile.fileName;
+                formattedHeaderFile.replace(nonformattedHeaderExtension, formattedHeaderExtension, Qt::CaseInsensitive);
+                QString formattedDateFile = currFile.fileName;
+                formattedDateFile.replace(nonformattedHeaderExtension, formattedDataFileExtension, Qt::CaseInsensitive);
+
+                QFileInfo nonformattedHeaderFileInfo = QFileInfo(currFile.fileName);
+                QFileInfo formattedHeaderFileInfo = QFileInfo(formattedHeaderFile);
+                QFileInfo formattedDateFileInfo = QFileInfo(formattedDateFile);
+                if (formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
+                    formattedHeaderFileInfo.exists() && !formattedDateFileInfo.exists())
+                {
+                    m_warnings.push_back(QString("RifReaderEclipseSummary: Formatted summary header file without an\n") +
+                                         QString("associated data file detected.\n") +
+                                         QString("This may cause a failure reading summary origin data.\n") +
+                                         QString("To avoid this problem, please delete or rename the.FSMSPEC file."));
+                    *hasWarnings = true;
+                    break;
+                }
+            }
+            QString prevFile = currFile.fileName;
+            currFile = getRestartFile(currFile.fileName);
+
+            // Fix to stop potential infinite loop
+            if (currFile.fileName == prevFile)
+            {
+                m_warnings.push_back("RifReaderEclipseSummary: Restart file reference loop detected");
+                *hasWarnings = true;
+                break;
+            }
+
+        }
+
+        if (!currFile.fileName.isEmpty())
+            restartFiles.push_back(currFile);
+    }
+    return restartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RifReaderEclipseSummary::getFileInfo(const QString& headerFileName)
+{
+    RifRestartFileInfo          fileInfo;
+    ecl_sum_type*               ecl_sum = openEclSum(headerFileName, false);
+    std::vector<time_t>         timeSteps = getTimeSteps(ecl_sum);
+    if (timeSteps.size() > 0)
+    {
+        fileInfo.fileName = headerFileName;
+        fileInfo.startDate = timeSteps.front();
+        fileInfo.endDate = timeSteps.back();
+    }
+    closeEclSum(ecl_sum);
+    return fileInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,6 +445,48 @@ void RifReaderEclipseSummary::buildMetaData()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+time_t getStartDate(ecl_file_type * header)
+{
+    time_t startDate = 0;
+    ecl_kw_type *startdat = ecl_file_iget_named_kw(header, STARTDAT_KW, 0);
+    if (startdat)
+    {
+        int * date = ecl_kw_get_int_ptr(startdat);
+        startDate = ecl_util_make_date(date[STARTDAT_DAY_INDEX],
+                                       date[STARTDAT_MONTH_INDEX],
+                                       date[STARTDAT_YEAR_INDEX]);
+    }
+    return startDate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& headerFileName)
+{
+    ecl_sum_type* ecl_sum = openEclSum(headerFileName, true);
+
+    const ecl_smspec_type* smspec = ecl_sum ? ecl_sum_get_smspec(ecl_sum) : nullptr;
+    const char* rstCase = smspec ? ecl_smspec_get_restart_case(smspec) : nullptr;
+    QString restartCase = rstCase? RiaFilePathTools::canonicalPath(RiaStringEncodingTools::fromNativeEncoded(rstCase)) : "";
+    closeEclSum(ecl_sum);
+
+    if (!restartCase.isEmpty())
+    {
+        QString path = QFileInfo(restartCase).dir().path();
+        QString restartBase = QDir(restartCase).dirName();
+        
+        char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
+        QString restartFileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
+        util_safe_free(smspec_header);
+
+        return getFileInfo(restartFileName);
+    }
+    return RifRestartFileInfo();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

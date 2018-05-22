@@ -191,7 +191,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_vertices.notNull());
 
-    if (m_vertices->size() == 0) return NULL;
+    if (m_vertices->size() == 0) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setFromQuadVertexArray(m_vertices.p());
@@ -208,7 +208,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::generateSurface()
 ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawable()
 {
    
-    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return NULL;
+    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(m_vertices.p());
@@ -228,7 +228,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> StructGridGeometryGenerator::createOutlineMeshDrawable(double creaseAngle)
 {
-    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return NULL;
+    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     cvf::OutlineEdgeExtractor ee(creaseAngle, *m_vertices);
 
@@ -238,7 +238,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createOutlineMeshDrawable(double c
     ref<cvf::UIntArray> lineIndices = ee.lineIndices();
     if (lineIndices->size() == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_LINES);
@@ -279,7 +279,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(c
     cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray;
     cvfVertices->assign(vertices);
 
-    if (!(cvfVertices.notNull() && cvfVertices->size() != 0)) return NULL;
+    if (!(cvfVertices.notNull() && cvfVertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(cvfVertices.p());

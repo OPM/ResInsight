@@ -48,7 +48,7 @@ public:
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
     RivTernaryTextureCoordsCreator( RimEclipseCellColors* cellResultColors,
-                                    RimTernaryLegendConfig* ternaryLegendConfig,
+                                    const RivTernaryScalarMapper* ternaryColorMapper,
                                     size_t timeStepIndex);
 
     void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);

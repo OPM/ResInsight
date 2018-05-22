@@ -28,7 +28,7 @@
 
 #include "RivCellSetEnum.h"
 
-class RimView;
+class RimGridView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimViewLinker;
@@ -49,10 +49,10 @@ public:
 
     bool                                    isActive() const;
 
-    RimView*                                managedView() const;
-    void                                    setManagedView(RimView* view);
+    RimGridView*                                managedView() const;
+    void                                    setManagedView(RimGridView* view);
 
-    RimView*                                masterView() const;
+    RimGridView*                                masterView() const;
     RimViewLinker*                          ownerViewLinker() const;
 
     const RigCaseToCaseCellMapper*          cellMapper();
@@ -102,12 +102,12 @@ private:
     RimEclipseView*                         managedEclipseView() const;
     RimGeoMechView*                         managedGeoView() const;
     
-    static void                             removeOverrides(RimView* view);
+    static void                             removeOverrides(RimGridView* view);
     static bool                             askUserToRestoreOriginalRangeFilterCollection(const QString& viewName);
 
 private:
     caf::PdmField<QString>                  m_name;
-    caf::PdmPtrField<RimView*>              m_managedView;
+    caf::PdmPtrField<RimGridView*>              m_managedView;
 
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;

@@ -24,7 +24,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -32,6 +32,24 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCaseCollectionFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble)
+{
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+    if (!cases.empty())
+    {
+        cases[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+
+        summaryCaseMainCollection->addCaseCollection(cases, groupName, isEnsemble);
+        summaryCaseMainCollection->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -65,13 +83,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&selection);
     if (selection.size() == 0) return;
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
-
-    summaryCaseMainCollection->addCaseCollection(selection);
-    summaryCaseMainCollection->updateConnectedEditors();
-    
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
+    groupSummaryCases(selection, "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,5 +92,5 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 void RicCreateSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Group Summary Cases");
-    actionToSetup->setIcon(QIcon(":/Folder.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryGroup16x16.png"));
 }

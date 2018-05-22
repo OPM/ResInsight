@@ -52,6 +52,8 @@ public:
 
     virtual void                                    loadDataAndUpdate() override;
 
+    virtual std::vector<cvf::Vec3d>                 perforationLengthCenterLineCoords() const override;
+
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
@@ -60,8 +62,8 @@ protected:
     RigMainGrid*                                    ownerCaseMainGrid() const;
 
 private:
-    void                                            updateBranchGeometry();
-    void                                            setBranchGeometry();
+    void                                            computeSimWellBranchesIfRequired();
+    void                                            computeSimWellBranchCenterLines();
 
 private:
     caf::PdmField<float>                            m_location;

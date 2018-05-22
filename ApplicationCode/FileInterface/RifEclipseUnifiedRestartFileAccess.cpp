@@ -44,7 +44,7 @@
 RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess()
     : RifEclipseRestartDataAccess()
 {
-    m_ecl_file = NULL;
+    m_ecl_file = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

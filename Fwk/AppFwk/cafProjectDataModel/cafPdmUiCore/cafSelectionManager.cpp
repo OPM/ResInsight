@@ -119,7 +119,7 @@ PdmUiItem* SelectionManager::selectedItem(int role /*= SelectionManager::APPLICA
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,8 +140,8 @@ SelectionManager::SelectionManager()
 {
     m_selectionForRole.resize(UNDEFINED);
 
-    m_notificationCenter = NULL;
-    m_activeChildArrayFieldHandle = NULL;
+    m_notificationCenter = nullptr;
+    m_activeChildArrayFieldHandle = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

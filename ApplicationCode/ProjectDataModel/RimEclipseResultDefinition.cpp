@@ -25,6 +25,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"
 
+#include "Rim3dView.h"
+#include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -33,11 +35,11 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimView.h"
 #include "RimViewLinker.h"
-#include "RimGridTimeHistoryCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
@@ -335,6 +337,13 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     {
         curve->updateConnectedEditors();
     }
+
+    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
+    this->firstAncestorOrThisOfType(rim3dWellLogCurve);
+    if (rim3dWellLogCurve)
+    {
+        rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,7 +386,7 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadDataAndUpdate()
 {
-    RimView* view = nullptr;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
 
     loadResult();
@@ -409,6 +418,8 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
             {
                 viewLinker->updateCellResult();
             }
+            RimGridView* eclView = dynamic_cast<RimGridView*>(view);
+            if (eclView) eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 
@@ -430,6 +441,13 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     if (curve)
     {
         curve->loadDataAndUpdate(true);
+    }
+
+    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
+    this->firstAncestorOrThisOfType(rim3dWellLogCurve);
+    if (rim3dWellLogCurve)
+    {
+        rim3dWellLogCurve->updateCurveIn3dView();
     }
 }
 
@@ -745,7 +763,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     {
         size_t timeStep = 0;
 
-        RimView* rimView = nullptr;
+        Rim3dView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
@@ -1055,6 +1073,15 @@ void RimEclipseResultDefinition::setSelectedSouringTracers(const std::vector<QSt
 {
     this->m_selectedSouringTracers = selectedTracers;
     this->m_selectedSouringTracersUiField = selectedTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
+{
+    m_resultTypeUiField = m_resultType;
+    m_resultVariableUiField = resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------

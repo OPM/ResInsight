@@ -308,7 +308,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObje
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -328,7 +328,7 @@ caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObj
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 

@@ -5,6 +5,7 @@
 #include <QTextStream>
 
 #include "cafInternalPdmStreamOperators.h"
+#include "cafInternalPdmFilePathStreamOperators.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafInternalPdmFieldIoHelper.h"
 

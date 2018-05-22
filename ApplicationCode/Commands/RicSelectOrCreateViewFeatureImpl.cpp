@@ -47,7 +47,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
         featureUi.setCase(resultCase);
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, dialogTitle, "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, dialogTitle, "");
     propertyDialog.resize(QSize(400, 200));
 
     if (propertyDialog.exec() != QDialog::Accepted) return nullptr;

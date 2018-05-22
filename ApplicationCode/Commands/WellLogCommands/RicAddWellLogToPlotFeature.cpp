@@ -32,7 +32,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "RigWellLogFile.h"
 
@@ -75,10 +75,10 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     {
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
-        RimWellPath* wellPath = NULL;
+        RimWellPath* wellPath = nullptr;
         wellLog->firstAncestorOrThisOfType(wellPath);
 
-        RimWellLogFile* wellLogFile = NULL;
+        RimWellLogFile* wellLogFile = nullptr;
         wellLog->firstAncestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
@@ -109,8 +109,10 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     plotTrack->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(plot);
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->setExpanded(plotTrack);
+
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(plot);
+    RiuPlotMainWindowTools::setExpanded(plotTrack);
 }
 
 //--------------------------------------------------------------------------------------------------

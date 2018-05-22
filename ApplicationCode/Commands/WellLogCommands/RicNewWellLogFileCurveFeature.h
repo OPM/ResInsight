@@ -36,5 +36,5 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-   bool wellLogFilesAvailable() const;
+   static bool wellLogFilesAvailable();
 };

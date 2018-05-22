@@ -23,6 +23,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmUiDragDropInterface.h"
+#include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QPointer>
@@ -45,6 +46,7 @@ class RiuResultQwtPlot;
 class RiuViewer;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
+class RiuMohrsCirclePlot;
 
 struct RimMdiWindowGeometry;
 
@@ -76,7 +78,7 @@ public:
 
     static RiuMainWindow* instance();
 
-    virtual QString mainWindowName()        { return "RiuMainWindow";  }
+    QString         mainWindowName() override;
     
     void            initializeGuiNewProjectLoaded();
     void            cleanupGuiCaseClose();
@@ -91,12 +93,10 @@ public:
     void            refreshAnimationActions();
     void            updateScaleValue();
 
-    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
 
-    void            selectAsCurrentItem(const caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
@@ -106,16 +106,17 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer) override;
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
-	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
+    QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     RiuResultQwtPlot*                   resultPlot();
     RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                    pvtPlotPanel();
+    RiuMohrsCirclePlot*                 mohrsCirclePlot();
     RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();
@@ -132,6 +133,8 @@ private:
     void            restoreTreeViewState();
 
     void            showDockPanel(const QString& dockPanelName);
+
+    void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
@@ -172,6 +175,7 @@ private:
     QPointer<RiuMessagePanel>               m_messagePanel;
     
     RiuResultQwtPlot*                   m_resultQwtPlot;
+    RiuMohrsCirclePlot*                 m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
     RiuPvtPlotPanel*                    m_pvtPlotPanel;
 
@@ -241,7 +245,6 @@ private slots:
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-    caf::PdmUiTreeView*            m_projectTreeView;
     
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     

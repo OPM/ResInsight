@@ -20,12 +20,20 @@
 
 #include "RiaVersionInfo.h"
 
+#include "RiuDockWidgetTools.h"
+
+#include "cafPdmObject.h"
+#include "cafPdmUiTreeView.h"
+
 #include <QSettings>
+#include <QDockWidget>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
+    : m_projectTreeView(nullptr)
+    , m_allowActiveViewChangeFromSelection(true)
 {
     setDockNestingEnabled(true);
 }
@@ -95,4 +103,43 @@ QString RiuMainWindowBase::registryFolderName()
     QString versionName(STRPRODUCTVER);
     QString regFolder = QString("%1/%2").arg(versionName).arg(mainWindowName());
     return regFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange)
+{
+    m_allowActiveViewChangeFromSelection = allowActiveViewChange;
+    m_projectTreeView->selectAsCurrentItem(object);
+    m_allowActiveViewChangeFromSelection = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
+{
+    m_projectTreeView->setExpanded(uiItem, expanded);
+}
+
+//-------------------------------------------------------------------------------------------------- 
+///  
+/// 
+//-------------------------------------------------------------------------------------------------- 
+void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
+{
+    if (!sender()) return;
+
+    auto dockWidget = dynamic_cast<QDockWidget*>(sender()->parent());
+    if (dockWidget)
+    {
+        if (dockWidget->isVisible())
+        {
+            // Raise the dock widget to make it visible if the widget is part of a tab widget 
+            dockWidget->raise();
+        }
+
+        RiuDockWidgetTools::instance()->setDockWidgetVisibility(dockWidget->objectName(), dockWidget->isVisible());
+    }
 }

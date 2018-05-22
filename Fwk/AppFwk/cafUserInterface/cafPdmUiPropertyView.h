@@ -53,7 +53,7 @@ class QVerticalScrollArea : public QScrollArea
 {
     Q_OBJECT
 public:
-    explicit QVerticalScrollArea(QWidget* parent = 0);
+    explicit QVerticalScrollArea(QWidget* parent = nullptr);
     virtual bool eventFilter(QObject* object, QEvent* event) override;
 };
 
@@ -72,7 +72,7 @@ class PdmUiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiPropertyView(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    PdmUiPropertyView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
     ~PdmUiPropertyView();
 
     void                        setUiConfigurationName(QString uiConfigName);

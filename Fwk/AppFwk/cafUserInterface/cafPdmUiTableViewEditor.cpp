@@ -91,13 +91,13 @@ private:
 //--------------------------------------------------------------------------------------------------
 PdmUiTableViewEditor::PdmUiTableViewEditor()
 {
-    m_layout = NULL;;
-    m_tableView = NULL;
-    m_tableHeading = NULL;
-    m_tableModelPdm = NULL;
-    m_tableHeadingIcon = NULL;
-    m_pdmListField = NULL;
-    m_delegate = NULL;
+    m_layout = nullptr;;
+    m_tableView = nullptr;
+    m_tableHeading = nullptr;
+    m_tableModelPdm = nullptr;
+    m_tableHeadingIcon = nullptr;
+    m_pdmListField = nullptr;
+    m_delegate = nullptr;
 
     m_useDefaultContextMenu = false;
 
@@ -201,7 +201,7 @@ void PdmUiTableViewEditor::setListField(PdmChildArrayFieldHandle* pdmListField)
 {
     m_pdmListField = pdmListField;
 
-    caf::PdmUiFieldHandle* uifield = NULL;
+    caf::PdmUiFieldHandle* uifield = nullptr;
     if (m_pdmListField)
     {
         uifield = m_pdmListField->uiCapability();
@@ -210,7 +210,7 @@ void PdmUiTableViewEditor::setListField(PdmChildArrayFieldHandle* pdmListField)
 
     if (!m_pdmListField)
     {
-        m_tableModelPdm->setPdmData(NULL, "");
+        m_tableModelPdm->setPdmData(nullptr, "");
         m_tableHeading->setText("");
         m_tableHeadingIcon->setPixmap(QPixmap());
     }
@@ -297,7 +297,7 @@ void PdmUiTableViewEditor::updateContextMenuSignals()
     else
     {
         m_tableView->setContextMenuPolicy(Qt::DefaultContextMenu);
-        disconnect(m_tableView, 0, this, 0);
+        disconnect(m_tableView, nullptr, this, nullptr);
     }
 }
 
@@ -375,7 +375,7 @@ PdmObjectHandle* PdmUiTableViewEditor::pdmObjectFromModelIndex(const QModelIndex
         return m_tableModelPdm->pdmObjectForRow(mi.row());
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -67,6 +67,8 @@ int ecl_rft_node_cmp( const ecl_rft_node_type * n1 , const ecl_rft_node_type * n
 void ecl_rft_node_append_cell( ecl_rft_node_type * rft_node , ecl_rft_cell_type * cell);
 ecl_rft_node_type * ecl_rft_node_alloc_new(const char * well_name, const char * data_type_string, const time_t recording_date, const double days);
 
+ecl_rft_enum ecl_rft_node_get_type(const ecl_rft_node_type * rft_node);
+
 #ifdef __cplusplus
 }
 #endif

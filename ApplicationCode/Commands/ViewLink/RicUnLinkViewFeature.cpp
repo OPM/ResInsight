@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicUnLinkViewFeature, "RicUnLinkViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicUnLinkViewFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
     
     RimViewController* viewController = activeView->viewController();
@@ -58,7 +58,7 @@ bool RicUnLinkViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicUnLinkViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
     
     RimViewController* viewController = activeView->viewController();

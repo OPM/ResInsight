@@ -31,7 +31,8 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafUtils.h"
 #include "cafPdmSettings.h"
@@ -108,6 +109,18 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
     return true;
 }
 
+void updateNewSummaryObjectCreated(caf::PdmObject* object)
+{
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(object);
+    RiuPlotMainWindowTools::setExpanded(object);
+
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    if (mpw) mpw->updateSummaryPlotToolBar();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -130,15 +143,10 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
         errorText->append(observedData->errorMessagesFromReader());
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(observedData);
-        mainPlotWindow->setExpanded(observedData);
-    }
+    updateNewSummaryObjectCreated(observedData);
 
     this->updateConnectedEditors();
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
     return observedData;
 }
 
@@ -161,7 +169,7 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     }
     parseOptions->setUiModeImport(fileName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, parseOptions, "CSV Import Options", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, parseOptions, "CSV Import Options", "");
     if (propertyDialog.exec() != QDialog::Accepted)
     {
         return nullptr;
@@ -192,14 +200,9 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
         return nullptr;
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(userData);
-        mainPlotWindow->setExpanded(userData);
-    }
+    updateNewSummaryObjectCreated(observedData);
 
     this->updateConnectedEditors();
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
     return observedData;
 }

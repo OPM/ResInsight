@@ -79,6 +79,24 @@ double RiaStdStringTools::toDouble(const std::string& s)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::containsAlphabetic(const std::string& s)
+{
+    return std::find_if(s.begin(), s.end(), [](char c) { return isalpha(c); }) != s.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::startsWithAlphabetic(const std::string& s)
+{
+    if (s.empty()) return false;
+
+    return isalpha(s[0]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RiaStdStringTools::splitStringBySpace(const std::string& s)
 {
     std::vector<std::string> words;

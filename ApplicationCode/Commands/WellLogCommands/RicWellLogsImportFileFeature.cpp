@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RimProject.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiObjectEditorHandle.h"
 
@@ -46,7 +46,7 @@ void RicWellLogsImportFileFeature::onActionTriggered(bool isChecked)
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("WELL_LOGS_DIR");
-    QStringList wellLogFilePaths = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Logs", defaultDir, "Well Logs (*.las);;All Files (*.*)");
+    QStringList wellLogFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Logs", defaultDir, "Well Logs (*.las);;All Files (*.*)");
 
     if (wellLogFilePaths.size() < 1) return;
 

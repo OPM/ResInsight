@@ -46,6 +46,8 @@ public:
     bool                         hasValidCustomResult();
     RimEclipseCellColors*        customFaultResult();
 
+    void                         updateUiFieldsFromActiveResult();
+
 protected:
     virtual void                 initAfterRead();
     virtual caf::PdmFieldHandle* objectToggleField();

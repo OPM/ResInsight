@@ -37,6 +37,7 @@
 
 #include "cafProgressInfo.h"
 #include "cafAssert.h"
+#include "cafProgressState.h"
 
 #include <QPointer>
 #include <QProgressDialog>
@@ -317,6 +318,13 @@ namespace caf {
         return progressDialog()->thread() == QThread::currentThread();
     }
 
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    bool ProgressState::isActive()
+    {
+        return !maxProgressStack().empty();
+    }
 
     //--------------------------------------------------------------------------------------------------
     /// 
@@ -335,9 +343,14 @@ namespace caf {
         #pragma warning (push)
         #pragma warning (disable: 4996)
         AllocConsole();
-        freopen("conin$", "r", stdin);
-        freopen("conout$", "w", stdout);
-        freopen("conout$", "w", stderr);
+
+        FILE* consoleFilePointer;
+        errno_t err;
+
+        err = freopen_s(&consoleFilePointer, "conin$", "r", stdin);
+        err = freopen_s(&consoleFilePointer, "conout$", "w", stdout);
+        err = freopen_s(&consoleFilePointer, "conout$", "w", stderr);
+
         #pragma warning (pop)
     #endif
     }
@@ -407,7 +420,7 @@ namespace caf {
             //progressDialog()->setWindowModality(Qt::ApplicationModal);
             progressDialog()->setMinimum(0);
             progressDialog()->setWindowTitle(title);
-            progressDialog()->setCancelButton(NULL);
+            progressDialog()->setCancelButton(nullptr);
             progressDialog()->show();
         }
 
@@ -421,8 +434,8 @@ namespace caf {
         progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
         progressDialog()->setLabelText(currentComposedLabel());
 
-        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        if (progressDialog()) progressDialog()->repaint();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //if (progressDialog()) progressDialog()->repaint();
     }
 
 
@@ -436,8 +449,8 @@ namespace caf {
         descriptionStack().back() = description;
 
         progressDialog()->setLabelText(currentComposedLabel());
-        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        if (progressDialog()) progressDialog()->repaint();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //if (progressDialog()) progressDialog()->repaint();
 
     }
 
@@ -478,8 +491,8 @@ namespace caf {
         progressDialog()->setMaximum(totalMaxProgress);
         progressDialog()->setValue(totalProgress);
 
-        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        if (progressDialog()) progressDialog()->repaint();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //if (progressDialog()) progressDialog()->repaint();
 
     }
 
@@ -555,19 +568,20 @@ namespace caf {
         progressDialog()->setLabelText(currentComposedLabel());
 
         // If we are finishing the last level, clean up
-        if (!maxProgressStack_v.size())
+        if (maxProgressStack_v.empty())
         {
-            if (progressDialog() != NULL)
+            if (progressDialog() != nullptr)
             {
                 progressDialog()->reset();
                 progressDialog()->close();
             }
         }
-
-        // Make sure the Gui is repainted
-        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        if (progressDialog()) progressDialog()->repaint();
-
+        else
+        {
+            // Make sure the Gui is repainted
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+            //if (progressDialog()) progressDialog()->repaint();
+        }
     }
 
 

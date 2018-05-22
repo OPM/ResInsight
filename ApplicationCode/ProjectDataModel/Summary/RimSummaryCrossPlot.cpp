@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryCrossPlot, "SummaryCrossPlot");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlot::RimSummaryCrossPlot()
 {
-    CAF_PDM_InitObject("Summary Cross Plot", ":/SummaryPlotLight16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Cross Plot", ":/SummaryXPlotLight16x16.png", "", "");
 
     setAsCrossPlot();
 }

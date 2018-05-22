@@ -39,12 +39,10 @@
 #include "RimWellPath.h"
 #include "RimPerforationCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
-
-#include "RivWellPathPartMgr.h"
 
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
@@ -140,7 +138,7 @@ void RimWellPathCollection::readWellPathFiles()
             QString errorMessage;
             if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, m_wellPathImporter))
             {
-                QMessageBox::warning(RiuMainWindow::instance(),
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                      "File open error",
                                      errorMessage);
             }
@@ -161,7 +159,7 @@ void RimWellPathCollection::readWellPathFiles()
                         displayMessage += errorMessage;
                     }
 
-                    QMessageBox::warning(RiuMainWindow::instance(),
+                    QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                          "File open error",
                                          displayMessage);
                 }
@@ -254,7 +252,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile(NULL, m_wellPathImporter);
+        wellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name()));
 
@@ -264,7 +262,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
-            existingWellPath->readWellPathFile(NULL, m_wellPathImporter);
+            existingWellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
             // Let name from well path file override name from well log file
             existingWellPath->setName(wellPath->name());
@@ -369,7 +367,7 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 
     if (fileReadSuccess)
     {
-        QMessageBox::information(RiuMainWindow::instance(), "Well Picks Import", outputMessage);
+        QMessageBox::information(Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage);
         RiaLogging::info(outputMessage);
     }
 
@@ -409,63 +407,7 @@ void RimWellPathCollection::scheduleRedrawAffectedViews()
 {
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
-    if (proj) proj->createDisplayModelAndRedrawAllViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                             double characteristicCellSize,
-                                                             const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                             const caf::DisplayCoordTransform* displayCoordTransform)
-{
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                             const RimEclipseView& eclView)
-{
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendStaticFracturePartsToModel(model, eclView);
-    }
-}
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                              const QDateTime& timeStamp,
-                                                              double characteristicCellSize,
-                                                              const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                              const caf::DisplayCoordTransform* displayCoordTransform)
-
-{
-    if (!this->isActive()) return;
-    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
-
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
-        partMgr->appendDynamicGeometryPartsToModel(model, timeStamp, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
-    }
+    if (proj) proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,7 +489,7 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(RiuMainWindow::instance(),
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                  "File open error",
                                  errorMessage);
         }
@@ -569,7 +511,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if (!wellPaths[wpIdx]->reloadWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(RiuMainWindow::instance(),
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                  "File open error",
                                  errorMessage);
         }

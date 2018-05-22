@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out) : m_out(out)
+RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
+    : m_out(out)
+    , m_colSpacing(5)
 {
 }
 
@@ -39,9 +41,17 @@ RifEclipseDataTableFormatter::~RifEclipseDataTableFormatter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::setColumnSpacing(int spacing)
+{
+    m_colSpacing = spacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputBuffer()
 {
-    if (m_columns.size() > 0)
+    if (!m_columns.empty())
     {
         m_out << "-- ";
         for (RifEclipseOutputTableColumn& column : m_columns)
@@ -64,7 +74,8 @@ void RifEclipseDataTableFormatter::outputBuffer()
             {
                 m_out << formatColumn(line.data[i], m_columns[i]);
             }
-            m_out << " /" << "\n";
+            m_out << " /"
+                  << "\n";
         }
     }
     m_columns.clear();
@@ -203,7 +214,7 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addZeroBasedCellInde
 void RifEclipseDataTableFormatter::rowCompleted()
 {
     RifEclipseOutputTableLine line;
-    line.data = m_lineBuffer;
+    line.data     = m_lineBuffer;
     line.lineType = CONTENTS;
     m_buffer.push_back(line);
     m_lineBuffer.clear();
@@ -248,12 +259,12 @@ QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDo
 {
     switch (doubleFormat.format)
     {
-    case RifEclipseOutputTableDoubleFormat::RIF_FLOAT:
-        return QString("%1").arg(num, 0, 'f', doubleFormat.width);
-    case RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC:
-        return QString("%1").arg(num, 0, 'E');
-    default:
-        return QString("%1");
+        case RifEclipseOutputTableDoubleFormat::RIF_FLOAT:
+            return QString("%1").arg(num, 0, 'f', doubleFormat.width);
+        case RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC:
+            return QString("%1").arg(num, 0, 'E');
+        default:
+            return QString("%1");
     }
 }
 

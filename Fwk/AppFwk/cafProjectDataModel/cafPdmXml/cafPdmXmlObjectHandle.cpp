@@ -28,7 +28,7 @@ PdmXmlObjectHandle::PdmXmlObjectHandle(PdmObjectHandle* owner, bool giveOwnershi
 //--------------------------------------------------------------------------------------------------
 PdmXmlObjectHandle* xmlObj(PdmObjectHandle* obj)
 {
-    if (!obj) return NULL;
+    if (!obj) return nullptr;
     PdmXmlObjectHandle* xmlObject = obj->capability<PdmXmlObjectHandle>();
     CAF_ASSERT(xmlObject);
     return xmlObject;
@@ -248,7 +248,7 @@ bool PdmXmlObjectHandle::isValidXmlElementName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::initAfterReadRecursively(PdmObjectHandle* object)
 {
-    if (object == NULL) return;
+    if (object == nullptr) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
@@ -278,7 +278,7 @@ void PdmXmlObjectHandle::initAfterReadRecursively(PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object)
 {
-    if (object == NULL) return;
+    if (object == nullptr) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
@@ -308,7 +308,7 @@ void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::setupBeforeSaveRecursively(PdmObjectHandle* object)
 {
-    if (object == NULL) return;
+    if (object == nullptr) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);

@@ -36,11 +36,13 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 
@@ -63,6 +65,8 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<QString>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiFilePathEditor, FilePath);
 
 
 //--------------------------------------------------------------------------------------------------

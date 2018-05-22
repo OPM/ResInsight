@@ -27,16 +27,17 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
@@ -44,7 +45,6 @@
 #include <QAction>
 
 #include <vector>
-#include "RimSimWellInViewCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
@@ -125,5 +125,5 @@ bool RicNewWellLogCurveExtractionFeature::caseAvailable()
     std::vector<RimCase*> cases;
     RiaApplication::instance()->project()->allCases(cases);
 
-    return cases.size() > 0;
+    return !cases.empty();
 }

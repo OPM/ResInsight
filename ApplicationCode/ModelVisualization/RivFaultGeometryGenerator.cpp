@@ -60,7 +60,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_vertices.notNull());
 
-    if (m_vertices->size() == 0) return NULL;
+    if (m_vertices->size() == 0) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setFromQuadVertexArray(m_vertices.p());
@@ -75,7 +75,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface()
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 {
 
-    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return NULL;
+    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray(m_vertices.p());
@@ -93,7 +93,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(double creaseAngle)
 {
-    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return NULL;
+    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     cvf::OutlineEdgeExtractor ee(creaseAngle, *m_vertices);
 
@@ -103,7 +103,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
     cvf::ref<cvf::UIntArray> lineIndices = ee.lineIndices();
     if (lineIndices->size() == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);

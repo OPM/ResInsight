@@ -25,7 +25,7 @@ PdmUiObjectHandle::PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership)
 //--------------------------------------------------------------------------------------------------
 PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
 {
-    if (!obj) return NULL;
+    if (!obj) return nullptr;
     PdmUiObjectHandle* uiObject = obj->capability<PdmUiObjectHandle>();
     CAF_ASSERT(uiObject);
     return uiObject;
@@ -92,7 +92,7 @@ PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""
 {
     CAF_ASSERT(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
 
-    PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering(NULL, m_owner);
+    PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering(nullptr, m_owner);
 
     expandUiTree(uiTreeOrdering, uiConfigName);
 

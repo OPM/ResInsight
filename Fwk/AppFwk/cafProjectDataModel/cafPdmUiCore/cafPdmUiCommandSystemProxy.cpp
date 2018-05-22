@@ -64,7 +64,7 @@ PdmUiCommandSystemProxy* PdmUiCommandSystemProxy::instance()
 //--------------------------------------------------------------------------------------------------
 PdmUiCommandSystemProxy::PdmUiCommandSystemProxy()
 {
-    m_commandInterface = NULL;
+    m_commandInterface = nullptr;
 
 }
 

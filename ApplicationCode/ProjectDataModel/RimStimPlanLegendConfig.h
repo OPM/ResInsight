@@ -24,7 +24,7 @@
 #include "cafPdmChildField.h"
 
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -50,6 +50,6 @@ protected:
 
 private:
     caf::PdmField<QString>               m_name;
-    caf::PdmChildField<RimLegendConfig*> m_legend;
+    caf::PdmChildField<RimRegularLegendConfig*> m_legend;
 
 };

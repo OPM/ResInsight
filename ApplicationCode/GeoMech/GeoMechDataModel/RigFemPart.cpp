@@ -365,7 +365,7 @@ void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vec
         }
 
         m_elementSearchTree = new cvf::BoundingBoxTree;
-        m_elementSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+        m_elementSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, nullptr);
     }
 
     m_elementSearchTree->findIntersections(inputBB, elementIndices);

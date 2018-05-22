@@ -29,11 +29,14 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cvfAssert.h"
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
+//#include "cafPdmUiItem.h"
 
 #include <QAction>
 
@@ -55,7 +58,15 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
 
     if (sumPlotColl) return true;
 
-    return false;
+    // Multiple case selections
+    std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();
+
+    for (auto item : selectedItems)
+    {
+        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item))
+            return false;
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +76,16 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
+
+    std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
+    std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+
+    // Append grouped cases
+    for (auto group : selectedGroups)
+    {
+        auto groupCases = group->allSummaryCases();
+        selectedCases.insert(selectedCases.end(), groupCases.begin(), groupCases.end());
+    }
 
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
@@ -77,7 +98,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
         dialog->raise();
     }
 
-    dialog->updateFromSummaryPlot(nullptr);
+    dialog->updateFromDefaultCases(selectedCases);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,6 +107,6 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 

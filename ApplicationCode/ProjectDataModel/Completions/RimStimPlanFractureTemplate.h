@@ -49,63 +49,77 @@ class RimStimPlanFractureTemplate : public RimFractureTemplate
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimStimPlanFractureTemplate(void);
-    virtual ~RimStimPlanFractureTemplate(void);
+    RimStimPlanFractureTemplate();
+    virtual ~RimStimPlanFractureTemplate();
     
-    int                                     activeTimeStepIndex() { return m_activeTimeStepIndex; }
-    bool                                    showStimPlanMesh()    { return m_showStimPlanMesh;}
+    int                                     activeTimeStepIndex();
 
-    void                                    loadDataAndUpdate(); 
+    void                                    loadDataAndUpdate() override;
     void                                    setDefaultsBasedOnXMLfile();
 
     void                                    setFileName(const QString& fileName);
     const QString&                          fileName();
-    QString                                 fileNameWithOutPath();
 
     void                                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 
     // Fracture geometry
      
-    const RigFractureGrid*                  fractureGrid() const;
+    const RigFractureGrid*                  fractureGrid() const override;
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                                     std::vector<cvf::uint>* triangleIndices, 
-                                                                     RiaEclipseUnitTools::UnitSystem  neededUnit) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit);
+                                                                     std::vector<cvf::uint>* triangleIndices) override;
+    std::vector<cvf::Vec3f>                 fractureBorderPolygon() override;
 
     // Result Access
 
-    const std::vector<double>&              timeSteps();
-    std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
-    void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
-    std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+    std::vector<double>                     timeSteps();
+    std::vector<std::pair<QString, QString> > uiResultNamesWithUnit() const override;
+    std::vector<std::vector<double>>        resultValues(const QString& uiResultName, const QString& unitName, size_t timeStepIndex) const;
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
+    double                                  resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j);
+
+    void                                    appendDataToResultStatistics(const QString& uiResultName, 
+                                                                         const QString& unit,
+                                                                         MinMaxAccumulator& minMaxAccumulator,
+                                                                         PosNegAccumulator& posNegAccumulator) const override;
+
+    QString                                 mapUiResultNameToFileResultName(const QString& uiResultName) const;
+
+    bool                                    showStimPlanMesh() const;
+
+
+    void                                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
+    virtual void                            reload() override;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
-    void                                    updateUiTreeName();
-
+    void                                    setDefaultConductivityResultIfEmpty();
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
+    void                                    setPerforationLength();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
+
+    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection() const override;
+
+private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
-    caf::PdmField<bool>                     m_showStimPlanMesh;
+    caf::PdmField<QString>                  m_conductivityResultNameOnFile;
 
     caf::PdmField<double>                   m_wellPathDepthAtFracture;
     caf::PdmField<QString>                  m_borderPolygonResultName;
 
     caf::PdmField<QString>                  m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
-    caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
-
     bool                                    m_readError;
+
+    caf::PdmField<bool>                     m_showStimPlanMesh_OBSOLETE;
 };

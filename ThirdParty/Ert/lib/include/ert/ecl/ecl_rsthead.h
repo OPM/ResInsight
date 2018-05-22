@@ -95,6 +95,8 @@ extern "C" {
   double              ecl_rsthead_get_sim_days( const ecl_rsthead_type * header );
   int                 ecl_rsthead_get_report_step( const ecl_rsthead_type * header );
   time_t              ecl_rsthead_get_sim_time( const ecl_rsthead_type * header );
+  int                 ecl_rsthead_get_nxconz( const ecl_rsthead_type * rsthead );
+  int                 ecl_rsthead_get_ncwmax( const ecl_rsthead_type * rsthead );
 
 #ifdef __cplusplus
 }

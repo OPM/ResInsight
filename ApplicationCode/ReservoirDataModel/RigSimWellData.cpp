@@ -25,6 +25,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigSimWellData::RigSimWellData()
+    : m_isMultiSegmentWell(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigWellResultFrame& RigSimWellData::wellResultFrame(size_t resultTimeStepIndex) const
 {
     CVF_ASSERT(resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size());
@@ -371,7 +379,7 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
         return &m_wellHead;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

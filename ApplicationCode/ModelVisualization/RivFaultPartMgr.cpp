@@ -31,7 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivFaultGeometryGenerator.h"
@@ -374,7 +374,7 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    updateNNCColors(0, NULL);
+    updateNNCColors(0, nullptr);
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -417,8 +417,8 @@ void RivFaultPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 {
-    m_faultLabelPart = NULL;
-    m_faultLabelLinePart = NULL;
+    m_faultLabelPart = nullptr;
+    m_faultLabelLinePart = nullptr;
 
     if (!part) return;
 
@@ -705,8 +705,9 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
         cvf::Color3f nncColor = m_defaultColor;
         nncColor.r() +=  (1.0 - nncColor.r()) * 0.2;
         nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
-        nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
+        nncColor.b() +=  (1.0 - nncColor.b()) * 0.2;
 
+        CVF_ASSERT(nncColor.isValid());
         cvf::ref<cvf::Effect> nncEffect;
 
         if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)

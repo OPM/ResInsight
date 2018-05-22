@@ -124,3 +124,58 @@ QString RiaEclipseUnitTools::unitStringPressure(UnitSystem unitSystem)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaEclipseUnitTools::convertToMeter(double sourceValue, const QString& unitText)
+{
+    QString timmed = unitText.trimmed();
+
+    if (timmed.compare("m", Qt::CaseInsensitive) == 0)
+    {
+        return sourceValue;
+    }
+    else if (timmed.compare("cm", Qt::CaseInsensitive) == 0)
+    {
+        return sourceValue / 100.0;
+    }
+    else if (timmed.compare("in", Qt::CaseInsensitive) == 0)
+    {
+        return RiaEclipseUnitTools::inchToMeter(sourceValue);
+    }
+    else if (timmed.compare("ft", Qt::CaseInsensitive) == 0)
+    {
+        return RiaEclipseUnitTools::feetToMeter(sourceValue);
+    }
+
+    return HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaEclipseUnitTools::convertToFeet(double sourceValue, const QString& unitText)
+{
+    QString timmed = unitText.trimmed();
+
+    if (timmed.compare("ft", Qt::CaseInsensitive) == 0)
+    {
+        return sourceValue;
+    }
+    else if (timmed.compare("in", Qt::CaseInsensitive) == 0)
+    {
+        return RiaEclipseUnitTools::inchToFeet(sourceValue);
+    }
+    else if (timmed.compare("cm", Qt::CaseInsensitive) == 0)
+    {
+        double meter = sourceValue / 100.0;
+        return RiaEclipseUnitTools::meterToFeet(meter);
+    }
+    else if (timmed.compare("m", Qt::CaseInsensitive) == 0)
+    {
+        return RiaEclipseUnitTools::meterToFeet(sourceValue);
+    }
+
+    return HUGE_VAL;
+}
+

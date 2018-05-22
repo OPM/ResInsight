@@ -30,16 +30,17 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
-#include "RimLegendConfig.h"
+#include "RimIntersectionCollection.h"
+#include "RimRegularLegendConfig.h"
+#include "RimTensorResults.h"
 #include "RimViewLinker.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -47,15 +48,17 @@
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
 #include "RivSingleCellPartGenerator.h"
+#include "RivTensorResultPartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
+#include "cafOverlayScalarMapperLegend.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include "cvfModelBasicList.h"
-#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 #include "cvfTransform.h"
@@ -81,12 +84,18 @@ RimGeoMechView::RimGeoMechView(void)
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiHidden(true);
 
+
+    CAF_PDM_InitFieldNoDefault(&m_tensorResults, "TensorResults", "Tensor Results", "", "", "");
+    m_tensorResults = new RimTensorResults();
+    m_tensorResults.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
+    m_tensorPartMgr = new RivTensorResultPartMgr(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,8 +103,9 @@ RimGeoMechView::RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::~RimGeoMechView(void)
 {
-    m_geomechCase = NULL;
+    m_geomechCase = nullptr;
 
+    delete m_tensorResults;
     delete cellResult;
     delete m_propertyFilterCollection;
 }
@@ -116,10 +126,10 @@ void RimGeoMechView::onLoadDataAndUpdate()
         {
             QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-            QMessageBox::warning(RiuMainWindow::instance(), 
-                            "File open error", 
-                            displayMessage);
-            m_geomechCase = NULL;
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
+                                 "File open error", 
+                                 displayMessage);
+            m_geomechCase = nullptr;
             return;
         }
     }
@@ -127,7 +137,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     progress.setProgressDescription("Reading Current Result");
 
-    CVF_ASSERT(this->cellResult() != NULL);
+    CVF_ASSERT(this->cellResult() != nullptr);
     if (this->hasUserRequestedAnimation())
     {
         m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded(this->cellResult()->resultAddress());
@@ -205,12 +215,13 @@ void RimGeoMechView::createDisplayModel()
    cvf::ref<cvf::ModelBasicList> mainSceneGridVizModel =  new cvf::ModelBasicList;
    mainSceneGridVizModel->setName("GridModel");
    m_vizLogic->appendNoAnimPartsToModel(mainSceneGridVizModel.p());
+
    mainSceneGridVizModel->updateBoundingBoxesRecursive();
    mainScene->addModel(mainSceneGridVizModel.p());
 
    // Well path model
 
-   cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+   cvf::BoundingBox femBBox = femParts()->boundingBox();
 
    m_wellPathPipeVizModel->removeAllParts();
    addWellPathsToModel(m_wellPathPipeVizModel.p(), femBBox);
@@ -221,7 +232,7 @@ void RimGeoMechView::createDisplayModel()
    // Cross sections
 
    m_crossSectionVizModel->removeAllParts();
-   crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
+   m_crossSectionCollection->appendPartsToModel(*this, m_crossSectionVizModel.p(), scaleTransform());
    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -234,7 +245,7 @@ void RimGeoMechView::createDisplayModel()
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
-       crossSectionCollection->applySingleColorEffect();
+       m_crossSectionCollection->applySingleColorEffect();
 
        m_overlayInfoConfig()->update3DInfo();
    }
@@ -275,10 +286,26 @@ void RimGeoMechView::updateCurrentTimeStep()
                     cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                     wellPathModelBasicList->setName(name);
 
-                    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+                    cvf::BoundingBox femBBox = femParts()->boundingBox();
                     addDynamicWellPathsToModel(wellPathModelBasicList.p(), femBBox);
 
                     frameScene->addModel(wellPathModelBasicList.p());
+                }
+
+                {
+                    // Tensors
+                    cvf::String name = "Tensor";
+                    this->removeModelByName(frameScene, name);
+
+                    cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                    frameParts->setName(name);
+                    m_tensorPartMgr->appendDynamicGeometryPartsToModel(frameParts.p(), m_currentTimeStep);
+                    frameParts->updateBoundingBoxesRecursive();
+
+                    if (frameParts->partCount() != 0)
+                    {
+                        frameScene->addModel(frameParts.p());
+                    }
                 }
             }
         }
@@ -290,18 +317,20 @@ void RimGeoMechView::updateCurrentTimeStep()
 
         if (this->cellResult()->hasResult())
         {
-            crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+            m_crossSectionCollection->updateCellResultColor(m_currentTimeStep, 
+                                                            this->cellResult()->legendConfig()->scalarMapper(), 
+                                                            nullptr);
         }
         else
         {
-            crossSectionCollection->applySingleColorEffect();
+            m_crossSectionCollection->applySingleColorEffect();
         }
 
     }
     else
     {
         m_vizLogic->updateStaticCellColors(-1);
-        crossSectionCollection->applySingleColorEffect();
+        m_crossSectionCollection->applySingleColorEffect();
 
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -317,46 +346,6 @@ void RimGeoMechView::updateStaticCellColors()
     m_vizLogic->updateStaticCellColors(-1);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateDisplayModelVisibility()
-{
-    if (m_viewer.isNull()) return;
-
-    const cvf::uint uintSurfaceBit      = surfaceBit;
-    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
-    const cvf::uint uintFaultBit        = faultBit;
-    const cvf::uint uintMeshFaultBit    = meshFaultBit;
- 
-    // Initialize the mask to show everything except the the bits controlled here
-    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
-
-    // Then turn the appropriate bits on according to the user settings
-
-    if (surfaceMode == SURFACE)
-    {
-         mask |= uintSurfaceBit;
-         mask |= uintFaultBit;
-    }
-    else if (surfaceMode == FAULTS)
-    {
-        mask |= uintFaultBit;
-    }
-
-    if (meshMode == FULL_MESH)
-    {
-        mask |= uintMeshSurfaceBit;
-        mask |= uintMeshFaultBit;
-    }
-    else if (meshMode == FAULTS_MESH)
-    {
-        mask |= uintMeshFaultBit;
-    }
-
-    m_viewer->setEnableMask(mask);
-    m_viewer->update();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -376,7 +365,7 @@ void RimGeoMechView::resetLegendsInViewer()
     this->cellResult()->legendConfig->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->titledOverlayFrame());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,12 +373,70 @@ void RimGeoMechView::resetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateLegends()
 {
-    if (m_viewer)
+    if ( m_viewer )
     {
         m_viewer->removeAllColorLegends();
-    }
 
-    if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData()
+        this->updateLegendTextAndRanges(cellResult()->legendConfig(), m_currentTimeStep());
+
+        if (cellResult()->hasResult() && cellResult()->legendConfig()->showLegend())
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->titledOverlayFrame());
+        }
+
+        if (tensorResults()->showTensors())
+        {
+            updateTensorLegendTextAndRanges(m_tensorResults->arrowColorLegendConfig(), m_currentTimeStep());
+
+            if (tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS &&
+                tensorResults()->arrowColorLegendConfig()->showLegend())
+            {
+                m_viewer->addColorLegendToBottomLeftCorner(m_tensorResults->arrowColorLegendConfig->titledOverlayFrame());
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex)
+{
+    if (!m_geomechCase || !m_geomechCase->geoMechData()) return;
+
+    double localMin, localMax;
+    double localPosClosestToZero, localNegClosestToZero;
+    double globalMin, globalMax;
+    double globalPosClosestToZero, globalNegClosestToZero;
+
+    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
+    CVF_ASSERT(gmCase);
+
+    RigFemResultPosEnum resPos = tensorResults()->resultPositionType();
+    QString resFieldName = tensorResults()->resultFieldName();
+
+    RigFemResultAddress resVarAddress(resPos, resFieldName.toStdString(), "");
+
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents(resVarAddress, timeStepIndex, &localMin, &localMax);
+    gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents(resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero);
+    
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents(resVarAddress, &globalMin, &globalMax);
+    gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
+
+    legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+    QString legendTitle = "Tensors:\n" + RimTensorResults::uiFieldName(resFieldName);
+
+    legendConfig->setTitle(legendTitle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex)
+{
+    if (!m_geomechCase || !m_geomechCase->geoMechData()
         || !this->isTimeStepDependentDataVisible() 
         || !(cellResult()->resultAddress().isValid()) )
     {
@@ -406,16 +453,16 @@ void RimGeoMechView::updateLegends()
 
     RigFemResultAddress resVarAddress = cellResult()->resultAddress();
 
-    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, m_currentTimeStep, &localMin, &localMax);
-    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, timeStepIndex, &localMin, &localMax);
+    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero);
 
     gmCase->femPartResults()->minMaxScalarValues(resVarAddress, &globalMin, &globalMax);
     gmCase->femPartResults()->posNegClosestToZero(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
 
 
-    cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-    cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-    
+    legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
     if (cellResult()->hasCategoryResult())
     {
         std::vector<QString> fnVector;
@@ -423,18 +470,15 @@ void RimGeoMechView::updateLegends()
         {
             fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
         }
-        cellResult()->legendConfig->setNamedCategoriesInverse(fnVector);
+        legendConfig->setNamedCategoriesInverse(fnVector);
     }
-    
-    m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
-    cvf::String legendTitle = cvfqt::Utils::toString(
-        caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldUiName());
+    QString legendTitle = "Cell Results:\n" + caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + 
+        "\n" + cellResult->resultFieldUiName();
 
     if (!cellResult->resultComponentUiName().isEmpty())
     {
-        legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
+        legendTitle += ", " + cellResult->resultComponentUiName();
     }
 
     if (   cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar" 
@@ -443,11 +487,128 @@ void RimGeoMechView::updateLegends()
         legendTitle += " [Bar]";
     }
 
-    cellResult()->legendConfig->setTitle(legendTitle);
+    if (cellResult->resultFieldName() == "MODULUS")
+    {
+        legendTitle += " [GPa]";
+    }
+
+    legendConfig->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+const cvf::ref<RivGeoMechVizLogic> RimGeoMechView::vizLogic() const
+{
+    return m_vizLogic;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimTensorResults* RimGeoMechView::tensorResults() const
+{
+    return m_tensorResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTensorResults* RimGeoMechView::tensorResults()
+{
+    return m_tensorResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
+{
+    std::vector<RimLegendConfig*> absLegendConfigs;
+
+    absLegendConfigs.push_back(cellResult()->legendConfig());
+    absLegendConfigs.push_back(tensorResults()->arrowColorLegendConfig());
+
+    return absLegendConfigs;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFemPartCollection* RimGeoMechView::femParts() const
+{
+    if (m_geomechCase && m_geomechCase->geoMechData())
+    {
+        return m_geomechCase->geoMechData()->femParts();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemPartCollection* RimGeoMechView::femParts()
+{
+    if (m_geomechCase && m_geomechCase->geoMechData())
+    {
+        return m_geomechCase->geoMechData()->femParts();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
+{
+    auto geoMechCase = this->geoMechCase();
+    if ( geoMechCase )
+    {
+        // Up-cast to get access to public interface for camera functions
+        RimCase*                  rimCase               = geoMechCase;
+        RiuViewerToViewInterface* viewerToViewInterface = this;
+        cvf::Vec3d offset = rimCase->displayModelOffset();
+        auto diplayCoordTrans = this->displayCoordTransform();
+
+        {
+            cvf::Mat4d cameraMx = this->cameraPosition().getInverted();
+
+            cvf::Vec3d translation    = cameraMx.translation();
+
+            cvf::Vec3d translationDomainCoord = diplayCoordTrans->scaleToDomainSize(translation);
+            translationDomainCoord -= offset;
+
+            cvf::Vec3d newCameraTranslation = diplayCoordTrans->scaleToDisplaySize(translationDomainCoord);
+
+            cameraMx.setTranslation(newCameraTranslation);
+
+            viewerToViewInterface->setCameraPosition(cameraMx.getInverted());
+        }
+
+        {
+            cvf::Vec3d pointOfInterest = this->cameraPointOfInterest();
+
+            cvf::Vec3d pointOfInterestDomain = diplayCoordTrans->scaleToDomainSize(pointOfInterest);
+            pointOfInterestDomain -= offset;
+
+            cvf::Vec3d newPointOfInterest = diplayCoordTrans->scaleToDisplaySize(pointOfInterestDomain);
+
+            viewerToViewInterface->setCameraPointOfInterest(newPointOfInterest);
+        }
+
+        if (m_viewer)
+        {
+            m_viewer->mainCamera()->setViewMatrix(this->cameraPosition());
+            m_viewer->setPointOfInterest(this->cameraPointOfInterest());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechView::geoMechCase()
 {
@@ -472,7 +633,7 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimGeoMechView::isTimeStepDependentDataVisible()
+bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
     return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters());
 }
@@ -490,7 +651,7 @@ cvf::Transform* RimGeoMechView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimView::fieldChangedByUi(changedField, oldValue, newValue);
+    Rim3dView::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,7 +659,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
-    RimViewWindow::initAfterRead();
+    RimGridView::initAfterRead();
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
@@ -527,7 +688,7 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
             viewLinker->scheduleGeometryRegenForDepViews(geometryType);
         }
     }
-    m_currentReservoirCellVisibility = NULL;
+    m_currentReservoirCellVisibility = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -649,8 +810,9 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_gridCollection());
 
     uiTreeOrdering.add(cellResult());
+    uiTreeOrdering.add(m_tensorResults());
 
-    uiTreeOrdering.add(crossSectionCollection());
+    uiTreeOrdering.add(m_crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());

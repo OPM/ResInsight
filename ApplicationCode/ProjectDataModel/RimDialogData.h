@@ -39,7 +39,7 @@ public:
     QString            exportCarfinDataAsString() const;
     void               setExportCarfinDataFromString(const QString& data);
 
-    RicExportCompletionDataSettingsUi* exportCompletionData(bool onlyWellPathCollectionSelected) const;
+    RicExportCompletionDataSettingsUi* exportCompletionData() const;
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                  m_exportCarfin;

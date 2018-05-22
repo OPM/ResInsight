@@ -69,10 +69,10 @@ public:
 private: 
     friend class PdmUiItem;
     QString         m_uiName;
-    QString         m_toolTip;
-    QString         m_extraDebugText;
-    QString         m_whatsThis;
     QIcon           m_icon;         
+    QString         m_toolTip;
+    QString         m_whatsThis;
+    QString         m_extraDebugText;
     QString         m_editorTypeName;       ///< Use this exact type of editor to edit this UiItem
     int             m_isHidden;             ///< UiItem should be hidden. -1 means not set
     int             m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
@@ -191,7 +191,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
 class PdmUiItem
 {
 public:
-    PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
+    PdmUiItem() : m_staticItemInfo(nullptr)                                                   { }
     virtual ~PdmUiItem();
 
     PdmUiItem(const PdmUiItem&) = delete;

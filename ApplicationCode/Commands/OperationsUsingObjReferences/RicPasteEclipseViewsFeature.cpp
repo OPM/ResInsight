@@ -21,13 +21,14 @@
 
 #include "RiaApplication.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RicPasteFeatureImpl.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
+#include "Rim2dIntersectionViewCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -102,6 +103,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         rimReservoirView->resolveReferencesRecursively();
         rimReservoirView->initAfterReadRecursively();
 
+        eclipseCase->intersectionViewCollection()->syncFromExistingIntersections(false);
         rimReservoirView->loadDataAndUpdate();
 
         caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
@@ -110,7 +112,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         lastViewCopy = rimReservoirView;
     }
 
-    if (lastViewCopy) RiuMainWindow::instance()->selectAsCurrentItem(lastViewCopy);
+    if (lastViewCopy) Riu3DMainWindowTools::selectAsCurrentItem(lastViewCopy);
 }
 
 //--------------------------------------------------------------------------------------------------

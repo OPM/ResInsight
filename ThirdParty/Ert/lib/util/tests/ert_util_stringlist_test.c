@@ -17,9 +17,12 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
+#include <ert/util/util.h>
 #include <ert/util/test_util.h>
 #include <ert/util/stringlist.h>
+#include <ert/util/test_work_area.h>
 
 void test_char() {
   const char * S1 = "S1";
@@ -338,6 +341,54 @@ void test_matching() {
 }
 
 
+bool FILE_predicate(const char * name, const void * arg) {
+  return util_string_equal("FILE.txt", name);
+}
+
+bool not_FILE_predicate(const char * name, const void * arg) {
+  return !util_string_equal("FILE.txt", name);
+}
+
+
+void test_predicate_matching() {
+  test_work_area_type * work_area = test_work_area_alloc("predicate_test");
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_append_ref(s, "s");
+  stringlist_select_files(s, "does/not/exist", NULL, NULL);
+  test_assert_int_equal(stringlist_get_size(s), 0);
+
+
+  {
+    FILE * f = util_fopen("FILE.txt", "w");
+    fclose(f);
+  }
+  stringlist_select_files(s , test_work_area_get_cwd(work_area), NULL, NULL);
+  test_assert_int_equal(1, stringlist_get_size(s));
+  {
+    char * exp = util_alloc_abs_path("FILE.txt");
+    test_assert_string_equal( exp, stringlist_iget(s, 0));
+    free(exp);
+  }
+
+  stringlist_select_files(s , NULL, NULL, NULL);
+  test_assert_int_equal(1, stringlist_get_size(s));
+  test_assert_string_equal( "FILE.txt", stringlist_iget(s, 0));
+
+  stringlist_select_files(s , test_work_area_get_cwd(work_area), FILE_predicate, NULL);
+  test_assert_int_equal(1, stringlist_get_size(s));
+  {
+    char * exp = util_alloc_abs_path("FILE.txt");
+    test_assert_string_equal( exp, stringlist_iget(s, 0));
+    free(exp);
+  }
+
+  stringlist_select_files(s , test_work_area_get_cwd(work_area), not_FILE_predicate, NULL);
+  test_assert_int_equal(0, stringlist_get_size(s));
+
+  stringlist_free(s);
+  test_work_area_free(work_area);
+}
+
 
 void test_unique() {
   stringlist_type * s = stringlist_alloc_new();
@@ -365,5 +416,6 @@ int main( int argc , char ** argv) {
   test_split();
   test_matching();
   test_unique();
+  test_predicate_matching();
   exit(0);
 }

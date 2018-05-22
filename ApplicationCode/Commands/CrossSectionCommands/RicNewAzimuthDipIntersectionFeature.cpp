@@ -23,9 +23,9 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimView.h"
+#include "RimGridView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -61,10 +61,10 @@ bool RicNewAzimuthDipIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
    
-    RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection);
+    RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(activeView->crossSectionCollection());
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -81,7 +81,7 @@ void RicNewAzimuthDipIntersectionFeature::setupActionLook(QAction* actionToSetup
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection)
 {
 }
@@ -125,7 +125,7 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 
     RiuSelectionManager::instance()->deleteAllItems();
-    RiuMainWindow::instance()->selectAsCurrentItem(intersection);
+    Riu3DMainWindowTools::selectAsCurrentItem(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------

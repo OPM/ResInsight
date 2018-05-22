@@ -77,12 +77,11 @@ private:
                                        caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    RifSummaryReaderInterface* firstSummaryReaderForVisibleCurves() const;
-    RimSummaryCase*            firstSummaryCaseForVisibleCurves() const;
+    RifSummaryReaderInterface* firstSummaryReaderForCurves() const;
     caf::PdmValueField*        fieldToModify();
 
-    std::set<RifEclipseSummaryAddress> visibleAddressesCurveCollection() const;
-    std::set<RimSummaryCase*>          visibleSummaryCasesCurveCollection() const;
+    std::set<RifEclipseSummaryAddress> addressesCurveCollection() const;
+    std::set<RimSummaryCase*>          summaryCasesCurveCollection() const;
     std::vector<caf::PdmFieldHandle*>  computeVisibleFieldsAndSetFieldVisibility();
 
     bool isXAxisStepping() const;

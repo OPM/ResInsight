@@ -28,14 +28,13 @@
 #include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-#include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RiuMainWindow.h"
 
@@ -43,7 +42,6 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
-#include "RimEclipseResultCase.h"
 
 
 namespace caf
@@ -209,7 +207,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     obsoleteField_showWellLabel.xmlCapability()->setIOWritable(false);
     obsoleteField_showWellCellFence.xmlCapability()->setIOWritable(false);
 
-    m_reservoirView = NULL;
+    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +264,7 @@ RimSimWellInView* RimSimWellInViewCollection::findWell(QString name)
             return this->wells()[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +319,7 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         this->updateUiIconFromToggleField();
 
-        RimView* view;
+        Rim3dView* view;
         firstAncestorOrThisOfType(view);
         if (view)
         {
@@ -417,6 +415,8 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+            for (RimSimWellInView* w : wells) w->schedule2dIntersectionViewUpdate();
         }
         else if (&showWellsIntersectingVisibleCells == changedField)
         {
@@ -462,18 +462,19 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    if (&wellPipeCoordType == changedField)
+    if (&wellPipeCoordType == changedField || &isAutoDetectingBranches == changedField)
     {
+        if (m_reservoirView)
+        {
+            m_reservoirView->crossSectionCollection()->recomputeSimWellBranchData();
+        }
+
         for (RimSimWellInView* w : wells)
         {
-            for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
-            {
-                frac->recomputeWellCenterlineCoordinates();
-            }
+            w->simwellFractureCollection()->recomputeSimWellCenterlines();
+
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------

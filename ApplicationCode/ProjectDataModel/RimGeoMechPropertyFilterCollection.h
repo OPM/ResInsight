@@ -45,14 +45,14 @@ public:
     caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
-    bool                    hasActiveFilters() const; 
-    bool                    hasActiveDynamicFilters() const; 
+    bool                    hasActiveFilters() const override; 
+    bool                    hasActiveDynamicFilters() const override; 
     bool                    isUsingFormationNames() const;
 
-    void                    loadAndInitializePropertyFilters();
-    void                    updateIconState();
+    void                    loadAndInitializePropertyFilters() override;
+    void                    updateIconState() override;
 
 protected:
     // Overridden methods
-    virtual void                    initAfterRead();
+    virtual void                    initAfterRead() override;
 };

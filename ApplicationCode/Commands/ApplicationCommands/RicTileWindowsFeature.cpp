@@ -20,7 +20,7 @@
 #include "RicTileWindowsFeature.h"
 
 #include "RiuMainWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include <QAction>
 #include <QApplication>
@@ -74,7 +74,7 @@ CAF_CMD_SOURCE_INIT(RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandEnabled()
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     if (mainPlotWindow)
     {
         return mainPlotWindow->isAnyMdiSubWindowVisible();
@@ -88,7 +88,7 @@ bool RicTilePlotWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     if (mainPlotWindow)
     {
         mainPlotWindow->tileWindows();

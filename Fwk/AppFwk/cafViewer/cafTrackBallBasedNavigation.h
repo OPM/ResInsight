@@ -59,6 +59,7 @@ public:
     TrackBallBasedNavigation();
     virtual ~TrackBallBasedNavigation();
     void enableEventEating(bool enable) { m_consumeEvents = enable; }
+    void enableRotation(bool enable)    { m_isRotationEnabled = enable; }
 
 protected:
     // General navigation policy overrides
@@ -88,9 +89,11 @@ protected:
     int                                 m_lastPosY;
 
     bool                                isSupposedToConsumeEvents() { return m_consumeEvents; }
+    bool                                isRotationEnabled() { return m_isRotationEnabled; }
 
 private:
     bool                                m_consumeEvents;
+    bool                                m_isRotationEnabled;
 };
 
 } // End namespace caf

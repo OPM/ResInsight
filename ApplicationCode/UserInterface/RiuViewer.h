@@ -20,24 +20,32 @@
 
 #pragma once
 
+#include "RiuViewerToViewInterface.h"
 #include "cafViewer.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmInterfacePointer.h"
 
 #include "cafMouseState.h"
 #include "cvfStructGrid.h"
 #include "RiuInterfaceToViewWindow.h"
 
 class RicCommandFeature;
-class RimView;
+class Rim3dView;
 class RiuSimpleHistogramWidget;
 class RiuViewerCommands;
 class RivGridBoxGenerator;
+class RivWindowEdgeAxesOverlayItem;
 
 class QCDEStyle;
 class QLabel;
 class QProgressBar;
+
+namespace caf
+{
+    class TitledOverlayFrame;
+}
 
 namespace cvf
 {
@@ -46,6 +54,7 @@ namespace cvf
     class OverlayItem;
     class Part;
     class OverlayAxisCross;
+    class BoundingBox;
 }
 
 //==================================================================================================
@@ -64,8 +73,8 @@ public:
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
-    void            setOwnerReservoirView(RimView * owner);
-    RimView*        ownerReservoirView();
+    void            setOwnerReservoirView(RiuViewerToViewInterface * owner);
+    RiuViewerToViewInterface*      ownerReservoirView();
     RimViewWindow*  ownerViewWindow() const override;
     void            setEnableMask(unsigned int mask);
 
@@ -75,22 +84,28 @@ public:
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
-    void            updateGridBoxData();
-    cvf::Model*     gridBoxModel() const;
+    void            showGridBox(bool enable);
+    void            updateGridBoxData(double scaleZ, 
+                                      const cvf::Vec3d& displayModelOffset,
+                                      const cvf::Color3f&  backgroundColor,
+                                      const cvf::BoundingBox& domainCoordBoundingBox);
+    void            showEdgeTickMarks(bool enable);
 
     void            updateAnnotationItems();
 
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
-    void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
+    void            addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* legend);
 
+    void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();
 
     virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
 
     void            setCurrentFrame(int frameIndex);
 
+    void            showAxisCross(bool enable);
     void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
 
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
@@ -112,6 +127,7 @@ protected:
     virtual void    leaveEvent(QEvent *) override;
 
 private:
+    void            updateLegendLayout();
     void            updateTextAndTickMarkColorForOverlayItems();
     void            updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend);
 
@@ -139,15 +155,21 @@ private:
     QCDEStyle*      m_progressBarStyle;
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
-    cvf::Collection<cvf::OverlayItem> m_visibleLegends;
+    bool                            m_showAxisCross;
+    cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
+    cvf::Collection<cvf::OverlayItem> allOverlayItems();
 
-    caf::PdmPointer<RimView>    m_rimView;
+
+    caf::PdmInterfacePointer<RiuViewerToViewInterface>    m_rimView;
     QPoint                      m_lastMousePressPosition;
 
     RiuViewerCommands*          m_viewerCommands;
 
     RivGridBoxGenerator*        m_gridBoxGenerator;
+    cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
+    bool                        m_showWindowEdgeAxes;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
+    bool                        m_isNavigationRotationEnabled;
 };
 

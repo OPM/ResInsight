@@ -61,7 +61,7 @@
 class QTreeViewHeightHint : public QTreeView
 {
 public:
-    explicit QTreeViewHeightHint(QWidget *parent = 0)
+    explicit QTreeViewHeightHint(QWidget *parent = nullptr)
         : m_heightHint(-1)
     {
     }
@@ -100,7 +100,7 @@ private:
 class FilterLeafNodesOnlyProxyModel : public QSortFilterProxyModel
 {
 public:
-    FilterLeafNodesOnlyProxyModel(QObject *parent = 0)
+    FilterLeafNodesOnlyProxyModel(QObject *parent = nullptr)
         : QSortFilterProxyModel(parent)
     {
     }
@@ -131,7 +131,7 @@ protected:
 class PlaceholderLineEdit : public QLineEdit
 {
 public:
-    explicit PlaceholderLineEdit(const QString& placeholderText, QWidget* parent = 0)
+    explicit PlaceholderLineEdit(const QString& placeholderText, QWidget* parent = nullptr)
         : QLineEdit(parent), 
         m_placeholderText(placeholderText)
     {

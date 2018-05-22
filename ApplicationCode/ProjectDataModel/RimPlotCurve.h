@@ -100,6 +100,8 @@ public:
 
     void                            setZOrder(double z);
 
+    virtual void                    updateCurveAppearance();
+
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
@@ -107,7 +109,6 @@ protected:
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
 
     void                            updateCurvePresentation(bool updatePlotLegend);
-    virtual void                    updateCurveAppearance();
 
     void                            updateOptionSensitivity();
 

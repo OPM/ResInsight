@@ -64,7 +64,7 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    explicit MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
+    explicit MyStringListModel(QObject *parent = nullptr) : QStringListModel(parent), m_isItemsEditable(false)  { }
 
     virtual Qt::ItemFlags flags (const QModelIndex& index) const
     {
@@ -90,7 +90,7 @@ private:
 class QListViewHeightHint : public QListView
 {
 public:
-    explicit QListViewHeightHint(QWidget *parent = 0)
+    explicit QListViewHeightHint(QWidget *parent = nullptr)
         : m_heightHint(-1)
     {
     }
@@ -371,15 +371,7 @@ void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 
     QStringList uiList = m_model->stringList();
 
-    // Remove dummy elements specifically at the  end of list.
-    
-    QStringList result;
-    foreach (const QString &str, uiList) 
-    {
-        if (str != "" && str != " ") result += str;
-    }
-
-    this->setValueToField(result);
+    trimAndSetValuesToField(uiList);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,7 +398,21 @@ void PdmUiListEditor::pasteFromString(const QString& content)
 {
     QStringList strList = content.split("\n");
 
-    this->setValueToField(strList);
+    trimAndSetValuesToField(strList);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::trimAndSetValuesToField(const QStringList& stringList)
+{
+    QStringList result;
+    for (const auto& str : stringList)
+    {
+        if (str != "" && str != " ") result += str;
+    }
+
+    this->setValueToField(result);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,14 +464,7 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
                 {
                     QStringList uiList = m_model->stringList();
 
-                    // Remove dummy elements specifically at the  end of list.
-
-                    QStringList result;
-                    foreach (const QString &str, uiList) 
-                    {
-                        if (str != "" && str != " ") result += str;
-                    }
-                    this->setValueToField(result);
+                    trimAndSetValuesToField(uiList);
                 }
                 return true;
             }

@@ -108,7 +108,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::createPipeSurface()
 {
     if (m_radius == 0.0)
     {
-        return NULL;
+        return nullptr;
     }
 
     updateFilteredPipeCenterCoords();
@@ -212,9 +212,9 @@ void RivPipeGeometryGenerator::computeCircle(double radius, size_t tesselationCo
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec3dArray* coords)
 {
-    CVF_ASSERT(coords != NULL);
+    CVF_ASSERT(coords != nullptr);
 
-    if (coords->size() < 2 ) return NULL;
+    if (coords->size() < 2 ) return nullptr;
 
     size_t duplicateVertexCount = 2 * (coords->size() - 1);
 
@@ -259,9 +259,9 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords)
 {
-    CVF_ASSERT(cylinderCenterCoords != NULL);
+    CVF_ASSERT(cylinderCenterCoords != nullptr);
 
-    if (cylinderCenterCoords->size() < 2) return NULL;
+    if (cylinderCenterCoords->size() < 2) return nullptr;
 
     std::vector<cvf::Vec3f> crossSectionVertices;
     std::vector<cvf::Vec3f> cylinderSegmentNormals;
@@ -300,7 +300,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
         }
     }
 
-    if (i >= cylinderCenterCoords->size()-1) return NULL; // The pipe coordinates is all the same point
+    if (i >= cylinderCenterCoords->size()-1) return nullptr; // The pipe coordinates is all the same point
 
     // Loop along the cylinder center coords and calculate the cross section vertexes in each center vertex
 
@@ -346,7 +346,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
 
     size_t crossSectionCount = crossSectionVertices.size() / crossSectionNodeCount;
 
-    if (crossSectionCount < 2) return NULL;
+    if (crossSectionCount < 2) return nullptr;
 
     CVF_ASSERT(crossSectionVertices.size() - crossSectionNodeCount == cylinderSegmentNormals.size());
 
@@ -474,7 +474,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 
     const size_t lastOriginalCoordIdx = m_originalPipeCenterCoords->size() - 1;
 
-    size_t firstSegmentWithLength = findFirstSegmentWithLenght(squareDistanceTolerance);
+    size_t firstSegmentWithLength = findFirstSegmentWithLength(squareDistanceTolerance);
 
     // Return if we have only zero-length segments
 
@@ -562,7 +562,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivPipeGeometryGenerator::findFirstSegmentWithLenght(double squareDistanceTolerance)
+size_t RivPipeGeometryGenerator::findFirstSegmentWithLength(double squareDistanceTolerance)
 {
     size_t segIdx;
     for ( segIdx = 0; segIdx < m_originalPipeCenterCoords->size() - 1; segIdx++ )

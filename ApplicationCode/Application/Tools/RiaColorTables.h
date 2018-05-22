@@ -37,6 +37,9 @@ public:
     static const caf::ColorTable& blueWhiteRedPaletteColors();
     static const caf::ColorTable& redWhiteBluePaletteColors();
     static const caf::ColorTable& categoryPaletteColors();
+    static const caf::ColorTable& tensorWhiteGrayBlackPaletteColors();
+    static const caf::ColorTable& tensorOrangeBlueWhitePaletteColors();
+    static const caf::ColorTable& tensorsMagentaBrownGrayPaletteColors();
     static const caf::ColorTable& angularPaletteColors();
     static const caf::ColorTable& stimPlanPaletteColors();
     static const caf::ColorTable& faultsPaletteColors();
@@ -51,4 +54,6 @@ public:
     static const caf::ColorTable& selectionPaletteColors();
     static const caf::ColorTable& timestepsPaletteColors();
 
+    static cvf::Color3f undefinedCellColor();
+    static cvf::Color3f perforationLengthColor();
 };

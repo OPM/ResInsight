@@ -33,7 +33,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RivFemPickSourceInfo.h"
 #include "RivPartPriority.h"
@@ -104,7 +104,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
     bool useBufferObjects = true;
     // Surface geometry
     {   
-        m_surfaceFaces = NULL; // To possibly free memory before adding the new stuff
+        m_surfaceFaces = nullptr; // To possibly free memory before adding the new stuff
 
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
         if (geo.notNull())
@@ -139,7 +139,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
     // Mesh geometry
     {
-        m_surfaceGridLines = NULL; // To possibly free memory before adding the new stuff
+        m_surfaceGridLines = nullptr; // To possibly free memory before adding the new stuff
 
         cvf::ref<cvf::DrawableGeo> geoMesh = geoBuilder.createMeshDrawable();
         if (geoMesh.notNull())
@@ -176,10 +176,18 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
-    CVF_ASSERT(model != NULL);
+    CVF_ASSERT(model != nullptr);
 
     if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
     if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RivFemPartGeometryGenerator* RivFemPartPartMgr::surfaceGenerator() const
+{
+    return &m_surfaceGenerator;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,7 +250,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
 
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
-        const std::vector<size_t>* vxToResultMapping = NULL;
+        const std::vector<size_t>* vxToResultMapping = nullptr;
         int vxCount = 0;
 
         if (resVarAddress.resultPosType == RIG_NODAL)
@@ -259,7 +267,13 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmFaceNodeIdx());
         }
-
+        else if (resVarAddress.resultPosType == RIG_ELEMENT)
+        {
+            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmIdx());
+        }
+        
+        if (!vxToResultMapping) return;
+        
         vxCount = static_cast<int>(vxToResultMapping->size());
         m_surfaceFacesTextureCoords->resize(vxCount);
 
@@ -299,7 +313,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             }
         }
 
-        RimView* view = NULL;
+        Rim3dView* view = nullptr;
         cellResultColors->firstAncestorOrThisOfType(view);
         CVF_ASSERT(view);
 

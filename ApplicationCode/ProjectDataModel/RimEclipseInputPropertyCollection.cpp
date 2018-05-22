@@ -76,6 +76,6 @@ RimEclipseInputProperty * RimEclipseInputPropertyCollection::findInputProperty(Q
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 

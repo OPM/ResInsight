@@ -45,7 +45,7 @@ class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
+    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuWellLogPlot();
 
     RimWellLogPlot*                 ownerPlotDefinition();

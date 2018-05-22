@@ -84,7 +84,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
     if (!summaryPlot) pasteOptions.createNewPlot();
     pasteOptions.setUiModePasteText(text);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &pasteOptions, "Set Paste Options", "");
     if (propertyDialog.exec() != QDialog::Accepted) return;
 
     std::vector<RimAsciiDataCurve*> curves = parseCurves(text, pasteOptions);

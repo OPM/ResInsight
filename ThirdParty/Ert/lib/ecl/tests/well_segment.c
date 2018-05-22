@@ -72,6 +72,7 @@ int main(int argc , char ** argv) {
     
     test_assert_true( well_segment_nearest_wellhead( ws ));
     test_assert_false( well_segment_main_stem( ws ));
+    well_segment_free( ws );
   }
 
 
@@ -81,6 +82,7 @@ int main(int argc , char ** argv) {
     well_segment_type * ws = well_segment_alloc(89 , outlet_segment_id , branch_nr, rseg_data);
     
     test_assert_false( well_segment_active( ws ));
+    well_segment_free( ws );
   }
 
   {
@@ -96,6 +98,7 @@ int main(int argc , char ** argv) {
 
     well_segment_link_strict( ws , outlet );  // This relinks - not very logical; refcount gets wrong.
     well_segment_free( ws );
+    well_segment_free( outlet );
   }
 
   {
@@ -109,6 +112,7 @@ int main(int argc , char ** argv) {
     test_assert_int_equal( well_segment_get_link_count( outlet ) , 0 );
     
     well_segment_free( ws );
+    well_segment_free( outlet );
   }
   free( rseg_data );
   exit(0);

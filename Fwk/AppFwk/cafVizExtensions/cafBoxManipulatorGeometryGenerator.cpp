@@ -55,7 +55,7 @@ cvf::ref<cvf::DrawableGeo> BoxManipulatorGeometryGenerator::createBoundingBoxMes
         calculateArrays();
     }
 
-    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return NULL;
+    if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray(m_vertices.p());

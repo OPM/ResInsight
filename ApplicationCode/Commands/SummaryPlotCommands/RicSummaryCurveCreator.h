@@ -34,13 +34,13 @@
 
 #include <memory>
 
-
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///  
@@ -50,6 +50,9 @@ class RicSummaryCurveCreator : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+public:
+    static const QString CONFIGURATION_NAME;
+
 private:
     typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
 
@@ -58,7 +61,8 @@ public:
     virtual ~RicSummaryCurveCreator();
 
     RimSummaryPlot*                         previewPlot() const;
-    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
+    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot, 
+                                                                  const std::vector<RimSummaryCase*>& defaultCases = std::vector<RimSummaryCase*>());
 
     QWidget*                                addressSelectionWidget(QWidget* parent);
 
@@ -85,7 +89,8 @@ private:
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
-    void                                    setDefaultCurveSelection();
+    static void                             copyEnsembleCurveAndAddToCurveSet(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
+    void                                    setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases);
 
     void                                    resetAllFields();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);
@@ -100,7 +105,8 @@ private:
 
     void                                    proxyEnablePlotAutoTitle(const bool& enable);
     bool                                    proxyPlotAutoTitle() const;
-
+    void                                    setInitialCurveVisibility(const RimSummaryPlot* targetPlot);
+    
 private:
     caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
     

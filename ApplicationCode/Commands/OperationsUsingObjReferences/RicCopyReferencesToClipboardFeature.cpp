@@ -21,7 +21,11 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimFractureTemplate.h"
 #include "RimGeoMechView.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
 #include "RimMimeData.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -136,6 +140,14 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     {
         return true;
     }
+    else if (dynamic_cast<RimIntersection*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimIntersectionBox*>(pdmObject))
+    {
+        return true;
+    }
     else if (dynamic_cast<RimSummaryPlot*>(pdmObject))
     {
         return true;
@@ -151,6 +163,14 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     else if (dynamic_cast<RimWellLogPlot*>(pdmObject))
     {
         if (!wellAllocPlot && !rftPlot) return true;
+    }
+    else if (dynamic_cast<RimFractureTemplate*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimEnsembleCurveSet*>(pdmObject))
+    {
+        return true;
     }
 
     return false;

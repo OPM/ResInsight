@@ -32,7 +32,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicWellLogTools.h"
 
@@ -87,13 +87,14 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
     actionToSetup->setText("New Well Log LAS Curve");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
+bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
 {
     RimProject* project = RiaApplication::instance()->project();
     if (project->activeOilField()->wellPathCollection())
@@ -102,7 +103,7 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
 
         for (size_t i = 0; i < wellPaths.size(); i++)
         {
-            if (wellPaths[i]->wellLogFiles().size() > 0)
+            if (!wellPaths[i]->wellLogFiles().empty())
             {
                 return true;
             }

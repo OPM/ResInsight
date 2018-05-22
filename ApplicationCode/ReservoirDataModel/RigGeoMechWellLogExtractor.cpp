@@ -30,11 +30,15 @@
 #include "RigWellPath.h"
 #include "cvfGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName)
-    :m_caseData(aCase), RigWellLogExtractor(wellpath, wellCaseErrorMsgName)
+RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase,
+                                                       const RigWellPath*  wellpath,
+                                                       const std::string&  wellCaseErrorMsgName)
+    : RigWellLogExtractor(wellpath, wellCaseErrorMsgName)
+    , m_caseData(aCase)
 {
     calculateIntersection();
 }
@@ -69,6 +73,12 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
         RigElementType elmType = femPart->elementType(elmIdx);
 
         if (!(elmType == HEX8  || elmType == HEX8P)) continue;
+
+        if (convResAddr.resultPosType == RIG_ELEMENT)
+        {
+            (*values)[cpIdx] = resultValues[elmIdx];
+            continue;
+        }
 
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
 

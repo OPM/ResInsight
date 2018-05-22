@@ -56,8 +56,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewModel::PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor)
 {
-    m_treeOrderingRoot = NULL;
-    m_dragDropInterface = NULL;
+    m_treeOrderingRoot = nullptr;
+    m_dragDropInterface = nullptr;
 
     m_treeViewEditor = treeViewEditor;
 }
@@ -75,7 +75,7 @@ void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
         return;
     }
 
-    PdmUiTreeOrdering* newRoot = NULL;
+    PdmUiTreeOrdering* newRoot = nullptr;
     PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (rootItem);
 
     if (field)
@@ -92,7 +92,7 @@ void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
         }
     }
 
-    CAF_ASSERT( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
+    CAF_ASSERT( newRoot || rootItem == nullptr ); // Only fields, objects or NULL is allowed.
 
     //if (newRoot) newRoot->debugDump(0);
 
@@ -141,7 +141,7 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
 {
     // Build the new "Correct" Tree
 
-    PdmUiTreeOrdering* newTreeRootTmp = NULL;
+    PdmUiTreeOrdering* newTreeRootTmp = nullptr;
     PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (pdmRoot);
     if (field)
     {
@@ -167,7 +167,7 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
 
     QModelIndex existingSubTreeRootModIdx = findModelIndex(pdmRoot);
 
-    PdmUiTreeOrdering* existingSubTreeRoot = NULL;
+    PdmUiTreeOrdering* existingSubTreeRoot = nullptr;
     if (existingSubTreeRootModIdx.isValid())
     {
         existingSubTreeRoot = treeItemFromIndex(existingSubTreeRootModIdx);
@@ -460,7 +460,7 @@ QModelIndex PdmUiTreeViewModel::index(int row, int column, const QModelIndex &pa
     if (!m_treeOrderingRoot)
         return QModelIndex();
 
-    PdmUiTreeOrdering* parentItem = NULL;
+    PdmUiTreeOrdering* parentItem = nullptr;
 
     if (!parentIndex.isValid())
         parentItem = m_treeOrderingRoot;
@@ -794,7 +794,7 @@ PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) co
         return treeItem->activeItem();
     }
     
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

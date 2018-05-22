@@ -79,3 +79,12 @@ QChar RicfMessages::peekNextChar(QTextStream& inputStream)
     }
     return ch;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfMessages::skipLineWithLineNumberCount(QTextStream& inputStream)
+{
+    inputStream.readLine();
+    m_currentLineNumber++;
+}

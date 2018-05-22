@@ -20,14 +20,13 @@ for c in classes:
     for v in vars[c]:
          4*b             : The variable names
     8*b                  : Skipped
-4*b                      : Skipped
 
 ---->                    : This is the position of first timestep
 
 while classname != STOP:
     8*b                      : classname
     8*b                      : skipped
-    f                        : timestep (will cast to int)
+    f                        : timestep  (cast to int)
     f                        : time
     f                        : num_items (cast to int)
     f                        : max_items (cast to int)
@@ -49,3 +48,4 @@ while classname != STOP:
         8*b                  : skipped
        72*b                  : skipped
        var_in_class*f        : The real data
+    8*b                      : skipped

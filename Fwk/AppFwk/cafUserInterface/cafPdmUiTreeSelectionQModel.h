@@ -58,7 +58,7 @@ class PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit PdmUiTreeSelectionQModel(QObject *parent = 0);
+    explicit PdmUiTreeSelectionQModel(QObject *parent = nullptr);
     ~PdmUiTreeSelectionQModel();
 
     static int              headingRole();

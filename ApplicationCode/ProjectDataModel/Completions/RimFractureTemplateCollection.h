@@ -35,18 +35,31 @@ class RimFractureTemplateCollection : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureTemplateCollection(void);
-    virtual ~RimFractureTemplateCollection(void);
-    
-    caf::PdmChildArrayField<RimFractureTemplate*>           fractureDefinitions;
-    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >    defaultUnitsForFracTemplates;
+    RimFractureTemplateCollection();
+    virtual ~RimFractureTemplateCollection();
 
-    std::vector<std::pair<QString, QString> >   stimPlanResultNamesAndUnits() const;
-    std::vector<QString>                        stimPlanResultNames() const;
-    void                                        computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
+    RimFractureTemplate*                        fractureTemplate(int id) const;
+    std::vector<RimFractureTemplate*>           fractureTemplates() const;
+    void                                        addFractureTemplate(RimFractureTemplate* templ);
+    RiaEclipseUnitTools::UnitSystemType         defaultUnitSystemType() const;
 
-    void                                        deleteFractureDefinitions();
+    RimFractureTemplate* firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const;
+
+    std::vector<std::pair<QString, QString> >   resultNamesAndUnits() const;
+    void                                        computeMinMax(const QString& uiResultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
+
+    void                                        createAndAssignTemplateCopyForNonMatchingUnit();
     void                                        loadAndUpdateData();
 
     void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+protected:
+    virtual void                                initAfterRead() override;
+
+private:
+    int                                         nextFractureTemplateId();
+
+    caf::PdmChildArrayField<RimFractureTemplate*>           m_fractureDefinitions;
+    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >    m_defaultUnitsForFracTemplates;
+    caf::PdmField<int>                                      m_nextValidFractureTemplateId;          // Unique fracture template ID within a project, used to identify a fracture template
+
 };

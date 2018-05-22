@@ -103,6 +103,22 @@ public:
         }
     }
 
+    template <typename T>
+    void objectsByTypeStrict(std::vector<T*>* typedObjects, int role = SelectionManager::APPLICATION_GLOBAL)
+    {
+        std::vector<PdmUiItem*> items;
+        this->selectedItems(items, role);
+        for (size_t i = 0; i < items.size(); i++)
+        {
+            T* obj = dynamic_cast<T*>(items[i]);
+            if (!obj)
+            {
+                typedObjects->clear();
+                break;
+            }
+            typedObjects->push_back(obj);
+        }
+    }
 
 private:
     SelectionManager();

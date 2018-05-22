@@ -22,12 +22,12 @@
 #include "RiaApplication.h"
 
 #include "RimProject.h"
-#include "RimView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QTreeView>
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicSetMasterViewFeature, "RicSetMasterViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicSetMasterViewFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return false;
 
     RimProject* proj = RiaApplication::instance()->project();
@@ -62,7 +62,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
     RimProject* proj = RiaApplication::instance()->project();
@@ -70,7 +70,7 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 
     viewLinker->applyRangeFilterCollectionByUserChoice();
 
-    RimView* previousMasterView = viewLinker->masterView();
+    RimGridView* previousMasterView = viewLinker->masterView();
 
     viewLinker->setMasterView(activeView);
     viewLinker->updateDependentViews();
@@ -81,8 +81,8 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
-    RiuMainWindow::instance()->selectAsCurrentItem(viewLinker);
-    RiuMainWindow::instance()->setExpanded(viewLinker);
+    Riu3DMainWindowTools::selectAsCurrentItem(viewLinker);
+    Riu3DMainWindowTools::setExpanded(viewLinker);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -70,10 +70,13 @@ typedef struct ecl_region_struct ecl_region_type;
   bool            ecl_region_contains_global( const ecl_region_type * ecl_region , int global_index);
   bool            ecl_region_contains_active( const ecl_region_type * ecl_region , int active_index);
 
+  void              ecl_region_select_true( ecl_region_type * region , const ecl_kw_type * ecl_kw);
 
   void              ecl_region_invert_selection( ecl_region_type * region );
   void              ecl_region_select_all( ecl_region_type * region);
   void              ecl_region_deselect_all( ecl_region_type * region );
+  void              ecl_region_deselect_true( ecl_region_type * region , const ecl_kw_type * ecl_kw);
+  void              ecl_region_select_false( ecl_region_type * region , const ecl_kw_type * ecl_kw);
 
   void              ecl_region_select_in_interval( ecl_region_type * region , const ecl_kw_type * ecl_kw, float min_value , float max_value);
   void              ecl_region_deselect_in_interval( ecl_region_type * region , const ecl_kw_type * ecl_kw, float min_value , float max_value);
@@ -152,6 +155,7 @@ typedef struct ecl_region_struct ecl_region_type;
 
   void              ecl_region_select_from_layer( ecl_region_type * region , const layer_type * layer , int k , int layer_value);
   void              ecl_region_deselect_from_layer( ecl_region_type * region , const layer_type * layer , int k , int layer_value);
+  void              ecl_region_deselect_false( ecl_region_type * region , const ecl_kw_type * ecl_kw);
 
   
 /*****************************************************************/
@@ -169,6 +173,16 @@ typedef struct ecl_region_struct ecl_region_type;
   void      ecl_region_kw_isub( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , const ecl_kw_type * delta_kw , bool force_active);
 
   bool      ecl_region_equal( const ecl_region_type * region1 , const ecl_region_type * region2);
+
+  void      ecl_region_scale_kw_float( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , float value , bool force_active);
+  void      ecl_region_scale_kw_double( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , double value , bool force_active);
+  void      ecl_region_scale_kw_int( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , int value , bool force_active);
+  void      ecl_region_shift_kw_int( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , int value , bool force_active);
+  void      ecl_region_shift_kw_double( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , double value , bool force_active);
+  void      ecl_region_shift_kw_float( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , float value , bool force_active);
+
+  const int_vector_type * ecl_region_get_kw_index_list( ecl_region_type * ecl_region , const ecl_kw_type * ecl_kw , bool force_active);
+  
 
 /*****************************************************************/
 /* set/get the name */

@@ -21,7 +21,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "RimCellRangeFilter.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -102,7 +102,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     updateIconState();
     uiCapability()->updateConnectedEditors();
     
-    updateDisplayModeNotifyManagedViews(NULL);
+    updateDisplayModeNotifyManagedViews(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
-    RimView* view = NULL;
+    Rim3dView* view = nullptr;
     firstAncestorOrThisOfType(view);
     if (!view) return;
 
@@ -173,9 +173,9 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimCellRangeFilterCollection::baseView() const
+Rim3dView* RimCellRangeFilterCollection::baseView() const
 {
-    RimView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
 
     return rimView;

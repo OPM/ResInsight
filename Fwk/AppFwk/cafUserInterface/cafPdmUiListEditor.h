@@ -39,11 +39,12 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-class QStringListModel;
 class QItemSelection;
-class QListViewHeightHint;
 class QLabel;
+class QListViewHeightHint;
 class QModelIndex;
+class QStringList;
+class QStringListModel;
 
 namespace caf 
 {
@@ -93,6 +94,8 @@ protected slots:
 private:
     QString             contentAsString() const;
     void                pasteFromString(const QString& content);
+    
+    void                trimAndSetValuesToField(const QStringList& stringList);
 
 private:
     QPointer<QListViewHeightHint> m_listView;

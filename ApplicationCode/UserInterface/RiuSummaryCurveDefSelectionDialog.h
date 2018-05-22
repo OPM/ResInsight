@@ -40,7 +40,11 @@ public:
     ~RiuSummaryCurveDefSelectionDialog();
 
     void                                    setCaseAndAddress(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address);
+    void                                    setEnsembleAndAddress(RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address);
     std::vector<RiaSummaryCurveDefinition>  curveSelection() const;
+
+    void                                    hideEnsembles();
+    void                                    hideSummaryCases();
 
 private:
     RiuSummaryCurveDefSelection*            summaryAddressSelection() const;

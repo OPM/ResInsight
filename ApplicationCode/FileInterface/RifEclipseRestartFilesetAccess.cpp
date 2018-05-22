@@ -307,7 +307,7 @@ int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
 //--------------------------------------------------------------------------------------------------
 int RifEclipseRestartFilesetAccess::readUnitsType()
 {
-    ecl_file_type* ecl_file = NULL;
+    ecl_file_type* ecl_file = nullptr;
 
     if (m_ecl_files.size() > 0)
     {

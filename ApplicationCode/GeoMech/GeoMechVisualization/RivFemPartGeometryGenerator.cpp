@@ -69,7 +69,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_quadVertices.notNull());
 
-    if (m_quadVertices->size() == 0) return NULL;
+    if (m_quadVertices->size() == 0) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setFromQuadVertexArray(m_quadVertices.p());
@@ -85,7 +85,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 {
-    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return NULL;
+    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(m_quadVertices.p());
@@ -105,7 +105,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable(double creaseAngle)
 {
-    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return NULL;
+    if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return nullptr;
 
     cvf::OutlineEdgeExtractor ee(creaseAngle, *m_quadVertices);
 
@@ -115,7 +115,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable(double c
     ref<cvf::UIntArray> lineIndices = ee.lineIndices();
     if (lineIndices->size() == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_LINES);
@@ -175,6 +175,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToNodeIdx.clear();
     m_quadVerticesToGlobalElmNodeIdx.clear();
     m_quadVerticesToGlobalElmFaceNodeIdx.clear();
+    m_quadVerticesToGlobalElmIdx.clear();
     trianglesToElements.clear();
     trianglesToElementFaces.clear();
 
@@ -183,10 +184,11 @@ void RivFemPartGeometryGenerator::computeArrays()
     vertices.reserve(estimatedQuadVxCount);
     m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
     m_quadVerticesToGlobalElmNodeIdx.reserve(estimatedQuadVxCount);
+    m_quadVerticesToGlobalElmIdx.reserve(estimatedQuadVxCount);
     trianglesToElements.reserve(estimatedQuadVxCount/2);
     trianglesToElementFaces.reserve(estimatedQuadVxCount/2);
 
-    cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
+    cvf::Vec3d displayOffset = m_part->boundingBox().min();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
 #pragma omp parallel for schedule(dynamic)
@@ -215,12 +217,10 @@ void RivFemPartGeometryGenerator::computeArrays()
                 if (faceNodeCount == 4)
                 {
  
-                   const cvf::Vec3f* quadVxs[4];
-
-                   quadVxs[0] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
-                   quadVxs[1] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
-                   quadVxs[2] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]);
-                   quadVxs[3] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]);
+                   cvf::Vec3f quadVxs0 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs1 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs2 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]) - displayOffset);
+                   cvf::Vec3f quadVxs3 ( cvf::Vec3d(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]) - displayOffset);
 
                    int qNodeIdx[4];
                    qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
@@ -236,10 +236,10 @@ void RivFemPartGeometryGenerator::computeArrays()
 
                    #pragma omp critical
                    {
-                       vertices.push_back(*quadVxs[0]);
-                       vertices.push_back(*quadVxs[1]);
-                       vertices.push_back(*quadVxs[2]);
-                       vertices.push_back(*quadVxs[3]);
+                       vertices.push_back(quadVxs0);
+                       vertices.push_back(quadVxs1);
+                       vertices.push_back(quadVxs2);
+                       vertices.push_back(quadVxs3);
 
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[0]);
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[1]);
@@ -257,6 +257,11 @@ void RivFemPartGeometryGenerator::computeArrays()
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 1);
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 2);
                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 3);
+
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
+                       m_quadVerticesToGlobalElmIdx.push_back(elmIdx);
 
                        trianglesToElements.push_back(elmIdx);
                        trianglesToElements.push_back(elmIdx);
@@ -305,16 +310,18 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
 
         const int* elmNodeIndices = part->connectivities(elmIdx);
 
+        cvf::Vec3d displayOffset = part->boundingBox().min();
+
         for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
         {
             int faceNodeCount = 0;
             const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
             if (faceNodeCount == 4)
             {
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
-                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]) - displayOffset));
+                vertices.push_back(cvf::Vec3f(cvf::Vec3d(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]) - displayOffset));
             }
             else
             {
@@ -326,7 +333,7 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
         quadVertices->assign(vertices);
     }
 
-    if (!(quadVertices.notNull() && quadVertices->size() != 0)) return NULL;
+    if (!(quadVertices.notNull() && quadVertices->size() != 0)) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray(quadVertices.p());

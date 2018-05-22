@@ -20,6 +20,8 @@
 
 #include "RifEclipseInputFileTools.h"
 
+#include "RiaLogging.h"
+
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
@@ -90,6 +92,25 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
+        QString errorText = QString("Failed to import grid file '%1'\n").arg(fileName);
+
+        if (coordPos < 0)
+        {
+            errorText += "  Missing required keyword COORD";
+        }
+
+        if (zcornPos < 0)
+        {
+            errorText += "  Missing required keyword ZCORN";
+        }
+
+        if (specgridPos < 0)
+        {
+            errorText += "  Missing required keyword SPECGRID";
+        }
+
+        RiaLogging::error(errorText);
+
         return false;
     }
 
@@ -107,11 +128,11 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
 
 
-    ecl_kw_type* specGridKw  = NULL;
-    ecl_kw_type* zCornKw     = NULL;
-    ecl_kw_type* coordKw     = NULL;
-    ecl_kw_type* actNumKw    = NULL;
-    ecl_kw_type* mapAxesKw   = NULL;
+    ecl_kw_type* specGridKw  = nullptr;
+    ecl_kw_type* zCornKw     = nullptr;
+    ecl_kw_type* coordKw     = nullptr;
+    ecl_kw_type* actNumKw    = nullptr;
+    ecl_kw_type* mapAxesKw   = nullptr;
 
     // Try to read all the needed keywords. Early exit if some are not found
     caf::ProgressInfo progress(8, "Read Grid from Eclipse Input file");
@@ -121,22 +142,22 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     bool allKwReadOk = true;
 
     fseek(gridFilePointer, specgridPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
     progress.setProgress(1);
 
     fseek(gridFilePointer, zcornPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(2);
 
     fseek(gridFilePointer, coordPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(3);
 
     // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
     if (actnumPos >= 0)
     {
         fseek(gridFilePointer, actnumPos, SEEK_SET);
-        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
+        allKwReadOk = allKwReadOk && nullptr != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
         progress.setProgress(4);
     }
 
@@ -645,7 +666,7 @@ void RifEclipseInputFileTools::parseAndReadFaults(const QString& fileName, cvf::
 
     while (filePos != -1)
     {
-        readFaults(data, filePos, faults, NULL);
+        readFaults(data, filePos, faults, nullptr);
         filePos = findKeyword(faultsKeyword, data, filePos);
     }
 }
@@ -919,7 +940,7 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
 
     // qDebug() << "Reading faults from\n  " << data.fileName();
 
-    RigFault* fault = NULL;
+    RigFault* fault = nullptr;
 
     do 
     {

@@ -33,7 +33,7 @@ namespace caf {
 class RiuProjectAndPropertyView : public QWidget
 {
 public:
-    RiuProjectAndPropertyView(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    RiuProjectAndPropertyView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
 
     void setPdmItem(caf::PdmUiItem* object);
     void showProperties(caf::PdmObjectHandle* object);

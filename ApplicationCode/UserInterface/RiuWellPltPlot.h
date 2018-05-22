@@ -45,7 +45,7 @@ class RiuWellPltPlot : public QFrame, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent = NULL);
+    RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent = nullptr);
     virtual ~RiuWellPltPlot();
 
     RimWellPltPlot*                 ownerPlotDefinition();

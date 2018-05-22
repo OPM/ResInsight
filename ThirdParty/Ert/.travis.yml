@@ -15,6 +15,7 @@ dist: trusty
 env:
   global:
     - ERT_SHOW_BACKTRACE=1
+    - LD_LIBRARY_PATH="$(pwd)/install/lib64"
   matrix:
     - PYTHON_VERSION=2.7 TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
     - PYTHON_VERSION=2.7 TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
@@ -23,8 +24,6 @@ env:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - env: PYTHON_VERSION=3.6
   exclude:
     - os: osx
       compiler: gcc
@@ -65,10 +64,12 @@ install:
   - export CONDA_HOME="$HOME/miniconda"
   - export PATH="$CONDA_HOME/bin:$PATH"
   - hash -r
+  - pip install -r requirements.txt
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a  # Useful for debugging any issues with conda
-  - conda install pylint numpy pandas
+  - wget https://raw.githubusercontent.com/Statoil/ert/master/travis/install_python_packages.py
+  - python install_python_packages.py
 
 before_script:
   - wget https://raw.githubusercontent.com/Statoil/ert/master/travis/build_total.py

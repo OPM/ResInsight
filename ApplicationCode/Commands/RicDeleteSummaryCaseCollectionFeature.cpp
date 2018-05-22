@@ -125,7 +125,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete Summary Case Group");
+    actionToSetup->setText("Delete Summary Case Group/Ensemble");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 

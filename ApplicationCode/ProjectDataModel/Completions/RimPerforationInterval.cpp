@@ -124,6 +124,9 @@ bool RimPerforationInterval::isActiveOnDate(const QDateTime& date) const
     {
         return true;
     }
+
+    if (!date.isValid()) return false;
+
     return m_date() < date;
 }
 

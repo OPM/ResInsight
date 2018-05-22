@@ -18,7 +18,7 @@
 
 #include "RimStimPlanLegendConfig.h"
 
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -38,7 +38,7 @@ RimStimPlanLegendConfig::RimStimPlanLegendConfig()
     m_name.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_legend, "Legend", "Legend", "", "", "");
-    m_legend = new RimLegendConfig;
+    m_legend = new RimRegularLegendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

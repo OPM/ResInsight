@@ -39,10 +39,12 @@ class QString;
 class RigEclipseCaseData;
 class RigCaseCellResultsData;
 class RigGridBase;
+class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseView;
+class RigVirtualPerforationTransmissibilities;
 
 
 //==================================================================================================
@@ -74,6 +76,8 @@ public:
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
+    const RigMainGrid*                          mainGrid() const;
+
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
 
@@ -83,7 +87,7 @@ public:
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
-    void                                        recalculateCompletionTypeAndRedrawAllViews();
+    const RigVirtualPerforationTransmissibilities*  computeAndGetVirtualPerforationTransmissibilities();
 
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }
@@ -91,7 +95,6 @@ public:
 
     RimCaseCollection*                          parentCaseCollection();
                                                      
-    virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings() const override;
     virtual QString                             timeStepName(int frameIdx) const override;
     virtual std::vector<QDateTime>              timeStepDates() const override;
@@ -112,6 +115,7 @@ public:
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual void                                updateFormationNamesData() override;
 
@@ -122,6 +126,7 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
+    virtual std::vector<Rim3dView*>             allSpecialViews() const override;
 
 private:
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;

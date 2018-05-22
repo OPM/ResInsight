@@ -86,6 +86,7 @@ public:
     const std::vector<size_t>&  quadVerticesToNodeIdxMapping() const   { return m_quadVerticesToNodeIdx;}
     const std::vector<size_t>&  quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx;}
     const std::vector<size_t>&  quadVerticesToGlobalElmFaceNodeIdx() const { return m_quadVerticesToGlobalElmFaceNodeIdx; }
+    const std::vector<size_t>&  quadVerticesToGlobalElmIdx() const { return m_quadVerticesToGlobalElmIdx; }
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p();}
 
@@ -107,6 +108,7 @@ private:
     std::vector<size_t>         m_quadVerticesToNodeIdx;
     std::vector<size_t>         m_quadVerticesToGlobalElmNodeIdx;
     std::vector<size_t>         m_quadVerticesToGlobalElmFaceNodeIdx;
+    std::vector<size_t>         m_quadVerticesToGlobalElmIdx;
 
         // Mappings
     cvf::ref<RivFemPartTriangleToElmMapper> m_triangleMapper;

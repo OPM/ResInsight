@@ -30,6 +30,7 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
 #include "RimFlowPlotCollection.h"
@@ -474,7 +475,7 @@ bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName,
                                                                            bool           includeAllCellCenters,
-                                                                           bool           useAutoDetectionOfBranches)
+                                                                           bool           useAutoDetectionOfBranches) const
 {
     std::vector<const RigWellPath*> branches;
 
@@ -517,6 +518,22 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const
     }
 
     return branches;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities)
+{
+    m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
+{
+    return m_virtualPerforationTransmissibilities.p();
 }
 
 //--------------------------------------------------------------------------------------------------

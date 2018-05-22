@@ -21,18 +21,25 @@
 
 #include "RigFemResultAddress.h"
 
+#include "cafTensor3.h"
+
 #include "cvfCollection.h"
 #include "cvfObject.h"
+
+#include <QString>
+
 #include <map>
 #include <vector>
 
 class RifGeoMechReaderInterface;
+class RifElementPropertyReader;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+
 namespace caf
 {
     class ProgressInfo;
@@ -41,11 +48,17 @@ namespace caf
 class RigFemPartResultsCollection: public cvf::Object
 {
 public:
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection);
+    static const std::string FIELD_NAME_COMPACTION;
+
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection();
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
+
+    void                                             addElementPropertyFiles(const std::vector<QString>& filenames);
+    std::vector<RigFemResultAddress>                 removeElementPropertyFiles(const std::vector<QString>& filenames);
+
     void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
     double                                           parameterCohesion() const { return m_cohesion;}
     double                                           parameterFrictionAngleRad() const { return m_frictionAngleRad; }
@@ -55,10 +68,12 @@ public:
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
 
-    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
+    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
+    std::vector<caf::Ten3f>                          tensors(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     int                                              partCount() const;
     int                                              frameCount();
 
+    static float                                     dsm(float p1, float p3, float tanFricAng, float cohPrTanFricAngle);
 
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
@@ -73,6 +88,10 @@ public:
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
 
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
                                                                             const RigFemResultAddress& resVarAddr);
@@ -101,9 +120,20 @@ private:
     RigFemScalarResultFrames*                        calculateSurfaceAngles(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStressValues(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStrainValues(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateCompactionValues(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateNE(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateSE(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateST_11_22_33(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateST_12_13_23(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateGamma(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateFormationIndices(int partIndex, const RigFemResultAddress &resVarAddr);
 
+    static std::vector<RigFemResultAddress>          tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr);
+
+private:
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
+    cvf::ref<RifElementPropertyReader>               m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>                  m_femParts;
     cvf::ref<RigFormationNames>                      m_activeFormationNamesData;
 

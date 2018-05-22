@@ -19,6 +19,7 @@
 #include "RicSummaryCurveCreatorSplitterUi.h"
 
 #include "RicSummaryCurveCreator.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
@@ -64,6 +65,14 @@ RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
 void RicSummaryCurveCreatorSplitterUi::updateFromSummaryPlot(RimSummaryPlot* summaryPlot)
 {
     m_summaryCurveCreator->updateFromSummaryPlot(summaryPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorSplitterUi::updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases)
+{
+    m_summaryCurveCreator->updateFromSummaryPlot(nullptr, defaultCases);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,8 +195,11 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
 
     if (m_summaryCurveCreator)
     {
-        RimSummaryCurveCollection* sumColl = m_summaryCurveCreator->previewPlot()->summaryCurveCollection();
-        m_curveTreeView->setPdmItem(sumColl);
+        RimSummaryPlot* previewPlot = m_summaryCurveCreator->previewPlot();
+        m_curveTreeView->setPdmItem(previewPlot);
+        m_curveTreeView->setUiConfigurationName(RicSummaryCurveCreator::CONFIGURATION_NAME);
+        m_curveTreeView->setExpanded(previewPlot->summaryCurveCollection(), true);
+        m_curveTreeView->setExpanded(previewPlot->ensembleCurveSetCollection(), true);
     }
 
     return m_curvesPanel;

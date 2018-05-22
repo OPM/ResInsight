@@ -29,10 +29,10 @@
 
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
-    m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0)
+    m_indexToStartOfCells(0),
+    m_mainGrid(mainGrid)
 {
-    if (mainGrid == NULL)
+    if (mainGrid == nullptr)
     {
         m_gridIndex = 0;
         m_gridId    = 0;
@@ -493,7 +493,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
     }
 
     // If the neighbour cell is invisible, we need to draw the face
-    if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
+    if ((cellVisibility != nullptr) && !(*cellVisibility)[neighborCellIndex])
     {
         return true;
     }

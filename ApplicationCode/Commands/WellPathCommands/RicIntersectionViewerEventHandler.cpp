@@ -18,7 +18,7 @@
 
 #include "RicIntersectionViewerEventHandler.h"
 #include "RimIntersection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -37,24 +37,22 @@ RicIntersectionViewerEventHandler* RicIntersectionViewerEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionViewerEventHandler::handleEvent(cvf::Object* eventObject)
+bool RicIntersectionViewerEventHandler::handleEvent(const RicViewerEventObject& eventObject)
 {
     std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     if (selection.size() == 1)
     {
-        RicViewerEventObject* polylineUiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
-        if (polylineUiEvent)
         {
             RimIntersection* intersection = selection[0];
 
-            RimView* rimView = nullptr;
+            Rim3dView* rimView = nullptr;
             intersection->firstAncestorOrThisOfType(rimView);
             CVF_ASSERT(rimView);
 
             cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(polylineUiEvent->globalIntersectionPoint);
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_globalIntersectionPoint);
 
             if (intersection->inputPolyLineFromViewerEnabled())
             {

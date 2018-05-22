@@ -125,7 +125,7 @@ TEST(RigStatisticsMath, HistogramPercentiles)
 
 
     double min, max, range, mean, stdev;
-    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, NULL, &range, &mean, &stdev);
+    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, nullptr, &range, &mean, &stdev);
 
     std::vector<size_t> histogram;
     RigHistogramCalculator histCalc(min, max, 100, &histogram);

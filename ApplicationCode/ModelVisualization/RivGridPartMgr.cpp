@@ -32,7 +32,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTernaryLegendConfig.h"
 
@@ -189,7 +189,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
-    CVF_ASSERT(model != NULL);
+    CVF_ASSERT(model != nullptr);
 
     if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
     if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());

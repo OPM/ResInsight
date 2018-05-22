@@ -18,7 +18,7 @@
 
 #ifndef ERT_ECL_GRAV_H
 #define ERT_ECL_GRAV_H
-#ifdef __plusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -36,11 +36,12 @@ ecl_grav_type        * ecl_grav_alloc( const ecl_grid_type * ecl_grid, const ecl
 ecl_grav_survey_type * ecl_grav_add_survey_FIP( ecl_grav_type * grav , const char * name , const ecl_file_view_type * restart_file );
 ecl_grav_survey_type * ecl_grav_add_survey_PORMOD( ecl_grav_type * grav , const char * name , const ecl_file_view_type * restart_file );
 ecl_grav_survey_type * ecl_grav_add_survey_RPORV( ecl_grav_type * grav , const char * name , const ecl_file_view_type * restart_file );
+ecl_grav_survey_type * ecl_grav_add_survey_RFIP( ecl_grav_type * grav , const char * name , const ecl_file_view_type * restart_file );
 double                 ecl_grav_eval( const ecl_grav_type * grav , const char * base, const char * monitor , ecl_region_type * region , double utm_x, double utm_y , double depth, int phase_mask);
 void                   ecl_grav_new_std_density( ecl_grav_type * grav , ecl_phase_enum phase , double default_density);
 void                   ecl_grav_add_std_density( ecl_grav_type * grav , ecl_phase_enum phase , int pvtnum , double density);
 
-#ifdef __plusplus
+#ifdef __cplusplus
 }
 #endif
 #endif

@@ -46,7 +46,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
-    : QWidget(parent), m_scheduleUpdateChildrenLayoutTimer(NULL)
+    : QWidget(parent), m_scheduleUpdateChildrenLayoutTimer(nullptr)
 {
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
@@ -136,7 +136,7 @@ void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
     CVF_ASSERT(trackIdx >= 0);
 
     m_trackPlots.removeAt(trackIdx);
-    trackPlot->setParent(NULL);
+    trackPlot->setParent(nullptr);
 
     QwtLegend* legend = m_legends[trackIdx];
     m_legends.removeAt(trackIdx);

@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RigCaseRealizationParameters.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <memory>
+
 class RifSummaryReaderInterface;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 //
@@ -52,6 +57,13 @@ public:
 
     bool                isObservedData();
 
+    void                setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters);
+    std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
+    bool                hasCaseRealizationParameters() const;
+    RimSummaryCaseCollection* ensemble() const;
+    bool                isEnsembleCase() const;
+    void                copyFrom(const RimSummaryCase& rhs);
+
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                updateTreeItemName();
@@ -60,6 +72,8 @@ protected:
     caf::PdmField<bool>             m_useAutoShortName;
     caf::PdmField<QString>          m_summaryHeaderFilename;
     bool                            m_isObservedData;
+    
+    std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
 private:
     virtual void        initAfterRead() override;

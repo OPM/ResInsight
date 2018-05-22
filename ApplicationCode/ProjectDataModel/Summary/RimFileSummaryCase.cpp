@@ -41,7 +41,8 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase::RimFileSummaryCase()
 {
- 
+    CAF_PDM_InitField(&m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "");
+    m_includeRestartFiles.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,22 +84,17 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename());
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName)
+RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles)
 {
-    QString headerFileNameStd;
-    QStringList dataFileNames;
-    QString nativeSumHeadFileName = QDir::toNativeSeparators(headerFileName);
-    RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileNameStd, &dataFileNames);
-
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    if (!summaryFileReader->open(headerFileNameStd, dataFileNames))
+    if (!summaryFileReader->open(headerFileName, includeRestartFiles))
     {
         RiaLogging::warning(QString("Failed to open summary file %1").arg(headerFileName));
 
@@ -115,4 +111,12 @@ RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(con
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
     return m_summaryFileReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
+{
+    m_includeRestartFiles = includeRestartFiles;
 }

@@ -22,6 +22,8 @@
 
 #include "RiaEclipseUnitTools.h"
 
+#include "Rim3dWellLogCurve.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -41,17 +43,16 @@ class RifWellPathFormationsImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
+class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
-class RivWellPathPartMgr;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathCompletions;
 class RigWellPathFormations;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimWellPathFractureCollection;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+class Rim3dWellLogCurveCollection;
 
 //==================================================================================================
 ///  
@@ -78,6 +79,9 @@ public:
     bool                                hasFormations() const;
     const RigWellPathFormations*        formationsGeometry() const;
 
+    void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
+    Rim3dWellLogCurveCollection*        rim3dWellLogCurveCollection() const;
+
     virtual caf::PdmFieldHandle*        userDescriptionField() override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;
 
@@ -100,6 +104,9 @@ public:
     
     caf::PdmField<bool>                 showWellPath;
     caf::PdmField<cvf::Color3f>         wellPathColor;
+
+    double                              wellPathRadius(double characteristicCellSize) const;
+
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     RimFishbonesCollection*              fishbonesCollection();
@@ -108,15 +115,11 @@ public:
     const RimPerforationCollection*      perforationIntervalCollection() const;
     const RimWellPathCompletions*        completions() const;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimWellPathFractureCollection*       fractureCollection();
     const RimWellPathFractureCollection* fractureCollection() const;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;
-
-    RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
@@ -169,7 +172,6 @@ private:
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RigWellPathFormations>     m_wellPathFormations;
-    cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
     caf::PdmField<QString>              m_wellPathFormationFilePath;
@@ -177,7 +179,7 @@ private:
 
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
     
+    caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
-
 };

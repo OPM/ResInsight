@@ -50,7 +50,7 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    caf::AboutDialog dlg(NULL);
+    caf::AboutDialog dlg(nullptr);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
@@ -70,9 +70,6 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 #endif
 #ifdef USE_HDF5
     activeFeatures += "  Souring";
-#endif
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    activeFeatures += "  Fractures";
 #endif
 
     if (!activeFeatures.isEmpty())

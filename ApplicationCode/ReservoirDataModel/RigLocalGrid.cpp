@@ -22,7 +22,7 @@
 
 RigLocalGrid::RigLocalGrid(RigMainGrid* mainGrid): 
     RigGridBase(mainGrid),
-    m_parentGrid(NULL), 
+    m_parentGrid(nullptr), 
     m_positionInParentGrid(cvf::UNDEFINED_SIZE_T)
 {
 

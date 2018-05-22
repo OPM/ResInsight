@@ -359,7 +359,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             
             if (!actCellInfo->isActive(reservoirCellIndexPosINeighbour)) continue;
             
-            if (hostGrid->cell(gridLocalCellIndexPosINeighbour).subGrid() != NULL)
+            if (hostGrid->cell(gridLocalCellIndexPosINeighbour).subGrid() != nullptr)
             {
                 //subgrid exists in cell, will be handled though NNCs
                 continue;
@@ -385,7 +385,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
 
             if (!actCellInfo->isActive(reservoirCellIndexPosJNeighbour)) continue;
             
-            if (hostGrid->cell(gridLocalCellIndexPosJNeighbour).subGrid() != NULL)
+            if (hostGrid->cell(gridLocalCellIndexPosJNeighbour).subGrid() != nullptr)
             {
                 //subgrid exists in cell, will be handled though NNCs
                 continue;
@@ -412,7 +412,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
 
             if (!actCellInfo->isActive(reservoirCellIndexPosKNeighbour)) continue;
 
-            if (hostGrid->cell(gridLocalCellIndexPosKNeighbour).subGrid() != NULL)
+            if (hostGrid->cell(gridLocalCellIndexPosKNeighbour).subGrid() != nullptr)
             {
                 //subgrid exists in cell, will be handled though NNCs
                 continue;

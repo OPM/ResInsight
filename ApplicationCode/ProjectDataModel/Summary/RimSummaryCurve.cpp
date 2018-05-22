@@ -40,7 +40,7 @@
 #include "RimTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
 
@@ -52,22 +52,6 @@
 #include "qwt_date.h"
 
 #include <QMessageBox>
-
-
-// See also corresponding fake implementations in RimSummaryCurveFilter
-QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
-QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
-{
-    CVF_ASSERT(false);
-    return str;
-}
-
-
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
@@ -171,7 +155,7 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
 {
-	m_yValuesSummaryCase = sumCase;
+    m_yValuesSummaryCase = sumCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,15 +355,30 @@ QString RimSummaryCurve::createCurveAutoName()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
 
-    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), plot->activePlotTitleHelper());
+    const RimSummaryPlotNameHelper* nameHelper = plot->activePlotTitleHelperAllCurves();
+    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nameHelper);
+    if (curveName.isEmpty())
+    {
+        curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nullptr);
+    }
+
     if (isCrossPlotCurve())
     {
-        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), plot->activePlotTitleHelper());
+        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nameHelper);
+        if (curveNameX.isEmpty())
+        {
+            curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nullptr);
+        }
 
         if (!curveName.isEmpty() || !curveNameX.isEmpty())
         {
             curveName += " | " + curveNameX;
         }
+    }
+
+    if (curveName.isEmpty())
+    {
+        curveName = "Curve Name Placeholder";
     }
 
     return curveName;
@@ -669,7 +668,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
     else if (changedField == &m_plotAxis)
@@ -699,6 +698,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             candicateAddress = m_xValuesCurveVariable->address();
         }
 
+        dlg.hideEnsembles();
         dlg.setCaseAndAddress(candidateCase, candicateAddress);
         
         if (dlg.exec() == QDialog::Accepted)
@@ -732,6 +732,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             candicateAddress = m_yValuesCurveVariable->address();
         }
 
+        dlg.hideEnsembles();
         dlg.setCaseAndAddress(candidateCase, candicateAddress);
 
         if (dlg.exec() == QDialog::Accepted)
@@ -800,7 +801,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                         .arg(last.toString(formatString));
                 }
 
-                QMessageBox::warning(NULL, "Detected no overlapping time steps", description);
+                QMessageBox::warning(nullptr, "Detected no overlapping time steps", description);
             }
         }
     }
@@ -813,7 +814,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

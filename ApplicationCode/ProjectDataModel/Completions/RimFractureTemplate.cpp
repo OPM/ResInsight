@@ -18,6 +18,7 @@
 
 #include "RimFractureTemplate.h"
 
+#include "RiaFractureDefines.h"
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
@@ -26,6 +27,9 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfVector3.h"
 
@@ -36,9 +40,9 @@ namespace caf
     template<>
     void caf::AppEnum< RimFractureTemplate::FracOrientationEnum>::setUp()
     {
-        addItem(RimFractureTemplate::AZIMUTH, "Az", "Azimuth");
-        addItem(RimFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
-        addItem(RimFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
+        addItem(RimFractureTemplate::AZIMUTH,               "Az",                   "Azimuth");
+        addItem(RimFractureTemplate::ALONG_WELL_PATH,       "AlongWellPath",        "Along Well Path");
+        addItem(RimFractureTemplate::TRANSVERSE_WELL_PATH,  "TransverseWellPath",   "Transverse (normal) to Well Path");
 
         setDefault(RimFractureTemplate::TRANSVERSE_WELL_PATH);
     }
@@ -47,13 +51,42 @@ namespace caf
     void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
     {
         addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite Conductivity");
-        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite Conductivity");
+        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY,   "FiniteConductivity",   "Finite Conductivity");
 
         setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
     }
 
+    template<>
+    void caf::AppEnum< RimFractureTemplate::PermeabilityEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::USER_DEFINED_PERMEABILITY,     "UserDefinedPermeability",  "User Defined");
+        addItem(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE,    "FractureConductivity",     "Use Fracture Conductivity");
 
+        setDefault(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE);
+    }
+
+    template<>
+    void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::USER_DEFINED_WIDTH,    "UserDefinedWidth", "User Defined");
+        addItem(RimFractureTemplate::WIDTH_FROM_FRACTURE,   "FractureWidth",    "Use Fracture Width");
+
+        setDefault(RimFractureTemplate::WIDTH_FROM_FRACTURE);
+    }
+
+    template<>
+    void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::NON_DARCY_NONE,        "None",         "None");
+        addItem(RimFractureTemplate::NON_DARCY_COMPUTED,    "Computed",     "Compute D-factor");
+        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED,"UserDefined",  "User Defined D-factor");
+
+        setDefault(RimFractureTemplate::NON_DARCY_NONE);
+    }
 }
+
+// TODO Move to cafPdmObject.h
+#define CAF_PDM_InitField_Basic(field, keyword, default, uiName) CAF_PDM_InitField(field, keyword, default, uiName, "", "", "")
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFractureTemplate, "RimFractureTemplate");
@@ -61,29 +94,79 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFractureTemplate, "RimFractureTemplate");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplate::RimFractureTemplate(void)
+RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-    CAF_PDM_InitField(&fractureTemplateUnit,"UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
-    fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField(&m_id, "Id", -1, "ID", "", "", "");
+    m_id.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
-    CAF_PDM_InitField(&azimuthAngle,        "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
-    CAF_PDM_InitField(&skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
+    CAF_PDM_InitField(&m_name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
 
-    CAF_PDM_InitField(&perforationLength,     "PerforationLength",      1.0, "Perforation Length", "", "", "");
-    CAF_PDM_InitField(&perforationEfficiency, "PerforationEfficiency",  1.0, "Perforation Efficiency", "", "", "");
-    perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "");
+    m_nameAndUnit.registerGetMethod(this, &RimFractureTemplate::nameAndUnit);
+    m_nameAndUnit.uiCapability()->setUiHidden(true);
+    m_nameAndUnit.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&conductivityType,    "ConductivityType", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
+    CAF_PDM_InitField(&m_fractureTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
+    m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitField(&m_orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
+    CAF_PDM_InitField(&m_azimuthAngle,        "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
+    CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
+
+    CAF_PDM_InitField(&m_perforationLength,     "PerforationLength",      1.0, "Perforation Length", "", "", "");
+    
+    CAF_PDM_InitField(&m_perforationEfficiency, "PerforationEfficiency",  1.0, "Perforation Efficiency", "", "", "");
+    m_perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
+    CAF_PDM_InitField(&m_conductivityType,    "ConductivityType", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "");
     m_fractureContainment = new RimFractureContainment();
     m_fractureContainment.uiCapability()->setUiTreeHidden(true);
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden(true);
+
+    // Non-Darcy Flow options
+    CAF_PDM_InitFieldNoDefault(&m_nonDarcyFlowType,     "NonDarcyFlowType",      "Non-Darcy Flow", "", "", "");
+
+    CAF_PDM_InitField(&m_userDefinedDFactor,            "UserDefinedDFactor",      1.0, "D Factor", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_fractureWidthType,    "FractureWidthType",     "Type", "", "", "");
+    CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.01,    "Fracture Width (h)");
+
+    CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]");
+
+    CAF_PDM_InitFieldNoDefault(&m_permeabilityType,         "PermeabilityType",     "Type", "", "", "");
+    CAF_PDM_InitField_Basic(&m_relativePermeability,        "RelativePermeability", 1.0,    "Relative Permeability");
+    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,  "EffectivePermeability",0.0,    "Effective Permeability (Ke) [mD]", "", "", "");
+
+    CAF_PDM_InitField(&m_relativeGasDensity,            "RelativeGasDensity",   0.8,    "<html>Relative Gas Density (&gamma;)</html>", "", "Relative density of gas at surface conditions with respect to air at STP", "");
+    CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html> [cP]", "", "Gas viscosity at bottom hole pressure", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
+    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
+    m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+    m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
+    m_dFactorDisplayField.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
+    m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
+    m_dFactorSummaryText.uiCapability()->setUiReadOnly(true);
+    m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
+    m_dFactorSummaryText.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "");
+    CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width", "", "", "");
+    CAF_PDM_InitField(&m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "");
+    CAF_PDM_InitField(&m_conductivityScaleFactor, "ConductivityFactor", 1.0, "Conductivity", "", "The conductivity values read from file will be scaled with this parameters", "");
+    CAF_PDM_InitField(&m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "");
+
+    m_scaleApplyButton.xmlCapability()->disableIO();
+    m_scaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_scaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,9 +179,57 @@ RimFractureTemplate::~RimFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RimFractureTemplate::id() const
+{
+    return m_id;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setName(const QString& name)
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem)
+{
+    m_fractureTemplateUnit = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFractureTemplate::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureTemplate::FracOrientationEnum RimFractureTemplate::orientationType() const
+{
+    return m_orientationType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() const
+{
+    return m_fractureTemplateUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 {
-    return &name;
+    return &m_nameAndUnit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +237,8 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &azimuthAngle || changedField == &orientationType)
+    bool createDisplayModelAndRedraw = false;
+    if (changedField == &m_azimuthAngle || changedField == &m_orientationType)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -121,27 +253,27 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                    if (changedField == &azimuthAngle && (fabs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
+                    if (changedField == &m_azimuthAngle && (fabs(oldValue.toDouble() - fracture->m_azimuth()) < 1e-5))
                     {
-                        fracture->azimuth = azimuthAngle;
+                        fracture->m_azimuth = m_azimuthAngle;
                     }
 
-                    if (changedField == &orientationType)
+                    if (changedField == &m_orientationType)
                     {
                         if (newValue == AZIMUTH)
                         {
-                            fracture->azimuth = azimuthAngle;
+                            fracture->m_azimuth = m_azimuthAngle;
                         }
                         else fracture->updateAzimuthBasedOnWellAzimuthAngle();
                     }
                 }
             }
 
-            proj->createDisplayModelAndRedrawAllViews();
+            createDisplayModelAndRedraw = true;
         }
     }
 
-    if (changedField == &perforationLength || changedField == &perforationEfficiency || changedField == &wellDiameter)
+    if (changedField == &m_perforationLength || changedField == &m_perforationEfficiency || changedField == &m_wellDiameter)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -153,19 +285,34 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         {
             if (fracture->fractureTemplate() == this)
             {
-                if (changedField == &perforationLength && (fabs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
+                if (changedField == &m_perforationLength && (fabs(oldValue.toDouble() - fracture->m_perforationLength()) < 1e-5))
                 {
-                    fracture->perforationLength = perforationLength;
+                    fracture->m_perforationLength = m_perforationLength;
                 }
-                if (changedField == &perforationEfficiency && (fabs(oldValue.toDouble() - fracture->perforationEfficiency()) < 1e-5))
+                if (changedField == &m_perforationEfficiency && (fabs(oldValue.toDouble() - fracture->m_perforationEfficiency()) < 1e-5))
                 {
-                    fracture->perforationEfficiency = perforationEfficiency;
+                    fracture->m_perforationEfficiency = m_perforationEfficiency;
                 }
-                if (changedField == &wellDiameter && (fabs(oldValue.toDouble() - fracture->wellDiameter()) < 1e-5))
+                if (changedField == &m_wellDiameter && (fabs(oldValue.toDouble() - fracture->m_wellDiameter()) < 1e-5))
                 {
-                    fracture->wellDiameter = wellDiameter;
+                    fracture->m_wellDiameter = m_wellDiameter;
                 }
             }
+        }
+    }
+
+    if (changedField == &m_perforationLength)
+    {
+        createDisplayModelAndRedraw = true;
+    }
+
+    if (createDisplayModelAndRedraw)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            proj->reloadCompletionTypeResultsInAllViews();
         }
     }
 }
@@ -175,48 +322,57 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    prepareFieldsForUiDisplay();
 
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
-        perforationLength.uiCapability()->setUiName("Perforation Length [m]");
-    }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
-        perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
-    }
+        auto group = uiOrdering.addNewGroup("Sensitivity Scale Factors");
+        group->setCollapsedByDefault(false);
+        group->add(&m_heightScaleFactor);
+        group->add(&m_widthScaleFactor);
+        group->add(&m_dFactorScaleFactor);
+        group->add(&m_conductivityScaleFactor);
 
-    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH
-        || orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
-    {
-        azimuthAngle.uiCapability()->setUiHidden(true);
-    }
-    else if (orientationType == RimFractureTemplate::AZIMUTH)
-    {
-        azimuthAngle.uiCapability()->setUiHidden(false);
+        group->add(&m_scaleApplyButton);
     }
 
-    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+    auto nonDarcyFlowGroup = uiOrdering.addNewGroup("Non-Darcy Flow");
+    nonDarcyFlowGroup->add(&m_nonDarcyFlowType);
+    
+    if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
     {
-        perforationEfficiency.uiCapability()->setUiHidden(false);
-        perforationLength.uiCapability()->setUiHidden(false);
-    }
-    else 
-    {
-        perforationEfficiency.uiCapability()->setUiHidden(true);
-        perforationLength.uiCapability()->setUiHidden(true);
+        nonDarcyFlowGroup->add(&m_userDefinedDFactor);
     }
 
-    if (conductivityType == FINITE_CONDUCTIVITY)
+    if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_COMPUTED)
     {
-        wellDiameter.uiCapability()->setUiHidden(false);
+        nonDarcyFlowGroup->add(&m_inertialCoefficient);
+
+        {
+            auto group = nonDarcyFlowGroup->addNewGroup("Effective Permeability");
+            group->add(&m_permeabilityType);
+            group->add(&m_relativePermeability);
+            group->add(&m_userDefinedEffectivePermeability);
+        }
+
+        {
+            auto group = nonDarcyFlowGroup->addNewGroup("Width");
+            group->add(&m_fractureWidthType);
+            group->add(&m_fractureWidth);
+        }
+
+        nonDarcyFlowGroup->add(&m_relativeGasDensity);
+        nonDarcyFlowGroup->add(&m_gasViscosity);
+        nonDarcyFlowGroup->add(&m_dFactorDisplayField);
+
+        {
+            auto group  = nonDarcyFlowGroup->addNewGroup("D Factor Details");
+            group->setCollapsedByDefault(true);
+            group->add(&m_dFactorSummaryText);
+        }
     }
-    else if (conductivityType == INFINITE_CONDUCTIVITY)
-    {
-        wellDiameter.uiCapability()->setUiHidden(true);
-    }
- 
+
+    uiOrdering.add(&m_fractureTemplateUnit);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,62 +380,388 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &perforationEfficiency)
+    if (field == &m_perforationEfficiency)
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_minimum = 0;
             myAttr->m_maximum = 1.0;
         }
     }
+
+    if (field == &m_dFactorSummaryText)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            
+            QFont font("Monospace", 10);
+            myAttr->font = font;
+            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
+
+    if (field == &m_scaleApplyButton)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
+        }
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                         bool*                      useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_fractureWidthType)
+    {
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(USER_DEFINED_WIDTH), USER_DEFINED_WIDTH));
+
+        auto widthAndCond = widthAndConductivityAtWellPathIntersection();
+        if (widthAndCond.isValid())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
+        }
+        else
+        {
+            m_fractureWidthType = USER_DEFINED_WIDTH;
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::prepareFieldsForUiDisplay()
+{
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
+        m_perforationLength.uiCapability()->setUiName("Perforation Length [m]");
+        m_fractureWidth.uiCapability()->setUiName("Fracture Width [m]");
+    }
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
+        m_perforationLength.uiCapability()->setUiName("Perforation Length [ft]");
+        m_fractureWidth.uiCapability()->setUiName("Fracture Width [ft]");
+    }
+
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH
+        || m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    {
+        m_azimuthAngle.uiCapability()->setUiHidden(true);
+    }
+    else if (m_orientationType == RimFractureTemplate::AZIMUTH)
+    {
+        m_azimuthAngle.uiCapability()->setUiHidden(false);
+    }
+
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH)
+    {
+        m_perforationEfficiency.uiCapability()->setUiHidden(false);
+        m_perforationLength.uiCapability()->setUiHidden(false);
+    }
+    else 
+    {
+        m_perforationEfficiency.uiCapability()->setUiHidden(true);
+        m_perforationLength.uiCapability()->setUiHidden(true);
+    }
+
+    if (m_conductivityType == FINITE_CONDUCTIVITY)
+    {
+        m_wellDiameter.uiCapability()->setUiHidden(false);
+    }
+    else if (m_conductivityType == INFINITE_CONDUCTIVITY)
+    {
+        m_wellDiameter.uiCapability()->setUiHidden(true);
+    }
+
+    // Non Darcy Flow
+
+    auto values = widthAndConductivityAtWellPathIntersection();
+    if (!values.isValid())
+    {
+        m_fractureWidthType = RimFractureTemplate::USER_DEFINED_WIDTH;
+    }
+
+    if (m_fractureWidthType == RimFractureTemplate::USER_DEFINED_WIDTH)
+    {
+        m_fractureWidth.uiCapability()->setUiReadOnly(false);
+    }
+    else
+    {
+        m_fractureWidth = values.m_width;
+
+        m_fractureWidth.uiCapability()->setUiReadOnly(true);
+    }
+
+    if (m_permeabilityType == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
+    {
+        m_relativePermeability.uiCapability()->setUiHidden(true);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(false);
+    }
+    else
+    {
+        m_relativePermeability.uiCapability()->setUiHidden(false);
+        m_userDefinedEffectivePermeability.uiCapability()->setUiHidden(true);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+QString RimFractureTemplate::dFactorSummary() const
 {
-    if (fractureUnit == fractureTemplateUnit())
-    {
-        return wellDiameter;
-    }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToInch(wellDiameter);
-    }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::inchToMeter(wellDiameter);
-    }
+    QString text;
+    
+    auto val = dFactor();
+    text += QString("D-factor : %1").arg(val);
 
-    return cvf::UNDEFINED_DOUBLE;
+    text += "<br>";
+    text += "<br>";
+    auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+    text += QString("&alpha;  : %1").arg(alpha);
+
+    text += "<br>";
+    auto beta = m_inertialCoefficient;
+    text += QString("&beta;  : %1").arg(beta);
+
+    text += "<br>";
+    double effPerm = effectivePermeability();
+    text += QString("Ke : %1").arg(effPerm);
+
+    text += "<br>";
+    double gamma = m_relativeGasDensity;
+    text += QString("&gamma;  : %1").arg(gamma);
+
+    text += "<br>";
+    auto h = fractureWidth();
+    text += QString("h  : %1").arg(h);
+
+    text += "<br>";
+    auto wellRadius = m_wellDiameter / 2.0;
+    text += QString("rw : %1").arg(wellRadius);
+
+    text += "<br>";
+    auto mu = m_gasViscosity;
+    text += QString("&mu;  : %1").arg(mu);
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+double RimFractureTemplate::effectivePermeability() const
 {
-    if (fractureUnit == fractureTemplateUnit())
+    if (m_permeabilityType() == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
     {
-        return perforationLength;
+        return m_userDefinedEffectivePermeability;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
-             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else
     {
-        return RiaEclipseUnitTools::meterToFeet(perforationLength);
+        auto values = widthAndConductivityAtWellPathIntersection();
+
+        auto fracPermeability = values.m_permeability;
+
+        return fracPermeability * m_relativePermeability;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
-             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::dFactor() const
+{
+    double d;
+
+    if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
     {
-        return RiaEclipseUnitTools::feetToMeter(perforationLength);
+        d = m_userDefinedDFactor;
+    }
+    else
+    {
+        auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+        auto beta = m_inertialCoefficient;
+        auto effPerm = effectivePermeability();
+        auto gamma = m_relativeGasDensity;
+
+        auto radius = m_wellDiameter / 2.0;
+        auto mu = m_gasViscosity;
+        auto h = fractureWidth();
+
+        double numerator = alpha * beta * effPerm * gamma;
+        double denumerator = h * radius * mu;
+
+        if (denumerator < 1e-10) return HUGE_VAL;
+
+        d = numerator / denumerator;
     }
 
-    return cvf::UNDEFINED_DOUBLE;
+    return d * m_dFactorScaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::kh() const
+{
+    // kh           = permeability * h
+    // conductivity = permeability * h
+
+    auto values = widthAndConductivityAtWellPathIntersection();
+    if (values.m_conductivity != HUGE_VAL)
+    {
+        // If conductivity is found in stim plan file, use this directly
+        return values.m_conductivity;
+    }
+    
+    return effectivePermeability() * fractureWidth();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
+{
+    if (neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        m_perforationLength = RiaEclipseUnitTools::feetToMeter(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::inchToMeter(m_wellDiameter);
+        m_fractureWidth     = RiaEclipseUnitTools::feetToMeter(m_fractureWidth);
+    }
+    else if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        m_perforationLength = RiaEclipseUnitTools::meterToFeet(m_perforationLength);
+        m_wellDiameter      = RiaEclipseUnitTools::meterToInch(m_wellDiameter);
+        m_fractureWidth     = RiaEclipseUnitTools::meterToFeet(m_fractureWidth);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
+{
+    // The unit has changed. Disconnect all fractures referencing this fracture template to avoid mix of units between fracture
+    // and template
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields(referringObjects);
+
+    for (auto objHandle : referringObjects)
+    {
+        RimFracture* fracture = dynamic_cast<RimFracture*>(objHandle);
+        if (fracture)
+        {
+            fracture->setFractureTemplate(nullptr);
+        }
+    }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj)
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setId(int id)
+{
+    m_id = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setScaleFactors(double width, double height, double dFactor, double conductivity)
+{
+    m_widthScaleFactor = width;
+    m_heightScaleFactor = height;
+    m_dFactorScaleFactor = dFactor;
+    m_conductivityScaleFactor = conductivity;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setContainmentTopKLayer(int topKLayer)
+{
+    m_fractureContainment->setTopKLayer(topKLayer);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setContainmentBaseKLayer(int baseKLayer)
+{
+    m_fractureContainment->setBaseKLayer(baseKLayer);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::fractureWidth() const
+{
+    if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)
+    {
+        auto values = widthAndConductivityAtWellPathIntersection();
+    
+        return values.m_width;
+    }
+
+    return m_fractureWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFractureTemplate::nameAndUnit() const
+{
+    QString decoratedName;
+
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        decoratedName += "[M] - ";
+    }
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        decoratedName += "[F] - ";
+    }
+
+    decoratedName += m_name;
+
+    return decoratedName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::wellDiameter()
+{
+    return m_wellDiameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::perforationLength()
+{
+    return m_perforationLength;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,14 +775,46 @@ const RimFractureContainment * RimFractureTemplate::fractureContainment()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFractureTemplate::FracConductivityEnum RimFractureTemplate::conductivityType() const
+{
+    return m_conductivityType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimFractureTemplate::azimuthAngle() const
+{
+    return m_azimuthAngle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimFractureTemplate::skinFactor() const
+{
+    return m_skinFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
-    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        wellDiameter = 8.5;
+        m_wellDiameter = 8.5;
     }
-    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    else if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        wellDiameter = 0.216;
+        m_wellDiameter = 0.216;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::isNonDarcyFlowEnabled() const
+{
+    return m_nonDarcyFlowType() != RimFractureTemplate::NON_DARCY_NONE;
 }

@@ -113,13 +113,13 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     :   caf::OpenGLWidget(contextGroup(), format, new QWidget(parent), sharedWidget()),
-    m_navigationPolicy(NULL),
+    m_navigationPolicy(nullptr),
+    m_navigationPolicyEnabled(true),
     m_defaultPerspectiveNearPlaneDistance(0.05),
     m_maxClipPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_cameraFieldOfViewYDeg(40.0),
-    m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
-    m_navigationPolicyEnabled(true),
+    m_releaseOGLResourcesEachFrame(false),
     m_isOverlayPaintingEnabled(true),
     m_offscreenViewportWidth(0),
     m_offscreenViewportHeight(0)
@@ -247,7 +247,7 @@ caf::Viewer* caf::Viewer::sharedWidget()
         return *(sm_viewers.begin());
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,8 +676,10 @@ void caf::Viewer::zoomAll()
 
     cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition(bb, vrp-eye, up, 0.9, m_cameraFieldOfViewYDeg, m_mainCamera->viewport()->aspectRatio());
     m_mainCamera->setFromLookAt(newEye, bb.center(), up);
-
+    
     updateParallelProjectionHeightFromMoveZoom(bb.center());
+
+    if (m_navigationPolicy.notNull()) m_navigationPolicy->setPointOfInterest(bb.center());
 
     navigationPolicyUpdate();
 }
@@ -733,7 +735,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 
     int clampedFrameIndex = clampFrameIndex(frameIndex);
 
-    if (m_frameScenes.at(clampedFrameIndex) == NULL) return;
+    if (m_frameScenes.at(clampedFrameIndex) == nullptr) return;
 
     if (m_releaseOGLResourcesEachFrame)
     {
@@ -883,7 +885,7 @@ cvf::Scene* caf::Viewer::frame(size_t frameIndex)
     if (frameIndex < m_frameScenes.size())
         return m_frameScenes[frameIndex].p();
     else
-        return NULL;
+        return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1101,7 +1103,7 @@ void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
 //--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* caf::Viewer::overlayItem(int winPosX, int winPosY)
 {
-    if (m_mainRendering.isNull()) return NULL;
+    if (m_mainRendering.isNull()) return nullptr;
 
     int translatedMousePosX = winPosX;
     int translatedMousePosY = height() - winPosY;

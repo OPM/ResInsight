@@ -62,7 +62,7 @@ namespace caf
 PdmUiTableViewModel::PdmUiTableViewModel(QWidget* parent)
     : QAbstractTableModel(parent)
 {
-    m_pdmList = NULL;
+    m_pdmList = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,7 +353,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
     {
-        it->second->setField(NULL);
+        it->second->setField(nullptr);
     }
 
     m_modelColumnIndexToFieldIndex.clear();
@@ -366,7 +366,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
         {
             PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
-            PdmUiFieldEditorHandle* fieldEditor = NULL;
+            PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
             // Find or create FieldEditor
             std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
@@ -392,7 +392,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
                 //TODO: Create/update is not required at this point, as UI is recreated in getEditorWidgetAndTransferOwnership()
                 // Can be moved, but a move will require changes in PdmUiFieldEditorHandle
-                fieldEditor->createWidgets(NULL);
+                fieldEditor->createWidgets(nullptr);
                 fieldEditor->updateUi(configName);
 
                 int fieldIndex = getFieldIndex(field->fieldHandle());
@@ -407,7 +407,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
     std::vector< QString > fvhToRemoveFromMap;
     for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
     {
-        if (it->second->field() == 0)
+        if (it->second->field() == nullptr)
         {
             PdmUiFieldEditorHandle* fvh = it->second;
             delete fvh;
@@ -451,7 +451,7 @@ PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,10 +462,10 @@ PdmUiFieldEditorHandle* PdmUiTableViewModel::getEditor(const QModelIndex &index)
     PdmFieldHandle* field = getField(index);
     if (!field)
     {
-        return NULL;
+        return nullptr;
     }
 
-    PdmUiFieldEditorHandle* editor = NULL;
+    PdmUiFieldEditorHandle* editor = nullptr;
     
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
     it = m_fieldEditors.find(field->keyword());
@@ -503,7 +503,7 @@ QWidget* PdmUiTableViewModel::getEditorWidgetAndTransferOwnership(QWidget* paren
         return editorWidget;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,7 +559,7 @@ PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
         return m_pdmList->at(row);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

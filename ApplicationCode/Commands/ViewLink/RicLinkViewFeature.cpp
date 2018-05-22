@@ -24,7 +24,7 @@
 #include "RicLinkVisibleViewsFeature.h"
 
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewLinker.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicLinkViewFeature, "RicLinkViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicLinkViewFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
     RimProject* proj = RiaApplication::instance()->project();
@@ -71,10 +71,10 @@ bool RicLinkViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
-    std::vector<RimView*> views;
+    std::vector<RimGridView*> views;
     views.push_back(activeView);
 
     RicLinkVisibleViewsFeature::linkViews(views);

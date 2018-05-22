@@ -44,10 +44,10 @@
 //--------------------------------------------------------------------------------------------------
 RiaSocketServer::RiaSocketServer(QObject* parent)
 : QObject(parent),
-  m_tcpServer(NULL),
-  m_currentClient(NULL),
+  m_tcpServer(nullptr),
+  m_currentClient(nullptr),
   m_currentCommandSize(0),
-  m_currentCommand(NULL),
+  m_currentCommand(nullptr),
   m_currentCaseId(-1)
 {
     m_errorMessageDialog = new QErrorMessage(RiuMainWindow::instance());
@@ -145,23 +145,23 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
         // If the active mdi window is different from an Eclipse view, search through available mdi windows to find the last activated
         // Eclipse view. The sub windows are returned with the most recent activated window at the back.
         QList<QMdiSubWindow*> subWindows = RiuMainWindow::instance()->subWindowList(QMdiArea::ActivationHistoryOrder);
-		for (int i = subWindows.size() - 1; i > -1; i--)
-		{
-			RiuViewer* viewer = subWindows[i]->widget()->findChild<RiuViewer*>();
-			if (viewer)
-			{
+        for (int i = subWindows.size() - 1; i > -1; i--)
+        {
+            RiuViewer* viewer = subWindows[i]->widget()->findChild<RiuViewer*>();
+            if (viewer)
+            {
                 RimEclipseView* riv = dynamic_cast<RimEclipseView*>(viewer->ownerReservoirView());
                 if (riv)
                 {
                     return riv->eclipseCase();
                 }
-			}
-		}
+            }
+        }
     }
     else
     {
         RimProject* project =  RiaApplication::instance()->project();
-        if (!project) return NULL;
+        if (!project) return nullptr;
 
         std::vector<RimCase*> cases;
         project->allCases(cases);
@@ -175,7 +175,7 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ void RiaSocketServer::terminateCurrentConnection()
         m_currentClient->disconnect(SIGNAL(disconnected()));
         m_currentClient->disconnect(SIGNAL(readyRead()));
         m_currentClient->deleteLater();
-        m_currentClient = NULL;
+        m_currentClient = nullptr;
     }
 
     // Clean up more state:
@@ -310,7 +310,7 @@ void RiaSocketServer::terminateCurrentConnection()
     if (m_currentCommand)
     {
         delete m_currentCommand;
-        m_currentCommand = NULL;
+        m_currentCommand = nullptr;
     }
 
     m_currentCommandSize = 0;
@@ -341,8 +341,8 @@ void RiaSocketServer::handleNextPendingConnection()
     QTcpSocket* clientToHandle = m_tcpServer->nextPendingConnection();
     if (clientToHandle)
     {
-        CVF_ASSERT(m_currentClient == NULL);
-        CVF_ASSERT(m_currentCommand == NULL);
+        CVF_ASSERT(m_currentClient == nullptr);
+        CVF_ASSERT(m_currentCommand == nullptr);
 
         m_currentClient = clientToHandle;
         m_currentCommandSize = 0;

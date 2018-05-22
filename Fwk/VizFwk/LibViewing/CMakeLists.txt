@@ -6,12 +6,6 @@ project(LibViewing)
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 
-
-include_directories(../LibCore)
-include_directories(../LibGeometry)
-include_directories(../LibRender)
-
-
 set(CEE_HEADER_FILES
 cvfClipPlaneSet.h
 cvfConstantFrameRate.h
@@ -76,3 +70,17 @@ cvfTransform.cpp
 )
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+    LibGeometry
+    LibRender
+)
+
+set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+source_group("" FILES ${PROJECT_FILES})
