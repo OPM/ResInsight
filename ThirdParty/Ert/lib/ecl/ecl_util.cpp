@@ -343,7 +343,7 @@ static bool valid_base(const char * input_base, bool * upper_case) {
     base = input_base;
 
   for (int i=0; i < strlen(base); i++) {
-    char c = base[i];
+    unsigned char c = base[i];
 
     if (isupper(c))
       upper = true;
