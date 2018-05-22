@@ -599,8 +599,11 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
             viewerToViewInterface->setCameraPointOfInterest(newPointOfInterest);
         }
 
-        m_viewer->mainCamera()->setViewMatrix( this->cameraPosition());
-        m_viewer->setPointOfInterest(this->cameraPointOfInterest());
+        if (m_viewer)
+        {
+            m_viewer->mainCamera()->setViewMatrix(this->cameraPosition());
+            m_viewer->setPointOfInterest(this->cameraPointOfInterest());
+        }
     }
 }
 
