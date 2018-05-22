@@ -5,8 +5,7 @@ permalink: /project/download/
 published: true
 ---
 
-Windows : [ResInsight-2018.05.0_oct-4.0.0_souring_fractures_win64.zip]
-(https://github.com/OPM/ResInsight/releases/download/v2018.05/ResInsight-2018.05.0_oct-4.0.0_souring_win64.zip)
+Windows : [ResInsight-2018.05.0_oct-4.0.0_souring_fractures_win64.zip](https://github.com/OPM/ResInsight/releases/download/v2018.05/ResInsight-2018.05.0_oct-4.0.0_souring_win64.zip)
 
 Linux - RHEL6 : [ResInsight-2018.05.0_oct-3.4.3_souring_el6.tar.gz](https://github.com/OPM/ResInsight/releases/download/v2018.05/ResInsight-2018.05.0_oct-3.4.3_souring_el6.tar.gz) 
 
