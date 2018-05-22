@@ -30,7 +30,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "cafAsyncObjectDeleter.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -51,7 +50,7 @@ void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>& cases)
+void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummaryCase*>& cases)
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
@@ -67,13 +66,13 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>
         summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
 
         summaryCaseMainCollection->removeCase(summaryCase);
+        delete summaryCase;
+
         summaryCaseMainCollection->updateAllRequiredEditors();
     }
 
     RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
-
-    caf::AsyncRawPointerVectorDeleter<RimSummaryCase> summaryCaseDeleter(std::move(cases));
 }
 
 //--------------------------------------------------------------------------------------------------

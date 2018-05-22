@@ -75,8 +75,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
-    m_caseCollections.deleteAllChildObjectsAsync();
+    m_cases.deleteAllChildObjects();
+    m_caseCollections.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

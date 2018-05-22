@@ -53,7 +53,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::~RimSummaryCaseCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
+    m_cases.deleteAllChildObjects();
     updateReferringCurveSets();
 }
 

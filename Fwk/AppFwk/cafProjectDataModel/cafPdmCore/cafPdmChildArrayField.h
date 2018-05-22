@@ -61,8 +61,7 @@ public:
     virtual size_t      size() const                              { return m_pointers.size(); }
     virtual bool        empty() const                             { return m_pointers.empty(); }
     virtual void        clear();
-    virtual void        deleteAllChildObjects();
-    virtual void        deleteAllChildObjectsAsync();
+    virtual void        deleteAllChildObjects(); 
     virtual void        insertAt(int indexAfter, PdmObjectHandle* obj);
     virtual PdmObjectHandle* at(size_t index);
 
