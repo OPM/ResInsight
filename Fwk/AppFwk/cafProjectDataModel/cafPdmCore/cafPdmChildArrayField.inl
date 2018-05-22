@@ -1,3 +1,4 @@
+#include "cafAsyncObjectDeleter.h"
 #include "cafClassTypeName.h"
 #include "cafPdmObjectHandle.h"
 
@@ -137,6 +138,20 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjects()
 
     m_pointers.clear();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Transfers ownership of the objects pointed to a separate thread.
+/// Then clears the container and lets the thread delete the objects.
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
+{
+    CAF_ASSERT(isInitializedByInitFieldMacro());
+
+    AsyncPdmPointerVectorDeleter<DataType> pointerDeleter(std::move(m_pointers));    
+    CAF_ASSERT(m_pointers.empty()); // Object storage for m_pointers should be empty immediately.
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Removes the pointer at index from the container. Does not delete the object pointed to.

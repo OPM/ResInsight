@@ -45,6 +45,9 @@ set( PROJECT_FILES
     cafTristate.h
     cafFilePath.cpp
     cafFilePath.h
+    cafAsyncObjectDeleter.h
+    cafAsyncObjectDeleter.inl
+
 )
 
 add_library( ${PROJECT_NAME}
