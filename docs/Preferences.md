@@ -18,12 +18,13 @@ The preferences are not stored in the project files, but rather in a platform sp
 This group of options controls visual settings that will be used when creating new views.
 
 - **Viewer Background** 
-- **Gridlines** -- Controls whether to show the gridlines by default.
+- **Gridlines** -- Controls whether to show the grid lines by default.
 - **Mesh Color** 
 - **Mesh Color Along Faults**
 - **Well Label Color**
 - **Font Size** -- This font size is used for all labels shown in the 3D Views.
 - **Default Z Scale Factor** -- Default depth scale for grid models.
+- **Enable Legend Background** -- Apply a semi-transparent background to the legends in the 3D Views.
 
 ### 3D Views
 - **Navigation mode** -- Defines how to use the mouse to interact with with the 3D model.

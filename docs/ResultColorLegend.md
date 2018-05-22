@@ -5,7 +5,7 @@ permalink: /docs/resultcolorlegend/
 published: true
 ---
 
-The color mapping of the displayed cell result is controlled by the **Legend Definition** located below a result node in the **Project Tree**
+The color mapping of the displayed cell result is controlled by the **Legend Definition** located below a result node in the **Project Tree**. The legend can be shown or hidden by checking or unchecking the box in front of the Legend Definition.
 
 ![Legend Configuration]({{ site.baseurl }}/images/legend_configuration.PNG)
 
@@ -27,3 +27,7 @@ The color mapping of the displayed cell result is controlled by the **Legend Def
   (Not available for Flow Diagnostics results)
   - **Current Timestep** -- use current (one) time step to find min and max values  
   - **User Defined Range** -- user specifies numeric values for min and max  
+
+Furthermore the legend can have a semi-transparent background applied to it by selecting the **Enable Legend Background** option in the Preferences dialog.
+
+![Legend Background]({{ site.baseurl }}/images/legend_background.png) ![Legend With or Without Background]({{ site.baseurl }}/images/legend_with_background.png)

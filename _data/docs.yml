@@ -20,9 +20,11 @@
   - linkedviews
   - simulationwells
   - faults
+  - tensors
   - intersections
   - filters
   - wellpaths
+  - 3dwelllogcurves
   - completions
   - formations
   - casegroupsandstatistics 
@@ -33,32 +35,36 @@
   - summaryplots
   - summaryploteditor
   - summarycrossplots
-  - observeddata
+  - ensembleplotting
   - curvecalculator
   - welllogsandplots
   - rftplot
   - pltplot
   - flowdiagnosticsplots
      
-- title: Export and Import 
+- title: Import 
+  docs:
+  - odbsupport
+  - elementpropertytableimport
+  - observeddata 
+  - pasteexceltimedata
+  
+- title: Export 
   docs:
   - snapshots
   - exporteclipseproperties
   - exportfluxnummultnum
   - carfinexport
-  - odbsupport
-  - importobstimehistdata
-  - pasteexceltimedata
+  - completionexport
   
 - title: Scripting
   docs:
   - octaveinterface
-  - batchcommands
+  - commandlineinterface
   - commandfile
 
 - title: Appendix
   docs:
-  - commandlineparameters
   - derivedresults
   - octaveinterfacereference
   - buildinstructions

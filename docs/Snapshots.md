@@ -28,7 +28,7 @@ The files generated are stored in a folder named _`snapshots`_ within the folder
 
 <div class="note">
  Snapshots of existing views can also be created and saved from the command line 
- ( See <a href="{{ site.baseurl }}/docs/commandlineparameters">Command Line Arguments</a> ).
+ ( See <a href="{{ site.baseurl }}/docs/commandlineinterface">Command Line Interface</a> ).
 </div>
 
 ## Advanced Snapshot Export  ![]({{ site.baseurl }}/images/SnapShotSaveViews.png)

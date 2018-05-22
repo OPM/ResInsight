@@ -9,7 +9,12 @@ ResInsight can be built with support for reading and displaying geomechanical an
 
 If you have, and would like to a use these features, please see [ Build Instructions ]({{ site.baseurl }}/docs/buildinstructions) for a description on how to build ResInsight and how to include the support for odb-files.
 
-### Odb Support
+### Geo Mechanical Data Support
+Geo-mechanical data can be imported using the **Import -> Geo Mechanical Cases menu**. Here two options are present: **Import Geo Mechanical Model** (odb files) and **Import Element Property Table**.
+
+
+![]({{ site.baseurl }}/images/GeoMechImport.png)
+
 ResInsight supports the elements C3D8R, C3D8 and C3D8P which are all HEX8 cells. It is also assumed that there are *no other element topologies* present in the odb file, and that there are only one part. For IJK-based range filters to work, it is also assumed that the elements in the part is topologically arranged as a complete box.
  
 ResInsight loads the second frame within each odb-step, and present those as the time series for each result.

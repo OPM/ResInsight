@@ -9,11 +9,17 @@ published: true
 
 Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways. 
 
-There are two main types of intersections. The first one which simply is called **Intersection**, is defined by a piecewise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. The second intersection type is called an **Intersection Box**. An Intersection Box can be used as a box cutting the grid cells, or collapsed to a restricted axis aligned plane. 
+There are two main types of intersections. The first one which simply is called **Intersection**, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate [2D Intersection View]({{ site.baseurl }}/docs/intersections#2d-intersection-views)
 
-All types of intersections are stored in a folder named **Intersections** in a **View** as shown below.
+The second intersection type is called an **Intersection Box**. An Intersection Box can be used as a box cutting the grid cells, or collapsed to a restricted axis aligned plane. 
+
+All types of intersections are stored in a folder named **Intersections** in a **View** as shown below. Once created, the intersections may be copied to other views by selecting the **Copy intersections to all views in case** option from the context menu of each intersection.
 
 ![]({{ site.baseurl }}/images/IntersectionInTree.png)
+
+Once created, the intersections may be copied to other views by selecting the **Copy intersections to all views in case** option from the context menu of each intersection.
+
+![]({{ site.baseurl }}/images/IntersectionInTreeCopy.png)
 
 ## Curve Based **Intersections**
 
@@ -104,6 +110,45 @@ The length of the plane can also be set manually in the **Property Editor**.
 - **Length Down** is the distance from the user defined horizontal line, to the bottom of the plane intersecting the model.
 
 ![]({{ site.baseurl }}/images/azimuthDip3DView.PNG)
+
+### 2D Intersection Views
+
+A 2D Intersection View displays the intersection in a separate 2D view along with the defining curve. The intersection and the defining well path, simulation well or polyline is flattened to make it easier to see the intersected grid and how the well traverses it. 
+
+![]({{ site.baseurl }}/images/IntersectionView.png)
+
+Each of the curve based intersections have a corresponding **2D Intersection View**. Management of these views are automatic. They will be created and deleted along with the intersection.
+
+The view can be shown either by right clicking the intersection and select the command **Show 2D intersection View**, or by toggling the view in the project tree directly.
+
+![]({{ site.baseurl }}/images/IntersectionViewsProjectTree.png)
+
+Scales along the edges of the view show the depth and the horizontal length of the intersection. The length is measured from the start of the wellpath or the well head of a simulation well. 
+
+The view is mostly controlled by the options in the 3D view where the intersection is defined. There are, however some independent controls, like drawstyle, timestep and Z-scale.
+
+![]({{ site.baseurl }}/images/2DIntersectionViewProperties.png)
+
+
+
+- **Viewer**
+  - **Name** -- User editable name of the view. The default name is set by combining the name of the origin view and the intersection name.
+  - **Background** -- Color of the viewer background 
+  - **Disable Results Lighting** -- Toggle the light effect. When the lighting is turned off, the colors are easier to compare with the legend, but the colors carry no visual cue to visualize the 3D shape. The effect is tiny on 2D Intersection Views.
+- **Grid Appearance** -- Controls the drawstyle of the grid geometry
+  - **Z Scale** -- Scales the view in Z(depth) direction to make slim K-layers easier to see
+  - **Grid Lines** -- Controls what mesh lines to draw
+    - **All** -- All mesh lines are drawn
+    - **Faults Only** -- Only mesh lines associated with faults are drawn
+    - **None** -- Mesh lines are not drawn at all
+  - **Grid Surface** -- Controls what grid surface geometry to draw
+    - **All** -- All grid faces are drawn
+    - **Faults Only** -- Only faces that are included in a fault is drawn
+    - **None** -- Do not draw any faces
+- **Defining Points**
+  - **Show points** -- Toggle the display of the defining points for Polyline or Azimuth and Dip intersections.
+
+These options are similar to the options for a regular 3D view (See [View Properties]({{ site.baseurl }}/docs/reservoirviews#view-properties) ) 
 
 ## Intersection Box and Intersection Planes
 

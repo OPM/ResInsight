@@ -78,7 +78,7 @@ Well Picks can be set for a single well path, defined on measured depths of the 
 
 ### Import of Well Pick Files
 
-Well Pick files can be imported by using the command: **File->Import->Import Well Picks**.
+Well Pick files can be imported by using the command: **File->Import->Well Data->Import Well Picks**.
 The user is asked to select _`*.csv`_ files for import.
 
 The imported Well Pick files will be added to their associated well path, if a match on well name can be found. If not, new paths will be created, and they can all be found in **Wells** in the **Project Tree**. The file path of the formations can be found in a well path's **Property Editor**.

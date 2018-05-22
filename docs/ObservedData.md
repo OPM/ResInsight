@@ -17,8 +17,6 @@ The following file types are supported:
 - Column based (Comma Separated Values, CSV) time history data file (_\*.csv/\*.txt_)
 The imported ![]({{ site.baseurl }}/images/Default.png) Observed Time History Data files will be added to ![]({{ site.baseurl }}/images/Folder.png)**Observed Time History Data**. 
 
-See [Import Observed Time History Data]({{site.baseurl}}/docs/importobstimehistdata) for details.
-
 Which summaries that has been detected in a Observed Time History Data file can be read in an Observed Time History Data's **Property Editor**. In the image below, time and year info has been found together with the summary "WBP9L" for the well "OP-1".
 
 ![]({{ site.baseurl }}/images/observedDataProperty.png)

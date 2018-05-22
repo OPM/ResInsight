@@ -18,7 +18,7 @@ In this context <b>highlighted</b> means the marked item with a different backgr
 This section describes the different selection fields in the selection part of the plot editor. A complete/valid vector selection consists of a selected source, a selected summary category, a selected item in each dynamic field (if any) and a selected vector among the Summaries.
 
 ### Sources
-This field contains all imported cases. Select the case(s) to display in the plot.
+This field contains all imported cases and ensembles. Select the case(s) and/or ensemble(s) to display in the plot.
 
 ### Summary Types and Item Selection Fields
 In the mid-section of the dialog, the Summary Type and the corresponding Items can be selected.
@@ -54,7 +54,7 @@ In the mid-section of the dialog, the Summary Type and the corresponding Items c
    - **Lgr name** -- Select Lgr name
    - **I, J, K** -- Select the I, J, K values of the Block in the Lgr. 
 - **Calculated** -- Select calculated vectors created by the [curve calculator]({{site.baseurl}}/docs/curvecalculator).
-- **Imported** -- Select observed data vectors [imported from file]({{site.baseurl}}/docs/importobstimehistdata) (e.g. CSV, RSM files)
+- **Imported** -- Select observed data vectors [imported from file]({{site.baseurl}}/docs/observeddata) (e.g. CSV, RSM files)
 
 ### Summaries
 This field contains the summaries/vectors for the highlighted summary category.
@@ -80,10 +80,19 @@ When disabling the **Auto** option, you can select which of the visual curve pro
 
 The **Apply** button must be clicked to apply the new settings to all curves.
 
+The curve appearance settings apply to single summary curves only and do not affect ensemble curve sets. Curve sets receive their appearance automatically from a set of color ranges.
+
 <div class="note">
 Assignment of curve appearance are incremental, and can end up as sub optimal if adding curves in several steps.
 Press the <b>Apply</b> button to apply consistent appearance settings according to the current curve selection.
 </div>
+
+### Curves
+![]({{site.baseurl}}/images/SummaryPreviewCurves.png)
+
+The curves field displays all summary curves and ensemble curve sets matching the settings in the selection fields. Those are separated in two groups, **Summary Curves** and **Ensemble Curve Sets**. The check box at each item controls which items are displayed in the preview plot.
+
+If the user make a selection that will result in a huge number of ensemble curves, ResInsight will display a drawing performance warning, and the newly created curve set(s) are toggled off by default.
 
 ### Target Plot
 ![]({{site.baseurl}}/images/TargetPlot_new.png)

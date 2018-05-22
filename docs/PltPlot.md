@@ -7,7 +7,7 @@ published: true
 
 ![]({{site.baseurl}}/images/PltPlot.png)
 
-A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (\*.rft) files, while observed pressure data are loaded from well log files (\*.las).
+A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (\*.rft) files, while observed production data are loaded from well log files (\*.las).
 
 ## Create New PLT Plot
 There are several ways to create new PLT Plots

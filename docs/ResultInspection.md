@@ -54,9 +54,9 @@ A dialog will appear to prompt you to select an existion plot, or to create a ne
 
 ![]({{ site.baseurl }}/images/ResultPlotToSummaryPlotDialog.png)
 
-## PVT Plot
+## PVT Plot (Eclipse Cases Only)
 
-Show the PVT Plot window by selecting **Windows -> PVT Plot**.
+Show the PVT Plot window by selecting **Windows -> PVT Plot**. When it is turned on, it will only be visible when the active view is a view of an Eclipse case.
 
 ![]({{ site.baseurl }}/images/pvtOil.png)
 
@@ -66,9 +66,9 @@ The PVT plot window shows two plots, based on PVTNUM in the selected cell. One p
 
 Pressure for the selected cell, at the current time step, is marked on the plot as a vertical line, and a large circle marks the scalar value of the cell (formation volume factor/viscosity). RV for the selected cell is also shown.
 
-## Relative Permeability Plot
+## Relative Permeability Plot (Eclipse Cases Only)
 
-Show the Relative Permeability Plot window by selecting **Windows -> Relative Permeability Plot**.
+Show the Relative Permeability Plot window by selecting **Windows -> Relative Permeability Plot**.  When it is turned on, it will only be visible when the active view is a view of an Eclipse case.
 
 ![]({{ site.baseurl }}/images/relParm.png)
 
@@ -84,3 +84,11 @@ PCOW | Capilar pressure oil water      | PC (Right)
 PCOG | Capilar pressure oil gas        | PC (Right)
 
 Saturation of water and gas in the selected cell, at the current time step, are annotated in the plot by a blue and orange vertical line, respectively. The intersections between the lines and the relevant curves are marked with large circles.
+
+## Mohr's Circle Plot (Geo Mechanical Models Only)
+
+Show the Mohr's Circle Plot window by selecting **Windows -> Mohr's Circle Plot**.  When it is turned on, it will only be visible when the active view is a view of an Geo Mech case.
+
+![]({{ site.baseurl }}/images/mohrsCircles.png)
+
+The Mohr's circle plot shows three circles representing the 3D state of stress for a selected cell. In addition, it shows the envelope, calculated from the *cohesion* and *friction angle* given in the geo mechanical view's property editor. Several sets of circles and envelopes can be added by selecting more than one cell in any view (as in image above).

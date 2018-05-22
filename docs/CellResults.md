@@ -117,9 +117,17 @@ Geomechanical results are sorted in different **Result Position**s:
 - **Element Nodal on Face** -- Results with values transformed to element faces or intersections. 
 See [Element Nodal on Face]({{ site.baseurl }}/docs/derivedresults#element-nodal-on-face) for more information 
 - **Formation Names** -- Lists the **Active Formation Names** selected on the case. ( See [Formations]({{ site.baseurl }}/docs/formations) )
+- **Element** -- Imported element property table results. One value pr element. See [Element Property Table Import]({{ site.baseurl }}/docs/elementpropertytableimport)
 
 Several derived cell properties are calculated. Please refer to [Derived Results]({{ site.baseurl }}/docs/derivedresults) for more information.
 
 ### Relative Result Options
 
 This group of options controls time-lapse results to be calculated. ( See [Relative Results]({{ site.baseurl }}/docs/derivedresults#relative-results-time-lapse-results) for more information ) 
+
+## Select Color Result
+![]({{ site.baseurl }}/images/SelectColorResult.png)
+
+In the 3D view, the result property for a selected cell can be found by right-clicking on the 3D view and choosing **Select Color Result**. The corresponding result property will be shown in the Property Editor.
+
+![]({{ site.baseurl }}/images/SelectColorResultPropertyEditor.png)

@@ -13,7 +13,7 @@ ResInsight can display well logs by extracting data from a simulation model alon
 
 Well log plots can be created in several ways: 
 
-1. Right-click a wellpath or a simulation well, either in the **Project Tree** or in the 3D-view.  
+1. Right-click a well path or a simulation well, either in the **Project Tree** or in the 3D-view.  
    Select **New Well Log Extraction Curve**.   
    A new plot with a single **Track** and a **Curve** is created. The curve is setup to match the 
    selected Well trajectory, active case, and result. 

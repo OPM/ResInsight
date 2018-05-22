@@ -27,7 +27,7 @@ The TRANX, TRANY and TRANZ used in the simulation are divided by the ResInsight 
 
 ### Directional Combined Results
 
-Cell properties with names ending in I, J, K, X, Y, or Z, and an optional "+" or "-" are combined into derived results postfixed with IJK, or XYZ depending on their origin. (Eg. the static cell properties MULTX, MULTY, MULTZ, and their negatives are combined into the result MULTXYZ, while the dynamic cell properties FLRGASI, FLRGASJ, FLRGASK are combined to FLRGASIJK). 
+Cell properties with names ending in I, J, K, X, Y, or Z, and an optional "+" or "-" are combined into derived results post-fixed with IJK, or XYZ depending on their origin. (Eg. the static cell properties MULTX, MULTY, MULTZ, and their negatives are combined into the result MULTXYZ, while the dynamic cell properties FLRGASI, FLRGASJ, FLRGASK are combined to FLRGASIJK). 
 
 These combined cell properties visualize the property as a color in all directions combined when selected in 
 as a **Cell Result** and **Separate Fault Result**. 
@@ -54,6 +54,8 @@ The directional combined parameters available are:
 ![]({{ site.baseurl }}/images/CompletionTypes.png)
 
 The dynamic cell property named **Completion Type** is calculated from the intersections between [Completions]({{ site.baseurl }}/docs/completions) and the grid cells. All grid cells intersected by a completion will be assigned a color based on the type of completion that intersects the cell.
+
+If a cell is completed with multiple completions, the following priority is used : **Fracture**, **Fishbones**, and **Perforation Interval**.
 
 ### Identification of Questionable NNCs
 In the process of normalizing transmissibility by the overlapping flow area, the NNCs in the model without any shared surface between two cells are identified. These NNCs are listed in the **Faults/NNCs With No Common Area** folder. These NNCs are questionable since flow normally is associated with a flow area.
@@ -89,6 +91,8 @@ Gamma_D*n* = ST_D*n* / POR_D*n*
 
 The calculated result fields are:
 
+* Nodal
+  * COMPACTION (Magnitude of compression)
 * Element Nodal and Integration Points
   * ST (Total Stress)
      * All tensor components
@@ -141,6 +145,21 @@ Two constants can be assigned to a Geomechanical case:
 In the following they are denoted s0 and fa respectively. Some of the derived results use these constants, that can be changed in the property panel of the Case.
 
 ![]({{ site.baseurl }}/images/GeoMechCasePropertyPanel.png)
+
+##### COMPACTION
+
+Compaction is the difference in vertical displacement (U3) between a grid node and a specified reference K layer.
+The reference K layer is specified in the property editor.
+
+For each node <i>n</i> in the grid, a node <i>nref</i> in the reference K layer is found by vertical intersection from the node <i>n</i>.
+
+If Depth<sub>n</sub> <= Depth<sub>nref</sub>:
+
+COMPACTION<sub>n</sub> = -(U3<sub>n</sub> - U3<sub>nref</sub>)
+
+else:
+
+COMPACTION<sub>n</sub> = -(U3<sub>nref</sub> - U3<sub>n</sub>)
 
 ##### ST - Total Stress
 

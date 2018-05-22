@@ -27,7 +27,7 @@ GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install dev
 [Qt](http://download.qt.io/archive/qt/) Qt4 version 4.6.2 or later is supported. Qt5 is not supported yet.
 On Windows we recommend Qt-4.8.7, while the default installation will do under Linux. 
 
-You will need to patch the Qt sources in order to make them build using Visual Studion 2015 using this : 
+You will need to patch the Qt sources in order to make them build using Visual Studio 2015 using this : 
 [Qt-patch](https://github.com/appleseedhq/appleseed/wiki/Making-Qt-4.8.7-compile-with-Visual-Studio-2015) 
 
 ### CMake

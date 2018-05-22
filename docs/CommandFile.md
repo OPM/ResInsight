@@ -6,10 +6,12 @@ published: true
 ---
 
 The command file interface allows a sequence of specified commands to be run in order from the command line.
-The interface is used by supplying the command file as a [command line parameter]({{site.baseurl}}/docs/commandlineparameters).
+The interface is used by supplying the command file as a [command line parameter]({{site.baseurl}}/docs/commandlineinterface).
 Once the command file is finished executing, ResInsight will exit.
 
-**Case Control Commands**
+## Command List
+
+#### Case Control Commands
 
 * [openProject](#openproject)
 * [closeProject](#closeproject)
@@ -18,25 +20,28 @@ Once the command file is finished executing, ResInsight will exit.
 * [replaceCase](#replacecase)
 * [replaceSourceCases](#replacesourcecases)
 
-**Export Commands**
+#### Export Commands
 
 * [exportMultiCaseSnapshots](#exportmulticasesnapshots)
 * [exportSnapshots](#exportsnapshots)
 * [exportProperty](#exportproperty)
 * [exportWellPathCompletions](#exportwellpathcompletions)
+* [exportSimWellFractureCompletions](#exportsimwellfracturecompletions)
 * [exportMsw](#exportmsw)
 * [setExportFolder](#setexportfolder)
 
-**Other Commands**
+#### Other Commands
 
 * [runOctaveScript](#runoctavescript)
 * [setMainWindowSize](#setmainwindowsize)
 * [computeCaseGroupStatistics](#computecasegroupstatistics)
 * [setTimeStep](#settimestep)
+* [scaleFractureTemplate](#scalefracturetemplate)
+* [setFractureContainment](#setfracturecontainment)
 
 
-Syntax
-======
+## Syntax
+
 
 The command file is comprised of a set of commands to be executed in order. Each command must begin on a separate line, i.e. there cannot be two commands on the same line.
 
@@ -46,8 +51,7 @@ As an example; `openProject(path="/path/to/ResInsightProject.rsp")` will execute
 
 Not all parameters are required, in which case they can be omitted and their value will be defaulted. The order of parameters does not matter.
 
-Types
------
+### Types
 
 There are different types of parameters that can be supplied.
 
@@ -62,12 +66,11 @@ There are different types of parameters that can be supplied.
 
 <sup>1</sup> The backslash (`\`) character is used as an escape character within strings, so to use a quote within a string, use `"escape \" with \""`. To input a literal backslash character, use `"\\"`.
 
-Case Control Commands
-=====================
+## Case Control Commands
 
 
-openProject
------------
+### openProject
+
 
 Opens a ResInsight project file.
 
@@ -75,23 +78,21 @@ Opens a ResInsight project file.
 |-----------|--------------------------------|--------|----------|
 | path      | File path to the project file  | String | &#10004; |
 
-### Example
+#### Example
 
 `openProject(path="/home/user/ResInsightProject.rsp")`
 
 
-closeProject
-------------
+### closeProject
 
 Closes the current open project.
 
-### Example
+#### Example
 
 `closeProject()`
 
 
-setStartDir
------------
+### setStartDir
 
 Set startup directory.
 
@@ -99,13 +100,12 @@ Set startup directory.
 |-----------|------------------------------------------------|--------|----------|
 | path      | Path to directory to use as startup directory  | String | &#10004; |
 
-### Example
+#### Example
 
 `setStartDir(path="/home/user")`
 
 
-loadCase
---------
+### loadCase
 
 Import Eclipse case from file.
 
@@ -113,13 +113,13 @@ Import Eclipse case from file.
 |-----------|--------------------------------|--------|----------|
 | path      | File path to the case to load  | String | &#10004; |
 
-### Example
+#### Example
 
 `loadCase(path="/home/user/reservoir.EGRID")`
 
 
-replaceCase
------------
+### replaceCase
+
 
 Replaces a case in the current project with the specified new case.
 
@@ -130,13 +130,12 @@ Replaces a case in the current project with the specified new case.
 | newGridFile | File path to the new grid file to replace with     | String  | &#10004; |
 | caseId      | ID of the case to replace. Defaults to first case  | Integer |          |
 
-### Example
+#### Example
 
 `replaceCase(newGridFile="/home/user/otherReservoir.EGRID", caseId=4)`
 
 
-replaceSourceCases
-------------------
+### replaceSourceCases
 
 Replaces multiple source cases in the current project.
 
@@ -147,16 +146,15 @@ Replaces multiple source cases in the current project.
 | gridListFile | File path to file containing list of cases to replace with      | String  | &#10004; |
 | caseGroupId  | ID of group to replace cases in. Defaults to first group        | Integer |          |
 
-### Example
+#### Example
 
 `replaceSourceCases(gridListFile="C:/resinsight/replacement_files.txt")`
 
 
-Export Commands
-===============
+## Export Commands
 
-exportMultiCaseSnapshots
-------------------------
+
+### exportMultiCaseSnapshots
 
 Replaces the first case in the current project with each case in the given file and saves snapshots of all views.
 
@@ -168,13 +166,12 @@ Folder to output snapshots should be set using `setExportFolder` with `SNAPSHOTS
 |--------------|--------------------------------------------------------------------|---------|----------|
 | gridListFile | File path to file containing list of cases to create snapshots of  | String  | &#10004; |
 
-### Example
+#### Example
 
 `exportMultiCaseSnapshots(gridListFile="C:\\resinsight\\replacement_files.txt")`
 
 
-exportSnapshots
----------------
+### exportSnapshots
 
 Export snapshots of specified type.
 
@@ -184,13 +181,12 @@ Folder to output snapshots should be set using `setExportFolder` with `SNAPSHOTS
 |-----------|-----------------------------------------------------------------------------------|------|----------|
 | type      | Type of snapshots to export. Choices: `ALL`, `VIEWS`, `PLOTS`. Defaults to `ALL`  | Enum |          |
 
-### Example
+#### Example
 
 `exportSnapshots(type=PLOTS)`
 
 
-exportProperty
---------------
+### exportProperty
 
 Exports a property to file in Eclipse format.
 
@@ -204,13 +200,12 @@ This command changes the selected property on the first view of the selected cas
 | undefinedValue | Value to use for undefined values. Defaults to 0.0                                              | Double  |          |
 | exportFile     | File to export to. Defaults to export folder for `PROPERTIES` with `property` name as filename  | String  |          |
 
-### Example
+#### Example
 
 `exportProperty(caseId=1, property="SOIL")`
 
 
-exportWellPathCompletions
--------------------------
+### exportWellPathCompletions
 
 Export well path completions.
 
@@ -218,21 +213,35 @@ Export well path completions.
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|----------|
 | caseId                      | ID of case to export well paths for                                                                                                                       | Integer        | &#10004; |
 | timeStep                    | The time step to export completions for                                                                                                                   | Integer        | &#10004; |
-| wellPathNames               | Names of well paths to export for. Defaults to all wells or checked wells, as determined by `wellSelection` parameter                                     | List of String |          |
-| wellSelection               | Which wells are included. Choices: `ALL_WELLS`, `CHECKED_WELLS`. Defaults to `ALL_WELLS`                                                                  | Enum           |          |
+| wellPathNames               | Names of well paths to export for. Defaults to all checked wells. If a list of well names are provided, those wells are included even if unchecked        | List of String |          |
 | fileSplit                   | How the files are split. Choices: `UNIFIED_FILE`, `SPLIT_ON_WELL`, `SPLIT_ON_WELL_AND_COMPLETION_TYPE`. Defaults to `UNIFIED_FILE`                        | Enum           |          |
 | compdatExport               | Chose whether transmissibilities are exported. Choices: `TRANSMISSIBILITIES`, `WPIMULT_AND_DEFAULT_CONNECTION_FACTORS`. Defaults to `TRANSMISSIBILITIES`  | Enum           |          |
 | includePerforations         | Whether main bore perforations should be included. Defaults to `true`                                                                                     | Boolean        |          |
 | includeFishbones            | Whether fishbones should be included. Defaults to `true`                                                                                                  | Boolean        |          |
-| excludeMainBoreForFishbones | Whether main bore completions shouldb be excluded for cells with fishbones. Defaults to `false`                                                           | Boolean        |          |
+| excludeMainBoreForFishbones | Whether main bore completions should be excluded for cells with fishbones. Defaults to `false`                                                           | Boolean        |          |
 
-### Example
+#### Example
 
-`exportWellPathCompletions(caseId=3, timeStep=5, wellSelection=CHECKED_WELLS, includeFishbones=false)`
+`exportWellPathCompletions(caseId=3, timeStep=5, includeFishbones=false)`
 
+### exportSimWellFractureCompletions
 
-exportMsw
----------
+Export fracture completions for simulation wells.
+
+| Parameter                   | Description                                                                                                                                               | Type           | Required |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|----------|
+| caseId                      | ID of case to export simulation well fracture completions for                                                                                             | Integer        | &#10004; |
+| viewName                    | The name of the view to export simulation well fracture completions for. Since view names are not unique, all views sharing the given name will be used   | String         | &#10004; |
+| timeStep                    | The time step to export completions for                                                                                                                   | Integer        | &#10004; |
+| simulationWellNames         | Names of simulation wells to export for. Defaults to all checked wells. If a list of names are provided, those wells are included even if unchecked       | List of String |          |
+| fileSplit                   | How the files are split. Choices: `UNIFIED_FILE`, `SPLIT_ON_WELL`, `SPLIT_ON_WELL_AND_COMPLETION_TYPE`. Defaults to `UNIFIED_FILE`                        | Enum           |          |
+| compdatExport               | Chose whether transmissibilities are exported. Choices: `TRANSMISSIBILITIES`, `WPIMULT_AND_DEFAULT_CONNECTION_FACTORS`. Defaults to `TRANSMISSIBILITIES`  | Enum           |          |
+
+#### Example
+
+`exportSimWellFractureCompletions(caseId=3, viewName="View 2", timeStep=5)`
+
+### exportMsw
 
 Export multi-segment wells.
 
@@ -241,13 +250,12 @@ Export multi-segment wells.
 | caseId    | ID of case to export well paths for            | Integer | &#10004; |
 | wellPath  | Name of well path to export well segments for  | String  | &#10004; |
 
-### Example
+#### Example
 
 `exportMsw(caseId=1, wellPath="MainWell")`
 
 
-setExportFolder
----------------
+### setExportFolder
 
 Set the folder to export different types of data to. Set this before attempting to export data to ensure it is exported to desired location.
 
@@ -256,16 +264,14 @@ Set the folder to export different types of data to. Set this before attempting 
 | type      | Type of export folder to set. Choices: `COMPLETIONS`, `SNAPSHOTS`, `PROPERTIES`, `STATISTICS`  | Enum   | &#10004; |
 | path      | Directory to export the given type to                                                          | String | &#10004; |
 
-### Example
+#### Example
 
 `setExportFolder(type=SNAPSHOTS, path="/home/user/snapshots")`
 
 
-Other
-=====
+## Other
 
-runOctaveScript
----------------
+### runOctaveScript
 
 Execute an Octave script.
 
@@ -274,13 +280,12 @@ Execute an Octave script.
 | path      | Path to the octave script to execute                                                            | Integer         | &#10004; |
 | caseIds   | The cases to run the octave script on. Defaults to running the script without a specified case  | List of Integer |          |
 
-### Example
+#### Example
 
 `runOctaveScript(path="/home/user/octave/something.m", caseIds=[1,2,6])`
 
 
-setMainWindowSize
------------------
+### setMainWindowSize
 
 Resize the main window to the specified size.
 
@@ -289,13 +294,12 @@ Resize the main window to the specified size.
 | width     | The width to set for the main window   | Integer | &#10004; |
 | height    | The height to set for the main window  | Integer | &#10004; |
 
-### Example
+#### Example
 
 `setMainWindowSize(width=1920, height=1200)`
 
 
-computeCaseGroupStatistics
---------------------------
+### computeCaseGroupStatistics
 
 Compute statistics for statistics cases.
 
@@ -303,15 +307,14 @@ Compute statistics for statistics cases.
 |-----------|----------------------------------------------------------------------|-----------------|----------|
 | caseIds   | IDs of statistics cases to compute. Default is all statistics cases  | List of Integer |          |
 
-### Example
+#### Example
 
 `computeCaseGroupStatistics(caseIds=[5])`
 
 `computeCaseGroupStatistics(caseIds=[2,4,8])`
 
 
-setTimeStep
------------
+### setTimeStep
 
 Set the time step for a given case. The time step is used for all views on the case.
 
@@ -320,6 +323,36 @@ Set the time step for a given case. The time step is used for all views on the c
 | caseId    | ID of case to set time step for  | Integer | &#10004; |
 | timeStep  | Index of time step to switch to  | Integer | &#10004; |
 
-### Example
+#### Example
 
 `setTimeStep(caseId=1, timeStep=8)`
+
+### scaleFractureTemplate
+
+Scale fracture template parameters.
+
+| Parameter    | Description                      | Type    | Required |
+|--------------|----------------------------------|---------|----------|
+| id           | ID of fracture template          | Integer | &#10004; |
+| width        | Width scale factor               | Double  |          |
+| height       | Height scale factor              | Double  |          |
+| dFactor      | D-factor scale factor            | Double  |          |
+| conductivity | Conductivity scale factor        | Double  |          |
+
+#### Example
+
+`scaleFractureTemplate(id=1, width=2, height=1.5)`
+
+### setFractureContainment
+
+Set fracture template containment parameters.
+
+| Parameter    | Description                      | Type    | Required |
+|--------------|----------------------------------|---------|----------|
+| id           | ID of fracture template          | Integer | &#10004; |
+| topLayer     | Top layer containment            | Integer | &#10004; |
+| baseLayer    | Base layer containment           | Integer | &#10004; |
+
+#### Example
+
+`setFractureContainment(id=1, topLayer=2, baseLayer=7)`

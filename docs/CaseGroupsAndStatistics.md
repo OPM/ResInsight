@@ -15,9 +15,11 @@ If you have several Eclipse simulations with different input parameters availabl
 
 ### From Files
 The easiest way to create a **Grid Case Group** is to use the Import command:
-**File->Import->Create Grid Case Group from Files**
+**File->Import->Eclipse Cases->Create Grid Case Group from Files** or **File->Import->Eclipse Cases->Create Grid Case Group from Files Recursively**
 
-An import dialog is opened: 
+The latter command will display the recursive file import dialog described on the [Summary Plots page]({{site.baseurl}}/docs/summaryplots/#recursive-summary-file-import).
+
+The first command will display the "old" import dialog:
 ![]({{ site.baseurl }}/images/CreateGridCaseGroupFromFileDialog.png) 
 
 1. Add one or more search folders to the list on the left.
