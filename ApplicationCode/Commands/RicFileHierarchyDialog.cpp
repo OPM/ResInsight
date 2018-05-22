@@ -69,7 +69,7 @@ static const QChar SEPARATOR = RiaFilePathTools::SEPARATOR;
 static QStringList  prefixStrings(const QStringList& strings, const QString& prefix);
 static QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText);
 static void         sortStringsByLength(QStringList& strings, bool ascending = true);
-
+static QString      effectivePathFilter(const QString& enteredPathFilter);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -602,7 +602,7 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
 {
     QString effFilter = QString("%1/%2/%3%4")
         .arg(m_rootDir->text())
-        .arg(!m_pathFilter->text().isEmpty() ? m_pathFilter->text() : "*")
+        .arg(effectivePathFilter(m_pathFilter->text()))
         .arg(fileNameFilter())
         .arg(fileExtensionsText());
 
@@ -852,4 +852,14 @@ void sortStringsByLength(QStringList& strings, bool ascending /*= true*/)
     } while (swapped);
 
 
+}
+
+QString effectivePathFilter(const QString& enteredPathFilter)
+{
+    QString p = RiaFilePathTools::toInternalSeparator(enteredPathFilter);
+
+    if (p.endsWith(QString(SEPARATOR) + "**"))      return p;
+    else if (p.endsWith(QString(SEPARATOR) + "*"))  return p + "*";
+    else if (p.endsWith("**"))                      return p.replace("**", "*/**");
+    else                                            return p + "/**";
 }
