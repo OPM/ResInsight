@@ -54,6 +54,7 @@ void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>& cases)
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
     for (RimSummaryCase* summaryCase : cases)
     {
@@ -63,12 +64,10 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>
         }
         summaryPlotColl->updateConnectedEditors();
 
-        RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-        summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
-
         summaryCaseMainCollection->removeCase(summaryCase);
-        summaryCaseMainCollection->updateAllRequiredEditors();
     }
+
+    summaryCaseMainCollection->updateAllRequiredEditors();
 
     RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
