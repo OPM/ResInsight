@@ -31,6 +31,7 @@
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -39,7 +40,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafProgressInfo.h"
-#include "RimIntersectionCollection.h"
 
 namespace caf {
     template<>
@@ -183,7 +183,7 @@ void RimEclipseStatisticsCase::reloadEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
+RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection() const
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
 }
@@ -210,9 +210,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     CVF_ASSERT(gridCaseGroup);
     gridCaseGroup->computeUnionOfActiveCells();
 
-    std::vector<RimEclipseCase*> sourceCases;
-
-    getSourceCases(sourceCases);
+    std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
     if (sourceCases.size() == 0
         || !sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL))
@@ -308,8 +306,10 @@ void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases)
+std::vector<RimEclipseCase*> RimEclipseStatisticsCase::getSourceCases() const
 {
+    std::vector<RimEclipseCase*> sourceCases;
+
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
     {
@@ -323,12 +323,14 @@ void RimEclipseStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sour
             sourceCases.push_back(sourceCase);
         }
     }
+
+    return sourceCases;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup()
+RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup() const
 {
     RimCaseCollection* parentCollection = parentStatisticsCaseCollection();
     if (parentCollection)
@@ -722,6 +724,8 @@ void RimEclipseStatisticsCase::clearComputedStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 {
+    if (getSourceCases().empty()) return;
+
     computeStatistics();
     scheduleACTIVEGeometryRegenOnReservoirViews();
     updateConnectedEditorsAndReservoirViews();
