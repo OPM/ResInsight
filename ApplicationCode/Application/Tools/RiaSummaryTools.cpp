@@ -22,8 +22,10 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimOilField.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -40,6 +42,17 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
     RimProject* project = RiaApplication::instance()->project();
 
     return project->mainPlotCollection()->summaryPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
+{
+    RimProject* project = RiaApplication::instance()->project();
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
+    CVF_ASSERT(summaryCaseMainCollection);
+    return summaryCaseMainCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

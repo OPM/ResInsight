@@ -22,6 +22,7 @@ class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
+class RimSummaryCaseMainCollection;
 
 class QString;
 
@@ -35,8 +36,9 @@ namespace caf {
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection*    summaryPlotCollection();
-    static void                         notifyCalculatedCurveNameHasChanged(const QString& previousCurveName,
+    static RimSummaryPlotCollection*        summaryPlotCollection();
+    static RimSummaryCaseMainCollection*    summaryCaseMainCollection();
+    static void                             notifyCalculatedCurveNameHasChanged(const QString& previousCurveName,
                                                                             const QString& currentCurveName);
 
     static RimSummaryPlot*                  parentSummaryPlot(caf::PdmObject* object);
