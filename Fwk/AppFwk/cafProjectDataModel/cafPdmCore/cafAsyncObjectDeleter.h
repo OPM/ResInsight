@@ -46,7 +46,7 @@ namespace caf
         ~AsyncRawPointerVectorDeleter();
         void start();
     private:
-        std::vector<T*> pointersToDelete_;
+        std::vector<T*> m_pointersToDelete;
     };
 
     template<typename T>
@@ -57,7 +57,7 @@ namespace caf
         ~AsyncPdmPointerVectorDeleter();
         void start();
     private:
-        std::vector<PdmPointer<T>> pointersToDelete_;
+        std::vector<PdmPointer<T>> m_pointersToDelete;
     };
 }
 

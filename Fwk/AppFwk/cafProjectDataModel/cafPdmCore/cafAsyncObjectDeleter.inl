@@ -7,7 +7,7 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     template<typename T>
     AsyncRawPointerVectorDeleter<T>::AsyncRawPointerVectorDeleter(std::vector<T*>&& pointerVector)
-        : pointersToDelete_(std::move(pointerVector))
+        : m_pointersToDelete(std::move(pointerVector))
     {
     }
 
@@ -17,7 +17,7 @@ namespace caf
     template<typename T>
     AsyncRawPointerVectorDeleter<T>::~AsyncRawPointerVectorDeleter()
     {
-        if (!pointersToDelete_.empty())
+        if (!m_pointersToDelete.empty())
         {
             start();
         }
@@ -35,7 +35,7 @@ namespace caf
             {
                 delete pointerToDelete;
             }
-        }, std::move(pointersToDelete_)).detach();
+        }, std::move(m_pointersToDelete)).detach();
     }
 
 
@@ -44,7 +44,7 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     template<typename T>
     AsyncPdmPointerVectorDeleter<T>::AsyncPdmPointerVectorDeleter(std::vector<PdmPointer<T>>&& pdmPointerVector)
-        : pointersToDelete_(std::move(pdmPointerVector))
+        : m_pointersToDelete(std::move(pdmPointerVector))
     {
     }
 
@@ -54,7 +54,7 @@ namespace caf
     template<typename T>
     AsyncPdmPointerVectorDeleter<T>::~AsyncPdmPointerVectorDeleter()
     {
-        if (!pointersToDelete_.empty())
+        if (!m_pointersToDelete.empty())
         {
             start();
         }
@@ -72,7 +72,7 @@ namespace caf
             {
                 delete pointerToDelete.rawPtr();
             }
-        }, std::move(pointersToDelete_)).detach();
+        }, std::move(m_pointersToDelete)).detach();
     }
 
 }
