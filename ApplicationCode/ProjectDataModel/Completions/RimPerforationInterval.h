@@ -42,13 +42,13 @@ public:
 
     void                                setStartAndEndMD(double startMD, double endMD);
     void                                setStartOfHistory();
-    void                                setDate(const QDate& date);
+    void                                setStartDate(const QDate& date);
     void                                setDiameter(double diameter);
     void                                setSkinFactor(double skinFactor);
-    double                              startMD() const { return m_startMD(); }
-    double                              endMD() const { return m_endMD(); }
+    double                              startMD() const;
+    double                              endMD() const;
     double                              diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double                              skinFactor() const { return m_skinFactor(); }
+    double                              skinFactor() const;
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
@@ -68,5 +68,5 @@ private:
     caf::PdmField< double >             m_diameter;
     caf::PdmField< double >             m_skinFactor;
     caf::PdmField< bool >               m_startOfHistory;
-    caf::PdmField< QDateTime >          m_date;
+    caf::PdmField< QDateTime >          m_startDate;
 };
