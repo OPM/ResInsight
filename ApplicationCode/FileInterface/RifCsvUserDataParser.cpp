@@ -25,6 +25,7 @@
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
+#include "RiaTextStringTools.h"
 #include "RiaQDateTimeTools.h"
 
 #include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
@@ -194,7 +195,7 @@ bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiD
 
         for (int iCol = 0; iCol < colCount; iCol++)
         {
-            QString colName = lineColumns[iCol];
+            QString colName = RiaTextStringTools::trimAndRemoveDoubleSpaces(lineColumns[iCol]);
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::importedAddress(colName.toStdString());
             Column col = Column::createColumnInfoFromCsvData(addr, "");
 
