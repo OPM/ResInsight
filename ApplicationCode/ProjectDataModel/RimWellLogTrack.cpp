@@ -127,6 +127,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "");
 
     CAF_PDM_InitField(&m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "");
+    m_isAutoScaleXEnabled.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "");
 
@@ -1050,7 +1051,6 @@ void RimWellLogTrack::uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrderi
 void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
-    gridGroup->add(&m_isAutoScaleXEnabled);
     gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);

@@ -78,6 +78,7 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
+    m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
@@ -558,7 +559,6 @@ bool RimWellLogPlot::isPltPlotChild() const
 void RimWellLogPlot::uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
-    gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 }
