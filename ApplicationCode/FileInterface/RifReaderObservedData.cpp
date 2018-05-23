@@ -144,6 +144,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address(const QString& quantity,
     int                cellJ(-1);
     int                cellK(-1);
     int                aquiferNumber(-1);
+    bool               isErrorResult(false);
 
     switch (summaryCategory)
     {
@@ -169,7 +170,8 @@ RifEclipseSummaryAddress RifReaderObservedData::address(const QString& quantity,
         wellSegmentNumber,
         lgrName,
         cellI, cellJ, cellK,
-        aquiferNumber);
+        aquiferNumber,
+        isErrorResult);
 }
 
 //--------------------------------------------------------------------------------------------------

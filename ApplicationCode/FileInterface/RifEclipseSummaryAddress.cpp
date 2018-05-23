@@ -35,7 +35,9 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
     m_wellSegmentNumber(-1),
     m_cellI(-1),
     m_cellJ(-1),
-    m_cellK(-1)
+    m_cellK(-1),
+    m_aquiferNumber(-1),
+    m_isErrorResult(false)
 {
     std::tuple<int, int, int> ijkTuple;
     std::pair<int, int> reg2regPair;
@@ -225,7 +227,7 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     case RifEclipseSummaryAddress::INPUT_LGR_NAME: return lgrName();
     case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
     case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
-    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName();
+    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName() + (m_isErrorResult ? " (err)" : "");
     }
     return "";
 }
@@ -430,6 +432,7 @@ bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
         }
         break;
     }
+    if (first.isErrorResult() != second.isErrorResult()) return false;
     return true;
 }
 
@@ -515,6 +518,7 @@ bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAdd
         break;
 
     }
+    if (first.isErrorResult() != second.isErrorResult()) return first.isErrorResult() < second.isErrorResult();
     return false;
 }
 

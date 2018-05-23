@@ -36,6 +36,7 @@ public:
     static int          toInt(const std::string& s);
     static double       toDouble(const std::string& s);
     static bool         containsAlphabetic(const std::string& s);
+    static bool         containsOnlyLettersAndDigits(const std::string& s);
     static bool         startsWithAlphabetic(const std::string& s);
 
     static std::vector<std::string> splitStringBySpace(const std::string& s);

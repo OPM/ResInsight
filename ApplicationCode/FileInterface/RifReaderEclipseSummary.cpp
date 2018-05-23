@@ -235,6 +235,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
     int                cellJ(-1);
     int                cellK(-1);
     int                aquiferNumber(-1);
+    bool               isErrorResult(false);
 
     quantityName = smspec_node_get_keyword(ertSumVarNode);
 
@@ -355,7 +356,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
                                     wellSegmentNumber, 
                                     lgrName, 
                                     cellI, cellJ, cellK,
-                                    aquiferNumber);
+                                    aquiferNumber,
+                                    isErrorResult);
 }
 
 //--------------------------------------------------------------------------------------------------

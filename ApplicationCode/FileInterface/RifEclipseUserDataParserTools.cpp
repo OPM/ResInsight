@@ -123,6 +123,8 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseUserDataParserTools::iden
 {
     if (word.size() == 0) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
+    if (!RiaStdStringTools::containsOnlyLettersAndDigits(word)) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+
     if (word.size() > 2 && word[0] == 'R' && word[2] == 'F')
     {
         return RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;

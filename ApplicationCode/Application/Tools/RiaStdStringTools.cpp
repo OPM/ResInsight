@@ -87,6 +87,14 @@ bool RiaStdStringTools::containsAlphabetic(const std::string& s)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::containsOnlyLettersAndDigits(const std::string& s)
+{
+    return std::find_if(s.begin(), s.end(), [](char c) { return !isalpha(c) && !isdigit(c); }) == s.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::startsWithAlphabetic(const std::string& s)
 {
     if (s.empty()) return false;

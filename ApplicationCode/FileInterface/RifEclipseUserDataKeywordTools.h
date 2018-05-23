@@ -42,6 +42,7 @@ public:
     static bool                                         isYearX(const std::string& identifier);
 
     static  RifEclipseSummaryAddress                    makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText);
+    static  RifEclipseSummaryAddress                    makeAndFillAddressFromObservedData(const std::string& columnHeaderText);
 
     static bool                                         isStepType(const std::string& identifier);
     static size_t                                       computeRequiredHeaderLineCount(const std::vector<std::string>& words);

@@ -412,7 +412,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     RifColumnBasedUserData userData;
     userData.parse(data);
 
-    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WLVP", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1);
+    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WLVP", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false);
    
     QDateTime firstTimeStep = RiaQDateTimeTools::addDays(RiaQDateTimeTools::epoch(), 1.0);
     auto timeSteps = userData.timeSteps(adr);

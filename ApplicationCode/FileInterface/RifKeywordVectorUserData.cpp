@@ -176,7 +176,8 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
                                                   -1,
                                                   -1,
                                                   -1,
-                                                  -1);
+                                                  -1,
+                                                  false);
 
                     m_allResultAddresses.push_back(addr);
 

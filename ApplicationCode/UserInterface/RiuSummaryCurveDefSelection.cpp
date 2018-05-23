@@ -607,6 +607,8 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
             {
                 for (const auto& address : addrUnion[i])
                 {
+                    if (address.isErrorResult()) continue;
+
                     auto name = address.uiText(identifierAndField->summaryIdentifier());
                     if (name.size() > 0)
                     {

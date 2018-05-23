@@ -75,7 +75,8 @@ public:
         m_cellI(-1),
         m_cellJ(-1),
         m_cellK(-1),
-        m_aquiferNumber(-1)
+        m_aquiferNumber(-1),
+        m_isErrorResult(false)
     {
     }
     
@@ -90,7 +91,8 @@ public:
                              int                cellI,
                              int                cellJ,
                              int                cellK,
-                             int                aquiferNumber): 
+                             int                aquiferNumber,
+                             bool               isErrorResult): 
         m_variableCategory(category),
         m_quantityName(quantityName),
         m_regionNumber(regionNumber),
@@ -102,7 +104,8 @@ public:
         m_cellI(cellI),
         m_cellJ(cellJ),
         m_cellK(cellK),
-        m_aquiferNumber(aquiferNumber)
+        m_aquiferNumber(aquiferNumber),
+        m_isErrorResult(isErrorResult)
     {
     }
 
@@ -144,6 +147,9 @@ public:
     void            setRegion(int region)                               { m_regionNumber = region; }
     void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = aquiferNumber; }
 
+    void            setAsErrorResult()                                  { m_isErrorResult = true; }
+    bool            isErrorResult() const                               { return m_isErrorResult; }
+
 private:
 
     std::string                 formatUiTextIJK() const;
@@ -163,6 +169,8 @@ private:
     int                 m_cellJ;
     int                 m_cellK;
     int                 m_aquiferNumber;
+
+    bool                m_isErrorResult;
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
