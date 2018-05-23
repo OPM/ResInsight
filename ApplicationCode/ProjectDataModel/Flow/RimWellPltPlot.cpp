@@ -702,8 +702,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     updateWidgetTitleWindowTitle();
     m_wellLogPlot->loadDataAndUpdate();
-    m_wellLogPlot->updateDepthZoom();
-    plotTrack->updateXZoom();
+    plotTrack->calculateXZoomRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -945,6 +944,10 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
+        m_wellLogPlot->updateDepthZoom();
+
+        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 
     if (   changedField == &m_useStandardConditionCurves 
@@ -952,6 +955,11 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         || changedField == &m_phases)
     {
         syncCurvesFromUiSelection();
+        m_wellLogPlot->updateDepthZoom();
+
+        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
+
     }
 }
 

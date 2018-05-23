@@ -127,11 +127,16 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         firstAncestorOrThisOfType(wellAllocPlot);
         if (wellAllocPlot) wellAllocPlot->loadDataAndUpdate();
         else if (isRftPlotChild()) rftPlot()->loadDataAndUpdate();
-        else updateTracks();
+        else
+        {
+            updateTracks();
+            updateDepthZoom();
+        }
     }
     if ( changedField == &m_depthUnit)
     {
         updateTracks();
+        updateDepthZoom();
     }
 
     if ( changedField == &m_showTrackLegends)
@@ -395,6 +400,7 @@ void RimWellLogPlot::zoomAll()
 {
     setDepthAutoZoom(true);
     updateDepthZoom();
+    updateTracks(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -616,7 +622,7 @@ void RimWellLogPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateTracks()
+void RimWellLogPlot::updateTracks(bool autoScaleXAxis)
 {
     if (m_showWindow)
     {
@@ -625,10 +631,15 @@ void RimWellLogPlot::updateTracks()
         for (size_t tIdx = 0; tIdx < m_tracks.size(); ++tIdx)
         {
             m_tracks[tIdx]->loadDataAndUpdate();
+            if (autoScaleXAxis)
+            {
+                m_tracks[tIdx]->setAutoScaleXEnabled(true);
+                m_tracks[tIdx]->calculateXZoomRangeAndUpdateQwt();
+            }
         }
 
         calculateAvailableDepthRange();
-        updateDepthZoom();
+        applyDepthZoomFromVisibleDepth();
     }
 }
 

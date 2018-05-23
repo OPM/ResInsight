@@ -439,11 +439,17 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
         }
 
-        updateZoomInParentPlot();
+        if (updateParentPlot)
+        {
+            updateZoomInParentPlot();
+        }
 
         setLogScaleFromSelectedResult();
 
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if (m_parentQwtPlot)
+        {
+            m_parentQwtPlot->replot();
+        }
     }
 }
 

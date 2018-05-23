@@ -206,7 +206,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->updateXZoom();
+            wellLogPlotTrack->calculateXZoomRangeAndUpdateQwt();
         }
         
         // Update due to delete plots

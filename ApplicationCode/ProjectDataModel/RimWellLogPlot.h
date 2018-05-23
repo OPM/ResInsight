@@ -84,7 +84,7 @@ public:
 
     RimWellLogTrack*                                trackByIndex(size_t index);
 
-    void                                            updateTracks();
+    void                                            updateTracks(bool autoScaleXAxis = false);
     void                                            updateTrackNames();
 
     void                                            updateDepthZoom();

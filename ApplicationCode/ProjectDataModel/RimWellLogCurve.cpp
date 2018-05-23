@@ -113,7 +113,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
     firstAncestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->updateXZoomAndParentPlotDepthZoom();
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 }
 

@@ -335,9 +335,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        if ( updateParentPlot && m_parentQwtPlot)
+        if (updateParentPlot)
         {
             updateZoomInParentPlot();
+        }
+
+        if (m_parentQwtPlot)
+        {
             m_parentQwtPlot->replot();
         }
     }

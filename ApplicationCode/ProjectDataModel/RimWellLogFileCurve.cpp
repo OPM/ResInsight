@@ -168,9 +168,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        updateZoomInParentPlot();
+        if (updateParentPlot)
+        {
+            updateZoomInParentPlot();
+        }
 
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if (m_parentQwtPlot)
+        {
+            m_parentQwtPlot->replot();
+        }
     }
 }
 

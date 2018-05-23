@@ -99,9 +99,13 @@ public:
     void setAndUpdateSimWellFormationNamesAndBranchData(RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection);
     void setAndUpdateSimWellFormationNamesData(RimCase* rimCase, const QString& simWellName);
     
+    void setAutoScaleXEnabled(bool enabled);
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
-    void updateXZoomAndParentPlotDepthZoom();
-    void updateXZoom();
+    void updateParentPlotZoom();
+    void calculateXZoomRangeAndUpdateQwt();
+    void applyXZoomFromVisibleRange();
+    void calculateXZoomRange();
+    void updateEditors();
 
     void setShowFormations(bool on);
 

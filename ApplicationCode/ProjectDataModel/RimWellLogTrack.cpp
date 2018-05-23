@@ -239,22 +239,23 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
+        updateEditors();
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
         if (m_isAutoScaleXEnabled())
         { 
-            this->updateXZoom();
+            this->calculateXZoomRangeAndUpdateQwt();
             computeAndSetXRangeMinForLogarithmicScale();
 
             if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
-        }
+        }    
     }
     else if (changedField == &m_isLogarithmicScaleEnabled)
     {
         updateAxisScaleEngine();
 
-        this->updateXZoom();
+        this->calculateXZoomRangeAndUpdateQwt();
         computeAndSetXRangeMinForLogarithmicScale();
 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -557,7 +558,7 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_wellLogTrackPlotWidget->updateLegend();
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
-        this->updateXZoomAndParentPlotDepthZoom();
+        this->applyXZoomFromVisibleRange();
     }
 }
 
@@ -607,6 +608,14 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, co
     {
         updateFormationNamesOnPlot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoScaleXEnabled(bool enabled)
+{
+    m_isAutoScaleXEnabled = enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -698,7 +707,7 @@ void RimWellLogTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
+void RimWellLogTrack::updateParentPlotZoom()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -708,17 +717,31 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
         {
            wellLogPlot->updateDepthZoom();
         }
-
-        updateXZoom();
-
-        m_wellLogTrackPlotWidget->replot();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateXZoom()
+void RimWellLogTrack::calculateXZoomRangeAndUpdateQwt()
+{
+    this->calculateXZoomRange();
+    this->applyXZoomFromVisibleRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::applyXZoomFromVisibleRange()
+{
+    m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+    m_wellLogTrackPlotWidget->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::calculateXZoomRange()
 {
     std::map<int, std::vector<RimWellFlowRateCurve*>> stackCurveGroups = visibleStackedCurves();
     for (const std::pair<int, std::vector<RimWellFlowRateCurve*>>& curveGroup : stackCurveGroups)
@@ -728,12 +751,6 @@ void RimWellLogTrack::updateXZoom()
 
     if (!m_isAutoScaleXEnabled())
     {
-        if (m_wellLogTrackPlotWidget)
-        {
-            m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
-            m_wellLogTrackPlotWidget->replot();
-        }
-
         return;
     }
 
@@ -769,10 +786,38 @@ void RimWellLogTrack::updateXZoom()
     m_visibleXRangeMax = maxValue;
 
     computeAndSetXRangeMinForLogarithmicScale();
+    updateEditors();
+}
 
-    if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateEditors()
+{
+    this->updateConnectedEditors();
 
-    updateConnectedEditors();
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    plot->updateConnectedEditors();
+
+    RimWellRftPlot* rftPlot(nullptr);
+
+    firstAncestorOrThisOfType(rftPlot);
+
+    if (rftPlot)
+    {
+        rftPlot->updateConnectedEditors();
+    }
+    else
+    {
+        RimWellPltPlot* pltPlot(nullptr);
+        firstAncestorOrThisOfType(pltPlot);
+
+        if (pltPlot)
+        {
+            pltPlot->updateConnectedEditors();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
