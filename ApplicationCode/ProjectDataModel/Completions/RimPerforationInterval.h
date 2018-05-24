@@ -41,8 +41,8 @@ public:
     virtual ~RimPerforationInterval();
 
     void                                setStartAndEndMD(double startMD, double endMD);
-    void                                setStartOfHistory();
     void                                setStartDate(const QDate& date);
+    void                                setEndDate(const QDate& date);
     void                                setDiameter(double diameter);
     void                                setSkinFactor(double skinFactor);
     double                              startMD() const;
@@ -61,12 +61,19 @@ protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    virtual void                        initAfterRead() override;
 
 private:
     caf::PdmField< double >             m_startMD;
     caf::PdmField< double >             m_endMD;
     caf::PdmField< double >             m_diameter;
     caf::PdmField< double >             m_skinFactor;
-    caf::PdmField< bool >               m_startOfHistory;
+
+    caf::PdmField< bool >               m_useCustomStartDate;
     caf::PdmField< QDateTime >          m_startDate;
+
+    caf::PdmField< bool >               m_useCustomEndDate;
+    caf::PdmField< QDateTime >          m_endDate;
+
+    caf::PdmField< bool >               m_startOfHistory_OBSOLETE;
 };

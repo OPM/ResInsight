@@ -40,8 +40,15 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,                             "End MD", "", "", "");
     CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter", "", "", "");
     CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,                             "Skin Factor", "", "", "");
-    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,                            "All Timesteps", "", "", "");
-    CAF_PDM_InitField(&m_startDate,      "StartDate",          QDateTime::currentDateTime(),    "Start Date", "", "", "");
+
+    CAF_PDM_InitField(&m_startOfHistory_OBSOLETE,     "StartOfHistory",     true,                            "All Timesteps", "", "", "");
+    m_startOfHistory_OBSOLETE.xmlCapability()->setIOWritable(false);
+    
+    CAF_PDM_InitField(&m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date", "", "", "");
+    CAF_PDM_InitField(&m_startDate,         "StartDate",          QDateTime::currentDateTime(),    "Start Date", "", "", "");
+
+    CAF_PDM_InitField(&m_useCustomEndDate,  "UseCustomEndDate", false,                          "Custom End Date", "", "", "");
+    CAF_PDM_InitField(&m_endDate,           "EndDate",            QDateTime::currentDateTime(), "End Date", "", "", "");
 
     nameField()->uiCapability()->setUiReadOnly(true);
 }
@@ -65,20 +72,25 @@ void RimPerforationInterval::setStartAndEndMD(double startMD, double endMD)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::setStartOfHistory()
+void RimPerforationInterval::setStartDate(const QDate& date)
 {
-    m_startOfHistory = true;
-
-    m_startDate.uiCapability()->setUiReadOnly(m_startOfHistory());
+    if (date.isValid())
+    {
+        m_useCustomStartDate = true;
+        m_startDate = QDateTime(date);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::setStartDate(const QDate& date)
+void RimPerforationInterval::setEndDate(const QDate& date)
 {
-    m_startOfHistory = false;
-    m_startDate = QDateTime(date);
+    if (date.isValid())
+    {
+        m_useCustomEndDate = true;
+        m_endDate = QDateTime(date);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,14 +156,11 @@ double RimPerforationInterval::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 bool RimPerforationInterval::isActiveOnDate(const QDateTime& date) const
 {
-    if (m_startOfHistory())
-    {
-        return true;
-    }
+    if (m_useCustomStartDate() && date < m_startDate()) return false;
 
-    if (!date.isValid()) return false;
+    if (m_useCustomEndDate() && date > m_endDate()) return false;
 
-    return m_startDate() < date;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,12 +208,6 @@ void RimPerforationInterval::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
-    if (changedField == &m_startOfHistory)
-    {
-        m_startDate.uiCapability()->setUiReadOnly(m_startOfHistory());
-    }
-
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->reloadCompletionTypeResultsInAllViews();
@@ -242,14 +245,23 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             }
         }
     }
-    m_startDate.uiCapability()->setUiReadOnly(m_startOfHistory());
-
+    
     uiOrdering.add(&m_startMD);
     uiOrdering.add(&m_endMD);
     uiOrdering.add(&m_diameter);
     uiOrdering.add(&m_skinFactor);
-    uiOrdering.add(&m_startOfHistory);
-    uiOrdering.add(&m_startDate);
+    
+    uiOrdering.add(&m_useCustomStartDate);
+    if (m_useCustomStartDate)
+    {
+        uiOrdering.add(&m_startDate);
+    }
+
+    uiOrdering.add(&m_useCustomEndDate);
+    if (m_useCustomEndDate)
+    {
+        uiOrdering.add(&m_endDate);
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -259,13 +271,24 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &m_startDate)
+    if (field == &m_startDate || field == &m_endDate)
     {
         caf::PdmUiDateEditorAttribute* myAttr = static_cast<caf::PdmUiDateEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->dateFormat = "dd MMM yyyy";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::initAfterRead()
+{
+    if (!m_startOfHistory_OBSOLETE)
+    {
+        m_useCustomStartDate = true;
     }
 }
 

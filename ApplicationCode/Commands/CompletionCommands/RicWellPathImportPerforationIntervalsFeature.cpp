@@ -87,11 +87,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
                 perforationInterval->setStartAndEndMD(interval.startMD, interval.endMD);
                 perforationInterval->setDiameter(interval.diameter);
                 perforationInterval->setSkinFactor(interval.skinFactor);
-                if (interval.startOfHistory)
-                {
-                    perforationInterval->setStartOfHistory();
-                }
-                else
+                if (!interval.startOfHistory)
                 {
                     perforationInterval->setStartDate(interval.date);
                 }
