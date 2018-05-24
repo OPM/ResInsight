@@ -38,14 +38,16 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
 
     pointNormals.reserve(vertices.size());
 
-    cvf::Vec3d up(0, 0, 1);
+    const cvf::Vec3d up(0, 0, 1);
+    const cvf::Vec3d rotatedUp = up.getTransformedVector(cvf::Mat3d::fromRotation(cvf::Vec3d(0.0, 1.0, 0.0), planeAngle));
 
-    cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
+
+    const cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
 
     const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
     CVF_ASSERT(projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon());
 
-    cvf::Vec3d lastNormal;
+    double sumDotWithRotatedUp = 0.0;
     for (size_t i = 0; i < vertices.size() - 1; ++i)
     {
         cvf::Vec3d p1 = vertices[i];
@@ -60,10 +62,19 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
             normal                      = normal.getTransformedVector(cvf::Mat3d::fromRotation(tangent, planeAngle));
         }
         pointNormals.push_back(normal);
-        lastNormal = normal;
+        sumDotWithRotatedUp += normal * rotatedUp;
+    }
+    
+    pointNormals.push_back(pointNormals.back());
+
+    if (sumDotWithRotatedUp < 0.0)
+    {
+        for (cvf::Vec3d& normal : pointNormals)
+        {
+            normal *= -1.0;            
+        }
     }
 
-    pointNormals.push_back(lastNormal);
 
     return interpolateUndefinedNormals(up, pointNormals, vertices);
 }
