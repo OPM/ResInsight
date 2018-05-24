@@ -45,9 +45,9 @@ On the command line do:
     sudo apt-add-repository ppa:opm/ppa
     sudo apt-get update
     sudo apt-get install resinsight
-    sudo apt-get install resinsight-octave
+    sudo apt-get install octave-resinsight
 
-Start ResInsight by typing: ResInsight
+Start ResInsight by typing : `ResInsight`
 
 ## Setup Octave Interface (optional)
 
