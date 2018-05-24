@@ -142,9 +142,12 @@ QDockWidget* RiuDockWidgetTools::findDockWidget(const QObject* parent, const QSt
 QAction* RiuDockWidgetTools::toggleActionForWidget(const QObject* parent, const QString& dockWidgetName)
 {
     auto w = RiuDockWidgetTools::findDockWidget(parent, dockWidgetName);
-    CVF_ASSERT(w);
+    if (w)
+    {
+        return w->toggleViewAction();
+    }
 
-    return w->toggleViewAction();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
