@@ -23,20 +23,19 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfBoundingBox.h"
+#include "cvfStructGrid.h"
+#include "cvfCellRange.h"
+#include "cafFixedArray.h"
 
 #include <vector>
 
 #include <QString>
-#include "cvfStructGrid.h"
-#include "cvfCellRange.h"
-#include "cafFixedArray.h"
 
 class RigMainGrid;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 class RigFaultsPrCellAccumulator : public cvf::Object
 {
 public:
@@ -70,7 +69,6 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 class RigFault : public cvf::Object
 {
 public:
@@ -102,8 +100,8 @@ public:
     std::vector<FaultFace>&         faultFaces();
     const std::vector<FaultFace>&   faultFaces() const;
 
-    std::vector<size_t>&         connectionIndices()       { return m_connectionIndices; }
-    const std::vector<size_t>&   connectionIndices() const { return m_connectionIndices; }
+    std::vector<size_t>&            connectionIndices();
+    const std::vector<size_t>&      connectionIndices() const;
 
 private:
     QString m_name;
