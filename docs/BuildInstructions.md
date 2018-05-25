@@ -87,6 +87,7 @@ You will find the ResInsight binary under the Install directory in your build di
 | `RESINSIGHT_USE_OPENMP`                           | ON      | Enable OpenMP parallellization in the code |
 
 #### Advanced Options
+
 | CMake Name                                        | Default | Description                              |
 |---------------------------------------------------|---------|--------------------------------------------------------|
 | `RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES`   | ON     | Enable Fracture features |
