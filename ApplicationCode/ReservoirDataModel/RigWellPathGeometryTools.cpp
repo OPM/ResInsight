@@ -84,8 +84,8 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
                                                                               const std::vector<cvf::Vec3d>& vertices)
 {
     std::vector<cvf::Vec3d> interpolated(normals);
-    cvf::Vec3d              lastNormal(0, 0, 0);
-    cvf::Vec3d              lastNormalIncludingInterpolated(0, 0, 0);
+    cvf::Vec3d              lastNormalNonInterpolated(0, 0, 0);
+    cvf::Vec3d              lastNormalAny(0, 0, 0);
     double distanceFromLast = 0.0;
 
     for (size_t i = 0; i < normals.size(); ++i)
@@ -110,30 +110,30 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
                 distanceToNext += (vertices[j] - vertices[j - 1]).length();
             }
 
-            if (lastNormal.length() > 0.0 && nextNormal.length() > 0.0)
+            if (lastNormalNonInterpolated.length() > 0.0 && nextNormal.length() > 0.0)
             {
                 // Both last and next are acceptable, interpolate!
-                currentNormal = (distanceToNext * lastNormal + distanceFromLast * nextNormal).getNormalized();
+                currentNormal = (distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal).getNormalized();
             }
-            else if (lastNormal.length() > 0.0)
+            else if (lastNormalNonInterpolated.length() > 0.0)
             {
-                currentNormal = lastNormal;
+                currentNormal = lastNormalNonInterpolated;
             }
             else if (nextNormal.length() > 0.0)
             {
                 currentNormal = nextNormal;
             }
         }
-        if (i > 0 && currentNormal * lastNormalIncludingInterpolated < -std::numeric_limits<double>::epsilon())
+        if (i > 0 && currentNormal * lastNormalAny < -std::numeric_limits<double>::epsilon())
         {
             currentNormal *= -1.0;
         }
         if (!currentInterpolated)
         {
-            lastNormal       = currentNormal;
+            lastNormalNonInterpolated = currentNormal;
             distanceFromLast = 0.0; // Reset distance
         }
-        lastNormalIncludingInterpolated = currentNormal;
+        lastNormalAny = currentNormal;
         interpolated[i] = currentNormal;
     }
     return interpolated;
