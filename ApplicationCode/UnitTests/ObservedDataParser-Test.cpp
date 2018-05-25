@@ -787,6 +787,24 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RifKeywordBasedRsmspecParserTest, TestAddressCreation)
+{
+    std::string quantityName = "LCABC";
+    std::vector< std::string > headerColumn;
+    headerColumn.push_back("wellName");
+    headerColumn.push_back("lgrName");
+    headerColumn.push_back("12 14 16");
+
+    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantityName, headerColumn);
+
+    EXPECT_TRUE(address.isValid());
+    EXPECT_EQ(address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR);
+    EXPECT_EQ(address.uiText(), "LCABC:lgrName:wellName:12, 14, 16");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedRsmspecParserTest, IsTableData)
 {
     {

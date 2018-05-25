@@ -338,7 +338,7 @@ std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std
 //--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 {
-    return std::to_string(this->regionNumber()) + " -> "
+    return std::to_string(this->regionNumber()) + " - "
         + std::to_string(this->regionNumber2());
 }
 
