@@ -85,6 +85,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
 {
     std::vector<cvf::Vec3d> interpolated(normals);
     cvf::Vec3d              lastNormal(0, 0, 0);
+    cvf::Vec3d              lastNormalIncludingInterpolated(0, 0, 0);
     double distanceFromLast = 0.0;
 
     for (size_t i = 0; i < normals.size(); ++i)
@@ -123,7 +124,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
                 currentNormal = nextNormal;
             }
         }
-        if (i > 0 && currentNormal * lastNormal < -std::numeric_limits<double>::epsilon())
+        if (i > 0 && currentNormal * lastNormalIncludingInterpolated < -std::numeric_limits<double>::epsilon())
         {
             currentNormal *= -1.0;
         }
@@ -132,6 +133,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
             lastNormal       = currentNormal;
             distanceFromLast = 0.0; // Reset distance
         }
+        lastNormalIncludingInterpolated = currentNormal;
         interpolated[i] = currentNormal;
     }
     return interpolated;
