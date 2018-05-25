@@ -416,6 +416,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
         curve->setSummaryCaseY(currentCase);
         curve->setSummaryAddressY(curveDef.summaryAddress());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
+        if(currentCase->isObservedData()) curve->setSymbolSkipDinstance(0);
 
         if (curveDef.isEnsembleCurve())
         {
