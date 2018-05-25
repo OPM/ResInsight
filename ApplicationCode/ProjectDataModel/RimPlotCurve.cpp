@@ -369,9 +369,6 @@ void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
     uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_lineStyle);
     uiOrdering.add(&m_curveInterpolation);
-
-    if(isCrossPlotCurve()) m_showErrorBars = false; 
-    else                   uiOrdering.add(&m_showErrorBars);
 }
 
 //--------------------------------------------------------------------------------------------------

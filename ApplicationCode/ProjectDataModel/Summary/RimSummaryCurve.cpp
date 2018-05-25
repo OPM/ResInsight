@@ -548,6 +548,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
 
+        if (isCrossPlotCurve()) m_showErrorBars = false;
+        else                   curveDataGroup->add(&m_showErrorBars);
     }
 
     if (isCrossPlotCurve())
