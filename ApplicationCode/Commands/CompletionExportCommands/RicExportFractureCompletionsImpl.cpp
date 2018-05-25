@@ -172,7 +172,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                       cDarcyInCorrectUnit,
                                                                                       fractureCell);
 
-            const std::vector<size_t>& fractureCellContributingEclipseCells                  = eclToFractureTransCalc.globalIndeciesToContributingEclipseCells();
+            const std::vector<size_t>& fractureCellContributingEclipseCells                  = eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
             const std::vector<double>& fractureCellContributingEclipseCellTransmissibilities = eclToFractureTransCalc.contributingEclipseCellTransmissibilities();
             
             size_t stimPlanCellIndex = fractureGrid->getGlobalIndexFromIJ(fractureCell.getI(), fractureCell.getJ());

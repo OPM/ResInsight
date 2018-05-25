@@ -46,7 +46,7 @@ public:
                                                                 double cDarcy,
                                                                 const RigFractureCell& stimPlanCell);
 
-    const std::vector<size_t>&  globalIndeciesToContributingEclipseCells();
+    const std::vector<size_t>&  globalIndiciesToContributingEclipseCells();
     const std::vector<double>&  contributingEclipseCellTransmissibilities();
 
 private:
@@ -64,6 +64,6 @@ private:
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;
     const RigFractureCell& m_stimPlanCell;
-    std::vector<size_t>    m_globalIndeciesToContributingEclipseCells;
+    std::vector<size_t>    m_globalIndiciesToContributingEclipseCells;
     std::vector<double>    m_contributingEclipseCellTransmissibilities;
 };

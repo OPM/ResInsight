@@ -51,14 +51,14 @@ RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTran
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndeciesToContributingEclipseCells()
+const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndiciesToContributingEclipseCells()
 {
-    if (m_globalIndeciesToContributingEclipseCells.size() < 1)
+    if (m_globalIndiciesToContributingEclipseCells.size() < 1)
     {
         calculateStimPlanCellsMatrixTransmissibility();
     }
 
-    return m_globalIndeciesToContributingEclipseCells;
+    return m_globalIndiciesToContributingEclipseCells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::g
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
 {
-    if (m_globalIndeciesToContributingEclipseCells.size() < 1)
+    if (m_globalIndiciesToContributingEclipseCells.size() < 1)
     {
         calculateStimPlanCellsMatrixTransmissibility();
     }
@@ -202,7 +202,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
                                        + transmissibility_Z * transmissibility_Z);
 
 
-        m_globalIndeciesToContributingEclipseCells.push_back(fracCell);
+        m_globalIndiciesToContributingEclipseCells.push_back(fracCell);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
     }
 }
