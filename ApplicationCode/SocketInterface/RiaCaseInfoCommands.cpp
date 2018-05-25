@@ -604,6 +604,7 @@ public:
             size_t i, j, k;
             size_t gridIndex;
             int caseId;
+            bool validIndex = true;
             if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
@@ -615,8 +616,8 @@ public:
             else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
-
-                geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                validIndex = geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                CVF_ASSERT(validIndex);
                 gridIndex = geomechItem->m_gridIndex;
                 caseId = geomechItem->m_view->geoMechCase()->caseId;
             }
@@ -625,7 +626,7 @@ public:
                 continue;
             }
 
-            if (caseId == reservoirCase->caseId)
+            if (caseId == reservoirCase->caseId && validIndex)
             {
                 caseNumber.push_back(static_cast<int>(caseId));
                 gridNumber.push_back(static_cast<int>(gridIndex));

@@ -101,6 +101,7 @@ void RigFemPartGrid::generateStructGridData()
                 int iCoord = 0;
                 while (true)
                 {
+                    CVF_ASSERT(elmIdxInI >= 0 && size_t(elmIdxInI) < m_ijkPrElement.size());
                     // Assign ijk coordinate
                     m_ijkPrElement[elmIdxInI] = cvf::Vec3i(iCoord, jCoord, kCoord);
 
@@ -180,8 +181,12 @@ void RigFemPartGrid::generateStructGridData()
     
     for (int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx)
     {
-        cvf::Vec3i ijk = m_ijkPrElement[elmIdx];
-        m_elmIdxPrIJK.at(ijk[0], ijk[1],  ijk[2]) = elmIdx;
+        size_t i, j, k;
+        bool validIndex = ijkFromCellIndex(elmIdx, &i, &j, &k);
+        if (validIndex)
+        {
+            m_elmIdxPrIJK.at(i, j, k) = elmIdx;
+        }
     }
 
     // IJK bounding box
@@ -194,7 +199,8 @@ void RigFemPartGrid::generateStructGridData()
     {
         RigElementType elementType = m_femPart->elementType(elmIdx);
         size_t i, j, k;
-        if (elementType == HEX8P && ijkFromCellIndex(elmIdx, &i, &j, &k))
+        bool validIndex = ijkFromCellIndex(elmIdx, &i, &j, &k);
+        if (elementType == HEX8P && validIndex)
         {
             if (i < min.x()) min.x() = i;
             if (j < min.y()) min.y() = j;
@@ -424,11 +430,19 @@ size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const
 {
-    *i = m_ijkPrElement[cellIndex][0];
-    *j = m_ijkPrElement[cellIndex][1];
-    *k = m_ijkPrElement[cellIndex][2];
+    int signed_i = m_ijkPrElement[cellIndex][0];
+    int signed_j = m_ijkPrElement[cellIndex][1];
+    int signed_k = m_ijkPrElement[cellIndex][2];
 
-    return true;
+    if (signed_i >= 0 && signed_j >= 0 && signed_k >= 0)
+    {
+        *i = signed_i;
+        *j = signed_j;
+        *k = signed_k;
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

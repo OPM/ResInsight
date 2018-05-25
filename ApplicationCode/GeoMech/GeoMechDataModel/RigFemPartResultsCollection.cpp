@@ -597,10 +597,13 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
         if ( baseFrameIdx >= frameCount ) return dstDataFrames;
         const std::vector<float>& baseFrameData = srcDataFrames->frameData(baseFrameIdx);
+        if (baseFrameData.empty()) return dstDataFrames;
 
         for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
         {
             const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+            if (srcFrameData.empty()) continue; // Create empty results
+
             std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
             size_t valCount = srcFrameData.size();
             dstFrameData.resize(valCount);
@@ -1613,7 +1616,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE(int partIndex
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
                 }
             }
             else
@@ -1621,8 +1627,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE(int partIndex
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-
-                    dstFrameData[elmNodResIdx] = inf;
+                    if (elmNodResIdx < dstFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
                 }
             }
         }
@@ -1680,12 +1688,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33(int 
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
 
-                    float por = srcPORFrameData[nodeIdx];
-                    if (por == inf)  por = 0.0f;
+                        float por = srcPORFrameData[nodeIdx];
+                        if (por == inf)  por = 0.0f;
 
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                    }
                 }
             }
             else
@@ -1693,7 +1704,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33(int 
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
                 }
             }
         }
@@ -1809,20 +1823,23 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
             int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
 
             size_t i, j, k;
-            femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-            int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
-
-            for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+            bool validIndex = femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+            if (validIndex)
             {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
 
-                if (formNameIdx != -1)
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
-                    dstFrameData[elmNodResIdx] = formNameIdx;
-                }
-                else
-                {
-                    dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                    if (formNameIdx != -1)
+                    {
+                        dstFrameData[elmNodResIdx] = formNameIdx;
+                    }
+                    else
+                    {
+                        dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    }
                 }
             }
         }
@@ -2046,14 +2063,17 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    if (elmNodResIdx < srcSTFrameData.size())
+                    {
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
 
-                    float por = srcPORFrameData[nodeIdx];
+                        float por = srcPORFrameData[nodeIdx];
 
-                    if ( por == inf || fabs(por) < 0.01e6*1.0e-5 )
-                        dstFrameData[elmNodResIdx] = inf;
-                    else
-                        dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
+                        if (por == inf || fabs(por) < 0.01e6*1.0e-5)
+                            dstFrameData[elmNodResIdx] = inf;
+                        else
+                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx] / por;
+                    }
                 }
             }
             else
@@ -2061,7 +2081,10 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = inf;
+                    if (elmNodResIdx < dstFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
                 }
             }
         }
@@ -2713,8 +2736,8 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     size_t i, j, k;
     for (const size_t elemIdx : refElementCandidates)
     {
-        grid->ijkFromCellIndex(elemIdx, &i, &j, &k);
-        if (k == kRefLayer)
+        bool validIndex = grid->ijkFromCellIndex(elemIdx, &i, &j, &k);
+        if (validIndex && k == kRefLayer)
         {
             const std::vector<size_t> nodeIndices = nodesForElement(part, elemIdx);
             CVF_ASSERT(nodeIndices.size() == 8);

@@ -398,7 +398,8 @@ RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* ma
 
     if (elmIdxToBestMatch != -1)
     {
-        dependentFemPart->structGrid()->ijkFromCellIndex(elmIdxToBestMatch, fi, fj, fk);
+        bool validIndex = dependentFemPart->structGrid()->ijkFromCellIndex(elmIdxToBestMatch, fi, fj, fk);
+        CVF_ASSERT(validIndex);
     }
     else
     {
