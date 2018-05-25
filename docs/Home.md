@@ -29,4 +29,4 @@ Well log data can be imported from _`*.LAS`_ files.
 ResInsight can also be built with support for Geomechanical models from ABAQUS in the _`*.odb`_ file format.
 
 ### About
-ResInsight has been co-developed by [Statoil ASA](http://www.statoil.com/), [Ceetron Solutions AS](http://www.ceetronsolutions.com/), and [Ceetron AS](http://ceetron.com/) with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
+ResInsight has been co-developed by [Equinor ASA](https://www.equinor.com/), [Ceetron Solutions AS](http://www.ceetronsolutions.com/), and [Ceetron AS](http://ceetron.com/) with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
