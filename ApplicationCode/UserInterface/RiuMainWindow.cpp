@@ -1299,6 +1299,23 @@ RiuProcessMonitor* RiuMainWindow::processMonitor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void appendToggleActionForDockingWidget(QMenu* menu, QWidget* parent, const QString& dockWidgetName)
+{
+    if (menu)
+    {
+        auto dwt = RiuDockWidgetTools::instance();
+        QAction* action = dwt->toggleActionForWidget(parent, dockWidgetName);
+        if (action)
+        {
+            // Some dock windows are depending on configuration (mohrs circle plot), so do not assert they exist
+            menu->addAction(action);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
@@ -1307,18 +1324,18 @@ void RiuMainWindow::slotBuildWindowActions()
 
     auto dwt = RiuDockWidgetTools::instance();
 
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->projectTreeName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->propertyEditorName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->messagesName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->processMonitorName()));
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->projectTreeName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->propertyEditorName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->messagesName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->processMonitorName());
 
     m_windowMenu->addSeparator();
 
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->resultInfoName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->resultPlotName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->relPermPlotName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->pvtPlotName()));
-    m_windowMenu->addAction(dwt->toggleActionForWidget(this, dwt->mohrsCirclePlotName()));
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->resultInfoName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->resultPlotName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->relPermPlotName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->pvtPlotName());
+    appendToggleActionForDockingWidget(m_windowMenu, this, dwt->mohrsCirclePlotName());
 
     m_windowMenu->addSeparator();
     QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
