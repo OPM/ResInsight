@@ -2,27 +2,38 @@
 left to right direction
 
 
-RifSummaryReaderInterface <|- RifReaderEclipseSummary
-RifSummaryReaderInterface <|- RifColumnBasedAsciiData
-RifSummaryReaderInterface <|- RifColumnBasedUserData
-RifSummaryReaderInterface <|- RifKeywordVectorUserData
+RifSummaryReaderInterface <|-- RifCalculatedSummaryCurveReader
+RifSummaryReaderInterface <|-- RifColumnBasedUserData
+RifSummaryReaderInterface <|-- RifCsvUserData
+RifSummaryReaderInterface <|-- RifKeywordVectorUserData
+RifSummaryReaderInterface <|-- RifReaderEclipseSummary
+RifSummaryReaderInterface <|-- RifReaderObservedData
 
-RifColumnBasedAsciiData *-- "N" RifColumnBasedAsciiDataParser
 RifColumnBasedUserData *-- "1" RifColumnBasedUserDataParser
 RifKeywordVectorUserData *-- "1" RifKeywordVectorUserDataParser
+RifReaderObservedData --> RifCsvUserDataParser
 
+RimSummaryCase <|-- RimCalculatedSummaryCase
 RimSummaryCase <|-- RimFileSummaryCase
 RimSummaryCase <|-- RimGridSummaryCase
 RimSummaryCase <|-- RimObservedData
 
 RimObservedData <|-- RimObservedEclipseUserData
-RimObservedData <|-- RimAsciiColumnBasedData
+RimObservedData <|-- RimCsvUserData
+RimObservedData <|-- RimSummaryObservedDataFile
+
+RimCalculatedSummaryCase --> RifCalculatedSummaryCurveReader
+
+RimSummaryObservedDataFile --> RifReaderObservedData
 
 RimObservedEclipseUserData *--> RifSummaryReaderInterface
 
-RimAsciiColumnBasedData *--> RifColumnBasedAsciiData
+RimCsvUserData -> RicPasteAsciiDataToSummaryPlotFeatureUi
+RimCsvUserData --> RifCsvUserData
+
 RimFileSummaryCase *--> RifReaderEclipseSummary
 RimGridSummaryCase *--> RifReaderEclipseSummary
 
+RicPasteAsciiDataToSummaryPlotFeatureUi --> RifCsvUserDataParser
 
 @enduml
