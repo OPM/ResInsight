@@ -457,7 +457,18 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             {
                 if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
                 {
-                    m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
+                    auto reader = summaryCaseY()->summaryReader();
+                    auto errAddress = reader->errorAddress(summaryAddressY());
+                    if (errAddress.isValid())
+                    {
+                        std::vector<double> errValues;
+                        reader->values(errAddress, &errValues);
+                        m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, errValues, isLogCurve);
+                    }
+                    else
+                    {
+                        m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
+                    }
                 }
                 else
                 {
@@ -492,6 +503,8 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             updateZoomInParentPlot();
             m_parentQwtPlot->replot();
         }
+
+        m_qwtPlotCurve->showErrorBars(m_showErrorBars);
     }
 
     if (updateParentPlot) updateQwtPlotAxis();
@@ -592,18 +605,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
 
         options->push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCurve::isCrossPlotCurve() const
-{
-    RimSummaryCrossPlot* crossPlot = nullptr;
-    this->firstAncestorOrThisOfType(crossPlot);
-    if (crossPlot) return true;
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

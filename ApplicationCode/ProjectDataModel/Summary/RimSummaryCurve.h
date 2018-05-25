@@ -97,8 +97,6 @@ private:
                                                                                  RimSummaryCase* summaryCase,
                                                                                  RimSummaryFilter* summaryFilter);
 
-    bool                                    isCrossPlotCurve() const;
-
 private:
     // Y values
     caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;

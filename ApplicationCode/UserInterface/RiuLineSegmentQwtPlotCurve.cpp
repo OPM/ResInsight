@@ -24,7 +24,9 @@
 #include "qwt_date.h"
 #include "qwt_point_mapper.h"
 #include "qwt_painter.h"
-
+#include "qwt_plot_intervalcurve.h"
+#include "qwt_scale_map.h"
+#include "qwt_interval_symbol.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -39,6 +41,13 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
     this->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_symbolSkipPixelDistance = 10.0f;
+
+    m_errorBars = new QwtPlotIntervalCurve();
+    m_errorBars->setStyle(QwtPlotIntervalCurve::CurveStyle::NoCurve);
+    m_errorBars->setSymbol(new QwtIntervalSymbol(QwtIntervalSymbol::Bar));
+
+    m_showErrorBars = true;
+    m_attachedToPlot = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,20 +55,25 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
 //--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 {
+    delete m_errorBars;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
 {
     CVF_ASSERT(xValues.size() == yValues.size());
+    CVF_ASSERT(yErrorValues.empty() || yErrorValues.size() == xValues.size());
 
+    bool showErrorBars = m_showErrorBars && !yErrorValues.empty();
     QPolygonF points;
+    QVector<QwtIntervalSample> errorIntervals;
     std::vector< std::pair<size_t, size_t> > filteredIntervals;
     {
         std::vector<double> filteredYValues;
         std::vector<double> filteredXValues;
+        std::vector<double> filteredYErrorValues;
 
         {
             auto intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(yValues, keepOnlyPositiveValues);
@@ -67,18 +81,36 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
             RigCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
             RigCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
 
+            if(showErrorBars) RigCurveDataTools::getValuesByIntervals(yErrorValues, intervalsOfValidValues, &filteredYErrorValues);
+
             filteredIntervals = RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues);
         }
 
         points.reserve(static_cast<int>(filteredXValues.size()));
+        errorIntervals.reserve(static_cast<int>(filteredXValues.size()));
         for ( size_t i = 0; i < filteredXValues.size(); i++ )
         {
             points << QPointF(filteredXValues[i], filteredYValues[i]);
+
+            if (showErrorBars)
+            {
+                errorIntervals << QwtIntervalSample(filteredXValues[i], filteredYValues[i] - filteredYErrorValues[i], filteredYValues[i] + filteredYErrorValues[i]);
+            }
         }
     }
 
     this->setSamples(points);
     this->setLineSegmentStartStopIndices(filteredIntervals);
+
+    if(showErrorBars) m_errorBars->setSamples(errorIntervals);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
+{
+    setSamplesFromXValuesAndYValues(xValues, yValues, std::vector<double>(), keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +118,7 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
 //--------------------------------------------------------------------------------------------------
 void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, keepOnlyPositiveValues);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +126,15 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector
 //--------------------------------------------------------------------------------------------------
 void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, keepOnlyPositiveValues);
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
+{
+    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, yErrorValues, keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,6 +239,46 @@ void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vecto
 void RiuLineSegmentQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
 {
     m_symbolSkipPixelDistance = distance >= 0.0f ? distance: 0.0f;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::attach(QwtPlot *plot)
+{
+    QwtPlotItem::attach(plot);
+    if(m_showErrorBars) m_errorBars->attach(plot);
+    m_attachedToPlot = plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::detach()
+{
+    QwtPlotItem::detach();
+    m_errorBars->detach();
+    m_attachedToPlot = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::showErrorBars(bool show)
+{
+    m_showErrorBars = show;
+    if (m_showErrorBars && m_attachedToPlot)    m_errorBars->attach(m_attachedToPlot);
+    else                                        m_errorBars->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setErrorBarsColor(QColor color)
+{
+    QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Bar);
+    newSymbol->setPen(QPen(color));
+    m_errorBars->setSymbol(newSymbol);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,6 +20,9 @@
 #pragma once
 
 #include "qwt_plot_curve.h"
+#include "qwt_plot_intervalcurve.h"
+
+class RiuErrorBarsQwtPlotCurve;
 
 //==================================================================================================
 //
@@ -50,6 +53,11 @@ public:
     void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
                                                  const std::vector<double>& yValues,
                                                  bool keepOnlyPositiveValues);
+
+    void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
+                                                 const std::vector<double>& yValues,
+                                                 const std::vector<double>& yErrorValues,
+                                                 bool keepOnlyPositiveValues);
     
     void         setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes,
                                                const std::vector<double>& yValues,
@@ -59,9 +67,19 @@ public:
                                                const std::vector<double>& yValues,
                                                bool keepOnlyPositiveValues);
 
+    void         setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes,
+                                               const std::vector<double>& yValues,
+                                               const std::vector<double>& yErrorValues,
+                                               bool keepOnlyPositiveValues);
+
     void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 
     void         setSymbolSkipPixelDistance(float distance);
+
+    void         attach(QwtPlot *plot);
+    void         detach();
+    void         showErrorBars(bool show);
+    void         setErrorBarsColor(QColor color);
 
 protected:
     virtual void drawCurve(QPainter* p, int style,
@@ -83,4 +101,8 @@ private:
 private:
     std::vector< std::pair<size_t, size_t> > m_polyLineStartStopIndices;
     float                                    m_symbolSkipPixelDistance;
+
+    bool                    m_showErrorBars;
+    QwtPlotIntervalCurve*   m_errorBars;
+    QwtPlot*                m_attachedToPlot;
 };

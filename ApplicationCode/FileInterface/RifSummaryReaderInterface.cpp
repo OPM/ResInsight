@@ -34,6 +34,17 @@ const std::vector<RifEclipseSummaryAddress>& RifSummaryReaderInterface::allResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress(const RifEclipseSummaryAddress& resultAddress) const
+{
+    RifEclipseSummaryAddress errAddr = resultAddress;
+    errAddr.setAsErrorResult();
+
+    return m_allErrorAddresses.find(errAddr) != m_allErrorAddresses.end() ? errAddr : RifEclipseSummaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifSummaryReaderInterface::fromTimeT(const std::vector<time_t>& timeSteps)
 {
     std::vector<QDateTime> a;

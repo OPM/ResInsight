@@ -20,6 +20,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
@@ -110,6 +111,8 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
+    CAF_PDM_InitField(&m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "");
+
     m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
 
     m_parentQwtPlot = nullptr;
@@ -170,7 +173,11 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     {
         updateLegendEntryVisibilityAndPlotLegend();
     }
-
+    else if (changedField == &m_showErrorBars)
+    {
+        m_qwtPlotCurve->showErrorBars(m_showErrorBars);
+        updateCurveAppearance();
+    }
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
@@ -362,6 +369,9 @@ void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
     uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_lineStyle);
     uiOrdering.add(&m_curveInterpolation);
+
+    if(isCrossPlotCurve()) m_showErrorBars = false; 
+    else                   uiOrdering.add(&m_showErrorBars);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,6 +474,20 @@ void RimPlotCurve::updateCurveAppearance()
     m_qwtPlotCurve->setStyle(curveStyle);
     m_qwtPlotCurve->setSymbol(symbol);
     m_qwtPlotCurve->setSymbolSkipPixelDistance(m_symbolSkipPixelDistance());
+
+    m_qwtPlotCurve->setErrorBarsColor(curveColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isCrossPlotCurve() const
+{
+    RimSummaryCrossPlot* crossPlot = nullptr;
+    this->firstAncestorOrThisOfType(crossPlot);
+    if (crossPlot) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

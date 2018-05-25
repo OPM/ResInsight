@@ -143,6 +143,9 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress(const std::st
 std::string RifEclipseSummaryAddress::uiText() const
 {
     std::string text;
+    
+    if (m_isErrorResult) text += "ERR:";
+
     text += m_quantityName;
     switch(this->category())
     {
@@ -227,7 +230,7 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     case RifEclipseSummaryAddress::INPUT_LGR_NAME: return lgrName();
     case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
     case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
-    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName() + (m_isErrorResult ? " (err)" : "");
+    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName();
     }
     return "";
 }

@@ -101,6 +101,7 @@ public:
     void                            setZOrder(double z);
 
     virtual void                    updateCurveAppearance();
+    bool                            isCrossPlotCurve() const;
 
 protected:
 
@@ -135,7 +136,7 @@ protected:
     caf::PdmField<cvf::Color3f>     m_curveColor;
     caf::PdmField<int>              m_curveThickness;
     caf::PdmField<float>            m_symbolSkipPixelDistance;
-
+    caf::PdmField<bool>             m_showErrorBars;
 
     caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
     caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
