@@ -192,8 +192,8 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
     caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Appearance");
     configurationGroup->add(&m_drawPlane);
     configurationGroup->add(&m_color);
-    configurationGroup->add(&m_minCurveUIValue);
     configurationGroup->add(&m_maxCurveUIValue);
+    configurationGroup->add(&m_minCurveUIValue);
 }
 
 //--------------------------------------------------------------------------------------------------
