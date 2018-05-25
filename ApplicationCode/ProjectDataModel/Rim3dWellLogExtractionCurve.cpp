@@ -273,7 +273,7 @@ QString Rim3dWellLogExtractionCurve::createCurveAutoName() const
 
         if (m_nameConfig->addTimeStep())
         {
-            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep));
+            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));
         }
     }
 
