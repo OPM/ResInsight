@@ -51,16 +51,14 @@ private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void initAfterRead() override;
 
 private:
     friend caf::AppEnum< FaultTruncType >;
     caf::PdmField< caf::AppEnum< FaultTruncType > >  m_faultTruncation;
 
-    caf::PdmField<bool> m_isUsingFractureContainment;
     caf::PdmField<int>  m_topKLayer;
     caf::PdmField<int>  m_baseKLayer;
 
+    caf::PdmField<bool> m_isUsingFractureContainment_OBSOLETE;
 };
-
-
-

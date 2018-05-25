@@ -20,6 +20,7 @@
 
 #include "RigMainGrid.h"
 
+#include "RimFractureTemplate.h"
 #include "RimProject.h"
 
 #include "cafPdmUiSliderEditor.h"
@@ -31,7 +32,7 @@ namespace caf
 template<>
 void caf::AppEnum<RimFractureContainment::FaultTruncType>::setUp()
 {
-    addItem(RimFractureContainment::DISABLED, "DISABLED", "Disable");
+    addItem(RimFractureContainment::DISABLED, "DISABLED", "Continue Across");
     addItem(RimFractureContainment::TRUNCATE_AT_FAULT, "TRUNCATE_AT_FAULT", "Truncate At Faults");
     addItem(RimFractureContainment::CONTINUE_IN_CONTAINMENT_ZONE, "CONTINUE_IN_CONTAINMENT_ZONE", "Continue in Containment Zone");
 
@@ -46,16 +47,16 @@ RimFractureContainment::RimFractureContainment()
 {
     CAF_PDM_InitObject("Fracture Containment", "", "", "");
 
-    CAF_PDM_InitField(&m_isUsingFractureContainment, "IsUsingFractureContainment", false, "Fracture Containment", "", "", "");
+    CAF_PDM_InitField(&m_isUsingFractureContainment_OBSOLETE, "IsUsingFractureContainment", false, "Fracture Containment", "", "", "");
+    m_isUsingFractureContainment_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_isUsingFractureContainment_OBSOLETE.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_topKLayer, "TopKLayer", 0, "Top Layer", "", "", "");
     // m_topKLayer.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "Base Layer", "", "", "");
     // m_topKLayer.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    // This field is not active yet.
     CAF_PDM_InitFieldNoDefault(&m_faultTruncation, "FaultTruncationType", "Fault Truncation", "", "", "");
-    m_faultTruncation.uiCapability()->setUiHidden(true);
-    m_faultTruncation.xmlCapability()->setIOWritable(false); // When in operation, remove
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,18 +70,19 @@ RimFractureContainment::~RimFractureContainment() {}
 QList<caf::PdmOptionItemInfo> RimFractureContainment::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                             bool*                      useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_faultTruncation)
+    // TODO: Remove this
+    return caf::PdmObject::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureContainment::initAfterRead()
+{
+    if (m_isUsingFractureContainment_OBSOLETE())
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<FaultTruncType>::uiText(DISABLED), DISABLED));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<FaultTruncType>::uiText(TRUNCATE_AT_FAULT), TRUNCATE_AT_FAULT));
-        if (m_isUsingFractureContainment())
-        {
-            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<FaultTruncType>::uiText(CONTINUE_IN_CONTAINMENT_ZONE),
-                                                     CONTINUE_IN_CONTAINMENT_ZONE));
-        }
+        m_faultTruncation = CONTINUE_IN_CONTAINMENT_ZONE;
     }
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ QList<caf::PdmOptionItemInfo> RimFractureContainment::calculateValueOptions(cons
 //--------------------------------------------------------------------------------------------------
 bool RimFractureContainment::isEnabled() const
 {
-    return m_isUsingFractureContainment();
+    return m_faultTruncation() != DISABLED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
                                                             size_t             anchorEclipseCell,
                                                             size_t             globalCellIndex) const
 {
-    if (!this->m_isUsingFractureContainment()) return true;
+    if (!isEnabled()) return true;
 
     CVF_ASSERT(mainGrid);
 
@@ -143,10 +145,15 @@ void RimFractureContainment::setBaseKLayer(int baseKLayer)
 //--------------------------------------------------------------------------------------------------
 void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_isUsingFractureContainment);
-    uiOrdering.add(&m_topKLayer);
-    uiOrdering.add(&m_baseKLayer);
-    // uiOrdering.add(&m_faultTruncation);
+    uiOrdering.add(&m_faultTruncation);
+
+    if (m_faultTruncation() == CONTINUE_IN_CONTAINMENT_ZONE)
+    {
+        uiOrdering.add(&m_topKLayer);
+        uiOrdering.add(&m_baseKLayer);
+    }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,13 +163,23 @@ void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue)
 {
-    if (changedField == &m_isUsingFractureContainment || m_isUsingFractureContainment())
+    if (changedField == &m_faultTruncation || changedField == &m_topKLayer || changedField == &m_baseKLayer)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
         {
             proj->reloadCompletionTypeResultsInAllViews();
+        }
+    }
+
+    if (changedField == &m_faultTruncation)
+    {
+        RimFractureTemplate* fractureTemplate = nullptr;
+        this->firstAncestorOrThisOfType(fractureTemplate);
+        if (fractureTemplate)
+        {
+            fractureTemplate->updateConnectedEditors();
         }
     }
 }
