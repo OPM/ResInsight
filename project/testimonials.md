@@ -16,5 +16,5 @@ Senior Petroleum Engineering Advisor, RPS Energy**
 Researcher, International Research Institute of Stavanger (IRIS)**
 
 <div class="note">
-Statoil ASA has initiated, financed and supervised the development of ResInsight and is using it on a daily basis. 
+Equinor ASA has initiated, financed and supervised the development of ResInsight and is using it on a daily basis. 
 </div>
