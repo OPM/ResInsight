@@ -131,7 +131,6 @@ private:
     void                                        initAfterRead() override;
     caf::PdmFieldHandle*                        objectToggleField() override;
 
-    friend class RimStimPlanLegendConfig;
     void                                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo>               calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 

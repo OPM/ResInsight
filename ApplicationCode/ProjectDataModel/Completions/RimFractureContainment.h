@@ -23,6 +23,9 @@
 
 class RigMainGrid;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimFractureContainment : public caf::PdmObject 
 {
     CAF_PDM_HEADER_INIT;
@@ -38,16 +41,14 @@ public:
         CONTINUE_IN_CONTAINMENT_ZONE
     };
 
-    bool isEnabled() const { return m_isUsingFractureContainment();}
+    bool isEnabled() const;
     bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex) const;
 
     void setTopKLayer(int topKLayer);
     void setBaseKLayer(int baseKLayer);
 
+private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
-protected:
-
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
