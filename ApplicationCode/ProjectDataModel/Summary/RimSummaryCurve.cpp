@@ -682,6 +682,13 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_yValuesSummaryCase)
     {
+        PdmObjectHandle* oldVal = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+        if (oldVal == nullptr && m_yValuesSummaryCase->isObservedData())
+        {
+            // If no previous case selected and observed data, use symbols to indicate observed data curve
+            setLineStyle(RimPlotCurve::STYLE_NONE);
+            setSymbol(RimPlotCurve::SYMBOL_XCROSS);
+        }
         plot->updateCaseNameHasChanged();
         this->onLoadDataAndUpdate(true);
     }
