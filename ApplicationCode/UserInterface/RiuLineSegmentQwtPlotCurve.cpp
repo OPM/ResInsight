@@ -45,6 +45,7 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
     m_errorBars = new QwtPlotIntervalCurve();
     m_errorBars->setStyle(QwtPlotIntervalCurve::CurveStyle::NoCurve);
     m_errorBars->setSymbol(new QwtIntervalSymbol(QwtIntervalSymbol::Bar));
+    m_errorBars->setItemAttribute(QwtPlotItem::Legend, false);
 
     m_showErrorBars = true;
     m_attachedToPlot = nullptr;
