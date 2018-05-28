@@ -196,7 +196,7 @@ bool RifCsvUserDataParser::parseColumnInfo(QTextStream* dataStream, const AsciiD
         for (int iCol = 0; iCol < colCount; iCol++)
         {
             QString colName = RiaTextStringTools::trimAndRemoveDoubleSpaces(lineColumns[iCol]);
-            RifEclipseSummaryAddress addr = RifEclipseUserDataKeywordTools::makeAndFillAddressFromObservedData(colName.toStdString());
+            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(colName.toStdString());
             Column col = Column::createColumnInfoFromCsvData(addr, "");
 
             columnInfoList->push_back(col);

@@ -86,7 +86,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 
     for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
     {
-        m_allResultAddresses.push_back(RifEclipseSummaryAddress::calculatedCurveAddress(calc->description().toStdString()));
+        m_allResultAddresses.push_back(RifEclipseSummaryAddress::calculatedAddress(calc->description().toStdString()));
     }
 }
 

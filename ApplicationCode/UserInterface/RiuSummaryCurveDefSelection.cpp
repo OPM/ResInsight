@@ -383,7 +383,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<RimSumma
     auto allSumCases = proj->allSummaryCases();
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldVarAddress("FOPT");
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
 
         std::vector<RimSummaryCase*> selectTheseCases = defaultCases;
         if (selectTheseCases.empty()) selectTheseCases.push_back(allSumCases[0]);
@@ -416,7 +416,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
         {
             // If we have an invalid address, set the default address to Field
-            summaryAddress = RifEclipseSummaryAddress::fieldVarAddress(summaryAddress.quantityName());
+            summaryAddress = RifEclipseSummaryAddress::fieldAddress(summaryAddress.quantityName());
         }
 
         // Select summary category if not already selected

@@ -153,7 +153,7 @@ bool RifEclipseUserDataKeywordTools::isYearX(const std::string& identifier)
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText)
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseUserDataParserTools::identifyCategory(quantityName);
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::identifyCategory(quantityName);
     
     if (category == RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
@@ -282,30 +282,6 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
                                     aquiferNumber,
                                     isErrorResult);
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Column header text format:   [<ER|ERR|ERROR>:]<VECTOR>:<CATEGORY_VALUE_NAME1>[:<CATEGORY_VALUE_NAME2>][....]
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddressFromObservedData(const std::string& columnHeaderText)
-{
-    QStringList names = QString().fromStdString(columnHeaderText).split(":");
-
-    int vectorNameIndex = 0;
-    bool isErrorResult = false;
-
-    if (names.size() > 1 && names[0].trimmed().startsWith("ER", Qt::CaseInsensitive))
-    {
-        vectorNameIndex = 1;
-        isErrorResult = true;
-    }
-
-    std::vector<std::string> columnHeaderTexts;
-    for (int i = vectorNameIndex + 1; i < names.size(); i++) columnHeaderTexts.push_back(names[i].trimmed().toStdString());
-
-    RifEclipseSummaryAddress address = makeAndFillAddress(names[vectorNameIndex].trimmed().toStdString(), columnHeaderTexts);
-    if (isErrorResult) address.setAsErrorResult();
-    return address;
 }
 
 //--------------------------------------------------------------------------------------------------

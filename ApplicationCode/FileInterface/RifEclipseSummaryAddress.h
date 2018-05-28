@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 class QTextStream;
 
@@ -114,8 +115,24 @@ public:
     
     // Static specialized creation methods
 
-    static RifEclipseSummaryAddress fieldVarAddress(const std::string& fieldVarName);
-    static RifEclipseSummaryAddress calculatedCurveAddress(const std::string& curveName);
+    static RifEclipseSummaryAddress fromEclipseTextAddress(const std::string& textAddress);
+    static SummaryVarCategory       identifyCategory(const std::string& quantityName);
+
+    static RifEclipseSummaryAddress fieldAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress aquiferAddress(const std::string& quantityName, int aquiferNumber);
+    static RifEclipseSummaryAddress networkAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress miscAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress regionAddress(const std::string& quantityName, int regionNumber);
+    static RifEclipseSummaryAddress regionToRegionAddress(const std::string& quantityName, int regionNumber, int region2Number);
+    static RifEclipseSummaryAddress wellGroupAddress(const std::string& quantityName, const std::string& wellGroupName);
+    static RifEclipseSummaryAddress wellAddress(const std::string& quantityName, const std::string& wellName);
+    static RifEclipseSummaryAddress wellCompletionAddress(const std::string& quantityName, const std::string& wellName, int i, int j, int k);
+    static RifEclipseSummaryAddress wellLgrAddress(const std::string& quantityName, const std::string& lgrName, const std::string& wellName);
+    static RifEclipseSummaryAddress wellCompletionLgrAddress(const std::string& quantityName, const std::string& lgrName, const std::string& wellName, int i, int j, int k);
+    static RifEclipseSummaryAddress wellSegmentAddress(const std::string& quantityName, const std::string& wellName, int segmentNumber);
+    static RifEclipseSummaryAddress blockAddress(const std::string& quantityName, int i, int j, int k);
+    static RifEclipseSummaryAddress blockLgrAddress(const std::string& quantityName, const std::string& lgrName, int i, int j, int k);
+    static RifEclipseSummaryAddress calculatedAddress(const std::string& quantityName);
     static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
 
     // Access methods
@@ -152,10 +169,10 @@ public:
 
 private:
 
-    std::string                 formatUiTextIJK() const;
-    std::tuple<int, int, int>   ijkTupleFromUiText(const std::string &s);
-    std::string                 formatUiTextRegionToRegion() const;
-    std::pair<int, int>         regionToRegionPairFromUiText(const std::string &s);
+    std::string                         formatUiTextIJK() const;
+    static std::tuple<int, int, int>    ijkTupleFromUiText(const std::string &s);
+    std::string                         formatUiTextRegionToRegion() const;
+    std::pair<int, int>                 regionToRegionPairFromUiText(const std::string &s);
 
     SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;
