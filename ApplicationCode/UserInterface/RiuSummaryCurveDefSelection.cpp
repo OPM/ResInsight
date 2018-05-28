@@ -377,7 +377,7 @@ void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<voi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases)
+void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummarySource*>& defaultSources)
 {
     RimProject* proj = RiaApplication::instance()->project();
     auto allSumCases = proj->allSummaryCases();
@@ -385,13 +385,16 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<RimSumma
     {
         RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
 
-        std::vector<RimSummaryCase*> selectTheseCases = defaultCases;
-        if (selectTheseCases.empty()) selectTheseCases.push_back(allSumCases[0]);
+        std::vector<SummarySource*> selectTheseSources = defaultSources;
+        if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
 
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for(RimSummaryCase* c : selectTheseCases)
+        for(SummarySource* s : selectTheseSources)
         {
-            RiaSummaryCurveDefinition curveDef(c, defaultAddress);
+            RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(s);
+            RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(s);
+
+            RiaSummaryCurveDefinition curveDef(sumCase, defaultAddress, ensemble);
             curveDefs.push_back(curveDef);
         }
 

@@ -64,7 +64,7 @@ public:
     void                                    hideSummaryCases(bool hide);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
-    void                                    setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases);
+    void                                    setDefaultSelection(const std::vector<SummarySource*>& defaultCases);
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 

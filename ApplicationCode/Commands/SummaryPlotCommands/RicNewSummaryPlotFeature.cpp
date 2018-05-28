@@ -80,11 +80,20 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
+    std::vector<caf::PdmObject*> sourcesToSelect(selectedCases.begin(), selectedCases.end());
+
     // Append grouped cases
     for (auto group : selectedGroups)
     {
-        auto groupCases = group->allSummaryCases();
-        selectedCases.insert(selectedCases.end(), groupCases.begin(), groupCases.end());
+        if (group->isEnsemble())
+        {
+            sourcesToSelect.push_back(group);
+        }
+        else
+        {
+            auto groupCases = group->allSummaryCases();
+            sourcesToSelect.insert(sourcesToSelect.end(), groupCases.begin(), groupCases.end());
+        }
     }
 
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
@@ -98,7 +107,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
         dialog->raise();
     }
 
-    dialog->updateFromDefaultCases(selectedCases);
+    dialog->updateFromDefaultCases(sourcesToSelect);
 }
 
 //--------------------------------------------------------------------------------------------------

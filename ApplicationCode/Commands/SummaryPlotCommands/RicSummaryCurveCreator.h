@@ -36,6 +36,11 @@
 
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
+namespace caf
+{
+    class PdmObject;
+};
+
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
@@ -62,7 +67,7 @@ public:
 
     RimSummaryPlot*                         previewPlot() const;
     void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot, 
-                                                                  const std::vector<RimSummaryCase*>& defaultCases = std::vector<RimSummaryCase*>());
+                                                                  const std::vector<caf::PdmObject*>& defaultSources = std::vector<caf::PdmObject*>());
 
     QWidget*                                addressSelectionWidget(QWidget* parent);
 
@@ -90,7 +95,7 @@ private:
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
     static void                             copyEnsembleCurveAndAddToCurveSet(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
-    void                                    setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases);
+    void                                    setDefaultCurveSelection(const std::vector<caf::PdmObject*>& defaultCases);
 
     void                                    resetAllFields();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);

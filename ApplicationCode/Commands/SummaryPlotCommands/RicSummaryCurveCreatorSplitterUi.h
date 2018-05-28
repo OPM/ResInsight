@@ -35,6 +35,7 @@ class QHBoxLayout;
 class QBoxLayout;
 
 namespace caf {
+    class PdmObject;
     class PdmUiItem;
     class PdmUiTreeView;
 }
@@ -53,7 +54,7 @@ public:
     ~RicSummaryCurveCreatorSplitterUi();
 
     void                    updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
-    void                    updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases);
+    void                    updateFromDefaultSources(const std::vector<caf::PdmObject*> defaultSources);
 
 private:
     virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,

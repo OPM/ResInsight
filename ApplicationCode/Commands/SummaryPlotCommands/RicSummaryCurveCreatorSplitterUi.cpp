@@ -70,9 +70,9 @@ void RicSummaryCurveCreatorSplitterUi::updateFromSummaryPlot(RimSummaryPlot* sum
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorSplitterUi::updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases)
+void RicSummaryCurveCreatorSplitterUi::updateFromDefaultSources(const std::vector<caf::PdmObject*> defaultSources)
 {
-    m_summaryCurveCreator->updateFromSummaryPlot(nullptr, defaultCases);
+    m_summaryCurveCreator->updateFromSummaryPlot(nullptr, defaultSources);
 }
 
 //--------------------------------------------------------------------------------------------------

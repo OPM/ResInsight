@@ -20,6 +20,11 @@
 
 #include <QDialog>
 
+namespace caf
+{
+    class PdmObject;
+};
+
 class RicSummaryCurveCreatorSplitterUi;
 class RimSummaryPlot;
 class RimSummaryCase;
@@ -36,7 +41,7 @@ public:
     ~RicSummaryCurveCreatorDialog();
 
     void updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
-    void updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases);
+    void updateFromDefaultCases(const std::vector<caf::PdmObject*> defaultSources);
 
 private slots:
     void slotDialogFinished();

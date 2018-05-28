@@ -68,9 +68,9 @@ void RicSummaryCurveCreatorDialog::updateFromSummaryPlot(RimSummaryPlot* summary
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorDialog::updateFromDefaultCases(const std::vector<RimSummaryCase*> defaultCases)
+void RicSummaryCurveCreatorDialog::updateFromDefaultCases(const std::vector<caf::PdmObject*> defaultSources)
 {
-    m_curveCreatorSplitterUi->updateFromDefaultCases(defaultCases);
+    m_curveCreatorSplitterUi->updateFromDefaultSources(defaultSources);
     m_curveCreatorSplitterUi->updateUi();
 }
 

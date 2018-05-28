@@ -144,7 +144,7 @@ RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, const std::vector<RimSummaryCase*>& defaultCases)
+void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, const std::vector<SummarySource*>& defaultSources)
 {
     if (targetPlot == nullptr || m_targetPlot != targetPlot)
     {
@@ -163,7 +163,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, c
     }
     else
     {
-        setDefaultCurveSelection(defaultCases);
+        setDefaultCurveSelection(defaultSources);
         m_previewPlot->enableAutoPlotTitle(true);
         syncPreviewCurvesFromUiSelection();
     }
@@ -706,9 +706,9 @@ void RicSummaryCurveCreator::copyEnsembleCurveAndAddToCurveSet(const RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases)
+void RicSummaryCurveCreator::setDefaultCurveSelection(const std::vector<SummarySource*>& defaultSources)
 {
-    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection(defaultCases);
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection(defaultSources);
 }
 
 //--------------------------------------------------------------------------------------------------
