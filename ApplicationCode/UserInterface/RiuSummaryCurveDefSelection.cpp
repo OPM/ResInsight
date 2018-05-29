@@ -383,7 +383,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
     auto allSumCases = proj->allSummaryCases();
     auto allSumGroups = proj->summaryGroups();
     bool hasEnsembles = std::count_if(allSumGroups.begin(), allSumGroups.end(),
-                                      [](const auto& sumGroup) { return sumGroup->isEnsemble(); }) > 0;
+                                      [](const RimSummaryCaseCollection* sumGroup) { return sumGroup->isEnsemble(); }) > 0;
 
     if (allSumCases.size() > 0 && !hasEnsembles)
     {
