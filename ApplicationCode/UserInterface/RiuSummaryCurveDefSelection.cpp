@@ -493,6 +493,26 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField != &m_selectedSources && changedField != &m_selectedSummaryCategories &&
+        changedField != &m_currentSummaryCategory)
+    {
+        RifEclipseSummaryAddress::SummaryVarCategory currentCategory = m_currentSummaryCategory();
+        if (currentCategory != RifEclipseSummaryAddress::SUMMARY_INVALID)
+        {
+            // When a summary vector is selected, make sure the summary category for the summary vector is in the selection
+            // Note that we use the size of the variant to avoid this operation when an item in unchecked
+
+            if (newValue.toList().size() > oldValue.toList().size())
+            {
+                if (std::find(m_selectedSummaryCategories.v().begin(), m_selectedSummaryCategories.v().end(), currentCategory) ==
+                    m_selectedSummaryCategories.v().end())
+                {
+                    m_selectedSummaryCategories.v().push_back(currentCategory);
+                }
+            }
+        }
+    }
+
     if (m_toggleChangedHandler != nullptr)
     {
         m_toggleChangedHandler();
