@@ -435,11 +435,6 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
             m_selectedSummaryCategories.v().push_back(summaryAddress.category());
         }
 
-        if (curveDefinitions.size() == 1)
-        {
-            m_currentSummaryCategory = summaryAddress.category();
-        }
-
         // Select case if not already selected
         SummarySource* summSource = curveDef.isEnsembleCurve() ? static_cast<SummarySource*>(curveDef.ensemble()) : summaryCase;
         if (std::find(m_selectedSources.begin(), m_selectedSources.end(), summSource) == m_selectedSources.end())
