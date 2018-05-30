@@ -298,7 +298,7 @@ void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx)
 {
     RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
+    auto activeCellInfo = m_reservoirView->currentActiveCellInfo();
 
     switch (geometryType)
     {

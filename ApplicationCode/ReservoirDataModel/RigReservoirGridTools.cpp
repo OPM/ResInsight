@@ -103,7 +103,7 @@ QString RigReservoirGridTools::gridName(RimCase* rimCase, int gridIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimView)
+const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimView)
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (eclipseView)

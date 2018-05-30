@@ -151,7 +151,7 @@ void RimCellRangeFilter::setDefaultValues()
 
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
-    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+    auto actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
     
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimCase);
@@ -252,7 +252,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
-    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+    auto actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
 
     if (grid == mainGrid && actCellInfo)
     {

@@ -99,7 +99,7 @@ public:
     void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
     RigCaseCellResultsData*                         currentGridCellResults();
-    RigActiveCellInfo*                              currentActiveCellInfo();
+    const RigActiveCellInfo*                        currentActiveCellInfo() const;
     RimEclipseCellColors*                           currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);

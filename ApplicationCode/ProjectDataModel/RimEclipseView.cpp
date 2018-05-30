@@ -954,7 +954,7 @@ RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
+const RigActiveCellInfo* RimEclipseView::currentActiveCellInfo() const
 {
     if (m_eclipseCase &&
         m_eclipseCase->eclipseCaseData()
@@ -1270,7 +1270,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     }
     visibleCells->setAll(false);
 
-    RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
+    const RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
     CVF_ASSERT(activeCellInfo);
 

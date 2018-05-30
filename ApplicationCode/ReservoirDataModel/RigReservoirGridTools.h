@@ -43,7 +43,7 @@ public:
     static const cvf::StructGridInterface* gridByIndex(RimCase* rimCase, int gridIndex);
     static QString                         gridName(RimCase* rimCase, int gridIndex);
 
-    static RigActiveCellInfo*              activeCellInfo(Rim3dView* rimView);
+    static const RigActiveCellInfo*        activeCellInfo(Rim3dView* rimView);
 
 private:
     static RigMainGrid*             eclipseMainGrid(RimCase* rimCase);

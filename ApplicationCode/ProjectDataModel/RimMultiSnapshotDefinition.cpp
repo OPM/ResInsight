@@ -175,7 +175,7 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     else if (changedField == &sliceDirection)
     {
         const cvf::StructGridInterface* mainGrid = nullptr;
-        RigActiveCellInfo* actCellInfo = nullptr;
+        const RigActiveCellInfo* actCellInfo = nullptr;
        
         if (view())
         {
