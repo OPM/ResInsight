@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseRealizationParameters::Value::Value() : m_valueType(TYPE_NONE), m_numericValue(HUGE_VAL)
+RigCaseRealizationParameters::Value::Value() : m_valueType(TYPE_NONE), m_numericValue(std::numeric_limits<double>::infinity())
 {
 }
 
@@ -98,7 +98,7 @@ void RigCaseRealizationParameters::addParameter(const QString& name, const QStri
 //--------------------------------------------------------------------------------------------------
 RigCaseRealizationParameters::Value RigCaseRealizationParameters::parameterValue(const QString& name)
 {
-    if (m_parameters.count(name) == 0) return HUGE_VAL;
+    if (m_parameters.count(name) == 0) return std::numeric_limits<double>::infinity();
     return m_parameters[name];
 }
 
