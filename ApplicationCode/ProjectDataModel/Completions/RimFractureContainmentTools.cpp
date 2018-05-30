@@ -32,6 +32,8 @@
 
 #include <array>
 
+#include <QDebug>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +71,14 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
                                                                   std::set<size_t>&                  connectedCells)
 {
     const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace(currentCell, face);
-    if (fault) return;
+    if (fault)
+    {
+        size_t i, j, k;
+        mainGrid->ijkFromCellIndex(currentCell, &i, &j, &k);
+
+        qDebug() << QString("Found cell at ijk %1").arg(i).arg(j).arg(k);
+        return;
+    }
 
     appendNeighborCellForFace(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_I, connectedCells);
 }
@@ -96,21 +105,28 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(const RimEclipseView* eclipseView,
+std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase,
                                                                               RimFracture*          fracture)
 {
     std::set<size_t> fracturedCellsContainedByFaults;
 
-    auto mainGrid       = eclipseView->mainGrid();
-    auto activeCellInfo = eclipseView->currentActiveCellInfo();
-
-    if (mainGrid && activeCellInfo)
+    if (eclipseCase && fracture)
     {
-        std::set<size_t> allFracturedCells = getFracturedCells(mainGrid, activeCellInfo, fracture);
+        auto eclipseCaseData = eclipseCase->eclipseCaseData();
+        if (eclipseCaseData)
+        {
+            auto mainGrid       = eclipseCaseData->mainGrid();
+            auto activeCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
-        size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
+            if (mainGrid && activeCellInfo)
+            {
+                std::set<size_t> allFracturedCells = getFracturedCells(mainGrid, activeCellInfo, fracture);
 
-        appendNeighborCells(allFracturedCells, mainGrid, anchorCellGlobalIndex, fracturedCellsContainedByFaults);
+                size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
+
+                appendNeighborCells(allFracturedCells, mainGrid, anchorCellGlobalIndex, fracturedCellsContainedByFaults);
+            }
+        }
     }
 
     return fracturedCellsContainedByFaults;

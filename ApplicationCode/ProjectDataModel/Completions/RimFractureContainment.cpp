@@ -47,7 +47,8 @@ RimFractureContainment::RimFractureContainment()
 {
     CAF_PDM_InitObject("Fracture Containment", "", "", "");
 
-    CAF_PDM_InitField(&m_isUsingFractureContainment_OBSOLETE, "IsUsingFractureContainment", false, "Fracture Containment", "", "", "");
+    CAF_PDM_InitField(
+        &m_isUsingFractureContainment_OBSOLETE, "IsUsingFractureContainment", false, "Fracture Containment", "", "", "");
     m_isUsingFractureContainment_OBSOLETE.xmlCapability()->setIOWritable(false);
     m_isUsingFractureContainment_OBSOLETE.uiCapability()->setUiHidden(true);
 
@@ -96,30 +97,44 @@ bool RimFractureContainment::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* mainGrid,
-                                                            size_t             anchorEclipseCell,
-                                                            size_t             globalCellIndex) const
+bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid*      mainGrid,
+                                                            size_t                  anchorEclipseCell,
+                                                            size_t                  globalCellIndex,
+                                                            const std::set<size_t>& containmentCells) const
 {
     if (!isEnabled()) return true;
 
-    CVF_ASSERT(mainGrid);
-
-    size_t i, j, k;
-    if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
-
-    mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
-
-    if (k + 1 < static_cast<size_t>(m_topKLayer()))
+    if (m_faultTruncation() == CONTINUE_IN_CONTAINMENT_ZONE || m_faultTruncation() == TRUNCATE_AT_FAULT)
     {
-        return false;
+        CVF_ASSERT(mainGrid);
+
+        size_t i, j, k;
+        if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
+
+        mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
+
+        if (k + 1 < static_cast<size_t>(m_topKLayer()))
+        {
+            return false;
+        }
+
+        if (k + 1 > static_cast<size_t>(m_baseKLayer()))
+        {
+            return false;
+        }
     }
 
-    if (k + 1 > static_cast<size_t>(m_baseKLayer()))
+    if (m_faultTruncation() == TRUNCATE_AT_FAULT)
     {
-        return false;
+        if (containmentCells.count(globalCellIndex) > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-
-    // Todo: use fault propagation mode
 
     return true;
 }
@@ -147,7 +162,7 @@ void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     uiOrdering.add(&m_faultTruncation);
 
-    if (m_faultTruncation() == CONTINUE_IN_CONTAINMENT_ZONE)
+    if (m_faultTruncation() == CONTINUE_IN_CONTAINMENT_ZONE || m_faultTruncation() == TRUNCATE_AT_FAULT)
     {
         uiOrdering.add(&m_topKLayer);
         uiOrdering.add(&m_baseKLayer);

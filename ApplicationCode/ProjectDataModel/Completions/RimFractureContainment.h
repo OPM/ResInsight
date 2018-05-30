@@ -42,7 +42,7 @@ public:
     };
 
     bool isEnabled() const;
-    bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex) const;
+    bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex, const std::set<size_t>& containmentCells) const;
 
     void setTopKLayer(int topKLayer);
     void setBaseKLayer(int baseKLayer);

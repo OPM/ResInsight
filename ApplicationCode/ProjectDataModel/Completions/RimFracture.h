@@ -67,7 +67,9 @@ public:
     void                            setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem);
 
     bool                            isEclipseCellWithinContainment(const RigMainGrid* mainGrid, 
+                                                                   const std::set<size_t>& containmentCells,
                                                                    size_t globalCellIndex) const;
+
     size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
 
     cvf::Mat4d                      transformMatrix() const; 

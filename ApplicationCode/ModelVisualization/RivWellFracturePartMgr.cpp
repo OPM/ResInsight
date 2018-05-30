@@ -28,10 +28,12 @@
 #include "RigWellPath.h"
 
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
+#include "RimFractureContainmentTools.h"
 #include "RimFractureTemplate.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
@@ -662,9 +664,13 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
 
     std::vector<cvf::Vec3f> maskTriangles;
 
+    RimEclipseCase* eclipseCase = nullptr;
+    activeView.firstAncestorOrThisOfType(eclipseCase);
+    auto containedFractureCells = RimFractureContainmentTools::fracturedCellsTruncatedByFaults(eclipseCase, m_rimFracture);
+
     for (size_t resCellIdx : cellCandidates)
     {
-        if (!m_rimFracture->isEclipseCellWithinContainment(activeView.mainGrid(), resCellIdx))
+        if (!m_rimFracture->isEclipseCellWithinContainment(activeView.mainGrid(), containedFractureCells, resCellIdx))
         {
             // Calculate Eclipse cell intersection with fracture plane 
 

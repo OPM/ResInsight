@@ -26,12 +26,12 @@
 class RigMainGrid;
 class RigActiveCellInfo;
 class RimFracture;
-class RimEclipseView;
+class RimEclipseCase;
 
 class RimFractureContainmentTools
 {
 public:
-    static std::set<size_t> fracturedCellsTruncatedByFaults(const RimEclipseView* eclipseView, RimFracture* fracture);
+    static std::set<size_t> fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase, RimFracture* fracture);
 
 private:
     // TODO: Try to change RimStimPlanFractureTemplate::fractureTriangleGeometry to be able to use const RimFracture
