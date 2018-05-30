@@ -98,7 +98,7 @@ void RigCaseRealizationParameters::addParameter(const QString& name, const QStri
 //--------------------------------------------------------------------------------------------------
 RigCaseRealizationParameters::Value RigCaseRealizationParameters::parameterValue(const QString& name)
 {
-    if (m_parameters.count(name) == 0) return std::numeric_limits<double>::infinity();
+    if (m_parameters.count(name) == 0) return Value();
     return m_parameters[name];
 }
 
