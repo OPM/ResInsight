@@ -839,14 +839,14 @@ void RimEnsembleCurveSet::updateAllCurves()
                 }
             }
             m_yValuesSummaryFilter->updateFromAddress(addr->address());
-        }
 
+            if (plot->qwtPlot()) m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
+        }
 
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType(plot);
         if (plot->qwtPlot())
         {
-            m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
             plot->qwtPlot()->updateLegend();
             plot->qwtPlot()->replot();
             plot->updateAxes();
