@@ -80,6 +80,14 @@ void CellRangeFilter::addCellIncludeRange(size_t minI, size_t minJ, size_t minK,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void CellRangeFilter::addCellInclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas)
+{
+    m_includeRanges.push_back(CellRange(i, j, k, i + 1, j + 1, k + 1, applyToSubGridAreas));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void CellRangeFilter::addCellExcludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK, bool applyToSubGridAreas)
 {
     m_excludeRanges.push_back(CellRange(minI, minJ, minK, maxI, maxJ, maxK, applyToSubGridAreas));
@@ -88,9 +96,9 @@ void CellRangeFilter::addCellExcludeRange(size_t minI, size_t minJ, size_t minK,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CellRangeFilter::addCellInclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas)
+void CellRangeFilter::addCellExclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas)
 {
-    m_includeRanges.push_back(CellRange(i, j, k, i, j, k, applyToSubGridAreas));
+    m_excludeRanges.push_back(CellRange(i, j, k, i + 1, j + 1, k + 1, applyToSubGridAreas));
 }
 
 //--------------------------------------------------------------------------------------------------
