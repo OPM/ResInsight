@@ -552,6 +552,8 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
         QDir qdir(dir);
         QStringList files = qdir.entryList(filters, QDir::Files);
 
+        if (cancelPressed()) return QStringList();
+
         updateStatus(SEARCHING_FOR_FILES, qdir.absolutePath());
         QApplication::processEvents();
 
