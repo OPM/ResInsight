@@ -211,8 +211,6 @@ void RimEnsembleCurveSet::setParentQwtPlotNoReplot(QwtPlot* plot)
     {
         curve->setParentQwtPlotNoReplot(plot);
     }
-
-    m_qwtPlotCurveForLegendText->attach(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,6 +812,7 @@ void RimEnsembleCurveSet::updateAllCurves()
     CVF_ASSERT(plot);
 
     deleteAllCurves();
+    m_qwtPlotCurveForLegendText->detach();
 
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
@@ -842,10 +841,13 @@ void RimEnsembleCurveSet::updateAllCurves()
             m_yValuesSummaryFilter->updateFromAddress(addr->address());
         }
 
+
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType(plot);
         if (plot->qwtPlot())
         {
+            m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
+            plot->qwtPlot()->updateLegend();
             plot->qwtPlot()->replot();
             plot->updateAxes();
         }
