@@ -36,7 +36,7 @@ public:
 private:
     // TODO: Try to change RimStimPlanFractureTemplate::fractureTriangleGeometry to be able to use const RimFracture
     static std::set<size_t>
-        getFracturedCells(const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, RimFracture* fracture);
+        getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, RimFracture* fracture);
 
     static void appendNeighborCellForFace(const std::set<size_t>&            allFracturedCells,
                                           const RigMainGrid*                 mainGrid,

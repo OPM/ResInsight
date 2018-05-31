@@ -23,6 +23,7 @@
 #include "RigFault.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
+#include "RigReservoirGridTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -31,8 +32,6 @@
 #include "cvfStructGrid.h"
 
 #include <array>
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,15 +48,7 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
     size_t candidate;
     if (mainGrid->cellIJKNeighbor(anchorI, anchorJ, anchorK, face, &candidate))
     {
-        if (std::find(allFracturedCells.begin(), allFracturedCells.end(), candidate) != allFracturedCells.end())
-        {
-            if (std::find(connectedCells.begin(), connectedCells.end(), candidate) == connectedCells.end())
-            {
-                connectedCells.insert(candidate);
-
-                appendNeighborCells(allFracturedCells, mainGrid, candidate, connectedCells);
-            }
-        }
+        appendNeighborCells(allFracturedCells, mainGrid, candidate, connectedCells);
     }
 }
 
@@ -73,14 +64,10 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
     const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace(currentCell, face);
     if (fault)
     {
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(currentCell, &i, &j, &k);
-
-        qDebug() << QString("Found cell at ijk %1").arg(i).arg(j).arg(k);
         return;
     }
 
-    appendNeighborCellForFace(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_I, connectedCells);
+    appendNeighborCellForFace(allFracturedCells, mainGrid, currentCell, face, connectedCells);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +78,21 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
                                                       size_t                  currentCell,
                                                       std::set<size_t>&       connectedCells)
 {
-    // Stop at faults in IJ directions
+    if (std::find(connectedCells.begin(), connectedCells.end(), currentCell) != connectedCells.end())
+    {
+        // currentCell is already handled
+        return;
+    }
+
+    if (std::find(allFracturedCells.begin(), allFracturedCells.end(), currentCell) == allFracturedCells.end())
+    {
+        // currentCell is not found among the set of fracture cells
+        return;
+    }
+
+    connectedCells.insert(currentCell);
+
+    // Check faults in IJ directions
     checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_I, connectedCells);
     checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_I, connectedCells);
     checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_J, connectedCells);
@@ -120,12 +121,23 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
 
             if (mainGrid && activeCellInfo)
             {
-                std::set<size_t> allFracturedCells = getFracturedCells(mainGrid, activeCellInfo, fracture);
+                std::set<size_t> cellsIntersectingFracturePlane =
+                    getCellsIntersectingFracturePlane(mainGrid, activeCellInfo, fracture);
 
                 size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
 
-                appendNeighborCells(allFracturedCells, mainGrid, anchorCellGlobalIndex, fracturedCellsContainedByFaults);
+                appendNeighborCells(
+                    cellsIntersectingFracturePlane, mainGrid, anchorCellGlobalIndex, fracturedCellsContainedByFaults);
             }
+
+            /*
+            NB : Please do not delete this code, used to create input to cell based range filter to see the computed fracture
+            cells
+
+                        qDebug() << "FracturedCells - Truncated";
+                        qDebug() << RigReservoirGridTools::globalCellIndicesToOneBasedIJKText(
+                            fracturedCellsContainedByFaults.begin(), fracturedCellsContainedByFaults.end(), mainGrid);
+            */
         }
     }
 
@@ -135,9 +147,9 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RimFractureContainmentTools::getFracturedCells(const RigMainGrid*       mainGrid,
-                                                                const RigActiveCellInfo* activeCellInfo,
-                                                                RimFracture*             fracture)
+std::set<size_t> RimFractureContainmentTools::getCellsIntersectingFracturePlane(const RigMainGrid*       mainGrid,
+                                                                                const RigActiveCellInfo* activeCellInfo,
+                                                                                RimFracture*             fracture)
 {
     std::set<size_t> eclipseCellIndices;
 
