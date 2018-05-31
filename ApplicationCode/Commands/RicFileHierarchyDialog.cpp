@@ -44,6 +44,7 @@
 #include <QListWidget>
 #include <QAbstractItemView>
 #include <QMenu>
+#include <QTime>
 
 #include <vector>
 #include <time.h>
@@ -299,8 +300,11 @@ void RicFileHierarchyDialog::clearFileList()
 void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraText)
 {
     static int progressLoopStep = 0;
-    static time_t lastStatusUpdate = 0;
-    time_t now = time(nullptr);
+    static QTime lastStatusUpdate;
+    QTime now = QTime::currentTime();
+
+    // Do not update dialog more often than twice per second to avoid text update from slowing down search progress
+    if (lastStatusUpdate.msecsTo(now) < 500) return;
 
     QString newStatus;
     if (status == SEARCHING_FOR_DIRS || status == SEARCHING_FOR_FILES )
@@ -316,9 +320,7 @@ void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraTex
             newStatus += " .";
         }
 
-        if (now != lastStatusUpdate) progressLoopStep++;    // If less than one second since last update, do not increment
-        
-        if (progressLoopStep >= 5) progressLoopStep = 0;
+        if (++progressLoopStep >= 5) progressLoopStep = 0;
 
         if (!extraText.isEmpty()) newStatus += "\n" + extraText;
     }
