@@ -22,6 +22,8 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmFieldCvfVec3d.h"
+
 class RigGridBase;
 class RigMainGrid;
 class RimCellRangeFilterCollection;
@@ -57,6 +59,9 @@ public:
     void                    setDefaultValues();
     void                    updateActiveState();
 
+    bool                           useIndividualCellIndices() const;
+    const std::vector<cvf::Vec3d>& individualCellIndices() const;
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -70,6 +75,8 @@ private:
     bool                            isRangeFilterControlled() const;
     void                            computeAndSetValidValues();
     const cvf::StructGridInterface* selectedGrid();
-};
 
+    caf::PdmField<bool>                    m_useIndividualCellIndices;
+    caf::PdmField<std::vector<cvf::Vec3d>> m_individualCellIndices;
+};
 
