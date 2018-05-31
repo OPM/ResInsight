@@ -180,7 +180,7 @@ void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigNa
             PdmUiTreeOrdering* child = root->child(cIdx);
             if (child->isValid() && !child->ignoreSubTree())
             {
-                expandUiTree(child);
+                expandUiTree(child, uiConfigName);
             }
         }
     }
@@ -207,7 +207,7 @@ void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigNa
                 uiObj(root->object())->addDefaultUiTreeChildren(root);
                 if (root->childCount())
                 {
-                    expandUiTree(root);
+                    expandUiTree(root, uiConfigName);
                 }
             }
         }
