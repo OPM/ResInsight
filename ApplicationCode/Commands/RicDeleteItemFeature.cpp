@@ -25,6 +25,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFormationNames.h"
@@ -119,6 +120,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))    return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))              return true;
     if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))             return true;
+    if (dynamic_cast<RimEnsembleCurveFilter*>(uiItem))          return true;
 
     return false;    
 }

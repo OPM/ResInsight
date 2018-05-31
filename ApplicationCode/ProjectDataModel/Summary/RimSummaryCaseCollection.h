@@ -29,6 +29,33 @@
 
 class RimSummaryCase;
 
+//==================================================================================================
+///  
+//==================================================================================================
+class EnsembleParameter
+{
+public:
+    enum Type { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
+
+    QString                 name;
+    Type                    type;
+    std::vector<QVariant>   values;
+    double                  minValue;
+    double                  maxValue;
+
+    EnsembleParameter() :
+        type(TYPE_NONE),
+        minValue(std::numeric_limits<double>::infinity()),
+        maxValue(-std::numeric_limits<double>::infinity()) { }
+
+    bool isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
+    bool isNumeric() const { return type == TYPE_NUMERIC; }
+    bool isText() const { return type == TYPE_TEXT; }
+};
+
+//==================================================================================================
+///  
+//==================================================================================================
 class RimSummaryCaseCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -39,12 +66,14 @@ public:
 
     void                            removeCase(RimSummaryCase* summaryCase);
     void                            addCase(RimSummaryCase* summaryCase);
-    std::vector<RimSummaryCase*>    allSummaryCases();
+    std::vector<RimSummaryCase*>    allSummaryCases() const;
     void                            setName(const QString& name);
     QString                         name() const;
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
     std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
+    EnsembleParameter               ensembleParameter(const QString& paramName) const;
+
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
     void                            updateReferringCurveSets() const;

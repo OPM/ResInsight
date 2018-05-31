@@ -852,7 +852,7 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         if (   ( eclCellColors && eclCellColors->hasCategoryResult())
             || ( gmCellColors && gmCellColors->hasCategoryResult())
             || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult())
-            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == RimEnsembleCurveSet::TYPE_TEXT) )
+            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT) )
         {
             isCategoryResult = true;
         }

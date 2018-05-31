@@ -39,6 +39,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimFaultInView.h"
@@ -475,6 +476,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+        }
+        else if (dynamic_cast<RimEnsembleCurveFilterCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewEnsembleCurveFilterFeature";
         }
         else if (dynamic_cast<RimSummaryCaseMainCollection*>(uiItem))
         {

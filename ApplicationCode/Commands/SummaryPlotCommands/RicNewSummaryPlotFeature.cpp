@@ -26,6 +26,9 @@
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
 
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -36,7 +39,6 @@
 
 #include "cvfAssert.h"
 #include "cafSelectionManagerTools.h"
-//#include "cafPdmUiItem.h"
 
 #include <QAction>
 
@@ -56,6 +58,11 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
         sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
     }
 
+    auto ensembleFilter = dynamic_cast<RimEnsembleCurveFilter*>(selObj);
+    auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>(selObj);
+    auto legendConfig = dynamic_cast<RimRegularLegendConfig*>(selObj);
+
+    if (ensembleFilter || ensembleFilterColl || legendConfig) return false;
     if (sumPlotColl) return true;
 
     // Multiple case selections

@@ -21,8 +21,12 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 
+#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+
 #include "RifReaderEclipseSummary.h"
 
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimProject.h"
@@ -49,6 +53,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_symbol.h"
 
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// Internal constants
@@ -128,6 +133,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendConfig", "", "", "", "");
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setColorRange( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE );
+
+    CAF_PDM_InitFieldNoDefault(&m_curveFilters, "CurveFilters", "Curve Filters", "", "", "");
+    m_curveFilters = new RimEnsembleCurveFilterCollection();
 
     CAF_PDM_InitField(&m_userDefinedName, "UserDefinedName", QString("Ensemble Curve Set"), "Curve Set Name", "", "", "");
 
@@ -323,22 +331,20 @@ RimEnsembleCurveSet::ColorMode RimEnsembleCurveSet::colorMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet::EnsembleParameterType RimEnsembleCurveSet::currentEnsembleParameterType() const
+EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() const
 {
     if (m_colorMode() == BY_ENSEMBLE_PARAM)
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
         QString parameterName = m_ensembleParameter();
 
-        if (group && !parameterName.isEmpty() && !group->allSummaryCases().empty())
+        if (group && !parameterName.isEmpty())
         {
-            bool isTextParameter = group->allSummaryCases().front()->caseRealizationParameters() != nullptr ?
-                group->allSummaryCases().front()->caseRealizationParameters()->parameterValue(parameterName).isText() : false;
-
-            return isTextParameter ? TYPE_TEXT : TYPE_NUMERIC;
+            auto eParam = group->ensembleParameter(parameterName);
+            return eParam.type;
         }
     }
-    return TYPE_NONE;
+    return EnsembleParameter::TYPE_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,7 +401,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         if (m_ensembleParameter().isEmpty())
         {
-            auto params = ensembleParameters();
+            auto params = ensembleParameterNames();
             m_ensembleParameter = !params.empty() ? params.front() : "";
         }
         updateCurveColors();
@@ -525,6 +531,11 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     {
         uiTreeOrdering.add(m_legendConfig());
     }
+
+    if (uiConfigName != RicSummaryCurveCreator::CONFIGURATION_NAME)
+    {
+        uiTreeOrdering.add(m_curveFilters);
+    }
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -588,14 +599,14 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
         auto byEnsParamOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
 
         options.push_back(caf::PdmOptionItemInfo(singleColorOption.uiText(), RimEnsembleCurveSet::SINGLE_COLOR));
-        if (!ensembleParameters().empty())
+        if (!ensembleParameterNames().empty())
         {
             options.push_back(caf::PdmOptionItemInfo(byEnsParamOption.uiText(), RimEnsembleCurveSet::BY_ENSEMBLE_PARAM));
         }
     }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-        for (const auto& param : ensembleParameters())
+        for (const auto& param : ensembleParameterNames())
         {
             options.push_back(caf::PdmOptionItemInfo(param, param));
         }
@@ -693,23 +704,15 @@ void RimEnsembleCurveSet::updateCurveColors()
 
         if (group && !parameterName.isEmpty() && !group->allSummaryCases().empty())
         {
-            bool isTextParameter = group->allSummaryCases().front()->caseRealizationParameters() != nullptr ?
-                group->allSummaryCases().front()->caseRealizationParameters()->parameterValue(parameterName).isText() : false;
+            auto ensembleParam = group->ensembleParameter(parameterName);
 
-            if (isTextParameter)
+            if (ensembleParam.isText())
             {
                 std::set<QString> categories;
 
-                for (RimSummaryCase* rimCase : group->allSummaryCases())
+                for (auto value : ensembleParam.values)
                 {
-                    if (rimCase->caseRealizationParameters() != nullptr)
-                    {
-                        RigCaseRealizationParameters::Value value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                        if (value.isText())
-                        {
-                            categories.insert(value.textValue());
-                        }
-                    }
+                    categories.insert(value.toString());
                 }
 
                 std::vector<QString> categoryNames = std::vector<QString>(categories.begin(), categories.end());
@@ -735,25 +738,18 @@ void RimEnsembleCurveSet::updateCurveColors()
                     curve->updateCurveAppearance();
                 }
             }
-            else
+            else if(ensembleParam.isNumeric())
             {
                 double minValue = DOUBLE_INF;
                 double maxValue = -DOUBLE_INF;
 
-                for (RimSummaryCase* rimCase : group->allSummaryCases())
+                for (auto value : ensembleParam.values)
                 {
-                    if (rimCase->caseRealizationParameters() != nullptr)
+                    double nValue = value.toDouble();
+                    if (nValue != DOUBLE_INF)
                     {
-                        RigCaseRealizationParameters::Value value = rimCase->caseRealizationParameters()->parameterValue(parameterName);
-                        if (value.isNumeric())
-                        {
-                            double nValue = value.numericValue();
-                            if (nValue != DOUBLE_INF)
-                            {
-                                if (nValue < minValue) minValue = nValue;
-                                if (nValue > maxValue) maxValue = nValue;
-                            }
-                        }
+                        if (nValue < minValue) minValue = nValue;
+                        if (nValue > maxValue) maxValue = nValue;
                     }
                 }
 
@@ -825,7 +821,8 @@ void RimEnsembleCurveSet::updateAllCurves()
     {
         if(m_showCurves)
         {
-            for (auto& sumCase : group->allSummaryCases())
+            const auto filteredCases = filterEnsembleCases(group);
+            for (auto& sumCase : filteredCases)
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY(sumCase);
@@ -898,6 +895,82 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
+{
+    RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
+
+    std::set<QString> paramSet;
+    if (group)
+    {
+        for (RimSummaryCase* rimCase : group->allSummaryCases())
+        {
+            if (rimCase->caseRealizationParameters() != nullptr)
+            {
+                auto ps = rimCase->caseRealizationParameters()->parameters();
+                for (auto p : ps) paramSet.insert(p.first);
+            }
+        }
+    }
+    return std::vector<QString>(paramSet.begin(), paramSet.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimSummaryCaseCollection* ensemble)
+{
+    if (!ensemble) return std::vector<RimSummaryCase*>();
+
+    std::set<RimSummaryCase*> notIncludeCases;
+    if (!m_curveFilters->filters().empty())
+    {
+        for (const auto& sumCase : ensemble->allSummaryCases())
+        {
+            for (const auto& filter : m_curveFilters()->filters())
+            {
+                if (!filter->isActive()) continue;
+                auto eParam = ensemble->ensembleParameter(filter->ensembleParameter());
+                if (!eParam.isValid()) continue;
+                if (!sumCase->caseRealizationParameters()) continue;
+
+                auto crpValue = sumCase->caseRealizationParameters()->parameterValue(filter->ensembleParameter());
+
+                if (eParam.isNumeric())
+                {
+                    if (!crpValue.isNumeric() ||
+                        crpValue.numericValue() < filter->minValue() ||
+                        crpValue.numericValue() > filter->maxValue())
+                    {
+                        notIncludeCases.insert(sumCase);
+                        break;
+                    }
+                }
+                else if (eParam.isText())
+                {
+                    const auto& filterCategories = filter->categories();
+                    if (!crpValue.isText() ||
+                        std::count(filterCategories.begin(), filterCategories.end(), crpValue.textValue()) == 0)
+                    {
+                        notIncludeCases.insert(sumCase);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    std::vector<RimSummaryCase*> filteredCases;
+    const auto& allSumCaseVector = ensemble->allSummaryCases();
+    std::set<RimSummaryCase*> allCasesSet(allSumCaseVector.begin(), allSumCaseVector.end());
+    std::set_difference(allCasesSet.begin(), allCasesSet.end(),
+                        notIncludeCases.begin(), notIncludeCases.end(),
+                        std::inserter(filteredCases, filteredCases.end()));
+    return filteredCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
     m_qwtPlotCurveForLegendText->setTitle(name());
@@ -930,28 +1003,6 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
 
     bool showLegendItem = isCurvesVisible();
     m_qwtPlotCurveForLegendText->setItemAttribute(QwtPlotItem::Legend, showLegendItem);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEnsembleCurveSet::ensembleParameters() const
-{
-    RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
-
-    std::set<QString> paramSet;
-    if (group)
-    {
-        for (RimSummaryCase* rimCase : group->allSummaryCases())
-        {
-            if (rimCase->caseRealizationParameters() != nullptr)
-            {
-                auto ps = rimCase->caseRealizationParameters()->parameters();
-                for (auto p : ps) paramSet.insert(p.first);
-            }
-        }
-    }
-    return std::vector<QString>(paramSet.begin(), paramSet.end());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1001,12 +1052,12 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 {
     switch (currentEnsembleParameterType())
     {
-    case TYPE_TEXT:
+    case EnsembleParameter::TYPE_TEXT:
         if (m_legendConfig->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER)
             m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::CATEGORY_INTEGER);
         break;
 
-    case TYPE_NUMERIC:
+    case EnsembleParameter::TYPE_NUMERIC:
         if (m_legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER)
             m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS);
         break;

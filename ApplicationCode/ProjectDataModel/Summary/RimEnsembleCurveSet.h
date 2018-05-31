@@ -24,6 +24,7 @@
 #include "RiaDefines.h"
 
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
@@ -46,7 +47,9 @@ class RimSummaryAddress;
 class RimSummaryFilter;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
+class RimEnsembleCurveFilterCollection;
 class QKeyEvent;
+
 
 //==================================================================================================
 ///  
@@ -57,7 +60,6 @@ class RimEnsembleCurveSet : public caf::PdmObject
 
 public:
     enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
-    enum EnsembleParameterType {TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT};
 
     RimEnsembleCurveSet();
     virtual ~RimEnsembleCurveSet();
@@ -86,13 +88,16 @@ public:
 
     ColorMode                               colorMode() const;
     void                                    updateEnsembleLegendItem();
-    EnsembleParameterType                   currentEnsembleParameterType() const;
+    EnsembleParameter::Type                 currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
 
     void                                    updateAllTextInPlot();
+    std::vector<QString>                    ensembleParameterNames() const;
+
+    std::vector<RimSummaryCase*>            filterEnsembleCases(const RimSummaryCaseCollection* ensemble);
 
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
@@ -116,7 +121,6 @@ private:
 
     void                                    updateCurveColors();
     void                                    updateQwtPlotAxis();
-    std::vector<QString>                    ensembleParameters() const;
 
     QString                                 name() const;
     QString                                 createAutoName() const;
@@ -143,6 +147,7 @@ private:
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 
     caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
+    caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
 
     caf::PdmField<bool>                             m_isUsingAutoName;
     caf::PdmField<QString>                          m_userDefinedName;

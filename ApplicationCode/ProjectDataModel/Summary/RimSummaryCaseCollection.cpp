@@ -25,6 +25,8 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include <cmath>
+
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases()
+std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
     return m_cases.childObjects();
 }
@@ -137,6 +139,99 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::calculateUnionOfSum
     }
 
     return addressUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& paramName) const
+{
+    if (!isEnsemble() || paramName.isEmpty()) return EnsembleParameter();
+
+    EnsembleParameter eParam;
+    eParam.name = paramName;
+
+    bool numericValuesCount = 0;
+    bool textValuesCount = 0;
+
+    // Prepare case realization params, and check types
+    for (const auto& rimCase : allSummaryCases())
+    {
+        auto crp = rimCase->caseRealizationParameters();
+        if (!crp) continue;
+
+        auto value = crp->parameterValue(paramName);
+        if (!value.isValid()) continue;
+
+        if (value.isNumeric())
+        {
+            double numVal = value.numericValue();
+            eParam.values.push_back(QVariant(numVal));
+            if (numVal < eParam.minValue) eParam.minValue = numVal;
+            if (numVal > eParam.maxValue) eParam.maxValue = numVal;
+            numericValuesCount++;
+        }
+        else if (value.isText())
+        {
+            eParam.values.push_back(QVariant(value.textValue()));
+            textValuesCount++;
+        }
+    }
+
+    if (numericValuesCount && !textValuesCount)
+    {
+        eParam.type = EnsembleParameter::TYPE_NUMERIC;
+    }
+    else if (textValuesCount && !numericValuesCount)
+    {
+        eParam.type = EnsembleParameter::TYPE_TEXT;
+    }
+    if (numericValuesCount && textValuesCount)
+    {
+        // A mix of types have been added to parameter values
+        if (numericValuesCount > textValuesCount)
+        {
+            // Use numeric type
+            for (auto& val : eParam.values)
+            {
+                if (val.type() == QVariant::String)
+                {
+                    val.setValue(std::numeric_limits<double>::infinity());
+                }
+            }
+            eParam.type = EnsembleParameter::TYPE_NUMERIC;
+        }
+        else
+        {
+            // Use text type
+            for (auto& val : eParam.values)
+            {
+                if (val.type() == QVariant::Double)
+                {
+                    val.setValue(QString::number(val.value<double>()));
+                }
+            }
+            eParam.type = EnsembleParameter::TYPE_TEXT;
+            eParam.minValue = std::numeric_limits<double>::infinity();
+            eParam.maxValue = -std::numeric_limits<double>::infinity();
+        }
+    }
+
+    if (eParam.isText())
+    {
+        // Remove duplicate texts
+        std::set<QString> valueSet;
+        for (const auto& val : eParam.values)
+        {
+            valueSet.insert(val.toString());
+        }
+        eParam.values.clear();
+        for (const auto& val : valueSet)
+        {
+            eParam.values.push_back(QVariant(val));
+        }
+    }
+    return eParam;
 }
 
 //--------------------------------------------------------------------------------------------------
