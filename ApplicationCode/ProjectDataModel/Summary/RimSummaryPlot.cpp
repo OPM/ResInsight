@@ -576,6 +576,20 @@ void RimSummaryPlot::copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSum
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAll()
+{
+    if (qwtPlot())
+    {
+        updatePlotTitle();
+        qwtPlot()->updateLegend();
+        updateAxes();
+        updateZoomInQwt();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;

@@ -75,20 +75,14 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
 {
     for (RimEnsembleCurveSet* curveSet : m_curveSets)
     {
-        curveSet->loadDataAndUpdate(updateParentPlot);
+        curveSet->loadDataAndUpdate(false);
     }
 
     if (updateParentPlot)
     {
         RimSummaryPlot* parentPlot;
         firstAncestorOrThisOfTypeAsserted(parentPlot);
-        if (parentPlot->qwtPlot())
-        {
-            parentPlot->updatePlotTitle();
-            parentPlot->qwtPlot()->updateLegend();
-            parentPlot->updateAxes();
-            parentPlot->updateZoomInQwt();
-        }
+        parentPlot->updateAll();
     }
 }
 

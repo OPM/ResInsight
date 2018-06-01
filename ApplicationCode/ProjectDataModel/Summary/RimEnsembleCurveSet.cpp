@@ -200,6 +200,13 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
     m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
 
     updateAllCurves();
+
+    if (updateParentPlot)
+    {
+        RimSummaryPlot* parentPlot;
+        firstAncestorOrThisOfTypeAsserted(parentPlot);
+        parentPlot->updateAll();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
