@@ -23,6 +23,8 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
+#include <algorithm>
+
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveFilter, "RimEnsembleCurveFilter");
 
@@ -122,7 +124,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
         else if (eParam.isText())
         {
             m_categories.v().clear();
-            for (const auto val : eParam.values)
+            for (const auto& val : eParam.values)
             {
                 m_categories.v().push_back(val.toString());
             }
