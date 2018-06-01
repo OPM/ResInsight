@@ -930,51 +930,14 @@ std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimS
 {
     if (!ensemble) return std::vector<RimSummaryCase*>();
 
-    std::set<RimSummaryCase*> notIncludeCases;
-    if (!m_curveFilters->filters().empty())
+    auto sumCases = ensemble->allSummaryCases();
+
+    for (auto& filter : m_curveFilters->filters())
     {
-        for (const auto& sumCase : ensemble->allSummaryCases())
-        {
-            for (const auto& filter : m_curveFilters()->filters())
-            {
-                if (!filter->isActive()) continue;
-                auto eParam = ensemble->ensembleParameter(filter->ensembleParameter());
-                if (!eParam.isValid()) continue;
-                if (!sumCase->caseRealizationParameters()) continue;
-
-                auto crpValue = sumCase->caseRealizationParameters()->parameterValue(filter->ensembleParameter());
-
-                if (eParam.isNumeric())
-                {
-                    if (!crpValue.isNumeric() ||
-                        crpValue.numericValue() < filter->minValue() ||
-                        crpValue.numericValue() > filter->maxValue())
-                    {
-                        notIncludeCases.insert(sumCase);
-                        break;
-                    }
-                }
-                else if (eParam.isText())
-                {
-                    const auto& filterCategories = filter->categories();
-                    if (!crpValue.isText() ||
-                        std::count(filterCategories.begin(), filterCategories.end(), crpValue.textValue()) == 0)
-                    {
-                        notIncludeCases.insert(sumCase);
-                        break;
-                    }
-                }
-            }
-        }
+        sumCases = filter->applyFilter(sumCases);
     }
 
-    std::vector<RimSummaryCase*> filteredCases;
-    const auto& allSumCaseVector = ensemble->allSummaryCases();
-    std::set<RimSummaryCase*> allCasesSet(allSumCaseVector.begin(), allSumCaseVector.end());
-    std::set_difference(allCasesSet.begin(), allCasesSet.end(),
-                        notIncludeCases.begin(), notIncludeCases.end(),
-                        std::inserter(filteredCases, filteredCases.end()));
-    return filteredCases;
+    return sumCases;
 }
 
 //--------------------------------------------------------------------------------------------------

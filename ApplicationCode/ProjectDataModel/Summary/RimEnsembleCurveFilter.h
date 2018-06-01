@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimEnsembleCurveSet;
+class RimSummaryCase;
 
 //==================================================================================================
 ///  
@@ -35,14 +36,13 @@ public:
     RimEnsembleCurveFilter();
 
     bool                    isActive() const;
-    QString                 ensembleParameter() const;
-    double                  minValue() const;
-    double                  maxValue() const;
     std::set<QString>       categories() const;
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    std::vector<RimSummaryCase*> applyFilter(const std::vector<RimSummaryCase*>& allSumCases);
 
 protected:
     virtual caf::PdmFieldHandle*  objectToggleField();

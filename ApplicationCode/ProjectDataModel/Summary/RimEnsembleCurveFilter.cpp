@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimSummaryCase.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -53,30 +54,6 @@ bool RimEnsembleCurveFilter::isActive() const
     firstAncestorOrThisOfType(coll);
 
     return (!coll || coll->isActive()) && m_active;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimEnsembleCurveFilter::ensembleParameter() const
-{
-    return m_ensembleParameter;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimEnsembleCurveFilter::minValue() const
-{
-    return m_minValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimEnsembleCurveFilter::maxValue() const
-{
-    return m_maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +160,52 @@ void RimEnsembleCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
     uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter(const std::vector<RimSummaryCase*>& allSumCases)
+{
+    auto curveSet = parentCurveSet();
+    auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    if (!ensemble || !isActive()) return allSumCases;
+
+    std::set<RimSummaryCase*> casesToRemove;
+    for (const auto& sumCase : allSumCases)
+    {
+        auto eParam = ensemble->ensembleParameter(m_ensembleParameter());
+        if (!eParam.isValid()) continue;
+        if (!sumCase->caseRealizationParameters()) continue;
+
+        auto crpValue = sumCase->caseRealizationParameters()->parameterValue(m_ensembleParameter());
+
+        if (eParam.isNumeric())
+        {
+            if (!crpValue.isNumeric() ||
+                crpValue.numericValue() < m_minValue() ||
+                crpValue.numericValue() > m_maxValue())
+            {
+                casesToRemove.insert(sumCase);
+            }
+        }
+        else if (eParam.isText())
+        {
+            const auto& filterCategories = categories();
+            if (!crpValue.isText() ||
+                std::count(filterCategories.begin(), filterCategories.end(), crpValue.textValue()) == 0)
+            {
+                casesToRemove.insert(sumCase);
+            }
+        }
+    }
+
+    std::vector<RimSummaryCase*> filteredCases;
+    std::set<RimSummaryCase*> allCasesSet(allSumCases.begin(), allSumCases.end());
+    std::set_difference(allCasesSet.begin(), allCasesSet.end(),
+                        casesToRemove.begin(), casesToRemove.end(),
+                        std::inserter(filteredCases, filteredCases.end()));
+    return filteredCases;
 }
 
 //--------------------------------------------------------------------------------------------------
