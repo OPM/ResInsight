@@ -71,10 +71,10 @@ private:
     QStringList findMatchingFiles();
 
     QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
-    void buildDirectoryListRecursiveSimple(const QString& rootDir,
-                                           const QString& remainingPathFilter,
-                                           QStringList* accumulatedDirs);
 
+    void buildDirectoryListRecursiveSimple(const QString& currentDir,
+                                           const QString& currentPathFilter,
+                                           QStringList* accumulatedDirs);
 
     QStringList findFilesInDirs(const QStringList& dirs);
 
