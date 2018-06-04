@@ -420,14 +420,23 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& currentDir,
-                                                                const QString& currentPathFilter,
-                                                                QStringList* accumulatedDirs)
+                                                               const QString& currentPathFilter,
+                                                               QStringList* accumulatedDirs)
 {
-    QString rootDir = currentDir;
+    QString currDir = currentDir;
     QString pathFilter = currentPathFilter;
     if (pathFilter.startsWith(SEPARATOR)) pathFilter.remove(0, 1);
     if (pathFilter.endsWith(SEPARATOR)) pathFilter.chop(1);
-    if (rootDir.endsWith(SEPARATOR)) rootDir.chop(1);
+    if (currDir.endsWith(SEPARATOR)) currDir.chop(1);
+
+    if (cancelPressed())
+    {
+        accumulatedDirs->clear();
+        return;
+    }
+
+    updateStatus(SEARCHING_FOR_DIRS, currDir);
+    QApplication::processEvents();
 
     if (pathFilter.isEmpty())
     {
@@ -436,12 +445,12 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& cu
     }
 
     QStringList pathFilters = pathFilter.split(SEPARATOR);
-    QDir        qdir(rootDir, pathFilters[0], QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot);
+    QDir        qdir(currDir, pathFilters[0], QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot);
     QStringList subDirs = qdir.entryList();
 
     if (pathFilters.size() == 1 && pathFilters[0] == "*")
     {
-        accumulatedDirs->push_back(rootDir);
+        accumulatedDirs->push_back(currDir);
     }
 
     for (const QString& subDir : subDirs)
@@ -463,6 +472,7 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& cu
         buildDirectoryListRecursiveSimple(fullPath, nextPathFilter, accumulatedDirs);
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
