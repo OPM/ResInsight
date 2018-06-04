@@ -837,8 +837,8 @@ void RimEnsembleCurveSet::updateAllCurves()
 
                 addCurve(curve);
 
-                curve->updateCurveVisibility(true);
-                curve->loadDataAndUpdate(true);
+                curve->updateCurveVisibility(false);
+                curve->loadDataAndUpdate(false);
 
                 if (curve->qwtPlotCurve())
                 {
