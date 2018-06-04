@@ -203,7 +203,7 @@ QStringList RicFileHierarchyDialog::files() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::rootDir() const
 {
-    QString rootDir = RiaFilePathTools::toInternalSeparator(m_rootDir->text());
+    QString rootDir = RiaFilePathTools::toInternalSeparator(m_rootDir->text().trimmed());
     return RiaFilePathTools::appendSeparatorIfNo(rootDir);
 }
 
@@ -212,7 +212,7 @@ QString RicFileHierarchyDialog::rootDir() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::pathFilter() const
 {
-    return RiaFilePathTools::toInternalSeparator(m_pathFilter->text());
+    return RiaFilePathTools::toInternalSeparator(m_pathFilter->text().trimmed());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ QString RicFileHierarchyDialog::pathFilter() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::fileNameFilter() const
 {
-    return m_fileFilter->text();
+    return m_fileFilter->text().trimmed();
 }
 
 //--------------------------------------------------------------------------------------------------
