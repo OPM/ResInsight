@@ -58,6 +58,9 @@ RimFractureContainment::RimFractureContainment()
     // m_topKLayer.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_faultTruncation, "FaultTruncationType", "Fault Truncation", "", "", "");
+
+    CAF_PDM_InitField(&m_useFaultThrow, "UseFaultThrow", false, "Use Fault Throw", "", "", "");
+    CAF_PDM_InitField(&m_faultThrowValue, "FaultThrowValue", 0.0f, "  Fault Throw", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +87,19 @@ void RimFractureContainment::initAfterRead()
     {
         m_faultTruncation = CONTINUE_IN_CONTAINMENT_ZONE;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureContainment::faultThrow() const
+{
+    if ((m_faultTruncation() == CONTINUE_IN_CONTAINMENT_ZONE || m_faultTruncation() == TRUNCATE_AT_FAULT) && m_useFaultThrow())
+    {
+        return m_faultThrowValue;
+    }
+
+    return -1.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +182,12 @@ void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     {
         uiOrdering.add(&m_topKLayer);
         uiOrdering.add(&m_baseKLayer);
+
+        uiOrdering.add(&m_useFaultThrow);
+        if (m_useFaultThrow())
+        {
+            uiOrdering.add(&m_faultThrowValue);
+        }
     }
 
     uiOrdering.skipRemainingFields();
@@ -178,7 +200,8 @@ void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue)
 {
-    if (changedField == &m_faultTruncation || changedField == &m_topKLayer || changedField == &m_baseKLayer)
+    if (changedField == &m_faultTruncation || changedField == &m_topKLayer || changedField == &m_baseKLayer ||
+        changedField == &m_useFaultThrow || changedField == &m_faultThrowValue)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -188,7 +211,7 @@ void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changed
         }
     }
 
-    if (changedField == &m_faultTruncation)
+    if (changedField == &m_useFaultThrow || changedField == &m_faultTruncation)
     {
         RimFractureTemplate* fractureTemplate = nullptr;
         this->firstAncestorOrThisOfType(fractureTemplate);

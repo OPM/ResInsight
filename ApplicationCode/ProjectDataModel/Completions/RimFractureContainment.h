@@ -47,6 +47,8 @@ public:
     void setTopKLayer(int topKLayer);
     void setBaseKLayer(int baseKLayer);
 
+    double faultThrow() const; // Negative value means do not test for fault throw
+
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -59,6 +61,9 @@ private:
 
     caf::PdmField<int>  m_topKLayer;
     caf::PdmField<int>  m_baseKLayer;
+
+    caf::PdmField<bool>     m_useFaultThrow;
+    caf::PdmField<float>    m_faultThrowValue;
 
     caf::PdmField<bool> m_isUsingFractureContainment_OBSOLETE;
 };

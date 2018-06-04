@@ -42,16 +42,19 @@ private:
                                           const RigMainGrid*                 mainGrid,
                                           size_t                             currentCell,
                                           cvf::StructGridInterface::FaceType face,
-                                          std::set<size_t>&                  connectedCells);
+                                          std::set<size_t>&                  connectedCells,
+                                          double                             faultThrow);
 
     static void checkFaultAndAppendNeighborCell(const std::set<size_t>&            allFracturedCells,
                                                 const RigMainGrid*                 mainGrid,
                                                 size_t                             currentCell,
                                                 cvf::StructGridInterface::FaceType face,
-                                                std::set<size_t>&                  connectedCells);
+                                                std::set<size_t>&                  connectedCells,
+                                                double                             faultThrow);
 
     static void appendNeighborCells(const std::set<size_t>& allFracturedCells,
                                     const RigMainGrid*      mainGrid,
                                     size_t                  currentCell,
-                                    std::set<size_t>&       connectedCells);
+                                    std::set<size_t>&       connectedCells,
+                                    double                  faultThrow);
 };
