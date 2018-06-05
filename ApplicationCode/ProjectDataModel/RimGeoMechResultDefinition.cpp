@@ -51,6 +51,7 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_ELEMENT_NODAL_FACE, "ELEMENT_NODAL_FACE", "Element Nodal On Face");
     addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
     addItem(RIG_ELEMENT, "ELEMENT", "Element");
+    addItem(RIG_WELLPATH_DERIVED, "WELLPATH_DERIVED", "Well Path Derived");
     setDefault(RIG_NODAL);
 }
 }
@@ -108,6 +109,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_compactionRefLayerUiField.xmlCapability()->setIOReadable(false);
 
     m_isChangedByField = false;
+    m_addWellPathDerivedResults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +171,19 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
 
     if (m_geomCase)
     {
-        if (&m_resultVariableUiField == fieldNeedingOptions)
+        if (&m_resultPositionTypeUiField == fieldNeedingOptions)
+        {
+            std::vector<RigFemResultPosEnum> optionItems = { RIG_NODAL, RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT, RIG_ELEMENT_NODAL_FACE, RIG_FORMATION_NAMES, RIG_ELEMENT };
+            if (true || m_addWellPathDerivedResults)
+            {
+                optionItems.push_back(RIG_WELLPATH_DERIVED);
+            }
+            for (RigFemResultPosEnum value : optionItems)
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RigFemResultPosEnum>::uiText(value), QVariant(value)));
+            }
+        }
+        else if (&m_resultVariableUiField == fieldNeedingOptions)
         {
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
 
@@ -439,8 +453,27 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if (m_geomCase && m_geomCase->geoMechData())
     {
-        m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+        if (this->resultAddress().fieldName == "FractureGradient" ||
+            this->resultAddress().fieldName == "ShearFailureGradient")
+        {
+            RigFemResultAddress stressResAddr(RIG_ELEMENT_NODAL, std::string("ST"), "");
+            RigFemResultAddress porBarResAddr(RIG_ELEMENT_NODAL, std::string("POR-Bar"), "");
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(stressResAddr);
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(porBarResAddr);
+        }
+        else
+        {
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::setAddWellPathDerivedResults(bool addWellPathDerivedResults)
+{
+    m_addWellPathDerivedResults = addWellPathDerivedResults;
 }
 
 //--------------------------------------------------------------------------------------------------

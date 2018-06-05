@@ -66,6 +66,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
+${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
 )
 
 
@@ -131,6 +132,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

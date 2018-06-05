@@ -28,6 +28,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "Rim3dView.h"
@@ -79,6 +80,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_geomResultDefinition.uiCapability()->setUiHidden(true);
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
+    m_geomResultDefinition->setAddWellPathDerivedResults(true);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
     m_nameConfig = new RimWellLogExtractionCurveNameConfig(this);    
@@ -199,10 +201,9 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMds(std::vector<double>* values,
     else if (geomExtractor.notNull())
     {
         *measuredDepthValues = geomExtractor->measuredDepth();
-
         m_geomResultDefinition->loadResult();
-
-        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, values);
+        geomExtractor->setRkbDiff(rkbDiff());
+        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, values);        
     }
 }
 
@@ -281,6 +282,41 @@ QString Rim3dWellLogExtractionCurve::createCurveAutoName() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double Rim3dWellLogExtractionCurve::rkbDiff() const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+
+    if (wellPath && wellPath->wellPathGeometry())
+    {
+        RigWellPath* geo = wellPath->wellPathGeometry();
+
+        if (geo->hasDatumElevation())
+        {
+            return geo->datumElevation();
+        }
+
+        // If measured depth is zero, use the z-value of the well path points
+        if (geo->m_wellPathPoints.size() > 0 && geo->m_measuredDepths.size() > 0)
+        {
+            double epsilon = 1e-3;
+
+            if (cvf::Math::abs(geo->m_measuredDepths[0]) < epsilon)
+            {
+                double diff = geo->m_measuredDepths[0] - (-geo->wellPathPoints()[0].z());
+
+                return diff;
+            }
+        }
+    }
+
+    return HUGE_VAL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
@@ -293,7 +329,7 @@ caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {   
-    if (changedField == &m_timeStep || changedField == &m_case)
+    if (changedField == &m_case)
     {
         this->resetMinMaxValuesAndUpdateUI();
     }

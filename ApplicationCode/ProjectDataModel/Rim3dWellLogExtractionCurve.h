@@ -48,6 +48,7 @@ public:
 
     virtual QString name() const override;
     virtual QString createCurveAutoName() const override;
+    double          rkbDiff() const;
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

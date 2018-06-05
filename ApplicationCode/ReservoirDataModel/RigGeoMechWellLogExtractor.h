@@ -21,17 +21,21 @@
 
 #include "RigWellLogExtractor.h"
 
+#include "cafTensor3.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfMath.h"
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
 #include <vector>
-#include "cvfStructGrid.h"
 
-class RigWellPath;
-class RigGeoMechCaseData;
+enum RigElementType;
+enum RigFemResultPosEnum;
 class RigFemResultAddress;
+class RigGeoMechCaseData;
+class RigWellPath;
 
 namespace cvf {
     class BoundingBox;
@@ -46,16 +50,25 @@ public:
     RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
-    const RigGeoMechCaseData*    caseData()     { return m_caseData.p();}
-
+    void                         wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
+    const RigGeoMechCaseData*    caseData();
+    void                         setRkbDiff(double rkbDiff);
 private:
+  
+   
+    template<typename T>
+    T                            interpolateGridResultValue(RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx, bool averageNodeElementResults) const;
     void                         calculateIntersection();
     std::vector<size_t>          findCloseCells(const cvf::BoundingBox& bb);
     virtual cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
                                                        const cvf::Vec3d& startPoint, 
                                                        const cvf::Vec3d& endPoint) const override;
+    cvf::Vec3d                   calculateWellPathTangent(int64_t intersectionIdx) const;
+    static caf::Ten3d            transformTensorToWellPathOrientation(const cvf::Vec3d& wellPathTangent,
+                                                                      const caf::Ten3d& wellPathTensor);
 
     cvf::ref<RigGeoMechCaseData> m_caseData;
+    double                       m_rkbDiff;
 };
 
 

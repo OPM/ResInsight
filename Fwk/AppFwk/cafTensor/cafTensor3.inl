@@ -38,6 +38,21 @@ inline Tensor3<S>::Tensor3(const Tensor3& other)
 }
 
 //----------------------------------------------------------------------------------------------------
+/// Explicit Cast constructor
+//----------------------------------------------------------------------------------------------------
+template <typename S>
+template <typename T>
+Tensor3<S>::Tensor3(const Tensor3<T>& other)
+{
+    m_tensor[SXX] = other[Tensor3<T>::SXX];
+    m_tensor[SYY] = other[Tensor3<T>::SYY];
+    m_tensor[SZZ] = other[Tensor3<T>::SZZ];
+    m_tensor[SXY] = other[Tensor3<T>::SXY];
+    m_tensor[SYZ] = other[Tensor3<T>::SYZ];
+    m_tensor[SZX] = other[Tensor3<T>::SZX];    
+}
+
+//----------------------------------------------------------------------------------------------------
 /// Constructor with explicit initialization of all tensor elements.
 /// 
 //----------------------------------------------------------------------------------------------------

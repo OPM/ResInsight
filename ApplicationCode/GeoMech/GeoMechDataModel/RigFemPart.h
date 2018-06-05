@@ -67,9 +67,9 @@ public:
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
 
-    void                        assertNodeToElmIndicesIsCalculated();
-    const int*                  elementsUsingNode(int nodeIndex);
-    int                         numElementsUsingNode(int nodeIndex);
+    void                              assertNodeToElmIndicesIsCalculated();
+    const std::vector<int>&           elementsUsingNode(int nodeIndex) const;
+    const std::vector<unsigned char>& elementLocalIndicesForNode(int nodeIndex) const;
     
     void                        assertElmNeighborsIsCalculated();
     int                         elementNeighbor(int elementIndex, int faceIndex) const
@@ -100,12 +100,13 @@ private:
     mutable cvf::ref<RigFemPartGrid>    m_structGrid;
 
     void calculateNodeToElmRefs();
-    std::vector<std::vector<int> > m_nodeToElmRefs; // Needs a more memory friendly structure
+    std::vector<std::vector<int>>           m_nodeToElmRefs; // Needs a more memory friendly structure
+    std::vector<std::vector<unsigned char>> m_nodeGlobalToLocalIndices;
   
     void calculateElmNeighbors();
     struct Neighbors { int indicesToNeighborElms[6]; char faceInNeighborElm[6];};
-    std::vector<  Neighbors > m_elmNeighbors;
-    std::vector<int> m_possibleGridCornerElements;
+    std::vector<  Neighbors >   m_elmNeighbors;
+    std::vector<int>            m_possibleGridCornerElements;
 
     mutable float               m_characteristicElementSize;
     mutable cvf::BoundingBox    m_boundingBox;

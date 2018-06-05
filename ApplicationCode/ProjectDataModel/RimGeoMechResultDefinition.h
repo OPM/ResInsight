@@ -48,6 +48,7 @@ public:
     RigGeoMechCaseData*                               ownerCaseData();
     bool                                              hasResult(); 
     void                                              loadResult();
+    void                                              setAddWellPathDerivedResults(bool addWellPathDerivedResults);
 
     RigFemResultAddress                               resultAddress();
 
@@ -117,4 +118,5 @@ private:
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
 
     bool                                              m_isChangedByField;
+    bool                                              m_addWellPathDerivedResults;
 };

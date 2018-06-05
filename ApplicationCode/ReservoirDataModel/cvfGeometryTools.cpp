@@ -592,20 +592,6 @@ cvf::Vec4d GeometryTools::barycentricCoords(const cvf::Vec3d& v0,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double GeometryTools::interpolateQuad(const cvf::Vec3d& v1, double s1, 
-                                      const cvf::Vec3d& v2, double s2, 
-                                      const cvf::Vec3d& v3, double s3, 
-                                      const cvf::Vec3d& v4, double s4, 
-                                      const cvf::Vec3d& point)
-{
-    cvf::Vec4d bc = barycentricCoords(v1, v2, v3, v4, point);
-
-    return s1*bc[0] + s2*bc[1] + s3*bc[2] + s4*bc[3];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes)
 {
     size_t newVertexIndex = nodes.size() + createdVertexes->size();

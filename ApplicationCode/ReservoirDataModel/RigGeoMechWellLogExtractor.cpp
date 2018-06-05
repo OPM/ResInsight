@@ -21,6 +21,8 @@
 /// 
 //==================================================================================================
 #include "RigGeoMechWellLogExtractor.h"
+
+#include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -28,8 +30,12 @@
 
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
-#include "cvfGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
+
+#include "cafTensor3.h"
+#include "cvfGeometryTools.h"
+
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,7 +56,13 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 {   
     CVF_TIGHT_ASSERT(values);
     
-    if (!resAddr.isValid()) return ;
+    if (resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient")
+    {
+        wellPathDerivedCurveData(resAddr, frameIndex, values);
+        return;
+    }
+
+    if (!resAddr.isValid()) return;
 
     RigFemResultAddress convResAddr = resAddr;
 
@@ -59,69 +71,225 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
      
     if (convResAddr.fieldName == "POR-Bar") convResAddr.resultPosType = RIG_ELEMENT_NODAL;
 
+    CVF_ASSERT(resAddr.resultPosType != RIG_WELLPATH_DERIVED);
+
     const RigFemPart* femPart                 = m_caseData->femParts()->part(0);
-    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     const std::vector<float>& resultValues    = m_caseData->femPartResults()->resultValues(convResAddr, 0, frameIndex);
 
     if (!resultValues.size()) return;
 
     values->resize(m_intersections.size());
 
-    for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
+    for (size_t intersectionIdx = 0; intersectionIdx < m_intersections.size(); ++intersectionIdx)
     {
-        size_t elmIdx = m_intersectedCellsGlobIdx[cpIdx];
+        (*values)[intersectionIdx] = static_cast<double>(interpolateGridResultValue<float>(convResAddr.resultPosType, resultValues, intersectionIdx, false));
+    }
+  
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
+{
+    // TODO: Read in these values:
+    const double poissonRatio = 0.25; // TODO: Read this in.
+    // Typical UCS: http://ceae.colorado.edu/~amadei/CVEN5768/PDF/NOTES8.pdf
+    // Typical UCS for Shale is 5 - 100 MPa -> 50 - 1000 bar.
+    const double uniaxialStrengthInBars = 100.0;
+
+    CVF_TIGHT_ASSERT(values);
+    CVF_ASSERT(resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient");
+
+    const RigFemPart* femPart = m_caseData->femParts()->part(0);
+    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
+    RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
+
+    RigFemResultAddress stressResAddr(RIG_ELEMENT_NODAL, std::string("ST"), "");
+    stressResAddr.fieldName = std::string("ST");
+
+    RigFemResultAddress porBarResAddr(RIG_ELEMENT_NODAL, std::string("POR-Bar"), "");
+
+    std::vector<caf::Ten3f> vertexStressesFloat = resultCollection->tensors(stressResAddr, 0, frameIndex);
+    
+    if (!vertexStressesFloat.size()) return;
+
+    std::vector<caf::Ten3d> vertexStresses; vertexStresses.reserve(vertexStressesFloat.size());
+    for (const caf::Ten3f& floatTensor : vertexStressesFloat)
+    {
+        vertexStresses.push_back(caf::Ten3d(floatTensor));
+    }
+
+    values->resize(m_intersections.size(), 0.0f);
+
+    std::vector<float> porePressures = resultCollection->resultValues(porBarResAddr, 0, frameIndex);
+
+#pragma omp parallel for
+    for (int64_t intersectionIdx = 0; intersectionIdx < (int64_t) m_intersections.size(); ++intersectionIdx)
+    {        
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
         RigElementType elmType = femPart->elementType(elmIdx);
 
-        if (!(elmType == HEX8  || elmType == HEX8P)) continue;
+        if (!(elmType == HEX8 || elmType == HEX8P)) continue;
 
-        if (convResAddr.resultPosType == RIG_ELEMENT)
+        double trueVerticalDepth = -m_intersections[intersectionIdx].z();
+        double porePressure = trueVerticalDepth * 9.81 / 100.0;
+        if (false && !porePressures.empty())
         {
-            (*values)[cpIdx] = resultValues[elmIdx];
-            continue;
+            float interpolatedPorePressure = interpolateGridResultValue(porBarResAddr.resultPosType, porePressures, intersectionIdx, true);
+            if (interpolatedPorePressure != std::numeric_limits<float>::infinity() &&
+                interpolatedPorePressure != -std::numeric_limits<float>::infinity())
+            {
+                porePressure = static_cast<double>(interpolatedPorePressure);
+            }
         }
 
-        cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
+        caf::Ten3d interpolatedStress = interpolateGridResultValue(stressResAddr.resultPosType, vertexStresses, intersectionIdx, true);
+        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx);
+        caf::Ten3d wellPathStressFloat = transformTensorToWellPathOrientation(wellPathTangent, interpolatedStress);
+        caf::Ten3d wellPathStressDouble(wellPathStressFloat);
 
-        int faceNodeCount = 0;
-        const int* faceLocalIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, cellFace, &faceNodeCount);
-        const int* elmNodeIndices = femPart->connectivities(elmIdx);
-
-        cvf::Vec3d v0(nodeCoords[elmNodeIndices[faceLocalIndices[0]]]);
-        cvf::Vec3d v1(nodeCoords[elmNodeIndices[faceLocalIndices[1]]]);
-        cvf::Vec3d v2(nodeCoords[elmNodeIndices[faceLocalIndices[2]]]);
-        cvf::Vec3d v3(nodeCoords[elmNodeIndices[faceLocalIndices[3]]]);
-
-        size_t resIdx0 = cvf::UNDEFINED_SIZE_T;
-        size_t resIdx1 = cvf::UNDEFINED_SIZE_T;
-        size_t resIdx2 = cvf::UNDEFINED_SIZE_T;
-        size_t resIdx3 = cvf::UNDEFINED_SIZE_T;
-
-        if (convResAddr.resultPosType ==  RIG_NODAL)
+        RigGeoMechBoreHoleStressCalculator sigmaCalculator(wellPathStressDouble, porePressure, poissonRatio, uniaxialStrengthInBars, 32);
+        double resultValue = 0.0;
+        if (resAddr.fieldName == "FractureGradient")
         {
-            resIdx0 = elmNodeIndices[faceLocalIndices[0]];
-            resIdx1 = elmNodeIndices[faceLocalIndices[1]];
-            resIdx2 = elmNodeIndices[faceLocalIndices[2]];
-            resIdx3 = elmNodeIndices[faceLocalIndices[3]];
+            resultValue = sigmaCalculator.solveFractureGradient();
         }
         else
         {
-            resIdx0 = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[0]);
-            resIdx1 = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[1]);
-            resIdx2 = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[2]);
-            resIdx3 = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[3]);
+            CVF_ASSERT(resAddr.fieldName == "ShearFailureGradient");
+            resultValue = sigmaCalculator.solveStassiDalia();
+        }
+        double effectiveDepth = -m_intersections[intersectionIdx].z() + m_rkbDiff;
+        if (effectiveDepth > 1.0e-8)
+        {
+            resultValue *= 100.0 / (effectiveDepth * 9.81);
+        }
+        else
+        {
+            resultValue = std::numeric_limits<double>::infinity();
         }
 
-        double interpolatedValue = cvf::GeometryTools::interpolateQuad( 
-            v0, resultValues[resIdx0],
-            v1, resultValues[resIdx1],
-            v2, resultValues[resIdx2],
-            v3, resultValues[resIdx3],
-            m_intersections[cpIdx]
-        );  
-
-        (*values)[cpIdx] = interpolatedValue;
+        (*values)[intersectionIdx] = resultValue;
     }
-  
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigGeoMechCaseData* RigGeoMechWellLogExtractor::caseData()
+{
+    return m_caseData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::setRkbDiff(double rkbDiff)
+{
+    m_rkbDiff = rkbDiff;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+T RigGeoMechWellLogExtractor::interpolateGridResultValue(RigFemResultPosEnum   resultPosType,
+                                                      const std::vector<T>& gridResultValues,
+                                                      int64_t               intersectionIdx,
+                                                      bool                  averageNodeElementResults) const
+{
+    const RigFemPart* femPart = m_caseData->femParts()->part(0);
+    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
+
+    size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+    RigElementType elmType = femPart->elementType(elmIdx);
+
+    if (!(elmType == HEX8 || elmType == HEX8P)) return T();
+
+
+    if (resultPosType == RIG_ELEMENT)
+    {
+        return gridResultValues[elmIdx];        
+    }
+
+    cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[intersectionIdx];
+
+    if (cellFace == cvf::StructGridInterface::NO_FACE)
+    {
+        // TODO: Should interpolate within the whole hexahedron. This requires converting to locals coordinates.
+        // For now just pick the average value for the cell.
+        T sumOfVertexValues = gridResultValues[femPart->elementNodeResultIdx(static_cast<int>(elmIdx), 0)];
+        for (int i = 1; i < 8; ++i)
+        {
+            sumOfVertexValues = sumOfVertexValues + gridResultValues[femPart->elementNodeResultIdx(static_cast<int>(elmIdx), i)];
+        }
+        return sumOfVertexValues * (1.0 / 8.0);
+    }
+
+    int faceNodeCount = 0;
+    const int* faceLocalIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, cellFace, &faceNodeCount);
+    const int* elmNodeIndices = femPart->connectivities(elmIdx);
+
+    cvf::Vec3d v0(nodeCoords[elmNodeIndices[faceLocalIndices[0]]]);
+    cvf::Vec3d v1(nodeCoords[elmNodeIndices[faceLocalIndices[1]]]);
+    cvf::Vec3d v2(nodeCoords[elmNodeIndices[faceLocalIndices[2]]]);
+    cvf::Vec3d v3(nodeCoords[elmNodeIndices[faceLocalIndices[3]]]);
+
+    std::vector<size_t> nodeResIdx(4, cvf::UNDEFINED_SIZE_T);
+
+    if (resultPosType == RIG_NODAL)
+    {
+        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        {
+            nodeResIdx[i] = elmNodeIndices[faceLocalIndices[i]];
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        {
+            nodeResIdx[i] = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[i]);
+        }
+    }
+
+    std::vector<T> nodeResultValues;
+    nodeResultValues.reserve(4);
+    if (resultPosType == RIG_ELEMENT_NODAL && averageNodeElementResults)
+    {
+        // Estimate nodal values as the average of the node values from each connected element.
+        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        {
+            int nodeIndex = femPart->nodeIdxFromElementNodeResultIdx(nodeResIdx[i]);
+            const std::vector<int>& elements = femPart->elementsUsingNode(nodeIndex);
+            const std::vector<unsigned char>& localIndices = femPart->elementLocalIndicesForNode(nodeIndex);
+            size_t otherNodeResIdx = femPart->elementNodeResultIdx(elements[0], static_cast<int>(localIndices[0]));
+            T nodeResultValue = gridResultValues[otherNodeResIdx];
+            for (size_t j = 1; j < elements.size(); ++j)
+            {
+                otherNodeResIdx = femPart->elementNodeResultIdx(elements[j], static_cast<int>(localIndices[j]));
+                nodeResultValue = nodeResultValue + gridResultValues[otherNodeResIdx];
+            }
+            nodeResultValue = nodeResultValue * (1.0 / elements.size());
+            nodeResultValues.push_back(nodeResultValue);
+        }
+    }
+    else {
+        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        {
+            nodeResultValues.push_back(gridResultValues[nodeResIdx[i]]);
+        }
+    }
+
+    T interpolatedValue = cvf::GeometryTools::interpolateQuad<T>(
+        v0, nodeResultValues[0],
+        v1, nodeResultValues[1],
+        v2, nodeResultValues[2],
+        v3, nodeResultValues[3],
+        m_intersections[intersectionIdx]
+    );
+
+    return interpolatedValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,5 +390,39 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell(size_t cellIndex, c
     hexCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
 
     return RigWellPathIntersectionTools::calculateLengthInCell(hexCorners, startPoint, endPoint); 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent(int64_t intersectionIdx) const
+{
+    cvf::Vec3d wellPathTangent;
+    if (intersectionIdx % 2 == 0)
+    {
+        wellPathTangent = m_intersections[intersectionIdx + 1] - m_intersections[intersectionIdx];
+    }
+    else
+    {
+        wellPathTangent = m_intersections[intersectionIdx] - m_intersections[intersectionIdx - 1];
+    }
+    CVF_ASSERT(wellPathTangent.length() > 1.0e-7);
+    return wellPathTangent.getNormalized();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::Ten3d RigGeoMechWellLogExtractor::transformTensorToWellPathOrientation(const cvf::Vec3d& wellPathTangent,
+                                                                            const caf::Ten3d& tensor)
+{
+    // Create local coordinate system for well path segment
+    cvf::Vec3d local_z = wellPathTangent;
+    cvf::Vec3d local_x = local_z.perpendicularVector().getNormalized();
+    cvf::Vec3d local_y = (local_z ^ local_x).getNormalized();
+    // Calculate the rotation matrix from global i, j, k to local x, y, z.
+    cvf::Mat4d rotationMatrix = cvf::Mat4d::fromCoordSystemAxes(&local_x, &local_y, &local_z);
+
+    return tensor.rotated(rotationMatrix.toMatrix3());
 }
 

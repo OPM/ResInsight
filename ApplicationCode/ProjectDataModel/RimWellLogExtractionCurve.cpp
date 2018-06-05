@@ -111,6 +111,7 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition.uiCapability()->setUiHidden(true);
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
+    m_geomResultDefinition->setAddWellPathDerivedResults(true);
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
 
@@ -388,7 +389,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             tvDepthValues = geomExtractor->trueVerticalDepth();
 
             m_geomResultDefinition->loadResult();
-
+            geomExtractor->setRkbDiff(rkbDiff());
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
         }
 
