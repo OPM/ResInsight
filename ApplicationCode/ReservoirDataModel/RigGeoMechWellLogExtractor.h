@@ -21,6 +21,8 @@
 
 #include "RigWellLogExtractor.h"
 
+#include "RigFemResultPosEnum.h"
+
 #include "cafTensor3.h"
 
 #include "cvfBase.h"
@@ -31,8 +33,6 @@
 
 #include <vector>
 
-enum RigElementType;
-enum RigFemResultPosEnum;
 class RigFemResultAddress;
 class RigGeoMechCaseData;
 class RigWellPath;

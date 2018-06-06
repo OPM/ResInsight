@@ -74,7 +74,7 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection(double minPw, double m
     for (int i = 0; i <= N; ++i)
     {
         double pw = minPw + (maxPw - minPw) * i / static_cast<double>(N);
-        double f_pw = std::invoke(fn, this, pw, &theta);
+        double f_pw = (this->*fn)(pw, &theta);
         if (f_pw >= 0.0 && f_pw < smallestPositiveValue.second)
         {
             smallestPositiveValue = std::make_pair(pw, f_pw);
@@ -97,15 +97,15 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection(double minPw, double m
         return largestNegativeValue.first;        
     }
 
-    double minPwFuncVal = std::invoke(fn, this, largestNegativeValue.first, &theta);
-    double maxPwFuncVal = std::invoke(fn, this, smallestPositiveValue.first, &theta);
+    double minPwFuncVal = (this->*fn)(largestNegativeValue.first, &theta);
+    double maxPwFuncVal = (this->*fn)(smallestPositiveValue.first, &theta);
     double range = maxPw - minPw;
     
     int i = 0;
     for (; i <= N && range > m_porePressure * epsilon; ++i)
     {
         double midPw = (minPw + maxPw) * 0.5;
-        double midPwFuncVal = std::invoke(fn, this, midPw, &theta);
+        double midPwFuncVal = (this->*fn)(midPw, &theta);
         if (midPwFuncVal * minPwFuncVal < 0.0)
         {
             maxPw = midPw;
@@ -140,16 +140,16 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant(MemberFunc fn, double* th
     double theta = 0.0;
 
     double x_0 = 0.0;    
-    double f_x0 = std::invoke(fn, this, x_0, &theta);
+    double f_x0 = (this->*fn)(x_0, &theta);
     double x_1 = m_porePressure;
-    double f_x1 = std::invoke(fn, this, x_1, &theta);
+    double f_x1 = (this->*fn)(x_1, &theta);
     double x = 0.0;
     double f_x = 0.0;
     int i = 0;
     for (; i < N && std::abs(f_x1 - f_x0) > epsilon; ++i)
     {
         x = x_1 - f_x1 * (x_1 - x_0) / (f_x1 - f_x0);
-        f_x = std::invoke(fn, this, x, &theta);
+        f_x = (this->*fn)(x, &theta);
         if (std::abs(f_x) < epsilon * m_porePressure) break;
 
         // Update iteration variables

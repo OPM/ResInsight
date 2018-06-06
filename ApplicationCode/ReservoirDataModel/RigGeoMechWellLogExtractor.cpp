@@ -22,6 +22,7 @@
 //==================================================================================================
 #include "RigGeoMechWellLogExtractor.h"
 
+#include "RigFemTypes.h"
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
