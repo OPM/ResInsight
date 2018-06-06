@@ -87,6 +87,7 @@
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafSelectionManager.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
@@ -987,6 +988,7 @@ void RiaApplication::closeProject()
     terminateProcess();
 
     RiuSelectionManager::instance()->deleteAllItems();
+    caf::SelectionManager::instance()->clearAll();
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
