@@ -125,7 +125,7 @@ void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
     if (ensembleName.isEmpty()) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases, true);
 
     validateEnsembleCases(cases);
 

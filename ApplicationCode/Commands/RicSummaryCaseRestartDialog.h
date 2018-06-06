@@ -65,6 +65,7 @@ public:
                                                            const QString& initialGridFile,
                                                            bool failOnSummaryImportError,
                                                            bool showApplyToAllWidget,
+                                                           bool useFirstSummaryCaseAsTemplate,
                                                            ImportOptions defaultSummaryImportOption,
                                                            ImportOptions defaultGridImportOption,
                                                            RicSummaryCaseRestartDialogResult *lastResult = nullptr,

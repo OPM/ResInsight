@@ -145,7 +145,8 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList& fileNames, 
-                                                               std::vector<RimSummaryCase*>* newCases)
+                                                               std::vector<RimSummaryCase*>* newCases,
+                                                               bool ensembleOrGroup)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -155,6 +156,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     if (!sumCaseColl) return false;
 
     RifSummaryCaseRestartSelector       fileSelector;
+    fileSelector.setEnsembleOrGroupMode(ensembleOrGroup);
     fileSelector.determineFilesToImportFromSummaryFiles(fileNames);
 
     std::vector<RifSummaryCaseFileResultInfo> importFileInfos = fileSelector.summaryFileInfos();
