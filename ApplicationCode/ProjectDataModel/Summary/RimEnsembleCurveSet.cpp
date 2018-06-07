@@ -221,6 +221,8 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
         firstAncestorOrThisOfTypeAsserted(parentPlot);
         parentPlot->updateAll();
     }
+
+    m_curveFilters->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

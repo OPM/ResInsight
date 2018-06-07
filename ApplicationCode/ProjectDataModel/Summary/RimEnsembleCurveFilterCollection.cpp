@@ -79,6 +79,16 @@ bool RimEnsembleCurveFilterCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_active)
@@ -87,6 +97,22 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandl
         firstAncestorOrThisOfType(curveSet);
         if (curveSet) curveSet->updateAllCurves();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
+{
+    for (auto& filter : m_filters) filter->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

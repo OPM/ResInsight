@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class EnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
 
@@ -39,22 +40,30 @@ public:
     std::set<QString>       categories() const;
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
-    std::vector<RimSummaryCase*> applyFilter(const std::vector<RimSummaryCase*>& allSumCases);
+    std::vector<RimSummaryCase*>            applyFilter(const std::vector<RimSummaryCase*>& allSumCases);
+
+    void                                    loadDataAndUpdate();
 
 protected:
     virtual caf::PdmFieldHandle*  objectToggleField();
 
 private:
     RimEnsembleCurveSet * parentCurveSet() const;
+    void                  setDefaultValues();
+    EnsembleParameter     selectedEnsembleParameter() const;
 
 private:
     caf::PdmField<bool>                 m_active;
-    caf::PdmField<QString>              m_ensembleParameter;
+    caf::PdmField<QString>              m_ensembleParameterName;
     caf::PdmField<double>               m_minValue;
     caf::PdmField<double>               m_maxValue;
     caf::PdmField<std::vector<QString>> m_categories;
+
+    double                              m_lowerLimit;
+    double                              m_upperLimit;
 };
 

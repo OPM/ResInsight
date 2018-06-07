@@ -28,15 +28,16 @@
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveFilter, "RimEnsembleCurveFilter");
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveFilter::RimEnsembleCurveFilter()
+RimEnsembleCurveFilter::RimEnsembleCurveFilter() : m_lowerLimit(0), m_upperLimit(0)
 {
     CAF_PDM_InitObject("Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_active, "Active", "Active", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_ensembleParameter, "EnsembleParameter", "Ensemble Parameter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter", "", "", "");
     
     CAF_PDM_InitFieldNoDefault(&m_minValue, "MinValue", "Min", "", "", "");
     m_minValue.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -74,7 +75,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions(cons
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_ensembleParameter)
+    if (fieldNeedingOptions == &m_ensembleParameterName)
     {
         auto curveSet = parentCurveSet();
         if (curveSet)
@@ -90,7 +91,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions(cons
     {
         auto curveSet = parentCurveSet();
         auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
-        auto eParam = ensemble ? ensemble->ensembleParameter(m_ensembleParameter) : EnsembleParameter();
+        auto eParam = ensemble ? ensemble->ensembleParameter(m_ensembleParameterName) : EnsembleParameter();
 
         if (eParam.isText())
         {
@@ -111,15 +112,12 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     auto curveSet = parentCurveSet();
 
-    if (changedField == &m_ensembleParameter)
+    if (changedField == &m_ensembleParameterName)
     {
-        auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
-        auto eParam = ensemble ? ensemble->ensembleParameter(m_ensembleParameter) : EnsembleParameter();
-
+        auto eParam = selectedEnsembleParameter();
         if (eParam.isNumeric())
         {
-            m_minValue = eParam.minValue;
-            m_maxValue = eParam.maxValue;
+            setDefaultValues();
         }
         else if (eParam.isText())
         {
@@ -145,11 +143,9 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    auto curveSet = parentCurveSet();
-    auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
-    auto eParam = ensemble ? ensemble->ensembleParameter(m_ensembleParameter) : EnsembleParameter();
+    auto eParam = selectedEnsembleParameter();
 
-    uiOrdering.add(&m_ensembleParameter);
+    uiOrdering.add(&m_ensembleParameterName);
 
     if (eParam.isNumeric())
     {
@@ -167,6 +163,24 @@ void RimEnsembleCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_minValue || field == &m_maxValue)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (!myAttr)
+        {
+            return;
+        }
+
+        myAttr->m_minimum = m_lowerLimit;
+        myAttr->m_maximum = m_upperLimit;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter(const std::vector<RimSummaryCase*>& allSumCases)
 {
     auto curveSet = parentCurveSet();
@@ -176,11 +190,11 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter(const std::vect
     std::set<RimSummaryCase*> casesToRemove;
     for (const auto& sumCase : allSumCases)
     {
-        auto eParam = ensemble->ensembleParameter(m_ensembleParameter());
+        auto eParam = ensemble->ensembleParameter(m_ensembleParameterName());
         if (!eParam.isValid()) continue;
         if (!sumCase->caseRealizationParameters()) continue;
 
-        auto crpValue = sumCase->caseRealizationParameters()->parameterValue(m_ensembleParameter());
+        auto crpValue = sumCase->caseRealizationParameters()->parameterValue(m_ensembleParameterName());
 
         if (eParam.isNumeric())
         {
@@ -213,6 +227,14 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter(const std::vect
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::loadDataAndUpdate()
+{
+    setDefaultValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEnsembleCurveFilter::objectToggleField()
 {
     return &m_active;
@@ -226,4 +248,30 @@ RimEnsembleCurveSet * RimEnsembleCurveFilter::parentCurveSet() const
     RimEnsembleCurveSet* curveSet;
     firstAncestorOrThisOfType(curveSet);
     return curveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::setDefaultValues()
+{
+    auto eParam = selectedEnsembleParameter();
+    if (eParam.isValid() && eParam.isNumeric())
+    {
+        m_lowerLimit = m_minValue = eParam.minValue;
+        m_upperLimit = m_maxValue = eParam.maxValue;
+
+        m_minValue.uiCapability()->setUiName(QString("Min (%1)").arg(m_lowerLimit));
+        m_maxValue.uiCapability()->setUiName(QString("Max (%1)").arg(m_upperLimit));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+EnsembleParameter RimEnsembleCurveFilter::selectedEnsembleParameter() const
+{
+    auto curveSet = parentCurveSet();
+    auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    return ensemble ? ensemble->ensembleParameter(m_ensembleParameterName) : EnsembleParameter();
 }
