@@ -59,6 +59,39 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double computeAverageZFromTwoDeepestZ(const RigMainGrid*                 mainGrid,
+                                      size_t                             globalReservoirCellIndex,
+                                      cvf::StructGridInterface::FaceType face)
+{
+    const RigCell& currentCell = mainGrid->globalCellArray()[globalReservoirCellIndex];
+
+    cvf::Vec3d hexCorners[8];
+    mainGrid->cellCornerVertices(globalReservoirCellIndex, hexCorners);
+
+    double avgZ = 0.0;
+
+    cvf::ubyte faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+
+    for (const auto& faceIdx : faceVertexIndices)
+    {
+        // Face indices 0-3 are defined to have deepest Z
+        // See void StructGridInterface::cellFaceVertexIndices(FaceType face, cvf::ubyte vertexIndices[4])
+
+        if (faceIdx < 4)
+        {
+            avgZ += hexCorners[faceIdx].z();
+        }
+    }
+
+    avgZ /= 2.0;
+
+    return avgZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set<size_t>&            allFracturedCells,
                                                                   const RigMainGrid*                 mainGrid,
                                                                   size_t                             globalReservoirCellIndex,
@@ -77,29 +110,31 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
         {
             // See RigMainGrid::calculateFaults()
 
-            // TODO: Remove when we know if LGR can have faults
+            size_t neighborGlobalReservoirCellIndex = 0;
+            {
+                const RigGridBase* hostGrid = nullptr;
+                size_t             gridLocalCellIndex;
+                hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalReservoirCellIndex, &gridLocalCellIndex);
+                CVF_ASSERT(hostGrid);
 
-            const RigGridBase* hostGrid = nullptr;
+                size_t i, j, k;
+                hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
 
-            size_t gridLocalCellIndex;
-            hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalReservoirCellIndex, &gridLocalCellIndex);
+                size_t neighborGridLocalCellIndex;
 
-            size_t i, j, k;
-            hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+                bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
+                CVF_ASSERT(foundCell);
 
-            size_t neighborGridLocalCellIndex;
+                neighborGlobalReservoirCellIndex =
+                    mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(hostGrid->gridIndex(), neighborGridLocalCellIndex);
+            }
 
-            bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
-            CVF_ASSERT(foundCell);
+            double currentCellAvgZ  = computeAverageZFromTwoDeepestZ(mainGrid, globalReservoirCellIndex, face);
+            double neighborCellAvgZ = computeAverageZFromTwoDeepestZ(
+                mainGrid, neighborGlobalReservoirCellIndex, cvf::StructGridInterface::oppositeFace(face));
 
-            size_t neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex(neighborGridLocalCellIndex);
-
-            const RigCell& currentCell   = mainGrid->globalCellArray()[globalReservoirCellIndex];
-            const RigCell& neightborCell = mainGrid->globalCellArray()[neighborGlobalReservoirCellIndex];
-
-            auto diffBetweenFaceCenters =
-                currentCell.faceCenter(face) - neightborCell.faceCenter(cvf::StructGridInterface::oppositeFace(face));
-            if (diffBetweenFaceCenters.length() > maximumFaultThrow)
+            double faultThrow = fabs(currentCellAvgZ - neighborCellAvgZ);
+            if (faultThrow > maximumFaultThrow)
             {
                 return;
             }
