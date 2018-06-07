@@ -205,8 +205,6 @@ std::set<size_t> RimFractureContainmentTools::getCellsIntersectingFracturePlane(
 
         for (const auto& globalCellIndex : indicesToPotentiallyFracturedCells)
         {
-            if (activeCellInfo && !activeCellInfo->isActive(globalCellIndex)) continue;
-
             std::array<cvf::Vec3d, 8> hexCorners;
             mainGrid->cellCornerVertices(globalCellIndex, hexCorners.data());
             std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
