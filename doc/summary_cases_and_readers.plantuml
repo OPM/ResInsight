@@ -8,10 +8,13 @@ RifSummaryReaderInterface <|-- RifCsvUserData
 RifSummaryReaderInterface <|-- RifKeywordVectorUserData
 RifSummaryReaderInterface <|-- RifReaderEclipseSummary
 RifSummaryReaderInterface <|-- RifReaderObservedData
+RifSummaryReaderInterface <|-- RifEnsembleStatisticsReader
 
 RifColumnBasedUserData *-- "1" RifColumnBasedUserDataParser
 RifKeywordVectorUserData *-- "1" RifKeywordVectorUserDataParser
 RifReaderObservedData --> RifCsvUserDataParser
+
+RimSummaryCaseCollection -> "*" RimSummaryCase
 
 RimSummaryCase <|-- RimCalculatedSummaryCase
 RimSummaryCase <|-- RimFileSummaryCase
@@ -35,5 +38,10 @@ RimFileSummaryCase *--> RifReaderEclipseSummary
 RimGridSummaryCase *--> RifReaderEclipseSummary
 
 RicPasteAsciiDataToSummaryPlotFeatureUi --> RifCsvUserDataParser
+
+RimEnsembleCurveSet -> "1" RimSummaryCaseCollection
+
+RimEnsembleCurveSet --> "1" RimEnsembleStatisticsCase
+RimEnsembleStatisticsCase --> RifEnsembleStatisticsReader
 
 @enduml
