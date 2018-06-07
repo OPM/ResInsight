@@ -23,6 +23,7 @@
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
+#include "RifEnsembleStatisticsReader.h"
 #include "RifReaderEclipseSummary.h"
 
 #include "RigStatisticsMath.h"
@@ -33,6 +34,7 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleStatistics.h"
+#include "RimEnsembleStatisticsCase.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -302,8 +304,8 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteEnsembleCurves()
 {
-    std::vector<int> curvesIndexesToDelete;
-    for (int c = 0; c < m_curves.size(); c++)
+    std::vector<size_t> curvesIndexesToDelete;
+    for (size_t c = 0; c < m_curves.size(); c++)
     {
         RimSummaryCurve* curve = m_curves[c];
         if (curve->summaryAddressY().category() != RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
@@ -312,7 +314,7 @@ void RimEnsembleCurveSet::deleteEnsembleCurves()
 
     while (curvesIndexesToDelete.size() > 0)
     {
-        int currIndex = curvesIndexesToDelete.back();
+        size_t currIndex = curvesIndexesToDelete.back();
         delete m_curves[currIndex];
         m_curves.erase(currIndex);
         curvesIndexesToDelete.pop_back();
@@ -324,8 +326,8 @@ void RimEnsembleCurveSet::deleteEnsembleCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteStatisticsCurves()
 {
-    std::vector<int> curvesIndexesToDelete;
-    for (int c = 0; c < m_curves.size(); c++)
+    std::vector<size_t> curvesIndexesToDelete;
+    for (size_t c = 0; c < m_curves.size(); c++)
     {
         RimSummaryCurve* curve = m_curves[c];
         if (curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
@@ -334,7 +336,7 @@ void RimEnsembleCurveSet::deleteStatisticsCurves()
 
     while (curvesIndexesToDelete.size() > 0)
     {
-        int currIndex = curvesIndexesToDelete.back();
+        size_t currIndex = curvesIndexesToDelete.back();
         delete m_curves[currIndex];
         m_curves.erase(currIndex);
         curvesIndexesToDelete.pop_back();
@@ -1138,245 +1140,4 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
             m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS);
         break;
     }
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifEnsembleStatisticsReader::RifEnsembleStatisticsReader(RimEnsembleStatisticsCase* ensStatCase)
-{
-    CVF_ASSERT(ensStatCase);
-
-    m_ensembleStatCase = ensStatCase;
-
-    m_allResultAddresses = std::vector<RifEclipseSummaryAddress>(
-        {
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME)
-        });
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifEnsembleStatisticsReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
-{
-    return m_ensembleStatCase->timeSteps();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifEnsembleStatisticsReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
-{
-    if (!validateAddress(resultAddress)) return false;
-
-    const std::vector<double>* sourceData = nullptr;
-    if (resultAddress.quantityName() == ENSEMBLE_STAT_P10_QUANTITY_NAME)        sourceData = &m_ensembleStatCase->p10();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_P50_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p50();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_P90_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p90();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_MEAN_QUANTITY_NAME)  sourceData = &m_ensembleStatCase->mean();
-
-    if (!sourceData) return false;
-
-    values->clear();
-    values->reserve(sourceData->size());
-    for (auto val : *sourceData) values->push_back(val);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEnsembleStatisticsReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
-{
-    return "(RifEnsembleStatisticsReader::unitName)";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifEnsembleStatisticsReader::validateAddress(const RifEclipseSummaryAddress& address) const
-{
-    return address.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS &&
-        !address.quantityName().empty();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEnsembleStatisticsCase::RimEnsembleStatisticsCase(RimEnsembleCurveSet* curveSet)
-{
-    m_curveSet = curveSet;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimEnsembleStatisticsCase::timeSteps() const
-{
-    return m_timeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p10() const
-{
-    return m_p10Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p50() const
-{
-    return m_p50Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p90() const
-{
-    return m_p90Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::mean() const
-{
-    return m_meanData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimEnsembleStatisticsCase::caseName()
-{
-    return "Ensemble Statistics";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::createSummaryReaderInterface()
-{
-    m_statisticsReader.reset(new RifEnsembleStatisticsReader(this));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
-{
-    return m_statisticsReader.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RimEnsembleCurveSet* RimEnsembleStatisticsCase::curveSet() const
-{
-    return m_curveSet;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate(const RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& inputAddress)
-{
-    RigTimeHistoryCurveMerger curveMerger;
-    int caseCount = (int)ensemble->allSummaryCases().size();
-
-    {
-        for (const auto& sumCase : ensemble->allSummaryCases())
-        {
-            const auto& reader = sumCase->summaryReader();
-            if (reader)
-            {
-                std::vector<time_t> timeSteps = reader->timeSteps(inputAddress);
-                std::vector<double> values;
-                reader->values(inputAddress, &values);
-
-                curveMerger.addCurveData(values, timeSteps);
-            }
-        }
-        curveMerger.computeInterpolatedValues();
-    }
-
-    const std::vector<time_t>& allTimeSteps = curveMerger.allTimeSteps();
-    std::vector<std::vector<double>> allValues;
-    {
-        for (int c = 0; c < caseCount; c++)
-        {
-            allValues.push_back(curveMerger.interpolatedCurveValuesForAllTimeSteps(c));
-        }
-    }
-
-    clearData();
-    m_timeSteps = allTimeSteps;
-
-    for (int t = 0; t < (int)allTimeSteps.size(); t++)
-    {
-        std::vector<double> valuesForTimeSteps;
-        valuesForTimeSteps.reserve(caseCount);
-        
-        for (int c = 0; c < caseCount; c++)
-        {
-            valuesForTimeSteps.push_back(allValues[c][t]);
-        }
-
-        {
-            double min, max, range, mean, stdev;
-            RigStatisticsMath::calculateBasicStatistics(valuesForTimeSteps, &min, &max, nullptr, &range, &mean, &stdev);
-
-            std::vector<size_t> histogram;
-            RigHistogramCalculator histCalc(min, max, 100, &histogram);
-            histCalc.addData(valuesForTimeSteps);
-
-            double p10, p50, p90;
-            p10 = histCalc.calculatePercentil(0.1);
-            p50 = histCalc.calculatePercentil(0.5);
-            p90 = histCalc.calculatePercentil(0.9);
-
-            m_p10Data.push_back(p10);
-            m_p50Data.push_back(p50);
-            m_p90Data.push_back(p90);
-            m_meanData.push_back(mean);
-        }
-
-    }
-    m_addressUsedInLastCalculation = inputAddress;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate()
-{
-    auto inputAddress = m_curveSet->summaryAddress();
-    auto ensemble = m_curveSet->summaryCaseCollection();
-    if (m_statisticsReader && ensemble && inputAddress.isValid())
-    {
-        calculate(ensemble, inputAddress);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::clearData()
-{
-    m_timeSteps.clear();
-    m_p10Data.clear();
-    m_p50Data.clear();
-    m_p90Data.clear();
-    m_meanData.clear();
-    m_addressUsedInLastCalculation = RifEclipseSummaryAddress();
 }

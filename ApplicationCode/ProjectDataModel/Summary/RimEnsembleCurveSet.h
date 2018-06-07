@@ -58,67 +58,6 @@ class RimEnsembleStatisticsCase;
 //==================================================================================================
 ///  
 //==================================================================================================
-class RifEnsembleStatisticsReader : public RifSummaryReaderInterface
-{
-public:
-    RifEnsembleStatisticsReader(RimEnsembleStatisticsCase* ensStatCase);
-
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
-    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
-
-private:
-    bool validateAddress(const RifEclipseSummaryAddress& address) const;
-
-private:
-    RimEnsembleStatisticsCase * m_ensembleStatCase;
-};
-
-//==================================================================================================
-///  
-//==================================================================================================
-class RimEnsembleStatisticsCase : public RimSummaryCase
-{
-public:
-    RimEnsembleStatisticsCase(RimEnsembleCurveSet* curveSet);
-
-    const std::vector<time_t>&          timeSteps() const;
-    const std::vector<double>&          p10() const;
-    const std::vector<double>&          p50() const;
-    const std::vector<double>&          p90() const;
-    const std::vector<double>&          mean() const;
-
-    virtual QString                     caseName() override;
-    virtual void                        createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface*  summaryReader() override;
-
-    virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override {}
-
-    const RimEnsembleCurveSet*          curveSet() const;
-
-    void                                calculate();
-    void                                calculate(const RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& inputAddress);
-
-private:
-    void clearData();
-
-private:
-    std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;
-    RimEnsembleCurveSet* m_curveSet;
-
-    std::vector<time_t>         m_timeSteps;
-    std::vector<double>         m_p10Data;
-    std::vector<double>         m_p50Data;
-    std::vector<double>         m_p90Data;
-    std::vector<double>         m_meanData;
-
-    RifEclipseSummaryAddress    m_addressUsedInLastCalculation;
-};
-
-
-//==================================================================================================
-///  
-//==================================================================================================
 class RimEnsembleCurveSet : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
