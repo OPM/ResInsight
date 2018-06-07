@@ -19,7 +19,6 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "cafAppEnum.h"
 
 class RigMainGrid;
 
@@ -34,36 +33,24 @@ public:
     RimFractureContainment();
     ~RimFractureContainment();
 
-    enum FaultTruncType
-    {
-        DISABLED,
-        TRUNCATE_AT_FAULT,
-        CONTINUE_IN_CONTAINMENT_ZONE
-    };
-
     bool isEnabled() const;
     bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex, const std::set<size_t>& containmentCells) const;
 
     void setTopKLayer(int topKLayer);
     void setBaseKLayer(int baseKLayer);
 
-    double faultThrow() const; // Negative value means do not test for fault throw
+    double maximumFaultThrow() const; // Negative value means do not test for fault throw
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void initAfterRead() override;
 
 private:
-    friend caf::AppEnum< FaultTruncType >;
-    caf::PdmField< caf::AppEnum< FaultTruncType > >  m_faultTruncation;
-
+    caf::PdmField<bool> m_useContainment;
     caf::PdmField<int>  m_topKLayer;
     caf::PdmField<int>  m_baseKLayer;
 
+    caf::PdmField<bool>     m_truncateAtFaults;
     caf::PdmField<bool>     m_useFaultThrow;
-    caf::PdmField<float>    m_faultThrowValue;
-
-    caf::PdmField<bool> m_isUsingFractureContainment_OBSOLETE;
+    caf::PdmField<float>    m_maximumFaultThrow;
 };

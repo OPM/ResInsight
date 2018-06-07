@@ -24,7 +24,6 @@
 #include <vector>
 
 class RigMainGrid;
-class RigActiveCellInfo;
 class RimFracture;
 class RimEclipseCase;
 
@@ -35,26 +34,26 @@ public:
 
 private:
     // TODO: Try to change RimStimPlanFractureTemplate::fractureTriangleGeometry to be able to use const RimFracture
-    static std::set<size_t>
-        getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, RimFracture* fracture);
+    static std::set<size_t> getCellsIntersectingFracturePlane(const RigMainGrid*       mainGrid,
+                                                              RimFracture*             fracture);
 
     static void appendNeighborCellForFace(const std::set<size_t>&            allFracturedCells,
                                           const RigMainGrid*                 mainGrid,
                                           size_t                             currentCell,
                                           cvf::StructGridInterface::FaceType face,
                                           std::set<size_t>&                  connectedCells,
-                                          double                             faultThrow);
+                                          double                             maximumFaultThrow);
 
     static void checkFaultAndAppendNeighborCell(const std::set<size_t>&            allFracturedCells,
                                                 const RigMainGrid*                 mainGrid,
                                                 size_t                             currentCell,
                                                 cvf::StructGridInterface::FaceType face,
                                                 std::set<size_t>&                  connectedCells,
-                                                double                             faultThrow);
+                                                double                             maximumFaultThrow);
 
     static void appendNeighborCells(const std::set<size_t>& allFracturedCells,
                                     const RigMainGrid*      mainGrid,
                                     size_t                  currentCell,
                                     std::set<size_t>&       connectedCells,
-                                    double                  faultThrow);
+                                    double                  maximumFaultThrow);
 };

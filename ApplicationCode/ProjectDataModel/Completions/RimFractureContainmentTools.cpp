@@ -18,7 +18,6 @@
 
 #include "RimFractureContainmentTools.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFault.h"
 #include "RigHexIntersectionTools.h"
@@ -43,7 +42,7 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
                                                             size_t                             currentCell,
                                                             cvf::StructGridInterface::FaceType face,
                                                             std::set<size_t>&                  connectedCells,
-                                                            double                             faultThrow)
+                                                            double                             maximumFaultThrow)
 {
     // TODO: Remove when we know if LGR can have faults
 
@@ -53,7 +52,7 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
     size_t candidate;
     if (mainGrid->cellIJKNeighbor(anchorI, anchorJ, anchorK, face, &candidate))
     {
-        appendNeighborCells(allFracturedCells, mainGrid, candidate, connectedCells, faultThrow);
+        appendNeighborCells(allFracturedCells, mainGrid, candidate, connectedCells, maximumFaultThrow);
     }
 }
 
@@ -65,12 +64,12 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
                                                                   size_t                             globalReservoirCellIndex,
                                                                   cvf::StructGridInterface::FaceType face,
                                                                   std::set<size_t>&                  connectedCells,
-                                                                  double                             faultThrow)
+                                                                  double                             maximumFaultThrow)
 {
     const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace(globalReservoirCellIndex, face);
     if (fault)
     {
-        if (faultThrow < 0.0)
+        if (maximumFaultThrow < 0.0)
         {
             return;
         }
@@ -87,7 +86,7 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
 
             size_t i, j, k;
             hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-            
+
             size_t neighborGridLocalCellIndex;
 
             bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
@@ -95,18 +94,19 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
 
             size_t neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex(neighborGridLocalCellIndex);
 
-            const RigCell& currentCell = mainGrid->globalCellArray()[globalReservoirCellIndex];
+            const RigCell& currentCell   = mainGrid->globalCellArray()[globalReservoirCellIndex];
             const RigCell& neightborCell = mainGrid->globalCellArray()[neighborGlobalReservoirCellIndex];
 
-            auto diffBetweenFaceCenters = currentCell.faceCenter(face) - neightborCell.faceCenter(cvf::StructGridInterface::oppositeFace(face));
-            if (diffBetweenFaceCenters.length() < faultThrow)
+            auto diffBetweenFaceCenters =
+                currentCell.faceCenter(face) - neightborCell.faceCenter(cvf::StructGridInterface::oppositeFace(face));
+            if (diffBetweenFaceCenters.length() > maximumFaultThrow)
             {
                 return;
             }
         }
     }
 
-    appendNeighborCellForFace(allFracturedCells, mainGrid, globalReservoirCellIndex, face, connectedCells, faultThrow);
+    appendNeighborCellForFace(allFracturedCells, mainGrid, globalReservoirCellIndex, face, connectedCells, maximumFaultThrow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
                                                       const RigMainGrid*      mainGrid,
                                                       size_t                  currentCell,
                                                       std::set<size_t>&       connectedCells,
-                                                      double                  faultThrow)
+                                                      double                  maximumFaultThrow)
 {
     if (std::find(connectedCells.begin(), connectedCells.end(), currentCell) != connectedCells.end())
     {
@@ -133,14 +133,20 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
     connectedCells.insert(currentCell);
 
     // Check faults in IJ directions
-    checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_I, connectedCells, faultThrow);
-    checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_I, connectedCells, faultThrow);
-    checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_J, connectedCells, faultThrow);
-    checkFaultAndAppendNeighborCell(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_J, connectedCells, faultThrow);
+    checkFaultAndAppendNeighborCell(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_I, connectedCells, maximumFaultThrow);
+    checkFaultAndAppendNeighborCell(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_I, connectedCells, maximumFaultThrow);
+    checkFaultAndAppendNeighborCell(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_J, connectedCells, maximumFaultThrow);
+    checkFaultAndAppendNeighborCell(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_J, connectedCells, maximumFaultThrow);
 
     // Append cells without fault check in K direction
-    appendNeighborCellForFace(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_K, connectedCells, faultThrow);
-    appendNeighborCellForFace(allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_K, connectedCells, faultThrow);
+    appendNeighborCellForFace(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::NEG_K, connectedCells, maximumFaultThrow);
+    appendNeighborCellForFace(
+        allFracturedCells, mainGrid, currentCell, cvf::StructGridInterface::POS_K, connectedCells, maximumFaultThrow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,25 +162,26 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
         auto eclipseCaseData = eclipseCase->eclipseCaseData();
         if (eclipseCaseData)
         {
-            auto mainGrid       = eclipseCaseData->mainGrid();
-            auto activeCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
+            auto mainGrid = eclipseCaseData->mainGrid();
 
-            if (mainGrid && activeCellInfo)
+            if (mainGrid)
             {
-                std::set<size_t> cellsIntersectingFracturePlane =
-                    getCellsIntersectingFracturePlane(mainGrid, activeCellInfo, fracture);
+                std::set<size_t> cellsIntersectingFracturePlane = getCellsIntersectingFracturePlane(mainGrid, fracture);
 
                 size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
 
                 // Negative faultThrow disables test on faultThrow
-                double faultThrow = -1.0;
+                double maximumFaultThrow = -1.0;
                 if (fracture && fracture->fractureTemplate())
                 {
-                    faultThrow = fracture->fractureTemplate()->fractureContainment()->faultThrow();
+                    maximumFaultThrow = fracture->fractureTemplate()->fractureContainment()->maximumFaultThrow();
                 }
 
-                appendNeighborCells(
-                    cellsIntersectingFracturePlane, mainGrid, anchorCellGlobalIndex, fracturedCellsContainedByFaults, faultThrow);
+                appendNeighborCells(cellsIntersectingFracturePlane,
+                                    mainGrid,
+                                    anchorCellGlobalIndex,
+                                    fracturedCellsContainedByFaults,
+                                    maximumFaultThrow);
             }
 
             /*
@@ -194,9 +201,8 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RimFractureContainmentTools::getCellsIntersectingFracturePlane(const RigMainGrid*       mainGrid,
-                                                                                const RigActiveCellInfo* activeCellInfo,
-                                                                                RimFracture*             fracture)
+std::set<size_t> RimFractureContainmentTools::getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid,
+                                                                                RimFracture*       fracture)
 {
     std::set<size_t> eclipseCellIndices;
 
