@@ -23,6 +23,12 @@
 
 class QTextStream;
 
+
+#define ENSEMBLE_STAT_P10_QUANTITY_NAME     "P10"
+#define ENSEMBLE_STAT_P50_QUANTITY_NAME     "P50"
+#define ENSEMBLE_STAT_P90_QUANTITY_NAME     "P90"
+#define ENSEMBLE_STAT_MEAN_QUANTITY_NAME    "MEAN"
+
 //==================================================================================================
 //
 //
@@ -50,7 +56,8 @@ public:
         SUMMARY_BLOCK,              
         SUMMARY_BLOCK_LGR,
         SUMMARY_CALCULATED,
-        SUMMARY_IMPORTED
+        SUMMARY_IMPORTED,
+        SUMMARY_ENSEMBLE_STATISTICS
     };
 
     enum SummaryIdentifierType
@@ -134,6 +141,7 @@ public:
     static RifEclipseSummaryAddress blockLgrAddress(const std::string& quantityName, const std::string& lgrName, int i, int j, int k);
     static RifEclipseSummaryAddress calculatedAddress(const std::string& quantityName);
     static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress ensembleStatisticsAddress(const std::string& quantityName);
 
     // Access methods
 
@@ -191,6 +199,7 @@ private:
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
+bool operator!=(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
 
 bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
 

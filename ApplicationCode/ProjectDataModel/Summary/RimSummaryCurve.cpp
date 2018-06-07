@@ -889,8 +889,9 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
     if (m_yValuesCurveVariable())
     {
+        auto category = m_yValuesCurveVariable()->address().category();
         QString quantityName = QString::fromUtf8(m_yValuesCurveVariable()->address().quantityName().c_str());
-        if (quantityName.endsWith("T"))
+        if (quantityName.endsWith("T") || category == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
         {
             m_curveInterpolation = INTERPOLATION_POINT_TO_POINT;
         }

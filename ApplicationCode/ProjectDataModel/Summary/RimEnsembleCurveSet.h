@@ -20,10 +20,12 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RiaDefines.h"
 
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldCvfColor.h"    
@@ -48,7 +50,70 @@ class RimSummaryFilter;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
+class RimEnsembleStatistics;
 class QKeyEvent;
+class RimEnsembleStatisticsCase;
+
+
+//==================================================================================================
+///  
+//==================================================================================================
+class RifEnsembleStatisticsReader : public RifSummaryReaderInterface
+{
+public:
+    RifEnsembleStatisticsReader(RimEnsembleStatisticsCase* ensStatCase);
+
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
+
+private:
+    bool validateAddress(const RifEclipseSummaryAddress& address) const;
+
+private:
+    RimEnsembleStatisticsCase * m_ensembleStatCase;
+};
+
+//==================================================================================================
+///  
+//==================================================================================================
+class RimEnsembleStatisticsCase : public RimSummaryCase
+{
+public:
+    RimEnsembleStatisticsCase(RimEnsembleCurveSet* curveSet);
+
+    const std::vector<time_t>&          timeSteps() const;
+    const std::vector<double>&          p10() const;
+    const std::vector<double>&          p50() const;
+    const std::vector<double>&          p90() const;
+    const std::vector<double>&          mean() const;
+
+    virtual QString                     caseName() override;
+    virtual void                        createSummaryReaderInterface() override;
+    virtual RifSummaryReaderInterface*  summaryReader() override;
+
+    virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override {}
+
+    const RimEnsembleCurveSet*          curveSet() const;
+
+    void                                calculate();
+    void                                calculate(const RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& inputAddress);
+
+private:
+    void clearData();
+
+private:
+    std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;
+    RimEnsembleCurveSet* m_curveSet;
+
+    std::vector<time_t>         m_timeSteps;
+    std::vector<double>         m_p10Data;
+    std::vector<double>         m_p50Data;
+    std::vector<double>         m_p90Data;
+    std::vector<double>         m_meanData;
+
+    RifEclipseSummaryAddress    m_addressUsedInLastCalculation;
+};
 
 
 //==================================================================================================
@@ -78,7 +143,8 @@ public:
     RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
 
-    void                                    deleteAllCurves();
+    void                                    deleteEnsembleCurves();
+    void                                    deleteStatisticsCurves();
 
     RimRegularLegendConfig*                 legendConfig();
     void                                    onLegendDefinitionChanged();
@@ -91,6 +157,7 @@ public:
     EnsembleParameter::Type                 currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
+    void                                    updateStatisticsCurves(bool calculate);
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
 
@@ -148,6 +215,7 @@ private:
 
     caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
+    caf::PdmChildField<RimEnsembleStatistics*>      m_statistics;
 
     caf::PdmField<bool>                             m_isUsingAutoName;
     caf::PdmField<QString>                          m_userDefinedName;
@@ -157,5 +225,7 @@ private:
     std::set<RifEclipseSummaryAddress>              m_allAddressesCache;
 
     QwtPlotCurve*                                   m_qwtPlotCurveForLegendText; 
+
+    std::unique_ptr<RimEnsembleStatisticsCase>      m_ensembleStatCase;
 };
 

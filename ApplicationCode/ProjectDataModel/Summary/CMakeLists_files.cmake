@@ -34,6 +34,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilterCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -71,6 +72,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilterCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

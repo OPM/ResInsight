@@ -79,6 +79,14 @@ std::vector<double>& RigTimeHistoryCurveMerger::interpolatedCurveValuesForAllTim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RigTimeHistoryCurveMerger::interploatedCurveCount() const
+{
+    return static_cast<int>(m_interpolatedValuesForAllCurves.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigTimeHistoryCurveMerger::computeInterpolatedValues()
 {
     m_validIntervalsForAllTimeSteps.clear();

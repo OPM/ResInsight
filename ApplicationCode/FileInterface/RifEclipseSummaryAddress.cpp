@@ -25,6 +25,7 @@
 
 #include "cvfAssert.h"
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -477,6 +478,17 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress(const std::st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress(const std::string& quantityName)
+{
+    RifEclipseSummaryAddress addr;
+    addr.m_variableCategory = SUMMARY_ENSEMBLE_STATISTICS;
+    addr.m_quantityName = quantityName;
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::uiText() const
 {
     std::string text;
@@ -773,6 +785,14 @@ bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
     }
     if (first.isErrorResult() != second.isErrorResult()) return false;
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator!=(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second)
+{
+    return !operator==(first, second);
 }
 
 //--------------------------------------------------------------------------------------------------
