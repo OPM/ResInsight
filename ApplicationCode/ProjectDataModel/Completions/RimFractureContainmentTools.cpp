@@ -125,8 +125,7 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
                 bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
                 CVF_ASSERT(foundCell);
 
-                neighborGlobalReservoirCellIndex =
-                    mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(hostGrid->gridIndex(), neighborGridLocalCellIndex);
+                neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex(neighborGridLocalCellIndex);
             }
 
             double currentCellAvgZ  = computeAverageZFromTwoDeepestZ(mainGrid, globalReservoirCellIndex, face);
