@@ -37,8 +37,8 @@ RimFractureContainment::RimFractureContainment()
     CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "  Base Layer", "", "", "");
 
     CAF_PDM_InitField(&m_truncateAtFaults, "TruncateAtFaults", false, "Truncate At Faults", "", "", "");
-    CAF_PDM_InitField(&m_useFaultThrow, "UseFaultThrow", false, "  Use Fault Throw", "", "", "");
-    CAF_PDM_InitField(&m_maximumFaultThrow, "FaultThrowValue", 0.0f, "  Maximum Fault Throw", "", "", "");
+    CAF_PDM_InitField(&m_useFaultThrow, "UseFaultThrow", false, "  Use Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
+    CAF_PDM_InitField(&m_maximumFaultThrow, "FaultThrowValue", 0.0f, "  Maximum Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
 }
 
 //--------------------------------------------------------------------------------------------------
