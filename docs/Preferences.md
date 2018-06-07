@@ -27,7 +27,7 @@ This group of options controls visual settings that will be used when creating n
 - **Enable Legend Background** -- Apply a semi-transparent background to the legends in the 3D Views.
 
 ### 3D Views
-- **Navigation mode** -- Defines how to use the mouse to interact with with the 3D model.
+- **Navigation mode** -- Defines how to use the mouse to interact with with the 3D model. Please refer to [Model Navigation]({{ site.baseurl }}/docs/modelnavigation) for details.
 - **Use shaders** -- This option controls the use of OpenGL shaders. Should be left **On**. Available only for testing purposes.
 - **Show 3D Information** -- Displays graphical resource usage as text in the 3D view.
 
