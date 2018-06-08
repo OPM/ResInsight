@@ -672,7 +672,7 @@ std::string RifEclipseSummaryAddress::formatUiTextIJK() const
 //--------------------------------------------------------------------------------------------------
 std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std::string &s)
 {
-    QStringList ijk = QString().fromStdString(s).trimmed().split(QRegExp("[ ,.:;]"));
+    QStringList ijk = QString().fromStdString(s).trimmed().split(QRegExp("[,]"));
     
     if (ijk.size() != 3) return std::make_tuple(-1, -1, -1);
 
@@ -695,12 +695,12 @@ std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText(const std::string &s)
 {
-    auto sep = s.find("->");
-    CVF_ASSERT(sep != std::string::npos );
-    auto textReg = s.substr(0, sep);
-    auto textReg2 = s.substr(sep + 2);
-    
-    return std::make_pair(RiaStdStringTools::toInt(textReg), RiaStdStringTools::toInt(textReg2));
+    QStringList r2r = QString().fromStdString(s).trimmed().split(QRegExp("[-]"));
+
+    if (r2r.size() != 2) return std::make_pair(-1, -1);
+
+    return std::make_pair(RiaStdStringTools::toInt(r2r[0].trimmed().toStdString()),
+                          RiaStdStringTools::toInt(r2r[1].trimmed().toStdString()));
 }
 
 //--------------------------------------------------------------------------------------------------
