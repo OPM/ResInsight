@@ -254,3 +254,46 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult3)
     EXPECT_EQ("FAULT (Imp)", addr.quantityName());
     EXPECT_TRUE(addr.isErrorResult());
 }
+
+TEST(RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing)
+{
+    RifEclipseSummaryAddress::SummaryVarCategory cat = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
+    std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> identifiers(
+        {
+            { RifEclipseSummaryAddress::INPUT_WELL_NAME, "1-BH" },
+            { RifEclipseSummaryAddress::INPUT_CELL_IJK, "6, 7, 8" },
+            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "WABC" },
+        }
+    );
+
+    RifEclipseSummaryAddress addr(cat, identifiers);
+
+    EXPECT_TRUE(addr.isValid());
+    EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, addr.category());
+    EXPECT_EQ("WABC", addr.quantityName());
+    EXPECT_EQ("1-BH", addr.wellName());
+    EXPECT_EQ(6, addr.cellI());
+    EXPECT_EQ(7, addr.cellJ());
+    EXPECT_EQ(8, addr.cellK());
+    EXPECT_TRUE(!addr.isErrorResult());
+}
+
+TEST(RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing)
+{
+    RifEclipseSummaryAddress::SummaryVarCategory cat = RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
+    std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> identifiers(
+        {
+            { RifEclipseSummaryAddress::INPUT_REGION_2_REGION, "123 - 456" },
+            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "REFR" },
+        }
+    );
+
+    RifEclipseSummaryAddress addr(cat, identifiers);
+
+    EXPECT_TRUE(addr.isValid());
+    EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, addr.category());
+    EXPECT_EQ("REFR", addr.quantityName());
+    EXPECT_EQ(123, addr.regionNumber());
+    EXPECT_EQ(456, addr.regionNumber2());
+    EXPECT_TRUE(!addr.isErrorResult());
+}
