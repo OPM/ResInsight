@@ -45,7 +45,7 @@ namespace caf
     class AsyncWorkerManager
     {
     public:
-        static AsyncWorkerManager& AsyncWorkerManager::instance();
+        static AsyncWorkerManager& instance();
         ~AsyncWorkerManager();
         void takeThreadOwnership(std::thread& thread, bool joinAtExit);
     private:

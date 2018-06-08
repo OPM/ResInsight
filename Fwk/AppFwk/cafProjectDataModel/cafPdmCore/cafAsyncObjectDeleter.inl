@@ -1,6 +1,7 @@
 #include <thread>
 
 #include "cafAsyncWorkerManager.h"
+#include "cafPdmObjectHandle.h"
 
 namespace caf
 {
