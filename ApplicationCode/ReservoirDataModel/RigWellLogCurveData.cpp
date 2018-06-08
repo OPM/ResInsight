@@ -19,7 +19,7 @@
 
 #include "RigWellLogCurveData.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 
 #include "RiaEclipseUnitTools.h"
 
@@ -118,7 +118,7 @@ const std::vector<double>& RigWellLogCurveData::tvDepths() const
 std::vector<double> RigWellLogCurveData::xPlotValues() const
 {
     std::vector<double> filteredValues;
-    RigCurveDataTools::getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
+    RiaCurveDataTools::getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
 
     return filteredValues;
 }
@@ -133,12 +133,12 @@ std::vector<double> RigWellLogCurveData::trueDepthPlotValues(RiaDefines::DepthUn
     {
         if(destinationDepthUnit == m_depthUnit)
         {
-            RigCurveDataTools::getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+            RiaCurveDataTools::getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
         }
         else
         {
             std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_tvDepths);
-            RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
+            RiaCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
         }
     }
 
@@ -154,12 +154,12 @@ std::vector<double> RigWellLogCurveData::measuredDepthPlotValues(RiaDefines::Dep
 
     if(destinationDepthUnit == m_depthUnit)
     {
-        RigCurveDataTools::getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        RiaCurveDataTools::getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
     }
     else
     {
         std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_measuredDepths);
-        RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
+        RiaCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
     }
 
     return filteredValues;
@@ -170,7 +170,7 @@ std::vector<double> RigWellLogCurveData::measuredDepthPlotValues(RiaDefines::Dep
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, size_t>> RigWellLogCurveData::polylineStartStopIndices() const
 {
-    return RigCurveDataTools::computePolyLineStartStopIndices(m_intervalsOfContinousValidValues);
+    return RiaCurveDataTools::computePolyLineStartStopIndices(m_intervalsOfContinousValidValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData(d
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
-    std::vector<std::pair<size_t, size_t>> intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(m_xValues, false);
+    std::vector<std::pair<size_t, size_t>> intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues(m_xValues, false);
 
     m_intervalsOfContinousValidValues.clear();
 

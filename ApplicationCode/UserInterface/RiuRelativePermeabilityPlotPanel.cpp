@@ -22,7 +22,7 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuTextDialog.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cvfBase.h"
@@ -246,7 +246,7 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve(QwtPlot* plot, const 
 
     for (size_t i = 0; i < points.size(); i++)
     {
-        if (!RigCurveDataTools::isValidValue(points[i].y(), logScaleLeftAxis)) continue;
+        if (!RiaCurveDataTools::isValidValue(points[i].y(), logScaleLeftAxis)) continue;
         
         if (axes[i] == LEFT_YAXIS)
         {

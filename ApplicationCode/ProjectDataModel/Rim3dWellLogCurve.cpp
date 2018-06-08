@@ -18,7 +18,7 @@
 
 #include "Rim3dWellLogCurve.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 
 #include "Rim3dWellLogCurveCollection.h"
@@ -268,7 +268,7 @@ void Rim3dWellLogCurve::resetMinMaxValues()
     double foundMaxValue = -std::numeric_limits<float>::infinity();
     for (double value : values)
     {
-        if (RigCurveDataTools::isValidValue(value, false))
+        if (RiaCurveDataTools::isValidValue(value, false))
         {
             foundMinValue = std::min(foundMinValue, value);
             foundMaxValue = std::max(foundMaxValue, value);

@@ -21,7 +21,7 @@
 #include "RifEnsembleStatisticsReader.h"
 
 #include "RigStatisticsMath.h"
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEnsembleCurveSet.h"
 
@@ -111,7 +111,7 @@ const RimEnsembleCurveSet* RimEnsembleStatisticsCase::curveSet() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatisticsCase::calculate(const RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& inputAddress)
 {
-    RigTimeHistoryCurveMerger curveMerger;
+    RiaTimeHistoryCurveMerger curveMerger;
     int caseCount = (int)ensemble->allSummaryCases().size();
 
     {

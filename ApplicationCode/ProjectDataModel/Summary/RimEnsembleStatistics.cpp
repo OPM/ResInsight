@@ -21,7 +21,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RigStatisticsMath.h"
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"

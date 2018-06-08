@@ -24,6 +24,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -51,6 +53,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

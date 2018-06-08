@@ -19,7 +19,7 @@
 
 #include "RiuResultQwtPlot.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimCase.h"

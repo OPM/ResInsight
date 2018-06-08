@@ -27,7 +27,7 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RigStatisticsMath.h"
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"

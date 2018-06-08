@@ -20,7 +20,7 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "qwt_symbol.h"
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 #include "qwt_date.h"
 #include "qwt_point_mapper.h"
 #include "qwt_painter.h"
@@ -77,14 +77,14 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
         std::vector<double> filteredYErrorValues;
 
         {
-            auto intervalsOfValidValues = RigCurveDataTools::calculateIntervalsOfValidValues(yValues, keepOnlyPositiveValues);
+            auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues(yValues, keepOnlyPositiveValues);
 
-            RigCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
-            RigCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
+            RiaCurveDataTools::getValuesByIntervals(yValues, intervalsOfValidValues, &filteredYValues);
+            RiaCurveDataTools::getValuesByIntervals(xValues, intervalsOfValidValues, &filteredXValues);
 
-            if(showErrorBars) RigCurveDataTools::getValuesByIntervals(yErrorValues, intervalsOfValidValues, &filteredYErrorValues);
+            if(showErrorBars) RiaCurveDataTools::getValuesByIntervals(yErrorValues, intervalsOfValidValues, &filteredYErrorValues);
 
-            filteredIntervals = RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues);
+            filteredIntervals = RiaCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues);
         }
 
         points.reserve(static_cast<int>(filteredXValues.size()));

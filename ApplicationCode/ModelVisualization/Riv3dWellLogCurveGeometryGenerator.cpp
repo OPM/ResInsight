@@ -21,7 +21,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
 
@@ -129,7 +129,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     for (double& result : m_curveValues)
     {
-        if (!RigCurveDataTools::isValidValue(result, false)) continue;
+        if (!RiaCurveDataTools::isValidValue(result, false)) continue;
 
         if ((minCurveValue - result) > curveEpsilon * curveUIRange)
         {
@@ -158,7 +158,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     {
         double scaledResult = 0;
 
-        if (RigCurveDataTools::isValidValue(m_curveValues[i], false))
+        if (RiaCurveDataTools::isValidValue(m_curveValues[i], false))
         {
             scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - minCurveValue) * plotRangeToResultRangeFactor;
         }
@@ -174,8 +174,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         indices.reserve(m_curveVertices.size() * 2);
         for (size_t i = 0; i < m_curveVertices.size() - 1; ++i)
         {
-            if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-                RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
+            if (RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                RiaCurveDataTools::isValidValue(m_curveValues[i + 1], false))
             {
                 if (cvf::Math::valueInRange(m_curveValues[i], minCurveValue, maxCurveValue) ||
                     cvf::Math::valueInRange(m_curveValues[i + 1], minCurveValue, maxCurveValue))
@@ -246,8 +246,8 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3
     CVF_ASSERT(m_curveVertices.size() == m_curveValues.size());
     for (size_t i = 1; i < m_curveVertices.size(); ++i)
     {
-        bool validCurveSegment = RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-                                 RigCurveDataTools::isValidValue(m_curveValues[i - 1], false);
+        bool validCurveSegment = RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                                 RiaCurveDataTools::isValidValue(m_curveValues[i - 1], false);
         if (validCurveSegment)
         {
             cvf::Vec3d a  = m_curveVertices[i - 1];
@@ -290,8 +290,8 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
 
     for (size_t i = 0; i < m_curveVertices.size() - 1; i += 2)
     {
-        if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-            RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
+        if (RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+            RiaCurveDataTools::isValidValue(m_curveValues[i + 1], false))
         {
             cvf::Vec3d lastVertex        = m_curveVertices[i];
             cvf::Vec3d fullSegmentVector = m_curveVertices[i + 1] - m_curveVertices[i];

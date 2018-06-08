@@ -23,7 +23,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
@@ -433,7 +433,7 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
             else
             {
-                RigTimeHistoryCurveMerger curveMerger;
+                RiaTimeHistoryCurveMerger curveMerger;
                 curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
                 curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
                 curveMerger.computeInterpolatedValues();
@@ -771,7 +771,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         if (!curveValuesX.empty() && !curveValuesY.empty())
         {
-            RigTimeHistoryCurveMerger curveMerger;
+            RiaTimeHistoryCurveMerger curveMerger;
             curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
             curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
             curveMerger.computeInterpolatedValues();
