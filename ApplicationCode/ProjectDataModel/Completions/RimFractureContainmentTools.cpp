@@ -37,6 +37,39 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t findNeighborReservoirCellIndex(const RigMainGrid*                 mainGrid,
+                                      cvf::StructGridInterface::FaceType face,
+                                      size_t                             globalReservoirCellIndex)
+{
+    size_t neighborGlobalReservoirCellIndex = cvf::UNDEFINED_SIZE_T;
+
+    if (mainGrid)
+    {
+        size_t             gridLocalCellIndex = cvf::UNDEFINED_SIZE_T;
+        const RigGridBase* hostGrid =
+            mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalReservoirCellIndex, &gridLocalCellIndex);
+
+        if (hostGrid && gridLocalCellIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            size_t i, j, k;
+            hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+
+            size_t neighborGridLocalCellIndex;
+
+            bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
+            if (foundCell)
+            {
+                neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex(neighborGridLocalCellIndex);
+            }
+        }
+    }
+
+    return neighborGlobalReservoirCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_t>&            allFracturedCells,
                                                             const RigMainGrid*                 mainGrid,
                                                             size_t                             currentCell,
@@ -44,13 +77,8 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
                                                             std::set<size_t>&                  connectedCells,
                                                             double                             maximumFaultThrow)
 {
-    // TODO: Remove when we know if LGR can have faults
-
-    size_t anchorI, anchorJ, anchorK;
-    mainGrid->ijkFromCellIndex(currentCell, &anchorI, &anchorJ, &anchorK);
-
-    size_t candidate;
-    if (mainGrid->cellIJKNeighbor(anchorI, anchorJ, anchorK, face, &candidate))
+    size_t candidate = findNeighborReservoirCellIndex(mainGrid, face, currentCell);
+    if (candidate != cvf::UNDEFINED_SIZE_T)
     {
         appendNeighborCells(allFracturedCells, mainGrid, candidate, connectedCells, maximumFaultThrow);
     }
@@ -59,9 +87,9 @@ void RimFractureContainmentTools::appendNeighborCellForFace(const std::set<size_
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double computeAverageZFromTwoDeepestZ(const RigMainGrid*                 mainGrid,
-                                      size_t                             globalReservoirCellIndex,
-                                      cvf::StructGridInterface::FaceType face)
+double computeAverageZForTwoDeepestZ(const RigMainGrid*                 mainGrid,
+                                     size_t                             globalReservoirCellIndex,
+                                     cvf::StructGridInterface::FaceType face)
 {
     const RigCell& currentCell = mainGrid->globalCellArray()[globalReservoirCellIndex];
 
@@ -108,28 +136,23 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
         }
         else
         {
-            // See RigMainGrid::calculateFaults()
+            // See RigMainGrid::calculateFaults() for reference
 
-            size_t neighborGlobalReservoirCellIndex = 0;
+            // This function is intended to support fractures in LGR-grids
+            // Currently, only faults in main grid is supported when reading fault specifications from input text files
+            // Eclipse 300 supports faults in LGR
+            // https://github.com/OPM/ResInsight/issues/3019
+
+            size_t neighborGlobalReservoirCellIndex = findNeighborReservoirCellIndex(mainGrid, face, globalReservoirCellIndex);
+            if (neighborGlobalReservoirCellIndex == cvf::UNDEFINED_SIZE_T)
             {
-                const RigGridBase* hostGrid = nullptr;
-                size_t             gridLocalCellIndex;
-                hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalReservoirCellIndex, &gridLocalCellIndex);
-                CVF_ASSERT(hostGrid);
-
-                size_t i, j, k;
-                hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-
-                size_t neighborGridLocalCellIndex;
-
-                bool foundCell = hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridLocalCellIndex);
-                CVF_ASSERT(foundCell);
-
-                neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex(neighborGridLocalCellIndex);
+                // This is probably an assert condition, but we return directly to ensure we are robust
+                fault->o
+                return;
             }
 
-            double currentCellAvgZ  = computeAverageZFromTwoDeepestZ(mainGrid, globalReservoirCellIndex, face);
-            double neighborCellAvgZ = computeAverageZFromTwoDeepestZ(
+            double currentCellAvgZ  = computeAverageZForTwoDeepestZ(mainGrid, globalReservoirCellIndex, face);
+            double neighborCellAvgZ = computeAverageZForTwoDeepestZ(
                 mainGrid, neighborGlobalReservoirCellIndex, cvf::StructGridInterface::oppositeFace(face));
 
             double faultThrow = fabs(currentCellAvgZ - neighborCellAvgZ);
