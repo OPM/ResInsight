@@ -47,7 +47,8 @@ set( PROJECT_FILES
     cafFilePath.h
     cafAsyncObjectDeleter.h
     cafAsyncObjectDeleter.inl
-
+	cafAsyncWorkerManager.h
+	cafAsyncWorkerManager.cpp
 )
 
 add_library( ${PROJECT_NAME}

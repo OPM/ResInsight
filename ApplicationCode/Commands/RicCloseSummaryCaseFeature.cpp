@@ -72,7 +72,8 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>
     RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
 
-    caf::AsyncRawPointerVectorDeleter<RimSummaryCase> summaryCaseDeleter(std::move(cases));
+    caf::AsyncPdmObjectVectorDeleter<RimSummaryCase> summaryCaseDeleter(cases);
+    CAF_ASSERT(cases.empty()); // vector should be empty immediately.
 }
 
 //--------------------------------------------------------------------------------------------------

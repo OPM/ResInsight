@@ -36,19 +36,21 @@
 
 #pragma once
 
+#include <memory>
+#include <thread>
+#include <vector>
+
 namespace caf
 {
-    template<typename PdmObjectType>
-    class AsyncPdmObjectVectorDeleter
+    class AsyncWorkerManager
     {
     public:
-        AsyncPdmObjectVectorDeleter(std::vector<PdmObjectType*>& pointerVector);
-        AsyncPdmObjectVectorDeleter(std::vector<PdmPointer<PdmObjectType>>& pdmPointerVector);
-        ~AsyncPdmObjectVectorDeleter();
-        void start();
+        static AsyncWorkerManager& AsyncWorkerManager::instance();
+        ~AsyncWorkerManager();
+        void takeThreadOwnership(std::thread& thread, bool joinAtExit);
     private:
-        std::vector<PdmObjectHandle*> m_pointersToDelete;
-    };
+        typedef std::pair<std::thread, bool> ThreadAndJoinAtExitPair;
+        AsyncWorkerManager();
+        std::vector<ThreadAndJoinAtExitPair> m_threads;
+    };  
 }
-
-#include "cafAsyncObjectDeleter.inl"

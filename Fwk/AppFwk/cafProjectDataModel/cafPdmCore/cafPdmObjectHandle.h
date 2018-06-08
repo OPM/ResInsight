@@ -54,6 +54,9 @@ public:
     /// Convenience method to get the objects pointing to this field 
     void                    objectsWithReferringPtrFields(std::vector<PdmObjectHandle*>& objects) const;
 
+    // Detach object from all referring fields
+    void                    prepareForDelete();
+
     // Object capabilities
     void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
 

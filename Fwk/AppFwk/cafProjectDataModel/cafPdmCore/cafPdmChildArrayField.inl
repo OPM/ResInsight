@@ -148,7 +148,7 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
 {
     CAF_ASSERT(isInitializedByInitFieldMacro());
 
-    AsyncPdmPointerVectorDeleter<DataType> pointerDeleter(std::move(m_pointers));    
+    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter(m_pointers);
     CAF_ASSERT(m_pointers.empty()); // Object storage for m_pointers should be empty immediately.
 }
 

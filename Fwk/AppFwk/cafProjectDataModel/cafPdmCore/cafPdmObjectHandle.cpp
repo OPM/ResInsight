@@ -14,18 +14,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle::~PdmObjectHandle()
 {
-    for (size_t i = 0; i < m_capabilities.size(); ++i)
-    {
-        if (m_capabilities[i].second) delete m_capabilities[i].first;
-    }
-
-    // Set all guarded pointers pointing to this to NULL
-
-    std::set<PdmObjectHandle**>::iterator it;
-    for (it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end() ; ++it)
-    {
-        (**it) = nullptr;
-    }
+    this->prepareForDelete();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +89,30 @@ void PdmObjectHandle::objectsWithReferringPtrFields(std::vector<PdmObjectHandle*
     {
         objects.push_back(parentFields[i]->ownerObject());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::prepareForDelete()
+{
+    m_parentField = nullptr;
+
+    for (size_t i = 0; i < m_capabilities.size(); ++i)
+    {
+        if (m_capabilities[i].second) delete m_capabilities[i].first;
+    }
+
+    // Set all guarded pointers pointing to this to NULL
+    std::set<PdmObjectHandle**>::iterator it;
+    for (it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end(); ++it)
+    {
+        (**it) = nullptr;
+    }
+
+    m_capabilities.clear();
+    m_referencingPtrFields.clear();
+    m_pointersReferencingMe.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
