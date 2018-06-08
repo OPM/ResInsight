@@ -147,7 +147,6 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell(const std::set
             if (neighborGlobalReservoirCellIndex == cvf::UNDEFINED_SIZE_T)
             {
                 // This is probably an assert condition, but we return directly to ensure we are robust
-                fault->o
                 return;
             }
 
